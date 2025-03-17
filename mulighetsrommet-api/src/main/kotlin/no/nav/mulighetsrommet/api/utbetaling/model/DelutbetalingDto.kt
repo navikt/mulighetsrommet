@@ -1,89 +1,29 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
-sealed class DelutbetalingDto {
-    abstract val id: UUID
-    abstract val tilsagnId: UUID
-    abstract val utbetalingId: UUID
-    abstract val belop: Int
-    abstract val frigjorTilsagn: Boolean
-    abstract val periode: Periode
-    abstract val lopenummer: Int
-    abstract val fakturanummer: String
-    abstract val opprettelse: Totrinnskontroll
+data class DelutbetalingDto(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val tilsagnId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val utbetalingId: UUID,
+    val status: DelutbetalingStatus,
+    val periode: Periode,
+    val belop: Int,
+    val frigjorTilsagn: Boolean,
+    val lopenummer: Int,
+    val fakturanummer: String,
+)
 
-    @Serializable
-    @SerialName("DELUTBETALING_TIL_GODKJENNING")
-    data class DelutbetalingTilGodkjenning(
-        @Serializable(with = UUIDSerializer::class)
-        override val id: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val tilsagnId: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val utbetalingId: UUID,
-        override val belop: Int,
-        override val frigjorTilsagn: Boolean,
-        override val periode: Periode,
-        override val lopenummer: Int,
-        override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll,
-    ) : DelutbetalingDto()
-
-    @Serializable
-    @SerialName("DELUTBETALING_OVERFORT_TIL_UTBETALING")
-    data class DelutbetalingOverfortTilUtbetaling(
-        @Serializable(with = UUIDSerializer::class)
-        override val id: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val tilsagnId: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val utbetalingId: UUID,
-        override val belop: Int,
-        override val frigjorTilsagn: Boolean,
-        override val periode: Periode,
-        override val lopenummer: Int,
-        override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll,
-    ) : DelutbetalingDto()
-
-    @Serializable
-    @SerialName("DELUTBETALING_UTBETALT")
-    data class DelutbetalingUtbetalt(
-        @Serializable(with = UUIDSerializer::class)
-        override val id: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val tilsagnId: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val utbetalingId: UUID,
-        override val belop: Int,
-        override val frigjorTilsagn: Boolean,
-        override val periode: Periode,
-        override val lopenummer: Int,
-        override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll,
-    ) : DelutbetalingDto()
-
-    @Serializable
-    @SerialName("DELUTBETALING_AVVIST")
-    data class DelutbetalingAvvist(
-        @Serializable(with = UUIDSerializer::class)
-        override val id: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val tilsagnId: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val utbetalingId: UUID,
-        override val belop: Int,
-        override val frigjorTilsagn: Boolean,
-        override val periode: Periode,
-        override val lopenummer: Int,
-        override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll,
-    ) : DelutbetalingDto()
+enum class DelutbetalingStatus {
+    TIL_GODKJENNING,
+    GODKJENT,
+    RETURNERT,
+    UTBETALT,
 }

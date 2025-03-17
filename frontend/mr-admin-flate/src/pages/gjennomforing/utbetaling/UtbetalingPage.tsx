@@ -12,6 +12,7 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
+  DelutbetalingStatus,
   FieldError,
   NavAnsattRolle,
   OpprettDelutbetalingerRequest,
@@ -37,9 +38,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { v4 as uuidv4 } from "uuid";
-import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
-  delutbetalingerQuery,
   tilsagnTilUtbetalingQuery,
   utbetalingHistorikkQuery,
   utbetalingQuery,
@@ -47,7 +47,7 @@ import {
 
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -56,34 +56,39 @@ function useUtbetalingPageData() {
   const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
   const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
-  const { data: delutbetalinger } = useApiSuspenseQuery(delutbetalingerQuery(utbetalingId));
   const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
 
   return {
     gjennomforing,
     ansatt,
     historikk,
-    utbetaling,
-    delutbetalinger,
     tilsagn,
+    utbetaling: utbetaling.utbetaling,
+    delutbetalinger: utbetaling.delutbetalinger,
   };
+}
+
+export interface NyDelutbetaling {
+  id?: string;
+  tilsagnId: string;
+  belop: number;
+  frigjorTilsagn: boolean;
+  status?: DelutbetalingStatus;
 }
 
 export function UtbetalingPage() {
   const { gjennomforingId } = useParams();
-  const { gjennomforing, ansatt, historikk, utbetaling, delutbetalinger, tilsagn } =
+  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, delutbetalinger } =
     useUtbetalingPageData();
 
-  const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] = useState<
-    { id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean; type?: string }[]
-  >(
-    delutbetalinger.map((d) => {
+  const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] = useState<NyDelutbetaling[]>(
+    delutbetalinger.map(({ delutbetaling }) => {
       return {
-        id: d.id,
-        tilsagnId: d.tilsagnId,
-        belop: d.belop,
-        frigjorTilsagn: d.frigjorTilsagn,
-        type: d.type,
+        id: delutbetaling.id,
+        tilsagnId: delutbetaling.tilsagnId,
+        belop: delutbetaling.belop,
+        frigjorTilsagn: delutbetaling.frigjorTilsagn,
+        status: delutbetaling.status,
       };
     }),
   );
@@ -95,7 +100,9 @@ export function UtbetalingPage() {
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
   const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
-  const avvistUtbetaling = delutbetalinger.find((d) => d.type === "DELUTBETALING_AVVIST");
+  const avvistUtbetaling = delutbetalinger.find(
+    ({ delutbetaling }) => delutbetaling.status === DelutbetalingStatus.RETURNERT,
+  );
   const kanRedigeres: boolean =
     skriveTilgang && tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) && endreUtbetaling;
 
@@ -139,9 +146,10 @@ export function UtbetalingPage() {
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
     );
   }
+
   function sendTilGodkjenning() {
     const delutbetalingReq: DelutbetalingRequest[] = delutbetalingPerTilsagn
-      .filter((d) => d.type === "DELUTBETALING_AVVIST" || d.type === undefined)
+      .filter((d) => d.status === DelutbetalingStatus.RETURNERT || d.status === undefined)
       .map((d) => {
         return {
           ...d,
@@ -274,38 +282,45 @@ export function UtbetalingPage() {
                     </Table.Header>
                     <Table.Body>
                       {tilsagn.map((t) => {
-                        const delutbetaling = delutbetalinger.find((d) => d.tilsagnId == t.id);
+                        const { delutbetaling, opprettelse } =
+                          delutbetalinger.find(
+                            ({ delutbetaling }) => delutbetaling.tilsagnId == t.id,
+                          ) ?? {};
 
-                        if (!delutbetaling || delutbetaling.type === "DELUTBETALING_AVVIST") {
+                        if (
+                          !delutbetaling ||
+                          !opprettelse ||
+                          delutbetaling.status === DelutbetalingStatus.RETURNERT
+                        ) {
                           return (
                             <OpprettDelutbetalingRow
                               key={t.id}
                               id={delutbetaling?.id}
                               tilsagn={t}
-                              type={delutbetaling?.type}
+                              status={delutbetaling?.status}
                               kanRedigere={kanRedigeres}
-                              onDelutbetalingChange={(delutbetaling) =>
-                                setDelutbetalingPerTilsagn([
-                                  ...delutbetalingPerTilsagn.filter(
-                                    (d) => d.tilsagnId !== delutbetaling.tilsagnId,
-                                  ),
-                                  delutbetaling,
-                                ])
-                              }
-                              opprettelse={delutbetaling?.opprettelse}
+                              onDelutbetalingChange={(delutbetaling) => {
+                                const remaining = delutbetalingPerTilsagn.filter(
+                                  (d) => d.tilsagnId !== delutbetaling.tilsagnId,
+                                );
+                                setDelutbetalingPerTilsagn([...remaining, delutbetaling]);
+                              }}
+                              opprettelse={opprettelse}
                               belop={delutbetaling?.belop ?? 0}
                               frigjorTilsagn={delutbetaling?.frigjorTilsagn ?? false}
                             />
                           );
-                        } else
+                        } else {
                           return (
                             <DelutbetalingRow
                               key={t.id}
+                              ansatt={ansatt}
                               tilsagn={t}
                               delutbetaling={delutbetaling}
-                              ansatt={ansatt}
+                              opprettelse={opprettelse}
                             />
                           );
+                        }
                       })}
                       <Table.Row>
                         <Table.DataCell

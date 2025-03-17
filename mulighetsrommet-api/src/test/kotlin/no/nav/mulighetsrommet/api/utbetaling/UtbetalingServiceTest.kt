@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
@@ -565,15 +566,10 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.GODKJENT)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-
-            service.besluttDelutbetaling(
-                id = delutbetaling1.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-            )
 
             shouldThrow<IllegalArgumentException> {
                 service.besluttDelutbetaling(
@@ -594,10 +590,7 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(
-                    delutbetaling1,
-                    UtbetalingFixtures.DelutbetalingStatus.RETURNERT,
-                )
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.RETURNERT)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -615,8 +608,11 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
             ).shouldBeRight()
-            database.run { queries.delutbetaling.get(delutbetaling1.id) }.shouldNotBeNull()
-                .shouldBeTypeOf<DelutbetalingDto.DelutbetalingTilGodkjenning>()
+
+            database.run {
+                queries.delutbetaling.get(delutbetaling1.id).shouldNotBeNull()
+                    .status shouldBe DelutbetalingStatus.TIL_GODKJENNING
+            }
         }
 
         test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
@@ -836,12 +832,19 @@ class UtbetalingServiceTest : FunSpec({
             ),
         )
 
-        test("happy case") {
+        test("utbetales automatisk når det finnes et enkelt tilsagn med nok midler og det er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
+                tilsagn = listOf(
+                    Tilsagn1.copy(
+                        beregning = TilsagnBeregningFri(
+                            input = TilsagnBeregningFri.Input(1000),
+                            output = TilsagnBeregningFri.Output(1000),
+                        ),
+                    ),
+                ),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
@@ -850,15 +853,19 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
-            delutbetalinger.shouldHaveSize(1).first().should {
-                it.shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
-                it.belop shouldBe 1000
-                it.opprettelse.behandletAv shouldBe Tiltaksadministrasjon
-                it.opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
-            }
-            database.run { queries.tilsagn.get(Tilsagn1.id) } should {
-                it!!.belopGjenstaende shouldBe (Tilsagn1.beregning.output.belop - 1000)
+            database.run {
+                val delutbetaling = queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldHaveSize(1).first()
+                delutbetaling.status shouldBe DelutbetalingStatus.GODKJENT
+                delutbetaling.belop shouldBe 1000
+
+                queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT).should {
+                    it.behandletAv shouldBe Tiltaksadministrasjon
+                    it.besluttetAv shouldBe Tiltaksadministrasjon
+                }
+
+                queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
+                    it.belopGjenstaende shouldBe 0
+                }
             }
         }
 
@@ -996,14 +1003,21 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService(tilsagnService = tilsagnService)
 
             service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
-            val delutbetaling1 = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
-            delutbetaling1[0].frigjorTilsagn shouldBe false
-            delutbetaling1[0].shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).first().should {
+                    it.status shouldBe DelutbetalingStatus.GODKJENT
+                    it.frigjorTilsagn shouldBe false
+                }
+            }
 
             service.godkjentAvArrangor(utbetaling2.id, godkjennUtbetaling)
-            val delutbetaling2 = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling2.id) }
-            delutbetaling2[0].frigjorTilsagn shouldBe true
-            delutbetaling2[0].shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling2.id).first().should {
+                    it.status shouldBe DelutbetalingStatus.GODKJENT
+                    it.frigjorTilsagn shouldBe true
+                }
+            }
+
             verify(exactly = 1) {
                 tilsagnService.frigjorAutomatisk(Tilsagn1.id, any())
             }

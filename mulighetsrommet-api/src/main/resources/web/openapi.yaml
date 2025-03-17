@@ -1937,7 +1937,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UtbetalingKompakt"
+                  $ref: "#/components/schemas/AdminUtbetalingKompakt"
 
   /api/v1/intern/utbetaling/{id}:
     parameters:
@@ -1952,7 +1952,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UtbetalingKompakt"
+                $ref: "#/components/schemas/AdminUtbetalingDetaljer"
 
   /api/v1/intern/utbetaling/{id}/delutbetalinger:
     parameters:
@@ -5655,7 +5655,31 @@ components:
         - BEHANDLES_AV_NAV
         - UTBETALT
 
-    UtbetalingKompakt:
+    AdminUtbetalingDetaljer:
+      type: object
+      properties:
+        utbetaling:
+          $ref: "#/components/schemas/AdminUtbetalingKompakt"
+        delutbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpprettetDelutbetaling"
+      required:
+        - utbetaling
+        - delutbetalinger
+
+    OpprettetDelutbetaling:
+      type: object
+      properties:
+        delutbetaling:
+          $ref: "#/components/schemas/DelutbetalingDto"
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+      required:
+        - delutbetaling
+        - opprettelse
+
+    AdminUtbetalingKompakt:
       type: object
       properties:
         id:
@@ -6069,18 +6093,17 @@ components:
             type: string
       required: [oppgavetyper, tiltakskoder, regioner]
 
+    DelutbetalingStatus:
+      type: string
+      enum:
+        - TIL_GODKJENNING
+        - GODKJENT
+        - RETURNERT
+        - UTBETALT
+
     DelutbetalingDto:
-      oneOf:
-        - $ref: "#/components/schemas/DelutbetalingOverfortTilUtbetaling"
-        - $ref: "#/components/schemas/DelutbetalingUtbetalt"
-        - $ref: "#/components/schemas/DelutbetalingTilGodkjenning"
-        - $ref: "#/components/schemas/DelutbetalingAvvist"
-
-    DelutbetalingOverfortTilUtbetaling:
       type: object
       properties:
-        type:
-          const: DELUTBETALING_OVERFORT_TIL_UTBETALING
         id:
           type: string
           format: uuid
@@ -6090,79 +6113,30 @@ components:
         utbetalingId:
           type: string
           format: uuid
+        status:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        periode:
+          $ref: "#/components/schemas/Periode"
         belop:
           type: number
         frigjorTilsagn:
           type: boolean
-        opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
-
-    DelutbetalingUtbetalt:
-      type: object
-      properties:
-        type:
-          const: DELUTBETALING_UTBETALT
-        id:
+        lopenummer:
+          type: integer
+        fakturanummer:
           type: string
-          format: uuid
-        tilsagnId:
-          type: string
-          format: uuid
-        utbetalingId:
-          type: string
-          format: uuid
-        belop:
-          type: number
-        frigjorTilsagn:
-          type: boolean
-        opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
-
-    DelutbetalingTilGodkjenning:
-      type: object
-      properties:
-        type:
-          const: DELUTBETALING_TIL_GODKJENNING
-        id:
-          type: string
-          format: uuid
-        tilsagnId:
-          type: string
-          format: uuid
-        utbetalingId:
-          type: string
-          format: uuid
-        belop:
-          type: number
-        frigjorTilsagn:
-          type: boolean
-        opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
-
-    DelutbetalingAvvist:
-      type: object
-      properties:
-        type:
-          const: DELUTBETALING_AVVIST
-        id:
-          type: string
-          format: uuid
-        tilsagnId:
-          type: string
-          format: uuid
-        utbetalingId:
-          type: string
-          format: uuid
-        belop:
-          type: number
-        frigjorTilsagn:
-          type: boolean
-        opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
+      required:
+        - id
+        - type
+        - tilsagnId
+        - utbetalingId
+        - status
+        - periode
+        - belop
+        - frigjorTilsagn
+        - opprettelse
+        - lopenummer
+        - fakturanummer
 
     DelutbetalingRequest:
       type: object

@@ -82,19 +82,20 @@ object TilsagnFixtures {
     ) {
         val dto = queries.tilsagn.get(tilsagnDbo.id)
             ?: throw IllegalStateException("Tilsagnet må være gitt til domain først")
+
+        queries.tilsagn.setStatus(dto.id, status)
+
         when (status) {
             TilsagnStatus.TIL_GODKJENNING -> {
                 queries.totrinnskontroll.upsert(
                     tilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv),
                 )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_GODKJENNING)
             }
 
             TilsagnStatus.GODKJENT -> {
                 queries.totrinnskontroll.upsert(
                     godkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
                 )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.GODKJENT)
             }
 
             TilsagnStatus.TIL_FRIGJORING -> {
@@ -104,7 +105,6 @@ object TilsagnFixtures {
                 queries.totrinnskontroll.upsert(
                     tilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv),
                 )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_FRIGJORING)
             }
 
             TilsagnStatus.FRIGJORT -> {
@@ -114,14 +114,12 @@ object TilsagnFixtures {
                 queries.totrinnskontroll.upsert(
                     godkjent(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv, besluttetAv),
                 )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.FRIGJORT)
             }
 
             TilsagnStatus.RETURNERT -> {
                 queries.totrinnskontroll.upsert(
                     avvist(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
                 )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.RETURNERT)
             }
 
             TilsagnStatus.TIL_ANNULLERING -> {
@@ -131,7 +129,6 @@ object TilsagnFixtures {
                 queries.totrinnskontroll.upsert(
                     tilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv),
                 )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_ANNULLERING)
             }
 
             TilsagnStatus.ANNULLERT -> {
@@ -141,7 +138,6 @@ object TilsagnFixtures {
                 queries.totrinnskontroll.upsert(
                     godkjent(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv, besluttetAv),
                 )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.ANNULLERT)
             }
         }
     }

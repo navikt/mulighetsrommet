@@ -35,7 +35,7 @@ fun Route.utbetalingRoutes() {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val utbetaling = service.getUtbetalingKompakt(id)
+            val utbetaling = service.getUtbetalingDetaljer(id)
 
             call.respond(utbetaling)
         }
