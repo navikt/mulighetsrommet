@@ -151,7 +151,7 @@ class OkonomiService(
                 queries.faktura.insertFaktura(faktura)
 
                 if (opprettFaktura.frigjorBestilling) {
-                    log.info("Setter bestilling ${bestilling.bestillingsnummer} til frigjort")
+                    log.info("Setter bestilling ${bestilling.bestillingsnummer} til oppgjort")
                     queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
                 }
 
@@ -167,7 +167,7 @@ class OkonomiService(
             ?: return FrigjorBestillingError("Bestilling ${frigjorBestilling.bestillingsnummer} finnes ikke").left()
 
         queries.faktura.getByFakturanummer(frigjorFakturanummer(bestilling.bestillingsnummer))?.let {
-            log.info("Bestilling ${bestilling.bestillingsnummer} er allerede frigjort")
+            log.info("Bestilling ${bestilling.bestillingsnummer} er allerede oppgjort")
             return it.right()
         }
 
@@ -187,7 +187,7 @@ class OkonomiService(
                 log.info("Lagrer frigjøringsfaktura ${faktura.fakturanummer}")
                 queries.faktura.insertFaktura(faktura)
 
-                log.info("Setter bestilling ${bestilling.bestillingsnummer} til frigjort")
+                log.info("Setter bestilling ${bestilling.bestillingsnummer} til oppgjort")
                 queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
 
                 faktura

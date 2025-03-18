@@ -3,7 +3,6 @@ package no.nav.tiltak.okonomi.oebs
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding.Linje
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -157,7 +156,7 @@ data class OebsFakturaMelding(
         val pris: Int,
 
         /**
-         * Hvis dette flagget settes så blir evt. resterende beløp fra bestillingen frigjort.
+         * Hvis dette flagget settes så blir evt. resterende beløp fra bestillingen oppgjort.
          *
          * Det er viktig at fakturaer behandles i riktig rekkefølge hos OeBS, så dette flagget må kun settes på den
          * siste fakturaen for en bestilling og det må ikke overføres til OeBS før alle tidligere fakturaer har

@@ -54,8 +54,8 @@ const labels: Record<OppgaveType, { label: string; color: string }> = {
     label: "Tilsagn til annullering",
     color: "#CCE2F0",
   },
-  TILSAGN_TIL_FRIGJORING: {
-    label: "Tilsagn til frigjøring",
+  TILSAGN_TIL_OPPGJOR: {
+    label: "Tilsagn til oppgjør",
     color: "#CCE2F0",
   },
   TILSAGN_RETURNERT: {

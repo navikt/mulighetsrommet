@@ -65,24 +65,24 @@ export function TilsagnTag(props: Props) {
         </Tag>
       );
     }
-    case TilsagnStatus.TIL_FRIGJORING:
+    case TilsagnStatus.TIL_OPPGJOR:
       return (
         <Tag
           size="small"
           variant="neutral"
           className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
         >
-          Til frigjøring
+          Til oppgjør
         </Tag>
       );
-    case TilsagnStatus.FRIGJORT:
+    case TilsagnStatus.OPPGJORT:
       return (
         <Tag
           size="small"
           variant="neutral"
           className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
         >
-          Frigjort
+          Oppgjort
         </Tag>
       );
   }

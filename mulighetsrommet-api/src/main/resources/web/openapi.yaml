@@ -2180,13 +2180,13 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tilsagn/{id}/til-frigjoring:
+  /api/v1/intern/tilsagn/{id}/gjor-opp:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Tilsagn
-      operationId: tilFrigjoring
+      operationId: gjorOpp
       requestBody:
         content:
           application/json:
@@ -3061,7 +3061,7 @@ components:
       enum:
         - TILSAGN_TIL_GODKJENNING
         - TILSAGN_TIL_ANNULLERING
-        - TILSAGN_TIL_FRIGJORING
+        - TILSAGN_TIL_OPPGJOR
         - TILSAGN_RETURNERT
         - UTBETALING_TIL_BEHANDLING
         - UTBETALING_TIL_GODKJENNING
@@ -5448,7 +5448,7 @@ components:
           $ref: "#/components/schemas/Totrinnskontroll"
         annullering:
           $ref: "#/components/schemas/Totrinnskontroll"
-        frigjoring:
+        tilOppgjor:
           $ref: "#/components/schemas/Totrinnskontroll"
       required:
         - tilsagn
@@ -5462,8 +5462,8 @@ components:
         - RETURNERT
         - TIL_ANNULLERING
         - ANNULLERT
-        - TIL_FRIGJORING
-        - FRIGJORT
+        - TIL_OPPGJOR
+        - OPPGJORT
 
     Besluttelse:
       type: string
@@ -6121,7 +6121,7 @@ components:
           $ref: "#/components/schemas/Periode"
         belop:
           type: number
-        frigjorTilsagn:
+        gjorOppTilsagn:
           type: boolean
         lopenummer:
           type: integer
@@ -6135,7 +6135,7 @@ components:
         - status
         - periode
         - belop
-        - frigjorTilsagn
+        - gjorOppTilsagn
         - opprettelse
         - lopenummer
         - fakturanummer
@@ -6151,7 +6151,7 @@ components:
           format: uuid
         belop:
           type: number
-        frigjorTilsagn:
+        gjorOppTilsagn:
           type: boolean
       required: [id, tilsagnId, belop]
 

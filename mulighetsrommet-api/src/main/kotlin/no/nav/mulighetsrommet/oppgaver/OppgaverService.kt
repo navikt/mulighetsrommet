@@ -62,7 +62,7 @@ class OppgaverService(val db: ApiDatabase) {
                     statuser = listOf(
                         TilsagnStatus.TIL_GODKJENNING,
                         TilsagnStatus.TIL_ANNULLERING,
-                        TilsagnStatus.TIL_FRIGJORING,
+                        TilsagnStatus.TIL_OPPGJOR,
                         TilsagnStatus.RETURNERT,
                     ),
                 )
@@ -189,21 +189,21 @@ class OppgaverService(val db: ApiDatabase) {
                 )
             }
 
-            TilsagnStatus.TIL_FRIGJORING -> {
-                val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
+            TilsagnStatus.TIL_OPPGJOR -> {
+                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
                 Oppgave(
                     id = UUID.randomUUID(),
-                    type = OppgaveType.TILSAGN_TIL_FRIGJORING,
-                    title = "Tilsagn til frigjøring",
-                    description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til frigjøring",
+                    type = OppgaveType.TILSAGN_TIL_OPPGJOR,
+                    title = "Tilsagn til oppgjør",
+                    description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til oppgjør",
                     tiltakstype = tiltakstype,
                     link = link,
-                    createdAt = frigjoring.behandletTidspunkt,
+                    createdAt = oppgjor.behandletTidspunkt,
                     oppgaveIcon = OppgaveIcon.TILSAGN,
                 )
             }
 
-            TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT -> null
+            TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT -> null
         }
     }
 

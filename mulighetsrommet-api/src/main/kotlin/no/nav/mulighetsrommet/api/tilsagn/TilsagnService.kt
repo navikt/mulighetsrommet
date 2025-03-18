@@ -118,10 +118,10 @@ class TilsagnService(
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun tilFrigjoringRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest) = db.transaction {
+    fun tilGjorOppRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest) = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke tilsagn")
 
-        setTilFrigjoring(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
+        setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
     fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregning> {
@@ -138,7 +138,7 @@ class TilsagnService(
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         return when (tilsagn.status) {
-            TilsagnStatus.FRIGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT ->
+            TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT ->
                 BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status}").left()
 
             TilsagnStatus.TIL_GODKJENNING -> {
@@ -155,18 +155,18 @@ class TilsagnService(
                 }
             }
 
-            TilsagnStatus.TIL_FRIGJORING -> {
+            TilsagnStatus.TIL_OPPGJOR -> {
                 when (besluttelse.besluttelse) {
                     Besluttelse.GODKJENT ->
-                        frigjorTilsagn(tilsagn, navIdent)
+                        gjorOppTilsagn(tilsagn, navIdent)
                             .right()
                             .also {
-                                // Ved manuell frigjøring må vi sende melding til OeBS, det trenger vi ikke
-                                // når vi frigør på en delutbetaling.
-                                okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
+                                // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
+                                // når vi gjør opp på en delutbetaling.
+                                okonomi.scheduleBehandleOppgjortTilsagn(tilsagn.id, session)
                             }
 
-                    Besluttelse.AVVIST -> avvisFrigjoring(tilsagn, navIdent).right()
+                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent).right()
                 }
             }
         }
@@ -273,7 +273,7 @@ class TilsagnService(
         return dto
     }
 
-    private fun QueryContext.setTilFrigjoring(
+    private fun QueryContext.setTilOppgjort(
         tilsagn: Tilsagn,
         agent: Agent,
         aarsaker: List<String>,
@@ -290,55 +290,55 @@ class TilsagnService(
                 behandletAv = agent,
                 aarsaker = aarsaker,
                 forklaring = forklaring,
-                type = Totrinnskontroll.Type.FRIGJOR,
+                type = Totrinnskontroll.Type.GJOR_OPP,
                 behandletTidspunkt = LocalDateTime.now(),
                 besluttelse = null,
                 besluttetAv = null,
                 besluttetTidspunkt = null,
             ),
         )
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_FRIGJORING)
+        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
 
         val dto = getOrError(tilsagn.id)
-        logEndring("Sendt til frigjøring", dto, agent)
+        logEndring("Sendt til oppgjør", dto, agent)
         return dto
     }
 
-    private fun QueryContext.frigjorTilsagn(
+    private fun QueryContext.gjorOppTilsagn(
         tilsagn: Tilsagn,
         besluttetAv: Agent,
     ): Tilsagn {
-        require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
+        require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
-        val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
-        require(besluttetAv !is NavIdent || besluttetAv != frigjoring.behandletAv) {
+        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+        require(besluttetAv !is NavIdent || besluttetAv != oppgjor.behandletAv) {
             "Kan ikke beslutte eget tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
-            frigjoring.copy(
+            oppgjor.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.GODKJENT,
             ),
         )
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.FRIGJORT)
+        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
         val dto = getOrError(tilsagn.id)
-        logEndring("Tilsagn frigjort", dto, besluttetAv)
+        logEndring("Tilsagn oppgjort", dto, besluttetAv)
         return dto
     }
 
-    private fun avvisFrigjoring(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn = db.transaction {
-        require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
+    private fun avvisOppgjor(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn = db.transaction {
+        require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
-        val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
-        require(besluttetAv != frigjoring.behandletAv) {
+        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+        require(besluttetAv != oppgjor.behandletAv) {
             "Kan ikke beslutte eget tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
-            frigjoring.copy(
+            oppgjor.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.AVVIST,
@@ -347,16 +347,16 @@ class TilsagnService(
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
         val dto = getOrError(tilsagn.id)
-        logEndring("Frigjoring avvist", dto, besluttetAv)
+        logEndring("Oppgjør avvist", dto, besluttetAv)
         return dto
     }
 
-    fun frigjorAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
+    fun gjorOppAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
         var tilsagn = requireNotNull(queryContext.queries.tilsagn.get(id))
 
-        tilsagn = queryContext.setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
+        tilsagn = queryContext.setTilOppgjort(tilsagn, Tiltaksadministrasjon, emptyList(), null)
 
-        return queryContext.frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
+        return queryContext.gjorOppTilsagn(tilsagn, Tiltaksadministrasjon)
     }
 
     private fun QueryContext.setTilAnnullering(

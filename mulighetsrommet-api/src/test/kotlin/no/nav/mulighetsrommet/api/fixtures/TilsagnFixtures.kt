@@ -93,14 +93,14 @@ fun QueryContext.setTilsagnStatus(
             setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
         }
 
-        TilsagnStatus.TIL_FRIGJORING -> {
+        TilsagnStatus.TIL_OPPGJOR -> {
             setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv)
+            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.GJOR_OPP, behandletAv)
         }
 
-        TilsagnStatus.FRIGJORT -> {
+        TilsagnStatus.OPPGJORT -> {
             setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.GJOR_OPP, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.RETURNERT -> {

@@ -72,7 +72,7 @@ export interface NyDelutbetaling {
   id?: string;
   tilsagnId: string;
   belop: number;
-  frigjorTilsagn: boolean;
+  gjorOppTilsagn: boolean;
   status?: DelutbetalingStatus;
 }
 
@@ -87,7 +87,7 @@ export function UtbetalingPage() {
         id: delutbetaling.id,
         tilsagnId: delutbetaling.tilsagnId,
         belop: delutbetaling.belop,
-        frigjorTilsagn: delutbetaling.frigjorTilsagn,
+        gjorOppTilsagn: delutbetaling.gjorOppTilsagn,
         status: delutbetaling.status,
       };
     }),
@@ -305,7 +305,7 @@ export function UtbetalingPage() {
                               }}
                               opprettelse={opprettelse}
                               belop={delutbetaling?.belop ?? 0}
-                              frigjorTilsagn={delutbetaling?.frigjorTilsagn ?? false}
+                              gjorOppTilsagn={delutbetaling?.gjorOppTilsagn ?? false}
                             />
                           );
                         } else {
