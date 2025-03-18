@@ -284,12 +284,10 @@ class ArrangorflateServiceTest : FunSpec({
         result.any { it.id == utbetalingId } shouldBe true
         result.any { it.id == friUtbetalingId } shouldBe true
 
-        // Verify first utbetaling
         val forsteUtbetaling = result.first { it.id == utbetalingId }
         forsteUtbetaling.belop shouldBe 10000
         forsteUtbetaling.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
 
-        // Verify second utbetaling
         val andreUtbetaling = result.first { it.id == friUtbetalingId }
         andreUtbetaling.belop shouldBe 5000
         andreUtbetaling.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -329,7 +327,6 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getRelevanteForslag should return empty list when no forslag exists") {
-        // Get the utbetaling from the database
         val utbetalingDto = database.db.session {
             queries.utbetaling.get(utbetalingId)
         }
@@ -342,7 +339,6 @@ class ArrangorflateServiceTest : FunSpec({
 
     test("toArrFlateUtbetaling should convert a forhandsgodkjent utbetaling") {
         runBlocking {
-            // Add a DeltakerForslag to test relevant forslag handling
             database.db.session {
                 queries.deltakerForslag.upsert(
                     DeltakerForslag(
@@ -357,7 +353,6 @@ class ArrangorflateServiceTest : FunSpec({
                 )
             }
 
-            // Get the utbetaling from the database
             val utbetalingDto = database.db.session {
                 queries.utbetaling.get(utbetalingId)
             }
@@ -377,7 +372,6 @@ class ArrangorflateServiceTest : FunSpec({
 
     test("toArrFlateUtbetaling should convert a fri utbetaling") {
         runBlocking {
-            // Get the fri utbetaling from the database
             val utbetalingDto = database.db.session {
                 queries.utbetaling.get(friUtbetalingId)
             }
