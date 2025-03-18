@@ -162,9 +162,10 @@ export function UtbetalingPage() {
       delutbetalinger: delutbetalingReq,
     };
 
+    setError(undefined);
+
     opprettMutation.mutate(body, {
       onSuccess: async () => {
-        setError(undefined);
         setEndreUtbetaling(false);
         await queryClient.invalidateQueries({
           queryKey: ["utbetaling", utbetaling.id],
