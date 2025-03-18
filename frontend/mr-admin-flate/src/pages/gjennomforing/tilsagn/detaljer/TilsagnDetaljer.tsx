@@ -339,6 +339,10 @@ export function TilsagnDetaljer() {
               <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
                 aarsaker={[
                   {
+                    value: TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
+                    label: "Arrangør har ikke sendt krav",
+                  },
+                  {
                     value: TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
                     label: "Feilregistrering",
                   },
@@ -355,7 +359,13 @@ export function TilsagnDetaljer() {
                 onConfirm={({ aarsaker, forklaring }) => tilAnnullering({ aarsaker, forklaring })}
               />
               <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
-                aarsaker={[{ value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" }]}
+                aarsaker={[
+                  {
+                    value: TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
+                    label: "Arrangør har ikke sendt krav",
+                  },
+                  { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
+                ]}
                 header="Frigjør tilsagn med forklaring"
                 buttonLabel="Send til godkjenning"
                 open={tilFrigjoringModalOpen}

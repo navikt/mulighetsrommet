@@ -56,6 +56,8 @@ function aarsakTilTekst(aarsak: TilsagnTilAnnulleringAarsak): string {
       return "Feilregistrering";
     case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
       return "Gjennomføring avbrytes";
+    case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
+      return "Arrangør har ikke sendt krav";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
       return "Annen årsak";
   }
