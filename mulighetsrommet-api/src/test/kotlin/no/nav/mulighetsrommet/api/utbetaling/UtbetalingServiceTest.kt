@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.Either
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
@@ -10,9 +11,11 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -44,6 +47,7 @@ import java.util.*
 
 class UtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
@@ -52,8 +56,7 @@ class UtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         okonomi: OkonomiBestillingService = mockk(relaxed = true),
         tilsagnService: TilsagnService = mockk(relaxed = true),
-        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
-        kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true),
+        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true)
     ) = UtbetalingService(
         db = database.db,
         okonomi = okonomi,
@@ -61,6 +64,11 @@ class UtbetalingServiceTest : FunSpec({
         journalforUtbetaling = journalforUtbetaling,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
+
+    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(any()) } returns Either.Right(KontonummerResponse(
+        mottaker = "Test Org",
+        kontonr = "12345678901",
+    ))
 
     context("generering av utbetaling for AFT") {
         val service = createUtbetalingService()
@@ -103,6 +111,7 @@ class UtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
+            utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
@@ -121,7 +130,7 @@ class UtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("genererer en utbetaling med kontonummer og kid-nummer fra forrige godkjente utbetaling fra arrangør") {
+        test("genererer en utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -137,7 +146,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.betalingsinformasjon.kontonummer shouldBe null
+            utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.betalingsinformasjon.kid shouldBe null
 
             database.run {
@@ -150,7 +159,6 @@ class UtbetalingServiceTest : FunSpec({
 
             val sisteKrav = service.genererUtbetalingForMonth(LocalDate.of(2024, 2, 1)).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
         }
 
