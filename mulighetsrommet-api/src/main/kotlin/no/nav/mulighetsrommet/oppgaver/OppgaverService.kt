@@ -9,11 +9,12 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.*
 
 class OppgaverService(val db: ApiDatabase) {
-    fun oppgaver(filter: OppgaverFilter, roller: Set<NavAnsattRolle>): List<Oppgave> {
+    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<NavAnsattRolle>): List<Oppgave> {
         val navEnheter = navEnheter(filter.regioner)
 
         return buildList {
@@ -24,6 +25,7 @@ class OppgaverService(val db: ApiDatabase) {
                         oppgavetyper = filter.oppgavetyper,
                         kostnadssteder = navEnheter,
                         roller = roller,
+                        ansatt = ansatt,
                     ),
                 )
             }
@@ -33,6 +35,7 @@ class OppgaverService(val db: ApiDatabase) {
                         tiltakskoder = filter.tiltakskoder,
                         oppgavetyper = filter.oppgavetyper,
                         kostnadssteder = navEnheter,
+                        ansatt = ansatt,
                         roller = roller,
                     ),
                 )
@@ -55,45 +58,49 @@ class OppgaverService(val db: ApiDatabase) {
         tiltakskoder: List<Tiltakskode>,
         kostnadssteder: List<String>,
         roller: Set<NavAnsattRolle>,
-    ): List<Oppgave> {
-        return db.session {
-            queries.tilsagn
-                .getAll(
-                    statuser = listOf(
-                        TilsagnStatus.TIL_GODKJENNING,
-                        TilsagnStatus.TIL_ANNULLERING,
-                        TilsagnStatus.TIL_FRIGJORING,
-                        TilsagnStatus.RETURNERT,
-                    ),
-                )
-                .asSequence()
-                .filter { oppgave ->
-                    kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
-                }
-                .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
-                .mapNotNull { toOppgave(it) }
-                .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
-                .filter { it.type.rolle in roller }
-                .toList()
-        }
+        ansatt: NavIdent,
+    ): List<Oppgave> = db.session {
+        queries.tilsagn
+            .getAll(
+                statuser = listOf(
+                    TilsagnStatus.TIL_GODKJENNING,
+                    TilsagnStatus.TIL_ANNULLERING,
+                    TilsagnStatus.TIL_FRIGJORING,
+                    TilsagnStatus.RETURNERT,
+                ),
+            )
+            .asSequence()
+            .filter { oppgave ->
+                kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
+            }
+            .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
+            .mapNotNull { toOppgave(it) }
+            .mapNotNull { (totrinnskontroll, oppgave) ->
+                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt }
+            }
+            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+            .filter { it.type.rolle in roller }
+            .toList()
     }
 
     fun delutbetalingOppgaver(
         oppgavetyper: List<OppgaveType>,
         tiltakskoder: List<Tiltakskode>,
         kostnadssteder: List<String>,
+        ansatt: NavIdent,
         roller: Set<NavAnsattRolle>,
-    ): List<Oppgave> {
-        return db.session {
-            queries.delutbetaling
-                .getOppgaveData(
-                    kostnadssteder = kostnadssteder.ifEmpty { null },
-                    tiltakskoder = tiltakskoder.ifEmpty { null },
-                )
-                .mapNotNull { toOppgave(it) }
-                .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
-                .filter { it.type.rolle in roller }
-        }
+    ): List<Oppgave> = db.session {
+        queries.delutbetaling
+            .getOppgaveData(
+                kostnadssteder = kostnadssteder.ifEmpty { null },
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+            )
+            .mapNotNull { toOppgave(it) }
+            .mapNotNull { (totrinnskontroll, oppgave) ->
+                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt }
+            }
+            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+            .filter { it.type.rolle in roller }
     }
 
     fun utbetalingOppgaver(
@@ -135,7 +142,7 @@ class OppgaverService(val db: ApiDatabase) {
     }
 }
 
-private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
+private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Oppgave>? {
     val tiltakstype = OppgaveTiltakstype(
         tiltakskode = tilsagn.tiltakstype.tiltakskode,
         navn = tilsagn.tiltakstype.navn,
@@ -149,7 +156,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
     return when (tilsagn.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
             val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-            Oppgave(
+            opprettelse to Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.TILSAGN_TIL_GODKJENNING,
                 title = "Tilsagn til godkjenning",
@@ -164,7 +171,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
         TilsagnStatus.RETURNERT -> {
             val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
             requireNotNull(opprettelse.besluttetTidspunkt)
-            Oppgave(
+            opprettelse to Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.TILSAGN_RETURNERT,
                 title = "Tilsagn returnert",
@@ -178,7 +185,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
 
         TilsagnStatus.TIL_ANNULLERING -> {
             val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-            Oppgave(
+            annullering to Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
                 title = "Tilsagn til annullering",
@@ -192,7 +199,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
 
         TilsagnStatus.TIL_FRIGJORING -> {
             val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
-            Oppgave(
+            frigjoring to Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.TILSAGN_TIL_FRIGJORING,
                 title = "Tilsagn til frigjøring",
@@ -208,7 +215,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
     }
 }
 
-private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Oppgave? {
+private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<Totrinnskontroll, Oppgave>? {
     val (delutbetaling, gjennomforingId, gjennomforingsnavn, tiltakstype) = oppgavedata
     val link = OppgaveLink(
         linkText = "Se utbetaling",
@@ -217,7 +224,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Oppga
     return when (delutbetaling.status) {
         DelutbetalingStatus.TIL_GODKJENNING -> {
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-            Oppgave(
+            opprettelse to Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.UTBETALING_TIL_GODKJENNING,
                 title = "Utbetaling til godkjenning",
@@ -231,7 +238,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Oppga
 
         DelutbetalingStatus.RETURNERT -> {
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-            Oppgave(
+            opprettelse to Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.UTBETALING_RETURNERT,
                 title = "Utbetaling returnert",
