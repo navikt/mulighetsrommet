@@ -557,6 +557,44 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeLeft() shouldBe BadRequest("Utbetaling kan ikke endres")
         }
 
+        test("returnering av delutbetaling setter den i RETURNERT status") {
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            val delutbetaling = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                frigjorTilsagn = false,
+                belop = 100,
+            )
+            val opprettRequest = OpprettDelutbetalingerRequest(
+                utbetalingId = utbetaling1.id,
+                delutbetalinger = listOf(delutbetaling),
+            )
+            service.opprettDelutbetalinger(
+                request = opprettRequest,
+                navIdent = domain.ansatte[0].navIdent,
+            )
+            service.besluttDelutbetaling(
+                id = delutbetaling.id,
+                request = BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
+                navIdent = domain.ansatte[1].navIdent,
+            )
+            database.run { queries.delutbetaling.get(delutbetaling.id) }
+                .shouldNotBeNull().status shouldBe DelutbetalingStatus.RETURNERT
+        }
+
         test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
