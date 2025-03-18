@@ -267,4 +267,8 @@ val ApplicationConfigLocal = AppConfig(
     okonomi = OkonomiConfig(
         minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
     ),
+    kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/kontoregister",
+        scope = "default",
+    )
 )

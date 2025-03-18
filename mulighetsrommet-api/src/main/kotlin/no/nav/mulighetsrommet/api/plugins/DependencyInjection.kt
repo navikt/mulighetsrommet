@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
@@ -313,6 +314,13 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.dokark.url,
             clientEngine = appConfig.engine,
             tokenProvider = cachedTokenProvider.withScope(appConfig.dokark.scope),
+        )
+    }
+    single {
+        KontoregisterOrganisasjonClient(
+            baseUrl = appConfig.kontoregisterOrganisasjon.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.kontoregisterOrganisasjon.scope)
         )
     }
     single {
