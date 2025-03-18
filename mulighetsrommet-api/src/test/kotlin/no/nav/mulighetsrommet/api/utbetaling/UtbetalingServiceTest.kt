@@ -56,7 +56,7 @@ class UtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         okonomi: OkonomiBestillingService = mockk(relaxed = true),
         tilsagnService: TilsagnService = mockk(relaxed = true),
-        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true)
+        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
     ) = UtbetalingService(
         db = database.db,
         okonomi = okonomi,
@@ -65,10 +65,12 @@ class UtbetalingServiceTest : FunSpec({
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
 
-    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(any()) } returns Either.Right(KontonummerResponse(
-        mottaker = "Test Org",
-        kontonr = "12345678901",
-    ))
+    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(any()) } returns Either.Right(
+        KontonummerResponse(
+            mottaker = "Test Org",
+            kontonr = "12345678901",
+        ),
+    )
 
     context("generering av utbetaling for AFT") {
         val service = createUtbetalingService()
