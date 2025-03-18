@@ -429,6 +429,7 @@ class UtbetalingService(
             "Kan ikke beslutte egen utbetaling"
         }
 
+        queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.RETURNERT)
         queries.totrinnskontroll.upsert(
             opprettelse.copy(
                 besluttetAv = besluttetAv,
