@@ -5518,6 +5518,7 @@ components:
       enum:
         - FEIL_REGISTRERING
         - GJENNOMFORING_AVBRYTES
+        - ARRANGOR_HAR_IKKE_SENDT_KRAV
         - FEIL_ANNET
 
     TilsagnAvvisningAarsak:
