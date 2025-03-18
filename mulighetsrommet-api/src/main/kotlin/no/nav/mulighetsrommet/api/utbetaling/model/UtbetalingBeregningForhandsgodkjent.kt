@@ -52,7 +52,7 @@ data class UtbetalingBeregningForhandsgodkjent(
                     sum.add(BigDecimal(deltakelse.manedsverk))
                 }
                 .multiply(BigDecimal(input.sats))
-                .setScale(CALCULATION_PRECISION, RoundingMode.HALF_UP)
+                .setScale(0, RoundingMode.HALF_UP)
                 .toInt()
 
             val output = Output(
