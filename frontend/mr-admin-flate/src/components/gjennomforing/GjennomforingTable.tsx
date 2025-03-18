@@ -8,7 +8,6 @@ import {
   formaterNavEnheter,
 } from "@/utils/Utils";
 import { GjennomforingerService, SorteringGjennomforinger } from "@mr/api-client-v2";
-import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
@@ -18,6 +17,7 @@ import React, { createRef, useEffect, useState } from "react";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
+import { GjennomforingStatusTag } from "@mr/frontend-common";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;

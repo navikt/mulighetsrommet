@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BodyShort, Button, Heading, Modal, TextField } from "@navikt/ds-react";
-import { LagretDokumenttype, LagretFilterRequest } from "@mr/api-client-v2";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
@@ -15,12 +14,11 @@ const LagreFilterSchema = z.object({
 type InferredLagreFilterSchema = z.infer<typeof LagreFilterSchema>;
 
 interface Props {
-  dokumenttype: LagretDokumenttype;
   filter: any;
-  onLagre: (r: LagretFilterRequest) => void;
+  onLagre: (r: any) => void;
 }
 
-export function LagreFilterButton({ onLagre, dokumenttype, filter }: Props) {
+export function LagreFilterButton({ onLagre, filter }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<InferredLagreFilterSchema>({
@@ -43,8 +41,6 @@ export function LagreFilterButton({ onLagre, dokumenttype, filter }: Props) {
       {
         navn: data.navn,
         filter,
-        type: dokumenttype,
-        sortOrder: 0,
         id: window.crypto.randomUUID(),
       }
     );

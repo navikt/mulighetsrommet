@@ -4,7 +4,7 @@ import {
   OpprettManuellUtbetalingRequest,
   ProblemDetail,
 } from "@mr/api-client-v2";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, Heading, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -15,7 +15,7 @@ import { Separator } from "../../../components/detaljside/Metadata";
 import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/GjennomforingDetaljerMini";
 import { ControlledDateInput } from "../../../components/skjema/ControlledDateInput";
 import { FormGroup } from "../../../components/skjema/FormGroup";
-import { addYear } from "../../../utils/Utils";
+import { addYear, isValidationError } from "@/utils/Utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;

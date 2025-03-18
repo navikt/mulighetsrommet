@@ -1,7 +1,7 @@
 import { useRegioner } from "@/api/queries/useRegioner";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { ApentForPamelding, NavEnhet } from "@mr/api-client-v2";
+import { ApentForPamelding } from "@mr/api-client-v2";
 import { FilterAccordionHeader, NavEnhetFilter } from "@mr/frontend-common";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
@@ -59,7 +59,14 @@ export function Filtermeny() {
           <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
             <NavEnhetFilter
               navEnheter={filter.navEnheter}
-              setNavEnheter={(navEnheter: NavEnhet[]) => setFilter({ ...filter, navEnheter })}
+              setNavEnheter={(navEnheter: string[]) =>
+                setFilter({
+                  ...filter,
+                  navEnheter: regioner
+                    .flatMap((region) => region.enheter)
+                    .filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
+                })
+              }
               regioner={regioner ?? []}
             />
           </Accordion.Content>

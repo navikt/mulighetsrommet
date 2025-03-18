@@ -1,8 +1,7 @@
 import { Tag } from "@navikt/ds-react";
-import { GjennomforingStatus } from "@mr/api-client-v2";
 
 interface Props {
-  status: GjennomforingStatus;
+  status: string;
 }
 
 export function GjennomforingStatusTag({ status }: Props) {
@@ -20,18 +19,16 @@ export function GjennomforingStatusTag({ status }: Props) {
   );
 }
 
-export function variantAndName(status: GjennomforingStatus): {
+export function variantAndName(status: string): {
   variant: "alt1" | "success" | "neutral" | "error";
   label: string;
 } {
-  switch (status) {
-    case GjennomforingStatus.GJENNOMFORES:
-      return { variant: "success", label: "Gjennomføres" };
-    case GjennomforingStatus.AVSLUTTET:
-      return { variant: "neutral", label: "Avsluttet" };
-    case GjennomforingStatus.AVBRUTT:
-      return { variant: "error", label: "Avbrutt" };
-    case GjennomforingStatus.AVLYST:
-      return { variant: "error", label: "Avlyst" };
-  }
+  const statusMap: Record<string, { variant: "alt1" | "success" | "neutral" | "error"; label: string }> = {
+    GJENNOMFORES: { variant: "success", label: "Gjennomføres" },
+    AVSLUTTET: { variant: "neutral", label: "Avsluttet" },
+    AVBRUTT: { variant: "error", label: "Avbrutt" },
+    AVLYST: { variant: "error", label: "Avlyst" },
+  };
+
+  return statusMap[status] || { variant: "alt1", label: "Ukjent status" };
 }

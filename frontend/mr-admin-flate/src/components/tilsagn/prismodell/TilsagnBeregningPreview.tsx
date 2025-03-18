@@ -1,14 +1,11 @@
 import { ProblemDetail, TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client-v2";
-import {
-  formaterNOK,
-  isValidationError,
-  jsonPointerToFieldPath,
-} from "@mr/frontend-common/utils/utils";
+import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Heading, Label } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   input: TilsagnBeregningInput;

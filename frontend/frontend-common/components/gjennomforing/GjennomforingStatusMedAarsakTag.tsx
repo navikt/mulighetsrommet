@@ -1,18 +1,22 @@
 import { Tag } from "@navikt/ds-react";
-import { GjennomforingStatusDto } from "@mr/api-client-v2";
 import { useState } from "react";
 import { variantAndName } from "./GjennomforingStatusTag";
 
 interface Props {
-  status: GjennomforingStatusDto;
+  status: string;
+  avbrutt?: {
+      tidspunkt: string;
+      aarsak: string;
+      beskrivelse: string;
+  };
 }
 
-export function GjennomforingStatusMedAarsakTag({ status }: Props) {
+export function GjennomforingStatusMedAarsakTag({ status, avbrutt }: Props) {
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
-  const { variant, label } = variantAndName(status.status);
-  const labelWithBeskrivelse = status.avbrutt?.beskrivelse
-    ? `${label} - ${status.avbrutt.beskrivelse}`
+  const { variant, label } = variantAndName(status);
+  const labelWithBeskrivelse = avbrutt?.beskrivelse
+    ? `${label} - ${avbrutt.beskrivelse}`
     : label;
 
   return (
