@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerR
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class KontoregisterOrganisasjonClientTest : FunSpec({
 
@@ -21,7 +20,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
                 respond(
                     content = """{"mottaker": "Test Org", "kontonr": "1234.56.78901"}""",
                     status = HttpStatusCode.OK,
-                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
             }
 
@@ -29,7 +28,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
                 respond(
                     content = """{"feilmelding": "Not Found"}""",
                     status = HttpStatusCode.NotFound,
-                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
             }
 
@@ -37,7 +36,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
                 respond(
                     content = """{"feilmelding": "Error"}""",
                     status = HttpStatusCode.InternalServerError,
-                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
             }
         }
@@ -46,13 +45,13 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     val client = KontoregisterOrganisasjonClient(
         baseUrl = "http://localhost",
         tokenProvider = { "token" },
-        clientEngine = mockEngine
+        clientEngine = mockEngine,
     )
 
     test("Should return KontonummerResponse for valid organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                requestBody = KontonummerRequest(Organisasjonsnummer("123456789"))
+                requestBody = KontonummerRequest(Organisasjonsnummer("123456789")),
             )
             result shouldBeRight KontonummerResponse("Test Org", "1234.56.78901")
         }
@@ -61,7 +60,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return FantIkkeKontonummer error for non-existent organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                requestBody = KontonummerRequest(Organisasjonsnummer("000000000"))
+                requestBody = KontonummerRequest(Organisasjonsnummer("000000000")),
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.FantIkkeKontonummer
         }
@@ -70,7 +69,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return Error for server error") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                requestBody = KontonummerRequest(Organisasjonsnummer("999999999"))
+                requestBody = KontonummerRequest(Organisasjonsnummer("999999999")),
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.Error
         }

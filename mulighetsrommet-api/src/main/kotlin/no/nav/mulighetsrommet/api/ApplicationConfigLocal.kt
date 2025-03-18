@@ -270,5 +270,5 @@ val ApplicationConfigLocal = AppConfig(
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/kontoregister",
         scope = "default",
-    )
+    ),
 )

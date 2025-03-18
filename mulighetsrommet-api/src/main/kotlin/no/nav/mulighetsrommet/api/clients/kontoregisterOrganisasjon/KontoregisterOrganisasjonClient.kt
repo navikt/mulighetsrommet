@@ -56,7 +56,7 @@ class KontoregisterOrganisasjonClient(
             val error = response.body<Feilmelding>()
             SecureLog.logger.error(
                 "Fant ikke orgnummer: ${requestBody.organisasjonsnummer.value} i kontoregisteret. Feilmelding: ${error.feilmelding}",
-                response.bodyAsText()
+                response.bodyAsText(),
             )
             log.error("Fant ikke orgnummer for arrangør i kontoregisteret. Se detaljer i secureLog.")
             KontonummerRegisterOrganisasjonError.FantIkkeKontonummer.left()
@@ -64,7 +64,7 @@ class KontoregisterOrganisasjonClient(
             val error = response.body<Feilmelding>()
             SecureLog.logger.error(
                 "Ugyldig input ved henting av kontonummer fra kontoregisteret. Feilmelding: ${error.feilmelding}",
-                response.bodyAsText()
+                response.bodyAsText(),
             )
             log.error("Ugyldig input ved henting av kontonummer fra kontoregisteret. Se detaljer i secureLog.")
             KontonummerRegisterOrganisasjonError.UgyldigInput.left()
@@ -87,7 +87,7 @@ enum class KontonummerRegisterOrganisasjonError {
 
 @Serializable
 data class KontonummerRequest(
-    val organisasjonsnummer: Organisasjonsnummer
+    val organisasjonsnummer: Organisasjonsnummer,
 )
 
 @Serializable

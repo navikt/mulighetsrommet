@@ -320,7 +320,7 @@ private fun services(appConfig: AppConfig) = module {
         KontoregisterOrganisasjonClient(
             baseUrl = appConfig.kontoregisterOrganisasjon.url,
             clientEngine = appConfig.engine,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.kontoregisterOrganisasjon.scope)
+            tokenProvider = cachedTokenProvider.withScope(appConfig.kontoregisterOrganisasjon.scope),
         )
     }
     single {

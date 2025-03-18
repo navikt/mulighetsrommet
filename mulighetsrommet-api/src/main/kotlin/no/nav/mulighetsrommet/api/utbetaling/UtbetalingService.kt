@@ -8,7 +8,6 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.AuthenticatedHttpClientConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRequest
@@ -30,7 +29,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
@@ -47,7 +45,7 @@ class UtbetalingService(
     private val okonomi: OkonomiBestillingService,
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
-    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient
+    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
@@ -126,9 +124,13 @@ class UtbetalingService(
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 
-        val kontonummer = when (val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(KontonummerRequest(
-            organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer
-        ))) {
+        val kontonummer = when (
+            val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
+                KontonummerRequest(
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                ),
+            )
+        ) {
             is Either.Left -> {
                 log.error("Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}", result.value)
                 null // TODO Skal vi heller kaste her? Hva gjør vi hvis vi ikke får hentet kontonummer?

@@ -59,7 +59,7 @@ class UtbetalingServiceTest : FunSpec({
         okonomi = okonomi,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
-        kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient
+        kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
 
     context("generering av utbetaling for AFT") {
