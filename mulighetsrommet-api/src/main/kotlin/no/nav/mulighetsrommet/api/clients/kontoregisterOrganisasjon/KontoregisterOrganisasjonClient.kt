@@ -47,7 +47,6 @@ class KontoregisterOrganisasjonClient(
         val response = client.get("$baseUrl/kontoregister/api/v1/hent-kontonummer-for-organisasjon/${requestBody.organisasjonsnummer.value}") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(requestBody)
         }
 
         return if (response.status.isSuccess()) {
@@ -70,7 +69,7 @@ class KontoregisterOrganisasjonClient(
             KontonummerRegisterOrganisasjonError.UgyldigInput.left()
         } else {
             SecureLog.logger.error(
-                "Klarte ikke hente kontonummer for arrangør: ${requestBody.organisasjonsnummer.value}",
+                "Klarte ikke hente kontonummer for arrangør: ${requestBody.organisasjonsnummer.value}. Error: {}",
                 response.bodyAsText(),
             )
             log.error("Klarte ikke hente kontonummer for arrangør. Se detaljer i secureLog.")
