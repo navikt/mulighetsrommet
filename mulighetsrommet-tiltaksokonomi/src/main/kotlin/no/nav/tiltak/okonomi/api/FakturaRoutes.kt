@@ -50,7 +50,7 @@ fun Routing.fakturaRoutes(
             queries.faktura.getByFakturanummer(faktura.id)?.let {
                 FakturaStatus(
                     fakturanummer = it.fakturanummer,
-                    status = FakturaStatusType.UTBETALT,
+                    status = FakturaStatusType.SENDT,
                 )
             }
         }

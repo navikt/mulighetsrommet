@@ -44,7 +44,7 @@ data class Faktura(
                 kid = faktura.betalingsinformasjon.kid,
                 belop = faktura.belop,
                 periode = faktura.periode,
-                status = FakturaStatusType.UTBETALT,
+                status = FakturaStatusType.SENDT,
                 behandletAv = faktura.behandletAv,
                 behandletTidspunkt = faktura.behandletTidspunkt,
                 besluttetAv = faktura.besluttetAv,
@@ -72,7 +72,7 @@ data class Faktura(
                 kid = null,
                 belop = 0,
                 periode = sisteBestillingLinje.periode,
-                status = FakturaStatusType.UTBETALT,
+                status = FakturaStatusType.SENDT,
                 behandletAv = frigjorBestilling.behandletAv,
                 behandletTidspunkt = frigjorBestilling.behandletTidspunkt,
                 besluttetAv = frigjorBestilling.besluttetAv,
@@ -90,5 +90,5 @@ data class Faktura(
 }
 
 enum class FakturaStatusType {
-    UTBETALT,
+    SENDT,
 }
