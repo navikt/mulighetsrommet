@@ -6,7 +6,7 @@ import {
   ArrangorKontaktpersonAnsvar,
   ProblemDetail,
 } from "@mr/api-client-v2";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Button,
   HStack,
@@ -21,6 +21,7 @@ import { RefObject, useRef, useState } from "react";
 import { z } from "zod";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
+import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   arrangor: Arrangor;

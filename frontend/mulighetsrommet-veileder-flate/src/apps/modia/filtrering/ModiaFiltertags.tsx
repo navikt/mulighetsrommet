@@ -16,7 +16,7 @@ export function ModiaFiltertags({ filterOpen, setTagsHeight }: Props) {
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.innsatsgruppe && <FilterTag label={filter.innsatsgruppe.tittel} />}
       <NavEnhetFilterTag
-        navEnheter={filter.navEnheter}
+        navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
       {filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT && (

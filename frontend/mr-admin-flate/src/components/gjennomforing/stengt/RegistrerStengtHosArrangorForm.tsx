@@ -2,9 +2,9 @@ import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArra
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { addYear } from "@/utils/Utils";
+import { addYear, isValidationError } from "@/utils/Utils";
 import { GjennomforingDto, ProblemDetail, SetStengtHosArrangorRequest } from "@mr/api-client-v2";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { Alert, Button, HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";

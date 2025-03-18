@@ -1,9 +1,17 @@
 import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
-import { LagretFilter } from "@mr/api-client-v2";
 import { useRef, useState } from "react";
 import styles from "./LagredeFilterOversikt.module.scss";
 import { VarselModal } from "../varsel/VarselModal";
+
+
+interface LagretFilter {
+    id: string;
+    navn: string;
+    filter: {
+        [key: string]: unknown;
+    };
+}
 
 interface Props {
   lagredeFilter: LagretFilter[];

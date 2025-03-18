@@ -10,7 +10,7 @@ import {
 } from "@mr/api-client-v2";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
-import { isKursTiltak } from "@mr/frontend-common/utils/utils";
+import { isKursTiltak } from "@/utils/Utils";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {

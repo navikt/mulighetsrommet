@@ -18,11 +18,11 @@ import { PageHeader } from "~/components/PageHeader";
 import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
-import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
+import { isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
 import { apiHeaders } from "~/auth/auth.server";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;

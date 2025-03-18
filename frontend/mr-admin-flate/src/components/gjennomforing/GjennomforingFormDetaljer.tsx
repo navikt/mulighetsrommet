@@ -7,7 +7,7 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { addYear, formaterDato } from "@/utils/Utils";
+import { addYear, formaterDato, isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
@@ -15,7 +15,6 @@ import {
   Tiltakskode,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
