@@ -49,7 +49,7 @@ class FakturaTest : FunSpec({
             faktura.kid shouldBe null
             faktura.belop shouldBe 1000
             faktura.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
-            faktura.status shouldBe FakturaStatusType.UTBETALT
+            faktura.status shouldBe FakturaStatusType.SENDT
             faktura.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
             faktura.behandletTidspunkt shouldBe LocalDate.of(2025, 1, 1).atStartOfDay()
             faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))

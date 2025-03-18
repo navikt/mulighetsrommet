@@ -174,8 +174,8 @@ class OkonomiService(
             return it.right()
         }
 
-        // TODO: Fjern bestilt status når bestillinger blir satt som aktive
-        if (bestilling.status !in listOf(BestillingStatusType.AKTIV, BestillingStatusType.BESTILT)) {
+        // TODO: Fjern sjekk mot SENDT status når bestillinger blir satt som aktive
+        if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
             return FrigjorBestillingError("Bestilling ${bestilling.bestillingsnummer} kan ikke frigjøres fordi den har status ${bestilling.status}").left()
         }
 

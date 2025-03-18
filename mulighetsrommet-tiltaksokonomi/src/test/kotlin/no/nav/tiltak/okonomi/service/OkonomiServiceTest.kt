@@ -137,7 +137,7 @@ class OkonomiServiceTest : FunSpec({
             val opprettBestilling = createOpprettBestilling("1")
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe "1"
-                it.status shouldBe BestillingStatusType.BESTILT
+                it.status shouldBe BestillingStatusType.SENDT
             }
 
             kafkaProducerRepository.getLatestRecord().should {
@@ -146,7 +146,7 @@ class OkonomiServiceTest : FunSpec({
                 it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
                         bestillingsnummer = "1",
-                        status = BestillingStatusType.BESTILT,
+                        status = BestillingStatusType.SENDT,
                     ),
                 )
             }
@@ -298,7 +298,7 @@ class OkonomiServiceTest : FunSpec({
             val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-2")
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
                 it.fakturanummer shouldBe "F-2"
-                it.status shouldBe FakturaStatusType.UTBETALT
+                it.status shouldBe FakturaStatusType.SENDT
             }
 
             kafkaProducerRepository.getLatestRecord().should {
@@ -307,7 +307,7 @@ class OkonomiServiceTest : FunSpec({
                 it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     FakturaStatus(
                         fakturanummer = "F-2",
-                        status = FakturaStatusType.UTBETALT,
+                        status = FakturaStatusType.SENDT,
                     ),
                 )
             }
@@ -338,14 +338,14 @@ class OkonomiServiceTest : FunSpec({
                 .copy(frigjorBestilling = true)
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
                 it.fakturanummer shouldBe "F-3"
-                it.status shouldBe FakturaStatusType.UTBETALT
+                it.status shouldBe FakturaStatusType.SENDT
             }
 
             kafkaProducerRepository.getLatestRecord(topic = "faktura-status").should {
                 it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     FakturaStatus(
                         fakturanummer = "F-3",
-                        status = FakturaStatusType.UTBETALT,
+                        status = FakturaStatusType.SENDT,
                     ),
                 )
             }
@@ -372,7 +372,7 @@ class OkonomiServiceTest : FunSpec({
             val frigjorBestilling = createFrigjorBestilling("B-3")
             service.frigjorBestilling(frigjorBestilling).shouldBeRight().should {
                 it.fakturanummer shouldBe "B-3-X"
-                it.status shouldBe FakturaStatusType.UTBETALT
+                it.status shouldBe FakturaStatusType.SENDT
             }
 
             db.session {
