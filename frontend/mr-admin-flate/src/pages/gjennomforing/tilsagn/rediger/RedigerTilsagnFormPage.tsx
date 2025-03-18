@@ -25,7 +25,12 @@ function useRedigerTilsagnFormData() {
     ...godkjenteTilsagnQuery(gjennomforingId),
   });
 
-  return { avtale, gjennomforing, godkjenteTilsagn, tilsagn: tilsagnDetaljer.data.tilsagn };
+  return {
+    avtale,
+    gjennomforing,
+    godkjenteTilsagn: godkjenteTilsagn.data.filter((t) => t.id !== tilsagnDetaljer.data.tilsagn.id),
+    tilsagn: tilsagnDetaljer.data.tilsagn,
+  };
 }
 
 export function RedigerTilsagnFormPage() {
@@ -84,8 +89,8 @@ export function RedigerTilsagnFormPage() {
           <WhitePaddedBox>
             <VStack gap="4">
               <Heading size="medium">Aktive tilsagn</Heading>
-              {godkjenteTilsagn.data.length > 0 ? (
-                <TilsagnTabell tilsagn={godkjenteTilsagn.data} />
+              {godkjenteTilsagn.length > 0 ? (
+                <TilsagnTabell tilsagn={godkjenteTilsagn} />
               ) : (
                 <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
               )}
