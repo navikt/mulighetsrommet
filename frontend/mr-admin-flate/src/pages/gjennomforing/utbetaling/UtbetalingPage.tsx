@@ -157,31 +157,28 @@ export function UtbetalingPage() {
         };
       });
 
-    if (utbetalesTotal <= 0) setError("Samlet beløp må være positivt");
-    else {
-      const body: OpprettDelutbetalingerRequest = {
-        utbetalingId: utbetaling.id,
-        delutbetalinger: delutbetalingReq,
-      };
+    const body: OpprettDelutbetalingerRequest = {
+      utbetalingId: utbetaling.id,
+      delutbetalinger: delutbetalingReq,
+    };
 
-      opprettMutation.mutate(body, {
-        onSuccess: async () => {
-          setError(undefined);
-          setEndreUtbetaling(false);
-          await queryClient.invalidateQueries({
-            queryKey: ["utbetaling", utbetaling.id],
-            refetchType: "all",
+    opprettMutation.mutate(body, {
+      onSuccess: async () => {
+        setError(undefined);
+        setEndreUtbetaling(false);
+        await queryClient.invalidateQueries({
+          queryKey: ["utbetaling", utbetaling.id],
+          refetchType: "all",
+        });
+      },
+      onError: (error) => {
+        if (isValidationError(error)) {
+          error.errors.forEach((fieldError: FieldError) => {
+            setError(fieldError.detail);
           });
-        },
-        onError: (error) => {
-          if (isValidationError(error)) {
-            error.errors.forEach((fieldError: FieldError) => {
-              setError(fieldError.detail);
-            });
-          }
-        },
-      });
-    }
+        }
+      },
+    });
   }
 
   return (
