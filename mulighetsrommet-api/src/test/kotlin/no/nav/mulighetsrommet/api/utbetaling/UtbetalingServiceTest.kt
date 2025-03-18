@@ -13,6 +13,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -52,11 +53,13 @@ class UtbetalingServiceTest : FunSpec({
         okonomi: OkonomiBestillingService = mockk(relaxed = true),
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
+        kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true),
     ) = UtbetalingService(
         db = database.db,
         okonomi = okonomi,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
+        kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient
     )
 
     context("generering av utbetaling for AFT") {

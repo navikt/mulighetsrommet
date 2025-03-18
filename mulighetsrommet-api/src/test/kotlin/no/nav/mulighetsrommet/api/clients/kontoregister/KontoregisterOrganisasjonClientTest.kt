@@ -52,7 +52,6 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return KontonummerResponse for valid organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                obo = AccessType.OBO("test-client"),
                 requestBody = KontonummerRequest(Organisasjonsnummer("123456789"))
             )
             result shouldBeRight KontonummerResponse("Test Org", "1234.56.78901")
@@ -62,7 +61,6 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return FantIkkeKontonummer error for non-existent organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                obo = AccessType.OBO("test-client"),
                 requestBody = KontonummerRequest(Organisasjonsnummer("000000000"))
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.FantIkkeKontonummer
@@ -72,7 +70,6 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return Error for server error") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                obo = AccessType.OBO("test-client"),
                 requestBody = KontonummerRequest(Organisasjonsnummer("999999999"))
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.Error

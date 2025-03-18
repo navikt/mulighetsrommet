@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -33,14 +34,18 @@ class KontoregisterOrganisasjonClient(
 
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 5)
+            retryOnException(maxRetries = 5)
+            exponentialDelay()
+        }
     }
 
     suspend fun getKontonummerForOrganisasjon(
-        obo: AccessType.OBO,
         requestBody: KontonummerRequest,
     ): Either<KontonummerRegisterOrganisasjonError, KontonummerResponse> {
         val response = client.get("$baseUrl/kontoregister/api/v1/hent-kontonummer-for-organisasjon/${requestBody.organisasjonsnummer.value}") {
-            bearerAuth(tokenProvider.exchange(obo))
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(requestBody)
         }

@@ -8,9 +8,9 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
@@ -173,7 +173,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         beforeEach {
             domain.initialize(database.db)
 
-            every { utbetalingService.recalculateUtbetalingForGjennomforing(any()) } returns Unit
+            coEvery { utbetalingService.recalculateUtbetalingForGjennomforing(any()) } returns Unit
         }
 
         afterEach {
@@ -232,7 +232,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 utbetalingService.recalculateUtbetalingForGjennomforing(AFT1.id)
             }
         }
