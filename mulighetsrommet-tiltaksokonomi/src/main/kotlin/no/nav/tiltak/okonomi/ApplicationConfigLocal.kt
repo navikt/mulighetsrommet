@@ -78,13 +78,13 @@ val ApplicationConfigLocal = AppConfig(
             .withSerializers(ByteArraySerializer::class.java, ByteArraySerializer::class.java)
             .build(),
         topics = KafkaTopics(
-            bestillingStatus = "tiltaksokonomi-bestilling-status-v1",
-            fakturaStatus = "tiltaksokonomi-faktura-status-v1",
+            bestillingStatus = "tiltaksokonomi.bestilling-status-v1",
+            fakturaStatus = "tiltaksokonomi.faktura-status-v1",
         ),
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
-                topic = "tiltaksokonomi-bestilling-v1",
+                topic = "tiltaksokonomi.bestillinger-v1",
             ),
         ),
     ),

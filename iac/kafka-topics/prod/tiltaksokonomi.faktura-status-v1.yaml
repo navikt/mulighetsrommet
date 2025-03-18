@@ -1,25 +1,23 @@
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: tiltaksokonomi-bestilling-v1
+  name: tiltaksokonomi.faktura-status-v1
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
 spec:
-  pool: nav-dev
+  pool: nav-prod
   config:
-    cleanupPolicy: delete
+    cleanupPolicy: compact
     minimumInSyncReplicas: 2
     partitions: 2
     replication: 3
-    # 7 days retention (24 h * 7 d)
-    retentionHours: 168
   acl:
     - team: team-mulighetsrommet
-      application: mulighetsrommet-api
+      application: tiltaksokonomi
       access: readwrite
     - team: team-mulighetsrommet
-      application: tiltaksokonomi
+      application: mulighetsrommet-api
       access: read
     - team: team-mulighetsrommet
       application: mulighetsrommet-kafka-manager
