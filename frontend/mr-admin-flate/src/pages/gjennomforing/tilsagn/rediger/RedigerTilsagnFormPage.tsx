@@ -15,6 +15,7 @@ import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
+import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -55,7 +56,7 @@ export function RedigerTilsagnFormPage() {
     id: tilsagn.id,
     type: tilsagn.type,
     periodeStart: tilsagn.periode.start,
-    periodeSlutt: tilsagn.periode.slutt,
+    periodeSlutt: formaterDatoSomYYYYMMDD(subtractDays(tilsagn.periode.slutt, 1)),
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
     beregning: tilsagn.beregning.input,
     gjennomforingId: gjennomforing.id,
