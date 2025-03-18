@@ -37,7 +37,7 @@ export function TilsagnBeregningPreview(props: Props) {
   useEffect(() => {
     beregnTilsagn(input, { onSuccess: handleTilsagnBeregnet, onError: setValidationErrors });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [beregnTilsagn, ...Object.values(input)]);
+  }, [beregnTilsagn, ...extractRelevantDeps(input)]);
 
   return (
     <>
@@ -48,4 +48,15 @@ export function TilsagnBeregningPreview(props: Props) {
       </div>
     </>
   );
+}
+
+function extractRelevantDeps(obj: any): any[] {
+  if (!obj || typeof obj !== "object") return [obj];
+
+  return Object.entries(obj).flatMap(([, value]) => {
+    if (typeof value === "object" && value !== null) {
+      return extractRelevantDeps(value); // Recursively flatten nested objects
+    }
+    return value; // Keep primitive values
+  });
 }
