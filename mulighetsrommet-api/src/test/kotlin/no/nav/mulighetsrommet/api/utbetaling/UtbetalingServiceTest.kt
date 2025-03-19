@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -28,6 +28,9 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
@@ -552,6 +555,44 @@ class UtbetalingServiceTest : FunSpec({
                 request = opprettRequest,
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeLeft() shouldBe BadRequest("Utbetaling kan ikke endres")
+        }
+
+        test("returnering av delutbetaling setter den i RETURNERT status") {
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            val delutbetaling = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                frigjorTilsagn = false,
+                belop = 100,
+            )
+            val opprettRequest = OpprettDelutbetalingerRequest(
+                utbetalingId = utbetaling1.id,
+                delutbetalinger = listOf(delutbetaling),
+            )
+            service.opprettDelutbetalinger(
+                request = opprettRequest,
+                navIdent = domain.ansatte[0].navIdent,
+            )
+            service.besluttDelutbetaling(
+                id = delutbetaling.id,
+                request = BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
+                navIdent = domain.ansatte[1].navIdent,
+            )
+            database.run { queries.delutbetaling.get(delutbetaling.id) }
+                .shouldNotBeNull().status shouldBe DelutbetalingStatus.RETURNERT
         }
 
         test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {

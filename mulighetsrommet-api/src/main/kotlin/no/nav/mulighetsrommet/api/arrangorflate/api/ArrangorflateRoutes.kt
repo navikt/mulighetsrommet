@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.arrangorflate
+package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.getOrElse
 import arrow.core.left
@@ -11,6 +11,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -46,8 +47,7 @@ fun Route.arrangorflateRoutes() {
                     arrangorService.getArrangorOrSyncFromBrreg(it).getOrElse {
                         throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                     }
-                }
-                ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
+                } ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
 
             call.respond(arrangorer)
         }

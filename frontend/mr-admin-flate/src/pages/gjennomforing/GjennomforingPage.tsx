@@ -8,15 +8,14 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { GjennomforingOppstartstype, Toggles } from "@mr/api-client-v2";
-import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { GjennomforingOppstartstype, GjennomforingStatus, Toggles } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
 import { Outlet, useLocation, useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
@@ -82,10 +81,13 @@ export function GjennomforingPage() {
                 {gjennomforing.navn}
               </Heading>
             </VStack>
-            <GjennomforingStatusMedAarsakTag status={gjennomforing.status} />
+            <GjennomforingStatusMedAarsakTag
+              status={gjennomforing.status.status}
+              avbrutt={gjennomforing.status.avbrutt}
+            />
             <DupliserGjennomforing gjennomforing={gjennomforing} />
           </div>
-          {gjennomforingIsAktiv(gjennomforing.status.status) && (
+          {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
             <div className="pr-2">
               <Lenkeknapp
                 size="small"

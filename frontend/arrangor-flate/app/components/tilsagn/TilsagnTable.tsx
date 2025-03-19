@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagn, TilsagnType } from "@mr/api-client-v2";
+import { ArrangorflateTilsagn, TilsagnType } from "api-client";
 import { Alert, Table } from "@navikt/ds-react";
 import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";

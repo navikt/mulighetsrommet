@@ -37,7 +37,7 @@ export function GjennomforingFiltertags({ filterAtom, filterOpen, setTagsHeight 
       )}
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
-          navEnheter={filter.navEnheter}
+          navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
           onClose={() =>
             setFilter({ ...filter, navEnheter: [], page: 1, lagretFilterIdValgt: undefined })
           }

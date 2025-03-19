@@ -6,7 +6,6 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
-import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate, useParams } from "react-router";
@@ -14,6 +13,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 import { QueryKeys } from "../../api/QueryKeys";
+import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 
 function useGjennomforingFormData() {
   const { gjennomforingId } = useParams();
@@ -66,7 +66,12 @@ export function GjennomforingFormPage() {
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring"}
         </Heading>
-        {gjennomforing ? <GjennomforingStatusMedAarsakTag status={gjennomforing.status} /> : null}
+        {gjennomforing ? (
+          <GjennomforingStatusMedAarsakTag
+            status={gjennomforing.status.status}
+            avbrutt={gjennomforing.status.avbrutt}
+          />
+        ) : null}
       </Header>
       <ContentBox>
         <Box padding="4" background="bg-default">

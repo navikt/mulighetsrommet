@@ -1,6 +1,7 @@
-package no.nav.mulighetsrommet.api.utbetaling.model
+package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -8,7 +9,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class AdminUtbetalingKompakt(
+data class UtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: AdminUtbetalingStatus,
@@ -18,7 +19,7 @@ data class AdminUtbetalingKompakt(
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
+    val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val beskrivelse: String?,
     val innsendtAv: String?,
 ) {
@@ -28,7 +29,7 @@ data class AdminUtbetalingKompakt(
     )
 
     companion object {
-        fun fromUtbetalingDto(utbetaling: UtbetalingDto, status: AdminUtbetalingStatus) = AdminUtbetalingKompakt(
+        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus) = UtbetalingDto(
             id = utbetaling.id,
             status = status,
             periode = utbetaling.periode,
@@ -42,10 +43,10 @@ data class AdminUtbetalingKompakt(
             innsendtAv = formaterInnsendtAv(utbetaling.innsender),
         )
 
-        private fun formaterInnsendtAv(innsender: UtbetalingDto.Innsender?): String? {
+        private fun formaterInnsendtAv(innsender: Utbetaling.Innsender?): String? {
             return when (innsender) {
-                is UtbetalingDto.Innsender.ArrangorAnsatt -> "Arrangør"
-                is UtbetalingDto.Innsender.NavAnsatt -> innsender.navIdent.value
+                is Utbetaling.Innsender.ArrangorAnsatt -> "Arrangør"
+                is Utbetaling.Innsender.NavAnsatt -> innsender.navIdent.value
                 else -> null
             }
         }

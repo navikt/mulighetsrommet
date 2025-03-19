@@ -3,7 +3,7 @@ import {
   ArrangorflateTilsagn,
   ArrFlateUtbetaling,
   FieldError,
-} from "@mr/api-client-v2";
+} from "api-client";
 import { Button, Checkbox, ErrorSummary, Heading, TextField, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
@@ -18,11 +18,11 @@ import { PageHeader } from "~/components/PageHeader";
 import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
-import { useOrgnrFromUrl } from "~/utils";
+import { isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
 import { apiHeaders } from "~/auth/auth.server";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -38,18 +38,28 @@ export const loader: LoaderFunction = async ({
   params,
 }): Promise<BekreftUtbetalingData> => {
   const { id } = params;
-  if (!id) throw Error("Mangler id");
+  if (!id) {
+    throw new Response("Mangler id", { status: 400 });
+  }
 
-  const [{ data: utbetaling }, { data: tilsagn }] = await Promise.all([
-    ArrangorflateService.getArrFlateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getArrangorflateTilsagnTilUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-  ]);
+  const [{ data: utbetaling, error: utbetalingError }, { data: tilsagn, error: tilsagnError }] =
+    await Promise.all([
+      ArrangorflateService.getArrFlateUtbetaling({
+        path: { id },
+        headers: await apiHeaders(request),
+      }),
+      ArrangorflateService.getArrangorflateTilsagnTilUtbetaling({
+        path: { id },
+        headers: await apiHeaders(request),
+      }),
+    ]);
+
+  if (utbetalingError || !utbetaling) {
+    throw problemDetailResponse(utbetalingError);
+  }
+  if (tilsagnError || !tilsagn) {
+    throw problemDetailResponse(tilsagnError);
+  }
 
   return { utbetaling, tilsagn };
 };
@@ -85,23 +95,23 @@ export const action: ActionFunction = async ({ request }) => {
     return validationErrors;
   }
 
-  try {
-    await ArrangorflateService.godkjennUtbetaling({
-      path: { id: utbetalingId },
-      body: {
-        digest: utbetalingDigest,
-        betalingsinformasjon: {
-          kontonummer: kontonummer.toString(),
-          kid: kid,
-        },
+  const { error } = await ArrangorflateService.godkjennUtbetaling({
+    path: { id: utbetalingId },
+    body: {
+      digest: utbetalingDigest,
+      betalingsinformasjon: {
+        kontonummer: kontonummer.toString(),
+        kid: kid || null,
       },
-      headers: await apiHeaders(request),
-    });
-  } catch (error) {
+    },
+    headers: await apiHeaders(request),
+  });
+  if (error) {
     if (isValidationError(error)) {
       return { errors: error.errors };
+    } else {
+      throw problemDetailResponse(error);
     }
-    throw error;
   }
   return redirect(
     `${internalNavigation(orgnr).kvittering(utbetalingId)}?forside-tab=${currentTab}`,
@@ -168,7 +178,7 @@ export default function BekreftUtbetaling() {
                   name="kid"
                   error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
                   className="border border-[#0214317D] rounded-md"
-                  defaultValue={utbetaling.betalingsinformasjon?.kid}
+                  defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
                   maxLength={25}
                 />
               </div>

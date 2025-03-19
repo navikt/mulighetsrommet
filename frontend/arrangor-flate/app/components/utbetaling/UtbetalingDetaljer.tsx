@@ -1,6 +1,6 @@
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { Separator } from "~/components/Separator";
-import { ArrangorflateTilsagn, ArrFlateUtbetaling } from "@mr/api-client-v2";
+import { ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import { formaterDato, formaterPeriode } from "~/utils";

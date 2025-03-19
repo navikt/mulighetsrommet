@@ -1,8 +1,4 @@
-import {
-  TilsagnStatus,
-  TilsagnStatusOgAarsaker,
-  TilsagnTilAnnulleringAarsak,
-} from "@mr/api-client-v2";
+import { TilsagnStatus, TilsagnStatusOgAarsaker, TilsagnTilAnnulleringAarsak } from "api-client";
 import { HelpText, List, Tag } from "@navikt/ds-react";
 
 interface Props {
@@ -60,6 +56,8 @@ function aarsakTilTekst(aarsak: TilsagnTilAnnulleringAarsak): string {
       return "Feilregistrering";
     case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
       return "Gjennomføring avbrytes";
+    case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
+      return "Arrangør har ikke sendt krav";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
       return "Annen årsak";
   }

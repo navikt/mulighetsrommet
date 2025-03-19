@@ -10,6 +10,7 @@ import { withHistory } from "slate-history";
 import { Editable, Slate, useSlate, withReact } from "slate-react";
 import { portableTextToSlate } from "./portableTextToSlate";
 import { slateToPortableText } from "./slateToPortableText";
+import { FeilmeldingMedVarselTrekant } from "../skjema/FeilmeldingMedVarseltrekant";
 
 const HOTKEYS: {
   [name: string]: string;
@@ -157,7 +158,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
               </Slate>
               {error && (
                 <div className="mt-[8px] text-nav-red">
-                  <b>• {error.message}</b>
+                  <FeilmeldingMedVarselTrekant>{error.message}</FeilmeldingMedVarselTrekant>
                 </div>
               )}
             </div>

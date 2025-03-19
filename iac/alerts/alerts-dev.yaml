@@ -44,7 +44,7 @@ spec:
       rules:
         - alert: "Høy andel feil i loggene"
           expr: sum by (app, namespace) (rate(log_messages_errors{namespace="team-mulighetsrommet", level=~"Error|Warning"}[3m])) > 0
-          for: 3m
+          for: 6m
           annotations:
             consequence: Klienter kan oppleve ustabilitet mot tjenesten.
             action: "Sjekk <https://logs.adeo.no/app/discover#/view/a6a558c0-e657-11ec-a21b-2f67f808c51c?_g=()|loggene> til '{{ $labels.app }}' i namespace '{{ $labels.namespace }}' for å se hvorfor det er så mye feil"
@@ -58,7 +58,7 @@ spec:
 
         - alert: Høy andel HTTP 5XX-responser
           expr: sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", status=~"^5\\d\\d"}[3m])) > 0
-          for: 3m
+          for: 6m
           annotations:
             consequence: Tjenesten kan være utilgjengelig inntil problemet løses.
             action: "Sjekk <https://logs.adeo.no/app/discover#/view/cf0fbc84-c0db-4c07-9fb2-bcb91e522f85?_g=()|loggene> til '{{ $labels.app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder."
@@ -86,7 +86,7 @@ spec:
                 }[3m]
               )
             ) > 0
-          for: 3m
+          for: 6m
           annotations:
             action: "Sjekk <https://logs.adeo.no/app/discover#/view/9ba27a70-0443-11ed-a503-d3f90a22c586?_g=()|loggene> for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
             summary: |-

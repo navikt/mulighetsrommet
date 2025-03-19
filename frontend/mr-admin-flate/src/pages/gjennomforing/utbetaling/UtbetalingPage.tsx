@@ -9,7 +9,7 @@ import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato, formaterPeriode } from "@/utils/Utils";
+import { formaterDato, formaterPeriode, isValidationError } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   DelutbetalingStatus,
@@ -20,7 +20,7 @@ import {
   TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
-import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import {
   ActionMenu,
@@ -157,31 +157,29 @@ export function UtbetalingPage() {
         };
       });
 
-    if (utbetalesTotal <= 0) setError("Samlet beløp må være positivt");
-    else {
-      const body: OpprettDelutbetalingerRequest = {
-        utbetalingId: utbetaling.id,
-        delutbetalinger: delutbetalingReq,
-      };
+    const body: OpprettDelutbetalingerRequest = {
+      utbetalingId: utbetaling.id,
+      delutbetalinger: delutbetalingReq,
+    };
 
-      opprettMutation.mutate(body, {
-        onSuccess: async () => {
-          setError(undefined);
-          setEndreUtbetaling(false);
-          await queryClient.invalidateQueries({
-            queryKey: ["utbetaling", utbetaling.id],
-            refetchType: "all",
+    setError(undefined);
+
+    opprettMutation.mutate(body, {
+      onSuccess: async () => {
+        setEndreUtbetaling(false);
+        await queryClient.invalidateQueries({
+          queryKey: ["utbetaling", utbetaling.id],
+          refetchType: "all",
+        });
+      },
+      onError: (error) => {
+        if (isValidationError(error)) {
+          error.errors.forEach((fieldError: FieldError) => {
+            setError(fieldError.detail);
           });
-        },
-        onError: (error) => {
-          if (isValidationError(error)) {
-            error.errors.forEach((fieldError: FieldError) => {
-              setError(fieldError.detail);
-            });
-          }
-        },
-      });
-    }
+        }
+      },
+    });
   }
 
   return (

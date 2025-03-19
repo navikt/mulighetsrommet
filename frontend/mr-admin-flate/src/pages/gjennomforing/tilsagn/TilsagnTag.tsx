@@ -48,7 +48,7 @@ export function TilsagnTag(props: Props) {
       const annullertLabel = expandable ? "Annullert..." : "Annullert";
       return (
         <Tag
-          className={`${baseTagClasses} line-through hover:no-underline bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
+          className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
           size="small"
           onMouseEnter={() => setExpandLabel(true)}
           onMouseLeave={() => setExpandLabel(false)}

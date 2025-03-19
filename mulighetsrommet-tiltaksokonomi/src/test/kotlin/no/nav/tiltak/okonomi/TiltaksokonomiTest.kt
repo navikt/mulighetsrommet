@@ -125,7 +125,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatusType.BESTILT,
+                        status = BestillingStatusType.SENDT,
                     )
                 }
             }
@@ -226,7 +226,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<FakturaStatus>() shouldBe FakturaStatus(
                         fakturanummer = fakturanummer,
-                        status = FakturaStatusType.UTBETALT,
+                        status = FakturaStatusType.SENDT,
                     )
                 }
             }

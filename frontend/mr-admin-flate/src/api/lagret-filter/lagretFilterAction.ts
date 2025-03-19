@@ -1,4 +1,4 @@
-import { LagretDokumenttype, LagretFilterRequest, LagretFilterService } from "@mr/api-client-v2";
+import { LagretDokumenttype, LagretFilterService } from "@mr/api-client-v2";
 import { QueryClient } from "@tanstack/react-query";
 import { ActionFunctionArgs } from "react-router";
 import { QueryKeys } from "../QueryKeys";
@@ -37,14 +37,14 @@ export const lagreFilterAction =
     });
   };
 
-export function filterToActionRequest(request: LagretFilterRequest): FormData {
+export function filterToActionRequest(request: any, type: LagretDokumenttype): FormData {
   const formData = new FormData();
   if (request.id) {
     formData.append("id", request.id);
   }
-  formData.append("type", request.type);
   formData.append("filter", JSON.stringify(request.filter));
-  formData.append("sortOrder", request.sortOrder.toString());
+  formData.append("sortOrder", "0");
+  formData.append("type", type);
   formData.append("navn", request.navn);
   return formData;
 }

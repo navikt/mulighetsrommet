@@ -13,6 +13,9 @@ import {
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
+  Tiltakskode,
+  TiltakskodeArena,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 
@@ -409,6 +412,8 @@ export function tilsagnAarsakTilTekst(
       return "Feilregistrering";
     case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
       return "Gjennomføring skal avbrytes";
+    case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
+      return "Arrangør har ikke sendt krav";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
       return "Annet";
   }
@@ -423,4 +428,24 @@ export function tilsagnTypeToString(type: TilsagnType): string {
     case TilsagnType.INVESTERING:
       return "Investering";
   }
+}
+
+export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena): boolean {
+  if (tiltakskode) {
+    return [
+      Tiltakskode.JOBBKLUBB,
+      Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+      Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    ].includes(tiltakskode);
+  }
+
+  if (arenaKode) {
+    return [TiltakskodeArena.ENKELAMO, TiltakskodeArena.ENKFAGYRKE].includes(arenaKode);
+  }
+
+  return false;
+}
+
+export function isValidationError(error: unknown): error is ValidationError {
+  return typeof error === "object" && error !== null && "errors" in error;
 }

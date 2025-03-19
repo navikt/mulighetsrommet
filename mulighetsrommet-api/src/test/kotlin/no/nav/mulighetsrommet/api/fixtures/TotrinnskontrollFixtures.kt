@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime

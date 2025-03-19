@@ -4,7 +4,18 @@ import classnames from "classnames";
 import { useState } from "react";
 import styles from "./NavEnhetFilter.module.scss";
 import { addOrRemove } from "../../utils/utils";
-import { NavEnhet, NavRegion } from "@mr/api-client-v2";
+
+interface NavRegion {
+    enhetsnummer: string;
+    navn: string;
+    enheter: Array<NavEnhet>;
+}
+
+interface NavEnhet {
+    enhetsnummer: string;
+    overordnetEnhet: string | null;
+    navn: string;
+}
 
 interface RegionMap {
   [region: string]: NavEnhet[];
@@ -12,7 +23,7 @@ interface RegionMap {
 
 interface Props {
   navEnheter: NavEnhet[];
-  setNavEnheter: (navEnheter: NavEnhet[]) => void;
+  setNavEnheter: (navEnheter: string[]) => void;
   regioner: NavRegion[];
 }
 
@@ -20,8 +31,8 @@ export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
   const regionMap = buildRegionMap(navEnheter);
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
 
-  function regionMapToNavEnheter(regionMap: RegionMap): NavEnhet[] {
-    return Array.from(Object.values(regionMap)).flat(1);
+  function regionMapToNavEnheter(regionMap: RegionMap): string[] {
+    return Array.from(Object.values(regionMap)).flat(1).map(enhet => enhet.enhetsnummer);
   }
 
   function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
@@ -69,7 +80,7 @@ export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
-    setNavEnheter(addOrRemove(navEnheter, enhet));
+    setNavEnheter(addOrRemove(navEnheter, enhet).map(enhet => enhet.enhetsnummer));
   }
 
   return (

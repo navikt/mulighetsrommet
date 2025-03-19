@@ -7,8 +7,6 @@ import { NavEnhetFilterTag } from "./components/filter/filterTag/NavEnhetFilterT
 import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
-import { GjennomforingStatusTag } from "./components/gjennomforing/GjennomforingStatusTag";
-import { GjennomforingStatusMedAarsakTag } from "./components/gjennomforing/GjennomforingStatusMedAarsakTag";
 import { FilterSkeleton } from "./components/skeleton/FilterSkeleton";
 import {
   InlineErrorBoundary,
@@ -19,6 +17,8 @@ import { DetaljerSkeleton } from "./components/skeleton/DetaljerSkeleton";
 import { ListSkeleton } from "./components/skeleton/ListSkeleton";
 import { LokalInformasjonContainer } from "./components/containers/LokalInformasjonContainer";
 import { LagreFilterButton } from "./components/lagreFilter/LagreFilterButton";
+import { GjennomforingStatusTag } from "./components/gjennomforing/GjennomforingStatusTag";
+import { GjennomforingStatusMedAarsakTag } from "./components/gjennomforing/GjennomforingStatusMedAarsakTag";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
 import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 import { FilterContainer } from "./components/filter/FilterContainer";
@@ -45,10 +45,10 @@ export {
   LagreFilterButton,
   LagredeFilterOversikt,
   TilbakemeldingsLenke,
-  FilterContainer,
-  useOpenFilterWhenThreshold,
   GjennomforingStatusTag,
   GjennomforingStatusMedAarsakTag,
+  FilterContainer,
+  useOpenFilterWhenThreshold,
   useApiQuery,
   useApiSuspenseQuery,
 };

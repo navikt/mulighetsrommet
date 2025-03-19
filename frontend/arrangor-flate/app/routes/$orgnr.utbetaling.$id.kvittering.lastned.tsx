@@ -1,5 +1,5 @@
 import { LoaderFunction } from "react-router";
-import { ArrangorflateService } from "@mr/api-client-v2";
+import { ArrangorflateService } from "api-client";
 import { apiHeaders } from "~/auth/auth.server";
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<Response> => {

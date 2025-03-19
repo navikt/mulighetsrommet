@@ -109,7 +109,19 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "team-mulighetsrommet.tiltaksokonomi-bestilling-v1",
+              "name": "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"

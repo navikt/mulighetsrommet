@@ -8,7 +8,7 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
@@ -16,7 +16,12 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -40,7 +45,7 @@ class UtbetalingService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
-    fun genererUtbetalingForMonth(date: LocalDate): List<UtbetalingDto> = db.transaction {
+    fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
         val periode = Periode.forMonthOf(date)
 
         getGjennomforingerForGenereringAvUtbetalinger(periode)
@@ -168,7 +173,7 @@ class UtbetalingService(
                         request.periode.start,
                         request.periode.slutt,
                     ),
-                    innsender = UtbetalingDto.Innsender.NavAnsatt(navIdent),
+                    innsender = Utbetaling.Innsender.NavAnsatt(navIdent),
                     beskrivelse = request.beskrivelse,
                 ),
             )
@@ -208,31 +213,6 @@ class UtbetalingService(
         }
     }
 
-    fun getUtbetalingDetaljer(id: UUID): AdminUtbetalingDetaljer = db.session {
-        val utbetaling = queries.utbetaling.get(id) ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
-
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map {
-            AdminUtbetalingDetaljer.OpprettetDelutbetaling(
-                delutbetaling = it,
-                opprettelse = queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT),
-            )
-        }
-
-        AdminUtbetalingDetaljer(
-            utbetaling = toAdminUtbetalingKompakt(utbetaling),
-            delutbetalinger = delutbetalinger,
-        )
-    }
-
-    fun getUtbetalingKompakt(id: UUID): AdminUtbetalingKompakt = db.session {
-        val utbetaling = queries.utbetaling.get(id) ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
-        toAdminUtbetalingKompakt(utbetaling)
-    }
-
-    fun getUtbetalingKompaktByGjennomforing(id: UUID): List<AdminUtbetalingKompakt> = db.session {
-        queries.utbetaling.getByGjennomforing(id).map { utbetaling -> toAdminUtbetalingKompakt(utbetaling) }
-    }
-
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
         periode: Periode,
     ): List<Pair<UUID, Avtaletype>> {
@@ -261,7 +241,7 @@ class UtbetalingService(
 
     private fun QueryContext.validateAndUpsertDelutbetaling(
         request: DelutbetalingRequest,
-        utbetaling: UtbetalingDto,
+        utbetaling: Utbetaling,
         navIdent: NavIdent,
     ): StatusResponse<Unit> {
         val tilsagn = queries.tilsagn.get(request.tilsagnId)
@@ -287,12 +267,6 @@ class UtbetalingService(
 
         upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
         return Unit.right()
-    }
-
-    private fun QueryContext.toAdminUtbetalingKompakt(utbetaling: UtbetalingDto): AdminUtbetalingKompakt {
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-        val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
-        return AdminUtbetalingKompakt.fromUtbetalingDto(utbetaling, status)
     }
 
     // TODO: returner årsak til hvorfor utbetaling ikke ble utført slik at dette kan assertes i tester
@@ -351,8 +325,8 @@ class UtbetalingService(
     }
 
     private fun QueryContext.upsertDelutbetaling(
-        utbetaling: UtbetalingDto,
-        tilsagn: TilsagnDto,
+        utbetaling: Utbetaling,
+        tilsagn: Tilsagn,
         id: UUID,
         belop: Int,
         frigjorTilsagn: Boolean,
@@ -402,7 +376,7 @@ class UtbetalingService(
     }
 
     private fun QueryContext.godkjennDelutbetaling(
-        delutbetaling: DelutbetalingDto,
+        delutbetaling: Delutbetaling,
         besluttetAv: Agent,
     ) {
         val tilsagn = requireNotNull(queries.tilsagn.get(delutbetaling.tilsagnId))
@@ -441,7 +415,7 @@ class UtbetalingService(
     }
 
     private fun QueryContext.avvisDelutbetaling(
-        delutbetaling: DelutbetalingDto,
+        delutbetaling: Delutbetaling,
         aarsaker: List<String>,
         forklaring: String?,
         besluttetAv: Agent,
@@ -455,6 +429,7 @@ class UtbetalingService(
             "Kan ikke beslutte egen utbetaling"
         }
 
+        queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.RETURNERT)
         queries.totrinnskontroll.upsert(
             opprettelse.copy(
                 besluttetAv = besluttetAv,
@@ -520,7 +495,7 @@ class UtbetalingService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: UtbetalingDto,
+        dto: Utbetaling,
         endretAv: Agent,
     ) {
         queries.endringshistorikk.logEndring(
@@ -534,7 +509,7 @@ class UtbetalingService(
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): UtbetalingDto {
+    private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return requireNotNull(queries.utbetaling.get(id)) { "Utbetaling med id=$id finnes ikke" }
     }
 }

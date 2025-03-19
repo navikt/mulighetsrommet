@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.totrinnskontroll.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer

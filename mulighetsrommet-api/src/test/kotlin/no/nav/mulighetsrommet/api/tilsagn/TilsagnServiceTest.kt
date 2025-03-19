@@ -22,7 +22,11 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest

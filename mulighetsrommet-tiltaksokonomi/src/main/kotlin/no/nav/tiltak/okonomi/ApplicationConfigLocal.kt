@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import org.apache.kafka.common.serialization.ByteArraySerializer
 import org.intellij.lang.annotations.Language
 
 val mockClientEngine = createMockEngine {
@@ -70,10 +71,20 @@ val ApplicationConfigLocal = AppConfig(
             .withBrokerUrl("localhost:29092")
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build(),
+        producerPropertiesPreset = KafkaPropertiesBuilder.producerBuilder()
+            .withBaseProperties()
+            .withProducerId("tiltaksokonomi.v1")
+            .withBrokerUrl("localhost:29092")
+            .withSerializers(ByteArraySerializer::class.java, ByteArraySerializer::class.java)
+            .build(),
+        topics = KafkaTopics(
+            bestillingStatus = "tiltaksokonomi.bestilling-status-v1",
+            fakturaStatus = "tiltaksokonomi.faktura-status-v1",
+        ),
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
-                topic = "tiltaksokonomi-bestilling-v1",
+                topic = "tiltaksokonomi.bestillinger-v1",
             ),
         ),
     ),

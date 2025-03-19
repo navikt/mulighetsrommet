@@ -5,11 +5,9 @@ import {
   TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
-import { mockArrangorer } from "./mock_arrangorer";
 
 export const mockTilsagn: TilsagnDto[] = [
   {
-    arrangor: mockArrangorer.data[0],
     belopGjenstaende: 10000,
     type: TilsagnType.TILSAGN,
     beregning: {
@@ -25,7 +23,6 @@ export const mockTilsagn: TilsagnDto[] = [
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
-    lopenummer: 1,
     periode: {
       start: "2024-01-05",
       slutt: "2024-01-06",
@@ -34,7 +31,6 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     belopGjenstaende: 10000,
-    arrangor: mockArrangorer.data[0],
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
@@ -49,7 +45,6 @@ export const mockTilsagn: TilsagnDto[] = [
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
-    lopenummer: 1,
     periode: {
       start: "2024-01-03",
       slutt: "2024-01-04",
@@ -58,7 +53,6 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     belopGjenstaende: 10000,
-    arrangor: mockArrangorer.data[0],
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
@@ -73,7 +67,6 @@ export const mockTilsagn: TilsagnDto[] = [
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
-    lopenummer: 4,
     periode: {
       start: "2024-01-01",
       slutt: "2024-01-02",
@@ -81,7 +74,6 @@ export const mockTilsagn: TilsagnDto[] = [
     status: TilsagnStatus.GODKJENT,
   },
   {
-    arrangor: mockArrangorer.data[0],
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
@@ -97,7 +89,6 @@ export const mockTilsagn: TilsagnDto[] = [
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
-    lopenummer: 4,
     periode: {
       start: "2024-01-01",
       slutt: "2024-01-02",
@@ -105,7 +96,6 @@ export const mockTilsagn: TilsagnDto[] = [
     status: TilsagnStatus.ANNULLERT,
   },
   {
-    arrangor: mockArrangorer.data[0],
     type: TilsagnType.TILSAGN,
     belopGjenstaende: 10000,
     beregning: {
@@ -121,7 +111,6 @@ export const mockTilsagn: TilsagnDto[] = [
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
-    lopenummer: 4,
     periode: {
       start: "2024-01-01",
       slutt: "2024-01-02",

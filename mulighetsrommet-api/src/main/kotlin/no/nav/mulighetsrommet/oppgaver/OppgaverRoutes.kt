@@ -21,7 +21,13 @@ fun Route.oppgaverRoutes() {
 
             val filter = call.receive<OppgaverFilter>()
 
-            call.respond(service.oppgaver(filter, ansatt.roller))
+            val oppgaver = service.oppgaver(
+                filter = filter,
+                ansatt = ansatt.navIdent,
+                roller = ansatt.roller,
+            )
+
+            call.respond(oppgaver)
         }
     }
 }

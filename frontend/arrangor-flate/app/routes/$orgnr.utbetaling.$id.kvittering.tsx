@@ -1,4 +1,4 @@
-import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "@mr/api-client-v2";
+import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
@@ -9,7 +9,7 @@ import { PageHeader } from "~/components/PageHeader";
 import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
 import { Separator } from "~/components/Separator";
 import { internalNavigation } from "../internal-navigation";
-import { useOrgnrFromUrl } from "../utils";
+import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { LinkWithTabState } from "../components/LinkWithTabState";
 import { apiHeaders } from "~/auth/auth.server";
 
@@ -23,18 +23,28 @@ export const loader: LoaderFunction = async ({
   params,
 }): Promise<UtbetalingKvitteringData> => {
   const { id } = params;
-  if (!id) throw Error("Mangler id");
+  if (!id) {
+    throw new Response("Mangler id", { status: 400 });
+  }
 
-  const [{ data: utbetaling }, { data: tilsagn }] = await Promise.all([
-    ArrangorflateService.getArrFlateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getArrangorflateTilsagnTilUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-  ]);
+  const [{ data: utbetaling, error: utbetalingError }, { data: tilsagn, error: tilsagnError }] =
+    await Promise.all([
+      ArrangorflateService.getArrFlateUtbetaling({
+        path: { id },
+        headers: await apiHeaders(request),
+      }),
+      ArrangorflateService.getArrangorflateTilsagnTilUtbetaling({
+        path: { id },
+        headers: await apiHeaders(request),
+      }),
+    ]);
+
+  if (utbetalingError || !utbetaling) {
+    throw problemDetailResponse(utbetalingError);
+  }
+  if (tilsagnError || !tilsagn) {
+    throw problemDetailResponse(tilsagnError);
+  }
 
   return { utbetaling, tilsagn };
 };

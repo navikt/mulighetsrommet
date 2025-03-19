@@ -1,4 +1,8 @@
-package no.nav.mulighetsrommet.api.utbetaling.model
+package no.nav.mulighetsrommet.api.utbetaling.api
+
+import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 
 enum class AdminUtbetalingStatus {
     UTBETALT,
@@ -8,8 +12,8 @@ enum class AdminUtbetalingStatus {
 
     companion object {
         fun fromUtbetaling(
-            utbetaling: UtbetalingDto,
-            delutbetalinger: List<DelutbetalingDto>,
+            utbetaling: Utbetaling,
+            delutbetalinger: List<Delutbetaling>,
         ): AdminUtbetalingStatus {
             return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
                 UTBETALT

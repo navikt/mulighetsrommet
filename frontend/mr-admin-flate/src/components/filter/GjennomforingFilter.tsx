@@ -13,7 +13,7 @@ import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import { ArrangorTil, AvtaleDto, NavEnhet } from "@mr/api-client-v2";
+import { ArrangorTil, AvtaleDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
@@ -147,17 +147,14 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
             <div style={{ marginLeft: "-2rem" }}>
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) => {
+                setNavEnheter={(navEnheter: string[]) => {
                   setFilter({
                     ...filter,
                     page: 1,
                     lagretFilterIdValgt: undefined,
-                    navEnheter,
+                    navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
                   });
-                  loggBrukAvFilter(
-                    "navEnheter",
-                    navEnheter.map((n) => n.navn),
-                  );
+                  loggBrukAvFilter("navEnheter", navEnheter);
                 }}
                 regioner={regioner}
               />

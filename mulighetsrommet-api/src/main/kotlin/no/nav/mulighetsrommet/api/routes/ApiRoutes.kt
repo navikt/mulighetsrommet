@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.routes
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
-import no.nav.mulighetsrommet.api.arrangorflate.arrangorflateRoutes
+import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
@@ -15,9 +15,9 @@ import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.routes.v1.externalRoutes
 import no.nav.mulighetsrommet.api.routes.v1.janzzRoutes
-import no.nav.mulighetsrommet.api.tilsagn.tilsagnRoutes
+import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.tiltakstypeRoutes
-import no.nav.mulighetsrommet.api.utbetaling.utbetalingRoutes
+import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.arbeidsmarkedstiltakRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.brukerRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.delMedBrukerRoutes

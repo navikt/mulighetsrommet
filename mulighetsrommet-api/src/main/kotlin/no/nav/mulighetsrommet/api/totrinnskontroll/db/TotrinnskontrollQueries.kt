@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle

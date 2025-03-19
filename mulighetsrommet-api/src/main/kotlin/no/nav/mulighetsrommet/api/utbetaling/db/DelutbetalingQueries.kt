@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -74,7 +74,7 @@ class DelutbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, tilsagnId)) { it.int("lopenummer") }
     }
 
-    fun getSkalSendesTilOkonomi(tilsagnId: UUID): List<DelutbetalingDto> {
+    fun getSkalSendesTilOkonomi(tilsagnId: UUID): List<Delutbetaling> {
         @Language("PostgreSQL")
         val query = """
             select
@@ -131,7 +131,7 @@ class DelutbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> {
+    fun getByUtbetalingId(id: UUID): List<Delutbetaling> {
         @Language("PostgreSQL")
         val query = """
             select
@@ -152,7 +152,7 @@ class DelutbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 
-    fun get(id: UUID): DelutbetalingDto? {
+    fun get(id: UUID): Delutbetaling? {
         @Language("PostgreSQL")
         val query = """
             select
@@ -220,7 +220,7 @@ class DelutbetalingQueries(private val session: Session) {
     }
 }
 
-private fun Row.toDelutbetalingDto() = DelutbetalingDto(
+private fun Row.toDelutbetalingDto() = Delutbetaling(
     id = uuid("id"),
     tilsagnId = uuid("tilsagn_id"),
     utbetalingId = uuid("utbetaling_id"),

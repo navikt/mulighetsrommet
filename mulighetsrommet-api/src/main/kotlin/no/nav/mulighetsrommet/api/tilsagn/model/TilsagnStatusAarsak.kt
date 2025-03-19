@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 enum class TilsagnStatusAarsak {
     FEIL_REGISTRERING,
     GJENNOMFORING_AVBRYTES,
+    ARRANGOR_HAR_IKKE_SENDT_KRAV,
     FEIL_ANTALL_PLASSER,
     FEIL_KOSTNADSSTED,
     FEIL_PERIODE,

@@ -8,8 +8,6 @@ metadata:
 spec:
   image: "{{image}}"
   port: 8080
-  ingresses:
-    - https://mulighetsrommet-tiltakshisokonomi.intern.dev.nav.no
   secureLogs:
     enabled: true
   prometheus:

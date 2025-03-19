@@ -1,4 +1,4 @@
-import { TilsagnType } from "@mr/api-client-v2";
+import { TilsagnType } from "api-client";
 
 export const tekster = {
   tilsagn: {

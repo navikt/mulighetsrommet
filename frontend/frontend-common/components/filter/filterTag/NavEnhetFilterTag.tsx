@@ -3,10 +3,9 @@ import Ikonknapp from "../../ikonknapp/Ikonknapp";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./FilterTag.module.scss";
 import { MouseEvent } from "react";
-import { NavEnhet } from "@mr/api-client-v2";
 
 interface Props {
-  navEnheter: NavEnhet[];
+  navEnheter: string[];
   onClose?: (e: MouseEvent) => void;
 }
 
@@ -16,7 +15,7 @@ export function NavEnhetFilterTag({ navEnheter, onClose }: Props) {
   }
 
   function tagLabel() {
-    const firstEnhetName = navEnheter[0].navn;
+    const firstEnhetName = navEnheter[0];
     if (navEnheter.length > 1) {
       return `${firstEnhetName} +${navEnheter.length - 1}`;
     }
@@ -30,7 +29,7 @@ export function NavEnhetFilterTag({ navEnheter, onClose }: Props) {
       key="navenhet"
       data-testid="filtertag_navenhet"
       className={styles.filtertag}
-      title={navEnheter.map((enhet) => enhet.navn).join(", ")}
+      title={navEnheter.join(", ")}
     >
       {tagLabel()}
       {onClose ? (

@@ -5,7 +5,7 @@ import {
   RelevanteForslag,
   UtbetalingDeltakelse,
   UtbetalingDeltakelsePerson,
-} from "@mr/api-client-v2";
+} from "api-client";
 import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 import {
   Alert,
@@ -28,7 +28,7 @@ import { PageHeader } from "~/components/PageHeader";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
-import { formaterDato, useOrgnrFromUrl } from "~/utils";
+import { formaterDato, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { BeregningDetaljer } from "../components/utbetaling/BeregningDetaljer";
 
@@ -41,20 +41,35 @@ type LoaderData = {
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 };
+
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   const deltakerlisteUrl = deltakerOversiktLenke(hentMiljø());
 
   const { id } = params;
-  if (!id) throw Error("Mangler id");
+  if (!id) {
+    throw new Response("Mangler id", { status: 400 });
+  }
 
-  const { data: utbetaling } = await ArrangorflateService.getArrFlateUtbetaling({
-    path: { id },
-    headers: await apiHeaders(request),
-  });
-  const { data: relevanteForslag } = await ArrangorflateService.getRelevanteForslag({
-    path: { id },
-    headers: await apiHeaders(request),
-  });
+  const [
+    { data: utbetaling, error: utbetalingError },
+    { data: relevanteForslag, error: relevanteForslagError },
+  ] = await Promise.all([
+    ArrangorflateService.getArrFlateUtbetaling({
+      path: { id },
+      headers: await apiHeaders(request),
+    }),
+    ArrangorflateService.getRelevanteForslag({
+      path: { id },
+      headers: await apiHeaders(request),
+    }),
+  ]);
+
+  if (utbetalingError || !utbetaling) {
+    throw problemDetailResponse(utbetalingError);
+  }
+  if (relevanteForslagError || !relevanteForslag) {
+    throw problemDetailResponse(relevanteForslagError);
+  }
 
   return { utbetaling, deltakerlisteUrl, relevanteForslag };
 };

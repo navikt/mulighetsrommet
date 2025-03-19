@@ -9,8 +9,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetaling
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
 
 class PdfGenClient(
     clientEngine: HttpClientEngine = CIO.create(),
@@ -22,11 +22,11 @@ class PdfGenClient(
         }
     }
 
-    suspend fun getUtbetalingKvittering(utbetaling: ArrFlateUtbetaling, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+    suspend fun getUtbetalingKvittering(utbetaling: ArrFlateUtbetaling, tilsagn: List<ArrangorflateTilsagnDto>): ByteArray {
         @Serializable
         data class PdfData(
             val utbetaling: ArrFlateUtbetaling,
-            val tilsagn: List<ArrangorflateTilsagn>,
+            val tilsagn: List<ArrangorflateTilsagnDto>,
         )
 
         return downloadPdf(
@@ -36,11 +36,11 @@ class PdfGenClient(
         )
     }
 
-    suspend fun utbetalingJournalpost(utbetaling: ArrFlateUtbetaling, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+    suspend fun utbetalingJournalpost(utbetaling: ArrFlateUtbetaling, tilsagn: List<ArrangorflateTilsagnDto>): ByteArray {
         @Serializable
         data class PdfData(
             val utbetaling: ArrFlateUtbetaling,
-            val tilsagn: List<ArrangorflateTilsagn>,
+            val tilsagn: List<ArrangorflateTilsagnDto>,
         )
 
         return downloadPdf(

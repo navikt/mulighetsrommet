@@ -34,7 +34,7 @@ class BestillingTest : FunSpec({
         test("felter utledes fra OpprettBestilling") {
             val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
 
-            bestilling.status shouldBe BestillingStatusType.BESTILT
+            bestilling.status shouldBe BestillingStatusType.SENDT
             bestilling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             bestilling.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
             bestilling.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")

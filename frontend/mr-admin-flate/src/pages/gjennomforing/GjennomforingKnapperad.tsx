@@ -7,9 +7,8 @@ import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentFo
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { GjennomforingDto, NavAnsatt, Toggles } from "@mr/api-client-v2";
+import { GjennomforingDto, GjennomforingStatus, NavAnsatt, Toggles } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import React, { useRef } from "react";
 import { useFetcher, useNavigate } from "react-router";
@@ -53,7 +52,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     <KnapperadContainer>
       <HarSkrivetilgang
         ressurs="Gjennomføring"
-        condition={gjennomforingIsAktiv(gjennomforing.status.status)}
+        condition={gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES}
       >
         <div>
           <Switch name="publiser" checked={gjennomforingPublisert} onClick={handleClick}>
@@ -73,7 +72,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
       <HarSkrivetilgang
         ressurs="Gjennomføring"
-        condition={gjennomforingIsAktiv(gjennomforing.status.status)}
+        condition={gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES}
       >
         <Dropdown>
           <Button size="small" as={Dropdown.Toggle}>
@@ -96,7 +95,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
               >
                 Rediger gjennomføring
               </Dropdown.Menu.GroupedList.Item>
-              {gjennomforingIsAktiv(gjennomforing.status.status) && (
+              {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => apentForPameldingModalRef.current?.showModal()}
                 >
@@ -110,7 +109,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
                   Registrer stengt hos arrangør
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {gjennomforingIsAktiv(gjennomforing.status.status) && (
+              {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => avbrytModalRef.current?.showModal()}>
                   Avbryt gjennomføring
                 </Dropdown.Menu.GroupedList.Item>

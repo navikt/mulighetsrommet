@@ -1,8 +1,8 @@
-package no.nav.mulighetsrommet.api.arrangorflate.model
+package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -10,6 +10,21 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+
+@Serializable
+data class ArrFlateUtbetaling(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val status: ArrFlateUtbetalingStatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val fristForGodkjenning: LocalDateTime,
+    val tiltakstype: Utbetaling.Tiltakstype,
+    val gjennomforing: Utbetaling.Gjennomforing,
+    val arrangor: Utbetaling.Arrangor,
+    val beregning: Beregning,
+    val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
+    val periode: Periode,
+)
 
 @Serializable
 sealed class Beregning {
@@ -32,21 +47,6 @@ sealed class Beregning {
         override val digest: String,
     ) : Beregning()
 }
-
-@Serializable
-data class ArrFlateUtbetaling(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val status: ArrFlateUtbetalingStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val fristForGodkjenning: LocalDateTime,
-    val tiltakstype: UtbetalingDto.Tiltakstype,
-    val gjennomforing: UtbetalingDto.Gjennomforing,
-    val arrangor: UtbetalingDto.Arrangor,
-    val beregning: Beregning,
-    val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
-    val periode: Periode,
-)
 
 @Serializable
 data class UtbetalingDeltakelse(

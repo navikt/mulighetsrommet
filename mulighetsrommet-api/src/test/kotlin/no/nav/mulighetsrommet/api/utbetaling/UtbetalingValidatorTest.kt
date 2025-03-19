@@ -5,7 +5,8 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.utbetaling.OpprettManuellUtbetalingRequest.Periode
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest.Periode
 import no.nav.mulighetsrommet.model.Kontonummer
 import java.time.LocalDate
 import java.util.*

@@ -63,7 +63,7 @@ class FakturaQueriesTest : FunSpec({
         kid = Kid("123123123123123"),
         belop = 500,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-        status = FakturaStatusType.UTBETALT,
+        status = FakturaStatusType.SENDT,
         behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
         behandletTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),

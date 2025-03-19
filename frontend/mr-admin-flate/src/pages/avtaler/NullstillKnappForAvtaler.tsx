@@ -38,13 +38,12 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
           />
           <LagreFilterButton
             onLagre={(r) => {
-              const formData = filterToActionRequest(r);
+              const formData = filterToActionRequest(r, LagretDokumenttype.AVTALE);
               fetcher.submit(formData, {
                 method: "POST",
                 action: "/avtaler",
               });
             }}
-            dokumenttype={LagretDokumenttype.AVTALE}
             filter={filter}
           />
         </HStack>

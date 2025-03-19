@@ -3,6 +3,7 @@ import classnames from "classnames";
 import { Ref } from "react";
 import ReactSelect from "react-select";
 import Select from "react-select/base";
+import { FeilmeldingMedVarselTrekant } from "../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
 
 export interface SelectOption<T = string> {
   value: T;
@@ -148,7 +149,7 @@ export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<Se
             fontSize: size === "small" ? "16px" : "18px",
           }}
         >
-          <b>• {error.message}</b>
+          <FeilmeldingMedVarselTrekant>{error.message}</FeilmeldingMedVarselTrekant>
         </div>
       )}
     </div>

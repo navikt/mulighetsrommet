@@ -91,7 +91,7 @@ export function OpprettDelutbetalingRow({
           checked={endretFrigjorTilsagn}
           onChange={(e) => {
             setEndretFrigjorTilsagn(e.target.checked);
-            handleOnChange(belop, e.target.checked);
+            handleOnChange(endretBelop, e.target.checked);
           }}
         >
           Gjør opp tilsagn

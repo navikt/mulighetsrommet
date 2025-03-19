@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.utbetaling.api
 
 import arrow.core.left
 import io.ktor.http.*
@@ -11,14 +11,19 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -35,7 +40,22 @@ fun Route.utbetalingRoutes() {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val utbetaling = service.getUtbetalingDetaljer(id)
+            val utbetaling = db.session {
+                val utbetaling = queries.utbetaling.get(id)
+                    ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
+
+                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map {
+                    DelutbetalingDto(
+                        delutbetaling = it,
+                        opprettelse = queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT),
+                    )
+                }
+
+                UtbetalingDetaljerDto(
+                    utbetaling = toUtbetalingDto(utbetaling),
+                    delutbetalinger = delutbetalinger,
+                )
+            }
 
             call.respond(utbetaling)
         }
@@ -60,10 +80,10 @@ fun Route.utbetalingRoutes() {
 
         get("/tilsagn") {
             val id = call.parameters.getOrFail<UUID>("id")
-            val utbetaling = db.session {
-                queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
-            }
+
             val tilsagn = db.session {
+                val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+
                 queries.tilsagn.getAll(
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periodeIntersectsWith = utbetaling.periode,
@@ -119,11 +139,20 @@ fun Route.utbetalingRoutes() {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val utbetalinger = service.getUtbetalingKompaktByGjennomforing(id)
+            val utbetalinger = db.session {
+                queries.utbetaling.getByGjennomforing(id)
+                    .map { utbetaling -> toUtbetalingDto(utbetaling) }
+            }
 
             call.respond(utbetalinger)
         }
     }
+}
+
+private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {
+    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+    val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
+    return UtbetalingDto.fromUtbetaling(utbetaling, status)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
