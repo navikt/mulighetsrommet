@@ -55,7 +55,7 @@ val ApplicationConfigProd = AppConfig(
                 producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
             ),
             okonomiBestilling = OkonomiBestillingService.Config(
-                topic = "team-mulighetsrommet.tiltaksokonomi-bestilling-v1",
+                topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
             ),
         ),
         consumers = KafkaConsumers(
