@@ -356,7 +356,7 @@ class OkonomiServiceTest : FunSpec({
             queries.bestilling.insertBestilling(bestilling2)
         }
 
-        test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
+        test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer status på bestilling") {
             val mockEngine = createMockEngine {
                 post(OebsPoApClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()

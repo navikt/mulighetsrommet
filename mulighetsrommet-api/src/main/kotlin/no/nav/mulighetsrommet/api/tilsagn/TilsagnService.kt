@@ -83,7 +83,7 @@ class TilsagnService(
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
 
-                val bestillingsnummer = previous?.bestillingsnummer
+                val bestillingsnummer = previous?.bestilling?.bestillingsnummer
                     ?: "A-${gjennomforing.lopenummer}-$lopenummer"
 
                 TilsagnDbo(
@@ -94,7 +94,7 @@ class TilsagnService(
                     lopenummer = lopenummer,
                     kostnadssted = request.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
-                    bestillingstatus = null,
+                    bestillingStatus = null,
                     beregning = beregning,
                 )
             }

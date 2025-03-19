@@ -19,8 +19,7 @@ data class Tilsagn(
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
-    val bestillingsnummer: String,
-    val bestillingstatus: BestillingStatusType?,
+    val bestilling: Bestilling,
     val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
@@ -46,5 +45,11 @@ data class Tilsagn(
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
+    )
+
+    @Serializable
+    data class Bestilling(
+        val bestillingsnummer: String,
+        val status: BestillingStatusType?,
     )
 }

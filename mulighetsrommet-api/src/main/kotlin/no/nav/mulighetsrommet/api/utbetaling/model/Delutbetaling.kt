@@ -19,6 +19,11 @@ data class Delutbetaling(
     val belop: Int,
     val frigjorTilsagn: Boolean,
     val lopenummer: Int,
-    val fakturanummer: String,
-    val fakturastatus: FakturaStatusType?,
-)
+    val faktura: Faktura,
+) {
+    @Serializable
+    data class Faktura(
+        val fakturanummer: String,
+        val status: FakturaStatusType?,
+    )
+}

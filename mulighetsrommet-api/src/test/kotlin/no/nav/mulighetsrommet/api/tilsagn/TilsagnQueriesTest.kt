@@ -41,7 +41,7 @@ class TilsagnQueriesTest : FunSpec({
         lopenummer = 1,
         kostnadssted = Gjovik.enhetsnummer,
         bestillingsnummer = "1",
-        bestillingstatus = null,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
     )
 
@@ -67,7 +67,10 @@ class TilsagnQueriesTest : FunSpec({
                     it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
                     it.kostnadssted shouldBe Gjovik
                     it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "1"
+                    it.bestilling shouldBe Tilsagn.Bestilling(
+                        bestillingsnummer = "1",
+                        status = null,
+                    )
                     it.arrangor shouldBe Tilsagn.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
@@ -221,13 +224,13 @@ class TilsagnQueriesTest : FunSpec({
 
                 val queries = TilsagnQueries(session)
 
-                queries.upsert(tilsagn.copy(bestillingstatus = BestillingStatusType.SENDT))
+                queries.upsert(tilsagn.copy(bestillingStatus = BestillingStatusType.SENDT))
 
-                queries.get(tilsagn.id).shouldNotBeNull().bestillingstatus shouldBe BestillingStatusType.SENDT
+                queries.get(tilsagn.id).shouldNotBeNull().bestilling.status shouldBe BestillingStatusType.SENDT
 
                 queries.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.FRIGJORT)
 
-                queries.get(tilsagn.id).shouldNotBeNull().bestillingstatus shouldBe BestillingStatusType.FRIGJORT
+                queries.get(tilsagn.id).shouldNotBeNull().bestilling.status shouldBe BestillingStatusType.FRIGJORT
             }
         }
     }

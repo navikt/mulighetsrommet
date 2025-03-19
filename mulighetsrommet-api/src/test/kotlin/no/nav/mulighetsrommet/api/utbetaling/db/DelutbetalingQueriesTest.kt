@@ -41,7 +41,7 @@ class DelutbetalingQueriesTest : FunSpec({
         periode = UtbetalingFixtures.utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "1",
-        fakturastatus = null,
+        fakturaStatus = null,
     )
 
     test("opprett delutbetaling") {
@@ -59,7 +59,7 @@ class DelutbetalingQueriesTest : FunSpec({
                 it.belop shouldBe 100
                 it.periode shouldBe UtbetalingFixtures.utbetaling1.periode
                 it.lopenummer shouldBe 1
-                it.fakturanummer shouldBe "1"
+                it.faktura.fakturanummer shouldBe "1"
             }
         }
     }
@@ -86,19 +86,19 @@ class DelutbetalingQueriesTest : FunSpec({
         }
     }
 
-    test("set fakturastatus") {
+    test("set faktura_status") {
         database.runAndRollback { session ->
             domain.setup(session)
 
             val queries = DelutbetalingQueries(session)
 
-            queries.upsert(delutbetaling.copy(fakturastatus = FakturaStatusType.SENDT))
+            queries.upsert(delutbetaling.copy(fakturaStatus = FakturaStatusType.SENDT))
 
-            queries.get(delutbetaling.id).shouldNotBeNull().fakturastatus shouldBe FakturaStatusType.SENDT
+            queries.get(delutbetaling.id).shouldNotBeNull().faktura.status shouldBe FakturaStatusType.SENDT
 
             queries.setFakturaStatus(delutbetaling.fakturanummer, FakturaStatusType.UTBETALT)
 
-            queries.get(delutbetaling.id).shouldNotBeNull().fakturastatus shouldBe FakturaStatusType.UTBETALT
+            queries.get(delutbetaling.id).shouldNotBeNull().faktura.status shouldBe FakturaStatusType.UTBETALT
         }
     }
 

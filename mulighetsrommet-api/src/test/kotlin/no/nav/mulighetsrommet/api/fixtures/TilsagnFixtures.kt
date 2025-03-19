@@ -20,7 +20,7 @@ object TilsagnFixtures {
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 1,
         bestillingsnummer = "A-2025/1-1",
-        bestillingstatus = null,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1000),
             output = TilsagnBeregningFri.Output(1000),
@@ -35,7 +35,7 @@ object TilsagnFixtures {
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 2,
         bestillingsnummer = "A-2025/1-2",
-        bestillingstatus = null,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1500),
             output = TilsagnBeregningFri.Output(1500),
@@ -50,7 +50,7 @@ object TilsagnFixtures {
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 3,
         bestillingsnummer = "A-2025/1-3",
-        bestillingstatus = null,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),
@@ -65,7 +65,7 @@ object TilsagnFixtures {
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 4,
         bestillingsnummer = "A-2025/1-4",
-        bestillingstatus = null,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),

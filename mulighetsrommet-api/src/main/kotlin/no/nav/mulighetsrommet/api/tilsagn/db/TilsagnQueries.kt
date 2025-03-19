@@ -30,7 +30,7 @@ class TilsagnQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 bestillingsnummer,
-                bestillingstatus,
+                bestilling_status,
                 kostnadssted,
                 status,
                 type,
@@ -43,7 +43,7 @@ class TilsagnQueries(private val session: Session) {
                 :periode::daterange,
                 :lopenummer,
                 :bestillingsnummer,
-                :bestillingstatus,
+                :bestilling_status,
                 :kostnadssted,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
@@ -56,7 +56,7 @@ class TilsagnQueries(private val session: Session) {
                 periode                 = excluded.periode,
                 lopenummer              = excluded.lopenummer,
                 bestillingsnummer       = excluded.bestillingsnummer,
-                bestillingstatus        = excluded.bestillingstatus,
+                bestilling_status       = excluded.bestilling_status,
                 kostnadssted            = excluded.kostnadssted,
                 status                  = excluded.status,
                 type                    = excluded.type,
@@ -72,7 +72,7 @@ class TilsagnQueries(private val session: Session) {
             "lopenummer" to dbo.lopenummer,
             "status" to TilsagnStatus.TIL_GODKJENNING.name,
             "bestillingsnummer" to dbo.bestillingsnummer,
-            "bestillingstatus" to dbo.bestillingstatus?.name,
+            "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted,
             "type" to dbo.type.name,
             "belop_gjenstaende" to dbo.beregning.output.belop,
@@ -215,7 +215,7 @@ class TilsagnQueries(private val session: Session) {
     fun setBestillingStatus(bestillingsnummer: String, status: BestillingStatusType) {
         @Language("PostgreSQL")
         val query = """
-            update tilsagn set bestillingstatus = ? where bestillingsnummer = ?
+            update tilsagn set bestilling_status = ? where bestillingsnummer = ?
         """.trimIndent()
 
         session.execute(queryOf(query, status.name, bestillingsnummer))
@@ -240,8 +240,10 @@ class TilsagnQueries(private val session: Session) {
             belopGjenstaende = int("belop_gjenstaende"),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
-            bestillingsnummer = string("bestillingsnummer"),
-            bestillingstatus = stringOrNull("bestillingstatus")?.let { BestillingStatusType.valueOf(it) },
+            bestilling = Tilsagn.Bestilling(
+                bestillingsnummer = string("bestillingsnummer"),
+                status = stringOrNull("bestilling_status")?.let { BestillingStatusType.valueOf(it) },
+            ),
             kostnadssted = NavEnhetDbo(
                 enhetsnummer = string("kostnadssted"),
                 navn = string("kostnadssted_navn"),

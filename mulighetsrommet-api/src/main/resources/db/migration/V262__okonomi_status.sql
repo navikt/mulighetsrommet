@@ -5,7 +5,7 @@ alter table tilsagn
     drop arrangor_id;
 
 alter table tilsagn
-    add column bestillingstatus text;
+    add column bestilling_status text;
 
 alter table delutbetaling
-    add column fakturastatus text;
+    add column faktura_status text;

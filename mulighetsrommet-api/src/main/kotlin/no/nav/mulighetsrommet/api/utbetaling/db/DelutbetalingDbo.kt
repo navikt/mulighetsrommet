@@ -15,5 +15,5 @@ data class DelutbetalingDbo(
     val periode: Periode,
     val lopenummer: Int,
     val fakturanummer: String,
-    val fakturastatus: FakturaStatusType?,
+    val fakturaStatus: FakturaStatusType?,
 )

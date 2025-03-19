@@ -30,7 +30,7 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                fakturastatus
+                faktura_status
             ) values (
                 :id::uuid,
                 :tilsagn_id::uuid,
@@ -41,7 +41,7 @@ class DelutbetalingQueries(private val session: Session) {
                 :periode::daterange,
                 :lopenummer,
                 :fakturanummer,
-                :fakturastatus
+                :faktura_status
             ) on conflict (utbetaling_id, tilsagn_id) do update set
                 status               = excluded.status,
                 belop                = excluded.belop,
@@ -49,7 +49,7 @@ class DelutbetalingQueries(private val session: Session) {
                 periode              = delutbetaling.periode,
                 lopenummer           = delutbetaling.lopenummer,
                 fakturanummer        = delutbetaling.fakturanummer,
-                fakturastatus        = delutbetaling.fakturastatus
+                faktura_status       = delutbetaling.faktura_status
         """.trimIndent()
 
         val params = mapOf(
@@ -62,7 +62,7 @@ class DelutbetalingQueries(private val session: Session) {
             "periode" to delutbetaling.periode.toDaterange(),
             "lopenummer" to delutbetaling.lopenummer,
             "fakturanummer" to delutbetaling.fakturanummer,
-            "fakturastatus" to delutbetaling.fakturastatus?.name,
+            "faktura_status" to delutbetaling.fakturaStatus?.name,
         )
 
         session.execute(queryOf(query, params))
@@ -92,7 +92,7 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                fakturastatus
+                faktura_status
             from delutbetaling
             where
                 tilsagn_id = :tilsagn_id
@@ -150,7 +150,7 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                fakturastatus
+                faktura_status
             from delutbetaling
             where utbetaling_id = ?
             order by created_at desc
@@ -172,7 +172,7 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                fakturastatus
+                faktura_status
             from delutbetaling
             where id = ?::uuid
         """.trimIndent()
@@ -196,7 +196,7 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.periode,
                 delutbetaling.lopenummer,
                 delutbetaling.fakturanummer,
-                delutbetaling.fakturastatus,
+                delutbetaling.faktura_status,
                 tilsagn.gjennomforing_id,
                 gjennomforing.navn,
                 tiltakstype.tiltakskode,
@@ -231,7 +231,7 @@ class DelutbetalingQueries(private val session: Session) {
     fun setFakturaStatus(fakturanummer: String, status: FakturaStatusType) {
         @Language("PostgreSQL")
         val query = """
-            update delutbetaling set fakturastatus = ? where fakturanummer = ?
+            update delutbetaling set faktura_status = ? where fakturanummer = ?
         """.trimIndent()
 
         session.execute(queryOf(query, status.name, fakturanummer))
@@ -246,7 +246,9 @@ private fun Row.toDelutbetalingDto() = Delutbetaling(
     frigjorTilsagn = boolean("frigjor_tilsagn"),
     periode = periode("periode"),
     lopenummer = int("lopenummer"),
-    fakturanummer = string("fakturanummer"),
-    fakturastatus = stringOrNull("fakturastatus")?.let { FakturaStatusType.valueOf(it) },
     status = DelutbetalingStatus.valueOf(string("status")),
+    faktura = Delutbetaling.Faktura(
+        fakturanummer = string("fakturanummer"),
+        status = stringOrNull("faktura_status")?.let { FakturaStatusType.valueOf(it) },
+    ),
 )

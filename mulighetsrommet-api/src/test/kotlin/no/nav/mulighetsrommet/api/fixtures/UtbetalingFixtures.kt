@@ -70,7 +70,7 @@ object UtbetalingFixtures {
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
-        fakturastatus = null,
+        fakturaStatus = null,
     )
 
     val delutbetaling2 = DelutbetalingDbo(
@@ -83,7 +83,7 @@ object UtbetalingFixtures {
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
-        fakturastatus = null,
+        fakturaStatus = null,
     )
 }
 
