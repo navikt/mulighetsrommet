@@ -28,6 +28,6 @@ select tilsagn.id,
        tiltakstype.navn                  as tiltakstype_navn
 from tilsagn
          inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
-         inner join arrangor on arrangor.id = tilsagn.arrangor_id
          inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
+         inner join arrangor on arrangor.id = gjennomforing.arrangor_id
          inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id;

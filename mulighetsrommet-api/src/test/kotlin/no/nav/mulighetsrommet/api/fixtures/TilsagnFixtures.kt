@@ -23,7 +23,6 @@ object TilsagnFixtures {
             input = TilsagnBeregningFri.Input(1000),
             output = TilsagnBeregningFri.Output(1000),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
         type = TilsagnType.TILSAGN,
     )
 
@@ -38,7 +37,6 @@ object TilsagnFixtures {
             input = TilsagnBeregningFri.Input(1500),
             output = TilsagnBeregningFri.Output(1500),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
         type = TilsagnType.TILSAGN,
     )
 
@@ -53,7 +51,6 @@ object TilsagnFixtures {
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
         type = TilsagnType.TILSAGN,
     )
 
@@ -68,7 +65,6 @@ object TilsagnFixtures {
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
         type = TilsagnType.TILSAGN,
     )
 }

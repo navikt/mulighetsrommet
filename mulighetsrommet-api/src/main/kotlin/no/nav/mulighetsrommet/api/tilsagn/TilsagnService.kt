@@ -95,7 +95,6 @@ class TilsagnService(
                     bestillingsnummer = bestillingsnummer,
                     kostnadssted = request.kostnadssted,
                     beregning = beregning,
-                    arrangorId = gjennomforing.arrangor.id,
                 )
             }
             .flatMap { dbo ->

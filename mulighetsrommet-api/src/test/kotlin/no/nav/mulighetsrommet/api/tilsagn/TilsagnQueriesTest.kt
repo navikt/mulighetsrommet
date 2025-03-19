@@ -36,7 +36,6 @@ class TilsagnQueriesTest : FunSpec({
         lopenummer = 1,
         bestillingsnummer = "1",
         kostnadssted = Gjovik.enhetsnummer,
-        arrangorId = ArrangorFixtures.underenhet1.id,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
         type = TilsagnType.TILSAGN,
     )

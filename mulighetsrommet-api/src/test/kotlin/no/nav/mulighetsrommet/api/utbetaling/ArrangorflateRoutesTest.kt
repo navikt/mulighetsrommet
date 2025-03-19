@@ -90,7 +90,6 @@ class ArrangorflateRoutesTest : FunSpec({
             input = TilsagnBeregningFri.Input(1000),
             output = TilsagnBeregningFri.Output(1000),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
         type = TilsagnType.TILSAGN,
     )
 

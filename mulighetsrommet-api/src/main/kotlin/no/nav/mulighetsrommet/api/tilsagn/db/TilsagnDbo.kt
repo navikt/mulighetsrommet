@@ -14,5 +14,4 @@ data class TilsagnDbo(
     val bestillingsnummer: String,
     val kostnadssted: String,
     val beregning: TilsagnBeregning,
-    val arrangorId: UUID,
 )
