@@ -91,4 +91,5 @@ data class Faktura(
 
 enum class FakturaStatusType {
     SENDT,
+    UTBETALT,
 }
