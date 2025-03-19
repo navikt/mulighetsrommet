@@ -83,7 +83,7 @@ class TilsagnService(
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
 
-                val bestillingsnummer = previous?.bestillingsnummer
+                val bestillingsnummer = previous?.bestilling?.bestillingsnummer
                     ?: "A-${gjennomforing.lopenummer}-$lopenummer"
 
                 TilsagnDbo(
@@ -92,10 +92,10 @@ class TilsagnService(
                     type = request.type,
                     periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
                     lopenummer = lopenummer,
-                    bestillingsnummer = bestillingsnummer,
                     kostnadssted = request.kostnadssted,
+                    bestillingsnummer = bestillingsnummer,
+                    bestillingStatus = null,
                     beregning = beregning,
-                    arrangorId = gjennomforing.arrangor.id,
                 )
             }
             .flatMap { dbo ->

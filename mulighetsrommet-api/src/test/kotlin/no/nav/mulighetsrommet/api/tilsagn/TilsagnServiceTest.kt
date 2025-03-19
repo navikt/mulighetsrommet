@@ -184,13 +184,13 @@ class TilsagnServiceTest : FunSpec({
 
                 queries.tilsagn.get(tilsagn2).shouldNotBeNull().should {
                     it.lopenummer shouldBe 2
-                    it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-2"
+                    it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-2"
                 }
 
                 val aft2 = queries.gjennomforing.get(domain2.gjennomforinger[1].id).shouldNotBeNull()
                 queries.tilsagn.get(tilsagn3).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "A-${aft2.lopenummer}-1"
+                    it.bestilling.bestillingsnummer shouldBe "A-${aft2.lopenummer}-1"
                 }
             }
         }
@@ -362,7 +362,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1
-                it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
+                it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
             }
 
             service.beslutt(
@@ -377,7 +377,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, NavIdent("T888888")).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1
-                it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
+                it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
             }
         }
     }

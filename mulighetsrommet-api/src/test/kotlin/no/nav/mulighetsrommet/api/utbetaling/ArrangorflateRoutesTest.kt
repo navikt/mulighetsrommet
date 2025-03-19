@@ -29,10 +29,7 @@ import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
@@ -63,6 +60,8 @@ class ArrangorflateRoutesTest : FunSpec({
     val hovedenhet = ArrangorFixtures.hovedenhet
     val underenhet = ArrangorFixtures.underenhet1
 
+    val tilsagn = TilsagnFixtures.Tilsagn1
+
     val deltaker = DeltakerDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -77,21 +76,6 @@ class ArrangorflateRoutesTest : FunSpec({
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),
-    )
-
-    val tilsagn = TilsagnDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        periode = Periode(LocalDate.of(2024, 6, 1), LocalDate.of(2025, 1, 1)),
-        lopenummer = 1,
-        bestillingsnummer = "A-2025/1-1",
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(1000),
-            output = TilsagnBeregningFri.Output(1000),
-        ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        type = TilsagnType.TILSAGN,
     )
 
     val utbetaling = UtbetalingDbo(

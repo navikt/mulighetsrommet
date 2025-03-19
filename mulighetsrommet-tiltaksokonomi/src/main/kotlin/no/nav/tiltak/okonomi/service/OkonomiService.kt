@@ -9,12 +9,9 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
-import no.nav.tiltak.okonomi.api.BestillingStatus
-import no.nav.tiltak.okonomi.api.FakturaStatus
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
-import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
 import no.nav.tiltak.okonomi.oebs.*

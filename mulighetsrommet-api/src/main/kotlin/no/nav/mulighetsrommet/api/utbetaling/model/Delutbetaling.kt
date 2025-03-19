@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.FakturaStatusType
 import java.util.*
 
 @Serializable
@@ -18,5 +19,11 @@ data class Delutbetaling(
     val belop: Int,
     val frigjorTilsagn: Boolean,
     val lopenummer: Int,
-    val fakturanummer: String,
-)
+    val faktura: Faktura,
+) {
+    @Serializable
+    data class Faktura(
+        val fakturanummer: String,
+        val status: FakturaStatusType?,
+    )
+}

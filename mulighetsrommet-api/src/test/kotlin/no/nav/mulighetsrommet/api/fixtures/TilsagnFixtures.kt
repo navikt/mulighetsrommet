@@ -15,61 +15,61 @@ object TilsagnFixtures {
     val Tilsagn1 = TilsagnDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
+        type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 1,
         bestillingsnummer = "A-2025/1-1",
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1000),
             output = TilsagnBeregningFri.Output(1000),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        type = TilsagnType.TILSAGN,
     )
 
     val Tilsagn2 = TilsagnDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
+        type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 2,
         bestillingsnummer = "A-2025/1-2",
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1500),
             output = TilsagnBeregningFri.Output(1500),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        type = TilsagnType.TILSAGN,
     )
 
     val Tilsagn3 = TilsagnDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
+        type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 3,
         bestillingsnummer = "A-2025/1-3",
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        type = TilsagnType.TILSAGN,
     )
 
     val Tilsagn4 = TilsagnDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
+        type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         lopenummer = 4,
         bestillingsnummer = "A-2025/1-4",
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        bestillingStatus = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        type = TilsagnType.TILSAGN,
     )
 }
 

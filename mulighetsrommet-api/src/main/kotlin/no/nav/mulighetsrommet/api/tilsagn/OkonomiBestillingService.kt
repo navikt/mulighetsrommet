@@ -123,7 +123,7 @@ class OkonomiBestillingService(
         }
 
         val bestilling = OpprettBestilling(
-            bestillingsnummer = tilsagn.bestillingsnummer,
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             tilskuddstype = when (tilsagn.type) {
                 TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
                 else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
@@ -158,14 +158,14 @@ class OkonomiBestillingService(
         }
 
         val annullerBestilling = AnnullerBestilling(
-            bestillingsnummer = tilsagn.bestillingsnummer,
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = annullering.behandletAv.toOkonomiPart(),
             behandletTidspunkt = annullering.behandletTidspunkt,
             besluttetAv = annullering.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = annullering.besluttetTidspunkt,
         )
 
-        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
+        publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
     }
 
     private fun behandleFrigjortTilsagn(tilsagnId: UUID): Unit = db.session {
@@ -182,14 +182,14 @@ class OkonomiBestillingService(
         }
 
         val faktura = FrigjorBestilling(
-            bestillingsnummer = tilsagn.bestillingsnummer,
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = frigjoring.behandletAv.toOkonomiPart(),
             behandletTidspunkt = frigjoring.behandletTidspunkt,
             besluttetAv = frigjoring.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = frigjoring.besluttetTidspunkt,
         )
 
-        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
+        publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
     }
 
     fun behandleGodkjentUtbetalinger(tilsagnId: UUID): Unit = db.transaction {
@@ -219,8 +219,8 @@ class OkonomiBestillingService(
                 requireNotNull(opprettelse.besluttetAv)
 
                 val faktura = OpprettFaktura(
-                    fakturanummer = delutbetaling.fakturanummer,
-                    bestillingsnummer = tilsagn.bestillingsnummer,
+                    fakturanummer = delutbetaling.faktura.fakturanummer,
+                    bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
                     betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
                         kontonummer = kontonummer,
                         kid = utbetaling.betalingsinformasjon.kid,

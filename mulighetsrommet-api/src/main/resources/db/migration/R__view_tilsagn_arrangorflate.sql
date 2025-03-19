@@ -18,4 +18,4 @@ select tilsagn.id,
 from tilsagn
          inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
          inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-         inner join arrangor on arrangor.id = tilsagn.arrangor_id;
+         inner join arrangor on arrangor.id = gjennomforing.arrangor_id;

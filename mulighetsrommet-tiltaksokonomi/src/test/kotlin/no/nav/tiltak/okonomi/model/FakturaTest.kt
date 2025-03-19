@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettFaktura
