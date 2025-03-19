@@ -20,7 +20,14 @@ data class AppConfig(
 
 data class KafkaConfig(
     val consumerPropertiesPreset: Properties,
+    val producerPropertiesPreset: Properties,
+    val topics: KafkaTopics,
     val clients: KafkaClients,
+)
+
+data class KafkaTopics(
+    val bestillingStatus: String,
+    val fakturaStatus: String,
 )
 
 data class KafkaClients(

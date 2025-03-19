@@ -4,6 +4,7 @@ import kotliquery.Session
 import no.nav.mulighetsrommet.database.Database
 import no.nav.tiltak.okonomi.db.queries.BestillingQueries
 import no.nav.tiltak.okonomi.db.queries.FakturaQueries
+import no.nav.tiltak.okonomi.db.queries.KafkaProducerRecordQueries
 import no.nav.tiltak.okonomi.db.queries.TiltakKonteringQueries
 import javax.sql.DataSource
 
@@ -38,5 +39,6 @@ class QueryContext(val session: Session) {
         val bestilling = BestillingQueries(session)
         val faktura = FakturaQueries(session)
         val kontering = TiltakKonteringQueries(session)
+        val kafkaProducerRecord = KafkaProducerRecordQueries(session)
     }
 }

@@ -48,7 +48,7 @@ data class Bestilling(
                 avtalenummer = bestilling.avtalenummer,
                 belop = bestilling.belop,
                 periode = bestilling.periode,
-                status = BestillingStatusType.BESTILT,
+                status = BestillingStatusType.SENDT,
                 opprettelse = Totrinnskontroll(
                     behandletAv = bestilling.behandletAv,
                     behandletTidspunkt = bestilling.behandletTidspunkt,
@@ -69,7 +69,7 @@ data class Bestilling(
 }
 
 enum class BestillingStatusType {
-    BESTILT,
+    SENDT,
     AKTIV,
     ANNULLERT,
     FRIGJORT,
