@@ -5,6 +5,7 @@ import { MultiSelect } from "./MultiSelect";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { HelpText } from "@navikt/ds-react";
 import { shallowEquals } from "@mr/frontend-common";
+import { FeilmeldingMedVarselTrekant } from "./FeilmeldingMedVarseltrekant";
 
 export interface MultiSelectProps<T> {
   label: string;
@@ -94,7 +95,7 @@ function ControlledMultiSelect<T>(props: MultiSelectProps<T>, _: ForwardedRef<HT
                     fontSize: size === "small" ? "16px" : "18px",
                   }}
                 >
-                  <b>• {error.message}</b>
+                  <FeilmeldingMedVarselTrekant>{error.message}</FeilmeldingMedVarselTrekant>
                 </div>
               )}
             </>
