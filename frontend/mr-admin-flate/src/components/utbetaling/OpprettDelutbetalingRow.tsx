@@ -36,7 +36,7 @@ export function OpprettDelutbetalingRow({
 }: Props) {
   const [endretBelop, setEndretBelop] = useState<number>(belop);
   const [endretFrigjorTilsagn, setEndretFrigjorTilsagn] = useState<boolean>(frigjorTilsagn);
-  const [openRow, setOpenRow] = useState<boolean>(frigjorTilsagn);
+  const [openRow, setOpenRow] = useState<boolean>(frigjorTilsagn || !!opprettelse);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const godkjentTilsagn = tilsagn.status === TilsagnStatus.GODKJENT;
@@ -54,20 +54,19 @@ export function OpprettDelutbetalingRow({
   const cellClass = error && "align-top";
   return (
     <Table.ExpandableRow
-      defaultOpen={!!opprettelse}
       onOpenChange={() => setOpenRow(!openRow)}
       open={openRow}
-      expansionDisabled={!frigjorTilsagn}
+      expansionDisabled={!frigjorTilsagn && !opprettelse}
       key={tilsagn.id}
       content={
         <>
           {opprettelse && (
             <AvvistAlert
               header="Utbetaling returnert"
-              navIdent={opprettelse?.besluttetAv}
-              aarsaker={opprettelse?.aarsaker}
-              forklaring={opprettelse?.forklaring}
-              tidspunkt={opprettelse?.besluttetTidspunkt}
+              navIdent={opprettelse.besluttetAv}
+              aarsaker={opprettelse.aarsaker}
+              forklaring={opprettelse.forklaring}
+              tidspunkt={opprettelse.besluttetTidspunkt}
             />
           )}
           {frigjorTilsagn && (
