@@ -1,4 +1,3 @@
-import { DupliserAvtale } from "@/components/avtaler/DupliserAvtale";
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -50,7 +49,6 @@ export function AvtalePage() {
             </Heading>
           </VStack>
           <AvtalestatusTag avtale={avtale} showAvbruttAarsak />
-          <DupliserAvtale avtale={avtale} />
         </div>
       </Header>
       <Tabs value={currentTab()}>
