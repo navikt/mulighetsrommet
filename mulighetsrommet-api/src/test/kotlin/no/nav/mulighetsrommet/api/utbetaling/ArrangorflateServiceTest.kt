@@ -9,8 +9,8 @@ import io.kotest.matchers.types.beInstanceOf
 import kotlinx.coroutines.runBlocking
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetalingStatus
-import no.nav.mulighetsrommet.api.arrangorflate.model.Beregning
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
+import no.nav.mulighetsrommet.api.arrangorflate.api.Beregning
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures

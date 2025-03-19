@@ -19,14 +19,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
-import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
