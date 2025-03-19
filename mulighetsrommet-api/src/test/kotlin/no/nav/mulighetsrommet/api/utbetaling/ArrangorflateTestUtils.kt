@@ -35,17 +35,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-/**
- * Shared test utilities for ArrangorflateService and ArrangorflateRoutes tests
- */
 object ArrangorflateTestUtils {
     val identMedTilgang = NorskIdent("01010199988")
     val hovedenhet = ArrangorFixtures.hovedenhet
     val underenhet = ArrangorFixtures.underenhet1
 
-    /**
-     * Creates a test deltaker
-     */
     fun createTestDeltaker(): DeltakerDbo = DeltakerDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -62,9 +56,6 @@ object ArrangorflateTestUtils {
         ),
     )
 
-    /**
-     * Creates a test tilsagn
-     */
     fun createTestTilsagn(): TilsagnDbo = TilsagnDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -80,9 +71,6 @@ object ArrangorflateTestUtils {
         type = TilsagnType.TILSAGN,
     )
 
-    /**
-     * Creates a test utbetaling with a forhandsgodkjent beregning
-     */
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -121,9 +109,6 @@ object ArrangorflateTestUtils {
         beskrivelse = null,
     )
 
-    /**
-     * Creates a test utbetaling with a fri beregning
-     */
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -143,9 +128,6 @@ object ArrangorflateTestUtils {
         beskrivelse = "Test utbetaling",
     )
 
-    /**
-     * Creates a test domain with standard test data
-     */
     fun createTestDomain(
         deltaker: DeltakerDbo = createTestDeltaker(),
         tilsagn: TilsagnDbo = createTestTilsagn(),
@@ -171,9 +153,6 @@ object ArrangorflateTestUtils {
         setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
     }
 
-    /**
-     * Mocks the AltinnAuthorizedParties endpoint
-     */
     fun mockAltinnAuthorizedParties(builder: MockEngineBuilder) {
         builder.post("/altinn/accessmanagement/api/v1/resourceowner/authorizedparties") {
             val body = Json.decodeFromString<AltinnClient.AltinnRequest>(
@@ -197,9 +176,6 @@ object ArrangorflateTestUtils {
         }
     }
 
-    /**
-     * Mocks the Journalpost endpoint
-     */
     fun mockJournalpost(builder: MockEngineBuilder) {
         builder.post("/dokark/rest/journalpostapi/v1/journalpost") {
             respondJson(
@@ -214,9 +190,6 @@ object ArrangorflateTestUtils {
         }
     }
 
-    /**
-     * Creates a standard application config for tests
-     */
     fun appConfig(
         oauth: MockOAuth2Server,
         engine: MockEngine = createMockEngine {
@@ -229,9 +202,6 @@ object ArrangorflateTestUtils {
         engine = engine,
     )
 
-    /**
-     * Creates a mock engine with PDL responses
-     */
     fun createPdlMockEngine() = createMockEngine {
         post("/graphql") {
             respondJson(

@@ -294,7 +294,6 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     test("feil mot dokark gir fortsatt 200 på godkjenn siden det skjer i en task") {
-        // Create custom engine to test error scenario
         val clientEngine = createMockEngine {
             ArrangorflateTestUtils.mockAltinnAuthorizedParties(this)
 
@@ -303,7 +302,6 @@ class ArrangorflateRoutesTest : FunSpec({
             }
         }
 
-        // Use custom app config with error-producing engine
         val errorConfig = ArrangorflateTestUtils.appConfig(oauth, engine = clientEngine)
 
         withTestApplication(errorConfig) {

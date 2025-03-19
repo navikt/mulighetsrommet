@@ -27,20 +27,17 @@ class ArrangorflateServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
     val oauth = MockOAuth2Server()
 
-    // Create test data using utility methods
     val deltaker = ArrangorflateTestUtils.createTestDeltaker()
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()
     val utbetaling = ArrangorflateTestUtils.createTestUtbetalingForhandsgodkjent(deltaker.id)
     val friUtbetaling = ArrangorflateTestUtils.createTestUtbetalingFri()
 
-    // Set up domain with test data
     val domain = ArrangorflateTestUtils.createTestDomain(
         deltaker = deltaker,
         tilsagn = tilsagn,
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
 
-    // PDL client and service will be initialized in beforeEach
     lateinit var pdlClient: no.nav.mulighetsrommet.api.clients.pdl.PdlClient
     lateinit var query: HentAdressebeskyttetPersonBolkPdlQuery
     lateinit var arrangorflateService: ArrangorFlateService
