@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.OppgaveTiltakstype
+import no.nav.tiltak.okonomi.FakturaStatusType
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -28,7 +29,8 @@ class DelutbetalingQueries(private val session: Session) {
                 frigjor_tilsagn,
                 periode,
                 lopenummer,
-                fakturanummer
+                fakturanummer,
+                fakturastatus
             ) values (
                 :id::uuid,
                 :tilsagn_id::uuid,
@@ -38,14 +40,16 @@ class DelutbetalingQueries(private val session: Session) {
                 :frigjor_tilsagn::boolean,
                 :periode::daterange,
                 :lopenummer,
-                :fakturanummer
+                :fakturanummer,
+                :fakturastatus
             ) on conflict (utbetaling_id, tilsagn_id) do update set
                 status               = excluded.status,
                 belop                = excluded.belop,
                 frigjor_tilsagn      = excluded.frigjor_tilsagn,
                 periode              = delutbetaling.periode,
                 lopenummer           = delutbetaling.lopenummer,
-                fakturanummer        = delutbetaling.fakturanummer;
+                fakturanummer        = delutbetaling.fakturanummer,
+                fakturastatus        = delutbetaling.fakturastatus
         """.trimIndent()
 
         val params = mapOf(
@@ -58,6 +62,7 @@ class DelutbetalingQueries(private val session: Session) {
             "periode" to delutbetaling.periode.toDaterange(),
             "lopenummer" to delutbetaling.lopenummer,
             "fakturanummer" to delutbetaling.fakturanummer,
+            "fakturastatus" to delutbetaling.fakturastatus?.name,
         )
 
         session.execute(queryOf(query, params))
@@ -86,7 +91,8 @@ class DelutbetalingQueries(private val session: Session) {
                 frigjor_tilsagn,
                 periode,
                 lopenummer,
-                fakturanummer
+                fakturanummer,
+                fakturastatus
             from delutbetaling
             where
                 tilsagn_id = :tilsagn_id
@@ -143,7 +149,8 @@ class DelutbetalingQueries(private val session: Session) {
                 frigjor_tilsagn,
                 periode,
                 lopenummer,
-                fakturanummer
+                fakturanummer,
+                fakturastatus
             from delutbetaling
             where utbetaling_id = ?
             order by created_at desc
@@ -164,7 +171,8 @@ class DelutbetalingQueries(private val session: Session) {
                 frigjor_tilsagn,
                 periode,
                 lopenummer,
-                fakturanummer
+                fakturanummer,
+                fakturastatus
             from delutbetaling
             where id = ?::uuid
         """.trimIndent()
@@ -188,6 +196,7 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.periode,
                 delutbetaling.lopenummer,
                 delutbetaling.fakturanummer,
+                delutbetaling.fakturastatus,
                 tilsagn.gjennomforing_id,
                 gjennomforing.navn,
                 tiltakstype.tiltakskode,
@@ -218,6 +227,15 @@ class DelutbetalingQueries(private val session: Session) {
             )
         }
     }
+
+    fun setFakturaStatus(fakturanummer: String, status: FakturaStatusType) {
+        @Language("PostgreSQL")
+        val query = """
+            update delutbetaling set fakturastatus = ? where fakturanummer = ?
+        """.trimIndent()
+
+        session.execute(queryOf(query, status.name, fakturanummer))
+    }
 }
 
 private fun Row.toDelutbetalingDto() = Delutbetaling(
@@ -229,5 +247,6 @@ private fun Row.toDelutbetalingDto() = Delutbetaling(
     periode = periode("periode"),
     lopenummer = int("lopenummer"),
     fakturanummer = string("fakturanummer"),
+    fakturastatus = stringOrNull("fakturastatus")?.let { FakturaStatusType.valueOf(it) },
     status = DelutbetalingStatus.valueOf(string("status")),
 )

@@ -6,3 +6,6 @@ alter table tilsagn
 
 alter table tilsagn
     add column bestillingstatus text;
+
+alter table delutbetaling
+    add column fakturastatus text;
