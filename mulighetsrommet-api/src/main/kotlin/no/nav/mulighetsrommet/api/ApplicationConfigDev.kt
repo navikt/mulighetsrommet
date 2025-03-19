@@ -213,8 +213,8 @@ val ApplicationConfigDev = AppConfig(
         scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
-        url = "https://sokos-kontoregister-q2.dev-fss-pub.nais.io",
-        scope = "api://dev-fss.okonomi.sokos-kontoregister-q2/.default",
+        url = "https://sokos-kontoregister-q1.dev-fss-pub.nais.io",
+        scope = "api://dev-fss.okonomi.sokos-kontoregister-q1/.default",
     ),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
