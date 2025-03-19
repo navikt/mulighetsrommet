@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
@@ -66,11 +67,4 @@ data class Bestilling(
             )
         }
     }
-}
-
-enum class BestillingStatusType {
-    SENDT,
-    AKTIV,
-    ANNULLERT,
-    FRIGJORT,
 }

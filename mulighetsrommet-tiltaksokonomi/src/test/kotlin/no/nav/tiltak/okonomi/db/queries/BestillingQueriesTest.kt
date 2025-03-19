@@ -6,11 +6,11 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.model.Bestilling
-import no.nav.tiltak.okonomi.model.BestillingStatusType
 import java.time.LocalDate
 
 class BestillingQueriesTest : FunSpec({

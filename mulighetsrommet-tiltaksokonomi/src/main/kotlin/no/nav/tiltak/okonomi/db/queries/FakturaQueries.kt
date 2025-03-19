@@ -7,9 +7,9 @@ import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.model.FakturaStatusType
 import org.intellij.lang.annotations.Language
 
 class FakturaQueries(private val session: Session) {

@@ -23,10 +23,10 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
-import no.nav.tiltak.okonomi.api.BestillingStatus
-import no.nav.tiltak.okonomi.api.FakturaStatus
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.model.*
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.OebsKontering
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import java.time.LocalDate
