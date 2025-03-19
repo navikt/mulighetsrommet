@@ -249,9 +249,11 @@ export function TilsagnDetaljer() {
             padding={"2"}
           >
             {isTilsagnForhandsgodkjent(tilsagn) && (
-              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} />
+              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} annullering={annullering} />
             )}
-            {isTilsagnFri(tilsagn) && <TilsagnDetaljerFri tilsagn={tilsagn} />}
+            {isTilsagnFri(tilsagn) && (
+              <TilsagnDetaljerFri tilsagn={tilsagn} annullering={annullering} />
+            )}
             <div>
               {besluttMutation.error ? (
                 <BodyShort spacing>
