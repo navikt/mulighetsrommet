@@ -152,7 +152,7 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        test("svarer med eksisterende bestilling når bestillingsnummer allerede er kjent") {
+        test("svarer med eksisterende bestilling og lagrer utgående melding når bestillingsnummer allerede er kjent") {
             val opprettBestilling = createOpprettBestilling("10")
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling).copy(
@@ -166,6 +166,11 @@ class OkonomiServiceTest : FunSpec({
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe "10"
                 it.status shouldBe BestillingStatusType.FRIGJORT
+            }
+
+            kafkaProducerRepository.getLatestRecord().should {
+                it.topic shouldBe "bestilling-status"
+                it.key.toString(Charsets.UTF_8) shouldBe "10"
             }
         }
     }
@@ -255,7 +260,7 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        test("noop når bestilling allerede er annullert") {
+        test("svarer med eksisterende bestilling og lagrer utgående melding når bestilling allerede er annullert") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             val annullerBestilling = createAnnullerBestilling("6")
@@ -263,11 +268,16 @@ class OkonomiServiceTest : FunSpec({
                 it.bestillingsnummer shouldBe "6"
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
+
+            kafkaProducerRepository.getLatestRecord().should {
+                it.topic shouldBe "bestilling-status"
+                it.key.toString(Charsets.UTF_8) shouldBe "6"
+            }
         }
     }
 
     context("opprett faktura") {
-        val bestillingsnummer = "B-1"
+        val bestillingsnummer = "B1"
 
         db.session {
             val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
@@ -277,48 +287,72 @@ class OkonomiServiceTest : FunSpec({
         test("feiler når bestilling ikke finnes") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettFaktura = createOpprettFaktura("B-2", "F-1")
+            val opprettFaktura = createOpprettFaktura("B2", "B1-F1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
-                it.message shouldBe "Bestilling B-2 finnes ikke"
+                it.message shouldBe "Bestilling B2 finnes ikke"
             }
         }
 
         test("feiler når oebs svarer med feilkoder") {
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-1")
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "B1-F1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
-                it.message shouldBe "Klarte ikke sende faktura F-1 til oebs"
+                it.message shouldBe "Klarte ikke sende faktura B1-F1 til oebs"
             }
         }
 
         test("oppretter faktura hos oebs og lagrer utgående melding om status for faktura") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-2")
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "B1-F2")
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
-                it.fakturanummer shouldBe "F-2"
+                it.fakturanummer shouldBe "B1-F2"
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
             kafkaProducerRepository.getLatestRecord().should {
                 it.topic shouldBe "faktura-status"
-                it.key.toString(Charsets.UTF_8) shouldBe "F-2"
+                it.key.toString(Charsets.UTF_8) shouldBe "B1-F2"
                 it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     FakturaStatus(
-                        fakturanummer = "F-2",
+                        fakturanummer = "B1-F2",
                         status = FakturaStatusType.SENDT,
                     ),
                 )
             }
         }
+
+        test("svarer med eksisterende faktura og lagrer utgående melding når fakturanummer allerede er kjent") {
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "B1-F3")
+            db.session {
+                val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
+                val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer).copy(
+                    status = FakturaStatusType.UTBETALT,
+                )
+                queries.faktura.insertFaktura(faktura)
+            }
+
+            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+
+            service.opprettFaktura(opprettFaktura).shouldBeRight().should {
+                it.fakturanummer shouldBe "B1-F3"
+                it.status shouldBe FakturaStatusType.UTBETALT
+            }
+
+            kafkaProducerRepository.getLatestRecord().should {
+                it.topic shouldBe "faktura-status"
+                it.key.toString(Charsets.UTF_8) shouldBe "B1-F3"
+            }
+        }
     }
 
-    context("frigjor faktura") {
+    context("frigjor bestilling") {
         db.session {
-            val bestilling1 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B-2"))
-            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B-3"))
+            val bestilling1 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B2"))
             queries.bestilling.insertBestilling(bestilling1)
+
+            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B3"))
             queries.bestilling.insertBestilling(bestilling2)
         }
 
@@ -334,29 +368,29 @@ class OkonomiServiceTest : FunSpec({
             }
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val opprettFaktura = createOpprettFaktura("B-2", "F-3")
+            val opprettFaktura = createOpprettFaktura("B2", "B2-F1")
                 .copy(frigjorBestilling = true)
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
-                it.fakturanummer shouldBe "F-3"
+                it.fakturanummer shouldBe "B2-F1"
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
             kafkaProducerRepository.getLatestRecord(topic = "faktura-status").should {
                 it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     FakturaStatus(
-                        fakturanummer = "F-3",
+                        fakturanummer = "B2-F1",
                         status = FakturaStatusType.SENDT,
                     ),
                 )
             }
 
             db.session {
-                val bestilling = queries.bestilling.getByBestillingsnummer("B-2")
+                val bestilling = queries.bestilling.getByBestillingsnummer("B2")
                 bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
             }
         }
 
-        test("frigjør faktura lager en faktura be erSisteLinje = true og setter bestillingen til FRIGJORT") {
+        test("frigjør faktura lager en faktura med erSisteLinje = true og setter bestillingen til FRIGJORT") {
             val mockEngine = createMockEngine {
                 post(OebsPoApClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
@@ -369,21 +403,21 @@ class OkonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val frigjorBestilling = createFrigjorBestilling("B-3")
+            val frigjorBestilling = createFrigjorBestilling("B3")
             service.frigjorBestilling(frigjorBestilling).shouldBeRight().should {
-                it.fakturanummer shouldBe "B-3-X"
+                it.fakturanummer shouldBe "B3-X"
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
             db.session {
-                val bestilling = queries.bestilling.getByBestillingsnummer("B-3")
+                val bestilling = queries.bestilling.getByBestillingsnummer("B3")
                 bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
             }
 
             kafkaProducerRepository.getLatestRecord(topic = "bestilling-status").should {
                 it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
-                        bestillingsnummer = "B-3",
+                        bestillingsnummer = "B3",
                         status = BestillingStatusType.FRIGJORT,
                     ),
                 )
