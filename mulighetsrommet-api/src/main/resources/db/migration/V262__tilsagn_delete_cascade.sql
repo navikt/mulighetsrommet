@@ -1,0 +1,3 @@
+alter table tilsagn_forhandsgodkjent_beregning drop constraint tilsagn_forhandsgodkjent_beregning_tilsagn_id_fkey;
+alter table tilsagn_forhandsgodkjent_beregning add constraint tilsagn_forhandsgodkjent_beregning_tilsagn_id_fkey
+    foreign key (tilsagn_id) references tilsagn(id) on delete cascade;
