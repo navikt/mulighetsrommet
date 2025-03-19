@@ -132,7 +132,7 @@ class UtbetalingService(
             )
         ) {
             is Either.Left -> {
-                log.error("Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}", result.value)
+                log.error("Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}", result.value)
                 null // TODO Skal vi heller kaste her? Hva gjør vi hvis vi ikke får hentet kontonummer?
             }
             is Either.Right -> Kontonummer(result.value.kontonr)

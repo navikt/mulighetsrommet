@@ -133,8 +133,6 @@ spec:
           namespace: poao
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
-        - application: sokos-kontoregister-q2
-          namespace: okonomi
       external:
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
