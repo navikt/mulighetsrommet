@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -29,6 +30,7 @@ class TilsagnQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 bestillingsnummer,
+                bestillingstatus,
                 kostnadssted,
                 status,
                 type,
@@ -41,6 +43,7 @@ class TilsagnQueries(private val session: Session) {
                 :periode::daterange,
                 :lopenummer,
                 :bestillingsnummer,
+                :bestillingstatus,
                 :kostnadssted,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
@@ -53,6 +56,7 @@ class TilsagnQueries(private val session: Session) {
                 periode                 = excluded.periode,
                 lopenummer              = excluded.lopenummer,
                 bestillingsnummer       = excluded.bestillingsnummer,
+                bestillingstatus        = excluded.bestillingstatus,
                 kostnadssted            = excluded.kostnadssted,
                 status                  = excluded.status,
                 type                    = excluded.type,
@@ -68,6 +72,7 @@ class TilsagnQueries(private val session: Session) {
             "lopenummer" to dbo.lopenummer,
             "status" to TilsagnStatus.TIL_GODKJENNING.name,
             "bestillingsnummer" to dbo.bestillingsnummer,
+            "bestillingstatus" to dbo.bestillingstatus?.name,
             "kostnadssted" to dbo.kostnadssted,
             "type" to dbo.type.name,
             "belop_gjenstaende" to dbo.beregning.output.belop,
@@ -121,7 +126,7 @@ class TilsagnQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun setGjenstaendeBelop(id: UUID, belop: Int) = with(session) {
+    fun setGjenstaendeBelop(id: UUID, belop: Int) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
@@ -134,7 +139,7 @@ class TilsagnQueries(private val session: Session) {
             "belop" to belop,
         )
 
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
     }
 
     fun getNextLopenummeByGjennomforing(gjennomforingId: UUID): Int {
@@ -207,6 +212,15 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
+    fun setBestillingStatus(bestillingsnummer: String, status: BestillingStatusType) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set bestillingstatus = ? where bestillingsnummer = ?
+        """.trimIndent()
+
+        session.execute(queryOf(query, status.name, bestillingsnummer))
+    }
+
     private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
 
@@ -227,6 +241,7 @@ class TilsagnQueries(private val session: Session) {
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
             bestillingsnummer = string("bestillingsnummer"),
+            bestillingstatus = stringOrNull("bestillingstatus")?.let { BestillingStatusType.valueOf(it) },
             kostnadssted = NavEnhetDbo(
                 enhetsnummer = string("kostnadssted"),
                 navn = string("kostnadssted_navn"),

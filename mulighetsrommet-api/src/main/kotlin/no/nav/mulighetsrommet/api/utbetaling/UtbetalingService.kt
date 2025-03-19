@@ -351,6 +351,7 @@ class UtbetalingService(
             frigjorTilsagn = frigjorTilsagn,
             lopenummer = lopenummer,
             fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
+            fakturastatus = null,
         )
 
         queries.delutbetaling.upsert(dbo)

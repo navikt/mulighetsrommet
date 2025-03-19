@@ -92,8 +92,9 @@ class TilsagnService(
                     type = request.type,
                     periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
                     lopenummer = lopenummer,
-                    bestillingsnummer = bestillingsnummer,
                     kostnadssted = request.kostnadssted,
+                    bestillingsnummer = bestillingsnummer,
+                    bestillingstatus = null,
                     beregning = beregning,
                 )
             }

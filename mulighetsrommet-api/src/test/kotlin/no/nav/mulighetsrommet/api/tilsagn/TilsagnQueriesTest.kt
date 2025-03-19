@@ -8,9 +8,12 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -18,6 +21,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
 import java.util.*
 
@@ -32,12 +36,13 @@ class TilsagnQueriesTest : FunSpec({
     val tilsagn = TilsagnDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
+        type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
         lopenummer = 1,
-        bestillingsnummer = "1",
         kostnadssted = Gjovik.enhetsnummer,
+        bestillingsnummer = "1",
+        bestillingstatus = null,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
-        type = TilsagnType.TILSAGN,
     )
 
     context("CRUD") {
@@ -191,6 +196,38 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)
                 queries.getAll(typer = listOf(TilsagnType.EKSTRATILSAGN)).shouldHaveSize(0)
+            }
+        }
+
+        test("set status") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                queries.upsert(tilsagn)
+
+                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+                queries.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
+
+                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnStatus.TIL_ANNULLERING
+            }
+        }
+
+        test("set bestilling-status") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                queries.upsert(tilsagn.copy(bestillingstatus = BestillingStatusType.SENDT))
+
+                queries.get(tilsagn.id).shouldNotBeNull().bestillingstatus shouldBe BestillingStatusType.SENDT
+
+                queries.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.FRIGJORT)
+
+                queries.get(tilsagn.id).shouldNotBeNull().bestillingstatus shouldBe BestillingStatusType.FRIGJORT
             }
         }
     }

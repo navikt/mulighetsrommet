@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.*
 
 @Serializable
@@ -19,6 +20,7 @@ data class Tilsagn(
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
     val bestillingsnummer: String,
+    val bestillingstatus: BestillingStatusType?,
     val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
