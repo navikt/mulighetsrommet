@@ -1,4 +1,8 @@
-import { TilsagnTilAnnulleringAarsak, Totrinnskontroll } from "@mr/api-client-v2";
+import {
+  TilsagnAvvisningAarsak,
+  TilsagnTilAnnulleringAarsak,
+  Totrinnskontroll,
+} from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 
@@ -64,18 +68,21 @@ interface Props {
   tidspunkt?: string;
   forklaring?: string;
   navIdent?: string;
+  entitet: "utbetalingen" | "tilsagnet";
 }
 
-export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header }: Props) {
+export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header, entitet }: Props) {
+  const aarsakTekster =
+    aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak)) || [];
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
         {header}
       </Heading>
       <p>
-        {navIdent} avviste den {formaterDato(tidspunkt)} med følgende{" "}
-        {aarsaker && aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
-        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker ?? []))}</b>
+        {navIdent} avviste {entitet} den {formaterDato(tidspunkt)} med følgende{" "}
+        {aarsakTekster && aarsakTekster.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsakTekster ?? []))}</b>
         {forklaring ? (
           <>
             {" "}
