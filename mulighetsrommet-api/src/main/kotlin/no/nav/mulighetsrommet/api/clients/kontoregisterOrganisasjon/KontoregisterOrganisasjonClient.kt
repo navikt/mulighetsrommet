@@ -19,9 +19,9 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class KontoregisterOrganisasjonClient(
+    clientEngine: HttpClientEngine,
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine,
 ) {
 
     data class Config(

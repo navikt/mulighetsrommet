@@ -318,8 +318,8 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         KontoregisterOrganisasjonClient(
+            clientEngine = appConfig.kontoregisterOrganisasjon.engine ?: appConfig.engine,
             baseUrl = appConfig.kontoregisterOrganisasjon.url,
-            clientEngine = appConfig.engine,
             tokenProvider = cachedTokenProvider.withScope(appConfig.kontoregisterOrganisasjon.scope),
         )
     }

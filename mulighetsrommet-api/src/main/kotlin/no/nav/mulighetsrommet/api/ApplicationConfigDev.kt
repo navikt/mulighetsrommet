@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
+import io.ktor.utils.io.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -213,6 +216,19 @@ val ApplicationConfigDev = AppConfig(
         scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
+        engine = MockEngine { _ ->
+            respond(
+                content = ByteReadChannel(
+                    """
+                    {
+                        "kontonummer": "12345678910"
+                    }
+                    """.trimIndent(),
+                ),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        },
         url = "https://sokos-kontoregister-q1.dev-fss-pub.nais.io",
         scope = "api://dev-fss.okonomi.sokos-kontoregister/.default",
     ),

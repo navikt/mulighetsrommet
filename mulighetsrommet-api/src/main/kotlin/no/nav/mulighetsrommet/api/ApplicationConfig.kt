@@ -111,6 +111,7 @@ data class AuthProvider(
 )
 
 data class AuthenticatedHttpClientConfig(
+    val engine: HttpClientEngine? = null,
     val url: String,
     val scope: String,
 )
