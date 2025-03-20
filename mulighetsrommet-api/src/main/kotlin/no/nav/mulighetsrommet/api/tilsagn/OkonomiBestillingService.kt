@@ -41,7 +41,7 @@ class OkonomiBestillingService(
         enum class Type {
             BEHANDLE_GODKJENT_TILSAGN,
             BEHANDLE_ANNULLERT_TILSAGN,
-            BEHANDLE_FRIGJORT_TILSAGN,
+            BEHANDLE_OPPGJORT_TILSAGN,
             BEHANDLE_GODKJENT_UTBETALINGER,
         }
     }
@@ -56,7 +56,7 @@ class OkonomiBestillingService(
 
                 ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(tilsagnId)
 
-                ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN -> behandleFrigjortTilsagn(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN -> behandleOppgjortTilsagn(tilsagnId)
 
                 ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER -> {
                     behandleGodkjentUtbetalinger(tilsagnId)
@@ -74,8 +74,8 @@ class OkonomiBestillingService(
         schedule(task, session)
     }
 
-    fun scheduleBehandleFrigjortTilsagn(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN, tilsagnId)
+    fun scheduleBehandleOppgjortTilsagn(tilsagnId: UUID, session: Session) {
+        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN, tilsagnId)
         schedule(task, session)
     }
 
@@ -168,25 +168,25 @@ class OkonomiBestillingService(
         publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
     }
 
-    private fun behandleFrigjortTilsagn(tilsagnId: UUID): Unit = db.session {
+    private fun behandleOppgjortTilsagn(tilsagnId: UUID): Unit = db.session {
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
-        require(tilsagn.status == TilsagnStatus.FRIGJORT) {
-            "Tilsagn er ikke frigjort id=$tilsagnId status=${tilsagn.status}"
+        require(tilsagn.status == TilsagnStatus.OPPGJORT) {
+            "Tilsagn er ikke oppgjort id=$tilsagnId status=${tilsagn.status}"
         }
 
-        val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
-        require(frigjoring.besluttetAv != null && frigjoring.besluttetTidspunkt != null) {
-            "Tilsagn id=$tilsagnId må være besluttet frigjort for å sende null melding til økonomi"
+        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+        require(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
+            "Tilsagn id=$tilsagnId må være besluttet oppgjort for å sende null melding til økonomi"
         }
 
         val faktura = FrigjorBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
-            behandletAv = frigjoring.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = frigjoring.behandletTidspunkt,
-            besluttetAv = frigjoring.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = frigjoring.besluttetTidspunkt,
+            behandletAv = oppgjor.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = oppgjor.behandletTidspunkt,
+            besluttetAv = oppgjor.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
         publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
@@ -196,7 +196,7 @@ class OkonomiBestillingService(
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
-        require(tilsagn.status in listOf(TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT)) {
+        require(tilsagn.status in listOf(TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT)) {
             "Tilsagn er ikke i riktig status id=$tilsagnId status=${tilsagn.status}"
         }
 
@@ -231,7 +231,7 @@ class OkonomiBestillingService(
                     behandletTidspunkt = opprettelse.behandletTidspunkt,
                     besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
                     besluttetTidspunkt = opprettelse.besluttetTidspunkt,
-                    frigjorBestilling = delutbetaling.frigjorTilsagn,
+                    frigjorBestilling = delutbetaling.gjorOppTilsagn,
                 )
 
                 queries.delutbetaling.setSendtTilOkonomi(

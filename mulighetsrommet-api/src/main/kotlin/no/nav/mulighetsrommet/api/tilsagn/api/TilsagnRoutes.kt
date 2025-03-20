@@ -63,7 +63,7 @@ fun Route.tilsagnRoutes() {
                         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
                         opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT),
                         annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER),
-                        frigjoring = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.FRIGJOR),
+                        tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP),
                     )
                 }
 
@@ -148,12 +148,12 @@ fun Route.tilsagnRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
 
-            post("/{id}/til-frigjoring") {
+            post("/{id}/gjor-opp") {
                 val request = call.receive<TilAnnulleringRequest>()
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                service.tilFrigjoringRequest(id, navIdent, request)
+                service.tilGjorOppRequest(id, navIdent, request)
 
                 call.respond(HttpStatusCode.OK)
             }

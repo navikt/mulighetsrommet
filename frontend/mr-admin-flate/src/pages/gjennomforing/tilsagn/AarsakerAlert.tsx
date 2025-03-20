@@ -30,9 +30,9 @@ export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskont
   );
 }
 
-export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontroll }) {
+export function TilOppgjorAlert({ oppgjor }: { oppgjor: Totrinnskontroll }) {
   const aarsaker =
-    frigjoring.aarsaker?.map((aarsak) =>
+    oppgjor.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
     ) || [];
 
@@ -42,14 +42,14 @@ export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontrol
         Tilsagnet gjøres opp
       </Heading>
       <p>
-        {frigjoring.behandletAv} sendte tilsagnet til frigjøring den{" "}
-        {formaterDato(frigjoring.behandletTidspunkt)} med følgende{" "}
+        {oppgjor.behandletAv} sendte tilsagnet til oppgjør den{" "}
+        {formaterDato(oppgjor.behandletTidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {frigjoring.forklaring ? (
+        {oppgjor.forklaring ? (
           <>
             {" "}
-            med forklaringen: <b>"{frigjoring.forklaring}"</b>
+            med forklaringen: <b>"{oppgjor.forklaring}"</b>
           </>
         ) : null}
         .

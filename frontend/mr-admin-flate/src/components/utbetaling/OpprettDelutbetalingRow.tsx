@@ -17,7 +17,7 @@ interface Props {
   id?: string;
   tilsagn: TilsagnDto;
   belop: number;
-  frigjorTilsagn: boolean;
+  gjorOppTilsagn: boolean;
   opprettelse?: Totrinnskontroll;
   status?: DelutbetalingStatus;
   kanRedigere: boolean;
@@ -28,25 +28,25 @@ export function OpprettDelutbetalingRow({
   id,
   tilsagn,
   belop,
-  frigjorTilsagn,
+  gjorOppTilsagn,
   status,
   opprettelse,
   kanRedigere,
   onDelutbetalingChange,
 }: Props) {
   const [endretBelop, setEndretBelop] = useState<number>(belop);
-  const [endretFrigjorTilsagn, setEndretFrigjorTilsagn] = useState<boolean>(frigjorTilsagn);
-  const [openRow, setOpenRow] = useState<boolean>(frigjorTilsagn || !!opprettelse);
+  const [endretGjorOppTilsagn, setEndretGjorOppTilsagn] = useState<boolean>(gjorOppTilsagn);
+  const [openRow, setOpenRow] = useState<boolean>(gjorOppTilsagn || !!opprettelse);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const godkjentTilsagn = tilsagn.status === TilsagnStatus.GODKJENT;
 
-  function handleOnChange(belop: number, frigjorTilsagn: boolean) {
+  function handleOnChange(belop: number, gjorOppTilsagn: boolean) {
     onDelutbetalingChange({
       id: id,
       tilsagnId: tilsagn.id,
       belop: belop,
-      frigjorTilsagn: frigjorTilsagn,
+      gjorOppTilsagn: gjorOppTilsagn,
       status: status,
     });
   }
@@ -56,7 +56,7 @@ export function OpprettDelutbetalingRow({
     <Table.ExpandableRow
       onOpenChange={() => setOpenRow(!openRow)}
       open={openRow}
-      expansionDisabled={!frigjorTilsagn && !opprettelse}
+      expansionDisabled={!gjorOppTilsagn && !opprettelse}
       key={tilsagn.id}
       content={
         <>
@@ -69,7 +69,7 @@ export function OpprettDelutbetalingRow({
               tidspunkt={opprettelse.besluttetTidspunkt}
             />
           )}
-          {frigjorTilsagn && (
+          {gjorOppTilsagn && (
             <Alert variant="warning">
               Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
               flere utbetalinger fra tilsagnet
@@ -87,9 +87,9 @@ export function OpprettDelutbetalingRow({
         <Checkbox
           hideLabel
           readOnly={!kanRedigere || !godkjentTilsagn}
-          checked={endretFrigjorTilsagn}
+          checked={endretGjorOppTilsagn}
           onChange={(e) => {
-            setEndretFrigjorTilsagn(e.target.checked);
+            setEndretGjorOppTilsagn(e.target.checked);
             handleOnChange(endretBelop, e.target.checked);
           }}
         >
@@ -112,7 +112,7 @@ export function OpprettDelutbetalingRow({
                 setError("Må være et tall");
               } else {
                 setEndretBelop(num);
-                handleOnChange(num, frigjorTilsagn);
+                handleOnChange(num, gjorOppTilsagn);
               }
             }}
             value={endretBelop}

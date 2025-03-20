@@ -37,7 +37,7 @@ class DelutbetalingQueriesTest : FunSpec({
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
         status = DelutbetalingStatus.TIL_GODKJENNING,
         belop = 100,
-        frigjorTilsagn = false,
+        gjorOppTilsagn = false,
         periode = UtbetalingFixtures.utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "1",

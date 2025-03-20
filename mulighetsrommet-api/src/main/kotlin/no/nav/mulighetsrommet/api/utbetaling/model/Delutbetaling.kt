@@ -17,7 +17,7 @@ data class Delutbetaling(
     val status: DelutbetalingStatus,
     val periode: Periode,
     val belop: Int,
-    val frigjorTilsagn: Boolean,
+    val gjorOppTilsagn: Boolean,
     val lopenummer: Int,
     val faktura: Faktura,
 ) {

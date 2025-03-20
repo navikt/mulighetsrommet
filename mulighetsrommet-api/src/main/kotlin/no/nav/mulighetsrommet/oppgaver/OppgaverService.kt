@@ -65,7 +65,7 @@ class OppgaverService(val db: ApiDatabase) {
                 statuser = listOf(
                     TilsagnStatus.TIL_GODKJENNING,
                     TilsagnStatus.TIL_ANNULLERING,
-                    TilsagnStatus.TIL_FRIGJORING,
+                    TilsagnStatus.TIL_OPPGJOR,
                     TilsagnStatus.RETURNERT,
                 ),
             )
@@ -197,11 +197,11 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             )
         }
 
-        TilsagnStatus.TIL_FRIGJORING -> {
-            val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
+        TilsagnStatus.TIL_OPPGJOR -> {
+            val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
             frigjoring to Oppgave(
                 id = UUID.randomUUID(),
-                type = OppgaveType.TILSAGN_TIL_FRIGJORING,
+                type = OppgaveType.TILSAGN_TIL_OPPGJOR,
                 title = "Tilsagn til frigjøring",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til frigjøring",
                 tiltakstype = tiltakstype,
@@ -211,7 +211,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             )
         }
 
-        TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT -> null
+        TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT -> null
     }
 }
 
