@@ -233,6 +233,7 @@ export function TilsagnDetaljer() {
               }
               forklaring={opprettelse.forklaring}
               navIdent={opprettelse.besluttetAv}
+              entitet="tilsagnet"
             />
           )}
           {tilsagn.status === TilsagnStatus.TIL_ANNULLERING && annullering && (

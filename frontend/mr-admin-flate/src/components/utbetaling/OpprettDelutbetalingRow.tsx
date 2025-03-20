@@ -62,6 +62,7 @@ export function OpprettDelutbetalingRow({
         <>
           {opprettelse && (
             <AvvistAlert
+              entitet="utbetalingen"
               header="Utbetaling returnert"
               navIdent={opprettelse.besluttetAv}
               aarsaker={opprettelse.aarsaker}
