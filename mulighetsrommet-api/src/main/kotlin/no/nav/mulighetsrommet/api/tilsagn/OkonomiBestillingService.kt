@@ -1,30 +1,21 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
-import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotliquery.Session
-import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.tiltak.okonomi.*
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 class OkonomiBestillingService(
     private val config: Config,
     private val db: ApiDatabase,
-    private val kafkaProducerClient: KafkaProducerClient<String, String>,
 ) {
     private val log = LoggerFactory.getLogger(javaClass.simpleName)
 
@@ -32,65 +23,7 @@ class OkonomiBestillingService(
         val topic: String,
     )
 
-    @Serializable
-    data class ScheduledOkonomiTask(
-        val type: Type,
-        @Serializable(with = UUIDSerializer::class)
-        val tilsagnId: UUID,
-    ) {
-        enum class Type {
-            BEHANDLE_GODKJENT_TILSAGN,
-            BEHANDLE_ANNULLERT_TILSAGN,
-            BEHANDLE_OPPGJORT_TILSAGN,
-            BEHANDLE_GODKJENT_UTBETALINGER,
-        }
-    }
-
-    val task: OneTimeTask<ScheduledOkonomiTask> = Tasks
-        .oneTime(javaClass.simpleName, ScheduledOkonomiTask::class.java)
-        .execute { instance, _ ->
-            val (type, tilsagnId) = instance.data
-
-            when (type) {
-                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_TILSAGN -> behandleGodkjentTilsagn(tilsagnId)
-
-                ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(tilsagnId)
-
-                ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN -> behandleOppgjortTilsagn(tilsagnId)
-
-                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER -> {
-                    behandleGodkjentUtbetalinger(tilsagnId)
-                }
-            }
-        }
-
-    fun scheduleBehandleGodkjentTilsagn(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_TILSAGN, tilsagnId)
-        schedule(task, session)
-    }
-
-    fun scheduleBehandleAnnullertTilsagn(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN, tilsagnId)
-        schedule(task, session)
-    }
-
-    fun scheduleBehandleOppgjortTilsagn(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN, tilsagnId)
-        schedule(task, session)
-    }
-
-    fun scheduleBehandleGodkjenteUtbetalinger(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER, tilsagnId)
-        schedule(task, session)
-    }
-
-    private fun schedule(message: ScheduledOkonomiTask, session: Session) {
-        val instance = task.instance(UUID.randomUUID().toString(), message)
-        val client = transactionalSchedulerClient(task, session.connection.underlying)
-        client.scheduleIfNotExists(instance, Instant.now())
-    }
-
-    private fun behandleGodkjentTilsagn(tilsagnId: UUID): Unit = db.session {
+    fun behandleGodkjentTilsagn(tilsagnId: UUID): Unit = db.session {
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
@@ -144,7 +77,7 @@ class OkonomiBestillingService(
         publish(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
     }
 
-    private fun behandleAnnullertTilsagn(tilsagnId: UUID): Unit = db.session {
+    fun behandleAnnullertTilsagn(tilsagnId: UUID): Unit = db.session {
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
@@ -168,7 +101,7 @@ class OkonomiBestillingService(
         publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
     }
 
-    private fun behandleOppgjortTilsagn(tilsagnId: UUID): Unit = db.session {
+    fun behandleOppgjortTilsagn(tilsagnId: UUID): Unit = db.session {
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
@@ -245,12 +178,12 @@ class OkonomiBestillingService(
     }
 
     private fun publish(bestillingsnummer: String, message: OkonomiBestillingMelding) {
-        val record: ProducerRecord<String, String?> = ProducerRecord(
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.topic,
-            bestillingsnummer,
-            Json.encodeToString(message),
+            bestillingsnummer.toByteArray(),
+            Json.encodeToString(message).toByteArray(),
         )
-        kafkaProducerClient.sendSync(record)
+        db.session { queries.kafkaProducerRecord.insert(record) }
     }
 }
 
