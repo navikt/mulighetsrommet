@@ -131,8 +131,8 @@ class OkonomiBestillingService(
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,
             kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
-            // TODO: hvilket avtalenummer?
-            avtalenummer = avtale.avtalenummer,
+            // TODO: håndter avtalenummer fra p360, eller erstatter til Mercell
+            avtalenummer = avtale.websaknummer?.value,
             belop = tilsagn.beregning.output.belop,
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
