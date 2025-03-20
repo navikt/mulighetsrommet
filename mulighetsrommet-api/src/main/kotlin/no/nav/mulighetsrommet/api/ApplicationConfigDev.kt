@@ -231,8 +231,10 @@ val ApplicationConfigDev = AppConfig(
             respond(
                 content = ByteReadChannel(
                     """
-                    "mottaker": "973674471",
-                    "kontonr": "63728787114"
+                    {
+                        "mottaker": "973674471",
+                        "kontonr": "63728787114"
+                    }
                     """.trimIndent(),
                 ),
                 status = HttpStatusCode.OK,
