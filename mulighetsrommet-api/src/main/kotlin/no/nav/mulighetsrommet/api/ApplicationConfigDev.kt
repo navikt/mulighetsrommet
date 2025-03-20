@@ -216,21 +216,23 @@ val ApplicationConfigDev = AppConfig(
         scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
+        /**
+         * Vi mocker ut kontoregisteret fordi q2-miljøet til kontoregisteret benytter fiktive organisasjoner, mens vår app benytter reelle fra Brreg
+         * */
         engine = MockEngine { _ ->
             respond(
                 content = ByteReadChannel(
                     """
-                    {
-                        "kontonummer": "12345678910"
-                    }
+                    "mottaker": "973674471",
+                    "kontonr": "63728787114"
                     """.trimIndent(),
                 ),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json"),
             )
         },
-        url = "https://sokos-kontoregister-q1.dev-fss-pub.nais.io",
-        scope = "api://dev-fss.okonomi.sokos-kontoregister/.default",
+        url = "https://sokos-kontoregister-q2.dev-fss-pub.nais.io",
+        scope = "api://dev-fss.okonomi.sokos-kontoregister-q2/.default",
     ),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
