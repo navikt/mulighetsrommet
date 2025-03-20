@@ -1,9 +1,12 @@
 package no.nav.tiltak.okonomi.oebs
 
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 object OebsMeldingMapper {
 
@@ -75,6 +78,12 @@ object OebsMeldingMapper {
             )
         }
 
+        val beskrivelse = """
+        |Utbetaling fra Nav
+        |Tiltak: ${bestilling.tiltakskode}
+        |Periode: ${formatPeriode(faktura.periode)}
+        """.trimMargin()
+
         return OebsFakturaMelding(
             kilde = OebsKilde.TILTADM,
             fakturaNummer = faktura.fakturanummer,
@@ -92,9 +101,13 @@ object OebsMeldingMapper {
             bankNavn = null,
             bankLandKode = null,
             bicSwiftKode = null,
-            meldingTilLeverandor = null,
-            beskrivelse = null,
+            meldingTilLeverandor = beskrivelse.takeIf { faktura.kid == null },
+            beskrivelse = beskrivelse,
             fakturaLinjer = linjer,
         )
     }
 }
+
+private fun formatPeriode(periode: Periode): String = "${formatDate(periode.start)} - ${formatDate(periode.getLastInclusiveDate())}"
+
+private fun formatDate(localDate: LocalDate): String = localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))

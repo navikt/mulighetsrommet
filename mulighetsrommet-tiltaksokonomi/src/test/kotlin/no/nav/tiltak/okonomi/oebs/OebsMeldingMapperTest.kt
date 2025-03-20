@@ -1,6 +1,7 @@
 package no.nav.tiltak.okonomi.oebs
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
@@ -175,6 +176,28 @@ class OebsMeldingMapperTest : FunSpec({
                     erSisteFaktura = true,
                 ),
             )
+        }
+
+        test("melding til leverandør blir bare satt når kid mangler") {
+            val meldingMedKid = OebsMeldingMapper.toOebsFakturaMelding(
+                bestilling = bestilling,
+                faktura = faktura,
+                erSisteFaktura = false,
+            )
+
+            meldingMedKid.kidNummer shouldBe "123123123123123"
+            meldingMedKid.meldingTilLeverandor.shouldBeNull()
+
+            val meldingUtenKid = OebsMeldingMapper.toOebsFakturaMelding(
+                bestilling = bestilling,
+                faktura = faktura.copy(kid = null),
+                erSisteFaktura = false,
+            )
+
+            meldingUtenKid.kidNummer.shouldBeNull()
+            meldingUtenKid.meldingTilLeverandor shouldBe """Utbetaling fra Nav
+Tiltak: ARBEIDSFORBEREDENDE_TRENING
+Periode: 01.01.2025 - 31.01.2025"""
         }
     }
 })
