@@ -48,7 +48,7 @@ export function TilsagnTag(props: Props) {
       const annullertLabel = expandable ? "Annullert..." : "Annullert";
       return (
         <Tag
-          className={`${baseTagClasses} line-through hover:no-underline bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
+          className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
           size="small"
           onMouseEnter={() => setExpandLabel(true)}
           onMouseLeave={() => setExpandLabel(false)}
@@ -65,24 +65,24 @@ export function TilsagnTag(props: Props) {
         </Tag>
       );
     }
-    case TilsagnStatus.TIL_FRIGJORING:
+    case TilsagnStatus.TIL_OPPGJOR:
       return (
         <Tag
           size="small"
           variant="neutral"
           className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
         >
-          Til frigjøring
+          Til oppgjør
         </Tag>
       );
-    case TilsagnStatus.FRIGJORT:
+    case TilsagnStatus.OPPGJORT:
       return (
         <Tag
           size="small"
           variant="neutral"
           className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
         >
-          Frigjort
+          Oppgjort
         </Tag>
       );
   }

@@ -151,7 +151,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         },
       };
 
-    case TilsagnStatus.TIL_FRIGJORING:
+    case TilsagnStatus.TIL_OPPGJOR:
       return {
         tilsagn,
         opprettelse: {
@@ -160,13 +160,13 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
           besluttetAv: "F123456",
           besluttetTidspunkt: "2024-01-01T22:00:00",
         },
-        frigjoring: {
+        tilOppgjor: {
           behandletAv: "B123456",
           behandletTidspunkt: "2024-01-01T22:00:00",
         },
       };
 
-    case TilsagnStatus.FRIGJORT:
+    case TilsagnStatus.OPPGJORT:
       return {
         tilsagn,
         opprettelse: {
@@ -175,7 +175,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
           besluttetAv: "F123456",
           besluttetTidspunkt: "2024-01-01T22:00:00",
         },
-        frigjoring: {
+        tilOppgjor: {
           behandletAv: "B123456",
           behandletTidspunkt: "2024-01-01T22:00:00",
           besluttetAv: "F123456",

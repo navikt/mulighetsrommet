@@ -1,3 +1,4 @@
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
@@ -7,9 +8,17 @@ import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentFo
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { GjennomforingDto, GjennomforingStatus, NavAnsatt, Toggles } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  GjennomforingStatus,
+  NavAnsatt,
+  Opphav,
+  Toggles,
+} from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
+import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { useSetAtom } from "jotai";
 import React, { useRef } from "react";
 import { useFetcher, useNavigate } from "react-router";
 interface Props {
@@ -24,6 +33,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
+  const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
@@ -48,6 +58,20 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     gjennomforingPublisert = fetcher.formData.get("publisert") === "true";
   }
 
+  function dupliserGjennomforing() {
+    setGjennomforingDetaljerTab("detaljer");
+    navigate(`/avtaler/${gjennomforing.avtaleId}/gjennomforinger/skjema`, {
+      state: {
+        dupliserGjennomforing: {
+          opphav: Opphav.MR_ADMIN_FLATE,
+          avtaleId: gjennomforing.avtaleId,
+          beskrivelse: gjennomforing.beskrivelse,
+          faneinnhold: gjennomforing.faneinnhold,
+        },
+      },
+    });
+  }
+
   return (
     <KnapperadContainer>
       <HarSkrivetilgang
@@ -69,52 +93,65 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
       <EndringshistorikkPopover>
         <GjennomforingEndringshistorikk id={gjennomforing.id} />
       </EndringshistorikkPopover>
-
-      <HarSkrivetilgang
-        ressurs="Gjennomføring"
-        condition={gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES}
-      >
+      <HarSkrivetilgang ressurs="Gjennomføring">
         <Dropdown>
           <Button size="small" as={Dropdown.Toggle}>
             Handlinger
           </Button>
           <Dropdown.Menu>
-            <Dropdown.Menu.GroupedList>
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => {
-                  if (
-                    gjennomforing.administratorer &&
-                    gjennomforing.administratorer.length > 0 &&
-                    !gjennomforing.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
-                  ) {
-                    advarselModal.current?.showModal();
-                  } else {
-                    navigate("skjema");
-                  }
-                }}
-              >
-                Rediger gjennomføring
-              </Dropdown.Menu.GroupedList.Item>
-              {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => apentForPameldingModalRef.current?.showModal()}
-                >
-                  {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-              {enableOkonomi && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => registrerStengtModalRef.current?.showModal()}
-                >
-                  Registrer stengt hos arrangør
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-              {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
-                <Dropdown.Menu.GroupedList.Item onClick={() => avbrytModalRef.current?.showModal()}>
-                  Avbryt gjennomføring
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-            </Dropdown.Menu.GroupedList>
+            {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
+              <>
+                <Dropdown.Menu.GroupedList>
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => {
+                      if (
+                        gjennomforing.administratorer &&
+                        gjennomforing.administratorer.length > 0 &&
+                        !gjennomforing.administratorer
+                          .map((a) => a.navIdent)
+                          .includes(ansatt.navIdent)
+                      ) {
+                        advarselModal.current?.showModal();
+                      } else {
+                        navigate("skjema");
+                      }
+                    }}
+                  >
+                    Rediger gjennomføring
+                  </Dropdown.Menu.GroupedList.Item>
+                  {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
+                    <Dropdown.Menu.GroupedList.Item
+                      onClick={() => apentForPameldingModalRef.current?.showModal()}
+                    >
+                      {gjennomforing.apentForPamelding
+                        ? "Steng for påmelding"
+                        : "Åpne for påmelding"}
+                    </Dropdown.Menu.GroupedList.Item>
+                  )}
+                  {enableOkonomi && (
+                    <Dropdown.Menu.GroupedList.Item
+                      onClick={() => registrerStengtModalRef.current?.showModal()}
+                    >
+                      Registrer stengt hos arrangør
+                    </Dropdown.Menu.GroupedList.Item>
+                  )}
+                  {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
+                    <Dropdown.Menu.GroupedList.Item
+                      onClick={() => avbrytModalRef.current?.showModal()}
+                    >
+                      Avbryt gjennomføring
+                    </Dropdown.Menu.GroupedList.Item>
+                  )}
+                </Dropdown.Menu.GroupedList>
+                <Dropdown.Menu.Divider />
+              </>
+            )}
+            <Dropdown.Menu.List>
+              <Dropdown.Menu.List.Item onClick={dupliserGjennomforing}>
+                <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
+                Dupliser
+              </Dropdown.Menu.List.Item>
+            </Dropdown.Menu.List>
           </Dropdown.Menu>
         </Dropdown>
       </HarSkrivetilgang>

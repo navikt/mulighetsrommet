@@ -96,6 +96,8 @@ data class KafkaProducers(
 
 data class KafkaConsumers(
     val gjennomforingerV1: KafkaTopicConsumer.Config,
+    val replicateBestillingStatus: KafkaTopicConsumer.Config,
+    val replicateFakturaStatus: KafkaTopicConsumer.Config,
     val amtDeltakerV1: KafkaTopicConsumer.Config,
     val amtVirksomheterV1: KafkaTopicConsumer.Config,
     val amtArrangorMeldingV1: KafkaTopicConsumer.Config,

@@ -282,7 +282,7 @@ class UtbetalingService(
         UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
             .onLeft { return ValidationError(errors = it).left() }
 
-        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
+        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.gjorOppTilsagn, navIdent)
         return Unit.right()
     }
 
@@ -322,14 +322,14 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
-        val frigjorTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
+        val gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling = utbetaling,
             tilsagn = tilsagn,
             id = delutbetalingId,
             belop = utbetaling.beregning.output.belop,
-            frigjorTilsagn = frigjorTilsagn,
+            gjorOppTilsagn = gjorOppTilsagn,
             behandletAv = Tiltaksadministrasjon,
         )
         val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
@@ -346,7 +346,7 @@ class UtbetalingService(
         tilsagn: Tilsagn,
         id: UUID,
         belop: Int,
-        frigjorTilsagn: Boolean,
+        gjorOppTilsagn: Boolean,
         behandletAv: Agent,
     ) {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
@@ -365,9 +365,10 @@ class UtbetalingService(
             status = DelutbetalingStatus.TIL_GODKJENNING,
             periode = periode,
             belop = belop,
-            frigjorTilsagn = frigjorTilsagn,
+            gjorOppTilsagn = gjorOppTilsagn,
             lopenummer = lopenummer,
-            fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
+            fakturanummer = fakturanummer(tilsagn.bestilling.bestillingsnummer, lopenummer),
+            fakturaStatus = null,
         )
 
         queries.delutbetaling.upsert(dbo)
@@ -421,8 +422,8 @@ class UtbetalingService(
         )
         queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - delutbetaling.belop)
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
-        if (delutbetaling.frigjorTilsagn) {
-            tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId, this)
+        if (delutbetaling.gjorOppTilsagn) {
+            tilsagnService.gjorOppAutomatisk(delutbetaling.tilsagnId, this)
         }
         logEndring(
             "Utbetaling godkjent",

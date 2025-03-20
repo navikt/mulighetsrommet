@@ -15,10 +15,9 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.tiltak.okonomi.api.*
+import no.nav.tiltak.okonomi.api.Bestilling
+import no.nav.tiltak.okonomi.api.Faktura
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.model.BestillingStatusType
-import no.nav.tiltak.okonomi.model.FakturaStatusType
 import no.nav.tiltak.okonomi.model.OebsKontering
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language

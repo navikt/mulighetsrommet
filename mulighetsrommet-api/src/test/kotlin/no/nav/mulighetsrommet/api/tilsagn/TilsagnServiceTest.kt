@@ -25,7 +25,10 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -184,13 +187,13 @@ class TilsagnServiceTest : FunSpec({
 
                 queries.tilsagn.get(tilsagn2).shouldNotBeNull().should {
                     it.lopenummer shouldBe 2
-                    it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-2"
+                    it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-2"
                 }
 
                 val aft2 = queries.gjennomforing.get(domain2.gjennomforinger[1].id).shouldNotBeNull()
                 queries.tilsagn.get(tilsagn3).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "A-${aft2.lopenummer}-1"
+                    it.bestilling.bestillingsnummer shouldBe "A-${aft2.lopenummer}-1"
                 }
             }
         }
@@ -362,7 +365,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1
-                it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
+                it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
             }
 
             service.beslutt(
@@ -377,7 +380,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, NavIdent("T888888")).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1
-                it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
+                it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
             }
         }
     }
@@ -483,8 +486,8 @@ class TilsagnServiceTest : FunSpec({
         }
     }
 
-    context("frigjør tilsagn") {
-        test("totrinnskontroll kreves for frigjøring av tilsagn") {
+    context("Gjør opp tilsagn") {
+        test("totrinnskontroll kreves for oppgjør av tilsagn") {
             val service = createTilsagnService()
 
             service.upsert(request, ansatt1)
@@ -496,17 +499,17 @@ class TilsagnServiceTest : FunSpec({
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.tilFrigjoringRequest(
+            service.tilGjorOppRequest(
                 id = request.id,
                 navIdent = ansatt1,
                 request = TilAnnulleringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
-            ).status shouldBe TilsagnStatus.TIL_FRIGJORING
+            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             database.run {
-                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.FRIGJOR).shouldNotBeNull().should {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.GJOR_OPP).shouldNotBeNull().should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -517,10 +520,10 @@ class TilsagnServiceTest : FunSpec({
                 id = request.id,
                 navIdent = ansatt2,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-            ).shouldBeRight().status shouldBe TilsagnStatus.FRIGJORT
+            ).shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
-                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.FRIGJOR).shouldNotBeNull().should {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.GJOR_OPP).shouldNotBeNull().should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
                     it.besluttelse shouldBe Besluttelse.GODKJENT
@@ -528,7 +531,7 @@ class TilsagnServiceTest : FunSpec({
             }
         }
 
-        test("systemet kan frigjøre tilsagnet uten en ekstra part i totrinnskontroll") {
+        test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {
             val service = createTilsagnService()
 
             service.upsert(request, ansatt1)
@@ -541,11 +544,11 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.db.session {
-                service.frigjorAutomatisk(id = request.id, this)
-            }.status shouldBe TilsagnStatus.FRIGJORT
+                service.gjorOppAutomatisk(id = request.id, this)
+            }.status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
-                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.FRIGJOR).shouldNotBeNull().should {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.GJOR_OPP).shouldNotBeNull().should {
                     it.behandletAv shouldBe Tiltaksadministrasjon
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.besluttelse shouldBe Besluttelse.GODKJENT

@@ -83,6 +83,14 @@ val ApplicationConfigDev = AppConfig(
                 id = "amt-tiltakskoordinators-deltakerliste",
                 topic = "amt.tiltakskoordinators-deltakerliste-v1",
             ),
+            replicateBestillingStatus = KafkaTopicConsumer.Config(
+                id = "replicate-bestilling-status",
+                topic = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
+            ),
+            replicateFakturaStatus = KafkaTopicConsumer.Config(
+                id = "replicate-faktura-status",
+                topic = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
+            ),
         ),
     ),
     auth = AuthConfig(

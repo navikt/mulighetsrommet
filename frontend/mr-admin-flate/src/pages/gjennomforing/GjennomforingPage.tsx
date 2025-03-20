@@ -1,6 +1,5 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Header } from "@/components/detaljside/Header";
-import { DupliserGjennomforing } from "@/components/gjennomforing/DupliserGjennomforing";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -85,7 +84,6 @@ export function GjennomforingPage() {
               status={gjennomforing.status.status}
               avbrutt={gjennomforing.status.avbrutt}
             />
-            <DupliserGjennomforing gjennomforing={gjennomforing} />
           </div>
           {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
             <div className="pr-2">

@@ -3,6 +3,7 @@ package no.nav.tiltak.okonomi.model
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.FrigjorBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -87,9 +88,4 @@ data class Faktura(
             )
         }
     }
-}
-
-enum class FakturaStatusType {
-    SENDT,
-    UTBETALT,
 }

@@ -91,6 +91,14 @@ val ApplicationConfigLocal = AppConfig(
                 id = "amt-tiltakskoordinators-deltakerliste",
                 topic = "amt.tiltakskoordinators-deltakerliste-v1",
             ),
+            replicateBestillingStatus = KafkaTopicConsumer.Config(
+                id = "replicate-bestilling-status",
+                topic = "tiltaksokonomi.bestilling-status-v1",
+            ),
+            replicateFakturaStatus = KafkaTopicConsumer.Config(
+                id = "replicate-faktura-status",
+                topic = "tiltaksokonomi.faktura-status-v1",
+            ),
         ),
     ),
     auth = AuthConfig(
