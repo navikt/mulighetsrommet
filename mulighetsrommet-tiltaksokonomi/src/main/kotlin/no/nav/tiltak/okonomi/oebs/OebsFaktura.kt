@@ -98,21 +98,14 @@ data class OebsFakturaMelding(
     /**
      * Melding til leverandør burde alltid beskrive hva fakturaen gjelder slik at mottaker skjønner hva innbetalingen
      * er for.
-     *
-     * TODO: Det er mulig denne kun burde settes når [kidNummer] er null. OeBS skulle finne ut av det.
-     *
-     * TODO: OeBS mente det kunne være relevant å begrense lengden på meldingen, muligens 140 tegn, men det er enda ikke avklart.
      */
     val meldingTilLeverandor: String?,
 
     /**
      * Det samme som [meldingTilLeverandor], men til bruk for feilsøking i OeBS.
      *
-     * TODO: Er dette feltet fortsatt relevant?
-     *
-     * OeBS mente at dette feltet kanskje ikke lengre er relevant. En mulig bruk for å videreføre dette er om
-     * [meldingTilLeverandor] ikke settes, men at utbetaling feiler f.eks. pga feil KID. Da kan man utbetale
-     * manuelt fra OeBS ved å bruke [beskrivelse] som [meldingTilLeverandor].
+     * Et scenario der dette kan bli benyttet er hvis [kidNummer] er feil (ikke blir godtatt av banken), så kan
+     * man manuelt fjerne [kidNummer] og sende med [beskrivelse] som [meldingTilLeverandor] i utbetalingen fra OeBS.
      */
     val beskrivelse: String?,
 
