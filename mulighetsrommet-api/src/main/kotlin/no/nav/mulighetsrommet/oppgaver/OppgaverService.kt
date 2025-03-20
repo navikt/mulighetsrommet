@@ -202,8 +202,8 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             frigjoring to Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.TILSAGN_TIL_OPPGJOR,
-                title = "Tilsagn til frigjøring",
-                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til frigjøring",
+                title = "Tilsagn til oppgjør",
+                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = frigjoring.behandletTidspunkt,
