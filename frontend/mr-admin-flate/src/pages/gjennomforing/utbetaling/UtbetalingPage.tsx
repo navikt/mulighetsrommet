@@ -9,7 +9,13 @@ import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato, formaterPeriode, isValidationError } from "@/utils/Utils";
+import {
+  formaterDato,
+  formaterDatoSomYYYYMMDD,
+  formaterPeriode,
+  isValidationError,
+  subtractDays,
+} from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   DelutbetalingStatus,
@@ -142,7 +148,7 @@ export function UtbetalingPage() {
         `&prismodell=${Prismodell.FRI}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
-        `&periodeSlutt=${utbetaling.periode.slutt}` +
+        `&periodeSlutt=${formaterDatoSomYYYYMMDD(subtractDays(utbetaling.periode.slutt, 1))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
     );
   }
