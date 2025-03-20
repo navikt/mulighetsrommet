@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
+import io.ktor.utils.io.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -219,6 +222,27 @@ val ApplicationConfigDev = AppConfig(
     dokark = AuthenticatedHttpClientConfig(
         url = "https://dokarkiv-q2.dev-fss-pub.nais.io",
         scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
+    ),
+    kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
+        /**
+         * Vi mocker ut kontoregisteret fordi q2-miljøet til kontoregisteret benytter fiktive organisasjoner, mens vår app benytter reelle fra Brreg
+         * */
+        engine = MockEngine { _ ->
+            respond(
+                content = ByteReadChannel(
+                    """
+                    {
+                        "mottaker": "973674471",
+                        "kontonr": "63728787114"
+                    }
+                    """.trimIndent(),
+                ),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        },
+        url = "https://sokos-kontoregister-q2.dev-fss-pub.nais.io",
+        scope = "api://dev-fss.okonomi.sokos-kontoregister-q2/.default",
     ),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(

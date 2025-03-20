@@ -56,6 +56,7 @@ data class AppConfig(
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
     val okonomi: OkonomiConfig,
+    val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
 )
 
 data class OkonomiConfig(
@@ -112,6 +113,7 @@ data class AuthProvider(
 )
 
 data class AuthenticatedHttpClientConfig(
+    val engine: HttpClientEngine? = null,
     val url: String,
     val scope: String,
 )

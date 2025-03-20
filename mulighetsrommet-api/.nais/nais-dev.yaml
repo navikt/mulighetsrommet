@@ -145,6 +145,7 @@ spec:
         - host: platform.tt02.altinn.no
         - host: test.maskinporten.no
         - host: dokarkiv-q2.dev-fss-pub.nais.io
+        - host: sokos-kontoregister-q2.dev-fss-pub.nais.io
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token

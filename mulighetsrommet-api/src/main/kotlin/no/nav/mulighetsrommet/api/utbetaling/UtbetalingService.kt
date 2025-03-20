@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
@@ -9,6 +10,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRequest
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
@@ -42,10 +45,11 @@ class UtbetalingService(
     private val okonomi: OkonomiBestillingService,
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
+    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
-    fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
+    suspend fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
         val periode = Periode.forMonthOf(date)
 
         getGjennomforingerForGenereringAvUtbetalinger(periode)
@@ -59,7 +63,6 @@ class UtbetalingService(
 
                     else -> null
                 }
-
                 utbetaling?.takeIf { it.beregning.output.belop > 0 }
             }
             .map { utbetaling ->
@@ -70,7 +73,7 @@ class UtbetalingService(
             }
     }
 
-    fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
+    suspend fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }
@@ -94,14 +97,14 @@ class UtbetalingService(
             }
     }
 
-    fun createUtbetalingForhandsgodkjent(
+    suspend fun createUtbetalingForhandsgodkjent(
         utbetalingId: UUID,
         gjennomforingId: UUID,
         periode: Periode,
     ): UtbetalingDbo = db.session {
         val frist = periode.slutt.plusMonths(2)
 
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+        val gjennomforing = requireNotNull<GjennomforingDto>(queries.gjennomforing.get(gjennomforingId))
 
         val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
             ?: throw IllegalStateException("Sats mangler for periode $periode")
@@ -121,12 +124,26 @@ class UtbetalingService(
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 
+        val kontonummer = when (
+            val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
+                KontonummerRequest(
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                ),
+            )
+        ) {
+            is Either.Left -> {
+                log.error("Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}", result.value)
+                null // TODO Skal vi heller kaste her? Hva gjør vi hvis vi ikke får hentet kontonummer?
+            }
+            is Either.Right -> Kontonummer(result.value.kontonr)
+        }
+
         return UtbetalingDbo(
             id = utbetalingId,
             fristForGodkjenning = frist.atStartOfDay(),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
-            kontonummer = forrigeKrav?.betalingsinformasjon?.kontonummer,
+            kontonummer = kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
             innsender = null,

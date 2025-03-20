@@ -228,6 +228,10 @@ val ApplicationConfigProd = AppConfig(
         url = "https://dokarkiv-q2.dev-fss-pub.nais.io",
         scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
+    kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
+        url = "https://sokos-kontoregister.prod-fss-pub.nais.io",
+        scope = "api://prod-fss.okonomi.sokos-kontoregister/.default",
+    ),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 360,
