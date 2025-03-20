@@ -38,7 +38,7 @@ export function PameldingForGruppetiltak({
 
     const tekster = utledTekster(deltakelse);
     return (
-      <Alert variant={tekster.variant} className="font-black">
+      <Alert variant={tekster.variant}>
         <Heading level={"2"} size="small">
           {tekster.overskrift}
         </Heading>
