@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.oppgaver
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -34,7 +35,11 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(TilsagnFixtures.Tilsagn1),
             ) {
-                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(
+                    TilsagnFixtures.Tilsagn1,
+                    TilsagnStatus.TIL_GODKJENNING,
+                    behandletAv = NavAnsattFixture.ansatt1.navIdent,
+                )
             }
 
             domain.initialize(database.db)
@@ -43,6 +48,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(
                     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
                     NavAnsattRolle.OKONOMI_BESLUTTER,
@@ -52,7 +58,38 @@ class OppgaverServiceTest : FunSpec({
             oppgaver.size shouldBe 1
         }
 
-        test("Skal bare returnere oppgaver for tilsagn til godkjenning og annullering og oppgjør når ansatt har korrekt rolle") {
+        test("Skal ikke se oppgaver som ansatt selv har sendt til godkjenning") {
+            val service = OppgaverService(database.db)
+            val domain = MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.AFT),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+            ) {
+                setTilsagnStatus(
+                    TilsagnFixtures.Tilsagn1,
+                    TilsagnStatus.TIL_GODKJENNING,
+                    behandletAv = NavAnsattFixture.ansatt1.navIdent,
+                )
+            }
+
+            domain.initialize(database.db)
+
+            val oppgaver = service.tilsagnOppgaver(
+                oppgavetyper = emptyList(),
+                tiltakskoder = emptyList(),
+                kostnadssteder = emptyList(),
+                ansatt = NavAnsattFixture.ansatt1.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                    NavAnsattRolle.OKONOMI_BESLUTTER,
+                ),
+            )
+
+            oppgaver.shouldBeEmpty()
+        }
+
+        test("Skal bare returnere oppgaver for tilsagn til godkjenning og annullering og frigjøring når ansatt har korrekt rolle") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -75,6 +112,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.OKONOMI_BESLUTTER),
             ).size shouldBe 3
         }
@@ -100,6 +138,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
             ).size shouldBe 1
         }
@@ -127,6 +166,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.OKONOMI_BESLUTTER),
             ).size shouldBe 1
         }
@@ -154,6 +194,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = emptySet(),
             )
 
@@ -193,6 +234,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.OKONOMI_BESLUTTER),
             )
             oppgaver.size shouldBe 2
@@ -201,6 +243,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
             )
             oppgaver.size shouldBe 1
@@ -210,9 +253,38 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.OKONOMI_BESLUTTER),
             )
             oppgaver.size shouldBe 1
+        }
+
+        test("Skal ikke hente oppgaver som ansatt selv har sendt til godkjenning") {
+            val service = OppgaverService(database.db)
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+            ) {
+                setDelutbetalingStatus(
+                    UtbetalingFixtures.delutbetaling1,
+                    DelutbetalingStatus.TIL_GODKJENNING,
+                    behandletAv = NavAnsattFixture.ansatt1.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.delutbetalingOppgaver(
+                oppgavetyper = emptyList(),
+                tiltakskoder = emptyList(),
+                kostnadssteder = emptyList(),
+                ansatt = NavAnsattFixture.ansatt1.navIdent,
+                roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.OKONOMI_BESLUTTER),
+            ).shouldBeEmpty()
         }
     }
 

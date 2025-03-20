@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -29,8 +30,8 @@ class TilsagnQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 bestillingsnummer,
+                bestilling_status,
                 kostnadssted,
-                arrangor_id,
                 status,
                 type,
                 belop_gjenstaende,
@@ -42,8 +43,8 @@ class TilsagnQueries(private val session: Session) {
                 :periode::daterange,
                 :lopenummer,
                 :bestillingsnummer,
+                :bestilling_status,
                 :kostnadssted,
-                :arrangor_id::uuid,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
                 :belop_gjenstaende,
@@ -55,8 +56,8 @@ class TilsagnQueries(private val session: Session) {
                 periode                 = excluded.periode,
                 lopenummer              = excluded.lopenummer,
                 bestillingsnummer       = excluded.bestillingsnummer,
+                bestilling_status       = excluded.bestilling_status,
                 kostnadssted            = excluded.kostnadssted,
-                arrangor_id             = excluded.arrangor_id,
                 status                  = excluded.status,
                 type                    = excluded.type,
                 belop_gjenstaende       = excluded.belop_gjenstaende,
@@ -71,8 +72,8 @@ class TilsagnQueries(private val session: Session) {
             "lopenummer" to dbo.lopenummer,
             "status" to TilsagnStatus.TIL_GODKJENNING.name,
             "bestillingsnummer" to dbo.bestillingsnummer,
+            "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted,
-            "arrangor_id" to dbo.arrangorId,
             "type" to dbo.type.name,
             "belop_gjenstaende" to dbo.beregning.output.belop,
             "belop_beregnet" to dbo.beregning.output.belop,
@@ -125,7 +126,7 @@ class TilsagnQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun setGjenstaendeBelop(id: UUID, belop: Int) = with(session) {
+    fun setGjenstaendeBelop(id: UUID, belop: Int) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
@@ -138,7 +139,7 @@ class TilsagnQueries(private val session: Session) {
             "belop" to belop,
         )
 
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
     }
 
     fun getNextLopenummeByGjennomforing(gjennomforingId: UUID): Int {
@@ -211,6 +212,15 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
+    fun setBestillingStatus(bestillingsnummer: String, status: BestillingStatusType) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set bestilling_status = ? where bestillingsnummer = ?
+        """.trimIndent()
+
+        session.execute(queryOf(query, status.name, bestillingsnummer))
+    }
+
     private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
 
@@ -230,7 +240,10 @@ class TilsagnQueries(private val session: Session) {
             belopGjenstaende = int("belop_gjenstaende"),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
-            bestillingsnummer = string("bestillingsnummer"),
+            bestilling = Tilsagn.Bestilling(
+                bestillingsnummer = string("bestillingsnummer"),
+                status = stringOrNull("bestilling_status")?.let { BestillingStatusType.valueOf(it) },
+            ),
             kostnadssted = NavEnhetDbo(
                 enhetsnummer = string("kostnadssted"),
                 navn = string("kostnadssted_navn"),

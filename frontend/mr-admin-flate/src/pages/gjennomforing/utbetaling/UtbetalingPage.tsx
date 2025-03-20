@@ -9,7 +9,7 @@ import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato, formaterPeriode } from "@/utils/Utils";
+import { formaterDato, formaterPeriode, isValidationError } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   DelutbetalingStatus,
@@ -20,7 +20,7 @@ import {
   TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
-import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import {
   ActionMenu,

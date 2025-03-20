@@ -1,9 +1,3 @@
-import {
-  GjennomforingStatus,
-  Tiltakskode,
-  TiltakskodeArena,
-  ValidationError,
-} from "@mr/api-client-v2";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
@@ -20,10 +14,6 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function gjennomforingIsAktiv(status: GjennomforingStatus): boolean {
-  return status === GjennomforingStatus.GJENNOMFORES;
-}
-
 export function formaterNOK(tall: number) {
   return `${formaterTall(tall)} NOK`;
 }
@@ -32,34 +22,10 @@ export function formaterTall(tall: number) {
   return Intl.NumberFormat("no-nb").format(tall);
 }
 
-export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena): boolean {
-  if (tiltakskode) {
-    return [
-      Tiltakskode.JOBBKLUBB,
-      Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-      Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-    ].includes(tiltakskode);
-  }
-
-  if (arenaKode) {
-    return [TiltakskodeArena.ENKELAMO, TiltakskodeArena.ENKFAGYRKE].includes(arenaKode);
-  }
-
-  return false;
-}
-
 export function formaterKontoNummer(kontoNummer?: string): string {
   return !kontoNummer
     ? ""
     : `${kontoNummer.substring(0, 4)} ${kontoNummer.substring(4, 6)} ${kontoNummer.substring(6, 11)}`;
-}
-
-export function isValidationError(error: unknown): error is ValidationError {
-  return (
-    typeof error === "object" &&
-      error !== null &&
-    "errors" in error
-  );
 }
 
 export function jsonPointerToFieldPath(pointer: string): string {

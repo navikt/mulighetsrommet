@@ -1,14 +1,11 @@
 import { ProblemDetail, TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client-v2";
-import {
-  formaterNOK,
-  isValidationError,
-  jsonPointerToFieldPath,
-} from "@mr/frontend-common/utils/utils";
+import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Heading, Label } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   input: TilsagnBeregningInput;
@@ -40,7 +37,7 @@ export function TilsagnBeregningPreview(props: Props) {
   useEffect(() => {
     beregnTilsagn(input, { onSuccess: handleTilsagnBeregnet, onError: setValidationErrors });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [beregnTilsagn, ...Object.values(input)]);
+  }, [beregnTilsagn, ...extractRelevantDeps(input)]);
 
   return (
     <>
@@ -51,4 +48,15 @@ export function TilsagnBeregningPreview(props: Props) {
       </div>
     </>
   );
+}
+
+function extractRelevantDeps(obj: any): any[] {
+  if (!obj || typeof obj !== "object") return [obj];
+
+  return Object.entries(obj).flatMap(([, value]) => {
+    if (typeof value === "object" && value !== null) {
+      return extractRelevantDeps(value); // Recursively flatten nested objects
+    }
+    return value; // Keep primitive values
+  });
 }

@@ -834,18 +834,18 @@ class UtbetalingServiceTest : FunSpec({
                     first.belop shouldBe 50
                     first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     first.lopenummer shouldBe 1
-                    first.fakturanummer shouldBe "A-2024/1-2-1"
+                    first.faktura.fakturanummer shouldBe "A-2024/1-2-1"
 
                     second.belop shouldBe 50
                     second.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     second.lopenummer shouldBe 1
-                    second.fakturanummer shouldBe "A-2024/1-1-1"
+                    second.faktura.fakturanummer shouldBe "A-2024/1-1-1"
                 }
 
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).should { (first) ->
                     first.belop shouldBe 100
                     first.lopenummer shouldBe 2
-                    first.fakturanummer shouldBe "A-2024/1-1-2"
+                    first.faktura.fakturanummer shouldBe "A-2024/1-1-2"
                     first.periode shouldBe Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 1))
                 }
             }

@@ -59,6 +59,7 @@ import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
@@ -66,6 +67,7 @@ import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQu
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
@@ -165,18 +167,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 db = get(),
                 utbetalingService = get(),
             ),
-            AmtVirksomheterV1KafkaConsumer(
-                config = config.consumers.amtVirksomheterV1,
-                get(),
-            ),
-            AmtArrangorMeldingV1KafkaConsumer(
-                config = config.consumers.amtArrangorMeldingV1,
-                db = get(),
-            ),
-            AmtKoordinatorGjennomforingV1KafkaConsumer(
-                config = config.consumers.amtKoordinatorMeldingV1,
-                db = get(),
-            ),
+            AmtVirksomheterV1KafkaConsumer(config.consumers.amtVirksomheterV1, get()),
+            AmtArrangorMeldingV1KafkaConsumer(config.consumers.amtArrangorMeldingV1, get()),
+            AmtKoordinatorGjennomforingV1KafkaConsumer(config.consumers.amtKoordinatorMeldingV1, get()),
+            ReplicateOkonomiBestillingStatus(config.consumers.replicateBestillingStatus, get()),
+            ReplicateOkonomiFakturaStatus(config.consumers.replicateFakturaStatus, get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = config.consumerPreset,

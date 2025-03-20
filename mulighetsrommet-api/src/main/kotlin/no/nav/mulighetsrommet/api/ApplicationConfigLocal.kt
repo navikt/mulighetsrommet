@@ -67,7 +67,7 @@ val ApplicationConfigLocal = AppConfig(
                 producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
             ),
             okonomiBestilling = OkonomiBestillingService.Config(
-                topic = "tiltaksokonomi-bestilling-v1",
+                topic = "tiltaksokonomi.bestillinger-v1",
             ),
         ),
         consumers = KafkaConsumers(
@@ -90,6 +90,14 @@ val ApplicationConfigLocal = AppConfig(
             amtKoordinatorMeldingV1 = KafkaTopicConsumer.Config(
                 id = "amt-tiltakskoordinators-deltakerliste",
                 topic = "amt.tiltakskoordinators-deltakerliste-v1",
+            ),
+            replicateBestillingStatus = KafkaTopicConsumer.Config(
+                id = "replicate-bestilling-status",
+                topic = "tiltaksokonomi.bestilling-status-v1",
+            ),
+            replicateFakturaStatus = KafkaTopicConsumer.Config(
+                id = "replicate-faktura-status",
+                topic = "tiltaksokonomi.faktura-status-v1",
             ),
         ),
     ),

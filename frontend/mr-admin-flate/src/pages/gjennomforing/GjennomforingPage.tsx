@@ -1,6 +1,5 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Header } from "@/components/detaljside/Header";
-import { DupliserGjennomforing } from "@/components/gjennomforing/DupliserGjennomforing";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -8,15 +7,14 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { GjennomforingOppstartstype, Toggles } from "@mr/api-client-v2";
-import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { GjennomforingOppstartstype, GjennomforingStatus, Toggles } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
 import { Outlet, useLocation, useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
@@ -82,10 +80,12 @@ export function GjennomforingPage() {
                 {gjennomforing.navn}
               </Heading>
             </VStack>
-            <GjennomforingStatusMedAarsakTag status={gjennomforing.status} />
-            <DupliserGjennomforing gjennomforing={gjennomforing} />
+            <GjennomforingStatusMedAarsakTag
+              status={gjennomforing.status.status}
+              avbrutt={gjennomforing.status.avbrutt}
+            />
           </div>
-          {gjennomforingIsAktiv(gjennomforing.status.status) && (
+          {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
             <div className="pr-2">
               <Lenkeknapp
                 size="small"

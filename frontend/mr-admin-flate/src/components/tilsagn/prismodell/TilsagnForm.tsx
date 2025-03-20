@@ -4,12 +4,13 @@ import { VelgKostnadssted } from "@/components/tilsagn/prismodell/VelgKostnadsst
 import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, ProblemDetail, TilsagnRequest, TilsagnType } from "@mr/api-client-v2";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, TextField } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
+import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;

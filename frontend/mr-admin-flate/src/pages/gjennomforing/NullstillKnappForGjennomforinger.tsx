@@ -31,10 +31,9 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
         }}
       />
       <LagreFilterButton
-        dokumenttype={LagretDokumenttype.GJENNOMFORING}
         filter={filter}
         onLagre={(r) => {
-          const formData = filterToActionRequest(r);
+          const formData = filterToActionRequest(r, LagretDokumenttype.GJENNOMFORING);
           fetcher.submit(formData, {
             method: "POST",
             action: "/gjennomforinger",

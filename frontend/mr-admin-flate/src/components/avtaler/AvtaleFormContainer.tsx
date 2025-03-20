@@ -17,7 +17,7 @@ import {
   ValidationError,
 } from "@mr/api-client-v2";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React, { useCallback } from "react";
@@ -32,6 +32,7 @@ import { AvtaleFormDetaljer } from "./AvtaleFormDetaljer";
 import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AvtalePrisOgFakturering } from "@/pages/avtaler/AvtalePrisOgFakturering";
+import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   onClose: () => void;

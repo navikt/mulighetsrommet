@@ -10,11 +10,12 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
-import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.model.OebsKontering
-import no.nav.tiltak.okonomi.oebs.*
+import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
+import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
+import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -30,15 +31,18 @@ class OkonomiService(
     private val db: OkonomiDatabase,
     private val oebs: OebsPoApClient,
     private val brreg: BrregClient,
+    private val topics: KafkaTopics,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,
-    ): Either<OpprettBestillingError, Bestilling> = db.session {
-        queries.bestilling.getByBestillingsnummer(opprettBestilling.bestillingsnummer)?.let {
-            log.info("Bestilling ${opprettBestilling.bestillingsnummer} er allerede opprettet")
-            return it.right()
+    ): Either<OpprettBestillingError, Bestilling> = db.transaction {
+        val bestillingsnummer = opprettBestilling.bestillingsnummer
+
+        queries.bestilling.getByBestillingsnummer(bestillingsnummer)?.let {
+            log.info("Bestilling $bestillingsnummer er allerede opprettet")
+            return publishBestilling(bestillingsnummer).right()
         }
 
         val kontering = queries.kontering
@@ -47,7 +51,7 @@ class OkonomiService(
                 tiltakskode = opprettBestilling.tiltakskode,
                 periode = opprettBestilling.periode,
             )
-            ?: return OpprettBestillingError("Kontering for bestilling ${opprettBestilling.bestillingsnummer} mangler").left()
+            ?: return OpprettBestillingError("Kontering for bestilling $bestillingsnummer mangler").left()
 
         val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
 
@@ -73,42 +77,40 @@ class OkonomiService(
                 }
             }
             .flatMap { selger ->
-                val melding = toOebsBestillingMelding(bestilling, kontering, selger)
-                log.info("Sender bestilling ${bestilling.bestillingsnummer} til oebs")
+                val melding = OebsMeldingMapper.toOebsBestillingMelding(bestilling, kontering, selger)
+                log.info("Sender bestilling $bestillingsnummer til oebs")
                 oebs.sendBestilling(melding).mapLeft {
-                    OpprettBestillingError(
-                        "Klarte ikke sende bestilling ${bestilling.bestillingsnummer} til oebs",
-                        it,
-                    )
+                    OpprettBestillingError("Klarte ikke sende bestilling $bestillingsnummer til oebs", it)
                 }
             }
             .map {
-                log.info("Lagrer bestilling ${bestilling.bestillingsnummer}")
+                log.info("Lagrer bestilling $bestillingsnummer")
                 queries.bestilling.insertBestilling(bestilling)
-                bestilling
+                publishBestilling(bestillingsnummer)
             }
             .onLeft {
-                log.warn("Opprett bestilling ${bestilling.bestillingsnummer} feilet", it)
+                log.warn("Opprett bestilling $bestillingsnummer feilet", it)
             }
     }
 
     suspend fun annullerBestilling(
         annullerBestilling: AnnullerBestilling,
-    ): Either<AnnullerBestillingError, Bestilling> = db.session {
+    ): Either<AnnullerBestillingError, Bestilling> = db.transaction {
         val bestillingsnummer = annullerBestilling.bestillingsnummer
+
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
 
         if (bestilling.status == BestillingStatusType.ANNULLERT) {
             log.info("Bestilling $bestillingsnummer er allerede annullert")
-            return bestilling.right()
+            return publishBestilling(bestillingsnummer).right()
         } else if (bestilling.status == BestillingStatusType.FRIGJORT) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den er oppgjort").left()
         } else if (queries.faktura.getByBestillingsnummer(bestillingsnummer).isNotEmpty()) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
 
-        val melding = toOebsAnnulleringMelding(bestilling, annullerBestilling)
+        val melding = OebsMeldingMapper.toOebsAnnulleringMelding(bestilling, annullerBestilling)
         return oebs.sendAnnullering(melding)
             .mapLeft {
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
@@ -125,60 +127,76 @@ class OkonomiService(
                         besluttetTidspunkt = annullerBestilling.besluttetTidspunkt,
                     ),
                 )
-                checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
+                publishBestilling(bestillingsnummer)
             }
     }
 
     suspend fun opprettFaktura(
         opprettFaktura: OpprettFaktura,
-    ): Either<OpprettFakturaError, Faktura> = db.session {
-        val bestilling = queries.bestilling.getByBestillingsnummer(opprettFaktura.bestillingsnummer)
-            ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} finnes ikke").left()
+    ): Either<OpprettFakturaError, Faktura> = db.transaction {
+        val fakturanummer = opprettFaktura.fakturanummer
+
+        queries.faktura.getByFakturanummer(fakturanummer)?.let {
+            log.info("Faktura $fakturanummer er allerede opprettet")
+            return publishFaktura(fakturanummer).right()
+        }
+
+        val bestillingsnummer = opprettFaktura.bestillingsnummer
+
+        val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
+            ?: return OpprettFakturaError("Bestilling $bestillingsnummer finnes ikke").left()
 
         if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.FRIGJORT)) {
-            return OpprettFakturaError("Faktura ${opprettFaktura.fakturanummer} kan ikke opprettes fordi bestilling ${opprettFaktura.bestillingsnummer} har status ${bestilling.status}").left()
+            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
         }
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
 
-        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = opprettFaktura.frigjorBestilling)
+        val melding = OebsMeldingMapper.toOebsFakturaMelding(
+            bestilling,
+            faktura,
+            erSisteFaktura = opprettFaktura.frigjorBestilling,
+        )
         return oebs.sendFaktura(melding)
             .mapLeft {
-                OpprettFakturaError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
+                OpprettFakturaError("Klarte ikke sende faktura $fakturanummer til oebs", it)
             }
             .map {
-                log.info("Lagrer faktura ${faktura.fakturanummer}")
+                log.info("Lagrer faktura $fakturanummer")
                 queries.faktura.insertFaktura(faktura)
 
                 if (opprettFaktura.frigjorBestilling) {
-                    log.info("Setter bestilling ${bestilling.bestillingsnummer} til oppgjort")
-                    queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
+                    setBestillingFrigjort(bestillingsnummer)
                 }
 
-                faktura
+                publishFaktura(fakturanummer)
             }
     }
 
-    /* Siden OeBS ikke har noen frigjørings funksjonalitet er dette implementert som en faktura med erSisteFaktura = true */
+    /**
+     * Siden OeBS ikke har noen frigjørings funksjonalitet er dette implementert som en faktura med erSisteFaktura = true
+     */
     suspend fun frigjorBestilling(
         frigjorBestilling: FrigjorBestilling,
     ): Either<FrigjorBestillingError, Faktura> = db.session {
-        val bestilling = queries.bestilling.getByBestillingsnummer(frigjorBestilling.bestillingsnummer)
-            ?: return FrigjorBestillingError("Bestilling ${frigjorBestilling.bestillingsnummer} finnes ikke").left()
+        val bestillingsnummer = frigjorBestilling.bestillingsnummer
 
-        queries.faktura.getByFakturanummer(frigjorFakturanummer(bestilling.bestillingsnummer))?.let {
-            log.info("Bestilling ${bestilling.bestillingsnummer} er allerede oppgjort")
+        val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
+            ?: return FrigjorBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
+
+        queries.faktura.getByFakturanummer(frigjorFakturanummer(bestillingsnummer))?.let {
+            log.info("Bestilling $bestillingsnummer er allerede frigjort")
             return it.right()
         }
 
-        // TODO: Fjern bestilt status når bestillinger blir satt som aktive
-        if (bestilling.status !in listOf(BestillingStatusType.AKTIV, BestillingStatusType.BESTILT)) {
-            return FrigjorBestillingError("Bestilling ${bestilling.bestillingsnummer} kan ikke frigjøres fordi den har status ${bestilling.status}").left()
+        // TODO: Fjern sjekk mot SENDT status når bestillinger blir satt som aktive
+        if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
+            return FrigjorBestillingError("Bestilling $bestillingsnummer kan ikke frigjøres fordi den har status ${bestilling.status}").left()
         }
 
         val faktura = Faktura.fromFrigjorBestilling(frigjorBestilling, bestilling)
 
-        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
+        val melding = OebsMeldingMapper.toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
         return oebs.sendFaktura(melding)
             .mapLeft {
                 FrigjorBestillingError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
@@ -187,11 +205,46 @@ class OkonomiService(
                 log.info("Lagrer frigjøringsfaktura ${faktura.fakturanummer}")
                 queries.faktura.insertFaktura(faktura)
 
-                log.info("Setter bestilling ${bestilling.bestillingsnummer} til oppgjort")
-                queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
+                setBestillingFrigjort(bestillingsnummer)
 
                 faktura
             }
+    }
+
+    private fun QueryContext.setBestillingFrigjort(bestillingsnummer: String) {
+        log.info("Setter bestilling $bestillingsnummer til frigjort")
+        queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.FRIGJORT)
+        publishBestilling(bestillingsnummer)
+    }
+
+    private fun QueryContext.publishBestilling(bestillingsnummer: String): Bestilling {
+        val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
+
+        log.info("Lagrer status-melding for bestilling $bestillingsnummer")
+        queries.kafkaProducerRecord.insertBestillingStatus(
+            topics.bestillingStatus,
+            BestillingStatus(
+                bestillingsnummer = bestilling.bestillingsnummer,
+                status = bestilling.status,
+            ),
+        )
+
+        return bestilling
+    }
+
+    private fun QueryContext.publishFaktura(fakturanummer: String): Faktura {
+        val faktura = checkNotNull(queries.faktura.getByFakturanummer(fakturanummer))
+
+        log.info("Lagrer status-melding for faktura $fakturanummer")
+        queries.kafkaProducerRecord.insertFakturaStatus(
+            topics.fakturaStatus,
+            FakturaStatus(
+                fakturanummer = fakturanummer,
+                status = faktura.status,
+            ),
+        )
+
+        return faktura
     }
 }
 
@@ -213,96 +266,5 @@ private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adress
         by = it.poststed ?: return null,
         postNummer = it.postnummer ?: return null,
         landsKode = it.landkode ?: return null,
-    )
-}
-
-private fun toOebsBestillingMelding(
-    bestilling: Bestilling,
-    kontering: OebsKontering,
-    selger: OebsBestillingMelding.Selger,
-): OebsBestillingMelding {
-    val linjer = bestilling.linjer.map { linje ->
-        OebsBestillingMelding.Linje(
-            linjeNummer = linje.linjenummer,
-            antall = linje.belop,
-            pris = 1,
-            periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
-            startDato = linje.periode.start,
-            sluttDato = linje.periode.getLastInclusiveDate(),
-        )
-    }
-
-    return OebsBestillingMelding(
-        kilde = OebsKilde.TILTADM,
-        bestillingsNummer = bestilling.bestillingsnummer,
-        opprettelsesTidspunkt = bestilling.opprettelse.besluttetTidspunkt,
-        bestillingsType = OebsBestillingType.NY,
-        selger = selger,
-        rammeavtaleNummer = bestilling.avtalenummer,
-        totalSum = bestilling.belop,
-        valutaKode = "NOK",
-        saksbehandler = bestilling.opprettelse.behandletAv.part,
-        bdmGodkjenner = bestilling.opprettelse.besluttetAv.part,
-        startDato = bestilling.periode.start,
-        sluttDato = bestilling.periode.getLastInclusiveDate(),
-        bestillingsLinjer = linjer,
-        statsregnskapsKonto = kontering.statligRegnskapskonto,
-        artsKonto = kontering.statligArtskonto,
-        kontor = bestilling.kostnadssted.value,
-        tilsagnsAar = bestilling.periode.start.year,
-    )
-}
-
-private fun toOebsAnnulleringMelding(
-    bestilling: Bestilling,
-    annullerBestilling: AnnullerBestilling,
-): OebsAnnulleringMelding {
-    return OebsAnnulleringMelding(
-        bestillingsNummer = bestilling.bestillingsnummer,
-        opprettelsesTidspunkt = annullerBestilling.besluttetTidspunkt,
-        kilde = OebsKilde.TILTADM,
-        bestillingsType = OebsBestillingType.ANNULLER,
-        selger = OebsAnnulleringMelding.Selger(
-            organisasjonsNummer = bestilling.arrangorHovedenhet.value,
-            bedriftsNummer = bestilling.arrangorUnderenhet.value,
-        ),
-    )
-}
-
-private fun toOebsFakturaMelding(
-    bestilling: Bestilling,
-    faktura: Faktura,
-    erSisteFaktura: Boolean,
-): OebsFakturaMelding {
-    val linjer = faktura.linjer.mapIndexed { index, linje ->
-        OebsFakturaMelding.Linje(
-            bestillingsNummer = bestilling.bestillingsnummer,
-            bestillingsLinjeNummer = linje.linjenummer,
-            antall = linje.belop,
-            pris = 1,
-            erSisteFaktura = erSisteFaktura && index == faktura.linjer.lastIndex,
-        )
-    }
-    return OebsFakturaMelding(
-        kilde = OebsKilde.TILTADM,
-        fakturaNummer = faktura.fakturanummer,
-        opprettelsesTidspunkt = faktura.besluttetTidspunkt,
-        organisasjonsNummer = bestilling.arrangorHovedenhet.value,
-        bedriftsNummer = bestilling.arrangorUnderenhet.value,
-        totalSum = faktura.belop,
-        valutaKode = "NOK",
-        saksbehandler = faktura.behandletAv.part,
-        bdmGodkjenner = faktura.besluttetAv.part,
-        fakturaDato = faktura.besluttetTidspunkt.toLocalDate(),
-        betalingsKanal = OebsBetalingskanal.BBAN,
-        bankKontoNummer = faktura.kontonummer?.value,
-        kidNummer = faktura.kid?.value,
-        bankNavn = null,
-        bankLandKode = null,
-        bicSwiftKode = null,
-        // TODO: generer en beskrivende melding
-        meldingTilLeverandor = null,
-        beskrivelse = null,
-        fakturaLinjer = linjer,
     )
 }

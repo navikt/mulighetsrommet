@@ -37,7 +37,7 @@ export function NavFiltertags({ filterOpen, setTagsHeight }: Props) {
         />
       )}
       <NavEnhetFilterTag
-        navEnheter={filter.navEnheter}
+        navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
       {filter.tiltakstyper.map((tiltakstype) => (

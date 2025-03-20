@@ -3,6 +3,7 @@ package no.nav.tiltak.okonomi.model
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.FrigjorBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -44,7 +45,7 @@ data class Faktura(
                 kid = faktura.betalingsinformasjon.kid,
                 belop = faktura.belop,
                 periode = faktura.periode,
-                status = FakturaStatusType.UTBETALT,
+                status = FakturaStatusType.SENDT,
                 behandletAv = faktura.behandletAv,
                 behandletTidspunkt = faktura.behandletTidspunkt,
                 besluttetAv = faktura.besluttetAv,
@@ -72,7 +73,7 @@ data class Faktura(
                 kid = null,
                 belop = 0,
                 periode = sisteBestillingLinje.periode,
-                status = FakturaStatusType.UTBETALT,
+                status = FakturaStatusType.SENDT,
                 behandletAv = frigjorBestilling.behandletAv,
                 behandletTidspunkt = frigjorBestilling.behandletTidspunkt,
                 besluttetAv = frigjorBestilling.besluttetAv,
@@ -87,8 +88,4 @@ data class Faktura(
             )
         }
     }
-}
-
-enum class FakturaStatusType {
-    UTBETALT,
 }

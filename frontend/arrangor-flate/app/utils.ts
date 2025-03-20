@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { Periode, ProblemDetail } from "api-client";
+import { Periode, ProblemDetail, ValidationError } from "api-client";
 
 export function formaterPeriode(periode: Periode) {
   const start = formaterDato(periode.start);
@@ -42,4 +42,8 @@ export function problemDetailResponse(error: ProblemDetail): Response {
     status: error.status,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+export function isValidationError(error: unknown): error is ValidationError {
+  return typeof error === "object" && error !== null && "errors" in error;
 }

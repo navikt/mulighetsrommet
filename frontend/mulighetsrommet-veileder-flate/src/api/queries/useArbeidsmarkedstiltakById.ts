@@ -1,13 +1,13 @@
 import { QueryKeys } from "../query-keys";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
+  GjennomforingStatus,
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakEnkeltplassAnskaffet,
   VeilederflateTiltakGruppe,
   VeilederTiltakService,
 } from "@mr/api-client-v2";
-import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {
@@ -15,7 +15,7 @@ export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is Veilederf
 }
 
 export function isTiltakAktivt(gjennomforing: VeilederflateTiltak): boolean {
-  return gjennomforingIsAktiv(gjennomforing.status);
+  return gjennomforing.status === GjennomforingStatus.GJENNOMFORES;
 }
 
 export function isTiltakEgenRegi(

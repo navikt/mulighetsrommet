@@ -7,9 +7,12 @@ import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { AvtaleDto, NavAnsatt } from "@mr/api-client-v2";
+import { AvtaleDto, NavAnsatt, Opphav } from "@mr/api-client-v2";
 import { useRef } from "react";
 import { useNavigate } from "react-router";
+import { LayersPlusIcon } from "@navikt/aksel-icons";
+import { useSetAtom } from "jotai";
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -21,9 +24,25 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
+  const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
 
   function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
     return !!avtale?.opsjonsmodellData?.opsjonMaksVarighet;
+  }
+
+  function dupliserAvtale() {
+    setAvtaleDetaljerTab("detaljer");
+    navigate(`/avtaler/skjema`, {
+      state: {
+        dupliserAvtale: {
+          opphav: Opphav.MR_ADMIN_FLATE,
+          tiltakstype: avtale.tiltakstype,
+          avtaletype: avtale.avtaletype,
+          beskrivelse: avtale.beskrivelse,
+          faneinnhold: avtale.faneinnhold,
+        },
+      },
+    });
   }
 
   return (
@@ -72,6 +91,13 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
                 </Dropdown.Menu.GroupedList.Item>
               )}
             </Dropdown.Menu.GroupedList>
+            <Dropdown.Menu.Divider />
+            <Dropdown.Menu.List>
+              <Dropdown.Menu.List.Item onClick={dupliserAvtale}>
+                <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
+                Dupliser
+              </Dropdown.Menu.List.Item>
+            </Dropdown.Menu.List>
           </Dropdown.Menu>
         </Dropdown>
       </HarSkrivetilgang>
