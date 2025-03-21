@@ -69,6 +69,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
+import no.nav.mulighetsrommet.api.utbetaling.kafka.RevurderUtbetalingForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.RevurderUtbetaling
@@ -173,6 +174,7 @@ private fun kafka(appConfig: AppConfig) = module {
             AmtKoordinatorGjennomforingV1KafkaConsumer(config.consumers.amtKoordinatorMeldingV1, get()),
             ReplicateOkonomiBestillingStatus(config.consumers.replicateBestillingStatus, get()),
             ReplicateOkonomiFakturaStatus(config.consumers.replicateFakturaStatus, get()),
+            RevurderUtbetalingForGjennomforingConsumer(config.consumers.revurderUtbetalingForgjennomforing, get(), get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = config.consumerPreset,

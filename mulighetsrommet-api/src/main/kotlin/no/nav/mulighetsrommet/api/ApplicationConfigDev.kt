@@ -91,6 +91,11 @@ val ApplicationConfigDev = AppConfig(
                 id = "replicate-faktura-status",
                 topic = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
             ),
+            revurderUtbetalingForgjennomforing = KafkaTopicConsumer.Config(
+                id = "revurder-utbetaling-for-gjennomforing",
+                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+                consumerGroupId = "mulighetsrommet-api.revurder-utbetaling-for-gjennomforing.v1",
+            ),
         ),
     ),
     auth = AuthConfig(
