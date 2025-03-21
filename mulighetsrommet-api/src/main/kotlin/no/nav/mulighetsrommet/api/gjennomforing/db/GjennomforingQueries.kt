@@ -253,7 +253,7 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) = with(session) {
+    fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing set
@@ -263,10 +263,10 @@ class GjennomforingQueries(private val session: Session) {
 
         val params = mapOf("id" to id, "tiltaksnummer" to tiltaksnummer, "arena_ansvarlig_enhet" to arenaAnsvarligEnhet)
 
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
     }
 
-    fun get(id: UUID): GjennomforingDto? = with(session) {
+    fun get(id: UUID): GjennomforingDto? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -274,16 +274,16 @@ class GjennomforingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toTiltaksgjennomforingDto() }
+        return session.single(queryOf(query, id)) { it.toTiltaksgjennomforingDto() }
     }
 
-    fun getUpdatedAt(id: UUID): LocalDateTime? = with(session) {
+    fun getUpdatedAt(id: UUID): LocalDateTime? {
         @Language("PostgreSQL")
         val query = """
             select updated_at from gjennomforing where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.localDateTimeOrNull("updated_at") }
+        return session.single(queryOf(query, id)) { it.localDateTimeOrNull("updated_at") }
     }
 
     fun getAll(
@@ -367,17 +367,17 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun delete(id: UUID): Int = with(session) {
+    fun delete(id: UUID): Int {
         @Language("PostgreSQL")
         val query = """
             delete from gjennomforing
             where id = ?::uuid
         """.trimIndent()
 
-        return update(queryOf(query, id))
+        return session.update(queryOf(query, id))
     }
 
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int = with(session) {
+    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
@@ -385,10 +385,10 @@ class GjennomforingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return update(queryOf(query, opphav.name, id))
+        return session.update(queryOf(query, opphav.name, id))
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean): Int = with(session) {
+    fun setPublisert(id: UUID, publisert: Boolean): Int {
         @Language("PostgreSQL")
         val query = """
            update gjennomforing
@@ -396,10 +396,10 @@ class GjennomforingQueries(private val session: Session) {
            where id = ?::uuid
         """.trimIndent()
 
-        return update(queryOf(query, publisert, id))
+        return session.update(queryOf(query, publisert, id))
     }
 
-    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int = with(session) {
+    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int {
         @Language("PostgreSQL")
         val query = """
            update gjennomforing
@@ -407,10 +407,10 @@ class GjennomforingQueries(private val session: Session) {
            where id = ?::uuid
         """.trimIndent()
 
-        return update(queryOf(query, apentForPamelding, id))
+        return session.update(queryOf(query, apentForPamelding, id))
     }
 
-    fun setTilgjengeligForArrangorFraOgMedDato(id: UUID, date: LocalDate): Int = with(session) {
+    fun setTilgjengeligForArrangorFraOgMedDato(id: UUID, date: LocalDate): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
@@ -418,10 +418,10 @@ class GjennomforingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return update(queryOf(query, date, id))
+        return session.update(queryOf(query, date, id))
     }
 
-    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?): Int = with(session) {
+    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
@@ -429,10 +429,10 @@ class GjennomforingQueries(private val session: Session) {
             where id = ?
         """.trimIndent()
 
-        return update(queryOf(query, avtaleId, gjennomforingId))
+        return session.update(queryOf(query, avtaleId, gjennomforingId))
     }
 
-    fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int = with(session) {
+    fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
@@ -445,10 +445,10 @@ class GjennomforingQueries(private val session: Session) {
 
         val params = mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak?.name)
 
-        return update(queryOf(query, params))
+        return session.update(queryOf(query, params))
     }
 
-    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID) = with(session) {
+    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -456,7 +456,7 @@ class GjennomforingQueries(private val session: Session) {
             where arrangor_kontaktperson_id = ?::uuid and gjennomforing_id = ?::uuid
         """.trimIndent()
 
-        update(queryOf(query, kontaktpersonId, gjennomforingId))
+        session.update(queryOf(query, kontaktpersonId, gjennomforingId))
     }
 
     fun setStengtHosArrangor(
