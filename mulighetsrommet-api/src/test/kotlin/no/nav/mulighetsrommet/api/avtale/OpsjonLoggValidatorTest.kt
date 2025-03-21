@@ -25,7 +25,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         ),
         navn = "Avtale for opsjoner",
         avtalenummer = "24/123",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         arrangor = AvtaleDto.ArrangorHovedenhet(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("123456789"),
