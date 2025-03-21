@@ -277,6 +277,20 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toTiltaksgjennomforingDto() }
     }
 
+    fun getPrismodell(id: UUID): Prismodell? {
+        @Language("PostgreSQL")
+        val query = """
+            select avtale.prismodell
+            from gjennomforing
+            join avtale on gjennomforing.avtale_id = avtale.id
+            where gjennomforing.id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { row ->
+            row.stringOrNull("prismodell")?.let { Prismodell.valueOf(it) }
+        }
+    }
+
     fun getUpdatedAt(id: UUID): LocalDateTime? {
         @Language("PostgreSQL")
         val query = """

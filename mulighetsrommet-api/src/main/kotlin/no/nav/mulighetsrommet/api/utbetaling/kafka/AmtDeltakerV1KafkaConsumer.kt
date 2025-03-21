@@ -5,16 +5,12 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.DeltakerStatus
-import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -25,7 +21,6 @@ class AmtDeltakerV1KafkaConsumer(
     config: Config,
     private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val db: ApiDatabase,
-    private val tiltakstyper: TiltakstypeService,
     private val utbetalingService: UtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
@@ -51,10 +46,12 @@ class AmtDeltakerV1KafkaConsumer(
             }
 
             else -> {
-                logger.info("Lagrer deltaker deltakerId=$key")
-                queries.deltaker.upsert(deltaker.toDeltakerDbo())
+                val prismodell = queries.gjennomforing.getPrismodell(deltaker.gjennomforingId)
 
-                if (isRelevantForUtbetaling(deltaker)) {
+                logger.info("Lagrer deltaker deltakerId=$key")
+                queries.deltaker.upsert(toDeltakerDbo(deltaker, prismodell))
+
+                if (prismodell != null && isRelevantForUtbetaling(deltaker, prismodell)) {
                     queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
 
                     utbetalingService.recalculateUtbetalingForGjennomforing(deltaker.gjennomforingId)
@@ -64,15 +61,14 @@ class AmtDeltakerV1KafkaConsumer(
     }
 
     // TODO: oppdater logikk ifm. prodsetting av tiltaksøkonomi
-    private fun isRelevantForUtbetaling(deltaker: AmtDeltakerV1Dto): Boolean {
+    private fun isRelevantForUtbetaling(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell): Boolean {
         if (NaisEnv.current().isProdGCP()) {
             return false
         }
 
-        // TODO: sjekk basert på avtalens/gjennomføringens prismodell i stedet for tiltakskode
-        val tiltakstype = tiltakstyper.getByGjennomforingId(deltaker.gjennomforingId)
-        if (!Tiltakskoder.isForhaandsgodkjentTiltak(tiltakstype.tiltakskode)) {
-            return false
+        when (prismodell) {
+            Prismodell.FRI -> return false
+            Prismodell.FORHANDSGODKJENT -> Unit
         }
 
         if (
@@ -90,36 +86,31 @@ class AmtDeltakerV1KafkaConsumer(
         val sluttDato = deltaker.sluttDato
         return sluttDato == null || !relevantDeltakerSluttDato.isAfter(sluttDato)
     }
+}
 
-    private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
-        val tiltakstype = tiltakstyper.getByGjennomforingId(gjennomforingId)
-
-        val deltakelsesprosent = when (tiltakstype.tiltakskode) {
-            // Hvis deltakelsesprosent mangler for AFT/VTA så skal det antas å være 100
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
-                prosentStilling?.toDouble() ?: 100.0
-            }
-
-            else -> null
-        }
-        return DeltakerDbo(
-            id = id,
-            gjennomforingId = gjennomforingId,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            registrertTidspunkt = registrertDato,
-            endretTidspunkt = endretDato,
-            deltakelsesprosent = deltakelsesprosent,
-            status = status,
-            deltakelsesmengder = deltakelsesmengder
-                ?.map {
-                    DeltakerDbo.Deltakelsesmengde(
-                        gyldigFra = it.gyldigFra,
-                        opprettetTidspunkt = it.opprettet,
-                        deltakelsesprosent = it.deltakelsesprosent.toDouble(),
-                    )
-                }
-                ?: listOf(),
-        )
+private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell?): DeltakerDbo {
+    val deltakelsesprosent = when (prismodell) {
+        // Hvis deltakelsesprosent mangler for forhåndsgodkjente tiltak så skal det antas å være 100%
+        Prismodell.FORHANDSGODKJENT -> deltaker.prosentStilling?.toDouble() ?: 100.0
+        Prismodell.FRI, null -> null
     }
+    return DeltakerDbo(
+        id = deltaker.id,
+        gjennomforingId = deltaker.gjennomforingId,
+        startDato = deltaker.startDato,
+        sluttDato = deltaker.sluttDato,
+        registrertTidspunkt = deltaker.registrertDato,
+        endretTidspunkt = deltaker.endretDato,
+        deltakelsesprosent = deltakelsesprosent,
+        status = deltaker.status,
+        deltakelsesmengder = deltaker.deltakelsesmengder
+            ?.map {
+                DeltakerDbo.Deltakelsesmengde(
+                    gyldigFra = it.gyldigFra,
+                    opprettetTidspunkt = it.opprettet,
+                    deltakelsesprosent = it.deltakelsesprosent.toDouble(),
+                )
+            }
+            ?: listOf(),
+    )
 }

@@ -16,11 +16,11 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Prismodell
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
@@ -44,7 +45,6 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             db = database.db,
             relevantDeltakerSluttDatoPeriod = period,
-            tiltakstyper = TiltakstypeService(database.db),
             utbetalingService = utbetalingService,
         )
     }
@@ -78,6 +78,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
+            avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT, AvtaleFixtures.VTA),
             gjennomforinger = listOf(Oppfolging1, AFT1, VTA1),
         )
 
@@ -133,7 +134,14 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             }
         }
 
-        test("tolker deltakelsesprosent som 100 hvis den mangler for forhåndsgodkjente tiltak") {
+        test("tolker deltakelsesprosent som 100 hvis den mangler for tiltak med forhåndsgodkjent prismodell") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(
+                    AvtaleFixtures.AFT.copy(prismodell = Prismodell.FORHANDSGODKJENT),
+                    AvtaleFixtures.VTA.copy(prismodell = null),
+                ),
+            ).initialize(database.db)
+
             val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(
                 amtDeltaker1.id,
@@ -150,7 +158,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                         .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
                         .toDto(),
                     deltaker2Dbo
-                        .copy(gjennomforingId = VTA1.id, deltakelsesprosent = 100.0)
+                        .copy(gjennomforingId = VTA1.id, deltakelsesprosent = null)
                         .toDto(),
                 )
             }
@@ -167,6 +175,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
+            avtaler = listOf(AvtaleFixtures.AFT.copy(prismodell = Prismodell.FORHANDSGODKJENT)),
             gjennomforinger = listOf(AFT1),
         )
 
