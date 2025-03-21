@@ -318,7 +318,7 @@ private fun resolveTilsagnDefaults(
             type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
-            kostnadssted = null,
+            kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
             beregning = beregning,
         )
     }
