@@ -466,7 +466,7 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
                 utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
-                    it.belop shouldBe 10102
+                    it.belop shouldBe 10103
                     it.deltakelser shouldBe setOf(
                         DeltakelseManedsverk(
                             deltakelseId = domain.deltakere[0].id,
