@@ -144,11 +144,11 @@ private fun kafka(appConfig: AppConfig) = module {
     single {
         ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
             get(),
-            config.producers.arenaMigreringTiltaksgjennomforinger,
+            config.clients.arenaMigreringTiltaksgjennomforinger,
         )
     }
-    single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.producers.gjennomforinger) }
-    single { SisteTiltakstyperV2KafkaProducer(get(), config.producers.tiltakstyper) }
+    single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.clients.gjennomforinger) }
+    single { SisteTiltakstyperV2KafkaProducer(get(), config.clients.tiltakstyper) }
 
     single {
         val consumers = listOf(
@@ -158,23 +158,23 @@ private fun kafka(appConfig: AppConfig) = module {
                 db = get(),
             ),
             SisteTiltaksgjennomforingerV1KafkaConsumer(
-                config = config.consumers.gjennomforingerV1,
+                config = config.clients.gjennomforingerV1,
                 db = get(),
                 tiltakstyper = get(),
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingProducer = get(),
             ),
             AmtDeltakerV1KafkaConsumer(
-                config = config.consumers.amtDeltakerV1,
+                config = config.clients.amtDeltakerV1,
                 db = get(),
                 revurderUtbetaling = get(),
             ),
-            AmtVirksomheterV1KafkaConsumer(config.consumers.amtVirksomheterV1, get()),
-            AmtArrangorMeldingV1KafkaConsumer(config.consumers.amtArrangorMeldingV1, get()),
-            AmtKoordinatorGjennomforingV1KafkaConsumer(config.consumers.amtKoordinatorMeldingV1, get()),
-            ReplicateOkonomiBestillingStatus(config.consumers.replicateBestillingStatus, get()),
-            ReplicateOkonomiFakturaStatus(config.consumers.replicateFakturaStatus, get()),
-            RevurderUtbetalingForGjennomforingConsumer(config.consumers.revurderUtbetalingForgjennomforing, get(), get()),
+            AmtVirksomheterV1KafkaConsumer(config.clients.amtVirksomheterV1, get()),
+            AmtArrangorMeldingV1KafkaConsumer(config.clients.amtArrangorMeldingV1, get()),
+            AmtKoordinatorGjennomforingV1KafkaConsumer(config.clients.amtKoordinatorMeldingV1, get()),
+            ReplicateOkonomiBestillingStatus(config.clients.replicateBestillingStatus, get()),
+            ReplicateOkonomiFakturaStatus(config.clients.replicateFakturaStatus, get()),
+            RevurderUtbetalingForGjennomforingConsumer(config.clients.revurderUtbetalingForgjennomforing, get(), get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = config.consumerPreset,
