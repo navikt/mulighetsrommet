@@ -11,7 +11,7 @@ const fyllInnAvtale = async (page: Page) => {
   const heading = page.locator("h2");
   await test.expect(heading).toHaveText("Opprett ny avtale");
   await locateAndFillInput(page, "navn", "Testavtale fra Playwright");
-  await locateAndFillInput(page, "websaknummer", "24/123");
+  await locateAndFillInput(page, "sakarkivNummer", "24/123");
   await locateAndFillComboboxFirst(page, "input#tiltakstype", "AFT");
   await page.fill('.navds-form-field:has(label:text("Startdato")) input', "01.02.2025");
   await locateAndFillComboboxFirst(page, "input#tiltakstype", "AFT");

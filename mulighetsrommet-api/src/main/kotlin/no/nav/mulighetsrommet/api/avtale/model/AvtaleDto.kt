@@ -27,7 +27,7 @@ data class AvtaleDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val avtalenummer: String?,
-    val websaknummer: Websaknummer?,
+    val sakarkivNummer: SakarkivNummer?,
     val arrangor: ArrangorHovedenhet?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -110,7 +110,7 @@ fun AvtaleDto.toDbo(): AvtaleDbo {
         navn = navn,
         tiltakstypeId = tiltakstype.id,
         avtalenummer = avtalenummer,
-        websaknummer = websaknummer,
+        sakarkivNummer = sakarkivNummer,
         arrangor = arrangor?.id?.let {
             AvtaleDbo.Arrangor(
                 hovedenhet = it,

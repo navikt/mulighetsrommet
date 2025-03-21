@@ -54,7 +54,7 @@ class AvtaleValidatorTest : FunSpec({
             kontaktpersoner = emptyList(),
         ),
         avtalenummer = "123456",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
         administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
@@ -303,22 +303,22 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(gruppeAmoOffentlig, null).shouldBeRight()
     }
 
-    test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
+    test("SakarkivNummer må være med når avtalen er avtale eller rammeavtale") {
         val validator = createValidator()
 
-        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, websaknummer = null)
+        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, sakarkivNummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
-            listOf(FieldError("/websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
+            listOf(FieldError("/sakarkivNummer", "Du må skrive inn Websaknummer til avtalesaken")),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, websaknummer = null)
+        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, sakarkivNummer = null)
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(FieldError("/websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
+            listOf(FieldError("/sakarkivNummer", "Du må skrive inn Websaknummer til avtalesaken")),
         )
 
         val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(
             avtaletype = Avtaletype.OffentligOffentlig,
-            websaknummer = null,
+            sakarkivNummer = null,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
         validator.validate(offentligOffentligSamarbeid, null).shouldBeRight()

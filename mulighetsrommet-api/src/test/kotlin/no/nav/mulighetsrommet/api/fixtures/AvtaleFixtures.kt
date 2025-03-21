@@ -13,7 +13,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -43,7 +43,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -73,7 +73,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Gruppe Amo",
         avtalenummer = "2024#8",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -103,7 +103,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Gruppe Amo",
         avtalenummer = "2024#8",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -133,7 +133,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "IPS",
         avtalenummer = "2024#9",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.IPS.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -163,7 +163,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Avtalenavn for VTA",
         avtalenummer = "2024#1",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -193,7 +193,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Avtalenavn for AFT",
         avtalenummer = "2024#1",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -223,7 +223,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Avtalenavn for EnkelAmo",
         avtalenummer = "2024#1",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -253,7 +253,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Jobbklubb avtale",
         avtalenummer = "2023#13",
-        websaknummer = Websaknummer("24/3234"),
+        sakarkivNummer = SakarkivNummer("24/3234"),
         tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
@@ -283,7 +283,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
-        websaknummer = Websaknummer("24/1234"),
+        sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         arrangor = AvtaleRequest.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
@@ -314,7 +314,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "ARR avtale",
         avtalenummer = "2023#13",
-        websaknummer = Websaknummer("24/3234"),
+        sakarkivNummer = SakarkivNummer("24/3234"),
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
         arrangor = AvtaleDbo.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.id,

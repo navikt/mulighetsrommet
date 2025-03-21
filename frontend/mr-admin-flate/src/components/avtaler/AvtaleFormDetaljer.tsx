@@ -128,13 +128,13 @@ export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Pr
             <TextField
               size="small"
               placeholder="åå/12345"
-              error={errors.websaknummer?.message}
+              error={errors.sakarkivNummer?.message}
               label={
                 <LabelWithHelpText
-                  label={avtaletekster.websaknummerLabel}
-                  helpTextTitle={avtaletekster.websaknummerHelpTextTitle}
+                  label={avtaletekster.sakarkivNummerLabel}
+                  helpTextTitle={avtaletekster.sakarkivNummerHelpTextTitle}
                 >
-                  I Websak skal det opprettes tre typer arkivsaker med egne saksnummer:
+                  I Public360 skal det opprettes tre typer arkivsaker med egne saksnummer:
                   <ol>
                     <li>En sak for hver anskaffelse.</li>
                     <li>En sak for kontrakt/avtale med hver leverandør (Avtalesaken).</li>
@@ -145,7 +145,7 @@ export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Pr
                   Det er <b>2) Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
                 </LabelWithHelpText>
               }
-              {...register("websaknummer")}
+              {...register("sakarkivNummer")}
             />
           </HGrid>
         </FormGroup>

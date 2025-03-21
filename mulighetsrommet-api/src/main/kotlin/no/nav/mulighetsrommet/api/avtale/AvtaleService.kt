@@ -239,7 +239,7 @@ private fun toAvtaleDbo(
         id = id,
         navn = navn,
         avtalenummer = avtalenummer,
-        websaknummer = websaknummer,
+        sakarkivNummer = sakarkivNummer,
         tiltakstypeId = tiltakstypeId,
         arrangor = arrangor,
         startDato = startDato,
