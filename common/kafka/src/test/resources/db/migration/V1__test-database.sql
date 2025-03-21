@@ -7,10 +7,9 @@ create table shedlock
     primary key (name)
 );
 
-
-create table failed_events
+create table kafka_consumer_record
 (
-    id               serial  not null primary key,
+    id               bigint generated always as identity,
     topic            text    not null,
     partition        integer not null,
     record_offset    bigint  not null,
