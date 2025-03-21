@@ -21,9 +21,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.task.RevurderUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -39,13 +39,13 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
     fun createConsumer(
         period: Period = Period.ofDays(1),
-        utbetalingService: UtbetalingService = mockk(),
+        revurderUtbetaling: RevurderUtbetaling = mockk(),
     ): AmtDeltakerV1KafkaConsumer {
         return AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             db = database.db,
             relevantDeltakerSluttDatoPeriod = period,
-            utbetalingService = utbetalingService,
+            revurderUtbetaling = revurderUtbetaling,
         )
     }
 
@@ -166,7 +166,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     }
 
     context("deltakelser for utbetaling") {
-        val utbetalingService: UtbetalingService = mockk()
+        val revurderUtbetaling: RevurderUtbetaling = mockk()
 
         val amtDeltaker1 = createAmtDeltakerV1Dto(
             gjennomforingId = AFT1.id,
@@ -182,7 +182,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         beforeEach {
             domain.initialize(database.db)
 
-            coEvery { utbetalingService.recalculateUtbetalingForGjennomforing(any()) } returns Unit
+            coEvery { revurderUtbetaling.schedule(any(), any(), any()) } returns Unit
         }
 
         afterEach {
@@ -192,7 +192,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("lagrer fødselsnummer på deltakere i AFT med relevant status") {
-            val deltakerConsumer = createConsumer(utbetalingService = utbetalingService)
+            val deltakerConsumer = createConsumer(revurderUtbetaling = revurderUtbetaling)
 
             forAll(
                 row(DeltakerStatus.Type.VENTER_PA_OPPSTART, null),
@@ -216,7 +216,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         test("lagrer ikke fødselsnummer når deltakelsen har en sluttdato før konfigurert periode") {
             val deltakerConsumer = createConsumer(
                 period = Period.ofDays(1),
-                utbetalingService = utbetalingService,
+                revurderUtbetaling = revurderUtbetaling,
             )
 
             forAll(
@@ -237,12 +237,12 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("trigger at utbetaling for aktuell gjennomføring beregnes på nytt") {
-            val deltakerConsumer = createConsumer(utbetalingService = utbetalingService)
+            val deltakerConsumer = createConsumer(revurderUtbetaling = revurderUtbetaling)
 
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
             coVerify(exactly = 1) {
-                utbetalingService.recalculateUtbetalingForGjennomforing(AFT1.id)
+                revurderUtbetaling.schedule(AFT1.id, any(), any())
             }
         }
     }

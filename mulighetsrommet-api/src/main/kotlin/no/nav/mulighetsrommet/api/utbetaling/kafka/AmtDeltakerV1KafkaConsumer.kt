@@ -5,14 +5,18 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.utbetaling.task.RevurderUtbetaling
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
 import java.util.*
@@ -21,7 +25,7 @@ class AmtDeltakerV1KafkaConsumer(
     config: Config,
     private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val db: ApiDatabase,
-    private val utbetalingService: UtbetalingService,
+    private val revurderUtbetaling: RevurderUtbetaling,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
@@ -54,7 +58,7 @@ class AmtDeltakerV1KafkaConsumer(
                 if (prismodell != null && isRelevantForUtbetaling(deltaker, prismodell)) {
                     queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
 
-                    utbetalingService.recalculateUtbetalingForGjennomforing(deltaker.gjennomforingId)
+                    scheduleRevurderingAvUtbetaling(deltaker.gjennomforingId)
                 }
             }
         }
@@ -85,6 +89,11 @@ class AmtDeltakerV1KafkaConsumer(
         val relevantDeltakerSluttDato = LocalDate.now().minus(relevantDeltakerSluttDatoPeriod)
         val sluttDato = deltaker.sluttDato
         return sluttDato == null || !relevantDeltakerSluttDato.isAfter(sluttDato)
+    }
+
+    private fun QueryContext.scheduleRevurderingAvUtbetaling(gjennomforingId: UUID) {
+        val offsetITilfelleDetErMangeEndringerForGjennomforing = Instant.now().plusSeconds(30)
+        revurderUtbetaling.schedule(gjennomforingId, offsetITilfelleDetErMangeEndringerForGjennomforing, session)
     }
 }
 

@@ -71,6 +71,7 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.task.RevurderUtbetaling
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
@@ -165,7 +166,7 @@ private fun kafka(appConfig: AppConfig) = module {
             AmtDeltakerV1KafkaConsumer(
                 config = config.consumers.amtDeltakerV1,
                 db = get(),
-                utbetalingService = get(),
+                revurderUtbetaling = get(),
             ),
             AmtVirksomheterV1KafkaConsumer(config.consumers.amtVirksomheterV1, get()),
             AmtArrangorMeldingV1KafkaConsumer(config.consumers.amtArrangorMeldingV1, get()),
@@ -379,6 +380,7 @@ private fun tasks(config: TaskConfig) = module {
     single { GenerateUtbetaling(config.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
+    single { RevurderUtbetaling(get()) }
     single {
         val updateGjennomforingStatus = UpdateGjennomforingStatus(
             get(),
@@ -410,6 +412,7 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
         val generateUtbetaling: GenerateUtbetaling by inject()
         val journalforUtbetaling: JournalforUtbetaling by inject()
+        val revurderUtbetaling: RevurderUtbetaling by inject()
 
         val db: Database by inject()
 
@@ -422,6 +425,7 @@ private fun tasks(config: TaskConfig) = module {
                 initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,
                 journalforUtbetaling.task,
+                revurderUtbetaling.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
