@@ -79,6 +79,9 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.KafkaProducerRecordProcessor
+import no.nav.mulighetsrommet.kafka.ProducerRecordDbo
+import no.nav.mulighetsrommet.kafka.ProducerRecordRepository
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
@@ -138,7 +141,6 @@ private fun kafka(appConfig: AppConfig) = module {
             .withMetrics(Metrikker.appMicrometerRegistry)
             .build()
     }
-
     single {
         ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
             get(),
@@ -178,6 +180,21 @@ private fun kafka(appConfig: AppConfig) = module {
             consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
+        )
+    }
+    single {
+        val db = get<ApiDatabase>()
+        val repository = object : ProducerRecordRepository {
+            override fun getRecords(): List<ProducerRecordDbo> {
+                return db.session { queries.kafkaProducerRecord.getRecords() }
+            }
+            override fun deleteRecords(ids: List<Long>) {
+                return db.session { queries.kafkaProducerRecord.deleteRecords(ids) }
+            }
+        }
+        KafkaProducerRecordProcessor(
+            repository = repository,
+            producerClient = get(),
         )
     }
 }
@@ -367,7 +384,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TilsagnService(appConfig.okonomi, get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
-    single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get(), get()) }
+    single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get()) }
     single { ArrangorFlateService(get(), get()) }
 }
 
@@ -403,7 +420,6 @@ private fun tasks(config: TaskConfig) = module {
         )
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
-        val okonomi: OkonomiBestillingService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
@@ -418,7 +434,6 @@ private fun tasks(config: TaskConfig) = module {
             .create(
                 db.getDatasource(),
                 notificationTask.task,
-                okonomi.task,
                 generateValidationReport.task,
                 initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,

@@ -3,16 +3,12 @@ package no.nav.tiltak.okonomi
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
-import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
-import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
-import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.KafkaProducerRepositoryImpl
+import no.nav.mulighetsrommet.kafka.*
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.configureApi
@@ -90,15 +86,22 @@ private fun Application.configureKafka(
         config = config.clients.okonomiBestillingConsumer,
         okonomi = okonomi,
     )
+    val okonomiDb = OkonomiDatabase(db)
 
     val producerClient = KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
         .withProperties(config.producerPropertiesPreset)
         .build()
-    val shedLockLeaderElectionClient = ShedLockLeaderElectionClient(JdbcLockProvider(db.getDatasource()))
+
     val producerRecordProcessor = KafkaProducerRecordProcessor(
-        KafkaProducerRepositoryImpl(db),
-        producerClient,
-        shedLockLeaderElectionClient,
+        repository = object : ProducerRecordRepository {
+            override fun getRecords(): List<ProducerRecordDbo> {
+                return okonomiDb.session { queries.kafkaProducerRecord.getRecords() }
+            }
+            override fun deleteRecords(ids: List<Long>) {
+                return okonomiDb.session { queries.kafkaProducerRecord.deleteRecords(ids) }
+            }
+        },
+        producerClient = producerClient,
     )
 
     val kafkaConsumerOrchestrator = KafkaConsumerOrchestrator(
@@ -116,7 +119,6 @@ private fun Application.configureKafka(
         kafkaConsumerOrchestrator.disableFailedRecordProcessor()
         kafkaConsumerOrchestrator.stopPollingTopicChanges()
         producerRecordProcessor.close()
-        shedLockLeaderElectionClient.close()
     }
 
     return kafkaConsumerOrchestrator

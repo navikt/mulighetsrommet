@@ -163,7 +163,7 @@ class TilsagnService(
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
                                 // når vi gjør opp på en delutbetaling.
-                                okonomi.scheduleBehandleOppgjortTilsagn(tilsagn.id, session)
+                                okonomi.behandleOppgjortTilsagn(tilsagn.id)
                             }
 
                     Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent).right()
@@ -189,7 +189,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, session)
+        okonomi.behandleGodkjentTilsagn(tilsagn.id)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn godkjent", dto, besluttetAv)
@@ -244,7 +244,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
 
-        okonomi.scheduleBehandleAnnullertTilsagn(tilsagn.id, session)
+        okonomi.behandleAnnullertTilsagn(tilsagn.id)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)

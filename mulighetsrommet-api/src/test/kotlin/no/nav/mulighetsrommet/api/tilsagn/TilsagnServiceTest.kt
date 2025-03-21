@@ -280,7 +280,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("godkjent tilsagn trigger melding til økonomi") {
             val okonomi = mockk<OkonomiBestillingService>()
-            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
+            every { okonomi.behandleGodkjentTilsagn(any()) } returns Unit
 
             val service = createTilsagnService(okonomi)
 
@@ -294,7 +294,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             verify(exactly = 1) {
-                okonomi.scheduleBehandleGodkjentTilsagn(request.id, any())
+                okonomi.behandleGodkjentTilsagn(request.id)
             }
         }
 
@@ -447,8 +447,8 @@ class TilsagnServiceTest : FunSpec({
 
         test("annullering av tilsagn trigger melding til økonomi") {
             val okonomi = mockk<OkonomiBestillingService>()
-            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
-            every { okonomi.scheduleBehandleAnnullertTilsagn(any(), any()) } returns Unit
+            every { okonomi.behandleGodkjentTilsagn(any()) } returns Unit
+            every { okonomi.behandleAnnullertTilsagn(any()) } returns Unit
 
             val service = createTilsagnService(okonomi)
 
@@ -462,7 +462,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             verify(exactly = 1) {
-                okonomi.scheduleBehandleGodkjentTilsagn(request.id, any())
+                okonomi.behandleGodkjentTilsagn(request.id)
             }
 
             service.tilAnnulleringRequest(
@@ -481,7 +481,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
             verify(exactly = 1) {
-                okonomi.scheduleBehandleAnnullertTilsagn(request.id, any())
+                okonomi.behandleAnnullertTilsagn(request.id)
             }
         }
     }

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
@@ -72,5 +73,6 @@ class QueryContext(val session: Session) {
         val totrinnskontroll = TotrinnskontrollQueries(session)
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
+        val kafkaProducerRecord = KafkaProducerRecordQueries(session)
     }
 }
