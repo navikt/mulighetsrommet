@@ -105,12 +105,14 @@ export function UtbetalingPage() {
   const navigate = useNavigate();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
-  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
+  const erSaksbehandlerOkonomi = ansatt.roller.includes(NavAnsattRolle.SAKSBEHANDLER_OKONOMI);
   const avvistUtbetaling = delutbetalinger.find(
     ({ delutbetaling }) => delutbetaling.status === DelutbetalingStatus.RETURNERT,
   );
   const kanRedigeres: boolean =
-    skriveTilgang && tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) && endreUtbetaling;
+    erSaksbehandlerOkonomi &&
+    tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) &&
+    endreUtbetaling;
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -240,7 +242,7 @@ export function UtbetalingPage() {
                 <Separator />
                 <HStack justify="space-between">
                   <Heading size="medium">Tilsagn</Heading>
-                  {skriveTilgang && (
+                  {erSaksbehandlerOkonomi && (
                     <ActionMenu>
                       <ActionMenu.Trigger>
                         <Button variant="primary" size="small">

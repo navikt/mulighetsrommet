@@ -1,15 +1,15 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import {
-  DelutbetalingStatus,
-  Totrinnskontroll,
   BesluttDelutbetalingRequest,
   Besluttelse,
   DelutbetalingDto,
+  DelutbetalingStatus,
   NavAnsatt,
   NavAnsattRolle,
   ProblemDetail,
   TilsagnDto,
+  Totrinnskontroll,
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Checkbox, HStack, Table } from "@navikt/ds-react";
@@ -34,7 +34,7 @@ export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }
 
   const kanBeslutte =
     delutbetaling.status === DelutbetalingStatus.TIL_GODKJENNING &&
-    ansatt.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
+    ansatt.roller.includes(NavAnsattRolle.ATTESTANT_UTBETALING) &&
     opprettelse.behandletAv !== ansatt.navIdent;
 
   const godkjentUtbetaling = [DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT].includes(
