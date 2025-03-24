@@ -94,7 +94,7 @@ fun Route.utbetalingRoutes() {
             call.respond(tilsagn)
         }
 
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             post("/opprett-utbetaling") {
                 val utbetalingId = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<OpprettManuellUtbetalingRequest>()
@@ -113,7 +113,7 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/delutbetalinger") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             put {
                 val request = call.receive<OpprettDelutbetalingerRequest>()
                 val navIdent = getNavIdent()

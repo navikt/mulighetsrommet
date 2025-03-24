@@ -27,6 +27,7 @@ enum class AuthProvider {
     AZURE_AD_AVTALER_SKRIV,
     AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
     AZURE_AD_TILTAKSADMINISTRASJON_GENERELL,
+    AZURE_AD_SAKSBEHANDLER_OKONOMI,
     AZURE_AD_BESLUTTER_TILSAGN,
     AZURE_AD_ATTESTANT_UTBETALING,
     TOKEN_X_ARRANGOR_FLATE,
@@ -181,6 +182,27 @@ fun Application.configureAuthentication(
                         credentials,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
                         NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                    )
+                ) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: return@validate null
+
+                if (!hasNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                        NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
                     )
                 ) {
                     return@validate null

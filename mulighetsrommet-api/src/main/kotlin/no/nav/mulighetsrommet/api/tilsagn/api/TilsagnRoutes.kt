@@ -128,7 +128,7 @@ fun Route.tilsagnRoutes() {
             call.respondWithStatusResponse(result)
         }
 
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             put {
                 val request = call.receive<TilsagnRequest>()
                 val navIdent = getNavIdent()

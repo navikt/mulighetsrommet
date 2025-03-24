@@ -150,6 +150,10 @@ val ApplicationConfigLocal = AppConfig(
             ),
             AdGruppeNavAnsattRolleMapping(
                 "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
+                NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
                 NavAnsattRolle.BESLUTTER_TILSAGN,
             ),
             AdGruppeNavAnsattRolleMapping(
