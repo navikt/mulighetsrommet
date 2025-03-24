@@ -2795,7 +2795,7 @@ components:
           type: string
         avtalenummer:
           type: string
-        websaknummer:
+        sakarkivNummer:
           type: [string, "null"]
         arrangor:
           $ref: "#/components/schemas/ArrangorHovedenhet"
@@ -2885,7 +2885,7 @@ components:
           format: UUID
         avtalenummer:
           type: [string, "null"]
-        websaknummer:
+        sakarkivNummer:
           type: [string, "null"]
         arrangor:
           anyOf:

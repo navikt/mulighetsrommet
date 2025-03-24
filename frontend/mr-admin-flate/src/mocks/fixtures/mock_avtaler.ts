@@ -196,7 +196,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     navn: "Avtale hos Kulinarisk akademi",
     avtalenummer: "2020#4929",
-    websaknummer: "24/12345",
+    sakarkivNummer: "24/12345",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
