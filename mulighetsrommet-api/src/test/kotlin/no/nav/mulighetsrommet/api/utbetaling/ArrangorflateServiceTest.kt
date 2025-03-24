@@ -6,7 +6,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
-import kotlinx.coroutines.runBlocking
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
@@ -19,13 +18,11 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.util.*
 
 class ArrangorflateServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
-    val oauth = MockOAuth2Server()
 
     val deltaker = ArrangorflateTestUtils.createTestDeltaker()
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()
@@ -42,10 +39,6 @@ class ArrangorflateServiceTest : FunSpec({
     lateinit var query: HentAdressebeskyttetPersonBolkPdlQuery
     lateinit var arrangorflateService: ArrangorFlateService
 
-    beforeSpec {
-        oauth.start()
-    }
-
     beforeEach {
         domain.initialize(database.db)
         pdlClient = mockPdlClient(ArrangorflateTestUtils.createPdlMockEngine())
@@ -55,10 +48,6 @@ class ArrangorflateServiceTest : FunSpec({
 
     afterEach {
         database.truncateAll()
-    }
-
-    afterSpec {
-        oauth.shutdown()
     }
 
     test("getUtbetalinger should return list of compact utbetalinger for arrangor") {
@@ -122,52 +111,48 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("toArrFlateUtbetaling should convert a forhandsgodkjent utbetaling") {
-        runBlocking {
-            database.db.session {
-                queries.deltakerForslag.upsert(
-                    DeltakerForslag(
-                        id = UUID.randomUUID(),
-                        deltakerId = deltaker.id,
-                        endring = Melding.Forslag.Endring.Deltakelsesmengde(
-                            deltakelsesprosent = 80,
-                            gyldigFra = LocalDate.of(2024, 8, 15),
-                        ),
-                        status = DeltakerForslag.Status.VENTER_PA_SVAR,
+        database.db.session {
+            queries.deltakerForslag.upsert(
+                DeltakerForslag(
+                    id = UUID.randomUUID(),
+                    deltakerId = deltaker.id,
+                    endring = Melding.Forslag.Endring.Deltakelsesmengde(
+                        deltakelsesprosent = 80,
+                        gyldigFra = LocalDate.of(2024, 8, 15),
                     ),
-                )
-            }
-
-            val utbetalingDto = database.db.session {
-                queries.utbetaling.get(utbetaling.id)
-            }
-            utbetalingDto.shouldNotBeNull()
-
-            val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
-
-            result.id shouldBe utbetaling.id
-            result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
-            result.beregning should beInstanceOf<Beregning.Forhandsgodkjent>()
-            val beregning = result.beregning as Beregning.Forhandsgodkjent
-            beregning.antallManedsverk shouldBe 1.0
-            beregning.belop shouldBe 10000
-            beregning.deltakelser shouldHaveSize 1
+                    status = DeltakerForslag.Status.VENTER_PA_SVAR,
+                ),
+            )
         }
+
+        val utbetalingDto = database.db.session {
+            queries.utbetaling.get(utbetaling.id)
+        }
+        utbetalingDto.shouldNotBeNull()
+
+        val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
+
+        result.id shouldBe utbetaling.id
+        result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
+        result.beregning should beInstanceOf<Beregning.Forhandsgodkjent>()
+        val beregning = result.beregning as Beregning.Forhandsgodkjent
+        beregning.antallManedsverk shouldBe 1.0
+        beregning.belop shouldBe 10000
+        beregning.deltakelser shouldHaveSize 1
     }
 
     test("toArrFlateUtbetaling should convert a fri utbetaling") {
-        runBlocking {
-            val utbetalingDto = database.db.session {
-                queries.utbetaling.get(friUtbetaling.id)
-            }
-            utbetalingDto.shouldNotBeNull()
-
-            val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
-
-            result.id shouldBe friUtbetaling.id
-            result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
-            result.beregning should beInstanceOf<Beregning.Fri>()
-            val beregning = result.beregning as Beregning.Fri
-            beregning.belop shouldBe 5000
+        val utbetalingDto = database.db.session {
+            queries.utbetaling.get(friUtbetaling.id)
         }
+        utbetalingDto.shouldNotBeNull()
+
+        val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
+
+        result.id shouldBe friUtbetaling.id
+        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.beregning should beInstanceOf<Beregning.Fri>()
+        val beregning = result.beregning as Beregning.Fri
+        beregning.belop shouldBe 5000
     }
 })

@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -67,8 +68,8 @@ object ArrangorflateTestUtils {
             input = TilsagnBeregningFri.Input(1000),
             output = TilsagnBeregningFri.Output(1000),
         ),
-        arrangorId = ArrangorFixtures.underenhet1.id,
         type = TilsagnType.TILSAGN,
+        bestillingStatus = BestillingStatusType.AKTIV,
     )
 
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
