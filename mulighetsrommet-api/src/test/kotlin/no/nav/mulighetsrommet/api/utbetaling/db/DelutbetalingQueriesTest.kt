@@ -64,6 +64,19 @@ class DelutbetalingQueriesTest : FunSpec({
         }
     }
 
+    test("delete delutbetaling") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DelutbetalingQueries(session)
+
+            queries.upsert(delutbetaling)
+            queries.delete(delutbetaling.id)
+
+            queries.get(delutbetaling.id) shouldBe null
+        }
+    }
+
     test("set sendt til okonomi") {
         database.runAndRollback { session ->
             domain.setup(session)

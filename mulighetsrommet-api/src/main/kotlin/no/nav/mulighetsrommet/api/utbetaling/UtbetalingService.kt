@@ -230,6 +230,22 @@ class UtbetalingService(
         }
     }
 
+    fun deleteDelutbetaling(
+        id: UUID,
+        navIdent: NavIdent,
+    ) = db.transaction {
+        val delutbetaling = queries.delutbetaling.get(id)
+            ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
+        require(delutbetaling.status in listOf(DelutbetalingStatus.TIL_GODKJENNING, DelutbetalingStatus.RETURNERT)) {
+            "Feil status id=$id status=${delutbetaling.status}"
+        }
+        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+        require(opprettelse.behandletAv == navIdent) {
+            "Kan kun fjerne egen utbetalinger"
+        }
+        queries.delutbetaling.delete(id)
+    }
+
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
         periode: Periode,
     ): List<Pair<UUID, Avtaletype>> {
