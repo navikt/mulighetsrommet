@@ -92,51 +92,43 @@ export function TilsagnDetaljer() {
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {
-    if (tilsagn) {
-      besluttMutation.mutate(
-        {
-          id: tilsagn.id,
-          body: {
-            ...request,
-          },
+    besluttMutation.mutate(
+      {
+        id: tilsagn.id,
+        body: {
+          ...request,
         },
-        {
-          onSuccess: navigerTilTilsagnTabell,
-        },
-      );
-    }
+      },
+      {
+        onSuccess: navigerTilTilsagnTabell,
+      },
+    );
   }
 
   function tilAnnullering(request: TilsagnTilAnnulleringRequest) {
-    if (tilsagn) {
-      tilAnnulleringMutation.mutate(
-        {
-          id: tilsagn.id,
-          aarsaker: request.aarsaker,
-          forklaring: request.forklaring || null,
-        },
-        { onSuccess: navigerTilTilsagnTabell },
-      );
-    }
+    tilAnnulleringMutation.mutate(
+      {
+        id: tilsagn.id,
+        aarsaker: request.aarsaker,
+        forklaring: request.forklaring || null,
+      },
+      { onSuccess: navigerTilTilsagnTabell },
+    );
   }
 
   function upsertTilOppgjor(request: TilsagnTilAnnulleringRequest) {
-    if (tilsagn) {
-      tilOppgjorMutation.mutate(
-        {
-          id: tilsagn.id,
-          aarsaker: request.aarsaker,
-          forklaring: request.forklaring || null,
-        },
-        { onSuccess: navigerTilTilsagnTabell },
-      );
-    }
+    tilOppgjorMutation.mutate(
+      {
+        id: tilsagn.id,
+        aarsaker: request.aarsaker,
+        forklaring: request.forklaring || null,
+      },
+      { onSuccess: navigerTilTilsagnTabell },
+    );
   }
 
   function slettTilsagn() {
-    if (tilsagn) {
-      slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
-    }
+    slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
   }
 
   function visBesluttKnapp(endretAv?: string): boolean {
