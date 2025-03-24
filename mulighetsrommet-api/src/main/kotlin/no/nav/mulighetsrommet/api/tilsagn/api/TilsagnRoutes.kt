@@ -13,6 +13,8 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -20,6 +22,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -56,14 +59,28 @@ fun Route.tilsagnRoutes() {
         route("/{id}") {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
 
                 val result = db.session {
                     val tilsagn = queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                        ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
+
+                    val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
+                        getTotrinnskontrollForAnsatt(it, ansatt)
+                    }
+                    val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
+                        getTotrinnskontrollForAnsatt(it, ansatt)
+                    }
+                    val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
+                        getTotrinnskontrollForAnsatt(it, ansatt)
+                    }
                     TilsagnDetaljerDto(
                         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
-                        opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT),
-                        annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER),
-                        tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP),
+                        opprettelse = opprettelse,
+                        annullering = annullering,
+                        tilOppgjor = tilOppgjor,
                     )
                 }
 
@@ -372,4 +389,13 @@ private fun resolveEkstraTilsagnDefaults(
             beregning = null,
         )
     }
+}
+
+private fun getTotrinnskontrollForAnsatt(
+    totrinnskontroll: Totrinnskontroll,
+    ansatt: NavAnsattDto,
+): TotrinnskontrollDto {
+    val kanBesluttesAvAnsatt = totrinnskontroll.behandletAv != ansatt.navIdent &&
+        NavAnsattRolle.BESLUTTER_TILSAGN in ansatt.roller
+    return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt)
 }

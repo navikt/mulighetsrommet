@@ -1,9 +1,10 @@
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import {
+  Besluttelse,
+  DelutbetalingStatus,
   TilsagnDto,
   TilsagnStatus,
-  Totrinnskontroll,
-  DelutbetalingStatus,
+  TotrinnskontrollDto,
 } from "@mr/api-client-v2";
 import { Alert, Checkbox, Table, TextField } from "@navikt/ds-react";
 import { useState } from "react";
@@ -18,7 +19,7 @@ interface Props {
   tilsagn: TilsagnDto;
   belop: number;
   gjorOppTilsagn: boolean;
-  opprettelse?: Totrinnskontroll;
+  opprettelse?: TotrinnskontrollDto;
   status?: DelutbetalingStatus;
   kanRedigere: boolean;
   onDelutbetalingChange: (d: NyDelutbetaling) => void;
@@ -60,7 +61,7 @@ export function OpprettDelutbetalingRow({
       key={tilsagn.id}
       content={
         <>
-          {opprettelse && (
+          {opprettelse?.type === "BESLUTTET" && opprettelse.besluttelse === Besluttelse.AVVIST && (
             <AvvistAlert
               entitet="utbetalingen"
               header="Utbetaling returnert"

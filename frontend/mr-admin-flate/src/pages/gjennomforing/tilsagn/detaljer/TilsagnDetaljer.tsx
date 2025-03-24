@@ -131,20 +131,9 @@ export function TilsagnDetaljer() {
     slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
   }
 
-  function visBesluttKnapp(endretAv?: string): boolean {
-    return Boolean(
-      (tilsagn.status === TilsagnStatus.TIL_GODKJENNING ||
-        tilsagn.status === TilsagnStatus.TIL_ANNULLERING ||
-        tilsagn.status === TilsagnStatus.TIL_OPPGJOR) &&
-        ansatt.navIdent !== endretAv &&
-        ansatt.roller.includes(NavAnsattRolle.BESLUTTER_TILSAGN),
-    );
-  }
-
   const visHandlingerMeny =
-    tilsagn.status === TilsagnStatus.RETURNERT ||
-    (tilsagn.status === TilsagnStatus.GODKJENT &&
-      ansatt.roller.includes(NavAnsattRolle.SAKSBEHANDLER_OKONOMI));
+    ansatt.roller.includes(NavAnsattRolle.SAKSBEHANDLER_OKONOMI) &&
+    [TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status);
 
   return (
     <main>
@@ -214,7 +203,7 @@ export function TilsagnDetaljer() {
             ) : null}
           </HStack>
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          {tilsagn.status === TilsagnStatus.RETURNERT && (
+          {opprettelse.type === "BESLUTTET" && opprettelse.besluttelse === Besluttelse.AVVIST && (
             <AvvistAlert
               header="Tilsagnet ble returnert"
               tidspunkt={opprettelse.besluttetTidspunkt}
@@ -228,12 +217,10 @@ export function TilsagnDetaljer() {
               entitet="tilsagnet"
             />
           )}
-          {tilsagn.status === TilsagnStatus.TIL_ANNULLERING && annullering && (
+          {annullering?.type === "TIL_BESLUTNING" && (
             <TilAnnulleringAlert annullering={annullering} />
           )}
-          {tilsagn.status === TilsagnStatus.TIL_OPPGJOR && tilOppgjor && (
-            <TilOppgjorAlert oppgjor={tilOppgjor} />
-          )}
+          {tilOppgjor?.type === "TIL_BESLUTNING" && <TilOppgjorAlert oppgjor={tilOppgjor} />}
           <Box
             borderWidth="2"
             borderColor="border-subtle"
@@ -254,82 +241,77 @@ export function TilsagnDetaljer() {
                 </BodyShort>
               ) : null}
               <HStack gap="2" justify={"end"}>
-                {tilsagn.status === TilsagnStatus.TIL_GODKJENNING &&
-                  visBesluttKnapp(opprettelse.behandletAv) && (
-                    <HStack gap="2">
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        type="button"
-                        onClick={() => setAvvisModalOpen(true)}
-                      >
-                        Send i retur
-                      </Button>
-                      <Button
-                        size="small"
-                        type="button"
-                        onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                      >
-                        Godkjenn tilsagn
-                      </Button>
-                    </HStack>
-                  )}
-                {tilsagn.status === TilsagnStatus.TIL_ANNULLERING &&
-                  annullering &&
-                  visBesluttKnapp(annullering.behandletAv) && (
-                    <HStack gap="2">
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        type="button"
-                        onClick={() =>
-                          besluttTilsagn({
-                            besluttelse: Besluttelse.AVVIST,
-                            aarsaker: [],
-                            forklaring: null,
-                          })
-                        }
-                      >
-                        Avslå annullering
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="danger"
-                        type="button"
-                        onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                      >
-                        Bekreft annullering
-                      </Button>
-                    </HStack>
-                  )}
-                {tilsagn.status === TilsagnStatus.TIL_OPPGJOR &&
-                  tilOppgjor &&
-                  visBesluttKnapp(tilOppgjor.behandletAv) && (
-                    <HStack gap="2">
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        type="button"
-                        onClick={() =>
-                          besluttTilsagn({
-                            besluttelse: Besluttelse.AVVIST,
-                            aarsaker: [],
-                            forklaring: null,
-                          })
-                        }
-                      >
-                        Avslå oppgjør
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="danger"
-                        type="button"
-                        onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                      >
-                        Bekreft oppgjør
-                      </Button>
-                    </HStack>
-                  )}
+                {opprettelse.kanBesluttes && (
+                  <HStack gap="2">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() => setAvvisModalOpen(true)}
+                    >
+                      Send i retur
+                    </Button>
+                    <Button
+                      size="small"
+                      type="button"
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                    >
+                      Godkjenn tilsagn
+                    </Button>
+                  </HStack>
+                )}
+                {annullering?.kanBesluttes && (
+                  <HStack gap="2">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.AVVIST,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
+                    >
+                      Avslå annullering
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="danger"
+                      type="button"
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                    >
+                      Bekreft annullering
+                    </Button>
+                  </HStack>
+                )}
+                {tilOppgjor?.kanBesluttes && (
+                  <HStack gap="2">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.AVVIST,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
+                    >
+                      Avslå oppgjør
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="danger"
+                      type="button"
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                    >
+                      Bekreft oppgjør
+                    </Button>
+                  </HStack>
+                )}
               </HStack>
               <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
                 aarsaker={[

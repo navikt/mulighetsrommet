@@ -5461,11 +5461,11 @@ components:
         tilsagn:
           $ref: "#/components/schemas/TilsagnDto"
         opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
         annullering:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
         tilOppgjor:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - tilsagn
         - opprettelse
@@ -5692,7 +5692,7 @@ components:
         delutbetaling:
           $ref: "#/components/schemas/DelutbetalingDto"
         opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - delutbetaling
         - opprettelse
@@ -6242,14 +6242,48 @@ components:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]
 
-    Totrinnskontroll:
+    TotrinnskontrollDto:
+      oneOf:
+        - $ref: "#/components/schemas/TotrinnskontrollTilBeslutningDto"
+        - $ref: "#/components/schemas/TotrinnskontrollBesluttetDto"
+
+    TotrinnskontrollTilBeslutningDto:
       type: object
       properties:
+        type:
+          const: TIL_BESLUTNING
         behandletAv:
           type: string
         behandletTidspunkt:
           type: string
           format: date-time
+        kanBesluttes:
+          type: boolean
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+      required:
+        - type
+        - behandletAv
+        - behandletTidspunkt
+        - kanBesluttes
+        - aarsaker
+
+    TotrinnskontrollBesluttetDto:
+      type: object
+      properties:
+        type:
+          const: BESLUTTET
+        behandletAv:
+          type: string
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        kanBesluttes:
+          type: boolean
         aarsaker:
           type: array
           items:
@@ -6261,4 +6295,14 @@ components:
         besluttetTidspunkt:
           type: string
           format: date-time
-      required: [behandletAv, behandletTidspunkt]
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+      required:
+        - type
+        - behandletAv
+        - behandletTidspunkt
+        - aarsaker
+        - kanBesluttes
+        - besluttetAv
+        - besluttetTidspunkt
+        - besluttelse

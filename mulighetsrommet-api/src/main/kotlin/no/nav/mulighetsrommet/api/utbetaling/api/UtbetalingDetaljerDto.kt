@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 
 @Serializable
@@ -13,5 +13,5 @@ data class UtbetalingDetaljerDto(
 @Serializable
 data class DelutbetalingDto(
     val delutbetaling: Delutbetaling,
-    val opprettelse: Totrinnskontroll,
+    val opprettelse: TotrinnskontrollDto,
 )

@@ -5,11 +5,9 @@ import {
   Besluttelse,
   DelutbetalingDto,
   DelutbetalingStatus,
-  NavAnsatt,
-  NavAnsattRolle,
   ProblemDetail,
   TilsagnDto,
-  Totrinnskontroll,
+  TotrinnskontrollDto,
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Checkbox, HStack, Table } from "@navikt/ds-react";
@@ -20,22 +18,16 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
-  ansatt: NavAnsatt;
   tilsagn: TilsagnDto;
   delutbetaling: DelutbetalingDto;
-  opprettelse: Totrinnskontroll;
+  opprettelse: TotrinnskontrollDto;
 }
 
-export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }: Props) {
+export function DelutbetalingRow({ tilsagn, delutbetaling, opprettelse }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const besluttMutation = useBesluttDelutbetaling(delutbetaling.id);
-
-  const kanBeslutte =
-    delutbetaling.status === DelutbetalingStatus.TIL_GODKJENNING &&
-    ansatt.roller.includes(NavAnsattRolle.ATTESTANT_UTBETALING) &&
-    opprettelse.behandletAv !== ansatt.navIdent;
 
   const godkjentUtbetaling = [DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT].includes(
     delutbetaling.status,
@@ -60,15 +52,15 @@ export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }
           flere utbetalinger fra tilsagnet
         </Alert>
       );
-    } else if (godkjentUtbetaling) {
+    } else {
       return (
         <HStack gap="4">
           <Metadata horizontal header="Behandlet av" verdi={opprettelse.behandletAv} />
-          <Metadata horizontal header="Besluttet av" verdi={opprettelse.besluttetAv} />
+          {opprettelse.type === "BESLUTTET" && (
+            <Metadata horizontal header="Besluttet av" verdi={opprettelse.besluttetAv} />
+          )}
         </HStack>
       );
-    } else {
-      return null;
     }
   }
 
@@ -93,7 +85,7 @@ export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }
         <DelutbetalingTag status={delutbetaling.status} />
       </Table.DataCell>
       <Table.DataCell>
-        {kanBeslutte && (
+        {opprettelse.kanBesluttes && (
           <HStack gap="4">
             <Button
               size="small"

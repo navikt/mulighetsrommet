@@ -1,12 +1,12 @@
 import {
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
-  Totrinnskontroll,
+  TotrinnskontrollDto,
 } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
-import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
+import { formaterDato, tilsagnAarsakTilTekst } from "@/utils/Utils";
 
-export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskontroll }) {
+export function TilAnnulleringAlert({ annullering }: { annullering: TotrinnskontrollDto }) {
   const aarsaker =
     annullering.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
@@ -34,7 +34,7 @@ export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskont
   );
 }
 
-export function TilOppgjorAlert({ oppgjor }: { oppgjor: Totrinnskontroll }) {
+export function TilOppgjorAlert({ oppgjor }: { oppgjor: TotrinnskontrollDto }) {
   const aarsaker =
     oppgjor.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),

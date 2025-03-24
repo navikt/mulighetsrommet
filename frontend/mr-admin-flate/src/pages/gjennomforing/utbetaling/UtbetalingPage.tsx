@@ -320,7 +320,6 @@ export function UtbetalingPage() {
                           return (
                             <DelutbetalingRow
                               key={t.id}
-                              ansatt={ansatt}
                               tilsagn={t}
                               delutbetaling={delutbetaling}
                               opprettelse={opprettelse}

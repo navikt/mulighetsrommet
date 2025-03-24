@@ -3,7 +3,11 @@ import { Metadata } from "@/components/detaljside/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
-import { TilsagnBeregningForhandsgodkjent, TilsagnDto, Totrinnskontroll } from "@mr/api-client-v2";
+import {
+  TilsagnBeregningForhandsgodkjent,
+  TilsagnDto,
+  TotrinnskontrollDto,
+} from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -11,7 +15,7 @@ import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 interface Props {
   tilsagn: TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent };
-  annullering?: Totrinnskontroll;
+  annullering?: TotrinnskontrollDto;
 }
 
 export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering }: Props) {
