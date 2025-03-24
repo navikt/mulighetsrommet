@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -59,7 +60,10 @@ class VeilederflateTiltakQueries(private val session: Session) {
                     and :innsatsgruppe::innsatsgruppe = 'SITUASJONSBESTEMT_INNSATS'
                    )
               )
-              and nav_enheter && :brukers_enheter
+              and exists(select true
+                          from jsonb_array_elements(nav_enheter_json) as VeilederflateNavEnheter
+                          where VeilederflateNavEnheter ->> 'enhetsnummer' = any(:brukers_enheter)
+                          )
               and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
               and (:apent_for_pamelding::boolean is null or apent_for_pamelding = :apent_for_pamelding)
@@ -70,7 +74,10 @@ class VeilederflateTiltakQueries(private val session: Session) {
 }
 
 private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe {
-    val navEnheter = arrayOrNull<String>("nav_enheter")?.asList() ?: emptyList()
+    val navEnheter = stringOrNull("nav_enheter_json")?.let { Json.decodeFromString<List<VeilederflateNavEnhet>>(it) } ?: emptyList()
+    val fylker = navEnheter
+        .filter { it.type == Norg2Type.FYLKE }.map { it.enhetsnummer }
+    val enheter = navEnheter.filter { it.type != Norg2Type.FYLKE }.map { it.enhetsnummer }
     val personopplysningerSomKanBehandles = arrayOrNull<String>("personopplysninger_som_kan_behandles")
         ?.asList()
         ?.map { Personopplysning.valueOf(it).toPersonopplysningData() }
@@ -105,8 +112,8 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
             selskapsnavn = stringOrNull("arrangor_navn"),
             kontaktpersoner = arrangorKontaktpersoner,
         ),
-        fylke = string("nav_region"),
-        enheter = navEnheter,
+        fylker = fylker,
+        enheter = enheter,
         beskrivelse = stringOrNull("beskrivelse"),
         faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
         estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {

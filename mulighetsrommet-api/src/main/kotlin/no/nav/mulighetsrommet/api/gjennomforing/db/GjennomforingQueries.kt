@@ -6,13 +6,13 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -47,7 +47,6 @@ class GjennomforingQueries(private val session: Session) {
                 sted_for_gjennomforing,
                 faneinnhold,
                 beskrivelse,
-                nav_region,
                 deltidsprosent,
                 estimert_ventetid_verdi,
                 estimert_ventetid_enhet,
@@ -67,7 +66,6 @@ class GjennomforingQueries(private val session: Session) {
                 :sted_for_gjennomforing,
                 :faneinnhold::jsonb,
                 :beskrivelse,
-                :nav_region,
                 :deltidsprosent,
                 :estimert_ventetid_verdi,
                 :estimert_ventetid_enhet,
@@ -86,7 +84,6 @@ class GjennomforingQueries(private val session: Session) {
                 sted_for_gjennomforing             = excluded.sted_for_gjennomforing,
                 faneinnhold                        = excluded.faneinnhold,
                 beskrivelse                        = excluded.beskrivelse,
-                nav_region                         = excluded.nav_region,
                 deltidsprosent                     = excluded.deltidsprosent,
                 estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                 estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
@@ -539,7 +536,6 @@ class GjennomforingQueries(private val session: Session) {
         "sted_for_gjennomforing" to stedForGjennomforing,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
-        "nav_region" to navRegion,
         "deltidsprosent" to deltidsprosent,
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
@@ -550,9 +546,17 @@ class GjennomforingQueries(private val session: Session) {
         val administratorer = stringOrNull("administratorer_json")
             ?.let { Json.decodeFromString<List<GjennomforingDto.Administrator>>(it) }
             ?: emptyList()
-        val navEnheterDto = stringOrNull("nav_enheter_json")
+        val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
             ?: emptyList()
+        val kontorstruktur = navEnheter
+            .filter { it.type == Norg2Type.FYLKE }
+            .map { region ->
+                val kontorer = navEnheter
+                    .filter { enhet -> enhet.type != Norg2Type.FYLKE && enhet.overordnetEnhet == region.enhetsnummer }
+                    .sortedBy { enhet -> enhet.navn }
+                Kontorstruktur(region = region, kontorer = kontorer)
+            }
         val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
             ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
             ?: emptyList()
@@ -608,16 +612,7 @@ class GjennomforingQueries(private val session: Session) {
             },
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             publisert = boolean("publisert"),
-            navRegion = stringOrNull("nav_region_enhetsnummer")?.let {
-                NavEnhetDbo(
-                    enhetsnummer = it,
-                    navn = string("nav_region_navn"),
-                    type = Norg2Type.valueOf(string("nav_region_type")),
-                    overordnetEnhet = stringOrNull("nav_region_overordnet_enhet"),
-                    status = NavEnhetStatus.valueOf(string("nav_region_status")),
-                )
-            },
-            navEnheter = navEnheterDto,
+            kontorstruktur = kontorstruktur,
             arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
                 ArenaNavEnhet(
                     navn = stringOrNull("arena_nav_enhet_navn"),

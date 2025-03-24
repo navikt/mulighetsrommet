@@ -45,8 +45,7 @@ class GjennomforingValidatorTest : FunSpec({
         avtaleId = avtale.id,
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        navRegion = "0400",
-        navEnheter = listOf("0502"),
+        navEnheter = listOf("0400", "0502"),
         arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
     )

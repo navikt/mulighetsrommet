@@ -15,6 +15,7 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -84,12 +85,11 @@ class GjennomforingQueriesTest : FunSpec({
                             navn = "Donald Duck",
                         ),
                     )
-                    it.navEnheter shouldBe listOf(Gjovik)
+                    it.kontorstruktur shouldBe listOf(Kontorstruktur(region = Innlandet, kontorer = listOf(Gjovik)))
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
                     it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                     it.kontaktpersoner shouldBe listOf()
                     it.stedForGjennomforing shouldBe "Oslo"
-                    it.navRegion shouldBe Innlandet
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null
                     it.createdAt shouldNotBe null
@@ -132,22 +132,22 @@ class GjennomforingQueriesTest : FunSpec({
                 val queries = GjennomforingQueries(session)
 
                 queries.upsert(
-                    Oppfolging1.copy(navEnheter = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer)),
+                    Oppfolging1.copy(navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer)),
                 )
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.navEnheter shouldContainExactlyInAnyOrder listOf(Gjovik, Sel)
+                    it.kontorstruktur[0].kontorer shouldContainExactlyInAnyOrder listOf(Gjovik, Sel)
                 }
 
                 queries.upsert(
-                    Oppfolging1.copy(navEnheter = listOf(Gjovik.enhetsnummer, Lillehammer.enhetsnummer)),
+                    Oppfolging1.copy(navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Lillehammer.enhetsnummer)),
                 )
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.navEnheter shouldContainExactlyInAnyOrder listOf(Gjovik, Lillehammer)
+                    it.kontorstruktur[0].kontorer shouldContainExactlyInAnyOrder listOf(Gjovik, Lillehammer)
                 }
 
                 queries.upsert(Oppfolging1.copy(navEnheter = listOf()))
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.navEnheter.shouldBeEmpty()
+                    it.kontorstruktur.shouldBeEmpty()
                 }
             }
         }
@@ -707,9 +707,9 @@ class GjennomforingQueriesTest : FunSpec({
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
                     avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(
-                        Oppfolging1.copy(navEnheter = listOf(Gjovik.enhetsnummer)),
-                        VTA1.copy(navEnheter = listOf(Lillehammer.enhetsnummer)),
-                        AFT1.copy(navEnheter = listOf(Sel.enhetsnummer, Gjovik.enhetsnummer)),
+                        Oppfolging1.copy(navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer)),
+                        VTA1.copy(navEnheter = listOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
+                        AFT1.copy(navEnheter = listOf(Innlandet.enhetsnummer, Sel.enhetsnummer, Gjovik.enhetsnummer)),
                     ),
                 ).setup(session)
 

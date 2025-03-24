@@ -108,7 +108,7 @@ class VeilederflateService(
             .map { toVeilederTiltaksgjennomforing(it) }
             .filter { gjennomforing ->
                 if (gjennomforing.enheter.isEmpty()) {
-                    gjennomforing.fylke in fylker
+                    gjennomforing.fylker.any { fylke -> fylke in fylker }
                 } else {
                     gjennomforing.enheter.any { enhet -> enhet in enheter }
                 }
@@ -210,7 +210,7 @@ class VeilederflateService(
         val navn = gjennomforing.tiltaksgjennomforingNavn ?: ""
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
-        val fylke = gjennomforing.fylke ?: ""
+        val fylker = gjennomforing.fylker?.filterNotNull() ?: emptyList()
         val enheter = gjennomforing.enheter?.filterNotNull() ?: emptyList()
         val tiltaksnummer = gjennomforing.tiltaksnummer
         val beskrivelse = gjennomforing.beskrivelse
@@ -230,7 +230,7 @@ class VeilederflateService(
                     tiltakstype = tiltakstype,
                     navn = navn,
                     stedForGjennomforing = stedForGjennomforing,
-                    fylke = fylke,
+                    fylker = fylker,
                     enheter = enheter,
                 )
             }
@@ -246,7 +246,7 @@ class VeilederflateService(
                 tiltakstype = tiltakstype,
                 navn = navn,
                 stedForGjennomforing = stedForGjennomforing,
-                fylke = fylke,
+                fylker = fylker,
                 enheter = enheter,
                 arrangor = arrangor,
             )
@@ -261,7 +261,7 @@ class VeilederflateService(
                 tiltakstype = tiltakstype,
                 navn = navn,
                 stedForGjennomforing = stedForGjennomforing,
-                fylke = fylke,
+                fylker = fylker,
                 enheter = enheter,
             )
         }

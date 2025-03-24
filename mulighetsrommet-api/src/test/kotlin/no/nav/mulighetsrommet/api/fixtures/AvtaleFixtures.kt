@@ -294,7 +294,7 @@ object AvtaleFixtures {
         sluttDato = LocalDate.now().plusMonths(3),
         avtaletype = Avtaletype.Rammeavtale,
         administratorer = listOf(NavIdent("DD1")),
-        navEnheter = listOf("2990"),
+        navEnheter = listOf("0400", "2990"),
         prisbetingelser = null,
         beskrivelse = null,
         faneinnhold = null,

@@ -19,7 +19,6 @@ data class GjennomforingDbo(
     val antallPlasser: Int,
     val avtaleId: UUID,
     val administratorer: List<NavIdent>,
-    val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDbo>,
