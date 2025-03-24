@@ -144,15 +144,15 @@ export function TilsagnDetaljer() {
       (tilsagn.status === TilsagnStatus.TIL_GODKJENNING ||
         tilsagn.status === TilsagnStatus.TIL_ANNULLERING ||
         tilsagn.status === TilsagnStatus.TIL_OPPGJOR) &&
-        ansatt?.navIdent !== endretAv &&
-        ansatt?.roller.includes(NavAnsattRolle.BESLUTTER_TILSAGN),
+        ansatt.navIdent !== endretAv &&
+        ansatt.roller.includes(NavAnsattRolle.BESLUTTER_TILSAGN),
     );
   }
 
   const visHandlingerMeny =
     tilsagn.status === TilsagnStatus.RETURNERT ||
     (tilsagn.status === TilsagnStatus.GODKJENT &&
-      ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV));
+      ansatt.roller.includes(NavAnsattRolle.SAKSBEHANDLER_OKONOMI));
 
   return (
     <main>
