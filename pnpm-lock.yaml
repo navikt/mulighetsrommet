@@ -103,7 +103,7 @@ importers:
     dependencies:
       '@axe-core/playwright':
         specifier: 4.10.1
-        version: 4.10.1(playwright-core@1.51.0)
+        version: 4.10.1(playwright-core@1.51.1)
       '@hey-api/client-fetch':
         specifier: 0.8.3
         version: 0.8.3
@@ -199,8 +199,8 @@ importers:
         specifier: 0.64.12
         version: 0.64.12(typescript@5.8.2)
       '@playwright/test':
-        specifier: 1.51.0
-        version: 1.51.0
+        specifier: 1.51.1
+        version: 1.51.1
       '@react-router/dev':
         specifier: 7.3.0
         version: 7.3.0(@react-router/serve@7.3.0(react-router@7.3.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.2))(@types/node@22.13.10)(babel-plugin-macros@3.1.0)(jiti@2.4.2)(lightningcss@1.29.2)(react-router@7.3.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(sass-embedded@1.85.1)(sass@1.79.3)(terser@5.31.6)(typescript@5.8.2)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(sass-embedded@1.85.1)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.0))(yaml@2.7.0)
@@ -250,8 +250,8 @@ importers:
         specifier: 16.0.0
         version: 16.0.0
       playwright:
-        specifier: 1.51.0
-        version: 1.51.0
+        specifier: 1.51.1
+        version: 1.51.1
       postcss:
         specifier: 8.5.3
         version: 8.5.3
@@ -463,7 +463,7 @@ importers:
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.10.1
-        version: 4.10.1(playwright-core@1.51.0)
+        version: 4.10.1(playwright-core@1.51.1)
       '@chromatic-com/storybook':
         specifier: 3.2.6
         version: 3.2.6(react@19.0.0)(storybook@8.6.4(prettier@3.5.3))
@@ -471,8 +471,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-react-app
       '@playwright/test':
-        specifier: 1.51.0
-        version: 1.51.0
+        specifier: 1.51.1
+        version: 1.51.1
       '@rollup/plugin-terser':
         specifier: 0.4.4
         version: 0.4.4(rollup@4.36.0)
@@ -537,8 +537,8 @@ importers:
         specifier: 2.7.3
         version: 2.7.3(@types/node@22.13.10)(typescript@5.8.2)
       playwright:
-        specifier: 1.51.0
-        version: 1.51.0
+        specifier: 1.51.1
+        version: 1.51.1
       storybook:
         specifier: 8.6.4
         version: 8.6.4(prettier@3.5.3)
@@ -693,13 +693,13 @@ importers:
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.10.1
-        version: 4.10.1(playwright-core@1.51.0)
+        version: 4.10.1(playwright-core@1.51.1)
       '@mr/eslint-config-react-app':
         specifier: workspace:*
         version: link:../eslint-config-react-app
       '@playwright/test':
-        specifier: 1.51.0
-        version: 1.51.0
+        specifier: 1.51.1
+        version: 1.51.1
       '@tailwindcss/typography':
         specifier: 0.5.16
         version: 0.5.16(tailwindcss@4.0.14)
@@ -725,8 +725,8 @@ importers:
         specifier: 2.7.3
         version: 2.7.3(@types/node@22.13.10)(typescript@5.8.2)
       playwright:
-        specifier: 1.51.0
-        version: 1.51.0
+        specifier: 1.51.1
+        version: 1.51.1
       postcss-import:
         specifier: 16.1.0
         version: 16.1.0(postcss@8.5.3)
@@ -2623,9 +2623,6 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.17.3':
     resolution: {integrity: sha512-Lg8vBmMgY+ilQHIFQ+pT91m5qKobpB8xFRmNSFO01YaxPQWeaQbBADVKiBcgr8S75IaooOHLi+c9q5cr/qjzoA==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.17.3/1d35204186981d5f5c4153c5d5c6d2725f0270cb}
@@ -2641,9 +2638,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.7.0':
     resolution: {integrity: sha512-Arf3/k0ZDUsmT7gKOkVvEDYyAegFUznc0TQ1OlzV0O6wJ2qbmSnBHe6lea0J5zxRud+OZ6rgYj0ujsGrIiPPBQ==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.7.0/751fcd04f8bd873590fc8ad516f906012caaf9ef}
@@ -2807,8 +2801,8 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.51.0':
-    resolution: {integrity: sha512-dJ0dMbZeHhI+wb77+ljx/FeC8VBP6j/rj9OAojO08JI80wTZy6vRk9KvHKiDCUh4iMpEiseMgqRBIeW+eKX6RA==}
+  '@playwright/test@1.51.1':
+    resolution: {integrity: sha512-nM+kEaTSAoVlXmMPH10017vn3FSiFqr/bh4fKg9vmAdMfd9SDqRZNvPSiAHADc/itWak+qPvMPZQOPwCBW7k7Q==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -7299,13 +7293,13 @@ packages:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
 
-  playwright-core@1.51.0:
-    resolution: {integrity: sha512-x47yPE3Zwhlil7wlNU/iktF7t2r/URR3VLbH6EknJd/04Qc/PSJ0EY3CMXipmglLG+zyRxW6HNo2EGbKLHPWMg==}
+  playwright-core@1.51.1:
+    resolution: {integrity: sha512-/crRMj8+j/Nq5s8QcvegseuyeZPxpQCZb6HNk3Sos3BlZyAknRjoyJPFWkpNn8v0+P3WiwqFF8P+zQo4eqiNuw==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.51.0:
-    resolution: {integrity: sha512-442pTfGM0xxfCYxuBa/Pu6B2OqxqqaYq39JS8QDMGThUvIOCd6s0ANDog3uwA0cHavVlnTQzGCN7Id2YekDSXA==}
+  playwright@1.51.1:
+    resolution: {integrity: sha512-kkx+MB2KQRkyxjYPc3a0wLZZoDczmppyGJIvQ43l+aZihkaVvmu/21kiyaHeHjiFxjxNNFnUncKmcGIyOojsaw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9455,10 +9449,10 @@ snapshots:
       css-tree: 2.3.1
       is-potential-custom-element-name: 1.0.1
 
-  '@axe-core/playwright@4.10.1(playwright-core@1.51.0)':
+  '@axe-core/playwright@4.10.1(playwright-core@1.51.1)':
     dependencies:
       axe-core: 4.10.2
-      playwright-core: 1.51.0
+      playwright-core: 1.51.1
 
   '@babel/code-frame@7.26.2':
     dependencies:
@@ -11477,12 +11471,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.17.3
       '@navikt/ds-tokens': 7.17.3
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.6.1(react@19.0.0)
-    optionalDependencies:
-      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
@@ -11496,7 +11489,6 @@ snapshots:
       html-react-parser: 5.2.2(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 26.0.0
-    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@3.7.0':
@@ -11720,9 +11712,9 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@playwright/test@1.51.0':
+  '@playwright/test@1.51.1':
     dependencies:
-      playwright: 1.51.0
+      playwright: 1.51.1
 
   '@pnpm/config.env-replace@1.1.0': {}
 
@@ -16988,11 +16980,11 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  playwright-core@1.51.0: {}
+  playwright-core@1.51.1: {}
 
-  playwright@1.51.0:
+  playwright@1.51.1:
     dependencies:
-      playwright-core: 1.51.0
+      playwright-core: 1.51.1
     optionalDependencies:
       fsevents: 2.3.2
 
