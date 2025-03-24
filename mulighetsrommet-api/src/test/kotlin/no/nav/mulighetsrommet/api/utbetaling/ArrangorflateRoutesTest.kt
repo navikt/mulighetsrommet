@@ -20,37 +20,23 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
-import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class ArrangorflateRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    // Use test utils to create test data
     val deltaker = ArrangorflateTestUtils.createTestDeltaker()
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()
     val utbetaling = ArrangorflateTestUtils.createTestUtbetalingForhandsgodkjent(deltaker.id)
 
-    // Set up domain with test data
     val domain = ArrangorflateTestUtils.createTestDomain(
         deltaker = deltaker,
         tilsagn = tilsagn,
