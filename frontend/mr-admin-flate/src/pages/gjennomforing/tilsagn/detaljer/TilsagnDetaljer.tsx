@@ -145,7 +145,7 @@ export function TilsagnDetaljer() {
         tilsagn.status === TilsagnStatus.TIL_ANNULLERING ||
         tilsagn.status === TilsagnStatus.TIL_OPPGJOR) &&
         ansatt?.navIdent !== endretAv &&
-        ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER),
+        ansatt?.roller.includes(NavAnsattRolle.BESLUTTER_TILSAGN),
     );
   }
 
