@@ -33,7 +33,7 @@ data class AvtaleRequest(
     val tiltakstypeId: UUID,
     val arrangor: Arrangor?,
     val avtalenummer: String?,
-    val websaknummer: Websaknummer?,
+    val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
@@ -9,6 +10,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRequest
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
@@ -42,10 +45,11 @@ class UtbetalingService(
     private val okonomi: OkonomiBestillingService,
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
+    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
-    fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
+    suspend fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
         val periode = Periode.forMonthOf(date)
 
         getGjennomforingerForGenereringAvUtbetalinger(periode)
@@ -59,7 +63,6 @@ class UtbetalingService(
 
                     else -> null
                 }
-
                 utbetaling?.takeIf { it.beregning.output.belop > 0 }
             }
             .map { utbetaling ->
@@ -70,7 +73,7 @@ class UtbetalingService(
             }
     }
 
-    fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
+    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }
@@ -94,14 +97,14 @@ class UtbetalingService(
             }
     }
 
-    fun createUtbetalingForhandsgodkjent(
+    suspend fun createUtbetalingForhandsgodkjent(
         utbetalingId: UUID,
         gjennomforingId: UUID,
         periode: Periode,
     ): UtbetalingDbo = db.session {
         val frist = periode.slutt.plusMonths(2)
 
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+        val gjennomforing = requireNotNull<GjennomforingDto>(queries.gjennomforing.get(gjennomforingId))
 
         val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
             ?: throw IllegalStateException("Sats mangler for periode $periode")
@@ -121,12 +124,26 @@ class UtbetalingService(
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 
+        val kontonummer = when (
+            val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
+                KontonummerRequest(
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                ),
+            )
+        ) {
+            is Either.Left -> {
+                log.error("Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}", result.value)
+                null // TODO Skal vi heller kaste her? Hva gjør vi hvis vi ikke får hentet kontonummer?
+            }
+            is Either.Right -> Kontonummer(result.value.kontonr)
+        }
+
         return UtbetalingDbo(
             id = utbetalingId,
             fristForGodkjenning = frist.atStartOfDay(),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
-            kontonummer = forrigeKrav?.betalingsinformasjon?.kontonummer,
+            kontonummer = kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
             innsender = null,
@@ -213,6 +230,22 @@ class UtbetalingService(
         }
     }
 
+    fun deleteDelutbetaling(
+        id: UUID,
+        navIdent: NavIdent,
+    ) = db.transaction {
+        val delutbetaling = queries.delutbetaling.get(id)
+            ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
+        require(delutbetaling.status in listOf(DelutbetalingStatus.TIL_GODKJENNING, DelutbetalingStatus.RETURNERT)) {
+            "Feil status id=$id status=${delutbetaling.status}"
+        }
+        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+        require(opprettelse.behandletAv == navIdent) {
+            "Kan kun fjerne egen utbetalinger"
+        }
+        queries.delutbetaling.delete(id)
+    }
+
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
         periode: Periode,
     ): List<Pair<UUID, Avtaletype>> {
@@ -265,7 +298,7 @@ class UtbetalingService(
         UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
             .onLeft { return ValidationError(errors = it).left() }
 
-        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
+        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.gjorOppTilsagn, navIdent)
         return Unit.right()
     }
 
@@ -305,14 +338,14 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
-        val frigjorTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
+        val gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling = utbetaling,
             tilsagn = tilsagn,
             id = delutbetalingId,
             belop = utbetaling.beregning.output.belop,
-            frigjorTilsagn = frigjorTilsagn,
+            gjorOppTilsagn = gjorOppTilsagn,
             behandletAv = Tiltaksadministrasjon,
         )
         val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
@@ -329,7 +362,7 @@ class UtbetalingService(
         tilsagn: Tilsagn,
         id: UUID,
         belop: Int,
-        frigjorTilsagn: Boolean,
+        gjorOppTilsagn: Boolean,
         behandletAv: Agent,
     ) {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
@@ -348,9 +381,10 @@ class UtbetalingService(
             status = DelutbetalingStatus.TIL_GODKJENNING,
             periode = periode,
             belop = belop,
-            frigjorTilsagn = frigjorTilsagn,
+            gjorOppTilsagn = gjorOppTilsagn,
             lopenummer = lopenummer,
-            fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
+            fakturanummer = fakturanummer(tilsagn.bestilling.bestillingsnummer, lopenummer),
+            fakturaStatus = null,
         )
 
         queries.delutbetaling.upsert(dbo)
@@ -404,8 +438,8 @@ class UtbetalingService(
         )
         queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - delutbetaling.belop)
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
-        if (delutbetaling.frigjorTilsagn) {
-            tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId, this)
+        if (delutbetaling.gjorOppTilsagn) {
+            tilsagnService.gjorOppAutomatisk(delutbetaling.tilsagnId, this)
         }
         logEndring(
             "Utbetaling godkjent",

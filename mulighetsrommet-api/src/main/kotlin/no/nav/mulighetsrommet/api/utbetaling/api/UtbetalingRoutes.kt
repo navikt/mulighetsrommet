@@ -121,6 +121,14 @@ fun Route.utbetalingRoutes() {
                 val result = service.opprettDelutbetalinger(request, navIdent)
                 call.respondWithStatusResponse(result)
             }
+
+            delete("/{id}") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+
+                service.deleteDelutbetaling(id, navIdent)
+                call.respond(HttpStatusCode.OK)
+            }
         }
 
         authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
@@ -184,7 +192,7 @@ data class DelutbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
     val belop: Int,
-    val frigjorTilsagn: Boolean,
+    val gjorOppTilsagn: Boolean,
 )
 
 @Serializable

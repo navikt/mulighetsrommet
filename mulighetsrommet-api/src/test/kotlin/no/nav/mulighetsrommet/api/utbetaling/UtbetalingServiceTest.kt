@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.Either
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
@@ -10,9 +11,12 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -43,6 +47,7 @@ import java.util.*
 
 class UtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
@@ -57,6 +62,14 @@ class UtbetalingServiceTest : FunSpec({
         okonomi = okonomi,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
+        kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
+    )
+
+    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(any()) } returns Either.Right(
+        KontonummerResponse(
+            mottaker = "Test Org",
+            kontonr = "12345678901",
+        ),
     )
 
     context("generering av utbetaling for AFT") {
@@ -100,6 +113,7 @@ class UtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
+            utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
@@ -118,7 +132,7 @@ class UtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("genererer en utbetaling med kontonummer og kid-nummer fra forrige godkjente utbetaling fra arrangør") {
+        test("genererer en utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -134,7 +148,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.betalingsinformasjon.kontonummer shouldBe null
+            utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.betalingsinformasjon.kid shouldBe null
 
             database.run {
@@ -147,7 +161,6 @@ class UtbetalingServiceTest : FunSpec({
 
             val sisteKrav = service.genererUtbetalingForMonth(LocalDate.of(2024, 2, 1)).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
         }
 
@@ -448,12 +461,12 @@ class UtbetalingServiceTest : FunSpec({
                 queries.deltaker.upsert(updatedDeltaker)
             }
 
-            service.recalculateUtbetalingForGjennomforing(AFT1.id)
+            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
                 utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
-                    it.belop shouldBe 10102
+                    it.belop shouldBe 10103
                     it.deltakelser shouldBe setOf(
                         DeltakelseManedsverk(
                             deltakelseId = domain.deltakere[0].id,
@@ -497,7 +510,7 @@ class UtbetalingServiceTest : FunSpec({
                 queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
             }
 
-            service.recalculateUtbetalingForGjennomforing(AFT1.id)
+            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
@@ -531,7 +544,7 @@ class UtbetalingServiceTest : FunSpec({
             val delutbetaling = DelutbetalingRequest(
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
-                frigjorTilsagn = false,
+                gjorOppTilsagn = false,
                 belop = 100,
             )
 
@@ -572,7 +585,7 @@ class UtbetalingServiceTest : FunSpec({
             val delutbetaling = DelutbetalingRequest(
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
-                frigjorTilsagn = false,
+                gjorOppTilsagn = false,
                 belop = 100,
             )
             val opprettRequest = OpprettDelutbetalingerRequest(
@@ -640,7 +653,7 @@ class UtbetalingServiceTest : FunSpec({
                         DelutbetalingRequest(
                             id = delutbetaling1.id,
                             tilsagnId = Tilsagn1.id,
-                            frigjorTilsagn = false,
+                            gjorOppTilsagn = false,
                             belop = 100,
                         ),
                     ),
@@ -677,7 +690,7 @@ class UtbetalingServiceTest : FunSpec({
                     DelutbetalingRequest(
                         id = UUID.randomUUID(),
                         tilsagnId = Tilsagn1.id,
-                        frigjorTilsagn = false,
+                        gjorOppTilsagn = false,
                         belop = 100,
                     ),
                 ),
@@ -722,7 +735,7 @@ class UtbetalingServiceTest : FunSpec({
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
-                    listOf(DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, frigjorTilsagn = false, belop = 100)),
+                    listOf(DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 100)),
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
@@ -733,7 +746,7 @@ class UtbetalingServiceTest : FunSpec({
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
                     listOf(
-                        DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, frigjorTilsagn = false, belop = 7),
+                        DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 7),
                     ),
                 ),
                 domain.ansatte[0].navIdent,
@@ -744,7 +757,7 @@ class UtbetalingServiceTest : FunSpec({
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
                     listOf(
-                        DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, frigjorTilsagn = false, belop = 5),
+                        DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 5),
                     ),
                 ),
                 domain.ansatte[0].navIdent,
@@ -792,7 +805,7 @@ class UtbetalingServiceTest : FunSpec({
                         DelutbetalingRequest(
                             id = UUID.randomUUID(),
                             tilsagnId = tilsagn1.id,
-                            frigjorTilsagn = false,
+                            gjorOppTilsagn = false,
                             belop = 50,
                         ),
                     ),
@@ -806,7 +819,7 @@ class UtbetalingServiceTest : FunSpec({
                         DelutbetalingRequest(
                             id = UUID.randomUUID(),
                             tilsagnId = tilsagn2.id,
-                            frigjorTilsagn = false,
+                            gjorOppTilsagn = false,
                             belop = 50,
                         ),
                     ),
@@ -821,7 +834,7 @@ class UtbetalingServiceTest : FunSpec({
                         DelutbetalingRequest(
                             id = UUID.randomUUID(),
                             tilsagnId = tilsagn1.id,
-                            frigjorTilsagn = false,
+                            gjorOppTilsagn = false,
                             belop = 100,
                         ),
                     ),
@@ -834,18 +847,18 @@ class UtbetalingServiceTest : FunSpec({
                     first.belop shouldBe 50
                     first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     first.lopenummer shouldBe 1
-                    first.fakturanummer shouldBe "A-2024/1-2-1"
+                    first.faktura.fakturanummer shouldBe "A-2024/1-2-1"
 
                     second.belop shouldBe 50
                     second.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     second.lopenummer shouldBe 1
-                    second.fakturanummer shouldBe "A-2024/1-1-1"
+                    second.faktura.fakturanummer shouldBe "A-2024/1-1-1"
                 }
 
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).should { (first) ->
                     first.belop shouldBe 100
                     first.lopenummer shouldBe 2
-                    first.fakturanummer shouldBe "A-2024/1-1-2"
+                    first.faktura.fakturanummer shouldBe "A-2024/1-1-2"
                     first.periode shouldBe Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 1))
                 }
             }
@@ -1008,7 +1021,7 @@ class UtbetalingServiceTest : FunSpec({
             delutbetalinger shouldHaveSize 0
         }
 
-        test("Tilsagn skal frigjøres automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
+        test("Tilsagn skal oppgjøres automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1045,7 +1058,7 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).first().should {
                     it.status shouldBe DelutbetalingStatus.GODKJENT
-                    it.frigjorTilsagn shouldBe false
+                    it.gjorOppTilsagn shouldBe false
                 }
             }
 
@@ -1053,12 +1066,12 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).first().should {
                     it.status shouldBe DelutbetalingStatus.GODKJENT
-                    it.frigjorTilsagn shouldBe true
+                    it.gjorOppTilsagn shouldBe true
                 }
             }
 
             verify(exactly = 1) {
-                tilsagnService.frigjorAutomatisk(Tilsagn1.id, any())
+                tilsagnService.gjorOppAutomatisk(Tilsagn1.id, any())
             }
         }
     }

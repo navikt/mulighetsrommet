@@ -9,10 +9,9 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
+import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.service.OkonomiService
 
 @Resource("$API_BASE_PATH/bestilling")
@@ -21,17 +20,6 @@ class Bestilling {
     @Resource("{id}")
     class Id(val parent: Bestilling = Bestilling(), val id: String)
 }
-
-@Serializable
-data class BestillingStatus(
-    val bestillingsnummer: String,
-    val status: BestillingStatusType,
-)
-
-@Serializable
-data class SetBestillingStatus(
-    val status: BestillingStatusType,
-)
 
 fun Routing.bestillingRoutes(
     db: OkonomiDatabase,

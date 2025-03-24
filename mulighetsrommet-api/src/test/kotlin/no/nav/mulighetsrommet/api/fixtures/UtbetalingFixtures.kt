@@ -66,10 +66,11 @@ object UtbetalingFixtures {
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_GODKJENNING,
         belop = 200,
-        frigjorTilsagn = false,
+        gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
+        fakturaStatus = null,
     )
 
     val delutbetaling2 = DelutbetalingDbo(
@@ -78,10 +79,11 @@ object UtbetalingFixtures {
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_GODKJENNING,
         belop = 150,
-        frigjorTilsagn = false,
+        gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
+        fakturaStatus = null,
     )
 }
 

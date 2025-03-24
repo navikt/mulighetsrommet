@@ -1,4 +1,8 @@
-import { TilsagnTilAnnulleringAarsak, Totrinnskontroll } from "@mr/api-client-v2";
+import {
+  TilsagnAvvisningAarsak,
+  TilsagnTilAnnulleringAarsak,
+  Totrinnskontroll,
+} from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 
@@ -30,9 +34,9 @@ export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskont
   );
 }
 
-export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontroll }) {
+export function TilOppgjorAlert({ oppgjor }: { oppgjor: Totrinnskontroll }) {
   const aarsaker =
-    frigjoring.aarsaker?.map((aarsak) =>
+    oppgjor.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
     ) || [];
 
@@ -42,14 +46,14 @@ export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontrol
         Tilsagnet gjøres opp
       </Heading>
       <p>
-        {frigjoring.behandletAv} sendte tilsagnet til frigjøring den{" "}
-        {formaterDato(frigjoring.behandletTidspunkt)} med følgende{" "}
+        {oppgjor.behandletAv} sendte tilsagnet til oppgjør den{" "}
+        {formaterDato(oppgjor.behandletTidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {frigjoring.forklaring ? (
+        {oppgjor.forklaring ? (
           <>
             {" "}
-            med forklaringen: <b>"{frigjoring.forklaring}"</b>
+            med forklaringen: <b>"{oppgjor.forklaring}"</b>
           </>
         ) : null}
         .
@@ -64,18 +68,21 @@ interface Props {
   tidspunkt?: string;
   forklaring?: string;
   navIdent?: string;
+  entitet: "utbetalingen" | "tilsagnet";
 }
 
-export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header }: Props) {
+export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header, entitet }: Props) {
+  const aarsakTekster =
+    aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak)) || [];
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
         {header}
       </Heading>
       <p>
-        {navIdent} avviste den {formaterDato(tidspunkt)} med følgende{" "}
-        {aarsaker && aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
-        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker ?? []))}</b>
+        {navIdent} avviste {entitet} den {formaterDato(tidspunkt)} med følgende{" "}
+        {aarsakTekster && aarsakTekster.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsakTekster ?? []))}</b>
         {forklaring ? (
           <>
             {" "}

@@ -9,7 +9,13 @@ import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato, formaterPeriode, isValidationError } from "@/utils/Utils";
+import {
+  formaterDato,
+  formaterDatoSomYYYYMMDD,
+  formaterPeriode,
+  isValidationError,
+  subtractDays,
+} from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   DelutbetalingStatus,
@@ -72,7 +78,7 @@ export interface NyDelutbetaling {
   id?: string;
   tilsagnId: string;
   belop: number;
-  frigjorTilsagn: boolean;
+  gjorOppTilsagn: boolean;
   status?: DelutbetalingStatus;
 }
 
@@ -87,7 +93,7 @@ export function UtbetalingPage() {
         id: delutbetaling.id,
         tilsagnId: delutbetaling.tilsagnId,
         belop: delutbetaling.belop,
-        frigjorTilsagn: delutbetaling.frigjorTilsagn,
+        gjorOppTilsagn: delutbetaling.gjorOppTilsagn,
         status: delutbetaling.status,
       };
     }),
@@ -142,7 +148,7 @@ export function UtbetalingPage() {
         `&prismodell=${Prismodell.FRI}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
-        `&periodeSlutt=${utbetaling.periode.slutt}` +
+        `&periodeSlutt=${formaterDatoSomYYYYMMDD(subtractDays(utbetaling.periode.slutt, 1))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
     );
   }
@@ -305,7 +311,7 @@ export function UtbetalingPage() {
                               }}
                               opprettelse={opprettelse}
                               belop={delutbetaling?.belop ?? 0}
-                              frigjorTilsagn={delutbetaling?.frigjorTilsagn ?? false}
+                              gjorOppTilsagn={delutbetaling?.gjorOppTilsagn ?? false}
                             />
                           );
                         } else {

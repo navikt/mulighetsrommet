@@ -47,7 +47,8 @@ export function PameldingForGruppetiltak({
             <BodyShort>
               <Button
                 role="link"
-                className="border-none text-black underline bg-transparent p-0 m-0 hover:bg-transparent hover:no-underline"
+                variant="tertiary"
+                className="underline"
                 size="xsmall"
                 onClick={vedtakRoute.navigate}
               >

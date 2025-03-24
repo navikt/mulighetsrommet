@@ -9,15 +9,13 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
-import no.nav.tiltak.okonomi.api.BestillingStatus
-import no.nav.tiltak.okonomi.api.FakturaStatus
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
-import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.model.OebsKontering
-import no.nav.tiltak.okonomi.oebs.*
+import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
+import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
+import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -79,7 +77,7 @@ class OkonomiService(
                 }
             }
             .flatMap { selger ->
-                val melding = toOebsBestillingMelding(bestilling, kontering, selger)
+                val melding = OebsMeldingMapper.toOebsBestillingMelding(bestilling, kontering, selger)
                 log.info("Sender bestilling $bestillingsnummer til oebs")
                 oebs.sendBestilling(melding).mapLeft {
                     OpprettBestillingError("Klarte ikke sende bestilling $bestillingsnummer til oebs", it)
@@ -112,7 +110,7 @@ class OkonomiService(
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
 
-        val melding = toOebsAnnulleringMelding(bestilling, annullerBestilling)
+        val melding = OebsMeldingMapper.toOebsAnnulleringMelding(bestilling, annullerBestilling)
         return oebs.sendAnnullering(melding)
             .mapLeft {
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
@@ -154,7 +152,11 @@ class OkonomiService(
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
 
-        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = opprettFaktura.frigjorBestilling)
+        val melding = OebsMeldingMapper.toOebsFakturaMelding(
+            bestilling,
+            faktura,
+            erSisteFaktura = opprettFaktura.frigjorBestilling,
+        )
         return oebs.sendFaktura(melding)
             .mapLeft {
                 OpprettFakturaError("Klarte ikke sende faktura $fakturanummer til oebs", it)
@@ -194,7 +196,7 @@ class OkonomiService(
 
         val faktura = Faktura.fromFrigjorBestilling(frigjorBestilling, bestilling)
 
-        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
+        val melding = OebsMeldingMapper.toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
         return oebs.sendFaktura(melding)
             .mapLeft {
                 FrigjorBestillingError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
@@ -264,96 +266,5 @@ private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adress
         by = it.poststed ?: return null,
         postNummer = it.postnummer ?: return null,
         landsKode = it.landkode ?: return null,
-    )
-}
-
-private fun toOebsBestillingMelding(
-    bestilling: Bestilling,
-    kontering: OebsKontering,
-    selger: OebsBestillingMelding.Selger,
-): OebsBestillingMelding {
-    val linjer = bestilling.linjer.map { linje ->
-        OebsBestillingMelding.Linje(
-            linjeNummer = linje.linjenummer,
-            antall = linje.belop,
-            pris = 1,
-            periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
-            startDato = linje.periode.start,
-            sluttDato = linje.periode.getLastInclusiveDate(),
-        )
-    }
-
-    return OebsBestillingMelding(
-        kilde = OebsKilde.TILTADM,
-        bestillingsNummer = bestilling.bestillingsnummer,
-        opprettelsesTidspunkt = bestilling.opprettelse.besluttetTidspunkt,
-        bestillingsType = OebsBestillingType.NY,
-        selger = selger,
-        rammeavtaleNummer = bestilling.avtalenummer,
-        totalSum = bestilling.belop,
-        valutaKode = "NOK",
-        saksbehandler = bestilling.opprettelse.behandletAv.part,
-        bdmGodkjenner = bestilling.opprettelse.besluttetAv.part,
-        startDato = bestilling.periode.start,
-        sluttDato = bestilling.periode.getLastInclusiveDate(),
-        bestillingsLinjer = linjer,
-        statsregnskapsKonto = kontering.statligRegnskapskonto,
-        artsKonto = kontering.statligArtskonto,
-        kontor = bestilling.kostnadssted.value,
-        tilsagnsAar = bestilling.periode.start.year,
-    )
-}
-
-private fun toOebsAnnulleringMelding(
-    bestilling: Bestilling,
-    annullerBestilling: AnnullerBestilling,
-): OebsAnnulleringMelding {
-    return OebsAnnulleringMelding(
-        bestillingsNummer = bestilling.bestillingsnummer,
-        opprettelsesTidspunkt = annullerBestilling.besluttetTidspunkt,
-        kilde = OebsKilde.TILTADM,
-        bestillingsType = OebsBestillingType.ANNULLER,
-        selger = OebsAnnulleringMelding.Selger(
-            organisasjonsNummer = bestilling.arrangorHovedenhet.value,
-            bedriftsNummer = bestilling.arrangorUnderenhet.value,
-        ),
-    )
-}
-
-private fun toOebsFakturaMelding(
-    bestilling: Bestilling,
-    faktura: Faktura,
-    erSisteFaktura: Boolean,
-): OebsFakturaMelding {
-    val linjer = faktura.linjer.mapIndexed { index, linje ->
-        OebsFakturaMelding.Linje(
-            bestillingsNummer = bestilling.bestillingsnummer,
-            bestillingsLinjeNummer = linje.linjenummer,
-            antall = linje.belop,
-            pris = 1,
-            erSisteFaktura = erSisteFaktura && index == faktura.linjer.lastIndex,
-        )
-    }
-    return OebsFakturaMelding(
-        kilde = OebsKilde.TILTADM,
-        fakturaNummer = faktura.fakturanummer,
-        opprettelsesTidspunkt = faktura.besluttetTidspunkt,
-        organisasjonsNummer = bestilling.arrangorHovedenhet.value,
-        bedriftsNummer = bestilling.arrangorUnderenhet.value,
-        totalSum = faktura.belop,
-        valutaKode = "NOK",
-        saksbehandler = faktura.behandletAv.part,
-        bdmGodkjenner = faktura.besluttetAv.part,
-        fakturaDato = faktura.besluttetTidspunkt.toLocalDate(),
-        betalingsKanal = OebsBetalingskanal.BBAN,
-        bankKontoNummer = faktura.kontonummer?.value,
-        kidNummer = faktura.kid?.value,
-        bankNavn = null,
-        bankLandKode = null,
-        bicSwiftKode = null,
-        // TODO: generer en beskrivende melding
-        meldingTilLeverandor = null,
-        beskrivelse = null,
-        fakturaLinjer = linjer,
     )
 }

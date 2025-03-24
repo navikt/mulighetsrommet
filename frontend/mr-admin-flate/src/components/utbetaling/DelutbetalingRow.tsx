@@ -53,7 +53,7 @@ export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }
   }
 
   function content() {
-    if (delutbetaling.frigjorTilsagn && !godkjentUtbetaling) {
+    if (delutbetaling.gjorOppTilsagn && !godkjentUtbetaling) {
       return (
         <Alert variant="warning">
           Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
@@ -74,7 +74,7 @@ export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }
 
   return (
     <Table.ExpandableRow
-      defaultOpen={delutbetaling.frigjorTilsagn}
+      defaultOpen={delutbetaling.gjorOppTilsagn}
       key={tilsagn.id}
       content={content()}
     >
@@ -84,7 +84,7 @@ export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{formaterNOK(tilsagn.belopGjenstaende)}</Table.DataCell>
       <Table.DataCell>
-        <Checkbox hideLabel readOnly={true} checked={delutbetaling.frigjorTilsagn}>
+        <Checkbox hideLabel readOnly={true} checked={delutbetaling.gjorOppTilsagn}>
           Gjør opp tilsagn
         </Checkbox>
       </Table.DataCell>

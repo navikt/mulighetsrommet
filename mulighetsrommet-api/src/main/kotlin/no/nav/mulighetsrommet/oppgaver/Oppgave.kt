@@ -11,7 +11,7 @@ import java.util.*
 enum class OppgaveType(val rolle: NavAnsattRolle) {
     TILSAGN_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
     TILSAGN_TIL_ANNULLERING(NavAnsattRolle.OKONOMI_BESLUTTER),
-    TILSAGN_TIL_FRIGJORING(NavAnsattRolle.OKONOMI_BESLUTTER),
+    TILSAGN_TIL_OPPGJOR(NavAnsattRolle.OKONOMI_BESLUTTER),
     TILSAGN_RETURNERT(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
     UTBETALING_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
     UTBETALING_RETURNERT(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
@@ -22,7 +22,7 @@ enum class OppgaveType(val rolle: NavAnsattRolle) {
         val TilsagnOppgaver = listOf(
             TILSAGN_TIL_GODKJENNING,
             TILSAGN_TIL_ANNULLERING,
-            TILSAGN_TIL_FRIGJORING,
+            TILSAGN_TIL_OPPGJOR,
             TILSAGN_RETURNERT,
         )
         val DelutbetalingOppgaver = listOf(

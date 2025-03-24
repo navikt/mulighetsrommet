@@ -8,5 +8,5 @@ data class TilsagnDetaljerDto(
     val tilsagn: TilsagnDto,
     val opprettelse: Totrinnskontroll,
     val annullering: Totrinnskontroll?,
-    val frigjoring: Totrinnskontroll?,
+    val tilOppgjor: Totrinnskontroll?,
 )

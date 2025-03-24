@@ -1,11 +1,11 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
+import io.ktor.utils.io.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
@@ -13,8 +13,6 @@ import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
-import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
-import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -36,49 +34,11 @@ val ApplicationConfigDev = AppConfig(
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenDefaultProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
         consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-api-kafka-consumer.v1"),
-        producers = KafkaProducers(
-            gjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-            ),
-            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
-            ),
-            tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(
-                topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
-            ),
-        ),
         clients = KafkaClients(
-            dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
-                consumerId = "dvh-gjennomforing-consumer",
-                consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
-                consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-                producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
-            ),
-            okonomiBestilling = OkonomiBestillingService.Config(
-                topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
-            ),
-        ),
-        consumers = KafkaConsumers(
-            gjennomforingerV1 = KafkaTopicConsumer.Config(
-                id = "siste-tiltaksgjennomforinger",
-                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-            ),
             amtDeltakerV1 = KafkaTopicConsumer.Config(
                 id = "amt-deltaker",
                 topic = "amt.deltaker-v1",
                 consumerGroupId = "mulighetsrommet-api.deltaker.v2",
-            ),
-            amtVirksomheterV1 = KafkaTopicConsumer.Config(
-                id = "amt-virksomheter",
-                topic = "amt.virksomheter-v1",
-            ),
-            amtArrangorMeldingV1 = KafkaTopicConsumer.Config(
-                id = "amt-arrangor-melding",
-                topic = "amt.arrangor-melding-v1",
-            ),
-            amtKoordinatorMeldingV1 = KafkaTopicConsumer.Config(
-                id = "amt-tiltakskoordinators-deltakerliste",
-                topic = "amt.tiltakskoordinators-deltakerliste-v1",
             ),
         ),
     ),
@@ -211,6 +171,27 @@ val ApplicationConfigDev = AppConfig(
     dokark = AuthenticatedHttpClientConfig(
         url = "https://dokarkiv-q2.dev-fss-pub.nais.io",
         scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
+    ),
+    kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
+        /**
+         * Vi mocker ut kontoregisteret fordi q2-miljøet til kontoregisteret benytter fiktive organisasjoner, mens vår app benytter reelle fra Brreg
+         * */
+        engine = MockEngine { _ ->
+            respond(
+                content = ByteReadChannel(
+                    """
+                    {
+                        "mottaker": "973674471",
+                        "kontonr": "63728787114"
+                    }
+                    """.trimIndent(),
+                ),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        },
+        url = "https://sokos-kontoregister-q2.dev-fss-pub.nais.io",
+        scope = "api://dev-fss.okonomi.sokos-kontoregister-q2/.default",
     ),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(

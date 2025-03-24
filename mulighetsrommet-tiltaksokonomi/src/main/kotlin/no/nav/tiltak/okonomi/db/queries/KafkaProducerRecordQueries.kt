@@ -4,8 +4,8 @@ import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.util.ProducerUtils
-import no.nav.tiltak.okonomi.api.BestillingStatus
-import no.nav.tiltak.okonomi.api.FakturaStatus
+import no.nav.tiltak.okonomi.BestillingStatus
+import no.nav.tiltak.okonomi.FakturaStatus
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.intellij.lang.annotations.Language
 
