@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.beInstanceOf
+import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
@@ -71,8 +71,10 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
-        result.beregning should beInstanceOf<UtbetalingBeregningForhandsgodkjent>()
-        (result.beregning as UtbetalingBeregningForhandsgodkjent).output.belop shouldBe 10000
+
+        result.beregning.shouldBeInstanceOf<UtbetalingBeregningForhandsgodkjent>().should {
+            it.output.belop shouldBe 10000
+        }
     }
 
     test("getTilsagn should return arrangorflateTilsagn by ID") {
@@ -134,11 +136,12 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
-        result.beregning should beInstanceOf<Beregning.Forhandsgodkjent>()
-        val beregning = result.beregning as Beregning.Forhandsgodkjent
-        beregning.antallManedsverk shouldBe 1.0
-        beregning.belop shouldBe 10000
-        beregning.deltakelser shouldHaveSize 1
+
+        result.beregning.shouldBeInstanceOf<Beregning.Forhandsgodkjent> {
+            it.antallManedsverk shouldBe 1.0
+            it.belop shouldBe 10000
+            it.deltakelser shouldHaveSize 1
+        }
     }
 
     test("toArrFlateUtbetaling should convert a fri utbetaling") {
@@ -151,8 +154,8 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning should beInstanceOf<Beregning.Fri>()
-        val beregning = result.beregning as Beregning.Fri
-        beregning.belop shouldBe 5000
+        result.beregning.shouldBeInstanceOf<Beregning.Fri> {
+            it.belop shouldBe 5000
+        }
     }
 })
