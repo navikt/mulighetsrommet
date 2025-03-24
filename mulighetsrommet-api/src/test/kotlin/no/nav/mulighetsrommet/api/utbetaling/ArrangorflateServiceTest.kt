@@ -112,7 +112,7 @@ class ArrangorflateServiceTest : FunSpec({
         result shouldHaveSize 0
     }
 
-    test("toArrFlateUtbetaling should convert a forhandsgodkjent utbetaling") {
+    test("toArrFlateUtbetaling should have status VENTER_PA_ENDRING") {
         database.db.session {
             queries.deltakerForslag.upsert(
                 DeltakerForslag(
@@ -142,6 +142,18 @@ class ArrangorflateServiceTest : FunSpec({
             it.belop shouldBe 10000
             it.deltakelser shouldHaveSize 1
         }
+    }
+
+    test("toArrFlateUtbetaling should have status KLAR_FOR_GODKJENNING") {
+        val utbetalingDto = database.db.session {
+            queries.utbetaling.get(utbetaling.id)
+        }
+        utbetalingDto.shouldNotBeNull()
+
+        val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
+
+        result.id shouldBe utbetaling.id
+        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 
     test("toArrFlateUtbetaling should convert a fri utbetaling") {
