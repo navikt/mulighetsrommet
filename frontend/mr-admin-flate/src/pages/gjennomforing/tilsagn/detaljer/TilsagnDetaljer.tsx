@@ -33,7 +33,7 @@ import {
 } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
@@ -66,7 +66,7 @@ export function TilsagnDetaljer() {
   const navigate = useNavigate();
   const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
   const [tilOppgjorModalOpen, setTilOppgjorModalOpen] = useState<boolean>(false);
-  const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
+  const [slettTilsagnModalOpen, setSlettTilsagnModalOpen] = useState<boolean>(false);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
@@ -180,7 +180,7 @@ export function TilsagnDetaljer() {
                       </ActionMenu.Item>
                       <ActionMenu.Item
                         variant="danger"
-                        onSelect={() => slettTilsagnModalRef.current?.showModal()}
+                        onSelect={() => setSlettTilsagnModalOpen(true)}
                         icon={<TrashIcon />}
                       >
                         Slett tilsagn
@@ -393,8 +393,8 @@ export function TilsagnDetaljer() {
               <VarselModal
                 headingIconType="warning"
                 headingText="Slette tilsagnet?"
-                modalRef={slettTilsagnModalRef}
-                handleClose={() => slettTilsagnModalRef.current?.close()}
+                open={slettTilsagnModalOpen}
+                handleClose={() => setTilOppgjorModalOpen(false)}
                 body={
                   <p>
                     Er du sikker på at du vil slette tilsagnet?
@@ -407,7 +407,7 @@ export function TilsagnDetaljer() {
                   </Button>
                 }
                 secondaryButton
-                secondaryButtonHandleAction={() => slettTilsagnModalRef.current?.close()}
+                secondaryButtonHandleAction={() => setTilOppgjorModalOpen(false)}
               />
             </div>
           </Box>
