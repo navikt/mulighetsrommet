@@ -2031,6 +2031,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationError"
 
+  /api/v1/intern/delutbetalinger/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    delete:
+      tags:
+        - Utbetaling
+      operationId: deleteDelutbetaling
+      responses:
+        200:
+          description: OK
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/delutbetalinger/{id}/beslutt:
     parameters:
       - $ref: "#/components/parameters/ID"

@@ -180,6 +180,15 @@ class DelutbetalingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 
+    fun delete(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from delutbetaling where id = ?::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, id))
+    }
+
     fun getOppgaveData(
         kostnadssteder: List<String>?,
         tiltakskoder: List<Tiltakskode>?,
