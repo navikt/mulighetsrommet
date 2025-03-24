@@ -78,30 +78,64 @@ data class AdGruppeNavAnsattRolleMapping(
 data class KafkaConfig(
     val producerProperties: Properties,
     val consumerPreset: Properties,
-    val producers: KafkaProducers,
-    val consumers: KafkaConsumers,
     val clients: KafkaClients,
 )
 
 data class KafkaClients(
-    val dvhGjennomforing: DatavarehusTiltakV1KafkaProducer.Config,
-    val okonomiBestilling: OkonomiBestillingService.Config,
-)
-
-data class KafkaProducers(
-    val gjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config,
-    val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config,
-    val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config,
-)
-
-data class KafkaConsumers(
-    val gjennomforingerV1: KafkaTopicConsumer.Config,
-    val replicateBestillingStatus: KafkaTopicConsumer.Config,
-    val replicateFakturaStatus: KafkaTopicConsumer.Config,
-    val amtDeltakerV1: KafkaTopicConsumer.Config,
-    val amtVirksomheterV1: KafkaTopicConsumer.Config,
-    val amtArrangorMeldingV1: KafkaTopicConsumer.Config,
-    val amtKoordinatorMeldingV1: KafkaTopicConsumer.Config,
+    val dvhGjennomforing: DatavarehusTiltakV1KafkaProducer.Config = DatavarehusTiltakV1KafkaProducer.Config(
+        consumerId = "dvh-gjennomforing-consumer",
+        consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
+        consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+        producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
+    ),
+    val okonomiBestilling: OkonomiBestillingService.Config = OkonomiBestillingService.Config(
+        topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
+    ),
+    val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config = SisteTiltakstyperV2KafkaProducer.Config(
+        topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
+    ),
+    val gjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+    ),
+    val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
+        topic = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
+    ),
+    val gjennomforingerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "siste-tiltaksgjennomforinger",
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+    ),
+    val oppdaterUtbetalingForGjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "oppdater-utbetaling-for-gjennomforing",
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+        consumerGroupId = "mulighetsrommet-api.oppdater-utbetaling-for-gjennomforing.v1",
+    ),
+    val replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "replicate-bestilling-status",
+        topic = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
+        consumerGroupId = "mulighetsrommet-api.bestilling-status.v1",
+    ),
+    val replicateFakturaStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "replicate-faktura-status",
+        topic = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
+        consumerGroupId = "mulighetsrommet-api.faktura-status.v1",
+    ),
+    val amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "amt-deltaker",
+        topic = "amt.deltaker-v1",
+        consumerGroupId = "mulighetsrommet-api.deltaker.v1",
+    ),
+    val amtVirksomheterV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "amt-virksomheter",
+        topic = "amt.virksomheter-v1",
+    ),
+    val amtArrangorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "amt-arrangor-melding",
+        topic = "amt.arrangor-melding-v1",
+    ),
+    val amtKoordinatorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "amt-tiltakskoordinators-deltakerliste",
+        topic = "amt.tiltakskoordinators-deltakerliste-v1",
+    ),
 )
 
 data class AuthProvider(

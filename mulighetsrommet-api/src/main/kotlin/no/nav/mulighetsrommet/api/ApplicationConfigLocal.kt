@@ -3,21 +3,15 @@ package no.nav.mulighetsrommet.api
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
-import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
-import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -36,17 +30,6 @@ val ApplicationConfigLocal = AppConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
     ),
     kafka = KafkaConfig(
-        producers = KafkaProducers(
-            gjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "siste-tiltaksgjennomforinger-v1",
-            ),
-            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "arena-migrering-tiltaksgjennomforinger-v1",
-            ),
-            tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(
-                topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
-            ),
-        ),
         producerProperties = KafkaPropertiesBuilder.producerBuilder()
             .withBaseProperties()
             .withProducerId("mulighetsrommet-api-kafka-producer.v1")
@@ -59,47 +42,7 @@ val ApplicationConfigLocal = AppConfig(
             .withBrokerUrl("localhost:29092")
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build(),
-        clients = KafkaClients(
-            dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
-                consumerId = "dvh-gjennomforing-consumer",
-                consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
-                consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-                producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
-            ),
-            okonomiBestilling = OkonomiBestillingService.Config(
-                topic = "tiltaksokonomi.bestillinger-v1",
-            ),
-        ),
-        consumers = KafkaConsumers(
-            gjennomforingerV1 = KafkaTopicConsumer.Config(
-                id = "siste-tiltaksgjennomforinger",
-                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-            ),
-            amtDeltakerV1 = KafkaTopicConsumer.Config(
-                id = "amt-deltaker",
-                topic = "amt-deltaker-v1",
-            ),
-            amtVirksomheterV1 = KafkaTopicConsumer.Config(
-                id = "amt-virksomheter",
-                topic = "amt.virksomheter-v1",
-            ),
-            amtArrangorMeldingV1 = KafkaTopicConsumer.Config(
-                id = "amt-arrangor-melding",
-                topic = "amt.arrangor-melding-v1",
-            ),
-            amtKoordinatorMeldingV1 = KafkaTopicConsumer.Config(
-                id = "amt-tiltakskoordinators-deltakerliste",
-                topic = "amt.tiltakskoordinators-deltakerliste-v1",
-            ),
-            replicateBestillingStatus = KafkaTopicConsumer.Config(
-                id = "replicate-bestilling-status",
-                topic = "tiltaksokonomi.bestilling-status-v1",
-            ),
-            replicateFakturaStatus = KafkaTopicConsumer.Config(
-                id = "replicate-faktura-status",
-                topic = "tiltaksokonomi.faktura-status-v1",
-            ),
-        ),
+        clients = KafkaClients(),
     ),
     auth = AuthConfig(
         azure = AuthProvider(
