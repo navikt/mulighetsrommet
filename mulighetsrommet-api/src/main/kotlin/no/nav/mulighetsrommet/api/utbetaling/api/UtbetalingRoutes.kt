@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -94,7 +94,7 @@ fun Route.utbetalingRoutes() {
             call.respond(tilsagn)
         }
 
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             post("/opprett-utbetaling") {
                 val utbetalingId = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<OpprettManuellUtbetalingRequest>()
@@ -113,7 +113,7 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/delutbetalinger") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             put {
                 val request = call.receive<OpprettDelutbetalingerRequest>()
                 val navIdent = getNavIdent()
@@ -131,7 +131,7 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
+        authenticate(AuthProvider.AZURE_AD_ATTESTANT_UTBETALING) {
             post("/{id}/beslutt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<BesluttDelutbetalingRequest>()
