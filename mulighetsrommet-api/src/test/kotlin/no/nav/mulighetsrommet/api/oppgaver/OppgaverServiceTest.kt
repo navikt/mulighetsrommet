@@ -51,7 +51,7 @@ class OppgaverServiceTest : FunSpec({
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(
                     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                    NavAnsattRolle.OKONOMI_BESLUTTER,
+                    NavAnsattRolle.BESLUTTER_TILSAGN,
                 ),
             )
 
@@ -82,7 +82,7 @@ class OppgaverServiceTest : FunSpec({
                 ansatt = NavAnsattFixture.ansatt1.navIdent,
                 roller = setOf(
                     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                    NavAnsattRolle.OKONOMI_BESLUTTER,
+                    NavAnsattRolle.BESLUTTER_TILSAGN,
                 ),
             )
 
@@ -113,7 +113,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
-                roller = setOf(NavAnsattRolle.OKONOMI_BESLUTTER),
+                roller = setOf(NavAnsattRolle.BESLUTTER_TILSAGN),
             ).size shouldBe 3
         }
 
@@ -167,7 +167,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
-                roller = setOf(NavAnsattRolle.OKONOMI_BESLUTTER),
+                roller = setOf(NavAnsattRolle.BESLUTTER_TILSAGN),
             ).size shouldBe 1
         }
 
@@ -235,7 +235,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
-                roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.OKONOMI_BESLUTTER),
+                roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.ATTESTANT_UTBETALING),
             )
             oppgaver.size shouldBe 2
 
@@ -254,7 +254,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
-                roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.OKONOMI_BESLUTTER),
+                roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.ATTESTANT_UTBETALING),
             )
             oppgaver.size shouldBe 1
         }
@@ -283,7 +283,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
                 ansatt = NavAnsattFixture.ansatt1.navIdent,
-                roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.OKONOMI_BESLUTTER),
+                roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.ATTESTANT_UTBETALING),
             ).shouldBeEmpty()
         }
     }
@@ -357,7 +357,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
-                roller = setOf(NavAnsattRolle.OKONOMI_BESLUTTER),
+                roller = setOf(NavAnsattRolle.ATTESTANT_UTBETALING),
             ).size shouldBe 0
 
             service.utbetalingOppgaver(

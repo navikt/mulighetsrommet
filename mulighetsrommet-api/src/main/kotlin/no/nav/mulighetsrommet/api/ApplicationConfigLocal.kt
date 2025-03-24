@@ -145,12 +145,16 @@ val ApplicationConfigLocal = AppConfig(
                 NavAnsattRolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
             ),
             AdGruppeNavAnsattRolleMapping(
-                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                NavAnsattRolle.OKONOMI_BESLUTTER,
-            ),
-            AdGruppeNavAnsattRolleMapping(
                 "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(),
                 NavAnsattRolle.KONTAKTPERSON,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
+                NavAnsattRolle.BESLUTTER_TILSAGN,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
+                NavAnsattRolle.ATTESTANT_UTBETALING,
             ),
         ),
     ),

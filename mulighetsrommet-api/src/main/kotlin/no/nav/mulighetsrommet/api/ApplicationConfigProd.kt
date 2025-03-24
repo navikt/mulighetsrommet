@@ -151,7 +151,12 @@ val ApplicationConfigProd = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = NavAnsattRolle.OKONOMI_BESLUTTER,
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                // 0000-GA-TILTAK-okonomi_beslutter
+                adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
+                rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
             ),
         ),
     ),

@@ -165,7 +165,7 @@ fun Route.tilsagnRoutes() {
             }
         }
 
-        authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
+        authenticate(AuthProvider.AZURE_AD_BESLUTTER_TILSAGN) {
             post("/{id}/beslutt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<BesluttTilsagnRequest>()

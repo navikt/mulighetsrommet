@@ -46,7 +46,7 @@ class UtbetalingRoutesTest : FunSpec({
     val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
     val gjennomforingerSkrivRolle =
         AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
-    val beslutterRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.OKONOMI_BESLUTTER)
+    val beslutterRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.ATTESTANT_UTBETALING)
 
     fun appConfig(
         engine: HttpClientEngine = CIO.create(),
@@ -176,7 +176,7 @@ class UtbetalingRoutesTest : FunSpec({
         }
     }
 
-    test("Skal returnere 401 uten beslutter tilgang") {
+    test("Skal returnere 401 uten attestant-tilgang") {
         withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {
@@ -200,7 +200,7 @@ class UtbetalingRoutesTest : FunSpec({
         }
     }
 
-    test("Skal returnere 200 OK med okonomi beslutter tilgang") {
+    test("Skal returnere 200 OK med okonomi attestant-tilgang") {
         withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {

@@ -146,7 +146,11 @@ val ApplicationConfigDev = AppConfig(
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = NavAnsattRolle.OKONOMI_BESLUTTER,
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
+                rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
             ),
         ),
     ),
