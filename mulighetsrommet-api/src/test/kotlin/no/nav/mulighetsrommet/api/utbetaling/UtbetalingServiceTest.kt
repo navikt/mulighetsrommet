@@ -461,7 +461,7 @@ class UtbetalingServiceTest : FunSpec({
                 queries.deltaker.upsert(updatedDeltaker)
             }
 
-            service.revurderUtbetalingForGjennomforing(AFT1.id)
+            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
@@ -510,7 +510,7 @@ class UtbetalingServiceTest : FunSpec({
                 queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
             }
 
-            service.revurderUtbetalingForGjennomforing(AFT1.id)
+            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()

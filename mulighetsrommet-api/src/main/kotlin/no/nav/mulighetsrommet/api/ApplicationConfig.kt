@@ -104,10 +104,10 @@ data class KafkaClients(
         id = "siste-tiltaksgjennomforinger",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
     ),
-    val revurderUtbetalingForgjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "revurder-utbetaling-for-gjennomforing",
+    val oppdaterUtbetalingForGjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "oppdater-utbetaling-for-gjennomforing",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-        consumerGroupId = "mulighetsrommet-api.revurder-utbetaling-for-gjennomforing.v1",
+        consumerGroupId = "mulighetsrommet-api.oppdater-utbetaling-for-gjennomforing.v1",
     ),
     val replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-bestilling-status",

@@ -4,7 +4,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.utbetaling.task.RevurderUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
@@ -12,10 +12,10 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.time.Instant
 import java.util.*
 
-class RevurderUtbetalingForGjennomforingConsumer(
+class OppdaterUtbetalingBeregningForGjennomforingConsumer(
     config: Config,
     private val db: ApiDatabase,
-    private val revurderUtbetaling: RevurderUtbetaling,
+    private val oppdaterUtbetaling: OppdaterUtbetalingBeregning,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
     stringDeserializer(),
@@ -25,11 +25,11 @@ class RevurderUtbetalingForGjennomforingConsumer(
         val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingEksternV1Dto?>(message)
             ?: throw UnsupportedOperationException("Sletting av utbetalinger er ikke støttet. Tombstones er derfor ikke tillatt.")
 
-        scheduleRevurderingAvUtbetaling(gjennomforing.id)
+        scheduleOppdateringAvUtbetaling(gjennomforing.id)
     }
 
-    private fun scheduleRevurderingAvUtbetaling(gjennomforingId: UUID) = db.session {
+    private fun scheduleOppdateringAvUtbetaling(gjennomforingId: UUID) = db.session {
         val offsetITilfelleDetErMangeEndringerForGjennomforing = Instant.now().plusSeconds(30)
-        revurderUtbetaling.schedule(gjennomforingId, offsetITilfelleDetErMangeEndringerForGjennomforing, session)
+        oppdaterUtbetaling.schedule(gjennomforingId, offsetITilfelleDetErMangeEndringerForGjennomforing, session)
     }
 }

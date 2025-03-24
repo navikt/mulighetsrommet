@@ -7,7 +7,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.task.RevurderUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -25,7 +25,7 @@ class AmtDeltakerV1KafkaConsumer(
     config: Config,
     private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val db: ApiDatabase,
-    private val revurderUtbetaling: RevurderUtbetaling,
+    private val oppdaterUtbetaling: OppdaterUtbetalingBeregning,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
@@ -58,7 +58,7 @@ class AmtDeltakerV1KafkaConsumer(
                 if (prismodell != null && isRelevantForUtbetaling(deltaker, prismodell)) {
                     queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
 
-                    scheduleRevurderingAvUtbetaling(deltaker.gjennomforingId)
+                    scheduleOppdateringAvUtbetaling(deltaker.gjennomforingId)
                 }
             }
         }
@@ -91,9 +91,9 @@ class AmtDeltakerV1KafkaConsumer(
         return sluttDato == null || !relevantDeltakerSluttDato.isAfter(sluttDato)
     }
 
-    private fun QueryContext.scheduleRevurderingAvUtbetaling(gjennomforingId: UUID) {
+    private fun QueryContext.scheduleOppdateringAvUtbetaling(gjennomforingId: UUID) {
         val offsetITilfelleDetErMangeEndringerForGjennomforing = Instant.now().plusSeconds(30)
-        revurderUtbetaling.schedule(gjennomforingId, offsetITilfelleDetErMangeEndringerForGjennomforing, session)
+        oppdaterUtbetaling.schedule(gjennomforingId, offsetITilfelleDetErMangeEndringerForGjennomforing, session)
     }
 }
 

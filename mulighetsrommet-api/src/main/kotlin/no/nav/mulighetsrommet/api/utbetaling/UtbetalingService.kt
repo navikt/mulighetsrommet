@@ -73,7 +73,7 @@ class UtbetalingService(
             }
     }
 
-    suspend fun revurderUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
+    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }

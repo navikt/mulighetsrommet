@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import java.time.Instant
 import java.util.*
 
-class RevurderUtbetaling(
+class OppdaterUtbetalingBeregning(
     private val utbetalingService: UtbetalingService,
 ) {
 
@@ -24,7 +24,7 @@ class RevurderUtbetaling(
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { instance, _ ->
-            utbetalingService.revurderUtbetalingForGjennomforing(instance.data.gjennomforingId)
+            utbetalingService.oppdaterUtbetalingBeregningForGjennomforing(instance.data.gjennomforingId)
         }
 
     fun schedule(gjennomforingId: UUID, startTime: Instant, session: Session) {
