@@ -2313,6 +2313,21 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/arrangorflate/utbetaling/{id}/sync-kontonummer:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: synkroniserKontonummerForUtbetaling
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Synkroniserer kontonummer for utbetaling
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/intern/arrangorflate/utbetaling/{id}/relevante-forslag:
     get:
       tags:

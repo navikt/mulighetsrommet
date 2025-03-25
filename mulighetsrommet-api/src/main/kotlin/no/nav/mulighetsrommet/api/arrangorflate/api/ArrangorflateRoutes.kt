@@ -155,6 +155,17 @@ fun Route.arrangorflateRoutes() {
 
                 call.respond(tilsagn)
             }
+
+            get("/sync-kontonummer") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val utbetaling = arrangorFlateService.getUtbetaling(id)
+                    ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+
+                val kontonummer = arrangorFlateService.synkroniserKontonummer(utbetaling)
+
+                call.respond(kontonummer)
+            }
         }
 
         route("/tilsagn/{id}") {
