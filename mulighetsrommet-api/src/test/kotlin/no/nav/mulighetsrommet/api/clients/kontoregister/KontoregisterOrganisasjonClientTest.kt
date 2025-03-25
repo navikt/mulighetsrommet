@@ -7,7 +7,6 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRequest
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -51,7 +50,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return KontonummerResponse for valid organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                requestBody = KontonummerRequest(Organisasjonsnummer("123456789")),
+                Organisasjonsnummer("123456789")
             )
             result shouldBeRight KontonummerResponse("Test Org", "1234.56.78901")
         }
@@ -60,7 +59,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return FantIkkeKontonummer error for non-existent organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                requestBody = KontonummerRequest(Organisasjonsnummer("000000000")),
+                Organisasjonsnummer("000000000")
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.FantIkkeKontonummer
         }
@@ -69,7 +68,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return Error for server error") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                requestBody = KontonummerRequest(Organisasjonsnummer("999999999")),
+                Organisasjonsnummer("999999999")
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.Error
         }

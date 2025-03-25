@@ -10,7 +10,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRequest
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -18,7 +17,10 @@ import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
@@ -126,15 +128,17 @@ class UtbetalingService(
 
         val kontonummer = when (
             val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
-                KontonummerRequest(
-                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                ),
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             )
         ) {
             is Either.Left -> {
-                log.error("Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}", result.value)
-                null // TODO Skal vi heller kaste her? Hva gjør vi hvis vi ikke får hentet kontonummer?
+                log.error(
+                    "Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}",
+                    result.value
+                )
+                null
             }
+
             is Either.Right -> Kontonummer(result.value.kontonr)
         }
 
@@ -271,7 +275,7 @@ class UtbetalingService(
             DelutbetalingStatus.GODKJENT,
             DelutbetalingStatus.TIL_GODKJENNING,
             DelutbetalingStatus.UTBETALT,
-            -> return BadRequest("Utbetaling kan ikke endres").left()
+                -> return BadRequest("Utbetaling kan ikke endres").left()
         }
 
         val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetaling.id)

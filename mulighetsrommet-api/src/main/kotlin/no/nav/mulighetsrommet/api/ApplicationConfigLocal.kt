@@ -276,7 +276,7 @@ val ApplicationConfigLocal = AppConfig(
         minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
-        url = "http://localhost:8090/kontoregister",
+        url = "http://localhost:8090",
         scope = "default",
     ),
 )

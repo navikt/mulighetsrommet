@@ -7,9 +7,13 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
@@ -19,6 +23,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -40,6 +45,7 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 class ArrangorFlateService(
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val db: ApiDatabase,
+    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
         return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
@@ -220,6 +226,27 @@ class ArrangorFlateService(
                 fodselsdato = null,
             )
         }
+    }
+
+    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): String {
+        db.session {
+            val kontonummer =
+                kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer(utbetaling.arrangor.organisasjonsnummer.value))
+                    .getOrElse {
+                        throw StatusException(
+                            status = HttpStatusCode.InternalServerError,
+                            detail = "Klarte ikke hente kontonummer for arrangør",
+                        )
+                    }
+
+            queries.utbetaling.setBetalingsinformasjon(
+                id = utbetaling.id,
+                kontonummer = Kontonummer(kontonummer.kontonr),
+                kid = utbetaling.betalingsinformasjon.kid
+            )
+        return kontonummer.kontonr
+        }
+
     }
 }
 

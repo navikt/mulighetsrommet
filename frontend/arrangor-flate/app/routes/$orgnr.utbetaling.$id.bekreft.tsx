@@ -1,19 +1,33 @@
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  ErrorSummary,
+  Heading,
+  HStack,
+  Link,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrangorflateTilsagn,
   ArrFlateUtbetaling,
   FieldError,
 } from "api-client";
-import { Button, Checkbox, ErrorSummary, Heading, TextField, VStack } from "@navikt/ds-react";
+import { useEffect } from "react";
 import {
   ActionFunction,
   Form,
   LoaderFunction,
   redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
+  useRevalidator,
 } from "react-router";
-import { Definisjon } from "~/components/Definisjon";
+import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
 import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
@@ -21,8 +35,6 @@ import { internalNavigation } from "~/internal-navigation";
 import { isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
-import { apiHeaders } from "~/auth/auth.server";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -80,7 +92,7 @@ export const action: ActionFunction = async ({ request }) => {
   const { error: kontonummerError, data: kontonummer } = getOrError(
     formData,
     "kontonummer",
-    "Du må fylle ut kontonummer",
+    "Kontonummer eksisterer ikke",
   );
   const kid = formData.get("kid")?.toString();
 
@@ -141,6 +153,19 @@ export default function BekreftUtbetaling() {
   const { utbetaling, tilsagn } = useLoaderData<BekreftUtbetalingData>();
   const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
+  const fetcher = useFetcher();
+  const revalidator = useRevalidator();
+
+  const handleHentKontonummer = async () => {
+    fetcher.load(`/api/${utbetaling.id}/sync-kontonummer`);
+  };
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      revalidator.revalidate();
+    }
+  }, [fetcher.state, fetcher.data, revalidator]);
+
   return (
     <>
       <PageHeader
@@ -155,35 +180,68 @@ export default function BekreftUtbetaling() {
         <Separator />
         <Heading size="medium">Betalingsinformasjon</Heading>
         <Form method="post">
-          <dl>
-            <Definisjon label="Kontonummer">
+          <HStack>
+            <div>
               <TextField
                 label="Kontonummer"
-                hideLabel
                 size="small"
+                description="Kontonummeret hentes automatisk fra Altinn"
                 error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
                 name="kontonummer"
-                className="border border-[#0214317D] rounded-md"
                 defaultValue={utbetaling.betalingsinformasjon?.kontonummer}
                 maxLength={11}
                 minLength={11}
+                readOnly
               />
-            </Definisjon>
-            <Definisjon label="Evt KID nr for utbetaling" className="my-4 flex">
-              <div className="flex">
-                <TextField
-                  label="Evt KID nr for utbetaling"
-                  hideLabel
-                  size="small"
-                  name="kid"
-                  error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
-                  className="border border-[#0214317D] rounded-md"
-                  defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
-                  maxLength={25}
-                />
-              </div>
-            </Definisjon>
-          </dl>
+              <small>
+                Dersom kontonummer er feil kan du lese her om <EndreKontonummerLink />
+              </small>
+              {!utbetaling.betalingsinformasjon?.kontonummer ? (
+                <Alert variant="warning" className="my-5">
+                  <VStack align="start" gap="2">
+                    <Heading spacing size="xsmall" level="3">
+                      Fant ikke kontonummer for utbetalingen
+                    </Heading>
+                    <p>
+                      Vi fant ikke noe kontonummer for din organisasjon. Her kan du lese om{" "}
+                      <EndreKontonummerLink />.
+                    </p>
+                    <p className="text-balance">
+                      Når du har registrert kontonummer kan du prøve på nytt ved å trykke på knappen{" "}
+                      <b>Hent kontonummer</b>.
+                    </p>
+                  </VStack>
+                  <VStack align="end">
+                    <Button
+                      variant="primary"
+                      type="button"
+                      size="small"
+                      onClick={(e) => {
+                        e.preventDefault(); // Prevent form submission
+                        handleHentKontonummer();
+                      }}
+                      disabled={fetcher.state === "loading"}
+                    >
+                      {fetcher.state === "submitting"
+                        ? "Henter kontonummer..."
+                        : "Hent kontonummer"}
+                    </Button>
+                  </VStack>
+                </Alert>
+              ) : null}
+            </div>
+          </HStack>
+          <HStack>
+            <TextField
+              className="mt-5"
+              label="KID-nummer for utbetaling (valgfritt)"
+              size="small"
+              name="kid"
+              error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
+              defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
+              maxLength={25}
+            />
+          </HStack>
           <VStack gap="2" justify={"start"} align={"start"}>
             <Checkbox
               name="bekreftelse"
@@ -212,5 +270,17 @@ export default function BekreftUtbetaling() {
         </Form>
       </VStack>
     </>
+  );
+}
+
+function EndreKontonummerLink() {
+  return (
+    <Link
+      rel="noopener noreferrer"
+      href="https://www.nav.no/arbeidsgiver/endre-kontonummer#hvordan"
+      target="_blank"
+    >
+      endring av kontonummer for refusjoner fra Nav
+    </Link>
   );
 }
