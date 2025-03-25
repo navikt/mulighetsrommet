@@ -28,7 +28,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
               tiltak={tiltak}
               veiledernavn="{Veiledernavn}"
               bruker={{
-                innsatsgruppe: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                innsatsgruppe: Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 fnr: "12345678910",
                 fornavn: "{NAVN}",
                 manuellStatus: {

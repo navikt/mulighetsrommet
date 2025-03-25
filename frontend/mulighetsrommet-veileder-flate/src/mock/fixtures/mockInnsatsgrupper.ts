@@ -2,23 +2,28 @@ import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@mr/api-client-v2";
 
 export const mockInnsatsgrupper: VeilederflateInnsatsgruppe[] = [
   {
-    tittel: "Standard innsats",
-    nokkel: Innsatsgruppe.STANDARD_INNSATS,
+    tittel: "Gode muligheter (standard)",
+    nokkel: Innsatsgruppe.GODE_MULIGHETER,
     order: 0,
   },
   {
-    tittel: "Situasjonsbestemt innsats",
-    nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+    tittel: "Trenger veiledning (situasjonsbestemt)",
+    nokkel: Innsatsgruppe.TRENGER_VEILEDNING,
     order: 1,
   },
   {
-    tittel: "Spesielt tilpasset innsats ",
-    nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+    tittel: "Trenger veiledning, nedsatt arbeidsevne (spesielt tilpasset)",
+    nokkel: Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
     order: 2,
   },
   {
-    tittel: "Varig tilpasset innsats",
-    nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    tittel: "Jobbe delvis (delvis varig tilpasset, kun ny løsning)",
+    nokkel: Innsatsgruppe.JOBBE_DELVIS,
     order: 3,
+  },
+  {
+    tittel: "Liten mulighet til å jobbe (varig tilpasset)",
+    nokkel: Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+    order: 4,
   },
 ];

@@ -14,15 +14,15 @@ export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsg
   const innsatsgruppeFiltrertNavn = filter.innsatsgruppe?.tittel;
 
   const standardInnsatsBruker =
-    innsatsgruppeBruker === Innsatsgruppe.STANDARD_INNSATS &&
-    innsatsgruppeFiltrert !== Innsatsgruppe.STANDARD_INNSATS;
+    innsatsgruppeBruker === Innsatsgruppe.GODE_MULIGHETER &&
+    innsatsgruppeFiltrert !== Innsatsgruppe.GODE_MULIGHETER;
   const situasjonsbestemtInnsatsBruker =
-    innsatsgruppeBruker === Innsatsgruppe.SITUASJONSBESTEMT_INNSATS &&
-    (innsatsgruppeFiltrert === Innsatsgruppe.SPESIELT_TILPASSET_INNSATS ||
-      innsatsgruppeFiltrert === Innsatsgruppe.VARIG_TILPASSET_INNSATS);
+    innsatsgruppeBruker === Innsatsgruppe.TRENGER_VEILEDNING &&
+    (innsatsgruppeFiltrert === Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE ||
+      innsatsgruppeFiltrert === Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE);
   const spesieltTilpassetInnsats =
-    innsatsgruppeBruker === Innsatsgruppe.SPESIELT_TILPASSET_INNSATS &&
-    innsatsgruppeFiltrert === Innsatsgruppe.VARIG_TILPASSET_INNSATS;
+    innsatsgruppeBruker === Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE &&
+    innsatsgruppeFiltrert === Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE;
 
   return (
     <>

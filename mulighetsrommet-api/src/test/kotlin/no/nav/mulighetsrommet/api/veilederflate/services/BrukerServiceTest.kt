@@ -132,7 +132,7 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(fnr1, AccessType.OBO("")) shouldBe
             BrukerService.Brukerdata(
                 fornavn = "Ola",
-                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
                 fnr = fnr1,
                 manuellStatus = ManuellStatusDto(
                     erUnderManuellOppfolging = false,

@@ -24,7 +24,7 @@ export const lagretFilterHandlers = [
             ],
             tiltakstyper: [],
             innsatsgruppe: {
-              nokkel: "VARIG_TILPASSET_INNSATS",
+              nokkel: "LITEN_MULIGHET_TIL_A_JOBBE",
               tittel: "Varig tilpasset innsats",
             },
             apentForPamelding: "APENT_ELLER_STENGT",

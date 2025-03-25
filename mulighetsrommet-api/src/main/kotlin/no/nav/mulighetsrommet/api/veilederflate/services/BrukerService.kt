@@ -234,11 +234,11 @@ class BrukerService(
 
 private fun toInnsatsgruppe(innsatsgruppe: InnsatsgruppeV2): Innsatsgruppe {
     return when (innsatsgruppe) {
-        InnsatsgruppeV2.GODE_MULIGHETER -> Innsatsgruppe.STANDARD_INNSATS
-        InnsatsgruppeV2.TRENGER_VEILEDNING -> Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
-        InnsatsgruppeV2.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE -> Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
-        InnsatsgruppeV2.JOBBE_DELVIS -> Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS
-        InnsatsgruppeV2.LITEN_MULIGHET_TIL_A_JOBBE -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
+        InnsatsgruppeV2.GODE_MULIGHETER -> Innsatsgruppe.GODE_MULIGHETER
+        InnsatsgruppeV2.TRENGER_VEILEDNING -> Innsatsgruppe.TRENGER_VEILEDNING
+        InnsatsgruppeV2.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE -> Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+        InnsatsgruppeV2.JOBBE_DELVIS -> Innsatsgruppe.JOBBE_DELVIS
+        InnsatsgruppeV2.LITEN_MULIGHET_TIL_A_JOBBE -> Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE
     }
 }
 

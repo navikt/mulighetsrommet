@@ -3551,11 +3551,11 @@ components:
     Innsatsgruppe:
       type: string
       enum:
-        - STANDARD_INNSATS
-        - SITUASJONSBESTEMT_INNSATS
-        - SPESIELT_TILPASSET_INNSATS
-        - GRADERT_VARIG_TILPASSET_INNSATS
-        - VARIG_TILPASSET_INNSATS
+        - GODE_MULIGHETER
+        - TRENGER_VEILEDNING
+        - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+        - JOBBE_DELVIS
+        - LITEN_MULIGHET_TIL_A_JOBBE
 
     TiltakstypeStatus:
       type: string
