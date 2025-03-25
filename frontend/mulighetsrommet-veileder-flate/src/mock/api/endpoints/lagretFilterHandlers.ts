@@ -9,7 +9,7 @@ export const lagretFilterHandlers = [
         {
           id: "cd5ed640-e8e4-46fb-a7b5-e98667f6c1ab",
           brukerId: "Z990079",
-          navn: "Varig tilpasset Fredrikstad",
+          navn: "Liten mulighet Fredrikstad",
           type: LagretDokumenttype.GJENNOMFORING_MODIA,
           filter: {
             search: "",
@@ -25,7 +25,7 @@ export const lagretFilterHandlers = [
             tiltakstyper: [],
             innsatsgruppe: {
               nokkel: "LITEN_MULIGHET_TIL_A_JOBBE",
-              tittel: "Varig tilpasset innsats",
+              tittel: "Liten mulighet",
             },
             apentForPamelding: "APENT_ELLER_STENGT",
           },

@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import type { Innsatsgruppe } from "@mr/api-client-v2";
 import { Page, expect } from "@playwright/test";
 
 export async function sjekkUU(page: Page) {
@@ -9,8 +10,8 @@ export async function sjekkUU(page: Page) {
   expect(accessibilityScanResults.violations).toEqual([]);
 }
 
-export async function velgFilter(page: Page, filternavn: string) {
-  await page.getByTestId(`filter_radio_${filternavn}`).click();
-  await expect(page.getByTestId(`filter_radio_${filternavn}`)).toBeChecked();
-  await expect(page.getByTestId(`filtertag_${filternavn}`)).toBeVisible();
+export async function clickAndExpectInnsatsgruppe(page: Page, innsatsgruppe: Innsatsgruppe) {
+  await page.getByTestId(`filter_radio_${innsatsgruppe}`).click();
+  await expect(page.getByTestId(`filter_radio_${innsatsgruppe}`)).toBeChecked();
+  await expect(page.getByTestId(`filtertag_${innsatsgruppe}`)).toBeVisible();
 }
