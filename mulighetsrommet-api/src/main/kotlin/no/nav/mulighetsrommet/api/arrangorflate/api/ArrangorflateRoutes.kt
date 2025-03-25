@@ -162,9 +162,12 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val kontonummer = arrangorFlateService.synkroniserKontonummer(utbetaling)
-
-                call.respond(kontonummer)
+                arrangorFlateService.synkroniserKontonummer(utbetaling).map { call.respond(it) }.mapLeft {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Kunne ikke synkronisere kontonummer",
+                    )
+                }
             }
         }
 

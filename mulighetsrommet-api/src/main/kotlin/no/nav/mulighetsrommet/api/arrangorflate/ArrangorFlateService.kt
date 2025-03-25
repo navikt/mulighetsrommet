@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
+import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
@@ -7,6 +8,7 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
@@ -228,23 +230,17 @@ class ArrangorFlateService(
         }
     }
 
-    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): String {
+    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> {
         db.session {
-            val kontonummer =
-                kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer(utbetaling.arrangor.organisasjonsnummer.value))
-                    .getOrElse {
-                        throw StatusException(
-                            status = HttpStatusCode.InternalServerError,
-                            detail = "Klarte ikke hente kontonummer for arrangør",
-                        )
-                    }
-
-            queries.utbetaling.setBetalingsinformasjon(
-                id = utbetaling.id,
-                kontonummer = Kontonummer(kontonummer.kontonr),
-                kid = utbetaling.betalingsinformasjon.kid,
-            )
-            return kontonummer.kontonr
+            return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer(utbetaling.arrangor.organisasjonsnummer.value))
+                .map {
+                    queries.utbetaling.setBetalingsinformasjon(
+                        id = utbetaling.id,
+                        kontonummer = Kontonummer(it.kontonr),
+                        kid = utbetaling.betalingsinformasjon.kid,
+                    )
+                    it.kontonr
+                }
         }
     }
 }
