@@ -146,6 +146,7 @@ class BrukerService(
                             HttpStatusCode.InternalServerError,
                             "Manglet tilgang til å hente oppfølgingstilfeller.",
                         )
+
                     OppfolgingstilfelleError.Error ->
                         throw StatusException(
                             HttpStatusCode.InternalServerError,
@@ -236,8 +237,8 @@ private fun toInnsatsgruppe(innsatsgruppe: VedtakDto.Innsatsgruppe): Innsatsgrup
         VedtakDto.Innsatsgruppe.STANDARD_INNSATS -> Innsatsgruppe.STANDARD_INNSATS
         VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS -> Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
         VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS -> Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
-        // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
-        VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
+        VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS -> Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS
+        VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
     }
 }
 
