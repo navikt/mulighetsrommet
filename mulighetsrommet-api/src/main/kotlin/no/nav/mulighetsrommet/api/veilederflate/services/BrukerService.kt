@@ -41,7 +41,7 @@ class BrukerService(
         val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
         val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }
-        val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
+        val deferredGjeldendeVedtak = async { veilarbvedtaksstotteClient.hentGjeldende14aVedtak(fnr, obo) }
         val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
         val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
         val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr) }
@@ -113,7 +113,7 @@ class BrukerService(
                 }
             }
 
-        val sisteVedtak = deferredSisteVedtak.await()
+        val gjeldendeVedtak = deferredGjeldendeVedtak.await()
             .getOrElse {
                 when (it) {
                     VedtakError.Forbidden -> throw StatusException(
@@ -146,6 +146,7 @@ class BrukerService(
                             HttpStatusCode.InternalServerError,
                             "Manglet tilgang til å hente oppfølgingstilfeller.",
                         )
+
                     OppfolgingstilfelleError.Error ->
                         throw StatusException(
                             HttpStatusCode.InternalServerError,
@@ -156,7 +157,7 @@ class BrukerService(
 
         Brukerdata(
             fnr = fnr,
-            innsatsgruppe = sisteVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
+            innsatsgruppe = gjeldendeVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
             enheter = enheter,
             fornavn = pdlPerson.navn.firstOrNull()?.fornavn,
             manuellStatus = manuellStatus,
@@ -167,11 +168,11 @@ class BrukerService(
                     add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
                 }
 
-                if (!erUnderOppfolging && sisteVedtak?.innsatsgruppe != null) {
+                if (!erUnderOppfolging && gjeldendeVedtak?.innsatsgruppe != null) {
                     add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
                 } else if (!erUnderOppfolging) {
                     add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
-                } else if (sisteVedtak?.innsatsgruppe == null) {
+                } else if (gjeldendeVedtak?.innsatsgruppe == null) {
                     add(BrukerVarsel.BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK)
                 }
             },
@@ -236,8 +237,8 @@ private fun toInnsatsgruppe(innsatsgruppe: VedtakDto.Innsatsgruppe): Innsatsgrup
         VedtakDto.Innsatsgruppe.STANDARD_INNSATS -> Innsatsgruppe.STANDARD_INNSATS
         VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS -> Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
         VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS -> Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
-        // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
-        VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
+        VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS -> Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS
+        VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
     }
 }
 
