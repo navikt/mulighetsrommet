@@ -17,8 +17,8 @@ export function DelutbetalingTag({ status }: Props) {
       );
     case DelutbetalingStatus.GODKJENT:
       return (
-        <Tag size="small" variant="warning" className={baseTagClasses}>
-          Overført til utbetaling
+        <Tag size="small" variant="success" className={baseTagClasses}>
+          Godkjent
         </Tag>
       );
     case DelutbetalingStatus.TIL_GODKJENNING:

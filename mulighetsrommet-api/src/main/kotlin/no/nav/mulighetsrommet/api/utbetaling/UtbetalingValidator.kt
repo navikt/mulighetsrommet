@@ -8,40 +8,86 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.RelevanteForslag
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import java.util.*
 
 object UtbetalingValidator {
-    fun validate(belop: Int, tilsagn: Tilsagn, maxBelop: Int): Either<List<FieldError>, Unit> = either {
+    data class OpprettDelutbetaling(
+        val id: UUID,
+        val belop: Int,
+        val gjorOppTilsagn: Boolean,
+        val tilsagn: Tilsagn,
+        val previous: Delutbetaling?,
+    )
+
+    fun validateOpprettDelutbetalinger(
+        utbetaling: Utbetaling,
+        opprettDelutbetalinger: List<OpprettDelutbetaling>,
+    ): Either<List<FieldError>, List<OpprettDelutbetaling>> = either {
         val errors = buildList {
-            if (belop <= 0) {
+            val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop }
+            if (totalBelopUtbetales > utbetaling.beregning.output.belop) {
                 add(
-                    FieldError.of(
-                        DelutbetalingRequest::belop,
-                        "Beløp må være positivt",
-                    ),
-                )
-            }
-            if (belop > tilsagn.belopGjenstaende) {
-                add(
-                    FieldError.of(
-                        DelutbetalingRequest::belop,
-                        "Beløp er større enn gjenstående på tilsagnet",
-                    ),
-                )
-            }
-            if (belop > maxBelop) {
-                add(
-                    FieldError.of(
-                        DelutbetalingRequest::belop,
+                    FieldError.root(
                         "Kan ikke betale ut mer enn det er krav på",
                     ),
                 )
             }
+            if (opprettDelutbetalinger.isEmpty()) {
+                add(
+                    FieldError.root(
+                        "Utbetalingslinjer mangler",
+                    ),
+                )
+            }
+
+            opprettDelutbetalinger.forEachIndexed { index, req ->
+                when (req.previous?.status) {
+                    null, DelutbetalingStatus.RETURNERT -> {}
+                    DelutbetalingStatus.TIL_GODKJENNING,
+                    DelutbetalingStatus.GODKJENT,
+                    DelutbetalingStatus.UTBETALT,
+                    -> {
+                        add(
+                            FieldError.ofPointer(
+                                "/$index",
+                                "Utbetaling kan ikke endres",
+                            ),
+                        )
+                    }
+                }
+                if (req.belop <= 0) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/belop",
+                            "Beløp må være positivt",
+                        ),
+                    )
+                }
+                if (req.belop > req.tilsagn.belopGjenstaende) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/belop",
+                            "Beløp er større enn gjenstående på tilsagnet",
+                        ),
+                    )
+                }
+                if (req.tilsagn.status != TilsagnStatus.GODKJENT) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/tilsagnId",
+                            "Tilsagn er ikke godkjent, denne må fjernes",
+                        ),
+                    )
+                }
+            }
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: Unit.right()
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: opprettDelutbetalinger.right()
     }
 
     fun validateManuellUtbetalingskrav(

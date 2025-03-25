@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -44,16 +45,20 @@ fun Route.utbetalingRoutes() {
                 val utbetaling = queries.utbetaling.get(id)
                     ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
 
-                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map {
-                    DelutbetalingDto(
-                        delutbetaling = it,
+                val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map {
+                    UtbetalingLinje(
+                        id = it.id,
+                        gjorOppTilsagn = it.gjorOppTilsagn,
+                        belop = it.belop,
+                        status = it.status,
+                        tilsagn = checkNotNull(queries.tilsagn.get(it.tilsagnId)).let { TilsagnDto.fromTilsagn(it) },
                         opprettelse = queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT),
                     )
                 }
 
                 UtbetalingDetaljerDto(
                     utbetaling = toUtbetalingDto(utbetaling),
-                    delutbetalinger = delutbetalinger,
+                    linjer = linjer,
                 )
             }
 
@@ -124,9 +129,8 @@ fun Route.utbetalingRoutes() {
 
             delete("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val navIdent = getNavIdent()
 
-                service.deleteDelutbetaling(id, navIdent)
+                service.deleteDelutbetaling(id)
                 call.respond(HttpStatusCode.OK)
             }
         }

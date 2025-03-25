@@ -1954,23 +1954,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/UtbetalingDetaljerDto"
 
-  /api/v1/intern/utbetaling/{id}/delutbetalinger:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Utbetaling
-      operationId: getDelutbetalinger
-      responses:
-        200:
-          description: Delutbetalinger
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DelutbetalingDto"
-
   /api/v1/intern/utbetaling/{id}/historikk:
     get:
       tags:
@@ -5668,6 +5651,9 @@ components:
       enum:
         - VENTER_PA_ARRANGOR
         - BEHANDLES_AV_NAV
+        - RETURNERT
+        - TIL_GODKJENNING
+        - GODKJENT
         - UTBETALT
 
     UtbetalingDetaljerDto:
@@ -5675,24 +5661,13 @@ components:
       properties:
         utbetaling:
           $ref: "#/components/schemas/UtbetalingDto"
-        delutbetalinger:
+        linjer:
           type: array
           items:
-            $ref: "#/components/schemas/OpprettetDelutbetaling"
+            $ref: "#/components/schemas/UtbetalingLinje"
       required:
         - utbetaling
-        - delutbetalinger
-
-    OpprettetDelutbetaling:
-      type: object
-      properties:
-        delutbetaling:
-          $ref: "#/components/schemas/DelutbetalingDto"
-        opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
-      required:
-        - delutbetaling
-        - opprettelse
+        - linjer
 
     UtbetalingDto:
       type: object
@@ -6116,42 +6091,29 @@ components:
         - RETURNERT
         - UTBETALT
 
-    DelutbetalingDto:
+    UtbetalingLinje:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        tilsagnId:
-          type: string
-          format: uuid
-        utbetalingId:
-          type: string
-          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
         status:
           $ref: "#/components/schemas/DelutbetalingStatus"
-        periode:
-          $ref: "#/components/schemas/Periode"
         belop:
           type: number
         gjorOppTilsagn:
           type: boolean
-        lopenummer:
-          type: integer
-        fakturanummer:
-          type: string
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
       required:
         - id
-        - type
-        - tilsagnId
-        - utbetalingId
+        - tilsagn
         - status
-        - periode
         - belop
         - gjorOppTilsagn
         - opprettelse
-        - lopenummer
-        - fakturanummer
 
     DelutbetalingRequest:
       type: object

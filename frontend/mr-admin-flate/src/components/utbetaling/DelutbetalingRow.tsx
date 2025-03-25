@@ -1,45 +1,22 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
-import {
-  DelutbetalingStatus,
-  Totrinnskontroll,
-  BesluttDelutbetalingRequest,
-  Besluttelse,
-  DelutbetalingDto,
-  NavAnsatt,
-  NavAnsattRolle,
-  ProblemDetail,
-  TilsagnDto,
-} from "@mr/api-client-v2";
+import { BesluttDelutbetalingRequest, Besluttelse, DelutbetalingStatus, ProblemDetail, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, Button, Checkbox, HStack, Table } from "@navikt/ds-react";
+import { Button, Checkbox, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Metadata } from "../detaljside/Metadata";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
-  ansatt: NavAnsatt;
-  tilsagn: TilsagnDto;
-  delutbetaling: DelutbetalingDto;
-  opprettelse: Totrinnskontroll;
+  linje: UtbetalingLinje;
 }
 
-export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }: Props) {
+export function DelutbetalingRow({ linje }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const besluttMutation = useBesluttDelutbetaling(delutbetaling.id);
-
-  const kanBeslutte =
-    delutbetaling.status === DelutbetalingStatus.TIL_GODKJENNING &&
-    ansatt.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
-    opprettelse.behandletAv !== ansatt.navIdent;
-
-  const godkjentUtbetaling = [DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT].includes(
-    delutbetaling.status,
-  );
+  const besluttMutation = useBesluttDelutbetaling(linje.id);
 
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
@@ -52,91 +29,65 @@ export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }
     });
   }
 
-  function content() {
-    if (delutbetaling.gjorOppTilsagn && !godkjentUtbetaling) {
-      return (
-        <Alert variant="warning">
-          Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
-          flere utbetalinger fra tilsagnet
-        </Alert>
-      );
-    } else if (godkjentUtbetaling) {
-      return (
-        <HStack gap="4">
-          <Metadata horizontal header="Behandlet av" verdi={opprettelse.behandletAv} />
-          <Metadata horizontal header="Besluttet av" verdi={opprettelse.besluttetAv} />
-        </HStack>
-      );
-    } else {
-      return null;
-    }
-  }
-
   return (
-    <Table.ExpandableRow
-      defaultOpen={delutbetaling.gjorOppTilsagn}
-      key={tilsagn.id}
-      content={content()}
-    >
-      <Table.DataCell>{formaterPeriodeStart(tilsagn.periode)}</Table.DataCell>
-      <Table.DataCell>{formaterPeriodeSlutt(tilsagn.periode)}</Table.DataCell>
-      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
-      <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
-      <Table.DataCell>{formaterNOK(tilsagn.belopGjenstaende)}</Table.DataCell>
+    <Table.ExpandableRow content={null}>
+      <Table.DataCell>{formaterPeriodeStart(linje.tilsagn.periode)}</Table.DataCell>
+      <Table.DataCell>{formaterPeriodeSlutt(linje.tilsagn.periode)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(linje.tilsagn.type)}</Table.DataCell>
+      <Table.DataCell>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
+      <Table.DataCell>{formaterNOK(linje.tilsagn.belopGjenstaende)}</Table.DataCell>
       <Table.DataCell>
-        <Checkbox hideLabel readOnly={true} checked={delutbetaling.gjorOppTilsagn}>
+        <Checkbox hideLabel readOnly={true} checked={linje.gjorOppTilsagn}>
           Gjør opp tilsagn
         </Checkbox>
       </Table.DataCell>
-      <Table.DataCell>{formaterNOK(delutbetaling.belop)}</Table.DataCell>
+      <Table.DataCell>{formaterNOK(linje.belop)}</Table.DataCell>
       <Table.DataCell>
-        <DelutbetalingTag status={delutbetaling.status} />
+        <DelutbetalingTag status={linje.status!} />
       </Table.DataCell>
       <Table.DataCell>
-        {kanBeslutte && (
-          <HStack gap="4">
-            <Button
-              size="small"
-              type="button"
-              onClick={() =>
-                beslutt({
-                  besluttelse: Besluttelse.GODKJENT,
-                })
-              }
-            >
-              Godkjenn
-            </Button>
-            <Button
-              variant="secondary"
-              size="small"
-              type="button"
-              onClick={() => setAvvisModalOpen(true)}
-            >
-              Send i retur
-            </Button>
-          </HStack>
-        )}
-      </Table.DataCell>
-      {delutbetaling && (
-        <AarsakerOgForklaringModal
-          open={avvisModalOpen}
-          header="Send i retur med forklaring"
-          buttonLabel="Send i retur"
-          aarsaker={[
-            { value: "FEIL_BELOP", label: "Feil beløp" },
-            { value: "FEIL_ANNET", label: "Annet" },
-          ]}
-          onClose={() => setAvvisModalOpen(false)}
-          onConfirm={({ aarsaker, forklaring }) => {
-            beslutt({
-              besluttelse: Besluttelse.AVVIST,
-              aarsaker,
-              forklaring: forklaring ?? null,
-            });
-            setAvvisModalOpen(false);
-          }}
-        />
+        { linje.status === DelutbetalingStatus.TIL_GODKJENNING && (
+        <HStack gap="4">
+          <Button
+            size="small"
+            type="button"
+            onClick={() =>
+              beslutt({
+                besluttelse: Besluttelse.GODKJENT,
+              })
+            }
+          >
+            Godkjenn
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            type="button"
+            onClick={() => setAvvisModalOpen(true)}
+          >
+            Send i retur
+          </Button>
+        </HStack>
       )}
+      </Table.DataCell>
+      <AarsakerOgForklaringModal
+        open={avvisModalOpen}
+        header="Send i retur med forklaring"
+        buttonLabel="Send i retur"
+        aarsaker={[
+          { value: "FEIL_BELOP", label: "Feil beløp" },
+          { value: "FEIL_ANNET", label: "Annet" },
+        ]}
+        onClose={() => setAvvisModalOpen(false)}
+        onConfirm={({ aarsaker, forklaring }) => {
+          beslutt({
+            besluttelse: Besluttelse.AVVIST,
+            aarsaker,
+            forklaring: forklaring ?? null,
+          });
+          setAvvisModalOpen(false);
+        }}
+      />
     </Table.ExpandableRow>
   );
 }
