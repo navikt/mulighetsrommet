@@ -230,19 +230,17 @@ class ArrangorFlateService(
         }
     }
 
-    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, Boolean> {
+    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> {
         db.session {
-            val kontonummer =
-                kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer(utbetaling.arrangor.organisasjonsnummer.value))
-                    .map {
-                        queries.utbetaling.setBetalingsinformasjon(
-                            id = utbetaling.id,
-                            kontonummer = Kontonummer(it.kontonr),
-                            kid = utbetaling.betalingsinformasjon.kid,
-                        )
-                    }
-
-            return kontonummer
+            return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer(utbetaling.arrangor.organisasjonsnummer.value))
+                .map {
+                    queries.utbetaling.setBetalingsinformasjon(
+                        id = utbetaling.id,
+                        kontonummer = Kontonummer(it.kontonr),
+                        kid = utbetaling.betalingsinformasjon.kid,
+                    )
+                    it.kontonr
+                }
         }
     }
 }

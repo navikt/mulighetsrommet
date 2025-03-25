@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.left
 import io.ktor.http.*
@@ -13,7 +12,6 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -164,14 +162,11 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val kontonummer = arrangorFlateService.synkroniserKontonummer(utbetaling)
-                when (kontonummer) {
-                    is Either.Left<KontonummerRegisterOrganisasjonError> -> call.respond(
+                arrangorFlateService.synkroniserKontonummer(utbetaling).map { call.respond(it) }.mapLeft {
+                    call.respond(
                         HttpStatusCode.InternalServerError,
                         "Kunne ikke synkronisere kontonummer",
                     )
-
-                    else -> call.respond(kontonummer)
                 }
             }
         }
