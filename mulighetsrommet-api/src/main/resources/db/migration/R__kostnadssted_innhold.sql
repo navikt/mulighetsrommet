@@ -2,7 +2,7 @@ insert into kostnadssted (enhetsnummer, region)
 values
 --- Øst-Viken
 ('0106', '0200'),
-('0115', '0200'),
+('0105', '0200'),
 ('0101', '0200'),
 ('0104', '0200'),
 ('0124', '0200'),
