@@ -6,10 +6,12 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.mockk
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.api.Beregning
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -28,6 +30,7 @@ class ArrangorflateServiceTest : FunSpec({
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()
     val utbetaling = ArrangorflateTestUtils.createTestUtbetalingForhandsgodkjent(deltaker.id)
     val friUtbetaling = ArrangorflateTestUtils.createTestUtbetalingFri()
+    val kontoregisterOrganisasjon = mockk<KontoregisterOrganisasjonClient>(relaxed = true)
 
     val domain = ArrangorflateTestUtils.createTestDomain(
         deltaker = deltaker,
@@ -43,7 +46,7 @@ class ArrangorflateServiceTest : FunSpec({
         domain.initialize(database.db)
         pdlClient = mockPdlClient(ArrangorflateTestUtils.createPdlMockEngine())
         query = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient)
-        arrangorflateService = ArrangorFlateService(query, database.db)
+        arrangorflateService = ArrangorFlateService(query, database.db, kontoregisterOrganisasjon)
     }
 
     afterEach {
