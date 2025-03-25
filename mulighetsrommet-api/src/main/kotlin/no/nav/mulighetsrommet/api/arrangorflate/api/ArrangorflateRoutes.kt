@@ -72,7 +72,6 @@ fun Route.arrangorflateRoutes() {
 
                 call.respond(tilsagn)
             }
-
         }
 
         route("/utbetaling/{id}") {

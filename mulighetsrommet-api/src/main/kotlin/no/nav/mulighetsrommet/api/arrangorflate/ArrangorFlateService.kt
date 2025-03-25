@@ -45,7 +45,7 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 class ArrangorFlateService(
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val db: ApiDatabase,
-    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient
+    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
         return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
@@ -242,11 +242,10 @@ class ArrangorFlateService(
             queries.utbetaling.setBetalingsinformasjon(
                 id = utbetaling.id,
                 kontonummer = Kontonummer(kontonummer.kontonr),
-                kid = utbetaling.betalingsinformasjon.kid
+                kid = utbetaling.betalingsinformasjon.kid,
             )
-        return kontonummer.kontonr
+            return kontonummer.kontonr
         }
-
     }
 }
 

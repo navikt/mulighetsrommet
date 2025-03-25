@@ -50,7 +50,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return KontonummerResponse for valid organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                Organisasjonsnummer("123456789")
+                Organisasjonsnummer("123456789"),
             )
             result shouldBeRight KontonummerResponse("Test Org", "1234.56.78901")
         }
@@ -59,7 +59,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return FantIkkeKontonummer error for non-existent organisasjonsnummer") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                Organisasjonsnummer("000000000")
+                Organisasjonsnummer("000000000"),
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.FantIkkeKontonummer
         }
@@ -68,7 +68,7 @@ class KontoregisterOrganisasjonClientTest : FunSpec({
     test("Should return Error for server error") {
         runBlocking {
             val result = client.getKontonummerForOrganisasjon(
-                Organisasjonsnummer("999999999")
+                Organisasjonsnummer("999999999"),
             )
             result shouldBeLeft KontonummerRegisterOrganisasjonError.Error
         }

@@ -134,7 +134,7 @@ class UtbetalingService(
             is Either.Left -> {
                 log.error(
                     "Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}",
-                    result.value
+                    result.value,
                 )
                 null
             }
@@ -275,7 +275,7 @@ class UtbetalingService(
             DelutbetalingStatus.GODKJENT,
             DelutbetalingStatus.TIL_GODKJENNING,
             DelutbetalingStatus.UTBETALT,
-                -> return BadRequest("Utbetaling kan ikke endres").left()
+            -> return BadRequest("Utbetaling kan ikke endres").left()
         }
 
         val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetaling.id)

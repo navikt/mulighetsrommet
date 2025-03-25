@@ -98,7 +98,7 @@ class JournalforUtbetalingTest : FunSpec({
         ArrangorFlateService(
             pdl = HentAdressebeskyttetPersonBolkPdlQuery(pdl),
             db = db,
-            kontoregisterOrganisasjonClient = kontoregisterClient
+            kontoregisterOrganisasjonClient = kontoregisterClient,
         )
     }
 
