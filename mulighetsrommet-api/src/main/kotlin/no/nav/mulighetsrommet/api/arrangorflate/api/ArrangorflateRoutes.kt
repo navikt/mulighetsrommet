@@ -168,12 +168,11 @@ fun Route.arrangorflateRoutes() {
                 when (kontonummer) {
                     is Either.Left<KontonummerRegisterOrganisasjonError> -> call.respond(
                         HttpStatusCode.InternalServerError,
-                        "Kunne ikke synkronisere kontonummer"
+                        "Kunne ikke synkronisere kontonummer",
                     )
 
                     else -> call.respond(kontonummer)
                 }
-
             }
         }
 

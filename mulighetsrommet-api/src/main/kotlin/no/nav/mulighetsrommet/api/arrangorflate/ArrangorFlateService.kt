@@ -242,7 +242,6 @@ class ArrangorFlateService(
                         )
                     }
 
-
             return kontonummer
         }
     }
