@@ -47,17 +47,6 @@ class AvtaleValidator(
                 if (avtale.sluttDato.isBefore(avtale.startDato)) {
                     add(FieldError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
                 }
-                if (
-                    Avtaletype.Forhaandsgodkjent != avtale.avtaletype &&
-                    avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
-                ) {
-                    add(
-                        FieldError.of(
-                            AvtaleDbo::sluttDato,
-                            "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
-                        ),
-                    )
-                }
             }
 
             if (Avtaletype.Forhaandsgodkjent != avtale.avtaletype && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
