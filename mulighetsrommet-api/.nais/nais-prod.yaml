@@ -137,6 +137,7 @@ spec:
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
       external:
+        - host: sokos-kontoregister.dev-fss-pub.nais.io
         - host: slack.com
         - host: data.brreg.no
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
