@@ -7,7 +7,7 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { NyUtbetalingLinje } from "./RedigerUtbetalingLinjeRows";
 
 interface Props {
-  linje: (UtbetalingLinje | NyUtbetalingLinje);
+  linje: UtbetalingLinje | NyUtbetalingLinje;
   onChange: (linje: NyUtbetalingLinje) => void;
   onDelete: (id: string) => void;
   errors: FieldError[];
@@ -68,7 +68,9 @@ export function RedigerDelutbetalingRow({ linje, errors, onChange, onDelete }: P
           value={linje.belop}
         />
       </Table.DataCell>
-      <Table.DataCell>{'status' in linje && <DelutbetalingTag status={linje.status} />}</Table.DataCell>
+      <Table.DataCell>
+        {"status" in linje && <DelutbetalingTag status={linje.status} />}
+      </Table.DataCell>
       <Table.DataCell>
         <Button size="small" variant="primary-neutral" onClick={() => onDelete(linje.id)}>
           Fjern

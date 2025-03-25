@@ -370,7 +370,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
     single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get(), get()) }
-    single { ArrangorFlateService(get(), get()) }
+    single { ArrangorFlateService(get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

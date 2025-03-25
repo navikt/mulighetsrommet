@@ -36,8 +36,8 @@ export function UtbetalingLinjeRows({ linjer, utbetaling }: Props) {
           {linjer
             .toSorted((m, n) => m.id.localeCompare(n.id))
             .map((linje) => (
-            <DelutbetalingRow linje={linje} key={linje.id} />
-          ))}
+              <DelutbetalingRow linje={linje} key={linje.id} />
+            ))}
           <Table.Row>
             <Table.DataCell
               className="font-bold"

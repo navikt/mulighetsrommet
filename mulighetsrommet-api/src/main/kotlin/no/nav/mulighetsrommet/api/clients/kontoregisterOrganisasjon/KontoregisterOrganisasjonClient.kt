@@ -42,9 +42,9 @@ class KontoregisterOrganisasjonClient(
     }
 
     suspend fun getKontonummerForOrganisasjon(
-        requestBody: KontonummerRequest,
+        organisasjonsnummer: Organisasjonsnummer,
     ): Either<KontonummerRegisterOrganisasjonError, KontonummerResponse> {
-        val response = client.get("$baseUrl/kontoregister/api/v1/hent-kontonummer-for-organisasjon/${requestBody.organisasjonsnummer.value}") {
+        val response = client.get("$baseUrl/kontoregister/api/v1/hent-kontonummer-for-organisasjon/${organisasjonsnummer.value}") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
@@ -54,7 +54,7 @@ class KontoregisterOrganisasjonClient(
         } else if (response.status === HttpStatusCode.NotFound) {
             val error = response.body<Feilmelding>()
             SecureLog.logger.error(
-                "Fant ikke orgnummer: ${requestBody.organisasjonsnummer.value} i kontoregisteret. Feilmelding: ${error.feilmelding}",
+                "Fant ikke orgnummer: ${organisasjonsnummer.value} i kontoregisteret. Feilmelding: ${error.feilmelding}",
                 response.bodyAsText(),
             )
             log.error("Fant ikke orgnummer for arrangør i kontoregisteret. Se detaljer i secureLog.")
@@ -69,7 +69,7 @@ class KontoregisterOrganisasjonClient(
             KontonummerRegisterOrganisasjonError.UgyldigInput.left()
         } else {
             SecureLog.logger.error(
-                "Klarte ikke hente kontonummer for arrangør: ${requestBody.organisasjonsnummer.value}. Error: {}",
+                "Klarte ikke hente kontonummer for arrangør: ${organisasjonsnummer.value}. Error: {}",
                 response.bodyAsText(),
             )
             log.error("Klarte ikke hente kontonummer for arrangør. Se detaljer i secureLog.")
@@ -83,11 +83,6 @@ enum class KontonummerRegisterOrganisasjonError {
     UgyldigInput,
     Error,
 }
-
-@Serializable
-data class KontonummerRequest(
-    val organisasjonsnummer: Organisasjonsnummer,
-)
 
 @Serializable
 data class KontonummerResponse(

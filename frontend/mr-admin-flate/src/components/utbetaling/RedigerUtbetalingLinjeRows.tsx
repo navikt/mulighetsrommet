@@ -87,9 +87,7 @@ export function RedigerUtbetalingLinjeRows({ linjer, utbetaling, tilsagn }: Prop
         });
       }
     });
-    setLinjeState([...linjeState, ...nyeLinjer]
-      .toSorted((m, n) => m.id.localeCompare(n.id))
-    );
+    setLinjeState([...linjeState, ...nyeLinjer].toSorted((m, n) => m.id.localeCompare(n.id)));
   }
 
   function sendTilGodkjenning() {

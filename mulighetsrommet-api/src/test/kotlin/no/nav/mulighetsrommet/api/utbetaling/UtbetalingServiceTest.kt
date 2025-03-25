@@ -64,9 +64,16 @@ class UtbetalingServiceTest : FunSpec({
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
 
-    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(any()) } returns Either.Right(
+    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
         KontonummerResponse(
-            mottaker = "Test Org",
+            mottaker = "123456789",
+            kontonr = "12345678901",
+        ),
+    )
+
+    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("976663934")) } returns Either.Right(
+        KontonummerResponse(
+            mottaker = "976663934",
             kontonr = "12345678901",
         ),
     )

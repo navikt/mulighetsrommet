@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -93,7 +93,17 @@ val ApplicationConfigProd = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = NavAnsattRolle.OKONOMI_BESLUTTER,
+                rolle = NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                // 0000-GA-TILTAK-okonomi_beslutter
+                adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                // 0000-GA-TILTAK-okonomi_beslutter
+                adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
+                rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
             ),
         ),
     ),

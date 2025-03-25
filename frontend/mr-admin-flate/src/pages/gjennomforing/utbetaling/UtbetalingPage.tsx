@@ -46,8 +46,7 @@ function useUtbetalingPageData() {
 
 export function UtbetalingPage() {
   const { gjennomforingId } = useParams();
-  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer } =
-    useUtbetalingPageData();
+  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer } = useUtbetalingPageData();
 
   const erSaksbehandlerOkonomi = ansatt.roller.includes(
     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
@@ -146,10 +145,7 @@ export function UtbetalingPage() {
                     linjer={linjer}
                   />
                 ) : (
-                  <UtbetalingLinjeRows
-                    utbetaling={utbetaling}
-                    linjer={linjer}
-                  />
+                  <UtbetalingLinjeRows utbetaling={utbetaling} linjer={linjer} />
                 )}
               </VStack>
             </Box>

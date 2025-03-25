@@ -2296,6 +2296,21 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/arrangorflate/utbetaling/{id}/sync-kontonummer:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: synkroniserKontonummerForUtbetaling
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Synkroniserer kontonummer for utbetaling
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/intern/arrangorflate/utbetaling/{id}/relevante-forslag:
     get:
       tags:
@@ -3476,10 +3491,13 @@ components:
       enum:
         - TEAM_MULIGHETSROMMET
         - KONTAKTPERSON
+        - TILTAKADMINISTRASJON_GENERELL
+        - TILTAKADMINISTRASJON_ENDRINGSMELDING
         - TILTAKSGJENNOMFORINGER_SKRIV
         - AVTALER_SKRIV
-        - TILTAKADMINISTRASJON_GENERELL
-        - OKONOMI_BESLUTTER
+        - SAKSBEHANDLER_OKONOMI
+        - BESLUTTER_TILSAGN
+        - ATTESTANT_UTBETALING
 
     NavAnsattHovedenhet:
       type: object
@@ -5441,11 +5459,11 @@ components:
         tilsagn:
           $ref: "#/components/schemas/TilsagnDto"
         opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
         annullering:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
         tilOppgjor:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - tilsagn
         - opprettelse
@@ -6106,7 +6124,7 @@ components:
         gjorOppTilsagn:
           type: boolean
         opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - id
         - tilsagn
@@ -6201,14 +6219,48 @@ components:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]
 
-    Totrinnskontroll:
+    TotrinnskontrollDto:
+      oneOf:
+        - $ref: "#/components/schemas/TotrinnskontrollTilBeslutningDto"
+        - $ref: "#/components/schemas/TotrinnskontrollBesluttetDto"
+
+    TotrinnskontrollTilBeslutningDto:
       type: object
       properties:
+        type:
+          const: TIL_BESLUTNING
         behandletAv:
           type: string
         behandletTidspunkt:
           type: string
           format: date-time
+        kanBesluttes:
+          type: boolean
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+      required:
+        - type
+        - behandletAv
+        - behandletTidspunkt
+        - kanBesluttes
+        - aarsaker
+
+    TotrinnskontrollBesluttetDto:
+      type: object
+      properties:
+        type:
+          const: BESLUTTET
+        behandletAv:
+          type: string
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        kanBesluttes:
+          type: boolean
         aarsaker:
           type: array
           items:
@@ -6220,4 +6272,14 @@ components:
         besluttetTidspunkt:
           type: string
           format: date-time
-      required: [behandletAv, behandletTidspunkt]
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+      required:
+        - type
+        - behandletAv
+        - behandletTidspunkt
+        - aarsaker
+        - kanBesluttes
+        - besluttetAv
+        - besluttetTidspunkt
+        - besluttelse

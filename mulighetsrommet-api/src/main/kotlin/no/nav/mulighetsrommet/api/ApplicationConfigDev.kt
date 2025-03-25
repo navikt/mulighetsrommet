@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -95,7 +95,15 @@ val ApplicationConfigDev = AppConfig(
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = NavAnsattRolle.OKONOMI_BESLUTTER,
+                rolle = NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
+                rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
             ),
         ),
     ),

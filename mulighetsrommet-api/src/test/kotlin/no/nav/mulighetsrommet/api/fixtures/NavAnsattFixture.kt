@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavIdent
 import java.util.*
 

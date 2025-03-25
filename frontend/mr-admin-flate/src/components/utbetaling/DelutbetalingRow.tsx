@@ -1,6 +1,12 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
-import { BesluttDelutbetalingRequest, Besluttelse, DelutbetalingStatus, ProblemDetail, UtbetalingLinje } from "@mr/api-client-v2";
+import {
+  BesluttDelutbetalingRequest,
+  Besluttelse,
+  DelutbetalingStatus,
+  ProblemDetail,
+  UtbetalingLinje,
+} from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Button, Checkbox, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -46,29 +52,29 @@ export function DelutbetalingRow({ linje }: Props) {
         <DelutbetalingTag status={linje.status!} />
       </Table.DataCell>
       <Table.DataCell>
-        { linje.status === DelutbetalingStatus.TIL_GODKJENNING && (
-        <HStack gap="4">
-          <Button
-            size="small"
-            type="button"
-            onClick={() =>
-              beslutt({
-                besluttelse: Besluttelse.GODKJENT,
-              })
-            }
-          >
-            Godkjenn
-          </Button>
-          <Button
-            variant="secondary"
-            size="small"
-            type="button"
-            onClick={() => setAvvisModalOpen(true)}
-          >
-            Send i retur
-          </Button>
-        </HStack>
-      )}
+        {linje.status === DelutbetalingStatus.TIL_GODKJENNING && linje.opprettelse.kanBesluttes && (
+          <HStack gap="4">
+            <Button
+              size="small"
+              type="button"
+              onClick={() =>
+                beslutt({
+                  besluttelse: Besluttelse.GODKJENT,
+                })
+              }
+            >
+              Godkjenn
+            </Button>
+            <Button
+              variant="secondary"
+              size="small"
+              type="button"
+              onClick={() => setAvvisModalOpen(true)}
+            >
+              Send i retur
+            </Button>
+          </HStack>
+        )}
       </Table.DataCell>
       <AarsakerOgForklaringModal
         open={avvisModalOpen}
