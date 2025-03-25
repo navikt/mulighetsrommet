@@ -37,8 +37,14 @@ class BrukerServiceTest : FunSpec({
     val norg2Client: Norg2Client = mockk()
     val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient = mockk()
 
-    val brukerService =
-        BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, navEnhetService, pdlClient, norg2Client, isoppfolgingstilfelleClient)
+    val brukerService = BrukerService(
+        veilarboppfolgingClient,
+        veilarbvedtaksstotteClient,
+        navEnhetService,
+        pdlClient,
+        norg2Client,
+        isoppfolgingstilfelleClient,
+    )
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
 
@@ -73,7 +79,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
         coEvery { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr1) } returns true.right()
 
-        coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } answers {
+        coEvery { veilarbvedtaksstotteClient.hentGjeldende14aVedtak(fnr1, any()) } answers {
             VedtakDto(innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS).right()
         }
 
@@ -98,7 +104,7 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr2, any()) } returns mockManuellStatus().right()
 
-        coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr2, any()) } returns VedtakDto(
+        coEvery { veilarbvedtaksstotteClient.hentGjeldende14aVedtak(fnr2, any()) } returns VedtakDto(
             innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         ).right()
 
