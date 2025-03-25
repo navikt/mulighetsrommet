@@ -37,36 +37,6 @@ class VeilarbvedtaksstotteClient(
         .recordStats()
         .build()
 
-    suspend fun hentSiste14AVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
-        siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentSiste14AVedtak it.right() }
-
-        val response = client.post("$baseUrl/v2/hent-siste-14a-vedtak") {
-            bearerAuth(tokenProvider.exchange(obo))
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(VedtakRequest(fnr = fnr.value))
-        }
-
-        return if (response.status == HttpStatusCode.Forbidden) {
-            log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
-            VedtakError.Forbidden.left()
-        } else {
-            if (!response.status.isSuccess()) {
-                SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
-                log.error("Klarte ikke hente siste 14A-vedtak. Status: ${response.status}")
-                VedtakError.Error.left()
-            } else {
-                val body = response.bodyAsText()
-                if (body.isBlank()) {
-                    log.info("Fant ikke siste 14A-vedtak for bruker")
-                    VedtakError.NotFound.left()
-                } else {
-                    JsonIgnoreUnknownKeys.decodeFromString<VedtakDto>(body).right()
-                }
-            }
-                .onRight { siste14aVedtakCache.put(fnr, it) }
-        }
-    }
-
     suspend fun hentGjeldende14aVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
         siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentGjeldende14aVedtak it.right() }
 
