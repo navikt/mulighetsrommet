@@ -31,13 +31,16 @@ class VeilarbvedtaksstotteClient(
         install(HttpCache)
     }
 
-    private val siste14aVedtakCache: Cache<NorskIdent, VedtakDto> = Caffeine.newBuilder()
+    private val siste14aVedtakCache: Cache<NorskIdent, Gjeldende14aVedtakDto> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    suspend fun hentGjeldende14aVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
+    suspend fun hentGjeldende14aVedtak(
+        fnr: NorskIdent,
+        obo: AccessType.OBO,
+    ): Either<VedtakError, Gjeldende14aVedtakDto> {
         siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentGjeldende14aVedtak it.right() }
 
         val response = client.post("$baseUrl/hent-gjeldende-14a-vedtak") {
@@ -63,19 +66,8 @@ class VeilarbvedtaksstotteClient(
             return VedtakError.NotFound.left()
         }
 
-        val vedtak = JsonIgnoreUnknownKeys.decodeFromString<Gjeldende14aVedtakDto>(body).let {
-            val innsatsgruppe = when (it.innsatsgruppe) {
-                InnsatsgruppeV2.GODE_MULIGHETER -> VedtakDto.Innsatsgruppe.STANDARD_INNSATS
-                InnsatsgruppeV2.TRENGER_VEILEDNING -> VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
-                InnsatsgruppeV2.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE -> VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
-                InnsatsgruppeV2.JOBBE_DELVIS -> VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS
-                InnsatsgruppeV2.LITEN_MULIGHET_TIL_A_JOBBE -> VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS
-            }
-            VedtakDto(innsatsgruppe)
-        }
-
+        val vedtak = JsonIgnoreUnknownKeys.decodeFromString<Gjeldende14aVedtakDto>(body)
         siste14aVedtakCache.put(fnr, vedtak)
-
         return vedtak.right()
     }
 }
