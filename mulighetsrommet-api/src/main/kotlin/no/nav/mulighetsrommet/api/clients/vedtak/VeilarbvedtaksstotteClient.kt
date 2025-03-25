@@ -6,7 +6,6 @@ import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -66,6 +65,48 @@ class VeilarbvedtaksstotteClient(
             }
                 .onRight { siste14aVedtakCache.put(fnr, it) }
         }
+    }
+
+    suspend fun hentGjeldende14aVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
+        siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentGjeldende14aVedtak it.right() }
+
+        val response = client.post("$baseUrl/hent-gjeldende-14a-vedtak") {
+            bearerAuth(tokenProvider.exchange(obo))
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            setBody(VedtakRequest(fnr = fnr.value))
+        }
+
+        if (response.status == HttpStatusCode.Forbidden) {
+            log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
+            return VedtakError.Forbidden.left()
+        }
+
+        if (!response.status.isSuccess()) {
+            SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
+            log.error("Klarte ikke hente siste 14A-vedtak. Status: ${response.status}")
+            return VedtakError.Error.left()
+        }
+
+        val body = response.bodyAsText()
+        if (body.isBlank()) {
+            log.info("Fant ikke siste 14A-vedtak for bruker")
+            return VedtakError.NotFound.left()
+        }
+
+        val vedtak = JsonIgnoreUnknownKeys.decodeFromString<Gjeldende14aVedtakDto>(body).let {
+            val innsatsgruppe = when (it.innsatsgruppe) {
+                InnsatsgruppeV2.GODE_MULIGHETER -> VedtakDto.Innsatsgruppe.STANDARD_INNSATS
+                InnsatsgruppeV2.TRENGER_VEILEDNING -> VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
+                InnsatsgruppeV2.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE -> VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
+                InnsatsgruppeV2.JOBBE_DELVIS -> VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS
+                InnsatsgruppeV2.LITEN_MULIGHET_TIL_A_JOBBE -> VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS
+            }
+            VedtakDto(innsatsgruppe)
+        }
+
+        siste14aVedtakCache.put(fnr, vedtak)
+
+        return vedtak.right()
     }
 }
 
