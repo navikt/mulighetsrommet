@@ -11,7 +11,7 @@ export function NotifikasjonerPage() {
 
   return (
     <main>
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
           <Tabs.List id="fane_liste" className="flex flex-row justify-between">
             <Tabs.Tab
