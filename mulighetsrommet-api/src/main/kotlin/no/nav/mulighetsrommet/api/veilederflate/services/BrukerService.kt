@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
+import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
@@ -232,13 +232,13 @@ class BrukerService(
     }
 }
 
-private fun toInnsatsgruppe(innsatsgruppe: VedtakDto.Innsatsgruppe): Innsatsgruppe {
+private fun toInnsatsgruppe(innsatsgruppe: InnsatsgruppeV2): Innsatsgruppe {
     return when (innsatsgruppe) {
-        VedtakDto.Innsatsgruppe.STANDARD_INNSATS -> Innsatsgruppe.STANDARD_INNSATS
-        VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS -> Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
-        VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS -> Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
-        VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS -> Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS
-        VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
+        InnsatsgruppeV2.GODE_MULIGHETER -> Innsatsgruppe.GODE_MULIGHETER
+        InnsatsgruppeV2.TRENGER_VEILEDNING -> Innsatsgruppe.TRENGER_VEILEDNING
+        InnsatsgruppeV2.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE -> Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+        InnsatsgruppeV2.JOBBE_DELVIS -> Innsatsgruppe.JOBBE_DELVIS
+        InnsatsgruppeV2.LITEN_MULIGHET_TIL_A_JOBBE -> Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE
     }
 }
 

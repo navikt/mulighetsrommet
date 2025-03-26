@@ -206,6 +206,6 @@ function harBrukerRettPaaValgtTiltak(
     (tiltakstype.innsatsgrupper ?? []).includes(bruker.innsatsgruppe) ||
     (bruker.erSykmeldtMedArbeidsgiver &&
       tiltakstype.tiltakskode === Tiltakskode.ARBEIDSRETTET_REHABILITERING &&
-      bruker.innsatsgruppe === Innsatsgruppe.SITUASJONSBESTEMT_INNSATS)
+      bruker.innsatsgruppe === Innsatsgruppe.TRENGER_VEILEDNING)
   );
 }

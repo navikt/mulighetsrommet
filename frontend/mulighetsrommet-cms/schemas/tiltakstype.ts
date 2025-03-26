@@ -70,11 +70,11 @@ export const tiltakstype = defineType({
           type: "string",
           options: {
             list: [
-              { value: "STANDARD_INNSATS" },
-              { value: "SITUASJONSBESTEMT_INNSATS" },
-              { value: "SPESIELT_TILPASSET_INNSATS" },
-              { value: "GRADERT_VARIG_TILPASSET_INNSATS" },
-              { value: "VARIG_TILPASSET_INNSATS" },
+              { value: "GODE_MULIGHETER" },
+              { value: "TRENGER_VEILEDNING" },
+              { value: "TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE" },
+              { value: "JOBBE_DELVIS" },
+              { value: "LITEN_MULIGHET_TIL_A_JOBBE" },
             ],
           },
         },
