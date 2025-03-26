@@ -22,8 +22,8 @@ import {
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { RedigerUtbetalingLinjeRows } from "@/components/utbetaling/RedigerUtbetalingLinjeRows";
-import { UtbetalingLinjeRows } from "@/components/utbetaling/UtbetalingLinjeRows";
+import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
+import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -139,13 +139,13 @@ export function UtbetalingPage() {
                 [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(
                   utbetaling.status,
                 ) ? (
-                  <RedigerUtbetalingLinjeRows
+                  <RedigerUtbetalingLinjeView
                     tilsagn={tilsagn}
                     utbetaling={utbetaling}
                     linjer={linjer}
                   />
                 ) : (
-                  <UtbetalingLinjeRows utbetaling={utbetaling} linjer={linjer} />
+                  <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
                 )}
               </VStack>
             </Box>

@@ -1,30 +1,38 @@
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import { FieldError, UtbetalingLinje } from "@mr/api-client-v2";
-import { BodyShort, Button, Checkbox, Table, TextField } from "@navikt/ds-react";
+import { BodyShort, Checkbox, Table, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { NyUtbetalingLinje } from "./RedigerUtbetalingLinjeRows";
 
 interface Props {
-  linje: UtbetalingLinje | NyUtbetalingLinje;
-  onChange: (linje: NyUtbetalingLinje) => void;
-  onDelete: (id: string) => void;
-  errors: FieldError[];
+  readOnly?: boolean;
+  linje: UtbetalingLinje;
+  knappeColumn: React.ReactNode;
+  onChange?: (linje: UtbetalingLinje) => void;
+  errors?: FieldError[];
 }
 
-export function RedigerDelutbetalingRow({ linje, errors, onChange, onDelete }: Props) {
-  const [openRow, setOpenRow] = useState<boolean>(false);
+export function UtbetalingLinjeRow({
+  linje,
+  errors = [],
+  onChange,
+  knappeColumn,
+  readOnly = false,
+}: Props) {
   const [belopError, setBelopError] = useState<string | undefined>(undefined);
 
   return (
     <Table.ExpandableRow
-      onOpenChange={() => setOpenRow(!openRow)}
-      open={openRow}
+      open={errors.length > 0}
       key={linje.id}
-      content={errors.map((error) => (
-        <BodyShort className="bg-danger">{error.detail}</BodyShort>
-      ))}
+      content={
+        <VStack className="bg-[var(--a-surface-danger-subtle)]">
+          {errors.map((error) => (
+            <BodyShort>{error.detail}</BodyShort>
+          ))}
+        </VStack>
+      }
     >
       <Table.DataCell>{formaterPeriodeStart(linje.tilsagn.periode)}</Table.DataCell>
       <Table.DataCell>{formaterPeriodeSlutt(linje.tilsagn.periode)}</Table.DataCell>
@@ -34,9 +42,10 @@ export function RedigerDelutbetalingRow({ linje, errors, onChange, onDelete }: P
       <Table.DataCell>
         <Checkbox
           hideLabel
+          readOnly={readOnly}
           checked={linje.gjorOppTilsagn}
           onChange={(e) => {
-            onChange({
+            onChange?.({
               ...linje,
               gjorOppTilsagn: e.target.checked,
             });
@@ -50,6 +59,7 @@ export function RedigerDelutbetalingRow({ linje, errors, onChange, onDelete }: P
           size="small"
           error={belopError}
           label="Utbetales"
+          readOnly={readOnly}
           hideLabel
           inputMode="numeric"
           htmlSize={14}
@@ -59,7 +69,7 @@ export function RedigerDelutbetalingRow({ linje, errors, onChange, onDelete }: P
             if (isNaN(num)) {
               setBelopError("Må være et tall");
             } else {
-              onChange({
+              onChange?.({
                 ...linje,
                 belop: num,
               });
@@ -68,14 +78,8 @@ export function RedigerDelutbetalingRow({ linje, errors, onChange, onDelete }: P
           value={linje.belop}
         />
       </Table.DataCell>
-      <Table.DataCell>
-        {"status" in linje && <DelutbetalingTag status={linje.status} />}
-      </Table.DataCell>
-      <Table.DataCell>
-        <Button size="small" variant="primary-neutral" onClick={() => onDelete(linje.id)}>
-          Fjern
-        </Button>
-      </Table.DataCell>
+      <Table.DataCell>{linje.status && <DelutbetalingTag status={linje.status} />}</Table.DataCell>
+      <Table.DataCell>{knappeColumn}</Table.DataCell>
     </Table.ExpandableRow>
   );
 }
