@@ -120,13 +120,7 @@ function VisAarsakerOgForklaring({
     <p className="prose text-balance">
       {type} ble {status} med følgende {aarsaker.length > 1 ? "årsaker: " : "årsak: "}
       <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-      {forklaring ? (
-        <>
-          {" "}
-          med forklaring: <i>"{forklaring}"</i>
-        </>
-      ) : null}
-      .
+      {forklaring ? <> med forklaring: "{forklaring}"</> : null}.
     </p>
   );
 }

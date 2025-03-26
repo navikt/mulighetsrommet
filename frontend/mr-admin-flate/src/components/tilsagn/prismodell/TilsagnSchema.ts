@@ -35,23 +35,52 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export const TilsagnSchema = z.object({
-  id: z.string().optional().nullable(),
-  gjennomforingId: z.string(),
-  type: z.nativeEnum(TilsagnType),
-  periodeStart: z
-    .string({ required_error: tilsagnTekster.manglerStartdato })
-    .min(10, tilsagnTekster.manglerStartdato),
-  periodeSlutt: z
-    .string({ required_error: tilsagnTekster.manglerSluttdato })
-    .min(10, tilsagnTekster.manglerSluttdato),
-  kostnadssted: z
-    .string({
-      invalid_type_error: tilsagnTekster.manglerKostnadssted,
-      required_error: tilsagnTekster.manglerKostnadssted,
-    })
-    .length(4, tilsagnTekster.manglerKostnadssted),
-  beregning: TilsagnBeregningSchema,
-});
+export const TilsagnSchema = z
+  .object({
+    id: z.string().optional().nullable(),
+    gjennomforingId: z.string(),
+    type: z.nativeEnum(TilsagnType),
+    periodeStart: z
+      .string({ required_error: tilsagnTekster.manglerStartdato })
+      .min(10, tilsagnTekster.manglerStartdato),
+    periodeSlutt: z
+      .string({ required_error: tilsagnTekster.manglerSluttdato })
+      .min(10, tilsagnTekster.manglerSluttdato),
+    kostnadssted: z
+      .string({
+        invalid_type_error: tilsagnTekster.manglerKostnadssted,
+        required_error: tilsagnTekster.manglerKostnadssted,
+      })
+      .length(4, tilsagnTekster.manglerKostnadssted),
+    beregning: TilsagnBeregningSchema,
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.periodeStart);
+      const slutt = new Date(data.periodeSlutt);
+      if (start > slutt) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Periodestart må være før periodeslutt",
+      path: ["periodeStart"],
+    },
+  )
+  .refine(
+    (data) => {
+      const start = new Date(data.periodeStart);
+      const slutt = new Date(data.periodeSlutt);
+      if (slutt < start) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Periodeslutt må være etter periodestart",
+      path: ["periodeSlutt"],
+    },
+  );
 
 export type InferredTilsagn = z.infer<typeof TilsagnSchema>;
