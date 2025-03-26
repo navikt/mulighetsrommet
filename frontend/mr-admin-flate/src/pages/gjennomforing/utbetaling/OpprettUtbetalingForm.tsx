@@ -5,7 +5,16 @@ import {
   ProblemDetail,
 } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Button, Heading, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
+import {
+  Button,
+  Heading,
+  HStack,
+  Textarea,
+  TextField,
+  VStack,
+  Link,
+  Alert,
+} from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -19,6 +28,7 @@ import { addYear, isValidationError } from "@/utils/Utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;
+  kontonummer?: string;
 }
 
 const MIN_BEGRUNNELSE_LENGDE = 10;
@@ -81,9 +91,10 @@ const Schema = z
 
 type InferredOpprettUtbetalingFormSchema = z.infer<typeof Schema>;
 
-export function OpprettUtbetalingForm({ gjennomforing }: Props) {
+export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
   const form = useForm<InferredOpprettUtbetalingFormSchema>({
     resolver: zodResolver(Schema),
+    defaultValues: { kontonummer },
   });
   const navigate = useNavigate();
   const utbetalingId = useRef(window.crypto.randomUUID());
@@ -175,15 +186,37 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
               <Heading size="small" level="2">
                 Betalingsinformasjon
               </Heading>
-              <VStack gap="5" align={"start"}>
+              <VStack align={"start"}>
                 <TextField
                   size="small"
-                  label="Kontonummer"
+                  label="Kontonummer til arrangør"
                   {...register("kontonummer")}
                   minLength={11}
                   maxLength={11}
                   error={errors.kontonummer?.message}
+                  readOnly
+                  description="Kontonummer hentes automatisk fra Altinn"
                 />
+                <small className="text-balance">
+                  Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her
+                  om <EndreKontonummerLink />.
+                </small>
+                {!kontonummer ? (
+                  <Alert variant="warning" className="my-5">
+                    <VStack align="start" gap="2">
+                      <Heading spacing size="xsmall" level="3">
+                        Kontonummer mangler for arrangør
+                      </Heading>
+                      <p className="text-balance">
+                        Arrangøren har ikke registrert et kontonummer for utbetaling i Altinn.
+                        Arrangør må legge inn kontonummer før du kan opprette utbetaling til
+                        arrangøren. Les mer om <EndreKontonummerLink /> her.
+                      </p>
+                    </VStack>
+                  </Alert>
+                ) : null}
+              </VStack>
+              <VStack>
                 <TextField
                   size="small"
                   label="Valgfritt KID-nummer"
@@ -208,5 +241,17 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
         </FormProvider>
       </div>
     </>
+  );
+}
+
+function EndreKontonummerLink() {
+  return (
+    <Link
+      rel="noopener noreferrer"
+      href="https://www.nav.no/arbeidsgiver/endre-kontonummer#hvordan"
+      target="_blank"
+    >
+      endring av kontonummer for refusjoner fra Nav
+    </Link>
   );
 }

@@ -26,7 +26,6 @@ test.describe("Manuell utbetaling", () => {
     await expect(page.getByText("Du må sette sluttdato for perioden")).toBeVisible();
     await expect(page.getByText("Du må skrive inn et beløp")).toBeVisible();
     await expect(page.getByText("Begrunnelsen er for kort (minimum 10 tegn)")).toBeVisible();
-    await expect(page.getByText("Kontonummer må være 11 siffer")).toBeVisible();
   });
 
   test("Manuell utbetalingsform sender bruker til kostnadsfordeling", async ({ page }) => {
@@ -41,7 +40,11 @@ test.describe("Manuell utbetaling", () => {
     await page
       .getByLabel("Begrunnelse for utbetaling")
       .fill("Må lage en manuell utbetaling pga. investeringstilsagn");
-    await page.getByLabel("Kontonummer").fill("12345678910");
+    const kontonummerForArrangor = await page.getByLabel("kontonummer").inputValue();
+    await expect(kontonummerForArrangor).toBe("12345678910");
+    await expect(
+      page.getByText("Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn"),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Opprett" }).click();
     await expect(page).not.toHaveURL(/.*\/skjema$/); // Sjekker at vi får navigert oss til kostnadsfordeling
   });

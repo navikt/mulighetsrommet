@@ -1491,6 +1491,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/Arrangor"
 
+
+  /api/v1/intern/arrangorer/{orgnr}/kontonummer:
+    get:
+      tags:
+        - Arrangor
+      operationId: getKontonummerForArrangor
+      parameters:
+        - in: path
+          name: orgnr
+          required: true
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      responses:
+        200:
+          description: Kontonummer for arrangør
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/intern/arrangorer/{id}/kontaktpersoner:
     get:
       tags:
