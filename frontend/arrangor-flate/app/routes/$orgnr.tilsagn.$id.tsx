@@ -26,7 +26,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (error || !tilsagn) {
     throw problemDetailResponse(error);
   }
-
   return { tilsagn };
 };
 
