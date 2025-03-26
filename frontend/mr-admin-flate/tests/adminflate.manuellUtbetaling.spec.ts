@@ -40,6 +40,11 @@ test.describe("Manuell utbetaling", () => {
     await page
       .getByLabel("Begrunnelse for utbetaling")
       .fill("Må lage en manuell utbetaling pga. investeringstilsagn");
+    const kontonummerForArrangor = await page.getByLabel("kontonummer").inputValue();
+    await expect(kontonummerForArrangor).toBe("12345678910");
+    await expect(
+      page.getByText("Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn"),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Opprett" }).click();
     await expect(page).not.toHaveURL(/.*\/skjema$/); // Sjekker at vi får navigert oss til kostnadsfordeling
   });
