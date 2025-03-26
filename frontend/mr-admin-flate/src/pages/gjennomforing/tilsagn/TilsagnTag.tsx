@@ -1,17 +1,16 @@
-import { TilsagnStatus, TilsagnTilAnnulleringAarsak, TotrinnskontrollDto } from "@mr/api-client-v2";
-import { BodyLong, List, Tag, VStack } from "@navikt/ds-react";
-import { useState } from "react";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { capitalizeFirstLetter, joinWithCommaAndOg, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { TilsagnAvvisningAarsak, TilsagnStatus, TotrinnskontrollDto } from "@mr/api-client-v2";
+import { Tag } from "@navikt/ds-react";
 
 interface Props {
   status: TilsagnStatus;
-  expandable?: boolean;
+  visAarsakerOgForklaring?: boolean;
   annullering?: TotrinnskontrollDto;
+  oppgjor?: TotrinnskontrollDto;
 }
 
 export function TilsagnTag(props: Props) {
-  const { status, annullering, expandable = false } = props;
-  const [expandLabel, setExpandLabel] = useState<boolean>(false);
+  const { status, annullering, oppgjor, visAarsakerOgForklaring = false } = props;
 
   const baseTagClasses = "min-w-[140px] text-center whitespace-nowrap";
 
@@ -45,24 +44,28 @@ export function TilsagnTag(props: Props) {
         </Tag>
       );
     case TilsagnStatus.ANNULLERT: {
-      const annullertLabel = expandable ? "Annullert..." : "Annullert";
       return (
-        <Tag
-          className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
-          size="small"
-          onMouseEnter={() => setExpandLabel(true)}
-          onMouseLeave={() => setExpandLabel(false)}
-          variant="neutral"
-        >
-          {expandable && expandLabel ? (
-            <ExpandedAnnullert
-              aarsaker={annullering?.aarsaker ?? []}
+        <div className={visAarsakerOgForklaring ? "flex flex-col gap-2 items-start" : ""}>
+          <Tag
+            className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
+            size="small"
+            variant="neutral"
+          >
+            Annullert
+          </Tag>
+          {visAarsakerOgForklaring ? (
+            <VisAarsakerOgForklaring
+              type="Tilsagnet"
+              status="annullert"
+              aarsaker={
+                annullering?.aarsaker?.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
+                ) || []
+              }
               forklaring={annullering?.forklaring}
             />
-          ) : (
-            truncate(annullertLabel, 30)
-          )}
-        </Tag>
+          ) : null}
+        </div>
       );
     }
     case TilsagnStatus.TIL_OPPGJOR:
@@ -77,35 +80,53 @@ export function TilsagnTag(props: Props) {
       );
     case TilsagnStatus.OPPGJORT:
       return (
-        <Tag
-          size="small"
-          variant="neutral"
-          className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
-        >
-          Oppgjort
-        </Tag>
+        <div className={visAarsakerOgForklaring ? "flex flex-col gap-2 items-start" : ""}>
+          <Tag
+            size="small"
+            variant="neutral"
+            className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
+          >
+            Oppgjort
+          </Tag>
+          {visAarsakerOgForklaring ? (
+            <VisAarsakerOgForklaring
+              type="Tilsagnet"
+              status="gjort opp"
+              aarsaker={
+                oppgjor?.aarsaker?.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
+                ) || []
+              }
+              forklaring={oppgjor?.forklaring}
+            />
+          ) : null}
+        </div>
       );
   }
 }
 
-function ExpandedAnnullert({ aarsaker, forklaring }: { aarsaker: string[]; forklaring?: string }) {
+function VisAarsakerOgForklaring({
+  aarsaker,
+  forklaring,
+  type,
+  status,
+}: {
+  aarsaker: string[];
+  forklaring?: string;
+  type: "Tilsagnet";
+  status: "annullert" | "gjort opp";
+}) {
   return (
-    <VStack>
-      <List
-        as="ul"
-        size="small"
-        title="Årsaker"
-        className="[&>li]:pl-2 [&>li]:ml-2 [&>li]:marker:content-['\2022'] [&>li]:marker:text-[color:var(--a-text-danger)] [&>li]:marker:text-lg"
-      >
-        {aarsaker.map((aarsak) => (
-          <li>{tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak)}</li>
-        ))}
-      </List>
-      {forklaring && <BodyLong>{forklaring}</BodyLong>}
-    </VStack>
+    <p className="prose text-balance">
+      {type} ble {status} med følgende {aarsaker.length > 1 ? "årsaker: " : "årsak: "}
+      <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
+      {forklaring ? (
+        <>
+          {" "}
+          med forklaring: <i>"{forklaring}"</i>
+        </>
+      ) : null}
+      .
+    </p>
   );
-}
-
-function truncate(text: string, maxLength: number): string {
-  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
 }
