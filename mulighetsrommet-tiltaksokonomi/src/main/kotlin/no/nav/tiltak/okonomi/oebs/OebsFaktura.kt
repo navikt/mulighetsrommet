@@ -65,7 +65,10 @@ data class OebsFakturaMelding(
     val valutaKode: String,
 
     /**
-     * Kontonummer det skal utbetales til, null hvis frigjor melding
+     * Kontonummer det skal utbetales til.
+     *
+     * Kan være null når det er tom faktura for å gjøre opp bestilling (altså når
+     * [Linje.antall] er 0 og [Linje.erSisteFaktura] er true).
      */
     val bankKontoNummer: String?,
 

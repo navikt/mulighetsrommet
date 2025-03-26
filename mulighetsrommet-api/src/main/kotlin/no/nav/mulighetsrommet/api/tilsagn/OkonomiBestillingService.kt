@@ -181,7 +181,7 @@ class OkonomiBestillingService(
             "Tilsagn id=$tilsagnId må være besluttet oppgjort for å sende null melding til økonomi"
         }
 
-        val faktura = FrigjorBestilling(
+        val faktura = GjorOppBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = oppgjor.behandletAv.toOkonomiPart(),
             behandletTidspunkt = oppgjor.behandletTidspunkt,
@@ -189,7 +189,7 @@ class OkonomiBestillingService(
             besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
-        publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
+        publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.GjorOppBestilling(faktura))
     }
 
     fun behandleGodkjentUtbetalinger(tilsagnId: UUID): Unit = db.transaction {
@@ -231,7 +231,7 @@ class OkonomiBestillingService(
                     behandletTidspunkt = opprettelse.behandletTidspunkt,
                     besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
                     besluttetTidspunkt = opprettelse.besluttetTidspunkt,
-                    frigjorBestilling = delutbetaling.gjorOppTilsagn,
+                    gjorOppBestilling = delutbetaling.gjorOppTilsagn,
                 )
 
                 queries.delutbetaling.setSendtTilOkonomi(

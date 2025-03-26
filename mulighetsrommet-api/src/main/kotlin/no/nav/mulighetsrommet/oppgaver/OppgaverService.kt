@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
-import java.util.*
 
 class OppgaverService(val db: ApiDatabase) {
     fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<NavAnsattRolle>): List<Oppgave> {
@@ -198,15 +197,15 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
         }
 
         TilsagnStatus.TIL_OPPGJOR -> {
-            val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-            frigjoring to Oppgave(
+            val tilOppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+            tilOppgjor to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_OPPGJOR,
                 title = "Tilsagn til oppgjør",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = frigjoring.behandletTidspunkt,
+                createdAt = tilOppgjor.behandletTidspunkt,
                 oppgaveIcon = OppgaveIcon.TILSAGN,
             )
         }

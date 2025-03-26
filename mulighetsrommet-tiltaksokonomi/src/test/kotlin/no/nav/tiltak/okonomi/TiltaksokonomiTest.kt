@@ -212,7 +212,7 @@ class TiltaksokonomiTest : FunSpec({
                             behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                            frigjorBestilling = false,
+                            gjorOppBestilling = false,
                         ),
                     )
                 }.also {

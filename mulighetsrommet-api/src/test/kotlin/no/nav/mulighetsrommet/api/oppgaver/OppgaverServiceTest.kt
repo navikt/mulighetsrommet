@@ -86,7 +86,7 @@ class OppgaverServiceTest : FunSpec({
             ).shouldBeEmpty()
         }
 
-        test("Skal bare returnere oppgaver for tilsagn til godkjenning og annullering og frigjøring når ansatt har korrekt rolle") {
+        test("Skal bare returnere oppgaver for tilsagn til godkjenning, annullering og til oppgjør når ansatt har korrekt rolle") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),

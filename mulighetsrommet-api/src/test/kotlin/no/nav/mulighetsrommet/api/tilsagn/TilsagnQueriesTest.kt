@@ -228,9 +228,9 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.get(tilsagn.id).shouldNotBeNull().bestilling.status shouldBe BestillingStatusType.SENDT
 
-                queries.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.FRIGJORT)
+                queries.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.OPPGJORT)
 
-                queries.get(tilsagn.id).shouldNotBeNull().bestilling.status shouldBe BestillingStatusType.FRIGJORT
+                queries.get(tilsagn.id).shouldNotBeNull().bestilling.status shouldBe BestillingStatusType.OPPGJORT
             }
         }
     }
