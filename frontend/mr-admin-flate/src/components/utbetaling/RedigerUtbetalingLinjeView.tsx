@@ -27,9 +27,23 @@ export interface Props {
   tilsagn: TilsagnDto[];
 }
 
+function godkjenteTilsagnToUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
+  return tilsagn
+    .filter((t) => t.status === TilsagnStatus.GODKJENT)
+    .map((t) => ({
+      belop: 0,
+      tilsagn: t,
+      gjorOppTilsagn: false,
+      id: uuidv4(),
+    }));
+}
+
 export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Props) {
   const { gjennomforingId } = useParams();
-  const [linjeState, setLinjeState] = useState<UtbetalingLinje[]>(linjer);
+  const godkjenteTilsagnLinjer = godkjenteTilsagnToUtbetalingLinjer(tilsagn);
+  const [linjerState, setLinjerState] = useState<UtbetalingLinje[]>(() =>
+    linjer.length === 0 ? godkjenteTilsagnLinjer : linjer,
+  );
 
   const [error, setError] = useState<FieldError[]>([]);
   const queryClient = useQueryClient();
@@ -52,22 +66,14 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
   }
 
   function leggTilLinjer() {
-    const nyeLinjer: UtbetalingLinje[] = [];
-    tilsagn.forEach((t) => {
-      if (t.status === TilsagnStatus.GODKJENT && !linjeState.find((l) => l.tilsagn.id === t.id)) {
-        nyeLinjer.push({
-          belop: 0,
-          tilsagn: t,
-          gjorOppTilsagn: false,
-          id: uuidv4(),
-        });
-      }
-    });
-    setLinjeState([...linjeState, ...nyeLinjer].toSorted((m, n) => m.id.localeCompare(n.id)));
+    const nyeLinjer = godkjenteTilsagnLinjer.filter(
+      (linje) => !linjerState.find((l) => l.tilsagn.id === linje.tilsagn.id),
+    );
+    setLinjerState([...linjerState, ...nyeLinjer].toSorted((m, n) => m.id.localeCompare(n.id)));
   }
 
   function sendTilGodkjenning() {
-    const delutbetalingReq: DelutbetalingRequest[] = linjeState.map((linje) => {
+    const delutbetalingReq: DelutbetalingRequest[] = linjerState.map((linje) => {
       return {
         id: linje.id,
         belop: linje.belop,
@@ -100,8 +106,8 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
 
   function fjernLinje(id: string) {
     setError([]);
-    const remaining = linjeState.filter((d) => d.id !== id);
-    setLinjeState([...remaining]);
+    const remaining = linjerState.filter((d) => d.id !== id);
+    setLinjerState([...remaining]);
   }
 
   return (
@@ -125,7 +131,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
         </HStack>
         <UtbetalingLinjeTable
           utbetaling={utbetaling}
-          linjer={linjeState}
+          linjer={linjerState}
           renderRow={(linje, index) => {
             return (
               <UtbetalingLinjeRow
@@ -141,7 +147,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
                   </Button>
                 }
                 onChange={(updated) => {
-                  setLinjeState((prev) =>
+                  setLinjerState((prev) =>
                     prev.map((linje) => (linje.id === updated.id ? updated : linje)),
                   );
                 }}
