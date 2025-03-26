@@ -126,7 +126,6 @@ function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
 
   const fylkerSomIkkeVilHaOppskrifter = [
     "0800", // Vestfold og Telemark
-    "1100", // Rogaland
   ];
   return !fylkerSomIkkeVilHaOppskrifter.includes(tiltak.fylke);
 }
