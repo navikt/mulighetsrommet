@@ -6,6 +6,24 @@ export function UtbetalingStatusTag({ status }: { status: AdminUtbetalingStatus 
   const baseTagClasses = "w-[150px] text-center whitespace-nowrap";
 
   switch (status) {
+    case AdminUtbetalingStatus.RETURNERT:
+      return (
+        <Tag size="small" variant="error" className={baseTagClasses}>
+          Returnert
+        </Tag>
+      );
+    case AdminUtbetalingStatus.TIL_GODKJENNING:
+      return (
+        <Tag size="small" variant="alt1" className={baseTagClasses}>
+          Til godkjenning
+        </Tag>
+      );
+    case AdminUtbetalingStatus.GODKJENT:
+      return (
+        <Tag size="small" variant="success" className={baseTagClasses}>
+          Godkjent
+        </Tag>
+      );
     case AdminUtbetalingStatus.UTBETALT:
       return (
         <Tag size="small" variant="success" className={baseTagClasses}>

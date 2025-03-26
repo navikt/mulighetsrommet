@@ -5,7 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -39,7 +39,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -574,7 +573,9 @@ class UtbetalingServiceTest : FunSpec({
             service.opprettDelutbetalinger(
                 request = opprettRequest,
                 navIdent = domain.ansatte[0].navIdent,
-            ).shouldBeLeft() shouldBe BadRequest("Utbetaling kan ikke endres")
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldContain FieldError("/0", "Utbetaling kan ikke endres")
+            }
         }
 
         test("returnering av delutbetaling setter den i RETURNERT status") {
@@ -746,7 +747,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
+                it.errors shouldContain FieldError("/", "Kan ikke betale ut mer enn det er krav på")
             }
 
             service.opprettDelutbetalinger(
@@ -754,22 +755,12 @@ class UtbetalingServiceTest : FunSpec({
                     utbetaling.id,
                     listOf(
                         DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 7),
-                    ),
-                ),
-                domain.ansatte[0].navIdent,
-            ).shouldBeRight()
-
-            // Siden 7 allerede er utbetalt nå
-            service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(
-                    utbetaling.id,
-                    listOf(
                         DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 5),
                     ),
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
+                it.errors shouldContain FieldError("/", "Kan ikke betale ut mer enn det er krav på")
             }
         }
 
@@ -815,14 +806,6 @@ class UtbetalingServiceTest : FunSpec({
                             gjorOppTilsagn = false,
                             belop = 50,
                         ),
-                    ),
-                ),
-                domain.ansatte[0].navIdent,
-            )
-            service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(
-                    utbetaling1.id,
-                    listOf(
                         DelutbetalingRequest(
                             id = UUID.randomUUID(),
                             tilsagnId = tilsagn2.id,
@@ -851,15 +834,15 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
-                    first.belop shouldBe 50
-                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
-                    first.lopenummer shouldBe 1
-                    first.faktura.fakturanummer shouldBe "A-2024/1-2-1"
-
                     second.belop shouldBe 50
                     second.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     second.lopenummer shouldBe 1
-                    second.faktura.fakturanummer shouldBe "A-2024/1-1-1"
+                    second.faktura.fakturanummer shouldBe "A-2024/1-2-1"
+
+                    first.belop shouldBe 50
+                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
+                    first.lopenummer shouldBe 1
+                    first.faktura.fakturanummer shouldBe "A-2024/1-1-1"
                 }
 
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).should { (first) ->

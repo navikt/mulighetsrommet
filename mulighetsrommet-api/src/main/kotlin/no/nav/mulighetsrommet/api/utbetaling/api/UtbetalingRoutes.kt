@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
@@ -51,7 +52,7 @@ fun Route.utbetalingRoutes() {
                 val utbetaling = queries.utbetaling.get(id)
                     ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
 
-                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
                     val tilsagnBesluttetAv = queries.totrinnskontroll
                         .getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
                         .besluttetAv
@@ -63,15 +64,19 @@ fun Route.utbetalingRoutes() {
                         opprettelse.behandletAv != ansatt.navIdent &&
                         NavAnsattRolle.ATTESTANT_UTBETALING in ansatt.roller
 
-                    DelutbetalingDto(
-                        delutbetaling = delutbetaling,
+                    UtbetalingLinje(
+                        id = delutbetaling.id,
+                        gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
+                        belop = delutbetaling.belop,
+                        status = delutbetaling.status,
+                        tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let { TilsagnDto.fromTilsagn(it) },
                         opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(opprettelse, kanBesluttesAvAnsatt),
                     )
                 }
 
                 UtbetalingDetaljerDto(
                     utbetaling = toUtbetalingDto(utbetaling),
-                    delutbetalinger = delutbetalinger,
+                    linjer = linjer,
                 )
             }
 
@@ -138,14 +143,6 @@ fun Route.utbetalingRoutes() {
 
                 val result = service.opprettDelutbetalinger(request, navIdent)
                 call.respondWithStatusResponse(result)
-            }
-
-            delete("/{id}") {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val navIdent = getNavIdent()
-
-                service.deleteDelutbetaling(id, navIdent)
-                call.respond(HttpStatusCode.OK)
             }
         }
 

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -14,9 +13,9 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.tiltak.okonomi.FakturaStatusType
-import java.sql.SQLException
 import java.time.LocalDateTime
 import java.util.*
 
@@ -115,7 +114,7 @@ class DelutbetalingQueriesTest : FunSpec({
         }
     }
 
-    test("totrinnskontroll kan inn besluttes to ganger") {
+    test("totrinnskontroll kan besluttes to ganger") {
         database.runAndRollback { session ->
             val queries = TotrinnskontrollQueries(session)
             val id = UUID.randomUUID()
@@ -134,22 +133,23 @@ class DelutbetalingQueriesTest : FunSpec({
                     besluttetTidspunkt = LocalDateTime.now(),
                 ),
             )
-            shouldThrow<SQLException> {
-                queries.upsert(
-                    Totrinnskontroll(
-                        id = id,
-                        entityId = entityId,
-                        behandletAv = Tiltaksadministrasjon,
-                        aarsaker = emptyList(),
-                        forklaring = null,
-                        type = Totrinnskontroll.Type.OPPRETT,
-                        behandletTidspunkt = LocalDateTime.now(),
-                        besluttelse = Besluttelse.GODKJENT,
-                        besluttetAv = Tiltaksadministrasjon,
-                        besluttetTidspunkt = LocalDateTime.now(),
-                    ),
-                )
-            }
+            queries.upsert(
+                Totrinnskontroll(
+                    id = id,
+                    entityId = entityId,
+                    behandletAv = Tiltaksadministrasjon,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                    type = Totrinnskontroll.Type.OPPRETT,
+                    behandletTidspunkt = LocalDateTime.now(),
+                    besluttelse = Besluttelse.AVVIST,
+                    besluttetAv = Arena,
+                    besluttetTidspunkt = LocalDateTime.now(),
+                ),
+            )
+            val totrinn = queries.get(entityId, Totrinnskontroll.Type.OPPRETT)
+            totrinn?.besluttetAv shouldBe Arena
+            totrinn?.besluttelse shouldBe Besluttelse.AVVIST
         }
     }
 })

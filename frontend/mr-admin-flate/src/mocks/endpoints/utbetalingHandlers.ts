@@ -7,7 +7,7 @@ export const utbetalingHandlers = [
   http.get<PathParams, PathParams, UtbetalingDetaljerDto>("*/api/v1/intern/utbetaling/:id", () => {
     return HttpResponse.json({
       utbetaling: mockUtbetalinger[0],
-      delutbetalinger: [],
+      linjer: [],
     });
   }),
   http.get<PathParams, PathParams, UtbetalingDto[]>(

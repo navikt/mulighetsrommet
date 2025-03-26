@@ -6,12 +6,6 @@ export const utbetalingQuery = (utbetalingId?: string) => ({
   enabled: !!utbetalingId,
 });
 
-export const delutbetalingerQuery = (utbetalingId?: string) => ({
-  queryKey: ["utbetaling", utbetalingId, "delutbetalinger"],
-  queryFn: () => UtbetalingService.getDelutbetalinger({ path: { id: utbetalingId! } }),
-  enabled: !!utbetalingId,
-});
-
 export const tilsagnTilUtbetalingQuery = (utbetalingId?: string) => ({
   queryKey: ["utbetaling", utbetalingId, "tilsagn"],
   queryFn: () => UtbetalingService.getTilsagnTilUtbetaling({ path: { id: utbetalingId! } }),

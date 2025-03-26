@@ -36,30 +36,30 @@ class OkonomiBestillingService(
     data class ScheduledOkonomiTask(
         val type: Type,
         @Serializable(with = UUIDSerializer::class)
-        val tilsagnId: UUID,
+        val id: UUID,
     ) {
         enum class Type {
             BEHANDLE_GODKJENT_TILSAGN,
             BEHANDLE_ANNULLERT_TILSAGN,
             BEHANDLE_OPPGJORT_TILSAGN,
-            BEHANDLE_GODKJENT_UTBETALINGER,
+            BEHANDLE_GODKJENT_UTBETALING,
         }
     }
 
     val task: OneTimeTask<ScheduledOkonomiTask> = Tasks
         .oneTime(javaClass.simpleName, ScheduledOkonomiTask::class.java)
         .execute { instance, _ ->
-            val (type, tilsagnId) = instance.data
+            val (type, id) = instance.data
 
             when (type) {
-                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_TILSAGN -> behandleGodkjentTilsagn(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_TILSAGN -> behandleGodkjentTilsagn(id)
 
-                ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(id)
 
-                ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN -> behandleOppgjortTilsagn(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN -> behandleOppgjortTilsagn(id)
 
-                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER -> {
-                    behandleGodkjentUtbetalinger(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALING -> {
+                    behandleGodkjentUtbetaling(id)
                 }
             }
         }
@@ -79,8 +79,8 @@ class OkonomiBestillingService(
         schedule(task, session)
     }
 
-    fun scheduleBehandleGodkjenteUtbetalinger(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER, tilsagnId)
+    fun scheduleBehandleGodkjenteUtbetaling(utbetalingId: UUID, session: Session) {
+        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALING, utbetalingId)
         schedule(task, session)
     }
 
@@ -192,26 +192,22 @@ class OkonomiBestillingService(
         publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.GjorOppBestilling(faktura))
     }
 
-    fun behandleGodkjentUtbetalinger(tilsagnId: UUID): Unit = db.transaction {
-        val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
-            "Tilsagn med id=$tilsagnId finnes ikke"
+    fun behandleGodkjentUtbetaling(utbetalingId: UUID): Unit = db.transaction {
+        val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
+            "Utbetaling med id=$utbetalingId finnes ikke"
         }
-        require(tilsagn.status in listOf(TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT)) {
-            "Tilsagn er ikke i riktig status id=$tilsagnId status=${tilsagn.status}"
-        }
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetalingId)
+        require(delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT })
 
-        queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId)
-            .filter { it.status == DelutbetalingStatus.GODKJENT }
+        delutbetalinger
             .map {
                 val opprettelse = queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT)
                 Pair(opprettelse, it)
             }
             .sortedBy { (opprettelse) -> opprettelse.besluttetTidspunkt }
             .forEach { (opprettelse, delutbetaling) ->
+                val tilsagn = requireNotNull(queries.tilsagn.get(delutbetaling.tilsagnId))
                 log.info("Sender delutbetaling med utbetalingId: ${delutbetaling.utbetalingId} tilsagnId: ${delutbetaling.tilsagnId} på kafka")
-                val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId)) {
-                    "Utbetaling med id=${delutbetaling.utbetalingId} finnes ikke"
-                }
                 val kontonummer = requireNotNull(utbetaling.betalingsinformasjon.kontonummer) {
                     "Kontonummer mangler for utbetaling med id=${utbetaling.id}"
                 }
