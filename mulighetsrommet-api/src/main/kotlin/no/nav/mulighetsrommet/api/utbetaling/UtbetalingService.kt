@@ -408,11 +408,6 @@ class UtbetalingService(
         delutbetaling: Delutbetaling,
         besluttetAv: Agent,
     ) {
-        val tilsagn = requireNotNull(queries.tilsagn.get(delutbetaling.tilsagnId))
-        require(tilsagn.status == TilsagnStatus.GODKJENT) {
-            "Tilsagn er ikke godkjent id=${delutbetaling.tilsagnId} status=${tilsagn.status}"
-        }
-
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
         require(opprettelse.besluttetAv == null) {
             "Utbetaling er allerede besluttet"

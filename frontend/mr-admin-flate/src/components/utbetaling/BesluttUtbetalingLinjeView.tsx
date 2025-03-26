@@ -14,12 +14,6 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 
-export interface NyUtbetalingLinje {
-  id: string;
-  gjorOppTilsagn: boolean;
-  belop: number;
-}
-
 export interface Props {
   utbetaling: UtbetalingDto;
   linjer: UtbetalingLinje[];
@@ -103,7 +97,6 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                     )}
                 </>
               }
-              errors={[]}
             />
           );
         }}

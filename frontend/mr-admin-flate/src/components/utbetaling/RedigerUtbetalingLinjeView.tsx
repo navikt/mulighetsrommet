@@ -22,13 +22,6 @@ import { useDeleteDelutbetaling } from "@/api/utbetaling/useDeleteDelutbetaling"
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 
-export interface NyUtbetalingLinje {
-  id: string;
-  gjorOppTilsagn: boolean;
-  belop: number;
-  tilsagn: TilsagnDto;
-}
-
 export interface Props {
   utbetaling: UtbetalingDto;
   linjer: UtbetalingLinje[];
@@ -37,7 +30,7 @@ export interface Props {
 
 export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Props) {
   const { gjennomforingId } = useParams();
-  const [linjeState, setLinjeState] = useState<(UtbetalingLinje | NyUtbetalingLinje)[]>(linjer);
+  const [linjeState, setLinjeState] = useState<UtbetalingLinje[]>(linjer);
 
   const [error, setError] = useState<FieldError[]>([]);
   const queryClient = useQueryClient();
@@ -61,7 +54,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
   }
 
   function leggTilLinjer() {
-    const nyeLinjer: NyUtbetalingLinje[] = [];
+    const nyeLinjer: UtbetalingLinje[] = [];
     tilsagn.forEach((t) => {
       if (t.status === TilsagnStatus.GODKJENT && !linjeState.find((l) => l.tilsagn.id === t.id)) {
         nyeLinjer.push({

@@ -10,7 +10,7 @@ import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import { AdminUtbetalingStatus, NavAnsattRolle } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Alert, Box, Heading, HStack, List, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
@@ -84,6 +84,20 @@ export function UtbetalingPage() {
           </HStack>
           <VStack gap="4">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+            {utbetaling.status === "RETURNERT" && (
+              <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
+                <Heading size="xsmall" level="3">
+                  Utbetaling returnert
+                </Heading>
+                <List as="ol">
+                  {linjer.map((linje) => (
+                    <List.Item>
+                      <div>{`Årsaker: ${linje.opprettelse?.aarsaker}, forklaring: ${linje.opprettelse?.forklaring}`}</div>
+                    </List.Item>
+                  ))}
+                </List>
+              </Alert>
+            )}
             <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
               <VStack gap="4" id="kostnadsfordeling">
                 <HStack justify="space-between">
