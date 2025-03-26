@@ -28,6 +28,13 @@ export const arrangorHandlers = [
       ),
     );
   }),
+
+  http.get<PathParams, Arrangor | undefined>(
+    "*/api/v1/intern/arrangorer/:orgnr/kontonummer",
+    () => {
+      return HttpResponse.json("12345678910");
+    },
+  ),
   http.get<PathParams, Arrangor | undefined>("*/api/v1/intern/arrangorer/kontaktperson/:id", () => {
     return HttpResponse.json({
       avtaler: [...mockAvtaler],
