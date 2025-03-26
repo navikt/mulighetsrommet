@@ -1,15 +1,16 @@
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { addYear } from "@/utils/Utils";
 import { HGrid } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
+import { InferredTilsagn } from "./TilsagnSchema";
 
 interface Props {
   startDato: string;
 }
 
 export function VelgPeriode(props: Props) {
-  const { register, control } = useFormContext<{ periodeStart: string; periodeSlutt: string }>();
+  const { register, control } = useFormContext<InferredTilsagn>();
 
   return (
     <HGrid columns={2}>
