@@ -16,9 +16,10 @@ import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 interface Props {
   tilsagn: TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent };
   annullering?: TotrinnskontrollDto;
+  oppgjor?: TotrinnskontrollDto;
 }
 
-export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering }: Props) {
+export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor }: Props) {
   return (
     <>
       <Heading size="medium" level="3">
@@ -43,7 +44,14 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering }: Props)
             />
             <Metadata
               header={tilsagnTekster.status.label}
-              verdi={<TilsagnTag expandable status={tilsagn.status} annullering={annullering} />}
+              verdi={
+                <TilsagnTag
+                  visAarsakerOgForklaring
+                  status={tilsagn.status}
+                  annullering={annullering}
+                  oppgjor={oppgjor}
+                />
+              }
             />
           </Bolk>
           <Bolk>
