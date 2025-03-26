@@ -9,6 +9,7 @@ import {
   Kurstype,
   LastNedAvtalerSomExcelData,
   LastNedGjennomforingerSomExcelData,
+  NavEnhet,
   Periode,
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
@@ -195,8 +196,12 @@ export function max(a: Date, b: Date): Date {
   return a > b ? a : b;
 }
 
+export function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
+  return a.region.navn.localeCompare(b.region.navn);
+}
+
 export function formaterNavEnheter(
-  navRegionNavn: string = "",
+  navRegionNavn: string[] = [],
   navEnheter?: {
     navn?: string | null;
     enhetsnummer?: string;

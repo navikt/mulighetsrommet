@@ -17,13 +17,13 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<InferredTilsagn>;
-  defaultKostnadssteder: string[];
+  regioner: string[];
   beregningInput: ReactElement;
   beregningOutput: ReactElement;
 }
 
 export function TilsagnForm(props: Props) {
-  const { gjennomforing, onSuccess, onAvbryt, defaultValues, defaultKostnadssteder } = props;
+  const { gjennomforing, onSuccess, onAvbryt, defaultValues, regioner } = props;
   const [searchParams] = useSearchParams();
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType) || TilsagnType.TILSAGN;
@@ -81,7 +81,7 @@ export function TilsagnForm(props: Props) {
               </div>
               <div className="py-3">{props.beregningInput}</div>
               <div className="py-3">
-                <VelgKostnadssted defaultKostnadssteder={defaultKostnadssteder} />
+                <VelgKostnadssted regioner={regioner} />
               </div>
             </div>
             <div className="border-l border-border-subtle pl-6 flex flex-col gap-2">

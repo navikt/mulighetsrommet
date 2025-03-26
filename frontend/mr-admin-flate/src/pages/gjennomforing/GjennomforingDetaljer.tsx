@@ -12,7 +12,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
-import { formaterDato, formatertVentetid, isKursTiltak } from "@/utils/Utils";
+import { formaterDato, formatertVentetid, isKursTiltak, sorterPaRegionsnavn } from "@/utils/Utils";
 import { AvtaleDto, GjennomforingDto, GjennomforingOppstartstype } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
@@ -25,14 +25,15 @@ interface Props {
 }
 
 export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
+  const kontorer = gjennomforing.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
-      gjennomforing?.navEnheter
-        .map((enhet) => {
+      kontorer
+        ?.map((kontor) => {
           return enheterForKontaktperson
             .map((kp) => {
-              if (enhet.enhetsnummer === kp) {
-                return enhet.navn;
+              if (kontor.enhetsnummer === kp) {
+                return kontor.navn;
               }
               return null;
             })
@@ -55,8 +56,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
     deltidsprosent,
     apentForPamelding,
     administratorer,
-    navRegion,
-    navEnheter,
+    kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
     stedForGjennomforing,
@@ -189,25 +189,45 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
           </Bolk>
         </VStack>
         <VStack>
-          <Bolk aria-label={gjennomforingTekster.navRegionLabel}>
-            <Metadata header={gjennomforingTekster.navRegionLabel} verdi={navRegion?.navn} />
-          </Bolk>
-
-          <Bolk aria-label={gjennomforingTekster.navEnheterKontorerLabel}>
-            <Metadata
-              header={gjennomforingTekster.navEnheterKontorerLabel}
-              verdi={
-                <ul className="columns-2">
-                  {navEnheter
-                    .sort((a, b) => a.navn.localeCompare(b.navn))
-                    .map((enhet) => (
-                      <li key={enhet.enhetsnummer}>{enhet.navn}</li>
-                    ))}
-                </ul>
-              }
-            />
-          </Bolk>
-
+          {kontorstruktur.length > 1 ? (
+            <Bolk aria-label={gjennomforingTekster.fylkessamarbeidLabel}>
+              <Metadata
+                header={gjennomforingTekster.fylkessamarbeidLabel}
+                verdi={
+                  <ul>
+                    {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
+                      return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
+                    })}
+                  </ul>
+                }
+              />
+            </Bolk>
+          ) : (
+            <>
+              <Bolk aria-label={gjennomforingTekster.navRegionLabel}>
+                <Metadata
+                  header={gjennomforingTekster.navRegionLabel}
+                  verdi={kontorstruktur[0].region.navn}
+                />
+              </Bolk>
+              {kontorstruktur.map((struktur) => (
+                <Bolk aria-label={gjennomforingTekster.navEnheterKontorerLabel}>
+                  <Metadata
+                    header={gjennomforingTekster.navEnheterKontorerLabel}
+                    verdi={
+                      <ul className="columns-2">
+                        {struktur.kontorer
+                          .sort((a, b) => a.navn.localeCompare(b.navn))
+                          .map((enhet) => (
+                            <li key={enhet.enhetsnummer}>{enhet.navn}</li>
+                          ))}
+                      </ul>
+                    }
+                  />
+                </Bolk>
+              ))}
+            </>
+          )}
           {arenaAnsvarligEnhet ? (
             <Bolk>
               <div style={{ display: "flex", gap: "1rem" }}>
@@ -222,7 +242,6 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
               </div>
             </Bolk>
           ) : null}
-
           {kontaktpersonerFraNav.map((kp, index) => {
             return (
               <Bolk key={index}>
@@ -242,9 +261,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
               </Bolk>
             );
           })}
-
           <Separator />
-
           <VStack gap="5">
             {avtale?.arrangor ? (
               <Metadata

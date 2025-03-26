@@ -3148,12 +3148,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingAdministrator"
-        navRegion:
-          $ref: "#/components/schemas/NavEnhet"
-        navEnheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavEnhet"
+        kontorstruktur:
+          $ref: "#/components/schemas/NavKontorStruktur"
         sanityId:
           type: string
           format: uuid
@@ -3205,7 +3201,7 @@ components:
         - status
         - apentForPamelding
         - administratorer
-        - navEnheter
+        - kontorstruktur
         - oppstart
         - opphav
         - kontaktpersoner
@@ -3257,8 +3253,6 @@ components:
           type: array
           items:
             type: string
-        navRegion:
-          type: string
         navEnheter:
           type: array
           items:
@@ -3310,7 +3304,6 @@ components:
         - arrangorId
         - arrangorKontaktpersoner
         - administrator
-        - navRegion
         - navEnheter
         - oppstart
         - kontaktpersoner

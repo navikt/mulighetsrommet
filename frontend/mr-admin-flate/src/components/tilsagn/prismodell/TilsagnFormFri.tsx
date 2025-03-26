@@ -12,7 +12,7 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<FriTilsagn>;
-  defaultKostnadssteder: string[];
+  regioner: string[];
 }
 
 export function TilsagnFormFri(props: Props) {

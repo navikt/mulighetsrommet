@@ -29,7 +29,9 @@ export const GjennomforingSchema = z
       invalid_type_error: "Du må velge deltidsprosent mellom 0 og 100",
       required_error: "Du må velge deltidsprosent mellom 0 og 100",
     }),
-    navRegion: z.string({ required_error: "Du må velge én region" }),
+    navRegioner: z.string().array().nonempty({
+      message: "Du må velge minst én region",
+    }),
     navEnheter: z.string().array().nonempty({
       message: "Du må velge minst én enhet",
     }),
