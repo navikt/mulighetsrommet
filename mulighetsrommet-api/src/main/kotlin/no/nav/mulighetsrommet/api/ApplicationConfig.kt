@@ -92,7 +92,7 @@ data class KafkaClients(
         topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
     ),
     val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config = SisteTiltakstyperV2KafkaProducer.Config(
-        topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
+        topic = "team-mulighetsrommet.siste-tiltakstyper-v3",
     ),
     val gjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
