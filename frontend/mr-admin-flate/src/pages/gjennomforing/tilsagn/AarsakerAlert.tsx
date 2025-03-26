@@ -1,15 +1,11 @@
 import {
-  TilsagnAvvisningAarsak,
-  TilsagnTilAnnulleringAarsak,
-  TotrinnskontrollDto,
-} from "@mr/api-client-v2";
-import { Alert, Heading } from "@navikt/ds-react";
-import {
   capitalizeFirstLetter,
   formaterDato,
   joinWithCommaAndOg,
   tilsagnAarsakTilTekst,
 } from "@/utils/Utils";
+import { TilsagnTilAnnulleringAarsak, TotrinnskontrollDto } from "@mr/api-client-v2";
+import { Alert, Heading } from "@navikt/ds-react";
 
 export function TilAnnulleringAlert({ annullering }: { annullering: TotrinnskontrollDto }) {
   const aarsaker =
@@ -77,17 +73,15 @@ interface Props {
 }
 
 export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header, entitet }: Props) {
-  const aarsakTekster =
-    aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak)) || [];
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
         {header}
       </Heading>
       <p>
-        {navIdent} avviste {entitet} den {formaterDato(tidspunkt)} med følgende{" "}
-        {aarsakTekster && aarsakTekster.length === 1 ? "årsak" : "årsaker"}:{" "}
-        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsakTekster ?? []))}</b>
+        {navIdent} returnerte {entitet} den {formaterDato(tidspunkt)} med følgende{" "}
+        {aarsaker && aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker ?? []))}</b>
         {forklaring ? (
           <>
             {" "}
