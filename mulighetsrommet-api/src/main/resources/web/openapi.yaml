@@ -6128,10 +6128,8 @@ components:
       required:
         - id
         - tilsagn
-        - status
         - belop
         - gjorOppTilsagn
-        - opprettelse
 
     DelutbetalingRequest:
       type: object
