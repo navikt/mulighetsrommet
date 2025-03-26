@@ -12,5 +12,5 @@ enum class BestillingStatusType {
     SENDT,
     AKTIV,
     ANNULLERT,
-    FRIGJORT,
+    OPPGJORT,
 }

@@ -4,11 +4,11 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.FakturaStatusType
-import no.nav.tiltak.okonomi.FrigjorBestilling
+import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
-import no.nav.tiltak.okonomi.service.frigjorFakturanummer
+import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
 import java.time.LocalDateTime
 
 data class Faktura(
@@ -61,23 +61,23 @@ data class Faktura(
             )
         }
 
-        fun fromFrigjorBestilling(
-            frigjorBestilling: FrigjorBestilling,
+        fun fromGjorOppBestilling(
+            gjorOppBestilling: GjorOppBestilling,
             bestilling: Bestilling,
         ): Faktura {
             val sisteBestillingLinje = bestilling.linjer.last()
             return Faktura(
                 bestillingsnummer = bestilling.bestillingsnummer,
-                fakturanummer = frigjorFakturanummer(bestilling.bestillingsnummer),
+                fakturanummer = gjorOppFakturanummer(bestilling.bestillingsnummer),
                 kontonummer = null,
                 kid = null,
                 belop = 0,
                 periode = sisteBestillingLinje.periode,
                 status = FakturaStatusType.SENDT,
-                behandletAv = frigjorBestilling.behandletAv,
-                behandletTidspunkt = frigjorBestilling.behandletTidspunkt,
-                besluttetAv = frigjorBestilling.besluttetAv,
-                besluttetTidspunkt = frigjorBestilling.besluttetTidspunkt,
+                behandletAv = gjorOppBestilling.behandletAv,
+                behandletTidspunkt = gjorOppBestilling.behandletTidspunkt,
+                besluttetAv = gjorOppBestilling.besluttetAv,
+                besluttetTidspunkt = gjorOppBestilling.besluttetTidspunkt,
                 linjer = listOf(
                     Linje(
                         linjenummer = sisteBestillingLinje.linjenummer,
