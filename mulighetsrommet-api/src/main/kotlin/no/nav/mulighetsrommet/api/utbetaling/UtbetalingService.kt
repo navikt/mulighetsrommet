@@ -211,7 +211,12 @@ class UtbetalingService(
         // Slett de som ikke er med i requesten
         queries.delutbetaling.getByUtbetalingId(utbetaling.id)
             .filter { it.id !in request.delutbetalinger.map { it.id } }
-            .forEach { queries.delutbetaling.delete(it.id) }
+            .forEach {
+                require(it.status == DelutbetalingStatus.RETURNERT) {
+                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
+                }
+                queries.delutbetaling.delete(it.id)
+            }
 
         UtbetalingValidator.validateOpprettDelutbetalinger(
             utbetaling,

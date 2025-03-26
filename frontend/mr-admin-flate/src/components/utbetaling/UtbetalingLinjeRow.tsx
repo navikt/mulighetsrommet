@@ -1,9 +1,10 @@
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import { FieldError, UtbetalingLinje } from "@mr/api-client-v2";
-import { BodyShort, Checkbox, Table, TextField, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Checkbox, HStack, Table, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { Metadata } from "../detaljside/Metadata";
 
 interface Props {
   readOnly?: boolean;
@@ -24,13 +25,29 @@ export function UtbetalingLinjeRow({
 
   return (
     <Table.ExpandableRow
-      open={errors.length > 0}
+      open={errors.length > 0 || Boolean(linje.opprettelse) || linje.gjorOppTilsagn}
       key={linje.id}
       content={
-        <VStack className="bg-[var(--a-surface-danger-subtle)]">
-          {errors.map((error) => (
-            <BodyShort>{error.detail}</BodyShort>
-          ))}
+        <VStack gap="2">
+          <VStack className="bg-[var(--a-surface-danger-subtle)]">
+            {errors.map((error) => (
+              <BodyShort>{error.detail}</BodyShort>
+            ))}
+          </VStack>
+          {linje.gjorOppTilsagn && (
+            <Alert variant="warning">
+              Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
+              flere utbetalinger fra tilsagnet
+            </Alert>
+          )}
+          {linje.opprettelse && (
+            <HStack gap="4">
+              <Metadata horizontal header="Behandlet av" verdi={linje.opprettelse.behandletAv} />
+              {linje.opprettelse.type === "BESLUTTET" && (
+                <Metadata horizontal header="Besluttet av" verdi={linje.opprettelse.besluttetAv} />
+              )}
+            </HStack>
+          )}
         </VStack>
       }
     >
