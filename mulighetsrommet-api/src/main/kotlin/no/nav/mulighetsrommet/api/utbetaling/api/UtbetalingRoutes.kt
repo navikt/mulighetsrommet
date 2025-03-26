@@ -144,13 +144,6 @@ fun Route.utbetalingRoutes() {
                 val result = service.opprettDelutbetalinger(request, navIdent)
                 call.respondWithStatusResponse(result)
             }
-
-            delete("/{id}") {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                service.deleteDelutbetaling(id)
-                call.respond(HttpStatusCode.OK)
-            }
         }
 
         authenticate(AuthProvider.AZURE_AD_ATTESTANT_UTBETALING) {

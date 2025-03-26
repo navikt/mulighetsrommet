@@ -207,12 +207,11 @@ class UtbetalingService(
     ): StatusResponse<Unit> = db.transaction {
         val utbetaling = queries.utbetaling.get(request.utbetalingId)
             ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
+
+        // Slett de som ikke er med i requesten
         queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-            .forEach {
-                require(it.id in request.delutbetalinger.map { it.id }) {
-                    "Delutbetaling med id: ${it.id} manglet!"
-                }
-            }
+            .filter { it.id !in request.delutbetalinger.map { it.id } }
+            .forEach { queries.delutbetaling.delete(it.id) }
 
         UtbetalingValidator.validateOpprettDelutbetalinger(
             utbetaling,
@@ -260,15 +259,6 @@ class UtbetalingService(
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
-    }
-
-    fun deleteDelutbetaling(id: UUID) = db.transaction {
-        val delutbetaling = queries.delutbetaling.get(id)
-            ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
-        require(delutbetaling.status in listOf(DelutbetalingStatus.TIL_GODKJENNING, DelutbetalingStatus.RETURNERT)) {
-            "Feil status id=$id status=${delutbetaling.status}"
-        }
-        queries.delutbetaling.delete(id)
     }
 
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(

@@ -18,7 +18,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router";
-import { useDeleteDelutbetaling } from "@/api/utbetaling/useDeleteDelutbetaling";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 
@@ -37,7 +36,6 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
   const navigate = useNavigate();
 
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
-  const deleteMutation = useDeleteDelutbetaling();
 
   function opprettEkstraTilsagn() {
     const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
@@ -104,9 +102,6 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     setError([]);
     const remaining = linjeState.filter((d) => d.id !== id);
     setLinjeState([...remaining]);
-    if (linjer.find((l) => l.id === id)) {
-      deleteMutation.mutate(id);
-    }
   }
 
   return (
