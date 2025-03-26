@@ -229,10 +229,18 @@ export function TilsagnDetaljer() {
             padding={"2"}
           >
             {isTilsagnForhandsgodkjent(tilsagn) && (
-              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} annullering={annullering} />
+              <TilsagnDetaljerForhandsgodkjent
+                tilsagn={tilsagn}
+                annullering={annullering}
+                oppgjor={tilOppgjor}
+              />
             )}
             {isTilsagnFri(tilsagn) && (
-              <TilsagnDetaljerFri tilsagn={tilsagn} annullering={annullering} />
+              <TilsagnDetaljerFri
+                tilsagn={tilsagn}
+                annullering={annullering}
+                oppgjor={tilOppgjor}
+              />
             )}
             <div>
               {besluttMutation.error ? (

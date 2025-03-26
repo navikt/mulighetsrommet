@@ -4,7 +4,12 @@ import {
   TotrinnskontrollDto,
 } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
-import { formaterDato, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import {
+  capitalizeFirstLetter,
+  formaterDato,
+  joinWithCommaAndOg,
+  tilsagnAarsakTilTekst,
+} from "@/utils/Utils";
 
 export function TilAnnulleringAlert({ annullering }: { annullering: TotrinnskontrollDto }) {
   const aarsaker =
@@ -93,15 +98,4 @@ export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header,
       </p>
     </Alert>
   );
-}
-
-function joinWithCommaAndOg(aarsaker: string[]): string {
-  if (aarsaker.length === 0) return "";
-  if (aarsaker.length === 1) return aarsaker[0];
-  return `${aarsaker.slice(0, -1).join(", ")} og ${aarsaker[aarsaker.length - 1]}`;
-}
-
-function capitalizeFirstLetter(text: string): string {
-  if (!text) return "";
-  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
