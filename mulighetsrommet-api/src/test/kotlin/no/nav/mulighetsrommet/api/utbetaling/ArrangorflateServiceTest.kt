@@ -11,14 +11,18 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.api.Beregning
+import no.nav.mulighetsrommet.api.arrangorflate.api.UtbetalingDeltakelse
+import no.nav.mulighetsrommet.api.arrangorflate.api.mapUtbetalingToArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.*
@@ -41,6 +45,30 @@ class ArrangorflateServiceTest : FunSpec({
     lateinit var pdlClient: no.nav.mulighetsrommet.api.clients.pdl.PdlClient
     lateinit var query: HentAdressebeskyttetPersonBolkPdlQuery
     lateinit var arrangorflateService: ArrangorFlateService
+
+    fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
+        val utbetaling = queries.utbetaling.get(id)
+        utbetaling.shouldNotBeNull()
+        utbetaling
+    }
+
+    fun getDeltakereForUtbetaling(utbetalingDto: Utbetaling) = database.db.session {
+        queries.deltaker.getAll(gjennomforingId = utbetalingDto.gjennomforing.id)
+    }
+
+    fun createMappingTestData(id: UUID, status: ArrFlateUtbetalingStatus) = database.db.session {
+        val utbetalingDto = getUtbetalingDto(id)
+        val deltakere = getDeltakereForUtbetaling(utbetalingDto)
+        val personerByNorskIdent = mapOf<NorskIdent, UtbetalingDeltakelse.Person>()
+
+        Triple(utbetalingDto, deltakere, personerByNorskIdent) to status
+    }
+
+    fun verifyForhandsgodkjentBeregning(beregning: Beregning.Forhandsgodkjent, expectedBelop: Int, expectedManedsverk: Double, expectedDeltakelserCount: Int) {
+        beregning.antallManedsverk shouldBe expectedManedsverk
+        beregning.belop shouldBe expectedBelop
+        beregning.deltakelser shouldHaveSize expectedDeltakelserCount
+    }
 
     beforeEach {
         domain.initialize(database.db)
@@ -105,17 +133,13 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getRelevanteForslag should return empty list when no forslag exists") {
-        val utbetalingDto = database.db.session {
-            queries.utbetaling.get(utbetaling.id)
-        }
-        utbetalingDto.shouldNotBeNull()
-
+        val utbetalingDto = getUtbetalingDto(utbetaling.id)
         val result = arrangorflateService.getRelevanteForslag(utbetalingDto)
-
         result shouldHaveSize 0
     }
 
-    test("toArrFlateUtbetaling should have status VENTER_PA_ENDRING") {
+    test("mapUtbetalingToArrFlateUtbetaling should have status VENTER_PA_ENDRING") {
+        // Setup deltakerforslag
         database.db.session {
             queries.deltakerForslag.upsert(
                 DeltakerForslag(
@@ -130,42 +154,49 @@ class ArrangorflateServiceTest : FunSpec({
             )
         }
 
-        val utbetalingDto = database.db.session {
-            queries.utbetaling.get(utbetaling.id)
-        }
-        utbetalingDto.shouldNotBeNull()
+        val (testData, status) = createMappingTestData(utbetaling.id, ArrFlateUtbetalingStatus.VENTER_PA_ENDRING)
+        val (utbetalingDto, deltakere, personerByNorskIdent) = testData
 
-        val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
+        val result = mapUtbetalingToArrFlateUtbetaling(
+            utbetaling = utbetalingDto,
+            status = status,
+            deltakere = deltakere,
+            personerByNorskIdent = personerByNorskIdent,
+        )
 
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
 
         result.beregning.shouldBeInstanceOf<Beregning.Forhandsgodkjent> {
-            it.antallManedsverk shouldBe 1.0
-            it.belop shouldBe 10000
-            it.deltakelser shouldHaveSize 1
+            verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
         }
     }
 
-    test("toArrFlateUtbetaling should have status KLAR_FOR_GODKJENNING") {
-        val utbetalingDto = database.db.session {
-            queries.utbetaling.get(utbetaling.id)
-        }
-        utbetalingDto.shouldNotBeNull()
+    test("mapUtbetalingToArrFlateUtbetaling should have status KLAR_FOR_GODKJENNING") {
+        val (testData, status) = createMappingTestData(utbetaling.id, ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING)
+        val (utbetalingDto, deltakere, personerByNorskIdent) = testData
 
-        val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
+        val result = mapUtbetalingToArrFlateUtbetaling(
+            utbetaling = utbetalingDto,
+            status = status,
+            deltakere = deltakere,
+            personerByNorskIdent = personerByNorskIdent,
+        )
 
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 
-    test("toArrFlateUtbetaling should convert a fri utbetaling") {
-        val utbetalingDto = database.db.session {
-            queries.utbetaling.get(friUtbetaling.id)
-        }
-        utbetalingDto.shouldNotBeNull()
+    test("mapUtbetalingToArrFlateUtbetaling should convert a fri utbetaling") {
+        val (testData, status) = createMappingTestData(friUtbetaling.id, ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING)
+        val (utbetalingDto, deltakere, personerByNorskIdent) = testData
 
-        val result = arrangorflateService.toArrFlateUtbetaling(utbetalingDto)
+        val result = mapUtbetalingToArrFlateUtbetaling(
+            utbetaling = utbetalingDto,
+            status = status,
+            deltakere = deltakere,
+            personerByNorskIdent = personerByNorskIdent,
+        )
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
