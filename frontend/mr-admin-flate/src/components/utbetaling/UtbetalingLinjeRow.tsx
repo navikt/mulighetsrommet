@@ -37,7 +37,7 @@ export function UtbetalingLinjeRow({
       key={linje.id}
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
-        <VStack gap="2" className="bg-gray-100">
+        <VStack gap="2">
           <VStack className="bg-[var(--a-surface-danger-subtle)]">
             {errors.map((error) => (
               <BodyShort>{error.detail}</BodyShort>
