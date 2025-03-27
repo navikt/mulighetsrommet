@@ -55,50 +55,48 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               linje={linje}
               grayBackground
               knappeColumn={
-                <>
-                  {linje?.status === DelutbetalingStatus.TIL_GODKJENNING &&
-                    linje.opprettelse?.kanBesluttes && (
-                      <HStack gap="4">
-                        <Button
-                          size="small"
-                          type="button"
-                          onClick={() =>
-                            beslutt(linje.id, {
-                              besluttelse: Besluttelse.GODKJENT,
-                            })
-                          }
-                        >
-                          Godkjenn
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          type="button"
-                          onClick={() => setAvvisModalOpen(true)}
-                        >
-                          Send i retur
-                        </Button>
-                        <AarsakerOgForklaringModal
-                          open={avvisModalOpen}
-                          header="Send i retur med forklaring"
-                          buttonLabel="Send i retur"
-                          aarsaker={[
-                            { value: "FEIL_BELOP", label: "Feil beløp" },
-                            { value: "FEIL_ANNET", label: "Annet" },
-                          ]}
-                          onClose={() => setAvvisModalOpen(false)}
-                          onConfirm={({ aarsaker, forklaring }) => {
-                            beslutt(linje.id, {
-                              besluttelse: Besluttelse.AVVIST,
-                              aarsaker,
-                              forklaring: forklaring ?? null,
-                            });
-                            setAvvisModalOpen(false);
-                          }}
-                        />
-                      </HStack>
-                    )}
-                </>
+                linje?.status === DelutbetalingStatus.TIL_GODKJENNING &&
+                linje.opprettelse?.kanBesluttes ? (
+                  <HStack gap="4">
+                    <Button
+                      size="small"
+                      type="button"
+                      onClick={() =>
+                        beslutt(linje.id, {
+                          besluttelse: Besluttelse.GODKJENT,
+                        })
+                      }
+                    >
+                      Godkjenn
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() => setAvvisModalOpen(true)}
+                    >
+                      Send i retur
+                    </Button>
+                    <AarsakerOgForklaringModal
+                      open={avvisModalOpen}
+                      header="Send i retur med forklaring"
+                      buttonLabel="Send i retur"
+                      aarsaker={[
+                        { value: "FEIL_BELOP", label: "Feil beløp" },
+                        { value: "FEIL_ANNET", label: "Annet" },
+                      ]}
+                      onClose={() => setAvvisModalOpen(false)}
+                      onConfirm={({ aarsaker, forklaring }) => {
+                        beslutt(linje.id, {
+                          besluttelse: Besluttelse.AVVIST,
+                          aarsaker,
+                          forklaring: forklaring ?? null,
+                        });
+                        setAvvisModalOpen(false);
+                      }}
+                    />
+                  </HStack>
+                ) : null
               }
             />
           );
