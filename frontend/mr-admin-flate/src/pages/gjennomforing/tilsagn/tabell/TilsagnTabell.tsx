@@ -73,6 +73,9 @@ export function TilsagnTabell({ tilsagn }: Props) {
     >
       <Table.Header>
         <Table.Row>
+          <TableColumnHeader sortKey="bestillingsnummer" sortable>
+            {tilsagnTekster.bestillingsnummer.label}
+          </TableColumnHeader>
           <TableColumnHeader sortKey="periodeStart" sortable>
             {tilsagnTekster.periode.start.label}
           </TableColumnHeader>
@@ -102,6 +105,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
           const { periode, kostnadssted, beregning, id } = tilsagn;
           return (
             <Table.Row key={id}>
+              <Table.DataCell>{tilsagn.bestillingsnummer}</Table.DataCell>
               <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
               <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
               <Table.DataCell>{avtaletekster.tilsagn.type(tilsagn.type)}</Table.DataCell>
