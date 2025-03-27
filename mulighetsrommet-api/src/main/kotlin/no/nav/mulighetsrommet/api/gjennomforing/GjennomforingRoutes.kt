@@ -374,7 +374,7 @@ data class GjennomforingRequest(
         UUID,
         >,
     val administratorer: List<NavIdent>,
-    val navEnheter: List<String>,
+    val navEnheter: Set<String>,
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val stedForGjennomforing: String?,

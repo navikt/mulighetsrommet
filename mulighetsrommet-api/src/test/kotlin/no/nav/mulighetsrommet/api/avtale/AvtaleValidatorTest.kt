@@ -535,7 +535,7 @@ class AvtaleValidatorTest : FunSpec({
             test("skal godta at gjennomføring har andre Nav-enheter enn avtalen") {
                 MulighetsrommetTestDomain(
                     avtaler = listOf(avtaleDbo),
-                    gjennomforinger = listOf(gjennomforing.copy(navEnheter = listOf("0502"))),
+                    gjennomforinger = listOf(gjennomforing.copy(navEnheter = setOf("0400", "0502"))),
                 ).initialize(database.db)
 
                 val dbo = avtaleDbo.copy(

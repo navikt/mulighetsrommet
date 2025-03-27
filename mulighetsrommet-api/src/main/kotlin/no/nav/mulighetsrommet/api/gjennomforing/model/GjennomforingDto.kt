@@ -125,7 +125,7 @@ data class GjennomforingDto(
         antallPlasser = antallPlasser,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },
-        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
+        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer }.toSet(),
         oppstart = oppstart,
         kontaktpersoner = kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(

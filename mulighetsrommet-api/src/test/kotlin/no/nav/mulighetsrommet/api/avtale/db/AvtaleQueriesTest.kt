@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.IT
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
@@ -196,6 +197,35 @@ class AvtaleQueriesTest : FunSpec({
                         Kontorstruktur(
                             region = Innlandet,
                             kontorer = listOf(Gjovik, Sel),
+                        ),
+                    )
+                }
+            }
+        }
+
+        test("Nav-enheter uten overordnet enhet hentes med riktig kontorstruktur") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                navEnheter = listOf(Innlandet.enhetsnummer, IT.enhetsnummer),
+            )
+
+            database.runAndRollback { session ->
+                MulighetsrommetTestDomain(
+                    navEnheter = listOf(Innlandet, IT),
+                    tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                    avtaler = listOf(avtale),
+                ).setup(session)
+
+                val queries = AvtaleQueries(session)
+
+                queries.get(avtale.id).shouldNotBeNull().should {
+                    it.kontorstruktur shouldBe listOf(
+                        Kontorstruktur(
+                            region = Innlandet,
+                            kontorer = emptyList(),
+                        ),
+                        Kontorstruktur(
+                            region = IT,
+                            kontorer = emptyList(),
                         ),
                     )
                 }

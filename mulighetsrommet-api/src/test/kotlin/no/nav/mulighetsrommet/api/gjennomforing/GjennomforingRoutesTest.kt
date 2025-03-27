@@ -149,7 +149,7 @@ class GjennomforingRoutesTest : FunSpec({
                         setBody(
                             GjennomforingFixtures.Oppfolging1Request.copy(
                                 avtaleId = avtale.id,
-                                navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Sagene.enhetsnummer),
+                                navEnheter = setOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Sagene.enhetsnummer),
                                 tiltakstypeId = avtale.tiltakstypeId,
                             ),
                         )
