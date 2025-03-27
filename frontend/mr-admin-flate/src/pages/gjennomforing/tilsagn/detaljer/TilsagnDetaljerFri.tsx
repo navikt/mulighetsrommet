@@ -25,6 +25,10 @@ export function TilsagnDetaljerFri({ tilsagn, annullering, oppgjor }: Props) {
         <VStack>
           <Bolk>
             <Metadata
+              header={tilsagnTekster.bestillingsnummer.label}
+              verdi={tilsagn.bestillingsnummer}
+            />
+            <Metadata
               header={tilsagnTekster.type.label}
               verdi={avtaletekster.tilsagn.type(tilsagn.type)}
             />
