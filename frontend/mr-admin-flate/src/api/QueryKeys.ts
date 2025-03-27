@@ -48,7 +48,7 @@ export const QueryKeys = {
   besluttTilsagn: () => ["beslutt-tilsagn"],
   besluttTilsagnUtbetaling: () => ["beslutt-tilsagn-utbetaling"],
   annullerTilsagn: () => ["annuller-tilsagn"],
-  frigjorTilsagn: () => ["frigjor-tilsagn"],
+  gjorOppTilsagn: () => ["gjor-opp-tilsagn"],
   slettTilsagn: () => ["slett-tilsagn"],
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
@@ -57,4 +57,5 @@ export const QueryKeys = {
     "utbetaling-for-gjennomforing",
     gjennomforingId,
   ],
+  kontonummerArrangor: (orgnr: string) => ["kontonummer", orgnr],
 };

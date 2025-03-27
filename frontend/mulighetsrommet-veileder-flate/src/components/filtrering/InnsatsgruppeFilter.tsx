@@ -5,7 +5,6 @@ import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
-import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 
 export function InnsatsgruppeFilter() {
@@ -83,7 +82,7 @@ function InnsatsgruppeAccordion({ value, onChange, options }: InnsatsgruppeAccor
                 <Radio
                   key={option.nokkel}
                   value={option.nokkel}
-                  data-testid={`filter_radio_${kebabCase(option.nokkel)}`}
+                  data-testid={`filter_radio_${option.nokkel}`}
                 >
                   {option.tittel}
                 </Radio>

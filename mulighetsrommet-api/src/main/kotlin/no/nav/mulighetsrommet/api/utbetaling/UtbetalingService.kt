@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
@@ -9,24 +10,26 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
@@ -42,10 +45,11 @@ class UtbetalingService(
     private val okonomi: OkonomiBestillingService,
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
+    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
-    fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
+    suspend fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
         val periode = Periode.forMonthOf(date)
 
         getGjennomforingerForGenereringAvUtbetalinger(periode)
@@ -59,7 +63,6 @@ class UtbetalingService(
 
                     else -> null
                 }
-
                 utbetaling?.takeIf { it.beregning.output.belop > 0 }
             }
             .map { utbetaling ->
@@ -70,7 +73,7 @@ class UtbetalingService(
             }
     }
 
-    fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
+    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }
@@ -94,7 +97,7 @@ class UtbetalingService(
             }
     }
 
-    fun createUtbetalingForhandsgodkjent(
+    suspend fun createUtbetalingForhandsgodkjent(
         utbetalingId: UUID,
         gjennomforingId: UUID,
         periode: Periode,
@@ -121,12 +124,28 @@ class UtbetalingService(
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 
+        val kontonummer = when (
+            val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            )
+        ) {
+            is Either.Left -> {
+                log.error(
+                    "Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}",
+                    result.value,
+                )
+                null
+            }
+
+            is Either.Right -> Kontonummer(result.value.kontonr)
+        }
+
         return UtbetalingDbo(
             id = utbetalingId,
             fristForGodkjenning = frist.atStartOfDay(),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
-            kontonummer = forrigeKrav?.betalingsinformasjon?.kontonummer,
+            kontonummer = kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
             innsender = null,
@@ -189,9 +208,37 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.get(request.utbetalingId)
             ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
 
-        request.delutbetalinger.map { req ->
-            validateAndUpsertDelutbetaling(req, utbetaling, navIdent).onLeft { return it.left() }
-        }
+        // Slett de som ikke er med i requesten
+        queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+            .filter { it.id !in request.delutbetalinger.map { it.id } }
+            .forEach {
+                require(it.status == DelutbetalingStatus.RETURNERT) {
+                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
+                }
+                queries.delutbetaling.delete(it.id)
+            }
+
+        UtbetalingValidator.validateOpprettDelutbetalinger(
+            utbetaling,
+            request.delutbetalinger.map { req ->
+                val previous = queries.delutbetaling.get(req.id)
+                val tilsagn = requireNotNull(queries.tilsagn.get(req.tilsagnId))
+                UtbetalingValidator.OpprettDelutbetaling(
+                    id = req.id,
+                    gjorOppTilsagn = req.gjorOppTilsagn,
+                    previous = previous,
+                    tilsagn = tilsagn,
+                    belop = req.belop,
+                )
+            },
+        )
+            .onLeft { return ValidationError(errors = it).left() }
+            .onRight {
+                it.forEach {
+                    upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
+                }
+            }
+
         return Unit.right()
     }
 
@@ -202,11 +249,17 @@ class UtbetalingService(
     ) = db.transaction {
         val delutbetaling = queries.delutbetaling.get(id)
             ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
+        require(delutbetaling.status == DelutbetalingStatus.TIL_GODKJENNING) {
+            "Utbetaling er allerede besluttet"
+        }
+        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+        require(navIdent != opprettelse.behandletAv) {
+            "Kan ikke beslutte egen utbetaling"
+        }
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
-                avvisDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
+                returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
             }
-
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
@@ -237,36 +290,6 @@ class UtbetalingService(
         return session.list(queryOf(query, params)) {
             Pair(it.uuid("id"), Avtaletype.valueOf(it.string("avtaletype")))
         }
-    }
-
-    private fun QueryContext.validateAndUpsertDelutbetaling(
-        request: DelutbetalingRequest,
-        utbetaling: Utbetaling,
-        navIdent: NavIdent,
-    ): StatusResponse<Unit> {
-        val tilsagn = queries.tilsagn.get(request.tilsagnId)
-            ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
-
-        val previous = queries.delutbetaling.get(request.id)
-        when (previous?.status) {
-            null, DelutbetalingStatus.RETURNERT -> {}
-
-            DelutbetalingStatus.GODKJENT,
-            DelutbetalingStatus.TIL_GODKJENNING,
-            DelutbetalingStatus.UTBETALT,
-            -> return BadRequest("Utbetaling kan ikke endres").left()
-        }
-
-        val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-            .filter { it.tilsagnId != tilsagn.id }
-            .sumOf { it.belop }
-        val gjenstaendeBelop = utbetaling.beregning.output.belop - utbetaltBelop
-
-        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
-            .onLeft { return ValidationError(errors = it).left() }
-
-        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
-        return Unit.right()
     }
 
     // TODO: returner årsak til hvorfor utbetaling ikke ble utført slik at dette kan assertes i tester
@@ -305,14 +328,14 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
-        val frigjorTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
+        val gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling = utbetaling,
             tilsagn = tilsagn,
             id = delutbetalingId,
             belop = utbetaling.beregning.output.belop,
-            frigjorTilsagn = frigjorTilsagn,
+            gjorOppTilsagn = gjorOppTilsagn,
             behandletAv = Tiltaksadministrasjon,
         )
         val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
@@ -329,7 +352,7 @@ class UtbetalingService(
         tilsagn: Tilsagn,
         id: UUID,
         belop: Int,
-        frigjorTilsagn: Boolean,
+        gjorOppTilsagn: Boolean,
         behandletAv: Agent,
     ) {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
@@ -348,9 +371,10 @@ class UtbetalingService(
             status = DelutbetalingStatus.TIL_GODKJENNING,
             periode = periode,
             belop = belop,
-            frigjorTilsagn = frigjorTilsagn,
+            gjorOppTilsagn = gjorOppTilsagn,
             lopenummer = lopenummer,
-            fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
+            fakturanummer = fakturanummer(tilsagn.bestilling.bestillingsnummer, lopenummer),
+            fakturaStatus = null,
         )
 
         queries.delutbetaling.upsert(dbo)
@@ -379,17 +403,9 @@ class UtbetalingService(
         delutbetaling: Delutbetaling,
         besluttetAv: Agent,
     ) {
-        val tilsagn = requireNotNull(queries.tilsagn.get(delutbetaling.tilsagnId))
-        require(tilsagn.status == TilsagnStatus.GODKJENT) {
-            "Tilsagn er ikke godkjent id=${delutbetaling.tilsagnId} status=${tilsagn.status}"
-        }
-
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
         require(opprettelse.besluttetAv == null) {
             "Utbetaling er allerede besluttet"
-        }
-        require(besluttetAv !is NavIdent || besluttetAv != opprettelse.behandletAv) {
-            "Kan ikke beslutte egen utbetaling"
         }
 
         queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.GODKJENT)
@@ -402,33 +418,64 @@ class UtbetalingService(
                 forklaring = null,
             ),
         )
-        queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - delutbetaling.belop)
-        okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
-        if (delutbetaling.frigjorTilsagn) {
-            tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId, this)
-        }
         logEndring(
-            "Utbetaling godkjent",
+            "Utbetalingslinje godkjent",
             getOrError(delutbetaling.utbetalingId),
             besluttetAv,
         )
+        val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
+        if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
+            godkjennUtbetaling(alleDelutbetalinger)
+        }
     }
 
-    private fun QueryContext.avvisDelutbetaling(
+    private fun QueryContext.godkjennUtbetaling(
+        delutbetalinger: List<Delutbetaling>,
+    ) {
+        require(delutbetalinger.isNotEmpty())
+        delutbetalinger.forEach {
+            val tilsagn = requireNotNull(queries.tilsagn.get(it.tilsagnId))
+            if (tilsagn.status != TilsagnStatus.GODKJENT) {
+                returnerDelutbetaling(it, emptyList(), "Tilsagn er ikke godkjent", Tiltaksadministrasjon)
+                return@godkjennUtbetaling
+            }
+            queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - it.belop)
+            if (it.gjorOppTilsagn) {
+                tilsagnService.gjorOppAutomatisk(it.tilsagnId, this)
+            }
+        }
+        okonomi.scheduleBehandleGodkjenteUtbetaling(delutbetalinger[0].utbetalingId, session)
+
+        logEndring(
+            "Utbetaling godkjent",
+            getOrError(delutbetalinger[0].utbetalingId),
+            Tiltaksadministrasjon,
+        )
+    }
+
+    private fun QueryContext.returnerDelutbetaling(
         delutbetaling: Delutbetaling,
         aarsaker: List<String>,
         forklaring: String?,
         besluttetAv: Agent,
     ) {
-        require(delutbetaling.status === DelutbetalingStatus.TIL_GODKJENNING) {
-            "Utbetaling er allerede besluttet"
-        }
+        setReturnertDelutbetaling(delutbetaling, aarsaker, forklaring, besluttetAv)
 
+        // Set også de resterende delutbetalingene som returnert
+        queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
+            .filter { it.id != delutbetaling.id }
+            .forEach {
+                setReturnertDelutbetaling(it, emptyList(), null, Tiltaksadministrasjon)
+            }
+    }
+
+    private fun QueryContext.setReturnertDelutbetaling(
+        delutbetaling: Delutbetaling,
+        aarsaker: List<String>,
+        forklaring: String?,
+        besluttetAv: Agent,
+    ) {
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-        require(besluttetAv !is NavIdent || besluttetAv != opprettelse.behandletAv) {
-            "Kan ikke beslutte egen utbetaling"
-        }
-
         queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.RETURNERT)
         queries.totrinnskontroll.upsert(
             opprettelse.copy(

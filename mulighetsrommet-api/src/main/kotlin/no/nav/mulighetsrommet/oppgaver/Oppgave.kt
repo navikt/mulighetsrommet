@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -9,20 +9,20 @@ import java.time.LocalDateTime
 import java.util.*
 
 enum class OppgaveType(val rolle: NavAnsattRolle) {
-    TILSAGN_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
-    TILSAGN_TIL_ANNULLERING(NavAnsattRolle.OKONOMI_BESLUTTER),
-    TILSAGN_TIL_FRIGJORING(NavAnsattRolle.OKONOMI_BESLUTTER),
-    TILSAGN_RETURNERT(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
-    UTBETALING_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
-    UTBETALING_RETURNERT(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
-    UTBETALING_TIL_BEHANDLING(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
+    TILSAGN_TIL_GODKJENNING(NavAnsattRolle.BESLUTTER_TILSAGN),
+    TILSAGN_TIL_ANNULLERING(NavAnsattRolle.BESLUTTER_TILSAGN),
+    TILSAGN_TIL_OPPGJOR(NavAnsattRolle.BESLUTTER_TILSAGN),
+    TILSAGN_RETURNERT(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
+    UTBETALING_TIL_GODKJENNING(NavAnsattRolle.ATTESTANT_UTBETALING),
+    UTBETALING_RETURNERT(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
+    UTBETALING_TIL_BEHANDLING(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
     ;
 
     companion object {
         val TilsagnOppgaver = listOf(
             TILSAGN_TIL_GODKJENNING,
             TILSAGN_TIL_ANNULLERING,
-            TILSAGN_TIL_FRIGJORING,
+            TILSAGN_TIL_OPPGJOR,
             TILSAGN_RETURNERT,
         )
         val DelutbetalingOppgaver = listOf(

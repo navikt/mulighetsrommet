@@ -30,7 +30,7 @@ export function AvtaleDetaljer({ avtale }: Props) {
     startDato,
     sluttDato,
     administratorer,
-    websaknummer,
+    sakarkivNummer,
     kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
@@ -49,8 +49,8 @@ export function AvtaleDetaljer({ avtale }: Props) {
 
         <Bolk aria-label="Eksterne referanser">
           <Metadata header={avtaletekster.avtalenummerLabel} verdi={avtalenummer} />
-          {websaknummer ? (
-            <Metadata header={avtaletekster.websaknummerLabel} verdi={websaknummer} />
+          {sakarkivNummer ? (
+            <Metadata header={avtaletekster.sakarkivNummerLabel} verdi={sakarkivNummer} />
           ) : null}
         </Bolk>
 

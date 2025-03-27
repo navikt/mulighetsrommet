@@ -47,17 +47,6 @@ class AvtaleValidator(
                 if (avtale.sluttDato.isBefore(avtale.startDato)) {
                     add(FieldError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
                 }
-                if (
-                    Avtaletype.Forhaandsgodkjent != avtale.avtaletype &&
-                    avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
-                ) {
-                    add(
-                        FieldError.of(
-                            AvtaleDbo::sluttDato,
-                            "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
-                        ),
-                    )
-                }
             }
 
             if (Avtaletype.Forhaandsgodkjent != avtale.avtaletype && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
@@ -104,8 +93,8 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
-                add(FieldError.of(AvtaleDbo::websaknummer, "Du må skrive inn Websaknummer til avtalesaken"))
+            if (avtale.avtaletype.kreverWebsaknummer() && avtale.sakarkivNummer == null) {
+                add(FieldError.of(AvtaleDbo::sakarkivNummer, "Du må skrive inn Websaknummer til avtalesaken"))
             }
 
             if (avtale.arrangor?.underenheter?.isEmpty() == true) {
@@ -240,6 +229,15 @@ class AvtaleValidator(
                     FieldError.of(
                         AvtaleDbo::tiltakstypeId,
                         "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                    ),
+                )
+            }
+
+            if (avtale.prismodell != currentAvtale.prismodell) {
+                add(
+                    FieldError.of(
+                        detail = "Prismodell kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                        AvtaleDbo::prismodell,
                     ),
                 )
             }

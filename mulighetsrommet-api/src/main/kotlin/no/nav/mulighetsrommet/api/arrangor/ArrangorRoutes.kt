@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.arrangor
 import arrow.core.Either
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -13,6 +12,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.brreg.BrregError
@@ -27,6 +27,7 @@ import java.util.*
 fun Route.arrangorRoutes() {
     val db: ApiDatabase by inject()
     val arrangorService: ArrangorService by inject()
+    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient by inject()
 
     route("arrangorer") {
         post("{orgnr}") {
@@ -45,6 +46,15 @@ fun Route.arrangorRoutes() {
                 .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)
+        }
+
+        get("{orgnr}/kontonummer") {
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+            val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(orgnr)
+
+            kontonummer.map { call.respond(it.kontonr) }.mapLeft {
+                call.respond(HttpStatusCode.InternalServerError, "Klarte ikke hente kontonummer for arrangør")
+            }
         }
 
         get {

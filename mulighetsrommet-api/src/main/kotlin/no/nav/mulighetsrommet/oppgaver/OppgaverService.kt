@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
-import java.util.*
 
 class OppgaverService(val db: ApiDatabase) {
     fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<NavAnsattRolle>): List<Oppgave> {
@@ -65,7 +64,7 @@ class OppgaverService(val db: ApiDatabase) {
                 statuser = listOf(
                     TilsagnStatus.TIL_GODKJENNING,
                     TilsagnStatus.TIL_ANNULLERING,
-                    TilsagnStatus.TIL_FRIGJORING,
+                    TilsagnStatus.TIL_OPPGJOR,
                     TilsagnStatus.RETURNERT,
                 ),
             )
@@ -157,7 +156,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
         TilsagnStatus.TIL_GODKJENNING -> {
             val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
             opprettelse to Oppgave(
-                id = UUID.randomUUID(),
+                id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_GODKJENNING,
                 title = "Tilsagn til godkjenning",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til godkjenning",
@@ -172,7 +171,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
             requireNotNull(opprettelse.besluttetTidspunkt)
             opprettelse to Oppgave(
-                id = UUID.randomUUID(),
+                id = tilsagn.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
                 title = "Tilsagn returnert",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} ble returnert av beslutter",
@@ -186,7 +185,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
         TilsagnStatus.TIL_ANNULLERING -> {
             val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
             annullering to Oppgave(
-                id = UUID.randomUUID(),
+                id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
                 title = "Tilsagn til annullering",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til annullering",
@@ -197,21 +196,21 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             )
         }
 
-        TilsagnStatus.TIL_FRIGJORING -> {
-            val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
-            frigjoring to Oppgave(
-                id = UUID.randomUUID(),
-                type = OppgaveType.TILSAGN_TIL_FRIGJORING,
-                title = "Tilsagn til frigjøring",
-                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til frigjøring",
+        TilsagnStatus.TIL_OPPGJOR -> {
+            val tilOppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+            tilOppgjor to Oppgave(
+                id = tilsagn.id,
+                type = OppgaveType.TILSAGN_TIL_OPPGJOR,
+                title = "Tilsagn til oppgjør",
+                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = frigjoring.behandletTidspunkt,
+                createdAt = tilOppgjor.behandletTidspunkt,
                 oppgaveIcon = OppgaveIcon.TILSAGN,
             )
         }
 
-        TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT -> null
+        TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT -> null
     }
 }
 
@@ -225,7 +224,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
         DelutbetalingStatus.TIL_GODKJENNING -> {
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             opprettelse to Oppgave(
-                id = UUID.randomUUID(),
+                id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_TIL_GODKJENNING,
                 title = "Utbetaling til godkjenning",
                 description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
@@ -239,7 +238,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
         DelutbetalingStatus.RETURNERT -> {
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             opprettelse to Oppgave(
-                id = UUID.randomUUID(),
+                id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_RETURNERT,
                 title = "Utbetaling returnert",
                 description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
@@ -255,7 +254,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
 }
 
 private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
-    id = UUID.randomUUID(),
+    id = utbetaling.id,
     type = OppgaveType.UTBETALING_TIL_BEHANDLING,
     title = "Utbetaling klar til behandling",
     description = "Innsendt utbetaling for ${utbetaling.gjennomforing.navn} er klar til behandling",
@@ -267,6 +266,6 @@ private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
         linkText = "Se utbetaling",
         link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetalinger/${utbetaling.id}",
     ),
-    createdAt = utbetaling.createdAt,
+    createdAt = utbetaling.periode.start.atStartOfDay(),
     oppgaveIcon = OppgaveIcon.UTBETALING,
 )

@@ -32,7 +32,7 @@ data class TilsagnDto(
             kostnadssted = tilsagn.kostnadssted,
             beregning = tilsagn.beregning,
             lopenummer = tilsagn.lopenummer,
-            bestillingsnummer = tilsagn.bestillingsnummer,
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             status = tilsagn.status,
         )
     }

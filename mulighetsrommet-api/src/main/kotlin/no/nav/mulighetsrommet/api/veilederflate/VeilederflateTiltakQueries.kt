@@ -57,7 +57,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
                 or (
                     :er_sykmeldt_med_arbeidsgiver = true
                     and tiltakstype_tiltakskode = 'ARBEIDSRETTET_REHABILITERING'
-                    and :innsatsgruppe::innsatsgruppe = 'SITUASJONSBESTEMT_INNSATS'
+                    and :innsatsgruppe::innsatsgruppe = 'TRENGER_VEILEDNING'
                    )
               )
               and exists(select true

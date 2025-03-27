@@ -15,12 +15,12 @@ export function Oppgave({ oppgave }: OppgaveProps) {
       <div className="bg-white p-4" data-testid="oppgaver">
         <div className="flex justify-between items-center">
           <span>{oppgave.tiltakstype.navn}</span>
-          <OppgaveStatus status={oppgave.type} />
+          <OppgaveStatus status={oppgave.type} icon={icon(oppgaveIcon)} />
         </div>
         <div>
           <div className="flex justify-between mt-4">
             <Heading size="medium" className="flex items-center gap-2">
-              {icon(oppgaveIcon)} {title}
+              {title}
             </Heading>
           </div>
           <div>{description}</div>
@@ -45,38 +45,41 @@ function icon(icon: OppgaveIcon) {
   }
 }
 
+const POSITIVE_COLOR = "#FFD799";
+const NEGATIVE_COLOR = "#FFC2C2";
+
 const labels: Record<OppgaveType, { label: string; color: string }> = {
   TILSAGN_TIL_GODKJENNING: {
     label: "Tilsagn til godkjenning",
-    color: "#FFD799",
+    color: POSITIVE_COLOR,
   },
   TILSAGN_TIL_ANNULLERING: {
     label: "Tilsagn til annullering",
-    color: "#CCE2F0",
+    color: NEGATIVE_COLOR,
   },
-  TILSAGN_TIL_FRIGJORING: {
-    label: "Tilsagn til frigjøring",
-    color: "#CCE2F0",
+  TILSAGN_TIL_OPPGJOR: {
+    label: "Tilsagn til oppgjør",
+    color: NEGATIVE_COLOR,
   },
   TILSAGN_RETURNERT: {
     label: "Tilsagn returnert",
-    color: "#FF9100",
+    color: NEGATIVE_COLOR,
   },
   UTBETALING_TIL_GODKJENNING: {
     label: "Utbetaling til godkjenning",
-    color: "#FFD799",
+    color: POSITIVE_COLOR,
   },
   UTBETALING_RETURNERT: {
     label: "Utbetaling returnert",
-    color: "#FF9100",
+    color: NEGATIVE_COLOR,
   },
   UTBETALING_TIL_BEHANDLING: {
     label: "Utbetaling til behandling",
-    color: "#FFD799",
+    color: POSITIVE_COLOR,
   },
 };
 
-function OppgaveStatus({ status }: { status: OppgaveType }) {
+function OppgaveStatus({ status, icon }: { status: OppgaveType; icon: React.ReactNode }) {
   const { label, color } = labels[status];
 
   return (
@@ -84,9 +87,9 @@ function OppgaveStatus({ status }: { status: OppgaveType }) {
       style={{
         backgroundColor: color,
       }}
-      className="p-1"
+      className="p-1 flex items-center gap-2 min-w-[230px] justify-center"
     >
-      {label}
+      {icon} {label}
     </div>
   );
 }

@@ -17,9 +17,9 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.KONTAKTPERSON
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.KONTAKTPERSON
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.*

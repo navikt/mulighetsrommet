@@ -30,6 +30,6 @@ data class Totrinnskontroll(
     enum class Type {
         OPPRETT,
         ANNULLER,
-        FRIGJOR,
+        GJOR_OPP,
     }
 }

@@ -81,7 +81,7 @@ export function AvtaleFormContainer({
       id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
-      websaknummer: data.websaknummer || null,
+      sakarkivNummer: data.sakarkivNummer || null,
       arrangor:
         data.arrangorHovedenhet && data.arrangorUnderenheter
           ? {

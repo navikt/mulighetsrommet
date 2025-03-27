@@ -23,10 +23,10 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
-import no.nav.tiltak.okonomi.api.BestillingStatus
-import no.nav.tiltak.okonomi.api.FakturaStatus
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.model.*
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.OebsKontering
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import java.time.LocalDate
@@ -156,7 +156,7 @@ class OkonomiServiceTest : FunSpec({
             val opprettBestilling = createOpprettBestilling("10")
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling).copy(
-                    status = BestillingStatusType.FRIGJORT,
+                    status = BestillingStatusType.OPPGJORT,
                 )
                 queries.bestilling.insertBestilling(bestilling)
             }
@@ -165,7 +165,7 @@ class OkonomiServiceTest : FunSpec({
 
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe "10"
-                it.status shouldBe BestillingStatusType.FRIGJORT
+                it.status shouldBe BestillingStatusType.OPPGJORT
             }
 
             kafkaProducerRepository.getLatestRecord().should {
@@ -188,7 +188,7 @@ class OkonomiServiceTest : FunSpec({
         test("annullering feiler når bestilling er oppgjort") {
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling("4")).copy(
-                    status = BestillingStatusType.FRIGJORT,
+                    status = BestillingStatusType.OPPGJORT,
                 )
                 queries.bestilling.insertBestilling(bestilling)
             }
@@ -347,7 +347,7 @@ class OkonomiServiceTest : FunSpec({
         }
     }
 
-    context("frigjor bestilling") {
+    context("gjør opp bestilling") {
         db.session {
             val bestilling1 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B2"))
             queries.bestilling.insertBestilling(bestilling1)
@@ -356,7 +356,7 @@ class OkonomiServiceTest : FunSpec({
             queries.bestilling.insertBestilling(bestilling2)
         }
 
-        test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
+        test("gjorOppBestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer status på bestilling") {
             val mockEngine = createMockEngine {
                 post(OebsPoApClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
@@ -369,7 +369,7 @@ class OkonomiServiceTest : FunSpec({
             val service = createOkonomiService(oebsClient(mockEngine))
 
             val opprettFaktura = createOpprettFaktura("B2", "B2-F1")
-                .copy(frigjorBestilling = true)
+                .copy(gjorOppBestilling = true)
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
                 it.fakturanummer shouldBe "B2-F1"
                 it.status shouldBe FakturaStatusType.SENDT
@@ -386,11 +386,11 @@ class OkonomiServiceTest : FunSpec({
 
             db.session {
                 val bestilling = queries.bestilling.getByBestillingsnummer("B2")
-                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
+                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
             }
         }
 
-        test("frigjør faktura lager en faktura med erSisteLinje = true og setter bestillingen til FRIGJORT") {
+        test("lager en faktura med erSisteLinje = true og setter bestillingen til OPPGJORT") {
             val mockEngine = createMockEngine {
                 post(OebsPoApClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
@@ -403,22 +403,22 @@ class OkonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val frigjorBestilling = createFrigjorBestilling("B3")
-            service.frigjorBestilling(frigjorBestilling).shouldBeRight().should {
+            val gjorOppBestilling = createGjorOppBestilling("B3")
+            service.gjorOppBestilling(gjorOppBestilling).shouldBeRight().should {
                 it.fakturanummer shouldBe "B3-X"
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
             db.session {
                 val bestilling = queries.bestilling.getByBestillingsnummer("B3")
-                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
+                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
             }
 
             kafkaProducerRepository.getLatestRecord(topic = "bestilling-status").should {
                 it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
                         bestillingsnummer = "B3",
-                        status = BestillingStatusType.FRIGJORT,
+                        status = BestillingStatusType.OPPGJORT,
                     ),
                 )
             }
@@ -500,10 +500,10 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-    frigjorBestilling = false,
+    gjorOppBestilling = false,
 )
 
-private fun createFrigjorBestilling(bestillingsnummer: String) = FrigjorBestilling(
+private fun createGjorOppBestilling(bestillingsnummer: String) = GjorOppBestilling(
     bestillingsnummer = bestillingsnummer,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),

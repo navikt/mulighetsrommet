@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/kontoregister/api/v1/hent-kontonummer-for-organisasjon/\\d{9}$"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "mottaker": "294332944",
+      "kontonr": "78029049393"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

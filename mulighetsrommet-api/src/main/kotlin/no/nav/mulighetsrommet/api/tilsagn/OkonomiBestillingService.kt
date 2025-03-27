@@ -36,30 +36,30 @@ class OkonomiBestillingService(
     data class ScheduledOkonomiTask(
         val type: Type,
         @Serializable(with = UUIDSerializer::class)
-        val tilsagnId: UUID,
+        val id: UUID,
     ) {
         enum class Type {
             BEHANDLE_GODKJENT_TILSAGN,
             BEHANDLE_ANNULLERT_TILSAGN,
-            BEHANDLE_FRIGJORT_TILSAGN,
-            BEHANDLE_GODKJENT_UTBETALINGER,
+            BEHANDLE_OPPGJORT_TILSAGN,
+            BEHANDLE_GODKJENT_UTBETALING,
         }
     }
 
     val task: OneTimeTask<ScheduledOkonomiTask> = Tasks
         .oneTime(javaClass.simpleName, ScheduledOkonomiTask::class.java)
         .execute { instance, _ ->
-            val (type, tilsagnId) = instance.data
+            val (type, id) = instance.data
 
             when (type) {
-                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_TILSAGN -> behandleGodkjentTilsagn(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_TILSAGN -> behandleGodkjentTilsagn(id)
 
-                ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(id)
 
-                ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN -> behandleFrigjortTilsagn(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN -> behandleOppgjortTilsagn(id)
 
-                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER -> {
-                    behandleGodkjentUtbetalinger(tilsagnId)
+                ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALING -> {
+                    behandleGodkjentUtbetaling(id)
                 }
             }
         }
@@ -74,13 +74,13 @@ class OkonomiBestillingService(
         schedule(task, session)
     }
 
-    fun scheduleBehandleFrigjortTilsagn(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN, tilsagnId)
+    fun scheduleBehandleOppgjortTilsagn(tilsagnId: UUID, session: Session) {
+        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_OPPGJORT_TILSAGN, tilsagnId)
         schedule(task, session)
     }
 
-    fun scheduleBehandleGodkjenteUtbetalinger(tilsagnId: UUID, session: Session) {
-        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER, tilsagnId)
+    fun scheduleBehandleGodkjenteUtbetaling(utbetalingId: UUID, session: Session) {
+        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALING, utbetalingId)
         schedule(task, session)
     }
 
@@ -123,7 +123,7 @@ class OkonomiBestillingService(
         }
 
         val bestilling = OpprettBestilling(
-            bestillingsnummer = tilsagn.bestillingsnummer,
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             tilskuddstype = when (tilsagn.type) {
                 TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
                 else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
@@ -131,8 +131,8 @@ class OkonomiBestillingService(
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,
             kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
-            // TODO: hvilket avtalenummer?
-            avtalenummer = avtale.avtalenummer,
+            // TODO: håndter avtalenummer fra p360, eller erstatter til Mercell
+            avtalenummer = avtale.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.belop,
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
@@ -158,60 +158,56 @@ class OkonomiBestillingService(
         }
 
         val annullerBestilling = AnnullerBestilling(
-            bestillingsnummer = tilsagn.bestillingsnummer,
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = annullering.behandletAv.toOkonomiPart(),
             behandletTidspunkt = annullering.behandletTidspunkt,
             besluttetAv = annullering.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = annullering.besluttetTidspunkt,
         )
 
-        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
+        publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
     }
 
-    private fun behandleFrigjortTilsagn(tilsagnId: UUID): Unit = db.session {
+    private fun behandleOppgjortTilsagn(tilsagnId: UUID): Unit = db.session {
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
-        require(tilsagn.status == TilsagnStatus.FRIGJORT) {
-            "Tilsagn er ikke frigjort id=$tilsagnId status=${tilsagn.status}"
+        require(tilsagn.status == TilsagnStatus.OPPGJORT) {
+            "Tilsagn er ikke oppgjort id=$tilsagnId status=${tilsagn.status}"
         }
 
-        val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
-        require(frigjoring.besluttetAv != null && frigjoring.besluttetTidspunkt != null) {
-            "Tilsagn id=$tilsagnId må være besluttet frigjort for å sende null melding til økonomi"
+        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+        require(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
+            "Tilsagn id=$tilsagnId må være besluttet oppgjort for å sende null melding til økonomi"
         }
 
-        val faktura = FrigjorBestilling(
-            bestillingsnummer = tilsagn.bestillingsnummer,
-            behandletAv = frigjoring.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = frigjoring.behandletTidspunkt,
-            besluttetAv = frigjoring.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = frigjoring.besluttetTidspunkt,
+        val faktura = GjorOppBestilling(
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            behandletAv = oppgjor.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = oppgjor.behandletTidspunkt,
+            besluttetAv = oppgjor.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
-        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
+        publish(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.GjorOppBestilling(faktura))
     }
 
-    fun behandleGodkjentUtbetalinger(tilsagnId: UUID): Unit = db.transaction {
-        val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
-            "Tilsagn med id=$tilsagnId finnes ikke"
+    fun behandleGodkjentUtbetaling(utbetalingId: UUID): Unit = db.transaction {
+        val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
+            "Utbetaling med id=$utbetalingId finnes ikke"
         }
-        require(tilsagn.status in listOf(TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT)) {
-            "Tilsagn er ikke i riktig status id=$tilsagnId status=${tilsagn.status}"
-        }
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetalingId)
+        require(delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT })
 
-        queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId)
-            .filter { it.status == DelutbetalingStatus.GODKJENT }
+        delutbetalinger
             .map {
                 val opprettelse = queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT)
                 Pair(opprettelse, it)
             }
             .sortedBy { (opprettelse) -> opprettelse.besluttetTidspunkt }
             .forEach { (opprettelse, delutbetaling) ->
+                val tilsagn = requireNotNull(queries.tilsagn.get(delutbetaling.tilsagnId))
                 log.info("Sender delutbetaling med utbetalingId: ${delutbetaling.utbetalingId} tilsagnId: ${delutbetaling.tilsagnId} på kafka")
-                val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId)) {
-                    "Utbetaling med id=${delutbetaling.utbetalingId} finnes ikke"
-                }
                 val kontonummer = requireNotNull(utbetaling.betalingsinformasjon.kontonummer) {
                     "Kontonummer mangler for utbetaling med id=${utbetaling.id}"
                 }
@@ -219,8 +215,8 @@ class OkonomiBestillingService(
                 requireNotNull(opprettelse.besluttetAv)
 
                 val faktura = OpprettFaktura(
-                    fakturanummer = delutbetaling.fakturanummer,
-                    bestillingsnummer = tilsagn.bestillingsnummer,
+                    fakturanummer = delutbetaling.faktura.fakturanummer,
+                    bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
                     betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
                         kontonummer = kontonummer,
                         kid = utbetaling.betalingsinformasjon.kid,
@@ -231,7 +227,7 @@ class OkonomiBestillingService(
                     behandletTidspunkt = opprettelse.behandletTidspunkt,
                     besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
                     besluttetTidspunkt = opprettelse.besluttetTidspunkt,
-                    frigjorBestilling = delutbetaling.frigjorTilsagn,
+                    gjorOppBestilling = delutbetaling.gjorOppTilsagn,
                 )
 
                 queries.delutbetaling.setSendtTilOkonomi(

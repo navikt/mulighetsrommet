@@ -454,3 +454,14 @@ export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeA
 export function isValidationError(error: unknown): error is ValidationError {
   return typeof error === "object" && error !== null && "errors" in error;
 }
+
+export function joinWithCommaAndOg(aarsaker: string[]): string {
+  if (aarsaker.length === 0) return "";
+  if (aarsaker.length === 1) return aarsaker[0];
+  return `${aarsaker.slice(0, -1).join(", ")} og ${aarsaker[aarsaker.length - 1]}`;
+}
+
+export function capitalizeFirstLetter(text: string): string {
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}

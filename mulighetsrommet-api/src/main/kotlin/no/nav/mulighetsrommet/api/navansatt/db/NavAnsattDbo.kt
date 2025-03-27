@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.navansatt.db
 
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.util.*
@@ -32,14 +33,4 @@ data class NavAnsattDbo(
             skalSlettesDato = dto.skalSlettesDato,
         )
     }
-}
-
-enum class NavAnsattRolle {
-    TEAM_MULIGHETSROMMET,
-    KONTAKTPERSON,
-    TILTAKSGJENNOMFORINGER_SKRIV,
-    AVTALER_SKRIV,
-    TILTAKADMINISTRASJON_GENERELL,
-    TILTAKADMINISTRASJON_ENDRINGSMELDING,
-    OKONOMI_BESLUTTER,
 }

@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { TilsagnService, TilsagnTilAnnulleringAarsak } from "@mr/api-client-v2";
-import { QueryKeys } from "../../api/QueryKeys";
+import { QueryKeys } from "../QueryKeys";
 
-export function useTilsagnTilFrigjoring() {
+export function useTilsagnTilOppgjor() {
   return useMutation({
     mutationFn: ({
       id,
@@ -13,13 +13,13 @@ export function useTilsagnTilFrigjoring() {
       aarsaker: TilsagnTilAnnulleringAarsak[];
       forklaring: string | null;
     }) =>
-      TilsagnService.tilFrigjoring({
+      TilsagnService.gjorOpp({
         path: { id },
         body: {
           aarsaker,
           forklaring,
         },
       }),
-    mutationKey: QueryKeys.frigjorTilsagn(),
+    mutationKey: QueryKeys.gjorOppTilsagn(),
   });
 }

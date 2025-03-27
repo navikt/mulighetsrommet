@@ -19,7 +19,9 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.*
-import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
+import no.nav.mulighetsrommet.api.clients.vedtak.Gjeldende14aVedtakDto
+import no.nav.mulighetsrommet.api.clients.vedtak.HovedmalMedOkeDeltakelse
+import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -28,6 +30,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import java.time.ZonedDateTime
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
@@ -37,8 +40,14 @@ class BrukerServiceTest : FunSpec({
     val norg2Client: Norg2Client = mockk()
     val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient = mockk()
 
-    val brukerService =
-        BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, navEnhetService, pdlClient, norg2Client, isoppfolgingstilfelleClient)
+    val brukerService = BrukerService(
+        veilarboppfolgingClient,
+        veilarbvedtaksstotteClient,
+        navEnhetService,
+        pdlClient,
+        norg2Client,
+        isoppfolgingstilfelleClient,
+    )
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
 
@@ -73,9 +82,11 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
         coEvery { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr1) } returns true.right()
 
-        coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } answers {
-            VedtakDto(innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS).right()
-        }
+        coEvery { veilarbvedtaksstotteClient.hentGjeldende14aVedtak(fnr1, any()) } returns Gjeldende14aVedtakDto(
+            innsatsgruppe = InnsatsgruppeV2.GODE_MULIGHETER,
+            hovedmal = HovedmalMedOkeDeltakelse.SKAFFE_ARBEID,
+            fattetDato = ZonedDateTime.now(),
+        ).right()
 
         coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } answers {
             GeografiskTilknytning.GtKommune(value = "0301").right()
@@ -98,8 +109,10 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr2, any()) } returns mockManuellStatus().right()
 
-        coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr2, any()) } returns VedtakDto(
-            innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+        coEvery { veilarbvedtaksstotteClient.hentGjeldende14aVedtak(fnr2, any()) } returns Gjeldende14aVedtakDto(
+            innsatsgruppe = InnsatsgruppeV2.JOBBE_DELVIS,
+            hovedmal = HovedmalMedOkeDeltakelse.SKAFFE_ARBEID,
+            fattetDato = ZonedDateTime.now(),
         ).right()
 
         coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns HentPersonResponse.Person(
@@ -119,7 +132,7 @@ class BrukerServiceTest : FunSpec({
         brukerService.hentBrukerdata(fnr1, AccessType.OBO("")) shouldBe
             BrukerService.Brukerdata(
                 fornavn = "Ola",
-                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
                 fnr = fnr1,
                 manuellStatus = ManuellStatusDto(
                     erUnderManuellOppfolging = false,

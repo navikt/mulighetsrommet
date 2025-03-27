@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -92,10 +93,12 @@ class JournalforUtbetalingTest : FunSpec({
         baseUrl = "http://pdfgen",
     )
     val dokarkClient: DokarkClient = mockk()
+    val kontoregisterClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
     val arrangorFlateSerivce = { db: ApiDatabase ->
         ArrangorFlateService(
             pdl = HentAdressebeskyttetPersonBolkPdlQuery(pdl),
             db = db,
+            kontoregisterOrganisasjonClient = kontoregisterClient,
         )
     }
 

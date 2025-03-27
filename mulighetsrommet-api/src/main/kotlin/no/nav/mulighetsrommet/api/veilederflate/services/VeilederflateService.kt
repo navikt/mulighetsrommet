@@ -26,15 +26,13 @@ class VeilederflateService(
     private val navEnhetService: NavEnhetService,
 ) {
     fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
-        // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
-        return (Innsatsgruppe.entries - Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS)
-            .map {
-                VeilederflateInnsatsgruppe(
-                    tittel = it.tittel,
-                    nokkel = it.name,
-                    order = it.order,
-                )
-            }
+        return Innsatsgruppe.entries.map {
+            VeilederflateInnsatsgruppe(
+                tittel = it.tittel,
+                nokkel = it.name,
+                order = it.order,
+            )
+        }
     }
 
     suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {

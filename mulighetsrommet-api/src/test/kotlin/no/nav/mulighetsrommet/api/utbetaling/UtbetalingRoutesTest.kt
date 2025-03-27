@@ -10,9 +10,11 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
-import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest.Periode
@@ -43,10 +45,11 @@ class UtbetalingRoutesTest : FunSpec({
     }
 
     val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-    val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
-    val gjennomforingerSkrivRolle =
-        AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
-    val beslutterRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.OKONOMI_BESLUTTER)
+    val saksbehandlerOkonomiRolle = AdGruppeNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+    )
+    val attestantUtbetalingRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.ATTESTANT_UTBETALING)
 
     fun appConfig(
         engine: HttpClientEngine = CIO.create(),
@@ -54,173 +57,175 @@ class UtbetalingRoutesTest : FunSpec({
         database = databaseConfig,
         auth = createAuthConfig(
             oauth,
-            roles = listOf(generellRolle, avtaleSkrivRolle, gjennomforingerSkrivRolle, beslutterRolle),
+            roles = listOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
         ),
         engine = engine,
     )
 
-    test("Skal returnere 200 ok for korrekt request for manuell utbetaling (frimodell)") {
-        withTestApplication(appConfig()) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
+    context("opprett utbetaling") {
+        test("Skal returnere 400 Bad Request når det er valideringsfeil") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
                 }
-            }
 
-            val id = UUID.randomUUID()
-            val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
-                val claims = mapOf(
-                    "NAVident" to "ABC123",
-                    "groups" to listOf(
-                        avtaleSkrivRolle.adGruppeId,
-                        generellRolle.adGruppeId,
-                        gjennomforingerSkrivRolle.adGruppeId,
-                    ),
-                )
-                bearerAuth(
-                    oauth.issueToken(claims = claims).serialize(),
-                )
-                contentType(ContentType.Application.Json)
-                setBody(
-                    OpprettManuellUtbetalingRequest(
-                        gjennomforingId = AFT1.id,
-                        periode = Periode(
-                            start = LocalDate.now(),
-                            slutt = LocalDate.now().plusDays(1),
+                val id = UUID.randomUUID()
+                val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
+                    val claims = mapOf(
+                        "NAVident" to "ABC123",
+                        "groups" to listOf(
+                            generellRolle.adGruppeId,
+                            saksbehandlerOkonomiRolle.adGruppeId,
                         ),
-                        beskrivelse = "Bla bla bla bla bla",
-                        kontonummer = Kontonummer(value = "12345678910"),
-                        kidNummer = null,
-                        belop = 150,
-                    ),
-                )
-            }
-            response.status shouldBe HttpStatusCode.OK
-        }
-    }
-
-    test("Skal returnere 400 Bad Request når det er valideringsfeil ved manuell utbetaling (frimodell)") {
-        withTestApplication(appConfig()) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
-            val id = UUID.randomUUID()
-            val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
-                val claims = mapOf(
-                    "NAVident" to "ABC123",
-                    "groups" to listOf(
-                        avtaleSkrivRolle.adGruppeId,
-                        generellRolle.adGruppeId,
-                        gjennomforingerSkrivRolle.adGruppeId,
-                    ),
-                )
-                bearerAuth(
-                    oauth.issueToken(claims = claims).serialize(),
-                )
-                contentType(ContentType.Application.Json)
-                setBody(
-                    OpprettManuellUtbetalingRequest(
-                        gjennomforingId = AFT1.id,
-                        periode = Periode(
-                            start = LocalDate.now().plusDays(5),
-                            slutt = LocalDate.now().plusDays(1),
+                    )
+                    bearerAuth(
+                        oauth.issueToken(claims = claims).serialize(),
+                    )
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettManuellUtbetalingRequest(
+                            gjennomforingId = AFT1.id,
+                            periode = Periode(
+                                start = LocalDate.now().plusDays(5),
+                                slutt = LocalDate.now().plusDays(1),
+                            ),
+                            beskrivelse = "Kort besk..",
+                            kontonummer = Kontonummer(value = "12345678910"),
+                            kidNummer = null,
+                            belop = 0,
                         ),
-                        beskrivelse = "Kort besk..",
-                        kontonummer = Kontonummer(value = "12345678910"),
-                        kidNummer = null,
-                        belop = 0,
-                    ),
-                )
-            }
-            println(response.bodyAsText())
-            response.status shouldBe HttpStatusCode.BadRequest
-        }
-    }
-
-    test("Skal returnere 401 uten skrive tilgang") {
-        withTestApplication(appConfig()) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
+                    )
                 }
+                println(response.bodyAsText())
+                response.status shouldBe HttpStatusCode.BadRequest
             }
+        }
 
-            val id = UUID.randomUUID()
-            val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
-                val claims = mapOf(
-                    "NAVident" to "ABC123",
-                    "groups" to listOf(generellRolle.adGruppeId),
-                )
-                bearerAuth(
-                    oauth.issueToken(claims = claims).serialize(),
-                )
-                contentType(ContentType.Application.Json)
-                setBody(
-                    OpprettManuellUtbetalingRequest(
-                        gjennomforingId = AFT1.id,
-                        periode = Periode(
-                            start = LocalDate.now(),
-                            slutt = LocalDate.now().plusDays(1),
+        test("Skal returnere 401 uten saksbehandler-tilgang") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val id = UUID.randomUUID()
+                val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
+                    val claims = mapOf(
+                        "NAVident" to "ABC123",
+                        "groups" to listOf(generellRolle.adGruppeId, attestantUtbetalingRolle.adGruppeId),
+                    )
+                    bearerAuth(
+                        oauth.issueToken(claims = claims).serialize(),
+                    )
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettManuellUtbetalingRequest(
+                            gjennomforingId = AFT1.id,
+                            periode = Periode(
+                                start = LocalDate.now(),
+                                slutt = LocalDate.now().plusDays(1),
+                            ),
+                            beskrivelse = "Bla bla bla bla bla",
+                            kontonummer = Kontonummer(value = "12345678910"),
+                            kidNummer = null,
+                            belop = 150,
                         ),
-                        beskrivelse = "Bla bla bla bla bla",
-                        kontonummer = Kontonummer(value = "12345678910"),
-                        kidNummer = null,
-                        belop = 150,
-                    ),
-                )
+                    )
+                }
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
+        }
+
+        test("Skal returnere 200 ok med saksbehandler-tilgang") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val id = UUID.randomUUID()
+                val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
+                    val claims = mapOf(
+                        "NAVident" to "ABC123",
+                        "groups" to listOf(
+                            generellRolle.adGruppeId,
+                            saksbehandlerOkonomiRolle.adGruppeId,
+                        ),
+                    )
+                    bearerAuth(
+                        oauth.issueToken(claims = claims).serialize(),
+                    )
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettManuellUtbetalingRequest(
+                            gjennomforingId = AFT1.id,
+                            periode = Periode(
+                                start = LocalDate.now(),
+                                slutt = LocalDate.now().plusDays(1),
+                            ),
+                            beskrivelse = "Bla bla bla bla bla",
+                            kontonummer = Kontonummer(value = "12345678910"),
+                            kidNummer = null,
+                            belop = 150,
+                        ),
+                    )
+                }
+                response.status shouldBe HttpStatusCode.OK
+            }
         }
     }
 
-    test("Skal returnere 401 uten beslutter tilgang") {
-        withTestApplication(appConfig()) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
+    context("beslutt utbetaling") {
+        test("Skal returnere 401 uten attestant-tilgang") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
                 }
-            }
 
-            val id = UtbetalingFixtures.utbetaling1.id
-            val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
-                val claims = mapOf(
-                    "NAVident" to "ABC123",
-                    "groups" to listOf(generellRolle.adGruppeId),
-                )
-                bearerAuth(oauth.issueToken(claims = claims).serialize())
-                contentType(ContentType.Application.Json)
-                setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
-                )
+                val id = UtbetalingFixtures.utbetaling1.id
+                val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
+                    val claims = mapOf(
+                        "NAVident" to "ABC123",
+                        "groups" to listOf(generellRolle.adGruppeId, saksbehandlerOkonomiRolle.adGruppeId),
+                    )
+                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                    )
+                }
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
         }
-    }
 
-    test("Skal returnere 200 OK med okonomi beslutter tilgang") {
-        withTestApplication(appConfig()) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
+        test("Skal returnere 200 OK med attestant-tilgang") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
                 }
-            }
 
-            val id = UtbetalingFixtures.utbetaling1.id
-            val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
-                val claims = mapOf(
-                    "NAVident" to "ABC123",
-                    "groups" to listOf(generellRolle.adGruppeId, beslutterRolle),
-                )
-                bearerAuth(oauth.issueToken(claims = claims).serialize())
-                contentType(ContentType.Application.Json)
-                setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
-                )
+                val id = UtbetalingFixtures.utbetaling1.id
+                val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
+                    val claims = mapOf(
+                        "NAVident" to "ABC123",
+                        "groups" to listOf(generellRolle.adGruppeId, attestantUtbetalingRolle),
+                    )
+                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                    )
+                }
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
         }
     }
 })

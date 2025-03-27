@@ -8,9 +8,9 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Bestilling
-import no.nav.tiltak.okonomi.model.BestillingStatusType
 import org.intellij.lang.annotations.Language
 
 class BestillingQueries(private val session: Session) {

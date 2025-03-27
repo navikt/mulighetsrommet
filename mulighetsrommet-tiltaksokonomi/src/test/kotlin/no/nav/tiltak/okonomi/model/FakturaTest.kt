@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -26,7 +27,7 @@ class FakturaTest : FunSpec({
             behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
-            frigjorBestilling = false,
+            gjorOppBestilling = false,
         )
 
         test("felter utledes fra OpprettFaktura") {

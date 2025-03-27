@@ -3,7 +3,6 @@ package no.nav.tiltak.okonomi.oebs
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding.Linje
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -66,7 +65,10 @@ data class OebsFakturaMelding(
     val valutaKode: String,
 
     /**
-     * Kontonummer det skal utbetales til, null hvis frigjor melding
+     * Kontonummer det skal utbetales til.
+     *
+     * Kan være null når det er tom faktura for å gjøre opp bestilling (altså når
+     * [Linje.antall] er 0 og [Linje.erSisteFaktura] er true).
      */
     val bankKontoNummer: String?,
 
@@ -99,21 +101,14 @@ data class OebsFakturaMelding(
     /**
      * Melding til leverandør burde alltid beskrive hva fakturaen gjelder slik at mottaker skjønner hva innbetalingen
      * er for.
-     *
-     * TODO: Det er mulig denne kun burde settes når [kidNummer] er null. OeBS skulle finne ut av det.
-     *
-     * TODO: OeBS mente det kunne være relevant å begrense lengden på meldingen, muligens 140 tegn, men det er enda ikke avklart.
      */
     val meldingTilLeverandor: String?,
 
     /**
      * Det samme som [meldingTilLeverandor], men til bruk for feilsøking i OeBS.
      *
-     * TODO: Er dette feltet fortsatt relevant?
-     *
-     * OeBS mente at dette feltet kanskje ikke lengre er relevant. En mulig bruk for å videreføre dette er om
-     * [meldingTilLeverandor] ikke settes, men at utbetaling feiler f.eks. pga feil KID. Da kan man utbetale
-     * manuelt fra OeBS ved å bruke [beskrivelse] som [meldingTilLeverandor].
+     * Et scenario der dette kan bli benyttet er hvis [kidNummer] er feil (ikke blir godtatt av banken), så kan
+     * man manuelt fjerne [kidNummer] og sende med [beskrivelse] som [meldingTilLeverandor] i utbetalingen fra OeBS.
      */
     val beskrivelse: String?,
 
@@ -157,7 +152,7 @@ data class OebsFakturaMelding(
         val pris: Int,
 
         /**
-         * Hvis dette flagget settes så blir evt. resterende beløp fra bestillingen frigjort.
+         * Hvis dette flagget settes så blir evt. resterende beløp fra bestillingen oppgjort.
          *
          * Det er viktig at fakturaer behandles i riktig rekkefølge hos OeBS, så dette flagget må kun settes på den
          * siste fakturaen for en bestilling og det må ikke overføres til OeBS før alle tidligere fakturaer har

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { sjekkUU, velgFilter } from "./playwrightUtils";
+import { sjekkUU, clickAndExpectInnsatsgruppe } from "./playwrightUtils";
+import type { Innsatsgruppe } from "@mr/api-client-v2";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
@@ -64,23 +65,21 @@ test.describe("Tiltaksoversikt", () => {
   test("Skal vise 'Nullstill filter'-knapp når man filtrerer på innsatsgruppe", async ({
     page,
   }) => {
-    await velgFilter(page, "standard-innsats");
+    await clickAndExpectInnsatsgruppe(page, "GODE_MULIGHETER" as Innsatsgruppe);
     await expect(page.getByTestId("knapp_nullstill-filter")).toBeVisible();
   });
 
   test("'Nullstill filter'-knappen fungerer", async ({ page }) => {
     const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
     await expect(rows).toHaveCount(5);
-    await velgFilter(page, "standard-innsats");
+    await clickAndExpectInnsatsgruppe(page, "GODE_MULIGHETER" as Innsatsgruppe);
     await expect(page.getByTestId("knapp_nullstill-filter")).toBeVisible();
     await expect(rows).toHaveCount(1);
     await page.getByTestId("knapp_nullstill-filter").click();
     await expect(rows).toHaveCount(5);
   });
 
-  test("Skal vise korrekt feilmelding dersom ingen tiltak blir funnet", async ({
-    page,
-  }) => {
+  test("Skal vise korrekt feilmelding dersom ingen tiltak blir funnet", async ({ page }) => {
     await page.getByTestId("filter_sokefelt").fill("blablablablabla");
     await expect(page.getByTestId("feilmelding-container")).toBeVisible();
     await expect(page.getByTestId("feilmelding-container")).toHaveAttribute(

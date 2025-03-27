@@ -1,6 +1,6 @@
 import { DateInput } from "@/components/skjema/DateInput";
 import { forwardRef } from "react";
-import { Controller, Control, FieldValues, Path } from "react-hook-form";
+import { Control, Controller, FieldValues, Path } from "react-hook-form";
 
 export interface ControlledDateInputProps<T extends FieldValues> {
   name: Path<T>; // Type-safe field name

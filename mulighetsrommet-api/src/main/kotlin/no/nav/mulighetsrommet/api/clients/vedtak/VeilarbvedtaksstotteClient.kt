@@ -6,7 +6,6 @@ import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -32,40 +31,44 @@ class VeilarbvedtaksstotteClient(
         install(HttpCache)
     }
 
-    private val siste14aVedtakCache: Cache<NorskIdent, VedtakDto> = Caffeine.newBuilder()
+    private val siste14aVedtakCache: Cache<NorskIdent, Gjeldende14aVedtakDto> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    suspend fun hentSiste14AVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
-        siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentSiste14AVedtak it.right() }
+    suspend fun hentGjeldende14aVedtak(
+        fnr: NorskIdent,
+        obo: AccessType.OBO,
+    ): Either<VedtakError, Gjeldende14aVedtakDto> {
+        siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentGjeldende14aVedtak it.right() }
 
-        val response = client.post("$baseUrl/v2/hent-siste-14a-vedtak") {
+        val response = client.post("$baseUrl/hent-gjeldende-14a-vedtak") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(VedtakRequest(fnr = fnr.value))
         }
 
-        return if (response.status == HttpStatusCode.Forbidden) {
+        if (response.status == HttpStatusCode.Forbidden) {
             log.warn("Mangler tilgang til å hente siste 14A-vedtak for bruker. Har innlogget personen riktig AD-rolle for å hente siste 14A-vedtak?")
-            VedtakError.Forbidden.left()
-        } else {
-            if (!response.status.isSuccess()) {
-                SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
-                log.error("Klarte ikke hente siste 14A-vedtak. Status: ${response.status}")
-                VedtakError.Error.left()
-            } else {
-                val body = response.bodyAsText()
-                if (body.isBlank()) {
-                    log.info("Fant ikke siste 14A-vedtak for bruker")
-                    VedtakError.NotFound.left()
-                } else {
-                    JsonIgnoreUnknownKeys.decodeFromString<VedtakDto>(body).right()
-                }
-            }
-                .onRight { siste14aVedtakCache.put(fnr, it) }
+            return VedtakError.Forbidden.left()
         }
+
+        if (!response.status.isSuccess()) {
+            SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
+            log.error("Klarte ikke hente siste 14A-vedtak. Status: ${response.status}")
+            return VedtakError.Error.left()
+        }
+
+        val body = response.bodyAsText()
+        if (body.isBlank()) {
+            log.info("Fant ikke siste 14A-vedtak for bruker")
+            return VedtakError.NotFound.left()
+        }
+
+        val vedtak = JsonIgnoreUnknownKeys.decodeFromString<Gjeldende14aVedtakDto>(body)
+        siste14aVedtakCache.put(fnr, vedtak)
+        return vedtak.right()
     }
 }
 

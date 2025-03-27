@@ -1,4 +1,5 @@
 import {
+  Besluttelse,
   GetForhandsgodkjenteSatserResponse,
   TilsagnAvvisningAarsak,
   TilsagnDefaults,
@@ -7,6 +8,8 @@ import {
   TilsagnRequest,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
+  TotrinnskontrollBesluttetDto,
+  TotrinnskontrollTilBeslutningDto,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
@@ -74,36 +77,55 @@ export const tilsagnHandlers = [
   }),
 ];
 
+const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
+  type: "TIL_BESLUTNING",
+  behandletAv: "B123456",
+  behandletTidspunkt: "2024-01-01T22:00:00",
+  aarsaker: [],
+  kanBesluttes: true,
+};
+
+const godkjent: TotrinnskontrollBesluttetDto = {
+  type: "BESLUTTET",
+  behandletAv: "B123456",
+  behandletTidspunkt: "2024-01-01T22:00:00",
+  besluttetAv: "F123456",
+  besluttetTidspunkt: "2024-01-01T22:00:00",
+  aarsaker: [],
+  kanBesluttes: false,
+  besluttelse: Besluttelse.GODKJENT,
+};
+
+const avvist: TotrinnskontrollBesluttetDto = {
+  type: "BESLUTTET",
+  behandletAv: "B123456",
+  behandletTidspunkt: "2024-01-01T22:00:00",
+  besluttetAv: "F123456",
+  besluttetTidspunkt: "2024-01-01T22:00:00",
+  aarsaker: [],
+  kanBesluttes: false,
+  besluttelse: Besluttelse.AVVIST,
+};
+
 function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
   switch (tilsagn.status) {
     case TilsagnStatus.TIL_GODKJENNING:
       return {
         tilsagn,
-        opprettelse: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-        },
+        opprettelse: tilBeslutning,
       };
 
     case TilsagnStatus.GODKJENT:
       return {
         tilsagn,
-        opprettelse: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-          besluttetAv: "F123456",
-          besluttetTidspunkt: "2024-01-01T22:00:00",
-        },
+        opprettelse: godkjent,
       };
 
     case TilsagnStatus.RETURNERT:
       return {
         tilsagn,
         opprettelse: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-09",
-          besluttetAv: "N12345",
-          besluttetTidspunkt: "2024-01-10",
+          ...avvist,
           aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
           forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
         },
@@ -112,15 +134,9 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
     case TilsagnStatus.TIL_ANNULLERING:
       return {
         tilsagn,
-        opprettelse: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-          besluttetAv: "F123456",
-          besluttetTidspunkt: "2024-01-01T22:00:00",
-        },
+        opprettelse: godkjent,
         annullering: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
+          ...tilBeslutning,
           aarsaker: [
             TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
             TilsagnTilAnnulleringAarsak.FEIL_ANNET,
@@ -132,55 +148,29 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
     case TilsagnStatus.ANNULLERT:
       return {
         tilsagn,
-        opprettelse: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-          besluttetAv: "F123456",
-          besluttetTidspunkt: "2024-01-01T22:00:00",
-        },
+        opprettelse: godkjent,
         annullering: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
+          ...godkjent,
           aarsaker: [
             TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
             TilsagnTilAnnulleringAarsak.FEIL_ANNET,
           ],
           forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
-          besluttetAv: "F123456",
-          besluttetTidspunkt: "2024-01-01T22:00:00",
         },
       };
 
-    case TilsagnStatus.TIL_FRIGJORING:
+    case TilsagnStatus.TIL_OPPGJOR:
       return {
         tilsagn,
-        opprettelse: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-          besluttetAv: "F123456",
-          besluttetTidspunkt: "2024-01-01T22:00:00",
-        },
-        frigjoring: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-        },
+        opprettelse: godkjent,
+        tilOppgjor: tilBeslutning,
       };
 
-    case TilsagnStatus.FRIGJORT:
+    case TilsagnStatus.OPPGJORT:
       return {
         tilsagn,
-        opprettelse: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-          besluttetAv: "F123456",
-          besluttetTidspunkt: "2024-01-01T22:00:00",
-        },
-        frigjoring: {
-          behandletAv: "B123456",
-          behandletTidspunkt: "2024-01-01T22:00:00",
-          besluttetAv: "F123456",
-          besluttetTidspunkt: "2024-01-01T22:00:00",
-        },
+        opprettelse: godkjent,
+        tilOppgjor: godkjent,
       };
   }
 }

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
+import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
@@ -7,9 +8,14 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
@@ -19,11 +25,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.util.*
 
 private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
@@ -40,6 +45,7 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 class ArrangorFlateService(
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val db: ApiDatabase,
+    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
         return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
@@ -93,76 +99,18 @@ class ArrangorFlateService(
 
     suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
-        return when (val beregning = utbetaling.beregning) {
-            is UtbetalingBeregningForhandsgodkjent -> {
-                val deltakere = queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
-
-                val deltakereById = deltakere.associateBy { it.id }
-                val personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person> = getPersoner(deltakere)
-                val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
-                val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
-
-                val deltakelser = perioderById.map { (id, deltakelse) ->
-                    val deltaker = deltakereById.getValue(id)
-                    val manedsverk = manedsverkById.getValue(id).manedsverk
-                    val person = personerByNorskIdent[deltaker.norskIdent]
-
-                    val forstePeriode = deltakelse.perioder.first()
-                    val sistePeriode = deltakelse.perioder.last()
-
-                    UtbetalingDeltakelse(
-                        id = id,
-                        startDato = deltaker.startDato,
-                        sluttDato = deltaker.startDato,
-                        forstePeriodeStartDato = forstePeriode.periode.start,
-                        sistePeriodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
-                        sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
-                        manedsverk = manedsverk,
-                        person = person,
-                        // TODO data om veileder hos arrangør
-                        veileder = null,
-                    )
-                }
-
-                val antallManedsverk = deltakelser
-                    .map { BigDecimal(it.manedsverk) }
-                    .sumOf { it }
-                    .setScale(2, RoundingMode.HALF_UP)
-                    .toDouble()
-
-                ArrFlateUtbetaling(
-                    id = utbetaling.id,
-                    status = status,
-                    fristForGodkjenning = utbetaling.fristForGodkjenning,
-                    tiltakstype = utbetaling.tiltakstype,
-                    gjennomforing = utbetaling.gjennomforing,
-                    arrangor = utbetaling.arrangor,
-                    periode = utbetaling.periode,
-                    beregning = Beregning.Forhandsgodkjent(
-                        antallManedsverk = antallManedsverk,
-                        belop = beregning.output.belop,
-                        digest = beregning.getDigest(),
-                        deltakelser = deltakelser,
-                    ),
-                    betalingsinformasjon = utbetaling.betalingsinformasjon,
-                )
-            }
-
-            is UtbetalingBeregningFri -> ArrFlateUtbetaling(
-                id = utbetaling.id,
-                status = status,
-                fristForGodkjenning = utbetaling.fristForGodkjenning,
-                tiltakstype = utbetaling.tiltakstype,
-                gjennomforing = utbetaling.gjennomforing,
-                arrangor = utbetaling.arrangor,
-                periode = utbetaling.periode,
-                beregning = Beregning.Fri(
-                    belop = beregning.output.belop,
-                    digest = beregning.getDigest(),
-                ),
-                betalingsinformasjon = utbetaling.betalingsinformasjon,
-            )
+        val deltakere = when (utbetaling.beregning) {
+            is UtbetalingBeregningForhandsgodkjent -> queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            is UtbetalingBeregningFri -> emptyList()
         }
+        val personerByNorskIdent = if (deltakere.isNotEmpty()) getPersoner(deltakere) else emptyMap()
+
+        return mapUtbetalingToArrFlateUtbetaling(
+            utbetaling = utbetaling,
+            status = status,
+            deltakere = deltakere,
+            personerByNorskIdent = personerByNorskIdent,
+        )
     }
 
     private fun QueryContext.getArrFlateUtbetalingStatus(utbetaling: Utbetaling): ArrFlateUtbetalingStatus {
@@ -219,6 +167,20 @@ class ArrangorFlateService(
                 fodselsaar = null,
                 fodselsdato = null,
             )
+        }
+    }
+
+    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> {
+        db.session {
+            return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer(utbetaling.arrangor.organisasjonsnummer.value))
+                .map {
+                    queries.utbetaling.setBetalingsinformasjon(
+                        id = utbetaling.id,
+                        kontonummer = Kontonummer(it.kontonr),
+                        kid = utbetaling.betalingsinformasjon.kid,
+                    )
+                    it.kontonr
+                }
         }
     }
 }

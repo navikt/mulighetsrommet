@@ -1,8 +1,13 @@
-import { TilsagnTilAnnulleringAarsak, Totrinnskontroll } from "@mr/api-client-v2";
+import {
+  capitalizeFirstLetter,
+  formaterDato,
+  joinWithCommaAndOg,
+  tilsagnAarsakTilTekst,
+} from "@/utils/Utils";
+import { TilsagnTilAnnulleringAarsak, TotrinnskontrollDto } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
-import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 
-export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskontroll }) {
+export function TilAnnulleringAlert({ annullering }: { annullering: TotrinnskontrollDto }) {
   const aarsaker =
     annullering.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
@@ -30,9 +35,9 @@ export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskont
   );
 }
 
-export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontroll }) {
+export function TilOppgjorAlert({ oppgjor }: { oppgjor: TotrinnskontrollDto }) {
   const aarsaker =
-    frigjoring.aarsaker?.map((aarsak) =>
+    oppgjor.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
     ) || [];
 
@@ -42,14 +47,14 @@ export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontrol
         Tilsagnet gjøres opp
       </Heading>
       <p>
-        {frigjoring.behandletAv} sendte tilsagnet til frigjøring den{" "}
-        {formaterDato(frigjoring.behandletTidspunkt)} med følgende{" "}
+        {oppgjor.behandletAv} sendte tilsagnet til oppgjør den{" "}
+        {formaterDato(oppgjor.behandletTidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {frigjoring.forklaring ? (
+        {oppgjor.forklaring ? (
           <>
             {" "}
-            med forklaringen: <b>"{frigjoring.forklaring}"</b>
+            med forklaringen: <b>"{oppgjor.forklaring}"</b>
           </>
         ) : null}
         .
@@ -64,16 +69,17 @@ interface Props {
   tidspunkt?: string;
   forklaring?: string;
   navIdent?: string;
+  entitet: "utbetalingen" | "tilsagnet";
 }
 
-export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header }: Props) {
+export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header, entitet }: Props) {
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
         {header}
       </Heading>
       <p>
-        {navIdent} avviste den {formaterDato(tidspunkt)} med følgende{" "}
+        {navIdent} returnerte {entitet} den {formaterDato(tidspunkt)} med følgende{" "}
         {aarsaker && aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker ?? []))}</b>
         {forklaring ? (
@@ -86,15 +92,4 @@ export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header 
       </p>
     </Alert>
   );
-}
-
-function joinWithCommaAndOg(aarsaker: string[]): string {
-  if (aarsaker.length === 0) return "";
-  if (aarsaker.length === 1) return aarsaker[0];
-  return `${aarsaker.slice(0, -1).join(", ")} og ${aarsaker[aarsaker.length - 1]}`;
-}
-
-function capitalizeFirstLetter(text: string): string {
-  if (!text) return "";
-  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }

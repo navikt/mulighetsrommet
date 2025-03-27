@@ -74,7 +74,7 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
                 antallPlasser = 1,
             )
 
-            TilsagnBeregningForhandsgodkjent.beregn(skuddar).output.belop shouldBe 19599
+            TilsagnBeregningForhandsgodkjent.beregn(skuddar).output.belop shouldBe 19508
         }
 
         test("én dag") {
@@ -84,7 +84,7 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
                 antallPlasser = 1,
             )
 
-            TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 606
+            TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 652
         }
 
         test("overflow kaster exception") {
@@ -118,7 +118,8 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
                 antallPlasser = 24,
             )
 
-            TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 1711768
+            // Merk at dette er annerledes (mer mer presisjon) enn det Arena ville lagd = 1_711_768
+            TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 1_713_384
         }
     }
 })

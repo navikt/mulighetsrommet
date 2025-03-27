@@ -27,7 +27,7 @@ export const brukerHandlers = [
 
       const bruker: Bruker = {
         fnr: norskIdent,
-        innsatsgruppe: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        innsatsgruppe: Innsatsgruppe.TRENGER_VEILEDNING,
         erUnderOppfolging: true,
         erSykmeldtMedArbeidsgiver: false,
         enheter: [

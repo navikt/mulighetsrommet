@@ -6,6 +6,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.LocalDate
 
 class GenerateUtbetaling(
@@ -27,12 +28,12 @@ class GenerateUtbetaling(
 
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
-        .execute { _, _ ->
+        .executeSuspend { _, _ ->
             val dayInPreviousMonth = LocalDate.now().minusMonths(1)
             runTask(dayInPreviousMonth)
         }
 
-    fun runTask(dayInMonth: LocalDate) {
+    suspend fun runTask(dayInMonth: LocalDate) {
         if (config.disabled) return
         utbetalingService.genererUtbetalingForMonth(dayInMonth)
     }

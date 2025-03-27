@@ -50,7 +50,7 @@ export const AvtaleSchema = z
       customOpsjonsmodellNavn: z.string().optional().nullable(),
     }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
-    websaknummer: z
+    sakarkivNummer: z
       .string()
       .nullable()
       .refine(
@@ -59,7 +59,7 @@ export const AvtaleSchema = z
           return /^\d{2}\/\d+$/.test(value);
         },
         {
-          message: "Websaknummer må være på formatet 'år/løpenummer'",
+          message: "Saksnummer må være på formatet 'år/løpenummer'",
         },
       ),
     prisbetingelser: z.string().optional(),
@@ -76,7 +76,7 @@ export const AvtaleSchema = z
   .superRefine((data, ctx) => {
     if (
       [Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) &&
-      !data.websaknummer
+      !data.sakarkivNummer
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

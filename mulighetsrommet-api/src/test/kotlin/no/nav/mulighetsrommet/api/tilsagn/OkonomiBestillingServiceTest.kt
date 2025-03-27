@@ -2,9 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.kotest.assertions.nondeterministic.eventually
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.*
@@ -25,7 +23,6 @@ import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -200,7 +197,7 @@ class OkonomiBestillingServiceTest : FunSpec({
             }.initialize(database.db)
 
             database.run {
-                service.scheduleBehandleGodkjenteUtbetalinger(tilsagn.id, session)
+                service.scheduleBehandleGodkjenteUtbetaling(utbetaling1.id, session)
             }
 
             eventually(10.seconds) {
@@ -226,66 +223,6 @@ class OkonomiBestillingServiceTest : FunSpec({
                         },
                     )
                 }
-            }
-        }
-
-        test("første godkjente delutbetaling blir sendt først selv om jobb krasjer første gang") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(tilsagn),
-                utbetalinger = listOf(utbetaling1, utbetaling2),
-                delutbetalinger = listOf(delutbetaling1, delutbetaling2),
-            ) {
-                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(
-                    delutbetaling1,
-                    DelutbetalingStatus.GODKJENT,
-                    besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 10, 0, 0),
-                )
-                setDelutbetalingStatus(
-                    delutbetaling2,
-                    DelutbetalingStatus.GODKJENT,
-                    besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 20, 0, 0),
-                )
-            }.initialize(database.db)
-            every { kafkaProducerClient.sendSync(any()) } throws Exception()
-            shouldThrow<Exception> {
-                service.behandleGodkjentUtbetalinger(tilsagn.id)
-            }
-            database.run {
-                queries.delutbetaling.getSkalSendesTilOkonomi(tilsagn.id) shouldHaveSize 2
-            }
-            clearAllMocks()
-            service.behandleGodkjentUtbetalinger(tilsagn.id)
-
-            verifySequence {
-                kafkaProducerClient.sendSync(
-                    match {
-                        it.topic() shouldBe "okonomi.bestilling.v1"
-                        it.key() shouldBe bestillingsnummer
-
-                        val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
-                            .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
-                            .payload
-                        faktura.fakturanummer shouldBe delutbetaling1.fakturanummer
-                        true
-                    },
-                )
-                kafkaProducerClient.sendSync(
-                    match {
-                        it.topic() shouldBe "okonomi.bestilling.v1"
-                        it.key() shouldBe bestillingsnummer
-
-                        val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
-                            .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
-                            .payload
-                        faktura.fakturanummer shouldBe delutbetaling2.fakturanummer
-                        true
-                    },
-                )
             }
         }
     }
