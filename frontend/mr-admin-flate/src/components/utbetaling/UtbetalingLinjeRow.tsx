@@ -3,7 +3,7 @@ import { FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Checkbox, HStack, Table, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
+import { Metadata } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
