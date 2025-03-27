@@ -5452,6 +5452,8 @@ components:
           $ref: "#/components/schemas/TilsagnBeregning"
         status:
           $ref: "#/components/schemas/TilsagnStatus"
+        bestilling:
+          $ref: "#/components/schemas/Bestilling"
       required:
         - id
         - type
@@ -5460,6 +5462,26 @@ components:
         - kostnadssted
         - beregning
         - status
+        - bestilling
+
+    Bestilling:
+      type: object
+      properties:
+        bestillingsnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/BestillingStatusType"
+          nullable: true
+      required:
+        - bestillingsnummer
+
+    BestillingStatusType:
+      type: string
+      enum:
+      - SENDT
+      - AKTIV
+      - ANNULLERT
+      - OPPGJORT
 
     TilsagnDetaljerDto:
       type: object

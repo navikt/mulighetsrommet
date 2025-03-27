@@ -41,7 +41,9 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
 
   return (
     <>
-      <Heading size="medium">Utbetalingslinjer</Heading>
+      <Heading spacing size="medium">
+        Utbetalingslinjer
+      </Heading>
       <UtbetalingLinjeTable
         linjer={linjer}
         utbetaling={utbetaling}
@@ -51,6 +53,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               readOnly
               key={linje.id}
               linje={linje}
+              grayBackground
               knappeColumn={
                 <>
                   {linje?.status === DelutbetalingStatus.TIL_GODKJENNING &&
