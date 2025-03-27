@@ -84,10 +84,10 @@ class VeilederflateServiceTest : FunSpec({
                 _id = "$enkelAmoSanityId",
                 tiltakstypeNavn = "Arbeidsmarkedsopplæring (enkeltplass)",
                 innsatsgrupper = setOf(
-                    Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-                    Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-                    Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
-                    Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    Innsatsgruppe.TRENGER_VEILEDNING,
+                    Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
+                    Innsatsgruppe.JOBBE_DELVIS,
+                    Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
             fylke = "0300",
@@ -116,10 +116,10 @@ class VeilederflateServiceTest : FunSpec({
                 _id = "$arbeidstreningSanityId",
                 tiltakstypeNavn = "Arbeidstrening",
                 innsatsgrupper = setOf(
-                    Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-                    Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-                    Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
-                    Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    Innsatsgruppe.TRENGER_VEILEDNING,
+                    Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
+                    Innsatsgruppe.JOBBE_DELVIS,
+                    Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
             fylke = "0400",
@@ -135,10 +135,10 @@ class VeilederflateServiceTest : FunSpec({
                 _id = "$arbeidstreningSanityId",
                 tiltakstypeNavn = "Arbeidstrening",
                 innsatsgrupper = setOf(
-                    Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-                    Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-                    Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
-                    Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    Innsatsgruppe.TRENGER_VEILEDNING,
+                    Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
+                    Innsatsgruppe.JOBBE_DELVIS,
+                    Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
             enheter = listOf("0501"),
@@ -154,7 +154,7 @@ class VeilederflateServiceTest : FunSpec({
         val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0300"),
             apentForPamelding = ApentForPamelding.APENT,
-            innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+            innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         )
@@ -179,7 +179,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0501"),
             apentForPamelding = ApentForPamelding.APENT,
-            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 2
@@ -187,7 +187,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0501"),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
-            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 2
@@ -195,7 +195,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0501"),
             apentForPamelding = ApentForPamelding.STENGT,
-            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 0

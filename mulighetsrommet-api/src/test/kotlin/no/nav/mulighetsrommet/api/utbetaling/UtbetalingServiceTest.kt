@@ -803,6 +803,17 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
+            shouldThrow<IllegalArgumentException> {
+                service.opprettDelutbetalinger(
+                    OpprettDelutbetalingerRequest(
+                        utbetaling.id,
+                        listOf(
+                            DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
+                        ),
+                    ),
+                    domain.ansatte[0].navIdent,
+                )
+            }
             service.besluttDelutbetaling(
                 delutbetalingId2,
                 BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(

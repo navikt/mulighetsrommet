@@ -126,7 +126,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
   return redirect(
-    `${internalNavigation(orgnr).kvittering(utbetalingId)}?forside-tab=${currentTab}`,
+    `${internalNavigation(orgnr).innsendtUtbetaling(utbetalingId)}?forside-tab=${currentTab}`,
   );
 };
 
