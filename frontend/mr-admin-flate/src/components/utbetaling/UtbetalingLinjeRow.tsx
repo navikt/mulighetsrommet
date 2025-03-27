@@ -26,7 +26,6 @@ export function UtbetalingLinjeRow({
   const [belopError, setBelopError] = useState<string | undefined>(undefined);
 
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
-
   return (
     <Table.ExpandableRow
       open={errors.length > 0 || Boolean(linje.opprettelse) || linje.gjorOppTilsagn}
@@ -56,9 +55,7 @@ export function UtbetalingLinjeRow({
         </VStack>
       }
     >
-      <Table.DataCell className={grayBgClass}>
-        {linje.tilsagn.bestilling.bestillingsnummer}
-      </Table.DataCell>
+      <Table.DataCell className={grayBgClass}>{linje.tilsagn.bestillingsnummer}</Table.DataCell>
       <Table.DataCell className={grayBgClass}>
         {tilsagnTypeToString(linje.tilsagn.type)}
       </Table.DataCell>
@@ -111,8 +108,9 @@ export function UtbetalingLinjeRow({
           value={linje.belop}
         />
       </Table.DataCell>
-      <Table.DataCell>{linje.status && <DelutbetalingTag status={linje.status} />}</Table.DataCell>
-      <Table.DataCell className="flex justify-end">{knappeColumn}</Table.DataCell>
+      <Table.DataCell className="flex flex-row justify-end">
+        {knappeColumn || (linje.status && <DelutbetalingTag status={linje.status} />)}
+      </Table.DataCell>
     </Table.ExpandableRow>
   );
 }
