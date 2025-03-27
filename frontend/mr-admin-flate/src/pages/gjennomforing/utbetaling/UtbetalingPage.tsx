@@ -24,6 +24,7 @@ import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbet
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -98,54 +99,59 @@ export function UtbetalingPage() {
             )}
             <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
               <VStack gap="4" id="kostnadsfordeling">
-                <HGrid columns="1fr 1fr">
-                  <VStack>
-                    <Heading size="medium" spacing>
-                      Til utbetaling
-                    </Heading>
-                    <VStack gap="2">
-                      <MetadataHorisontal
-                        header="Utbetalingsperiode"
-                        verdi={formaterPeriode(utbetaling.periode)}
-                      />
-                      <MetadataHorisontal
-                        header="Dato innsendt"
-                        verdi={formaterDato(
-                          utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
-                        )}
-                      />
-                      <MetadataHorisontal
-                        header="Innsendt av"
-                        verdi={utbetaling.innsendtAv || "Ukjent innsender"}
-                      />
-                      <MetadataHorisontal
-                        header={utbetalingTekster.beregning.belop.label}
-                        verdi={formaterNOK(utbetaling.beregning.belop)}
-                      />
-                      {utbetaling.beskrivelse && (
+                <VStack>
+                  <div className="self-end">
+                    <UtbetalingStatusTag status={utbetaling.status} />
+                  </div>
+                  <HGrid columns="1fr 1fr">
+                    <VStack>
+                      <Heading size="medium" spacing>
+                        Til utbetaling
+                      </Heading>
+                      <VStack gap="2">
                         <MetadataHorisontal
-                          header="Begrunnelse for utbetaling"
-                          verdi={utbetaling.beskrivelse}
+                          header="Utbetalingsperiode"
+                          verdi={formaterPeriode(utbetaling.periode)}
                         />
-                      )}
+                        <MetadataHorisontal
+                          header="Dato innsendt"
+                          verdi={formaterDato(
+                            utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
+                          )}
+                        />
+                        <MetadataHorisontal
+                          header="Innsendt av"
+                          verdi={utbetaling.innsendtAv || "Ukjent innsender"}
+                        />
+                        <MetadataHorisontal
+                          header={utbetalingTekster.beregning.belop.label}
+                          verdi={formaterNOK(utbetaling.beregning.belop)}
+                        />
+                        {utbetaling.beskrivelse && (
+                          <MetadataHorisontal
+                            header="Begrunnelse for utbetaling"
+                            verdi={utbetaling.beskrivelse}
+                          />
+                        )}
+                      </VStack>
                     </VStack>
-                  </VStack>
-                  <VStack>
-                    <Heading size="medium" spacing className="mt-8">
-                      Betalingsinformasjon
-                    </Heading>
-                    <VStack gap="2">
-                      <MetadataHorisontal
-                        header="Kontonummer"
-                        verdi={utbetaling.betalingsinformasjon?.kontonummer}
-                      />
-                      <MetadataHorisontal
-                        header="KID (valgfritt)"
-                        verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt fra arrangør"}
-                      />
+                    <VStack>
+                      <Heading size="medium" spacing>
+                        Betalingsinformasjon
+                      </Heading>
+                      <VStack gap="2">
+                        <MetadataHorisontal
+                          header="Kontonummer"
+                          verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                        />
+                        <MetadataHorisontal
+                          header="KID (valgfritt)"
+                          verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
+                        />
+                      </VStack>
                     </VStack>
-                  </VStack>
-                </HGrid>
+                  </HGrid>
+                </VStack>
                 <Separator />
                 {erSaksbehandlerOkonomi &&
                 [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(
