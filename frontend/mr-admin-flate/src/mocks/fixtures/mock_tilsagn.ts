@@ -1,5 +1,4 @@
 import {
-  BestillingStatusType,
   NavEnhetStatus,
   NavEnhetType,
   TilsagnDto,
@@ -29,10 +28,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-06",
     },
     status: TilsagnStatus.TIL_GODKJENNING,
-    bestilling: {
-      bestillingsnummer: "A-2024/123-1",
-      status: BestillingStatusType.AKTIV,
-    },
+    bestillingsnummer: "A-2024/123",
   },
   {
     belopGjenstaende: 10000,
@@ -55,10 +51,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-04",
     },
     status: TilsagnStatus.TIL_ANNULLERING,
-    bestilling: {
-      bestillingsnummer: "A-2024/123-1",
-      status: BestillingStatusType.AKTIV,
-    },
+    bestillingsnummer: "A-2024/123",
   },
   {
     belopGjenstaende: 10000,
@@ -81,10 +74,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-02",
     },
     status: TilsagnStatus.GODKJENT,
-    bestilling: {
-      bestillingsnummer: "A-2024/123-1",
-      status: BestillingStatusType.AKTIV,
-    },
+    bestillingsnummer: "A-2024/123",
   },
   {
     type: TilsagnType.TILSAGN,
@@ -107,10 +97,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-02",
     },
     status: TilsagnStatus.ANNULLERT,
-    bestilling: {
-      bestillingsnummer: "A-2024/123-1",
-      status: BestillingStatusType.AKTIV,
-    },
+    bestillingsnummer: "A-2024/123",
   },
   {
     type: TilsagnType.TILSAGN,
@@ -133,9 +120,6 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-02",
     },
     status: TilsagnStatus.RETURNERT,
-    bestilling: {
-      bestillingsnummer: "A-2024/123-1",
-      status: BestillingStatusType.AKTIV,
-    },
+    bestillingsnummer: "A-2024/123",
   },
 ];

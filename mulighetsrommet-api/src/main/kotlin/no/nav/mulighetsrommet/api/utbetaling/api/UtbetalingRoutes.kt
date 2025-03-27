@@ -111,7 +111,7 @@ fun Route.utbetalingRoutes() {
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periodeIntersectsWith = utbetaling.periode,
                     typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
-                )
+                ).map { TilsagnDto.fromTilsagn(it) }
             }
 
             call.respond(tilsagn)

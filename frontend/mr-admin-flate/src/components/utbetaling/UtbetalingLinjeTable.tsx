@@ -43,7 +43,6 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
           </Table.HeaderCell>
           <Table.HeaderCell scope="col">Gjør opp tilsagn</Table.HeaderCell>
           <Table.HeaderCell scope="col">Utbetales</Table.HeaderCell>
-          <Table.HeaderCell scope="col">Status</Table.HeaderCell>
           <Table.HeaderCell scope="col" />
         </Table.Row>
       </Table.Header>
