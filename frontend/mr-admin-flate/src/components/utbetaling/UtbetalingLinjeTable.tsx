@@ -48,7 +48,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
       </Table.Header>
       <Table.Body>
         {linjer.map((linje, i) => renderRow(linje, i))}
-        <Table.Row>
+        <Table.Row shadeOnHover={false}>
           <Table.DataCell
             className="font-bold"
             colSpan={6}

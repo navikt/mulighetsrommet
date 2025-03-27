@@ -3,13 +3,13 @@ import { FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Checkbox, HStack, Table, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-import { MetadataHorisontal } from "../detaljside/Metadata";
+import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
   readOnly?: boolean;
   linje: UtbetalingLinje;
-  knappeColumn: React.ReactNode;
+  knappeColumn?: React.ReactNode;
   onChange?: (linje: UtbetalingLinje) => void;
   errors?: FieldError[];
   grayBackground?: boolean;
@@ -24,15 +24,20 @@ export function UtbetalingLinjeRow({
   grayBackground = false,
 }: Props) {
   const [belopError, setBelopError] = useState<string | undefined>(undefined);
-
+  const [openRow, setOpenRow] = useState(
+    errors.length > 0 || Boolean(linje.opprettelse) || linje.gjorOppTilsagn,
+  );
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
   return (
     <Table.ExpandableRow
-      open={errors.length > 0 || Boolean(linje.opprettelse) || linje.gjorOppTilsagn}
+      shadeOnHover={false}
+      open={openRow}
+      onOpenChange={() => setOpenRow(!openRow)}
+      onClick={() => setOpenRow(!openRow)}
       key={linje.id}
-      className={grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}
+      className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
-        <VStack gap="2">
+        <VStack gap="2" className="bg-gray-100">
           <VStack className="bg-[var(--a-surface-danger-subtle)]">
             {errors.map((error) => (
               <BodyShort>{error.detail}</BodyShort>
@@ -46,9 +51,9 @@ export function UtbetalingLinjeRow({
           )}
           {linje.opprettelse && (
             <HStack gap="4">
-              <MetadataHorisontal header="Behandlet av" verdi={linje.opprettelse.behandletAv} />
+              <Metadata header="Behandlet av" verdi={linje.opprettelse.behandletAv} />
               {linje.opprettelse.type === "BESLUTTET" && (
-                <MetadataHorisontal header="Besluttet av" verdi={linje.opprettelse.besluttetAv} />
+                <Metadata header="Besluttet av" verdi={linje.opprettelse.besluttetAv} />
               )}
             </HStack>
           )}
