@@ -5,7 +5,6 @@ import { ReactNode } from "react";
 export interface MetadataProps {
   header: string | ReactNode;
   verdi: string | number | undefined | null | ReactNode;
-  horizontal?: boolean;
 }
 
 export function Metadata({ header, verdi }: MetadataProps) {

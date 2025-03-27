@@ -1,5 +1,6 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Header } from "@/components/detaljside/Header";
-import { Metadata, MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -10,20 +11,19 @@ import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import { AdminUtbetalingStatus, NavAnsattRolle } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Alert, Box, Heading, HStack, List, VStack } from "@navikt/ds-react";
+import { Alert, Box, Heading, HGrid, HStack, List, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
   tilsagnTilUtbetalingQuery,
   utbetalingHistorikkQuery,
   utbetalingQuery,
 } from "./utbetalingPageLoader";
 
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
+import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
-import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -70,9 +70,7 @@ export function UtbetalingPage() {
       <Header>
         <BankNoteIcon className="w-10 h-10" />
         <Heading size="large" level="2">
-          <HStack gap="2" align={"center"}>
-            Utbetaling for {gjennomforing.navn}
-          </HStack>
+          Utbetaling for {gjennomforing.navn}
         </Heading>
       </Header>
       <ContentBox>
@@ -100,9 +98,11 @@ export function UtbetalingPage() {
             )}
             <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
               <VStack gap="4" id="kostnadsfordeling">
-                <HStack justify="space-between">
+                <HGrid columns="1fr 1fr">
                   <VStack>
-                    <Heading size="medium">Til utbetaling</Heading>
+                    <Heading size="medium" spacing>
+                      Til utbetaling
+                    </Heading>
                     <VStack gap="2">
                       <MetadataHorisontal
                         header="Utbetalingsperiode"
@@ -131,23 +131,21 @@ export function UtbetalingPage() {
                     </VStack>
                   </VStack>
                   <VStack>
-                    <Heading size="medium" className="mt-4">
+                    <Heading size="medium" spacing className="mt-8">
                       Betalingsinformasjon
                     </Heading>
                     <VStack gap="2">
-                      <Metadata
-                        horizontal
+                      <MetadataHorisontal
                         header="Kontonummer"
                         verdi={utbetaling.betalingsinformasjon?.kontonummer}
                       />
-                      <Metadata
-                        horizontal
-                        header="KID"
-                        verdi={utbetaling.betalingsinformasjon?.kid || "-"}
+                      <MetadataHorisontal
+                        header="KID (valgfritt)"
+                        verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt fra arrangør"}
                       />
                     </VStack>
                   </VStack>
-                </HStack>
+                </HGrid>
                 <Separator />
                 {erSaksbehandlerOkonomi &&
                 [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(

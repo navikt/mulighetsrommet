@@ -64,6 +64,7 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
     <Table
       sort={sort}
       onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
+      aria-label="Utbetalinger"
     >
       <Table.Header>
         <Table.Row>

@@ -114,7 +114,9 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     <>
       <VStack>
         <HStack justify="space-between">
-          <Heading size="medium">Utbetalingslinjer</Heading>
+          <Heading spacing size="medium">
+            Utbetalingslinjer
+          </Heading>
           <ActionMenu>
             <ActionMenu.Trigger>
               <Button variant="primary" size="small">
@@ -146,6 +148,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
                     Fjern
                   </Button>
                 }
+                grayBackground
                 onChange={(updated) => {
                   setLinjerState((prev) =>
                     prev.map((linje) => (linje.id === updated.id ? updated : linje)),
