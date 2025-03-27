@@ -113,7 +113,7 @@ export function UtbetalingLinjeRow({
           value={linje.belop}
         />
       </Table.DataCell>
-      <Table.DataCell className="flex flex-row justify-end">
+      <Table.DataCell>
         {knappeColumn || (linje.status && <DelutbetalingTag status={linje.status} />)}
       </Table.DataCell>
     </Table.ExpandableRow>
