@@ -764,6 +764,125 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
+        test("ny send til godkjenning sletter rader som ikke er med") {
+            val tilsagn1 = Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+            val tilsagn2 = Tilsagn2.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+            val utbetaling = utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                beregning = UtbetalingBeregningFri(
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
+                ),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1, tilsagn2),
+                utbetalinger = listOf(utbetaling),
+            ) {
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+            val service = createUtbetalingService()
+
+            val delutbetalingId1 = UUID.randomUUID()
+            val delutbetalingId2 = UUID.randomUUID()
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(
+                    utbetaling.id,
+                    listOf(
+                        DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
+                        DelutbetalingRequest(delutbetalingId2, tilsagn2.id, gjorOppTilsagn = false, belop = 5),
+                    ),
+                ),
+                domain.ansatte[0].navIdent,
+            ).shouldBeRight()
+            service.besluttDelutbetaling(
+                delutbetalingId2,
+                BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
+                domain.ansatte[1].navIdent,
+            )
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(
+                    utbetaling.id,
+                    listOf(
+                        DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
+                    ),
+                ),
+                domain.ansatte[0].navIdent,
+            ).shouldBeRight()
+
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling.id) }
+            delutbetalinger.size shouldBe 1
+            delutbetalinger[0].id shouldBe delutbetalingId1
+        }
+
+        test("returner returnerer alle delutbetalinger (selv godkjente)") {
+            val tilsagn1 = Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+            val tilsagn2 = Tilsagn2.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+            val utbetaling = utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                beregning = UtbetalingBeregningFri(
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
+                ),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1, tilsagn2),
+                utbetalinger = listOf(utbetaling),
+            ) {
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+            val service = createUtbetalingService()
+
+            val delutbetalingId1 = UUID.randomUUID()
+            val delutbetalingId2 = UUID.randomUUID()
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(
+                    utbetaling.id,
+                    listOf(
+                        DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
+                        DelutbetalingRequest(delutbetalingId2, tilsagn2.id, gjorOppTilsagn = false, belop = 5),
+                    ),
+                ),
+                domain.ansatte[0].navIdent,
+            ).shouldBeRight()
+            service.besluttDelutbetaling(
+                delutbetalingId1,
+                BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                domain.ansatte[1].navIdent,
+            )
+            database.run { queries.delutbetaling.get(delutbetalingId1) }?.status shouldBe DelutbetalingStatus.GODKJENT
+            service.besluttDelutbetaling(
+                delutbetalingId2,
+                BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
+                domain.ansatte[1].navIdent,
+            )
+            database.run { queries.delutbetaling.get(delutbetalingId1) }?.status shouldBe DelutbetalingStatus.RETURNERT
+            database.run { queries.totrinnskontroll.getOrError(delutbetalingId1, Totrinnskontroll.Type.OPPRETT) }.besluttetAv shouldBe Tiltaksadministrasjon
+        }
+
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
             val tilsagn1 = Tilsagn2.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
