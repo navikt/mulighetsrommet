@@ -168,8 +168,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
                         .join(", ")}`}
                     >
                       {formaterNavEnheter(
-                        undefined,
-                        avtale.kontorstruktur?.map((struktur) => ({
+                        avtale.kontorstruktur.map((struktur) => ({
                           navn: struktur.region.navn,
                           enhetsnummer: struktur.region.enhetsnummer,
                         })),

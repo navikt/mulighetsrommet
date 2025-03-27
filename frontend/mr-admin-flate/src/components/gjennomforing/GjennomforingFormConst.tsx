@@ -28,7 +28,7 @@ function defaultNavRegion(
   gjennomforing?: GjennomforingDto,
 ): string[] | undefined {
   if (gjennomforing?.kontorstruktur) {
-    return gjennomforing?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
+    return gjennomforing?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
   }
   if (avtale.kontorstruktur.length === 1) {
     return avtale.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);

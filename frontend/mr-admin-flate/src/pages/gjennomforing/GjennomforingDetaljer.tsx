@@ -25,11 +25,11 @@ interface Props {
 }
 
 export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
-  const kontorer = gjennomforing.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
+  const kontorer = gjennomforing.kontorstruktur.flatMap((struktur) => struktur.kontorer);
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
       kontorer
-        ?.map((kontor) => {
+        .map((kontor) => {
           return enheterForKontaktperson
             .map((kp) => {
               if (kontor.enhetsnummer === kp) {

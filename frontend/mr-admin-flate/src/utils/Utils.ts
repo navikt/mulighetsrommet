@@ -201,19 +201,16 @@ export function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnh
 }
 
 export function formaterNavEnheter(
-  navRegionNavn: string[] = [],
-  navEnheter?: {
-    navn?: string | null;
-    enhetsnummer?: string;
+  navEnheter: {
+    navn: string;
+    enhetsnummer: string;
   }[],
 ) {
-  const liste = [...(navEnheter || [])];
-  if (!liste) return "";
+  if (navEnheter.length < 1) return "";
 
-  const forsteEnhet = liste.shift();
-  if (!forsteEnhet) return navRegionNavn;
+  const forsteEnhet = navEnheter.shift();
 
-  return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
+  return `${forsteEnhet?.navn} ${navEnheter.length > 0 ? `+ ${navEnheter.length}` : ""}`;
 }
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
