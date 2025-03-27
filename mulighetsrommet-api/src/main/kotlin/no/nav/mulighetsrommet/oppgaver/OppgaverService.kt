@@ -266,6 +266,6 @@ private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
         linkText = "Se utbetaling",
         link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetalinger/${utbetaling.id}",
     ),
-    createdAt = utbetaling.periode.start.atStartOfDay(),
+    createdAt = utbetaling.createdAt,
     oppgaveIcon = OppgaveIcon.UTBETALING,
 )
