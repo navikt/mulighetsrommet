@@ -203,7 +203,10 @@ private fun kafka(appConfig: AppConfig) = module {
                     return db.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
                 }
             },
-            get(),
+            KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
+                .withProperties(config.producerProperties)
+                .withMetrics(Metrikker.appMicrometerRegistry)
+                .build(),
             shedLockLeaderElectionClient,
         )
     }

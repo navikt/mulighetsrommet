@@ -44,7 +44,7 @@ export function UtbetalingLinjeRow({
             ))}
           </VStack>
           {linje.gjorOppTilsagn && (
-            <Alert variant="warning">
+            <Alert variant="info">
               Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
               flere utbetalinger fra tilsagnet
             </Alert>
