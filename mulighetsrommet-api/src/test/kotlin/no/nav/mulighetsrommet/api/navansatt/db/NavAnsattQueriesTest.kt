@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.navansatt.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -107,6 +108,24 @@ class NavAnsattQueriesTest : FunSpec({
 
                 queries.getByAzureId(ansatt1.azureId) shouldBe null
                 queries.getByNavIdent(ansatt1.navIdent) shouldBe null
+            }
+        }
+
+        test("oppdatere roller") {
+            database.runAndRollback { session ->
+                val queries = NavAnsattQueries(session)
+
+                val enRolle = setOf(NavAnsattRolle.KONTAKTPERSON)
+                queries.upsert(ansatt1.copy(roller = enRolle))
+                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
+
+                val flereRoller = setOf(NavAnsattRolle.BESLUTTER_TILSAGN, NavAnsattRolle.ATTESTANT_UTBETALING)
+                queries.upsert(ansatt1.copy(roller = flereRoller))
+                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
+
+                val ingenRoller = setOf<NavAnsattRolle>()
+                queries.upsert(ansatt1.copy(roller = ingenRoller))
+                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
             }
         }
 
