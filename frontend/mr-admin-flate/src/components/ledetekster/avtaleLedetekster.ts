@@ -14,7 +14,7 @@ export const avtaletekster = {
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",
   ingenAdministratorerSattLabel: "Ingen administratorer satt for avtalen",
-  sakarkivNummerLabel: "Saksnummer til Avtalesaken i Public360",
+  sakarkivNummerLabel: "Saksnummer til Avtalesaken i Public 360",
   sakarkivNummerHelpTextTitle: "Hvilket saksnummer er dette?",
   fylkessamarbeidLabel: "Fylkessamarbeid",
   navRegionerLabel: "Nav-regioner",

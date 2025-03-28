@@ -134,7 +134,7 @@ export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Pr
                   label={avtaletekster.sakarkivNummerLabel}
                   helpTextTitle={avtaletekster.sakarkivNummerHelpTextTitle}
                 >
-                  I Public360 skal det opprettes tre typer arkivsaker med egne saksnummer:
+                  I Public 360 skal det opprettes tre typer arkivsaker med egne saksnummer:
                   <ol>
                     <li>En sak for hver anskaffelse.</li>
                     <li>En sak for kontrakt/avtale med hver leverandør (Avtalesaken).</li>
