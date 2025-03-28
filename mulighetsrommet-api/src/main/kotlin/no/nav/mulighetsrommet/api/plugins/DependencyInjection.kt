@@ -63,7 +63,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
-import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -381,7 +380,17 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { UtbetalingService(get(), get(), get(), get(), get()) }
+    single {
+        UtbetalingService(
+            UtbetalingService.Config(
+                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+            ),
+            get(),
+            get(),
+            get(),
+            get(),
+        )
+    }
     single { UnleashService(appConfig.unleash, get()) }
     single<AxsysClient> {
         AxsysV2ClientImpl(
@@ -392,10 +401,17 @@ private fun services(appConfig: AppConfig) = module {
     single { GjennomforingValidator(get()) }
     single { OpsjonLoggService(get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(appConfig.okonomi, get(), get()) }
+    single {
+        TilsagnService(
+            TilsagnService.Config(
+                okonomiConfig = appConfig.okonomi,
+                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+            ),
+            get(),
+        )
+    }
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
-    single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get()) }
     single { ArrangorFlateService(get(), get(), get()) }
 }
 

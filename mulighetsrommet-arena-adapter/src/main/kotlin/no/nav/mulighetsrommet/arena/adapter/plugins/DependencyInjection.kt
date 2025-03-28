@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import org.koin.core.module.Module
-import org.koin.core.scope.get
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
 import org.koin.logger.SLF4JLogger

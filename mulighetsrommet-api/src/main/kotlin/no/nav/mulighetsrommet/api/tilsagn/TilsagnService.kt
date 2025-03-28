@@ -4,6 +4,7 @@ import arrow.core.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
@@ -24,18 +25,20 @@ import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.*
 import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
-    val config: OkonomiConfig,
+    val config: Config,
     private val db: ApiDatabase,
-    private val okonomi: OkonomiBestillingService,
 ) {
+    data class Config(
+        val okonomiConfig: OkonomiConfig,
+        val bestillingTopic: String,
+    )
+
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
             ?: return FieldError
@@ -43,7 +46,7 @@ class TilsagnService(
                 .nel()
                 .left()
 
-        val minTilsagnCreationDate = config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
+        val minTilsagnCreationDate = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
         if (minTilsagnCreationDate == null) {
             return FieldError
                 .of(
@@ -159,12 +162,13 @@ class TilsagnService(
                 when (besluttelse.besluttelse) {
                     Besluttelse.GODKJENT ->
                         gjorOppTilsagn(tilsagn, navIdent)
-                            .right()
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
                                 // når vi gjør opp på en delutbetaling.
-                                okonomi.behandleOppgjortTilsagn(tilsagn, this)
+                                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+                                storeGjorOppBestilling(it, oppgjor)
                             }
+                            .right()
 
                     Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent).right()
                 }
@@ -180,16 +184,15 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.totrinnskontroll.upsert(
-            opprettelse.copy(
-                besluttetAv = besluttetAv,
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.GODKJENT,
-            ),
+        val besluttetOpprettelse = opprettelse.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
         )
+        queries.totrinnskontroll.upsert(besluttetOpprettelse)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        okonomi.behandleGodkjentTilsagn(tilsagn, this)
+        storeOpprettBestilling(tilsagn, besluttetOpprettelse)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn godkjent", dto, besluttetAv)
@@ -235,16 +238,15 @@ class TilsagnService(
             "Kan ikke beslutte eget tilsagn"
         }
 
-        queries.totrinnskontroll.upsert(
-            annullering.copy(
-                besluttetAv = besluttetAv,
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.GODKJENT,
-            ),
+        val besluttetAnnullering = annullering.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
         )
+        queries.totrinnskontroll.upsert(besluttetAnnullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
 
-        okonomi.behandleAnnullertTilsagn(tilsagn, this)
+        storeAnnullerBestilling(tilsagn, besluttetAnnullering)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)
@@ -422,6 +424,83 @@ class TilsagnService(
         }
     }
 
+    private fun QueryContext.storeOpprettBestilling(tilsagn: Tilsagn, opprettelse: Totrinnskontroll) {
+        require(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null) {
+            "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
+        }
+
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
+            "Fant ikke gjennomforing for tilsagn"
+        }
+
+        val avtale = requireNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
+            "Gjennomføring ${gjennomforing.id} mangler avtale"
+        }
+
+        val arrangor = requireNotNull(
+            avtale.arrangor?.let {
+                OpprettBestilling.Arrangor(
+                    hovedenhet = avtale.arrangor.organisasjonsnummer,
+                    underenhet = gjennomforing.arrangor.organisasjonsnummer,
+                )
+            },
+        ) {
+            "Avtale ${avtale.id} mangler arrangør"
+        }
+
+        val bestilling = OpprettBestilling(
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            tilskuddstype = when (tilsagn.type) {
+                TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
+                else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
+            },
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            arrangor = arrangor,
+            kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
+            avtalenummer = avtale.sakarkivNummer?.value,
+            belop = tilsagn.beregning.output.belop,
+            periode = tilsagn.periode,
+            behandletAv = opprettelse.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = opprettelse.behandletTidspunkt,
+            besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+        )
+
+        storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
+    }
+
+    private fun QueryContext.storeAnnullerBestilling(tilsagn: Tilsagn, annullering: Totrinnskontroll) {
+        require(annullering.besluttetAv != null && annullering.besluttetTidspunkt != null) {
+            "Tilsagn id=${tilsagn.id} må være besluttet annullert for å sendes som annullert til økonomi"
+        }
+
+        val annullerBestilling = AnnullerBestilling(
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            behandletAv = annullering.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = annullering.behandletTidspunkt,
+            besluttetAv = annullering.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = annullering.besluttetTidspunkt,
+        )
+
+        storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
+    }
+
+    private fun QueryContext.storeGjorOppBestilling(tilsagn: Tilsagn, oppgjor: Totrinnskontroll) {
+        require(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
+            "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å sende null melding til økonomi"
+        }
+
+        val faktura = GjorOppBestilling(
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            behandletAv = oppgjor.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = oppgjor.behandletTidspunkt,
+            besluttetAv = oppgjor.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = oppgjor.besluttetTidspunkt,
+        )
+
+        storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.GjorOppBestilling(faktura))
+    }
+
     private fun QueryContext.logEndring(
         operation: String,
         dto: Tilsagn,
@@ -440,5 +519,15 @@ class TilsagnService(
 
     private fun QueryContext.getOrError(id: UUID): Tilsagn {
         return requireNotNull(queries.tilsagn.get(id)) { "Tilsagn med id=$id finnes ikke" }
+    }
+
+    private fun QueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+        val record = StoredProducerRecord(
+            config.bestillingTopic,
+            bestillingsnummer.toByteArray(),
+            Json.encodeToString(message).toByteArray(),
+            null,
+        )
+        queries.kafkaProducerRecord.storeRecord(record)
     }
 }
