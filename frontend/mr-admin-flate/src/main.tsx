@@ -1,7 +1,5 @@
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable promise/always-return */
-import { DemoBanner } from "@/components/demo/DemoBanner";
-import { isDemo } from "@/environment";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -56,7 +54,6 @@ enableMocking().then(() => {
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        {isDemo && <DemoBanner />}
         <ReloadAppErrorBoundary>
           <AppWithRouter />
         </ReloadAppErrorBoundary>

@@ -13,7 +13,6 @@ function getApiKeyFromEnvironment() {
       return "94b44c9f436db8d9d42b493fdd7d98c9";
     case Environment.DEV:
       return "42076036673d4b35d862b4282840f30b";
-    case Environment.DEMO:
     case Environment.LOCAL:
       return "mock";
   }
