@@ -24,10 +24,10 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     navigate(`/gjennomforinger/${gjennomforing.id}/tilsagn`);
   }
 
-  const kostnadssted = getKostnadssted(gjennomforing, defaults.type);
+  const regionerForKostnadssteder = getRegionerForKostnadssteder(gjennomforing, defaults.type);
 
   const props = {
-    defaultKostnadssteder: kostnadssted,
+    regioner: regionerForKostnadssteder,
     gjennomforing: gjennomforing,
     onSuccess: navigerTilTilsagn,
     onAvbryt: navigerTilTilsagn,
@@ -66,8 +66,8 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
   }
 }
 
-function getKostnadssted(gjennomforing: GjennomforingDto, type?: TilsagnType) {
-  return type === TilsagnType.TILSAGN && gjennomforing.navRegion?.enhetsnummer
-    ? [gjennomforing.navRegion.enhetsnummer]
+function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: TilsagnType) {
+  return type === TilsagnType.TILSAGN
+    ? gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer)
     : [];
 }

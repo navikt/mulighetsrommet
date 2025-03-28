@@ -12,7 +12,7 @@ const fyllInnGjennomforing = async (page: Page) => {
   await page.locator("text=Opprett ny gjennomføring").click();
   await locateAndFillInput(page, "antallPlasser", "20");
 
-  await page.click("input#navRegion");
+  await page.click("input#navRegioner");
   await page.keyboard.press("Enter");
 
   await page.click("input#navEnheter");

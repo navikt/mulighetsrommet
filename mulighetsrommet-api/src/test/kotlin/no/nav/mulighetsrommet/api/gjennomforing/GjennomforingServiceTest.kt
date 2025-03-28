@@ -114,7 +114,7 @@ class GjennomforingServiceTest : FunSpec({
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(navIdent),
-                navEnheter = listOf("2990"),
+                navEnheter = setOf("2990"),
             )
             service.upsert(gjennomforing, navIdent).shouldBeRight()
 
@@ -127,7 +127,7 @@ class GjennomforingServiceTest : FunSpec({
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(identAnsatt2, identAnsatt1),
-                navEnheter = listOf("2990"),
+                navEnheter = setOf("2990"),
             )
             service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
 

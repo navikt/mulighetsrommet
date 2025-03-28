@@ -17,6 +17,7 @@ export const gjennomforingTekster = {
   administratorerForGjennomforingenLabel: "Administratorer for gjennomføringen",
   ingenAdministratorerSattForGjennomforingenLabel: "Ingen administratorer satt for gjennomføringen",
   navRegionLabel: "Nav-region",
+  fylkessamarbeidLabel: "Fylkessamarbeid",
   navEnheterKontorerLabel: "Nav-enheter (kontorer)",
   ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   kontaktpersonNav: {

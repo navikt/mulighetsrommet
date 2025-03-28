@@ -2,11 +2,11 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -36,8 +36,7 @@ data class GjennomforingDto(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
     val administratorer: List<Administrator>,
-    val navRegion: NavEnhetDbo?,
-    val navEnheter: List<NavEnhetDbo>,
+    val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<GjennomforingKontaktperson>,
@@ -126,8 +125,7 @@ data class GjennomforingDto(
         antallPlasser = antallPlasser,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },
-        navRegion = navRegion?.enhetsnummer ?: "",
-        navEnheter = navEnheter.map { it.enhetsnummer },
+        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer }.toSet(),
         oppstart = oppstart,
         kontaktpersoner = kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(

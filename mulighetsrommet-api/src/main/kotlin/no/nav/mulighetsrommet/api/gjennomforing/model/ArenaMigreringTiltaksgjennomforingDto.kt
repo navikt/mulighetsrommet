@@ -41,7 +41,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             val enhetsnummer = if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
                 gjennomforing.arenaAnsvarligEnhet?.enhetsnummer
             } else {
-                gjennomforing.navRegion?.enhetsnummer
+                gjennomforing.kontorstruktur.first().region.enhetsnummer
             }
             requireNotNull(enhetsnummer) {
                 "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"

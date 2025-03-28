@@ -23,18 +23,25 @@ export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartst
     : GjennomforingOppstartstype.LOPENDE;
 }
 
-function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string | undefined {
-  if (gjennomforing?.navRegion) {
-    return gjennomforing.navRegion.enhetsnummer;
+function defaultNavRegion(
+  avtale: AvtaleDto,
+  gjennomforing?: GjennomforingDto,
+): string[] | undefined {
+  if (gjennomforing?.kontorstruktur) {
+    return gjennomforing?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
   }
   if (avtale.kontorstruktur.length === 1) {
-    return avtale.kontorstruktur[0].region.enhetsnummer;
+    return avtale.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
   }
 }
 
 function defaultNavEnheter(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string[] {
-  if (gjennomforing?.navEnheter) {
-    return gjennomforing.navEnheter.map((enhet) => enhet.enhetsnummer);
+  if (gjennomforing?.kontorstruktur) {
+    return (
+      gjennomforing.kontorstruktur
+        ?.flatMap((struktur) => struktur.kontorer)
+        ?.map((enhet) => enhet.enhetsnummer) ?? []
+    );
   }
   if (avtale.kontorstruktur.length === 1) {
     return avtale.kontorstruktur[0].kontorer.map((enhet) => enhet.enhetsnummer);
@@ -62,7 +69,7 @@ export function defaultGjennomforingData(
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
-    navRegion: defaultNavRegion(avtale, gjennomforing),
+    navRegioner: defaultNavRegion(avtale, gjennomforing),
     navEnheter: defaultNavEnheter(avtale, gjennomforing),
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
