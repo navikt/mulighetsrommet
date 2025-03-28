@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -497,18 +497,7 @@ class AvtaleQueries(private val session: Session) {
         val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
             ?: emptyList()
-        val enheterByEnhetsnummer = navEnheter.associateBy { it.enhetsnummer }
-        val enheterByOverordnetEnhet = navEnheter.groupBy { it.overordnetEnhet }
-        val kontorstruktur = enheterByOverordnetEnhet.flatMap { (overordnetEnhet, enheter) ->
-            if (overordnetEnhet == null) {
-                enheter.mapNotNull { enhet ->
-                    Kontorstruktur(region = enhet, kontorer = emptyList()).takeIf { it.region.enhetsnummer !in enheterByOverordnetEnhet }
-                }
-            } else {
-                val region = enheterByEnhetsnummer.getValue(overordnetEnhet)
-                listOf(Kontorstruktur(region = region, kontorer = enheter))
-            }
-        }
+        val kontorstruktur = fromNavEnheter(navEnheter)
 
         val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
             ?.let { Json.decodeFromString<List<AvtaleDto.OpsjonLoggRegistrert>>(it) }

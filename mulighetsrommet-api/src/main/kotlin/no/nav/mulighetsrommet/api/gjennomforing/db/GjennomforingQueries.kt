@@ -6,7 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
@@ -562,18 +562,7 @@ class GjennomforingQueries(private val session: Session) {
         val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
             ?: emptyList()
-        val enheterByEnhetsnummer = navEnheter.associateBy { it.enhetsnummer }
-        val enheterByOverordnetEnhet = navEnheter.groupBy { it.overordnetEnhet }
-        val kontorstruktur = enheterByOverordnetEnhet.flatMap { (overordnetEnhet, enheter) ->
-            if (overordnetEnhet == null) {
-                enheter.mapNotNull { enhet ->
-                    Kontorstruktur(region = enhet, kontorer = emptyList()).takeIf { it.region.enhetsnummer !in enheterByOverordnetEnhet }
-                }
-            } else {
-                val region = enheterByEnhetsnummer.getValue(overordnetEnhet)
-                listOf(Kontorstruktur(region = region, kontorer = enheter))
-            }
-        }
+        val kontorstruktur = fromNavEnheter(navEnheter)
 
         val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
             ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
