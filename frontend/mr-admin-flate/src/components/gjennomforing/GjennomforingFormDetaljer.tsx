@@ -71,6 +71,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   });
 
   const watchVisEstimertVentetid = watch("visEstimertVentetid");
+  const navRegioner = watch("navRegioner");
 
   useEffect(() => {
     const resetEstimertVentetid = () => {
@@ -111,10 +112,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
 
   const navEnheterOptions = avtale.kontorstruktur
     .flatMap((struk) => struk.kontorer)
-    .filter(
-      (kontor) =>
-        watch("navRegioner") && watch("navRegioner").includes(kontor.overordnetEnhet ?? ""),
-    )
+    .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? ""))
     .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
   const minStartdato = new Date(avtale.startDato);
