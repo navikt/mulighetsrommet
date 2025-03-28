@@ -17,7 +17,7 @@ const sjekkUU = async (page: Page) => {
 
 test("Kan navigere til forsiden", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Arrangørflate");
+  await expect(page).toHaveTitle("Krav om utbetalinger");
   await expect(page.getByRole("heading", { name: "Tilgjengelige innsendelser" })).toBeVisible();
 
   await sjekkUU(page);
@@ -25,7 +25,7 @@ test("Kan navigere til forsiden", async ({ page }) => {
 
 test("Kan navigere gjennom hele utbetalingen", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Arrangørflate");
+  await expect(page).toHaveTitle("Krav om utbetalinger");
   await expect(page.getByRole("heading", { name: "Tilgjengelige innsendelser" })).toBeVisible();
   await sjekkUU(page);
   await page.getByRole("link", { name: "Detaljer" }).first().click();
