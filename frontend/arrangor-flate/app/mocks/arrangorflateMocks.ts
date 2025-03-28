@@ -482,7 +482,7 @@ export const arrangorflateHandlers = [
     () => HttpResponse.json(mockTilsagn),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/tilsagn/:id",
+    "*/api/v1/intern/arrangorflate/tilsagn/:id",
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(mockTilsagn.find((k) => k.id === id));

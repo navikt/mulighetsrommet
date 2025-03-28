@@ -1,11 +1,11 @@
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { Tiltakskode, Toggles } from "@mr/api-client-v2";
-import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { ArbeidsbenkIkon } from "../../components/ikoner/ArbeidsbenkIkon";
 import { ulesteNotifikasjonerQuery } from "./notifikasjoner/notifikasjonerQueries";
 
 export function ArbeidsbenkPage() {
@@ -22,11 +22,7 @@ export function ArbeidsbenkPage() {
   return (
     <main>
       <title>Arbeidsbenk</title>
-      <HeaderBanner
-        heading="Arbeidsbenk"
-        harUndermeny
-        ikon={<BellDotFillIcon title="Arbeidsbenk" fontSize={32} />}
-      />
+      <HeaderBanner heading="Arbeidsbenk" harUndermeny ikon={<ArbeidsbenkIkon />} />
       <Tabs
         value={pathname.includes("notifikasjoner") ? "notifikasjoner" : "oppgaver"}
         selectionFollowsFocus
@@ -49,9 +45,7 @@ export function ArbeidsbenkPage() {
           />
         </Tabs.List>
         <ContentBox>
-          <div className="max-w-[1280px] w-full m-auto">
-            <Outlet />
-          </div>
+          <Outlet />
         </ContentBox>
       </Tabs>
     </main>

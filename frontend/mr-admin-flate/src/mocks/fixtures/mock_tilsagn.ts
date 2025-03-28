@@ -28,6 +28,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-06",
     },
     status: TilsagnStatus.TIL_GODKJENNING,
+    bestillingsnummer: "A-2024/123",
   },
   {
     belopGjenstaende: 10000,
@@ -50,6 +51,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-04",
     },
     status: TilsagnStatus.TIL_ANNULLERING,
+    bestillingsnummer: "A-2024/123",
   },
   {
     belopGjenstaende: 10000,
@@ -72,6 +74,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-02",
     },
     status: TilsagnStatus.GODKJENT,
+    bestillingsnummer: "A-2024/123",
   },
   {
     type: TilsagnType.TILSAGN,
@@ -94,6 +97,7 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-02",
     },
     status: TilsagnStatus.ANNULLERT,
+    bestillingsnummer: "A-2024/123",
   },
   {
     type: TilsagnType.TILSAGN,
@@ -116,5 +120,6 @@ export const mockTilsagn: TilsagnDto[] = [
       slutt: "2024-01-02",
     },
     status: TilsagnStatus.RETURNERT,
+    bestillingsnummer: "A-2024/123",
   },
 ];

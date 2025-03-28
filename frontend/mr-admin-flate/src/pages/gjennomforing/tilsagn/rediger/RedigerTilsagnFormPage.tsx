@@ -93,7 +93,7 @@ export function RedigerTilsagnFormPage() {
               {godkjenteTilsagn.length > 0 ? (
                 <TilsagnTabell tilsagn={godkjenteTilsagn} />
               ) : (
-                <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
+                <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
               )}
             </VStack>
           </WhitePaddedBox>

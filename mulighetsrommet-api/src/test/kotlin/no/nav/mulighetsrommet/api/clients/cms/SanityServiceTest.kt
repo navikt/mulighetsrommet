@@ -39,7 +39,7 @@ class SanityServiceTest : FunSpec({
                 "tiltakstype": {
                     "_id": "$enkelAmoSanityId",
                     "tiltakstypeNavn": "Arbeidsmarkedsopplæring (enkeltplass)",
-                    "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
+                    "innsatsgrupper": ["TRENGER_VEILEDNING", "TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE", "JOBBE_DELVIS", "LITEN_MULIGHET_TIL_A_JOBBE"]
                 },
                 "fylke": "0300",
                 "enheter": [],
@@ -66,7 +66,7 @@ class SanityServiceTest : FunSpec({
                 "tiltakstype": {
                     "_id": "$arbeidstreningSanityId",
                     "tiltakstypeNavn": "Arbeidstrening",
-                    "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
+                    "innsatsgrupper": ["TRENGER_VEILEDNING", "TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE", "JOBBE_DELVIS", "LITEN_MULIGHET_TIL_A_JOBBE"]
                 },
                 "fylke": "0400",
                 "oppstart": null,
@@ -84,7 +84,7 @@ class SanityServiceTest : FunSpec({
                 "tiltakstype": {
                     "_id": "$arbeidstreningSanityId",
                     "tiltakstypeNavn": "Arbeidstrening",
-                    "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
+                    "innsatsgrupper": ["TRENGER_VEILEDNING", "TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE", "JOBBE_DELVIS", "LITEN_MULIGHET_TIL_A_JOBBE"]
                 },
                 "enheter": ["0501"],
                 "faneinnhold": { "forHvemInfoboks": "infoboks" }

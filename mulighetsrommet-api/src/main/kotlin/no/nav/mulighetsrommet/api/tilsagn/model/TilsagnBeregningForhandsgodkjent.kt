@@ -7,6 +7,11 @@ import java.lang.Math.addExact
 import java.math.RoundingMode
 import kotlin.streams.asSequence
 
+/**
+ * Presisjon underveis for å oppnå en god beregning av totalbeløpet.
+ */
+private const val CALCULATION_PRECISION = 20
+
 @Serializable
 @SerialName("FORHANDSGODKJENT")
 data class TilsagnBeregningForhandsgodkjent(
@@ -37,7 +42,7 @@ data class TilsagnBeregningForhandsgodkjent(
                 .groupBy { it.month }
                 .map { (_, datesInMonth) ->
                     val fractionOfMonth = datesInMonth.size.toBigDecimal()
-                        .divide(datesInMonth[0].lengthOfMonth().toBigDecimal(), 2, RoundingMode.HALF_UP)
+                        .divide(datesInMonth[0].lengthOfMonth().toBigDecimal(), CALCULATION_PRECISION, RoundingMode.HALF_UP)
 
                     val value = fractionOfMonth
                         .multiply(sats.toBigDecimal())

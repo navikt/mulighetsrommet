@@ -9,7 +9,7 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AuthConfig
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -27,7 +27,9 @@ enum class AuthProvider {
     AZURE_AD_AVTALER_SKRIV,
     AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
     AZURE_AD_TILTAKSADMINISTRASJON_GENERELL,
-    AZURE_AD_OKONOMI_BESLUTTER,
+    AZURE_AD_SAKSBEHANDLER_OKONOMI,
+    AZURE_AD_BESLUTTER_TILSAGN,
+    AZURE_AD_ATTESTANT_UTBETALING,
     TOKEN_X_ARRANGOR_FLATE,
 }
 
@@ -157,8 +159,8 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.AVTALER_SKRIV,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                        NavAnsattRolle.AVTALER_SKRIV,
                     )
                 ) {
                     return@validate null
@@ -178,8 +180,8 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                        NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
                     )
                 ) {
                     return@validate null
@@ -189,7 +191,7 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
+        jwt(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             verifier(azureJwkProvider, auth.azure.issuer) {
                 withAudience(auth.azure.audience)
             }
@@ -199,8 +201,50 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.OKONOMI_BESLUTTER,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                        NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+                    )
+                ) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_BESLUTTER_TILSAGN) {
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: return@validate null
+
+                if (!hasNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                        NavAnsattRolle.BESLUTTER_TILSAGN,
+                    )
+                ) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_ATTESTANT_UTBETALING) {
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: return@validate null
+
+                if (!hasNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                        NavAnsattRolle.ATTESTANT_UTBETALING,
                     )
                 ) {
                     return@validate null

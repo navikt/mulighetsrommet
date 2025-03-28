@@ -34,7 +34,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
             session.execute(Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'"))
-            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
+            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
 
             queries.gjennomforing.setPublisert(Oppfolging1.id, true)
             queries.gjennomforing.setPublisert(AFT1.id, true)
@@ -48,21 +48,21 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 veilederflateTiltakQueries.getAll(
                     brukersEnheter = listOf("0502"),
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
                 queries.gjennomforing.setPublisert(Oppfolging1.id, false)
 
                 veilederflateTiltakQueries.getAll(
                     brukersEnheter = listOf("0502"),
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 1
 
                 queries.gjennomforing.setPublisert(AFT1.id, false)
 
                 veilederflateTiltakQueries.getAll(
                     brukersEnheter = listOf("0502"),
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 0
             }
         }
@@ -73,18 +73,18 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 val queries = VeilederflateTiltakQueries(session)
 
-                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.STANDARD_INNSATS}'::innsatsgruppe, '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'"))
+                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.GODE_MULIGHETER}'::innsatsgruppe, '${Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'"))
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
                     brukersEnheter = listOf("0502"),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
                     brukersEnheter = listOf("0502"),
                 ) shouldHaveSize 2
             }
@@ -100,25 +100,25 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     brukersEnheter = listOf("0502"),
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0300"),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0502", "0300"),
                 ) shouldHaveSize 2
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0400"),
                 ) shouldHaveSize 2
             }
@@ -133,11 +133,11 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 queries.getAll(
                     sanityTiltakstypeIds = null,
                     brukersEnheter = listOf("0502"),
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     sanityTiltakstypeIds = listOf(oppfolgingSanityId),
                     brukersEnheter = listOf("0502"),
                 ).should {
@@ -145,7 +145,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
                     brukersEnheter = listOf("0502"),
                 ).should {
@@ -163,7 +163,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 val queries = VeilederflateTiltakQueries(session)
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0502"),
                     search = "erik",
                 ).should {
@@ -171,7 +171,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0502"),
                     search = "frank aft",
                 ).should {
@@ -179,7 +179,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0502"),
                     search = "aft erik",
                 ).should {
@@ -187,7 +187,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0502"),
                     search = "af",
                 ).should {
@@ -204,7 +204,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 val queries = VeilederflateTiltakQueries(session)
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = true,
                     brukersEnheter = listOf("0502"),
                 ).should {
@@ -212,7 +212,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = false,
                     brukersEnheter = listOf("0502"),
                 ).should {
@@ -220,7 +220,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 }
 
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = null,
                     brukersEnheter = listOf("0502"),
                 ) shouldHaveSize 2
@@ -236,12 +236,12 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
-            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
+            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
 
             queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
         }
 
-        test("skal ta med ARR hvis sykmeldt med SITUASJONSBESTEMT_INNSATS") {
+        test("skal ta med ARR hvis sykmeldt med TRENGER_VEILEDNING") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -249,19 +249,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 // Riktig innsatsgruppe
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf("0502"),
                 ).size shouldBe 1
 
                 // Feil innsatsgruppe
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
                     brukersEnheter = listOf("0502"),
                 ).size shouldBe 0
 
                 // Feil innsatsgruppe men sykmeldt
                 queries.getAll(
-                    innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+                    innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
                     brukersEnheter = listOf("0502"),
                     erSykmeldtMedArbeidsgiver = true,
                 ).size shouldBe 1

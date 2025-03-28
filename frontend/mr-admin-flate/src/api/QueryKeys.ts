@@ -57,4 +57,5 @@ export const QueryKeys = {
     "utbetaling-for-gjennomforing",
     gjennomforingId,
   ],
+  kontonummerArrangor: (orgnr: string) => ["kontonummer", orgnr],
 };

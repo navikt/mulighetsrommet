@@ -3,7 +3,11 @@ import { Metadata } from "@/components/detaljside/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
-import { TilsagnBeregningForhandsgodkjent, TilsagnDto, Totrinnskontroll } from "@mr/api-client-v2";
+import {
+  TilsagnBeregningForhandsgodkjent,
+  TilsagnDto,
+  TotrinnskontrollDto,
+} from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -11,10 +15,11 @@ import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 interface Props {
   tilsagn: TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent };
-  annullering?: Totrinnskontroll;
+  annullering?: TotrinnskontrollDto;
+  oppgjor?: TotrinnskontrollDto;
 }
 
-export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering }: Props) {
+export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor }: Props) {
   return (
     <>
       <Heading size="medium" level="3">
@@ -23,6 +28,10 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering }: Props)
       <TwoColumnGrid separator>
         <VStack>
           <Bolk>
+            <Metadata
+              header={tilsagnTekster.bestillingsnummer.label}
+              verdi={tilsagn.bestillingsnummer}
+            />
             <Metadata
               header={tilsagnTekster.type.label}
               verdi={avtaletekster.tilsagn.type(tilsagn.type)}
@@ -39,7 +48,14 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering }: Props)
             />
             <Metadata
               header={tilsagnTekster.status.label}
-              verdi={<TilsagnTag expandable status={tilsagn.status} annullering={annullering} />}
+              verdi={
+                <TilsagnTag
+                  visAarsakerOgForklaring
+                  status={tilsagn.status}
+                  annullering={annullering}
+                  oppgjor={oppgjor}
+                />
+              }
             />
           </Bolk>
           <Bolk>

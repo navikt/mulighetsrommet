@@ -73,9 +73,11 @@ import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQu
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
@@ -146,11 +148,11 @@ private fun kafka(appConfig: AppConfig) = module {
     single {
         ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
             get(),
-            config.producers.arenaMigreringTiltaksgjennomforinger,
+            config.clients.arenaMigreringTiltaksgjennomforinger,
         )
     }
-    single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.producers.gjennomforinger) }
-    single { SisteTiltakstyperV2KafkaProducer(get(), config.producers.tiltakstyper) }
+    single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.clients.gjennomforinger) }
+    single { SisteTiltakstyperV2KafkaProducer(get(), config.clients.tiltakstyper) }
 
     single {
         val consumers = listOf(
@@ -160,23 +162,23 @@ private fun kafka(appConfig: AppConfig) = module {
                 db = get(),
             ),
             SisteTiltaksgjennomforingerV1KafkaConsumer(
-                config = config.consumers.gjennomforingerV1,
+                config = config.clients.gjennomforingerV1,
                 db = get(),
                 tiltakstyper = get(),
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingProducer = get(),
             ),
             AmtDeltakerV1KafkaConsumer(
-                config = config.consumers.amtDeltakerV1,
-                tiltakstyper = get(),
+                config = config.clients.amtDeltakerV1,
                 db = get(),
-                utbetalingService = get(),
+                oppdaterUtbetaling = get(),
             ),
-            AmtVirksomheterV1KafkaConsumer(config.consumers.amtVirksomheterV1, get()),
-            AmtArrangorMeldingV1KafkaConsumer(config.consumers.amtArrangorMeldingV1, get()),
-            AmtKoordinatorGjennomforingV1KafkaConsumer(config.consumers.amtKoordinatorMeldingV1, get()),
-            ReplicateOkonomiBestillingStatus(config.consumers.replicateBestillingStatus, get()),
-            ReplicateOkonomiFakturaStatus(config.consumers.replicateFakturaStatus, get()),
+            AmtVirksomheterV1KafkaConsumer(config.clients.amtVirksomheterV1, get()),
+            AmtArrangorMeldingV1KafkaConsumer(config.clients.amtArrangorMeldingV1, get()),
+            AmtKoordinatorGjennomforingV1KafkaConsumer(config.clients.amtKoordinatorMeldingV1, get()),
+            ReplicateOkonomiBestillingStatus(config.clients.replicateBestillingStatus, get()),
+            ReplicateOkonomiFakturaStatus(config.clients.replicateFakturaStatus, get()),
+            OppdaterUtbetalingBeregningForGjennomforingConsumer(config.clients.oppdaterUtbetalingForGjennomforing, get(), get()),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = config.consumerPreset,
@@ -394,7 +396,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
     single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get()) }
-    single { ArrangorFlateService(get(), get()) }
+    single { ArrangorFlateService(get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -406,6 +408,7 @@ private fun tasks(config: TaskConfig) = module {
     single { GenerateUtbetaling(config.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
+    single { OppdaterUtbetalingBeregning(get()) }
     single {
         val updateGjennomforingStatus = UpdateGjennomforingStatus(
             get(),
@@ -436,6 +439,7 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
         val generateUtbetaling: GenerateUtbetaling by inject()
         val journalforUtbetaling: JournalforUtbetaling by inject()
+        val oppdaterUtbetalingBeregning: OppdaterUtbetalingBeregning by inject()
 
         val db: Database by inject()
 
@@ -447,6 +451,7 @@ private fun tasks(config: TaskConfig) = module {
                 initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,
                 journalforUtbetaling.task,
+                oppdaterUtbetalingBeregning.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

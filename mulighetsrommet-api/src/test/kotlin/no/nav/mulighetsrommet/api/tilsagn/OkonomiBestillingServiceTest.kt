@@ -160,7 +160,10 @@ class OkonomiBestillingServiceTest : FunSpec({
             }.initialize(database.db)
 
             database.run {
-                service.behandleGodkjentUtbetalinger(tilsagn.id, this)
+                service.behandleGodkjentUtbetaling(
+                    queries.delutbetaling.getByUtbetalingId(utbetaling1.id),
+                    this,
+                )
             }
             val record = database.run { queries.kafkaProducerRecord.getRecords(50) }[0]
             record.topic shouldBe "okonomi.bestilling.v1"

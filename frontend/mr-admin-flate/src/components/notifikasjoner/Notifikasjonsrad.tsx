@@ -10,17 +10,17 @@ interface NotifikasjonssradProps {
   lest: boolean;
 }
 
-function tag(type: NotificationType, lest: boolean): ReactNode {
+function tag(type: NotificationType): ReactNode {
   switch (type) {
     case NotificationType.NOTIFICATION:
       return (
-        <Tag size="xsmall" variant={lest ? "warning-moderate" : "warning-filled"}>
+        <Tag size="xsmall" variant="warning">
           Notifikasjon
         </Tag>
       );
     case NotificationType.TASK:
       return (
-        <Tag size="xsmall" variant={lest ? "info-moderate" : "info-filled"}>
+        <Tag size="xsmall" variant="info">
           Oppgave
         </Tag>
       );
@@ -43,7 +43,7 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
       )}
     >
       <div className="flex flex-col gap-2 max-w-[75ch]">
-        <BodyShort>{tag(type, lest)}</BodyShort>
+        <BodyShort>{tag(type)}</BodyShort>
         <Heading
           level="2"
           size="small"

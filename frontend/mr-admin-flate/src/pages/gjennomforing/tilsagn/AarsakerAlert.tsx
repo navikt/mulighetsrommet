@@ -1,12 +1,13 @@
 import {
-  TilsagnAvvisningAarsak,
-  TilsagnTilAnnulleringAarsak,
-  Totrinnskontroll,
-} from "@mr/api-client-v2";
+  capitalizeFirstLetter,
+  formaterDato,
+  joinWithCommaAndOg,
+  tilsagnAarsakTilTekst,
+} from "@/utils/Utils";
+import { TilsagnTilAnnulleringAarsak, TotrinnskontrollDto } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
-import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 
-export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskontroll }) {
+export function TilAnnulleringAlert({ annullering }: { annullering: TotrinnskontrollDto }) {
   const aarsaker =
     annullering.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
@@ -34,7 +35,7 @@ export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskont
   );
 }
 
-export function TilOppgjorAlert({ oppgjor }: { oppgjor: Totrinnskontroll }) {
+export function TilOppgjorAlert({ oppgjor }: { oppgjor: TotrinnskontrollDto }) {
   const aarsaker =
     oppgjor.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
@@ -72,17 +73,15 @@ interface Props {
 }
 
 export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header, entitet }: Props) {
-  const aarsakTekster =
-    aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak)) || [];
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
         {header}
       </Heading>
       <p>
-        {navIdent} avviste {entitet} den {formaterDato(tidspunkt)} med følgende{" "}
-        {aarsakTekster && aarsakTekster.length === 1 ? "årsak" : "årsaker"}:{" "}
-        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsakTekster ?? []))}</b>
+        {navIdent} returnerte {entitet} den {formaterDato(tidspunkt)} med følgende{" "}
+        {aarsaker && aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker ?? []))}</b>
         {forklaring ? (
           <>
             {" "}
@@ -93,15 +92,4 @@ export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header,
       </p>
     </Alert>
   );
-}
-
-function joinWithCommaAndOg(aarsaker: string[]): string {
-  if (aarsaker.length === 0) return "";
-  if (aarsaker.length === 1) return aarsaker[0];
-  return `${aarsaker.slice(0, -1).join(", ")} og ${aarsaker[aarsaker.length - 1]}`;
-}
-
-function capitalizeFirstLetter(text: string): string {
-  if (!text) return "";
-  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }

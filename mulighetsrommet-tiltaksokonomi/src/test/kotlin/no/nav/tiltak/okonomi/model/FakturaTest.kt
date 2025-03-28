@@ -27,7 +27,7 @@ class FakturaTest : FunSpec({
             behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
-            frigjorBestilling = false,
+            gjorOppBestilling = false,
         )
 
         test("felter utledes fra OpprettFaktura") {

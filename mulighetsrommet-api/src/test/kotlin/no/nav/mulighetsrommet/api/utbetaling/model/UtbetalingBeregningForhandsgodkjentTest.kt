@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.*
@@ -286,6 +287,53 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                     DeltakelseManedsverk(deltakerId1, 0.5),
                 ),
             )
+        }
+
+        test("rundes opp til slutt") {
+            // 5/31 * 20205 = 3258.87
+            UtbetalingBeregningForhandsgodkjent.beregn(
+                UtbetalingBeregningForhandsgodkjent.Input(
+                    periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
+                    20205,
+                    emptySet(),
+                    setOf(
+                        DeltakelsePerioder(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(DeltakelsePeriode(Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, 6)), 100.0)),
+                        ),
+                    ),
+                ),
+            ).output.belop shouldBe 3259
+        }
+
+        test("utbetaling og tilsagn er likt for forskjellige perioder av en måned") {
+            (2..31).forEach {
+                val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, it))
+
+                val utbetaling = UtbetalingBeregningForhandsgodkjent.beregn(
+                    UtbetalingBeregningForhandsgodkjent.Input(
+                        periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
+                        20205,
+                        emptySet(),
+                        setOf(
+                            DeltakelsePerioder(
+                                deltakelseId = UUID.randomUUID(),
+                                perioder = listOf(DeltakelsePeriode(periode, 100.0)),
+                            ),
+                        ),
+                    ),
+                )
+
+                val tilsagn = TilsagnBeregningForhandsgodkjent.beregn(
+                    TilsagnBeregningForhandsgodkjent.Input(
+                        periode = periode,
+                        sats = 20205,
+                        antallPlasser = 1,
+                    ),
+                )
+
+                utbetaling.output.belop shouldBe tilsagn.output.belop
+            }
         }
     }
 })

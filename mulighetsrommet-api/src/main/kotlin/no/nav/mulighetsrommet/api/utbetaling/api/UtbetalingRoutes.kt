@@ -13,17 +13,20 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -40,20 +43,40 @@ fun Route.utbetalingRoutes() {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
+            val navIdent = getNavIdent()
+
             val utbetaling = db.session {
+                val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                    ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
+
                 val utbetaling = queries.utbetaling.get(id)
                     ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
 
-                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map {
-                    DelutbetalingDto(
-                        delutbetaling = it,
-                        opprettelse = queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT),
+                val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                    val tilsagnBesluttetAv = queries.totrinnskontroll
+                        .getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
+                        .besluttetAv
+
+                    val opprettelse = queries.totrinnskontroll
+                        .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+
+                    val kanBesluttesAvAnsatt = tilsagnBesluttetAv != ansatt.navIdent &&
+                        opprettelse.behandletAv != ansatt.navIdent &&
+                        NavAnsattRolle.ATTESTANT_UTBETALING in ansatt.roller
+
+                    UtbetalingLinje(
+                        id = delutbetaling.id,
+                        gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
+                        belop = delutbetaling.belop,
+                        status = delutbetaling.status,
+                        tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let { TilsagnDto.fromTilsagn(it) },
+                        opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(opprettelse, kanBesluttesAvAnsatt),
                     )
                 }
 
                 UtbetalingDetaljerDto(
                     utbetaling = toUtbetalingDto(utbetaling),
-                    delutbetalinger = delutbetalinger,
+                    linjer = linjer,
                 )
             }
 
@@ -88,13 +111,13 @@ fun Route.utbetalingRoutes() {
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periodeIntersectsWith = utbetaling.periode,
                     typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
-                )
+                ).map { TilsagnDto.fromTilsagn(it) }
             }
 
             call.respond(tilsagn)
         }
 
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             post("/opprett-utbetaling") {
                 val utbetalingId = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<OpprettManuellUtbetalingRequest>()
@@ -113,7 +136,7 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/delutbetalinger") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
             put {
                 val request = call.receive<OpprettDelutbetalingerRequest>()
                 val navIdent = getNavIdent()
@@ -123,7 +146,7 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
+        authenticate(AuthProvider.AZURE_AD_ATTESTANT_UTBETALING) {
             post("/{id}/beslutt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<BesluttDelutbetalingRequest>()

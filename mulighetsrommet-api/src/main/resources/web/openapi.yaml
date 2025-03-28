@@ -1491,6 +1491,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/Arrangor"
 
+
+  /api/v1/intern/arrangorer/{orgnr}/kontonummer:
+    get:
+      tags:
+        - Arrangor
+      operationId: getKontonummerForArrangor
+      parameters:
+        - in: path
+          name: orgnr
+          required: true
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      responses:
+        200:
+          description: Kontonummer for arrangør
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/intern/arrangorer/{id}/kontaktpersoner:
     get:
       tags:
@@ -1954,23 +1975,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/UtbetalingDetaljerDto"
 
-  /api/v1/intern/utbetaling/{id}/delutbetalinger:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Utbetaling
-      operationId: getDelutbetalinger
-      responses:
-        200:
-          description: Delutbetalinger
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DelutbetalingDto"
-
   /api/v1/intern/utbetaling/{id}/historikk:
     get:
       tags:
@@ -2299,6 +2303,21 @@ paths:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
         default:
           $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/arrangorflate/utbetaling/{id}/sync-kontonummer:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: synkroniserKontonummerForUtbetaling
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Synkroniserer kontonummer for utbetaling
+          content:
+            text/plain:
+              schema:
+                type: string
 
   /api/v1/intern/arrangorflate/utbetaling/{id}/relevante-forslag:
     get:
@@ -2795,7 +2814,7 @@ components:
           type: string
         avtalenummer:
           type: string
-        websaknummer:
+        sakarkivNummer:
           type: [string, "null"]
         arrangor:
           $ref: "#/components/schemas/ArrangorHovedenhet"
@@ -2885,7 +2904,7 @@ components:
           format: UUID
         avtalenummer:
           type: [string, "null"]
-        websaknummer:
+        sakarkivNummer:
           type: [string, "null"]
         arrangor:
           anyOf:
@@ -3480,10 +3499,13 @@ components:
       enum:
         - TEAM_MULIGHETSROMMET
         - KONTAKTPERSON
+        - TILTAKADMINISTRASJON_GENERELL
+        - TILTAKADMINISTRASJON_ENDRINGSMELDING
         - TILTAKSGJENNOMFORINGER_SKRIV
         - AVTALER_SKRIV
-        - TILTAKADMINISTRASJON_GENERELL
-        - OKONOMI_BESLUTTER
+        - SAKSBEHANDLER_OKONOMI
+        - BESLUTTER_TILSAGN
+        - ATTESTANT_UTBETALING
 
     NavAnsattHovedenhet:
       type: object
@@ -3499,11 +3521,11 @@ components:
     Innsatsgruppe:
       type: string
       enum:
-        - STANDARD_INNSATS
-        - SITUASJONSBESTEMT_INNSATS
-        - SPESIELT_TILPASSET_INNSATS
-        - GRADERT_VARIG_TILPASSET_INNSATS
-        - VARIG_TILPASSET_INNSATS
+        - GODE_MULIGHETER
+        - TRENGER_VEILEDNING
+        - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+        - JOBBE_DELVIS
+        - LITEN_MULIGHET_TIL_A_JOBBE
 
     TiltakstypeStatus:
       type: string
@@ -5430,6 +5452,8 @@ components:
           $ref: "#/components/schemas/TilsagnBeregning"
         status:
           $ref: "#/components/schemas/TilsagnStatus"
+        bestillingsnummer:
+          type: string
       required:
         - id
         - type
@@ -5438,6 +5462,7 @@ components:
         - kostnadssted
         - beregning
         - status
+        - bestillingsnummer
 
     TilsagnDetaljerDto:
       type: object
@@ -5445,11 +5470,11 @@ components:
         tilsagn:
           $ref: "#/components/schemas/TilsagnDto"
         opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
         annullering:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
         tilOppgjor:
-          $ref: "#/components/schemas/Totrinnskontroll"
+          $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - tilsagn
         - opprettelse
@@ -5655,6 +5680,9 @@ components:
       enum:
         - VENTER_PA_ARRANGOR
         - BEHANDLES_AV_NAV
+        - RETURNERT
+        - TIL_GODKJENNING
+        - GODKJENT
         - UTBETALT
 
     UtbetalingDetaljerDto:
@@ -5662,24 +5690,13 @@ components:
       properties:
         utbetaling:
           $ref: "#/components/schemas/UtbetalingDto"
-        delutbetalinger:
+        linjer:
           type: array
           items:
-            $ref: "#/components/schemas/OpprettetDelutbetaling"
+            $ref: "#/components/schemas/UtbetalingLinje"
       required:
         - utbetaling
-        - delutbetalinger
-
-    OpprettetDelutbetaling:
-      type: object
-      properties:
-        delutbetaling:
-          $ref: "#/components/schemas/DelutbetalingDto"
-        opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
-      required:
-        - delutbetaling
-        - opprettelse
+        - linjer
 
     UtbetalingDto:
       type: object
@@ -6103,42 +6120,27 @@ components:
         - RETURNERT
         - UTBETALT
 
-    DelutbetalingDto:
+    UtbetalingLinje:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        tilsagnId:
-          type: string
-          format: uuid
-        utbetalingId:
-          type: string
-          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
         status:
           $ref: "#/components/schemas/DelutbetalingStatus"
-        periode:
-          $ref: "#/components/schemas/Periode"
         belop:
           type: number
         gjorOppTilsagn:
           type: boolean
-        lopenummer:
-          type: integer
-        fakturanummer:
-          type: string
+        opprettelse:
+          $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - id
-        - type
-        - tilsagnId
-        - utbetalingId
-        - status
-        - periode
+        - tilsagn
         - belop
         - gjorOppTilsagn
-        - opprettelse
-        - lopenummer
-        - fakturanummer
 
     DelutbetalingRequest:
       type: object
@@ -6226,14 +6228,48 @@ components:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]
 
-    Totrinnskontroll:
+    TotrinnskontrollDto:
+      oneOf:
+        - $ref: "#/components/schemas/TotrinnskontrollTilBeslutningDto"
+        - $ref: "#/components/schemas/TotrinnskontrollBesluttetDto"
+
+    TotrinnskontrollTilBeslutningDto:
       type: object
       properties:
+        type:
+          const: TIL_BESLUTNING
         behandletAv:
           type: string
         behandletTidspunkt:
           type: string
           format: date-time
+        kanBesluttes:
+          type: boolean
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+      required:
+        - type
+        - behandletAv
+        - behandletTidspunkt
+        - kanBesluttes
+        - aarsaker
+
+    TotrinnskontrollBesluttetDto:
+      type: object
+      properties:
+        type:
+          const: BESLUTTET
+        behandletAv:
+          type: string
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        kanBesluttes:
+          type: boolean
         aarsaker:
           type: array
           items:
@@ -6245,4 +6281,14 @@ components:
         besluttetTidspunkt:
           type: string
           format: date-time
-      required: [behandletAv, behandletTidspunkt]
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+      required:
+        - type
+        - behandletAv
+        - behandletTidspunkt
+        - aarsaker
+        - kanBesluttes
+        - besluttetAv
+        - besluttetTidspunkt
+        - besluttelse

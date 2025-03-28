@@ -14,7 +14,9 @@ export function ModiaFiltertags({ filterOpen, setTagsHeight }: Props) {
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
-      {filter.innsatsgruppe && <FilterTag label={filter.innsatsgruppe.tittel} />}
+      {filter.innsatsgruppe && (
+        <FilterTag label={filter.innsatsgruppe.tittel} testId={filter.innsatsgruppe.nokkel} />
+      )}
       <NavEnhetFilterTag
         navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}

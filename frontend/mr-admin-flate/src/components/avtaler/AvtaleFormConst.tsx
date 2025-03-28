@@ -54,7 +54,7 @@ export function defaultAvtaleData(
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
     },
-    websaknummer: avtale?.websaknummer,
+    sakarkivNummer: avtale?.sakarkivNummer,
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,

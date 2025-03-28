@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
@@ -64,7 +65,7 @@ class OkonomiBestillingService(
             arrangor = arrangor,
             kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
             // TODO: håndter avtalenummer fra p360, eller erstatter til Mercell
-            avtalenummer = avtale.websaknummer?.value,
+            avtalenummer = avtale.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.belop,
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
@@ -103,7 +104,7 @@ class OkonomiBestillingService(
             "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å sende null melding til økonomi"
         }
 
-        val faktura = FrigjorBestilling(
+        val faktura = GjorOppBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = oppgjor.behandletAv.toOkonomiPart(),
             behandletTidspunkt = oppgjor.behandletTidspunkt,
@@ -111,29 +112,29 @@ class OkonomiBestillingService(
             besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
-        ctx.storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
+        ctx.storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.GjorOppBestilling(faktura))
     }
 
-    fun behandleGodkjentUtbetalinger(tilsagnId: UUID, ctx: QueryContext) {
-        val tilsagn = requireNotNull(ctx.queries.tilsagn.get(tilsagnId)) {
-            "Tilsagn med id=$tilsagnId finnes ikke"
+    fun behandleGodkjentUtbetaling(
+        delutbetalinger: List<Delutbetaling>,
+        ctx: QueryContext,
+    ) {
+        require(delutbetalinger.isNotEmpty())
+        require(delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT })
+        val utbetaling = requireNotNull(ctx.queries.utbetaling.get(delutbetalinger[0].utbetalingId)) {
+            "Utbetaling finnes ikke"
         }
-        require(tilsagn.status in listOf(TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT)) {
-            "Tilsagn er ikke i riktig status id=$tilsagnId status=${tilsagn.status}"
-        }
+        require(delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT })
 
-        ctx.queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId)
-            .filter { it.status == DelutbetalingStatus.GODKJENT }
+        delutbetalinger
             .map {
                 val opprettelse = ctx.queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT)
                 Pair(opprettelse, it)
             }
             .sortedBy { (opprettelse) -> opprettelse.besluttetTidspunkt }
             .forEach { (opprettelse, delutbetaling) ->
+                val tilsagn = requireNotNull(ctx.queries.tilsagn.get(delutbetaling.tilsagnId))
                 log.info("Sender delutbetaling med utbetalingId: ${delutbetaling.utbetalingId} tilsagnId: ${delutbetaling.tilsagnId} på kafka")
-                val utbetaling = requireNotNull(ctx.queries.utbetaling.get(delutbetaling.utbetalingId)) {
-                    "Utbetaling med id=${delutbetaling.utbetalingId} finnes ikke"
-                }
                 val kontonummer = requireNotNull(utbetaling.betalingsinformasjon.kontonummer) {
                     "Kontonummer mangler for utbetaling med id=${utbetaling.id}"
                 }
@@ -153,7 +154,7 @@ class OkonomiBestillingService(
                     behandletTidspunkt = opprettelse.behandletTidspunkt,
                     besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
                     besluttetTidspunkt = opprettelse.besluttetTidspunkt,
-                    frigjorBestilling = delutbetaling.gjorOppTilsagn,
+                    gjorOppBestilling = delutbetaling.gjorOppTilsagn,
                 )
 
                 ctx.queries.delutbetaling.setSendtTilOkonomi(

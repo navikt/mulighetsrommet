@@ -1,17 +1,16 @@
-import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
-import { LoaderFunction } from "react-router";
-import { useLoaderData, useParams } from "react-router";
+import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
+import { LoaderFunction, useLoaderData, useParams } from "react-router";
+import { apiHeaders } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
-import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
 import { Separator } from "~/components/Separator";
+import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
+import { LinkWithTabState } from "../components/LinkWithTabState";
 import { internalNavigation } from "../internal-navigation";
 import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
-import { LinkWithTabState } from "../components/LinkWithTabState";
-import { apiHeaders } from "~/auth/auth.server";
 
 type UtbetalingKvitteringData = {
   utbetaling: ArrFlateUtbetaling;
@@ -63,7 +62,6 @@ export default function UtbetalingKvittering() {
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
-      <Separator />
       <div className="flex justify-end">
         <a href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
@@ -74,6 +72,7 @@ export default function UtbetalingKvittering() {
         </a>
       </div>
       <Separator />
+
       <VStack gap="5" className="max-w-[50%] mt-5">
         <UtbetalingDetaljer utbetaling={utbetaling} tilsagn={tilsagn} />
         <Separator />
