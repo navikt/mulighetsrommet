@@ -421,7 +421,7 @@ class UtbetalingService(
             ),
         )
         queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - delutbetaling.belop)
-        okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
+        okonomi.behandleGodkjentUtbetalinger(delutbetaling.tilsagnId, this)
         if (delutbetaling.gjorOppTilsagn) {
             tilsagnService.gjorOppAutomatisk(delutbetaling.tilsagnId, this)
         }

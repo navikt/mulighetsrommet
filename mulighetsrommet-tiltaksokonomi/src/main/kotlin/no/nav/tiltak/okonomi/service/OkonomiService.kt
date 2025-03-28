@@ -4,6 +4,8 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import kotlinx.serialization.json.Json
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -221,11 +223,17 @@ class OkonomiService(
         val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
 
         log.info("Lagrer status-melding for bestilling $bestillingsnummer")
-        queries.kafkaProducerRecord.insertBestillingStatus(
-            topics.bestillingStatus,
-            BestillingStatus(
-                bestillingsnummer = bestilling.bestillingsnummer,
-                status = bestilling.status,
+        queries.kafkaProducerRecord.storeRecord(
+            StoredProducerRecord(
+                topics.bestillingStatus,
+                bestillingsnummer.toByteArray(),
+                Json.encodeToString(
+                    BestillingStatus(
+                        bestillingsnummer = bestilling.bestillingsnummer,
+                        status = bestilling.status,
+                    ),
+                ).toByteArray(),
+                null,
             ),
         )
 
@@ -236,11 +244,17 @@ class OkonomiService(
         val faktura = checkNotNull(queries.faktura.getByFakturanummer(fakturanummer))
 
         log.info("Lagrer status-melding for faktura $fakturanummer")
-        queries.kafkaProducerRecord.insertFakturaStatus(
-            topics.fakturaStatus,
-            FakturaStatus(
-                fakturanummer = fakturanummer,
-                status = faktura.status,
+        queries.kafkaProducerRecord.storeRecord(
+            StoredProducerRecord(
+                topics.fakturaStatus,
+                fakturanummer.toByteArray(),
+                Json.encodeToString(
+                    FakturaStatus(
+                        fakturanummer = fakturanummer,
+                        status = faktura.status,
+                    ),
+                ).toByteArray(),
+                null,
             ),
         )
 

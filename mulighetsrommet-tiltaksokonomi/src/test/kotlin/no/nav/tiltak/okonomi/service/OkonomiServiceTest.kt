@@ -12,34 +12,36 @@ import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaProducerRepositoryImpl
+import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.kafka.toStoredProducerRecord
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
 class OkonomiServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     lateinit var db: OkonomiDatabase
-    lateinit var kafkaProducerRepository: KafkaProducerRepositoryImpl
 
     beforeSpec {
         db = OkonomiDatabase(database.db)
-        kafkaProducerRepository = KafkaProducerRepositoryImpl(db.db)
 
         initializeData(db)
     }
@@ -140,10 +142,10 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe BestillingStatusType.SENDT
             }
 
-            kafkaProducerRepository.getLatestRecord().should {
+            db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "1"
-                it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
+                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
                         bestillingsnummer = "1",
                         status = BestillingStatusType.SENDT,
@@ -168,7 +170,7 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe BestillingStatusType.FRIGJORT
             }
 
-            kafkaProducerRepository.getLatestRecord().should {
+            db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "10"
             }
@@ -248,10 +250,10 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
 
-            kafkaProducerRepository.getLatestRecord().should {
+            db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "6"
-                it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
+                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
                         bestillingsnummer = "6",
                         status = BestillingStatusType.ANNULLERT,
@@ -269,7 +271,7 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
 
-            kafkaProducerRepository.getLatestRecord().should {
+            db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "6"
             }
@@ -311,10 +313,10 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
-            kafkaProducerRepository.getLatestRecord().should {
+            db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "B1-F2"
-                it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
+                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     FakturaStatus(
                         fakturanummer = "B1-F2",
                         status = FakturaStatusType.SENDT,
@@ -340,7 +342,7 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
 
-            kafkaProducerRepository.getLatestRecord().should {
+            db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "B1-F3"
             }
@@ -375,8 +377,8 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
-            kafkaProducerRepository.getLatestRecord(topic = "faktura-status").should {
-                it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
+            db.session { getLatestRecord(topic = "faktura-status") }.should {
+                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     FakturaStatus(
                         fakturanummer = "B2-F1",
                         status = FakturaStatusType.SENDT,
@@ -414,8 +416,8 @@ class OkonomiServiceTest : FunSpec({
                 bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
             }
 
-            kafkaProducerRepository.getLatestRecord(topic = "bestilling-status").should {
-                it.value.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
+            db.session { getLatestRecord(topic = "bestilling-status") }.should {
+                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
                         bestillingsnummer = "B3",
                         status = BestillingStatusType.FRIGJORT,
@@ -426,11 +428,15 @@ class OkonomiServiceTest : FunSpec({
     }
 })
 
-private fun KafkaProducerRepositoryImpl.getLatestRecord(topic: String? = null): StoredProducerRecord {
-    val records = topic
-        ?.let { getRecords(100, listOf(it)) }
-        ?: getRecords(100)
-    return records.last()
+private fun QueryContext.getLatestRecord(topic: String? = null): StoredProducerRecord {
+    @Language("PostgreSQL")
+    val sql = """
+        select * from kafka_producer_record where coalesce(:topic, topic) = topic order by id desc limit 1
+    """.trimIndent()
+
+    val query = queryOf(sql, mapOf("topic" to topic))
+
+    return session.requireSingle(query) { it.toStoredProducerRecord() }
 }
 
 private fun oebsRespondError() = createMockEngine {

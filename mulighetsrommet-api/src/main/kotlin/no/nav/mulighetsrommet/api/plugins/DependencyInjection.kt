@@ -3,9 +3,14 @@ package no.nav.mulighetsrommet.api.plugins
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
+import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
+import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.KafkaProducerClient
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
@@ -78,7 +83,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.*
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
@@ -138,7 +143,6 @@ private fun kafka(appConfig: AppConfig) = module {
             .withMetrics(Metrikker.appMicrometerRegistry)
             .build()
     }
-
     single {
         ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
             get(),
@@ -178,6 +182,28 @@ private fun kafka(appConfig: AppConfig) = module {
             consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
+        )
+    }
+    single {
+        val db = get<ApiDatabase>()
+        val shedLockLeaderElectionClient = ShedLockLeaderElectionClient(JdbcLockProvider(db.getDatasource()))
+        KafkaProducerRecordProcessor(
+            object : KafkaProducerRepository {
+                override fun storeRecord(record: StoredProducerRecord?): Long {
+                    error("Not used")
+                }
+                override fun deleteRecords(ids: List<Long>) {
+                    return db.session { queries.kafkaProducerRecord.deleteRecords(ids) }
+                }
+                override fun getRecords(maxMessages: Int): List<StoredProducerRecord> {
+                    return db.session { queries.kafkaProducerRecord.getRecords(maxMessages) }
+                }
+                override fun getRecords(maxMessages: Int, topics: List<String>): List<StoredProducerRecord> {
+                    return db.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
+                }
+            },
+            get(),
+            shedLockLeaderElectionClient,
         )
     }
 }
@@ -367,7 +393,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TilsagnService(appConfig.okonomi, get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
-    single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get(), get()) }
+    single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get()) }
     single { ArrangorFlateService(get(), get()) }
 }
 
@@ -403,7 +429,6 @@ private fun tasks(config: TaskConfig) = module {
         )
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
-        val okonomi: OkonomiBestillingService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
@@ -418,7 +443,6 @@ private fun tasks(config: TaskConfig) = module {
             .create(
                 db.getDatasource(),
                 notificationTask.task,
-                okonomi.task,
                 generateValidationReport.task,
                 initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,

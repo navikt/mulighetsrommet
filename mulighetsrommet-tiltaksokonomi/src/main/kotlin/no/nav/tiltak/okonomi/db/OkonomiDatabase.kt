@@ -2,9 +2,9 @@ package no.nav.tiltak.okonomi.db
 
 import kotliquery.Session
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.tiltak.okonomi.db.queries.BestillingQueries
 import no.nav.tiltak.okonomi.db.queries.FakturaQueries
-import no.nav.tiltak.okonomi.db.queries.KafkaProducerRecordQueries
 import no.nav.tiltak.okonomi.db.queries.TiltakKonteringQueries
 import javax.sql.DataSource
 
