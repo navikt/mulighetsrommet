@@ -129,3 +129,9 @@ sealed class OkonomiPart(val part: String) {
 enum class OkonomiSystem {
     TILTAKSADMINISTRASJON,
 }
+
+fun Agent.toOkonomiPart(): OkonomiPart = when (this) {
+    is NavIdent -> OkonomiPart.NavAnsatt(this)
+    is Tiltaksadministrasjon -> OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+    Arrangor, Arena -> throw IllegalStateException("ugyldig agent")
+}

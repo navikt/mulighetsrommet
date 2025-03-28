@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
-import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -88,9 +87,7 @@ data class KafkaClients(
         consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
         producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
     ),
-    val okonomiBestilling: OkonomiBestillingService.Config = OkonomiBestillingService.Config(
-        topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
-    ),
+    val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
     val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config = SisteTiltakstyperV2KafkaProducer.Config(
         topic = "team-mulighetsrommet.siste-tiltakstyper-v3",
     ),

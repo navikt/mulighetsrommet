@@ -115,7 +115,7 @@ fun Route.tilsagnRoutes() {
                             .firstOrNull()
                     }
 
-                    resolveTilsagnDefaults(service.config, prismodell, gjennomforing, sisteTilsagn)
+                    resolveTilsagnDefaults(service.config.okonomiConfig, prismodell, gjennomforing, sisteTilsagn)
                 }
 
                 TilsagnType.EKSTRATILSAGN ->

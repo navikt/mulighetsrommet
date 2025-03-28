@@ -6,6 +6,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.apiRoutes
 import no.nav.mulighetsrommet.database.Database
@@ -53,11 +54,13 @@ fun Application.configure(config: AppConfig) {
     }
 
     val kafka: KafkaConsumerOrchestrator by inject()
+    val producerRecordProcessor: KafkaProducerRecordProcessor by inject()
 
     val scheduler: Scheduler by inject()
 
     monitor.subscribe(ApplicationStarted) {
         kafka.enableFailedRecordProcessor()
+        producerRecordProcessor.start()
 
         scheduler.start()
     }
@@ -65,6 +68,7 @@ fun Application.configure(config: AppConfig) {
     monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
+        producerRecordProcessor.start()
 
         db.close()
     }

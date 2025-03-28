@@ -14,6 +14,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -40,6 +40,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -53,12 +55,13 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     fun createUtbetalingService(
-        okonomi: OkonomiBestillingService = mockk(relaxed = true),
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
     ) = UtbetalingService(
+        config = UtbetalingService.Config(
+            bestillingTopic = "topic",
+        ),
         db = database.db,
-        okonomi = okonomi,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
@@ -1038,6 +1041,16 @@ class UtbetalingServiceTest : FunSpec({
                 queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
                     it.belopGjenstaende shouldBe 0
                 }
+                Json.decodeFromString<OkonomiBestillingMelding>(
+                    queries.kafkaProducerRecord.getRecords(50).first().value.decodeToString(),
+                )
+                    .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
+                    .payload.should {
+                        it.belop shouldBe delutbetaling.belop
+                        it.behandletAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
+                        it.besluttetAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
+                        it.periode shouldBe delutbetaling.periode
+                    }
             }
         }
 
