@@ -81,11 +81,7 @@ export function TilsagnTag(props: Props) {
     case TilsagnStatus.OPPGJORT:
       return (
         <div className={visAarsakerOgForklaring ? "flex flex-col gap-2 items-start" : ""}>
-          <Tag
-            size="small"
-            variant="neutral"
-            className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
-          >
+          <Tag size="small" variant="neutral" className={`${baseTagClasses}`}>
             Oppgjort
           </Tag>
           {visAarsakerOgForklaring ? (
