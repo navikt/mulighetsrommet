@@ -204,7 +204,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 }
             },
             KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
-                .withProperties(config.producerProperties)
+                .withProperties(config.byteProducerProperties)
                 .withMetrics(Metrikker.appMicrometerRegistry)
                 .build(),
             shedLockLeaderElectionClient,

@@ -76,6 +76,7 @@ data class AdGruppeNavAnsattRolleMapping(
 
 data class KafkaConfig(
     val producerProperties: Properties,
+    val byteProducerProperties: Properties,
     val consumerPreset: Properties,
     val clients: KafkaClients,
 )
