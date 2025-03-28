@@ -68,6 +68,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     : null;
 
   const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : undefined;
+  // TODO: Denne kan utbedres til å sjekke litt mer for å finne fylket veileder vil henvende seg til
   const fylke = regioner.find((r) => tiltak.fylker.includes(r.enhetsnummer))?.navn;
 
   return (

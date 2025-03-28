@@ -208,7 +208,7 @@ class VeilederflateService(
         val navn = gjennomforing.tiltaksgjennomforingNavn ?: ""
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
-        val fylker = listOf(gjennomforing.fylke ?: "")
+        val fylker = listOfNotNull(gjennomforing.fylke)
         val enheter = gjennomforing.enheter?.filterNotNull() ?: emptyList()
         val tiltaksnummer = gjennomforing.tiltaksnummer
         val beskrivelse = gjennomforing.beskrivelse
