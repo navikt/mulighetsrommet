@@ -42,7 +42,7 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
       },
     ],
   },
-  fylke: "0200",
+  fylker: ["0200"],
   kontaktinfo: {
     tiltaksansvarlige: [
       {
@@ -137,6 +137,7 @@ export const tiltakMentor: VeilederflateTiltakEnkeltplass = {
       },
     ],
   },
+  fylker: [],
 };
 
 export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
@@ -165,7 +166,7 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
       },
     ],
   },
-  fylke: "0800",
+  fylker: ["0800"],
   beskrivelse:
     "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå. Her kommer det masse spennende informasjon om tiltaket.",
   kontaktinfo: {
@@ -339,6 +340,7 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
       },
     ],
   },
+  fylker: [],
 };
 
 export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
@@ -389,6 +391,7 @@ export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
       },
     ],
   },
+  fylker: [],
 };
 
 export const tiltakAft: VeilederflateTiltakGruppe = {
@@ -433,6 +436,7 @@ export const tiltakAft: VeilederflateTiltakGruppe = {
       },
     ],
   },
+  fylker: [],
 };
 
 export const tiltakOppfolging: VeilederflateTiltakGruppe = {
@@ -463,6 +467,7 @@ export const tiltakOppfolging: VeilederflateTiltakGruppe = {
   kontaktinfo: {
     tiltaksansvarlige: [],
   },
+  fylker: [],
 };
 
 export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakEnkeltplass = {
@@ -482,6 +487,7 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakEnkeltplass = {
       },
     ],
   },
+  fylker: [],
 };
 
 export const mockGjennomforinger: VeilederflateTiltak[] = [

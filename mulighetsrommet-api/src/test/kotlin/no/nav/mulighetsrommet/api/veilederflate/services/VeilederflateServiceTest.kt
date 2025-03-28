@@ -90,7 +90,7 @@ class VeilederflateServiceTest : FunSpec({
                     Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
-            fylker = listOf("0300"),
+            fylke = "0300",
             enheter = emptyList(),
             arrangor = SanityArrangor(
                 _id = UUID.randomUUID(),
@@ -122,7 +122,7 @@ class VeilederflateServiceTest : FunSpec({
                     Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
-            fylker = listOf("0400"),
+            fylke = "0400",
             enheter = null,
         ),
         SanityTiltaksgjennomforing(
@@ -130,7 +130,7 @@ class VeilederflateServiceTest : FunSpec({
             tiltaksgjennomforingNavn = "Arbeidstrening",
             stedForGjennomforing = null,
             tiltaksnummer = null,
-            fylker = listOf("0400"),
+            fylke = "0400",
             tiltakstype = SanityTiltakstype(
                 _id = "$arbeidstreningSanityId",
                 tiltakstypeNavn = "Arbeidstrening",

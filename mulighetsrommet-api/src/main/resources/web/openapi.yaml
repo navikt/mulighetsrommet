@@ -4076,8 +4076,10 @@ components:
           type: string
         arrangor:
           $ref: "#/components/schemas/VeilderflateArrangor"
-        fylke:
-          type: string
+        fylker:
+          type: array
+          items:
+            type: string
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
         personvernBekreftet:
@@ -4098,6 +4100,7 @@ components:
         - arrangor
         - personvernBekreftet
         - personopplysningerSomKanBehandles
+        - fylker
 
     VeilederflateTiltakEgenRegi:
       type: object
@@ -4124,8 +4127,10 @@ components:
           type: string
         stedForGjennomforing:
           type: string
-        fylke:
-          type: string
+        fylker:
+          type: array
+          items:
+            type: string
       required:
         - tiltakstype
         - status
@@ -4133,6 +4138,7 @@ components:
         - oppstart
         - sanityId
         - navn
+        - fylker
 
     VeilederflateTiltakEnkeltplass:
       type: object
@@ -4157,8 +4163,10 @@ components:
           type: string
         stedForGjennomforing:
           type: string
-        fylke:
-          type: string
+        fylker:
+          type: array
+          items:
+            type: string
       required:
         - tiltakstype
         - status
@@ -4166,6 +4174,7 @@ components:
         - oppstart
         - sanityId
         - navn
+        - fylker
 
     VeilederflateTiltakEnkeltplassAnskaffet:
       type: object
@@ -4192,8 +4201,10 @@ components:
           type: string
         stedForGjennomforing:
           type: string
-        fylke:
-          type: string
+        fylker:
+          type: array
+          items:
+            type: string
         arrangor:
           $ref: "#/components/schemas/VeilderflateArrangor"
       required:
@@ -4204,6 +4215,7 @@ components:
         - sanityId
         - navn
         - arrangor
+        - fylker
 
     RegelverkLenke:
       type: object

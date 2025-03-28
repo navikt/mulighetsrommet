@@ -40,7 +40,7 @@ data class SanityTiltaksgjennomforing(
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
     val stedForGjennomforing: String? = null,
-    val fylker: List<String?>? = null,
+    val fylke: String? = null,
     val enheter: List<String?>? = null,
     val arrangor: SanityArrangor? = null,
     val kontaktpersoner: List<SanityKontaktperson>? = null,
