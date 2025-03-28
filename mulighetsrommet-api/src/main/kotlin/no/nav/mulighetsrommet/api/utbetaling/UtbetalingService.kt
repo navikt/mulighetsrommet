@@ -215,16 +215,6 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.get(request.utbetalingId)
             ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
 
-        // Slett de som ikke er med i requesten
-        queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-            .filter { it.id !in request.delutbetalinger.map { it.id } }
-            .forEach {
-                require(it.status == DelutbetalingStatus.RETURNERT) {
-                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
-                }
-                queries.delutbetaling.delete(it.id)
-            }
-
         UtbetalingValidator.validateOpprettDelutbetalinger(
             utbetaling,
             request.delutbetalinger.map { req ->
@@ -244,6 +234,16 @@ class UtbetalingService(
                 it.forEach {
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
                 }
+            }
+
+        // Slett de som ikke er med i requesten
+        queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+            .filter { it.id !in request.delutbetalinger.map { it.id } }
+            .forEach {
+                require(it.status == DelutbetalingStatus.RETURNERT) {
+                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
+                }
+                queries.delutbetaling.delete(it.id)
             }
 
         return Unit.right()
