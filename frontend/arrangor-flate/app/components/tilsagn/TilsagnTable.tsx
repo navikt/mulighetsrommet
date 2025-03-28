@@ -47,6 +47,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                   </Table.DataCell>
                   <Table.DataCell>
                     <LinkWithTabState
+                      aria-label={`Detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
                       className="hover:underline font-bold no-underline"
                       to={internalNavigation(orgnr).tilsagn(tilsagn.id)}
                     >

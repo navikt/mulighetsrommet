@@ -2,7 +2,7 @@ import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, GuidePanel, VStack } from "@navikt/ds-react";
 import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
-import { LoaderFunction, useLoaderData, useParams } from "react-router";
+import { LoaderFunction, MetaFunction, useLoaderData, useParams } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
@@ -15,6 +15,13 @@ import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 type UtbetalingKvitteringData = {
   utbetaling: ArrFlateUtbetaling;
   tilsagn: ArrangorflateTilsagn[];
+};
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Innsendt utbetaling" },
+    { name: "description", content: "Arrangørflate for innsendt utbetaling" },
+  ];
 };
 
 export const loader: LoaderFunction = async ({

@@ -21,6 +21,7 @@ import {
   ActionFunction,
   Form,
   LoaderFunction,
+  MetaFunction,
   redirect,
   useActionData,
   useFetcher,
@@ -44,6 +45,13 @@ type BekreftUtbetalingData = {
 interface ActionData {
   errors?: FieldError[];
 }
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Bekreft utbetaling" },
+    { name: "description", content: "Arrangørflate for bekreftelse av krav om utbetaling" },
+  ];
+};
 
 export const loader: LoaderFunction = async ({
   request,
