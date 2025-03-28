@@ -205,12 +205,12 @@ class AvtaleQueriesTest : FunSpec({
 
         test("Nav-enheter uten overordnet enhet hentes med riktig kontorstruktur") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                navEnheter = listOf(Innlandet.enhetsnummer, IT.enhetsnummer),
+                navEnheter = listOf(Innlandet.enhetsnummer, IT.enhetsnummer, Gjovik.enhetsnummer),
             )
 
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    navEnheter = listOf(Innlandet, IT),
+                    navEnheter = listOf(Innlandet, IT, Gjovik),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
                 ).setup(session)
@@ -221,7 +221,7 @@ class AvtaleQueriesTest : FunSpec({
                     it.kontorstruktur shouldBe listOf(
                         Kontorstruktur(
                             region = Innlandet,
-                            kontorer = emptyList(),
+                            kontorer = listOf(Gjovik),
                         ),
                         Kontorstruktur(
                             region = IT,
