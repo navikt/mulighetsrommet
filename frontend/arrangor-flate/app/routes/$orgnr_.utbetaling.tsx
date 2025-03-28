@@ -15,8 +15,8 @@ import { problemDetailResponse } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Arrangørflate" },
-    { name: "description", content: "Arrangørflate for utbetalinger" },
+    { title: "Krav om utbetalinger" },
+    { name: "description", content: "Arrangørflate for krav om utbetalinger" },
   ];
 };
 
