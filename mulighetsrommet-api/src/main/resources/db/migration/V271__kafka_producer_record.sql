@@ -1,6 +1,6 @@
 create table kafka_producer_record
 (
-    id           bigint generated always as identity,
+    id           bigint primary key generated always as identity,
     topic        text not null,
     key          bytea,
     value        bytea,
