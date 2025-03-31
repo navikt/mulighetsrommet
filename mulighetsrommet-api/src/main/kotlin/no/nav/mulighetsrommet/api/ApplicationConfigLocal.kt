@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
-import org.apache.kafka.common.serialization.StringSerializer
 import java.time.LocalDate
 
 val ApplicationConfigLocal = AppConfig(
@@ -32,12 +31,6 @@ val ApplicationConfigLocal = AppConfig(
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesBuilder.producerBuilder()
-            .withBaseProperties()
-            .withProducerId("mulighetsrommet-api-kafka-producer.v1")
-            .withBrokerUrl("localhost:29092")
-            .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
-            .build(),
-        byteProducerProperties = KafkaPropertiesBuilder.producerBuilder()
             .withBaseProperties()
             .withProducerId("mulighetsrommet-api-kafka-producer.v1")
             .withBrokerUrl("localhost:29092")

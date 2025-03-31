@@ -8,7 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
 
 class ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
-    private val kafkaProducerClient: KafkaProducerClient<String, String?>,
+    private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
     private val config: Config,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -18,10 +18,10 @@ class ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
     )
 
     fun publish(value: ArenaMigreringTiltaksgjennomforingDto) {
-        val record: ProducerRecord<String, String?> = ProducerRecord(
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.topic,
-            value.id.toString(),
-            Json.encodeToString(value),
+            value.id.toString().encodeToByteArray(),
+            Json.encodeToString(value).toByteArray(),
         )
 
         logger.info("publish på ${config.topic} id: ${value.id}")

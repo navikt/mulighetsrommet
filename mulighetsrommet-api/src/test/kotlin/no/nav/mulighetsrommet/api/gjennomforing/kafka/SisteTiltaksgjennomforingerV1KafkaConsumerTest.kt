@@ -23,7 +23,7 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("migrerte gjennomføringer") {
-        val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
+        val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
         val producer = spyk(
             ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
                 producerClient,

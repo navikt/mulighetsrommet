@@ -31,7 +31,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
     )
 
     test("produserer tombstone-meldinger når tombstones blir konsumert") {
-        val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
+        val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
 
         val producer = DatavarehusTiltakV1KafkaProducer(
             config,
@@ -45,7 +45,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         verify {
             producerClient.sendSync(
                 match {
-                    it.topic() == config.producerTopic && it.key() == key && it.value() == null
+                    it.topic() == config.producerTopic && it.key().decodeToString() == key && it.value() == null
                 },
             )
         }
@@ -59,7 +59,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         )
         domain.initialize(database.db)
 
-        val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
+        val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
 
         val producer = DatavarehusTiltakV1KafkaProducer(
             config,
@@ -94,8 +94,8 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
             producerClient.sendSync(
                 match { record ->
                     record.topic() == config.producerTopic &&
-                        record.key() == AFT1.id.toString() &&
-                        record.value()?.let { Json.decodeFromString<DatavarehusTiltak>(it) } != null
+                        record.key().decodeToString() == AFT1.id.toString() &&
+                        record.value()?.let { Json.decodeFromString<DatavarehusTiltak>(it.decodeToString()) } != null
                 },
             )
         }

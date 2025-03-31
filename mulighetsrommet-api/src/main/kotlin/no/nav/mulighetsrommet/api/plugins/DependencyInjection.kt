@@ -138,8 +138,8 @@ private fun db(config: DatabaseConfig) = module {
 private fun kafka(appConfig: AppConfig) = module {
     val config = appConfig.kafka
 
-    single<KafkaProducerClient<String, String?>> {
-        KafkaProducerClientBuilder.builder<String, String?>()
+    single<KafkaProducerClient<ByteArray, ByteArray?>> {
+        KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
             .withProperties(config.producerProperties)
             .withMetrics(Metrikker.appMicrometerRegistry)
             .build()
@@ -203,10 +203,7 @@ private fun kafka(appConfig: AppConfig) = module {
                     return db.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
                 }
             },
-            KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
-                .withProperties(config.byteProducerProperties)
-                .withMetrics(Metrikker.appMicrometerRegistry)
-                .build(),
+            get(),
             shedLockLeaderElectionClient,
         )
     }
