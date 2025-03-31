@@ -306,7 +306,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
               <ControlledMultiSelect
                 inputId={"navRegioner"}
                 size="small"
-                label={gjennomforingTekster.navRegionLabel}
+                label={gjennomforingTekster.tilgjengeligIModiaLabel}
                 placeholder="Velg en"
                 {...register("navRegioner")}
                 velgAlle

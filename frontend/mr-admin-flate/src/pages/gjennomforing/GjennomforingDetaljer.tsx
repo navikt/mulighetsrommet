@@ -196,39 +196,13 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
           </Bolk>
         </VStack>
         <VStack>
-          {kontorstruktur.length > 1 ? (
-            <Bolk aria-label={gjennomforingTekster.fylkessamarbeidLabel}>
-              <Metadata
-                header={gjennomforingTekster.fylkessamarbeidLabel}
-                verdi={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
-              />
-            </Bolk>
-          ) : (
-            <>
-              <Bolk aria-label={gjennomforingTekster.navRegionLabel}>
-                <Metadata
-                  header={gjennomforingTekster.navRegionLabel}
-                  verdi={kontorstruktur[0].region.navn}
-                />
-              </Bolk>
-              {kontorstruktur.map((struktur) => (
-                <Bolk aria-label={gjennomforingTekster.navEnheterKontorerLabel}>
-                  <Metadata
-                    header={gjennomforingTekster.navEnheterKontorerLabel}
-                    verdi={
-                      <ul className="columns-2">
-                        {struktur.kontorer
-                          .sort((a, b) => a.navn.localeCompare(b.navn))
-                          .map((enhet) => (
-                            <li key={enhet.enhetsnummer}>{enhet.navn}</li>
-                          ))}
-                      </ul>
-                    }
-                  />
-                </Bolk>
-              ))}
-            </>
-          )}
+          <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
+            <Metadata
+              header={gjennomforingTekster.tilgjengeligIModiaLabel}
+              verdi={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
+            />
+          </Bolk>
+
           {arenaAnsvarligEnhet ? (
             <Bolk>
               <div style={{ display: "flex", gap: "1rem" }}>
