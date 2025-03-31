@@ -23,7 +23,7 @@
   "dependencies": {
     "@axe-core/playwright": "4.10.1",
     "@mr/frontend-common": "workspace:*",
-    "@hey-api/client-fetch": "0.8.3",
+    "@hey-api/client-fetch": "0.8.4",
     "@navikt/aksel-icons": "7.18.0",
     "@navikt/ds-css": "7.18.0",
     "@navikt/ds-react": "7.18.0",
@@ -56,7 +56,7 @@
   "devDependencies": {
     "@playwright/test": "1.51.1",
     "@react-router/dev": "7.4.1",
-    "@hey-api/openapi-ts": "0.64.13",
+    "@hey-api/openapi-ts": "0.64.15",
     "@react-router/fs-routes": "7.4.1",
     "@tailwindcss/typography": "0.5.16",
     "@types/compression": "1.7.5",

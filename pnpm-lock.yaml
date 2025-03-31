@@ -25,12 +25,12 @@ importers:
   frontend/api-client-v2:
     dependencies:
       '@hey-api/client-fetch':
-        specifier: 0.8.3
-        version: 0.8.3
+        specifier: 0.8.4
+        version: 0.8.4
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.64.13
-        version: 0.64.13(typescript@5.8.2)
+        specifier: 0.64.15
+        version: 0.64.15(typescript@5.8.2)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -105,8 +105,8 @@ importers:
         specifier: 4.10.1
         version: 4.10.1(playwright-core@1.51.1)
       '@hey-api/client-fetch':
-        specifier: 0.8.3
-        version: 0.8.3
+        specifier: 0.8.4
+        version: 0.8.4
       '@mr/frontend-common':
         specifier: workspace:*
         version: link:../frontend-common
@@ -196,8 +196,8 @@ importers:
         version: 3.17.0
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.64.13
-        version: 0.64.13(typescript@5.8.2)
+        specifier: 0.64.15
+        version: 0.64.15(typescript@5.8.2)
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
@@ -2285,15 +2285,15 @@ packages:
     resolution: {integrity: sha512-Ii1xdpYysBfHO7XbK05uCXGwskDzLH7CYSdXU2gC8loRDR5PiqPzEczzVFeNhzGRcQzcecYWMxOzeucXdhNilw==}
     engines: {node: '>=18.0.0'}
 
-  '@hey-api/client-fetch@0.8.3':
-    resolution: {integrity: sha512-EBVa8wwUMyBSeQ32PtCz6u5bFQZIMAufvwCT1ZtpjqT3caJQEza4NokbGU50q1ZVrMsM5Ot6GuDNJOF3TMo26Q==}
+  '@hey-api/client-fetch@0.8.4':
+    resolution: {integrity: sha512-SWtUjVEFIUdiJGR2NiuF0njsSrSdTe7WHWkp3BLH3DEl2bRhiflOnBo29NSDdrY90hjtTQiTQkBxUgGOF29Xzg==}
 
   '@hey-api/json-schema-ref-parser@1.0.3':
     resolution: {integrity: sha512-jgyNFPUReGpdB0ihWv6m+Q3dcawtXx4t6cvi0NS4xxblulcCfEjThP5xVwShFiTRScckIQ/GsuZv20arRTIDkg==}
     engines: {node: '>= 16'}
 
-  '@hey-api/openapi-ts@0.64.13':
-    resolution: {integrity: sha512-KOf/bQ9JbGJFsdQjUrne3ZttoJm/68kG00oc/5VovduMAoX0gUyGNpZ+yppvUdLvmxL1GvaGut2JFk0XSZxIlw==}
+  '@hey-api/openapi-ts@0.64.15':
+    resolution: {integrity: sha512-bXpi9z3YEPVt9bVqlFA3hHmgDzfM8ID5kjnXR7t6PFxlmqo8CH8Y8aCNP7rMk1q7MXk42y2CXC2ehbU9cthCyw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=22.10.0}
     hasBin: true
     peerDependencies:
@@ -10749,7 +10749,7 @@ snapshots:
       ua-parser-js: 1.0.40
       web-vitals: 4.2.4
 
-  '@hey-api/client-fetch@0.8.3': {}
+  '@hey-api/client-fetch@0.8.4': {}
 
   '@hey-api/json-schema-ref-parser@1.0.3':
     dependencies:
@@ -10757,7 +10757,7 @@ snapshots:
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.0
 
-  '@hey-api/openapi-ts@0.64.13(typescript@5.8.2)':
+  '@hey-api/openapi-ts@0.64.15(typescript@5.8.2)':
     dependencies:
       '@hey-api/json-schema-ref-parser': 1.0.3
       c12: 2.0.1
