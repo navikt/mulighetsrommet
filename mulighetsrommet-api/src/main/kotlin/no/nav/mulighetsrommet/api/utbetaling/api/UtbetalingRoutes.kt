@@ -13,7 +13,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgo
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -56,6 +57,10 @@ fun Route.utbetalingRoutes() {
                     ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
 
                 val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                    val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                        TilsagnDto.fromTilsagn(it)
+                    }
+
                     val tilsagnBesluttetAv = queries.totrinnskontroll
                         .getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
                         .besluttetAv
@@ -65,18 +70,14 @@ fun Route.utbetalingRoutes() {
 
                     val kanBesluttesAvAnsatt = tilsagnBesluttetAv != ansatt.navIdent &&
                         opprettelse.behandletAv != ansatt.navIdent &&
-                        NavAnsattRolle.ATTESTANT_UTBETALING in ansatt.roller
+                        ansatt.hasRolle(Rolle.OfficeSpecific.AttestantUtbetaling(setOf(NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer))))
 
                     UtbetalingLinje(
                         id = delutbetaling.id,
                         gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
                         belop = delutbetaling.belop,
                         status = delutbetaling.status,
-                        tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
-                            TilsagnDto.fromTilsagn(
-                                it,
-                            )
-                        },
+                        tilsagn = tilsagn,
                         opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(opprettelse, kanBesluttesAvAnsatt),
                     )
                 }

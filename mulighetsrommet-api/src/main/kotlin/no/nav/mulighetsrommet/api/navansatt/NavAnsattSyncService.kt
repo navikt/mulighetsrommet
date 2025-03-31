@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -170,7 +171,7 @@ class NavAnsattSyncService(
         val navKontaktpersoner = mutableListOf<SanityNavKontaktperson>()
         val redaktorer = mutableListOf<SanityRedaktor>()
         ansatte.forEach { ansatt ->
-            if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
+            if (ansatt.hasRolle(Rolle.Global.Kontaktperson)) {
                 val id = existingNavKontaktpersonIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 navKontaktpersoner.add(
                     SanityNavKontaktperson(
@@ -185,7 +186,7 @@ class NavAnsattSyncService(
                 )
             }
 
-            if (ansatt.roller.contains(NavAnsattRolle.AVTALER_SKRIV) || ansatt.roller.contains(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
+            if (ansatt.hasRolle(Rolle.Global.AvtalerSkriv) || ansatt.hasRolle(Rolle.Global.TiltaksgjennomforingerSkriv)) {
                 val id = existingRedaktorIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 redaktorer.add(
                     SanityRedaktor(

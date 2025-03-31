@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.Oppgave
@@ -48,7 +49,7 @@ class OppgaverServiceTest : FunSpec({
             service.tilsagnOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(
                     NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
@@ -77,7 +78,7 @@ class OppgaverServiceTest : FunSpec({
             service.tilsagnOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 ansatt = NavAnsattFixture.ansatt1.navIdent,
                 roller = setOf(
                     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
@@ -108,7 +109,7 @@ class OppgaverServiceTest : FunSpec({
             service.tilsagnOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.BESLUTTER_TILSAGN),
             ).size shouldBe 3
@@ -134,7 +135,7 @@ class OppgaverServiceTest : FunSpec({
             service.tilsagnOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
             ) shouldMatchAllOppgaver listOf(
@@ -164,7 +165,7 @@ class OppgaverServiceTest : FunSpec({
             service.tilsagnOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                kostnadssteder = setOf(NavEnhetNummer(NavEnhetFixtures.Gjovik.enhetsnummer)),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.BESLUTTER_TILSAGN),
             ) shouldMatchAllOppgaver listOf(
@@ -194,7 +195,10 @@ class OppgaverServiceTest : FunSpec({
             service.tilsagnOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = listOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
+                kostnadssteder = setOf(
+                    NavEnhetNummer(NavEnhetFixtures.Oslo.enhetsnummer),
+                    NavEnhetNummer(NavEnhetFixtures.Gjovik.enhetsnummer),
+                ),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = emptySet(),
             ).shouldBeEmpty()
@@ -232,7 +236,7 @@ class OppgaverServiceTest : FunSpec({
             service.delutbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.ATTESTANT_UTBETALING),
             ) shouldMatchAllOppgaver listOf(
@@ -243,7 +247,7 @@ class OppgaverServiceTest : FunSpec({
             service.delutbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = listOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                kostnadssteder = setOf(NavEnhetNummer(NavEnhetFixtures.TiltakOslo.enhetsnummer)),
                 ansatt = NavAnsattFixture.ansatt2.navIdent,
                 roller = setOf(NavAnsattRolle.SAKSBEHANDLER_OKONOMI, NavAnsattRolle.ATTESTANT_UTBETALING),
             ) shouldMatchAllOppgaver listOf(
@@ -273,7 +277,7 @@ class OppgaverServiceTest : FunSpec({
             service.delutbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 ansatt = NavAnsattFixture.ansatt1.navIdent,
                 roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.ATTESTANT_UTBETALING),
             ).shouldBeEmpty()
@@ -345,7 +349,7 @@ class OppgaverServiceTest : FunSpec({
             service.utbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 roller = setOf(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
@@ -355,7 +359,7 @@ class OppgaverServiceTest : FunSpec({
             service.utbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = listOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                kostnadssteder = setOf(NavEnhetNummer(NavEnhetFixtures.TiltakOslo.enhetsnummer)),
                 roller = setOf(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
@@ -364,14 +368,14 @@ class OppgaverServiceTest : FunSpec({
             service.utbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 roller = setOf(NavAnsattRolle.ATTESTANT_UTBETALING),
             ).shouldBeEmpty()
 
             service.utbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-                kostnadssteder = emptyList(),
+                kostnadssteder = setOf(),
                 roller = setOf(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),

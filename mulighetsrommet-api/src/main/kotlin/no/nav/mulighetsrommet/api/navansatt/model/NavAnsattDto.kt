@@ -18,7 +18,7 @@ data class NavAnsattDto(
     val hovedenhet: Hovedenhet,
     val mobilnummer: String?,
     val epost: String,
-    val roller: Set<NavAnsattRolle>,
+    val roller: Set<Rolle>,
     @Serializable(with = LocalDateSerializer::class)
     val skalSlettesDato: LocalDate?,
 ) {
@@ -27,6 +27,19 @@ data class NavAnsattDto(
         val enhetsnummer: String,
         val navn: String,
     )
+
+    fun hasRolle(
+        requiredRole: Rolle,
+    ): Boolean = when (requiredRole) {
+        is Rolle.Global -> roller.any { it.rolle == requiredRole.rolle }
+
+        is Rolle.OfficeSpecific -> roller.any {
+            when (it) {
+                is Rolle.OfficeSpecific -> it.rolle == requiredRole.rolle && it.enheter.containsAll(requiredRole.enheter)
+                else -> false
+            }
+        }
+    }
 
     companion object {
         fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt, roller: Set<NavAnsattRolle>): NavAnsattDto = NavAnsattDto(
@@ -40,7 +53,7 @@ data class NavAnsattDto(
             ),
             mobilnummer = dto.mobilnummer,
             epost = dto.epost,
-            roller = roller,
+            roller = roller.map { Rolle.fromRolleAndEnheter(it) }.toSet(),
             skalSlettesDato = null,
         )
     }

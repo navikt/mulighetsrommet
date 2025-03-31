@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -42,7 +43,7 @@ class NavAnsattQueriesTest : FunSpec({
             avtaler = listOf(),
         ).initialize(database.db)
 
-        fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo, roller: Set<NavAnsattRolle>) = ansatt.run {
+        fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo, roller: Set<Rolle>) = ansatt.run {
             NavAnsattDto(
                 azureId = azureId,
                 navIdent = navIdent,
@@ -114,18 +115,20 @@ class NavAnsattQueriesTest : FunSpec({
 
                 queries.upsert(ansatt1)
 
-                val enRolle = setOf(NavAnsattRolle.KONTAKTPERSON)
+                val enRolle = setOf(
+                    Rolle.fromRolleAndEnheter(NavAnsattRolle.KONTAKTPERSON),
+                )
                 queries.setRoller(ansatt1.navIdent, enRolle)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
-                    NavAnsattRolle.BESLUTTER_TILSAGN,
-                    NavAnsattRolle.ATTESTANT_UTBETALING,
+                    Rolle.fromRolleAndEnheter(NavAnsattRolle.BESLUTTER_TILSAGN),
+                    Rolle.fromRolleAndEnheter(NavAnsattRolle.ATTESTANT_UTBETALING),
                 )
                 queries.setRoller(ansatt1.navIdent, flereRoller)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
 
-                val ingenRoller = setOf<NavAnsattRolle>()
+                val ingenRoller = setOf<Rolle>()
                 queries.setRoller(ansatt1.navIdent, ingenRoller)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
             }
@@ -135,9 +138,11 @@ class NavAnsattQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 val queries = NavAnsattQueries(session)
 
-                val rolleTiltaksadministrasjon = NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
+                val rolleTiltaksadministrasjon =
+                    Rolle.fromRolleAndEnheter(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
 
-                val rolleKontaktperson = NavAnsattRolle.KONTAKTPERSON
+                val rolleKontaktperson =
+                    Rolle.fromRolleAndEnheter(NavAnsattRolle.KONTAKTPERSON)
 
                 queries.upsert(ansatt1)
                 queries.setRoller(ansatt1.navIdent, setOf(rolleTiltaksadministrasjon))

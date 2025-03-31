@@ -3,18 +3,32 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OppgaverService(val db: ApiDatabase) {
-    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<NavAnsattRolle>): List<Oppgave> {
-        val navEnheter = navEnheter(filter.regioner)
+    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<Rolle>): List<Oppgave> {
+        val ansattesRoller = roller.map { it.rolle }.toSet()
+        val ansattesKostnadssteder = roller
+            .flatMap {
+                when (it) {
+                    is Rolle.OfficeSpecific -> it.enheter
+                    is Rolle.Global -> emptySet()
+                }
+            }
+            .toSet()
+
+        val navEnheter = getNavEnheterForRegioner(filter.regioner)
+
+        val kostnadssteder = navEnheter.intersect(ansattesKostnadssteder)
 
         return buildList {
             if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { OppgaveType.TilsagnOppgaver.contains(it) }) {
@@ -22,8 +36,8 @@ class OppgaverService(val db: ApiDatabase) {
                     tilsagnOppgaver(
                         tiltakskoder = filter.tiltakskoder,
                         oppgavetyper = filter.oppgavetyper,
-                        kostnadssteder = navEnheter,
-                        roller = roller,
+                        kostnadssteder = kostnadssteder,
+                        roller = ansattesRoller,
                         ansatt = ansatt,
                     ),
                 )
@@ -33,9 +47,9 @@ class OppgaverService(val db: ApiDatabase) {
                     delutbetalingOppgaver(
                         tiltakskoder = filter.tiltakskoder,
                         oppgavetyper = filter.oppgavetyper,
-                        kostnadssteder = navEnheter,
+                        kostnadssteder = kostnadssteder,
                         ansatt = ansatt,
-                        roller = roller,
+                        roller = ansattesRoller,
                     ),
                 )
             }
@@ -44,8 +58,8 @@ class OppgaverService(val db: ApiDatabase) {
                     utbetalingOppgaver(
                         tiltakskoder = filter.tiltakskoder,
                         oppgavetyper = filter.oppgavetyper,
-                        kostnadssteder = navEnheter,
-                        roller = roller,
+                        kostnadssteder = kostnadssteder,
+                        roller = ansattesRoller,
                     ),
                 )
             }
@@ -55,7 +69,7 @@ class OppgaverService(val db: ApiDatabase) {
     fun tilsagnOppgaver(
         oppgavetyper: List<OppgaveType>,
         tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<String>,
+        kostnadssteder: Set<NavEnhetNummer>,
         roller: Set<NavAnsattRolle>,
         ansatt: NavIdent,
     ): List<Oppgave> = db.session {
@@ -70,7 +84,7 @@ class OppgaverService(val db: ApiDatabase) {
             )
             .asSequence()
             .filter { oppgave ->
-                kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
+                kostnadssteder.isEmpty() || NavEnhetNummer(oppgave.kostnadssted.enhetsnummer) in kostnadssteder
             }
             .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
             .mapNotNull { toOppgave(it) }
@@ -85,13 +99,13 @@ class OppgaverService(val db: ApiDatabase) {
     fun delutbetalingOppgaver(
         oppgavetyper: List<OppgaveType>,
         tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<String>,
+        kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavIdent,
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
         queries.delutbetaling
             .getOppgaveData(
-                kostnadssteder = kostnadssteder.ifEmpty { null },
+                kostnadssteder = kostnadssteder.ifEmpty { null }?.map { it.value },
                 tiltakskoder = tiltakskoder.ifEmpty { null },
             )
             .mapNotNull { toOppgave(it) }
@@ -105,7 +119,7 @@ class OppgaverService(val db: ApiDatabase) {
     fun utbetalingOppgaver(
         oppgavetyper: List<OppgaveType>,
         tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<String>,
+        kostnadssteder: Set<NavEnhetNummer>,
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
         queries.utbetaling
@@ -122,22 +136,22 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun QueryContext.byKostnadssted(
         utbetaling: Utbetaling,
-        kostnadssteder: List<String>,
+        kostnadssteder: Set<NavEnhetNummer>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
         else -> {
             queries.tilsagn
                 .getAll(gjennomforingId = utbetaling.gjennomforing.id, periodeIntersectsWith = utbetaling.periode)
-                .let { tilsagn -> tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder } }
+                .let { tilsagn -> tilsagn.isEmpty() || tilsagn.any { NavEnhetNummer(it.kostnadssted.enhetsnummer) in kostnadssteder } }
         }
     }
 
-    private fun navEnheter(regioner: List<String>): List<String> {
+    private fun getNavEnheterForRegioner(regioner: List<String>): List<NavEnhetNummer> {
         return regioner
             .flatMap { region ->
                 db.session { queries.enhet.getAll(overordnetEnhet = region) }
             }
-            .map { it.enhetsnummer }
+            .map { NavEnhetNummer(it.enhetsnummer) }
     }
 }
 

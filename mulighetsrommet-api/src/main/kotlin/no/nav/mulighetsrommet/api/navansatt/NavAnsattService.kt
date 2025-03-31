@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -43,11 +44,11 @@ class NavAnsattService(
             "Fant ikke ansatt med navIdent=$navIdent i AzureAd"
         }
 
-        if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
+        if (ansatt.hasRolle(Rolle.Global.Kontaktperson)) {
             return
         }
 
-        val roller = ansatt.roller + NavAnsattRolle.KONTAKTPERSON
+        val roller = ansatt.roller + Rolle.Global.Kontaktperson
         queries.ansatt.setRoller(ansatt.navIdent, roller)
 
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)

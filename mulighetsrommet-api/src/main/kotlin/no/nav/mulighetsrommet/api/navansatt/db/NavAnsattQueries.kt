@@ -5,7 +5,9 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -40,7 +42,7 @@ class NavAnsattQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
+    fun setRoller(navIdent: NavIdent, roller: Set<Rolle>) {
         @Language("PostgreSQL")
         val deleteRoles = """
             delete from nav_ansatt_rolle
@@ -53,11 +55,27 @@ class NavAnsattQueries(private val session: Session) {
             val insertRolle = """
                 insert into nav_ansatt_rolle(nav_ansatt_nav_ident, rolle)
                 values (:nav_ident, :rolle::rolle)
+                returning id
+            """.trimIndent()
+
+            @Language("PostgreSQL")
+            val insertRolleEnhet = """
+                insert into nav_ansatt_rolle_nav_enhet (nav_ansatt_rolle_id, nav_enhet_enhetsnummer)
+                values (:role_id, :enhet)
             """.trimIndent()
 
             roller.forEach { rolle ->
-                val paramsRolle = mapOf("nav_ident" to navIdent.value, "rolle" to rolle.name)
-                session.execute(queryOf(insertRolle, paramsRolle))
+                val paramsRolle = mapOf("nav_ident" to navIdent.value, "rolle" to rolle.rolle.name)
+                val id = session.requireSingle(queryOf(insertRolle, paramsRolle)) { it.int("id") }
+
+                when (rolle) {
+                    is Rolle.OfficeSpecific -> {
+                        val paramsRolleEnheter = rolle.enheter.map { mapOf("role_id" to id, "enhet" to it.value) }
+                        session.batchPreparedNamedStatement(insertRolleEnhet, paramsRolleEnheter)
+                    }
+
+                    is Rolle.Global -> {}
+                }
             }
         }
     }
@@ -118,18 +136,24 @@ class NavAnsattQueries(private val session: Session) {
         return update(queryOf(query, azureId))
     }
 
-    private fun Row.toNavAnsattDto() = NavAnsattDto(
-        navIdent = NavIdent(string("nav_ident")),
-        fornavn = string("fornavn"),
-        etternavn = string("etternavn"),
-        hovedenhet = NavAnsattDto.Hovedenhet(
-            enhetsnummer = string("hovedenhet_enhetsnummer"),
-            navn = string("hovedenhet_navn"),
-        ),
-        azureId = uuid("azure_id"),
-        mobilnummer = stringOrNull("mobilnummer"),
-        epost = string("epost"),
-        roller = array<String?>("roller").filterNotNull().map { NavAnsattRolle.valueOf(it) }.toSet(),
-        skalSlettesDato = localDateOrNull("skal_slettes_dato"),
-    )
+    private fun Row.toNavAnsattDto(): NavAnsattDto {
+        val roller = array<String?>("roller")
+            .filterNotNull()
+            .map { Rolle.fromRolleAndEnheter(NavAnsattRolle.valueOf(it)) }
+            .toSet()
+        return NavAnsattDto(
+            navIdent = NavIdent(string("nav_ident")),
+            fornavn = string("fornavn"),
+            etternavn = string("etternavn"),
+            hovedenhet = NavAnsattDto.Hovedenhet(
+                enhetsnummer = string("hovedenhet_enhetsnummer"),
+                navn = string("hovedenhet_navn"),
+            ),
+            azureId = uuid("azure_id"),
+            mobilnummer = stringOrNull("mobilnummer"),
+            epost = string("epost"),
+            roller = roller,
+            skalSlettesDato = localDateOrNull("skal_slettes_dato"),
+        )
+    }
 }
