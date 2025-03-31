@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -123,7 +123,7 @@ class ArrangorFlateService(
         )
     }
 
-    private suspend fun getPersoner(deltakere: List<DeltakerDto>): Map<NorskIdent, UtbetalingDeltakelse.Person> {
+    private suspend fun getPersoner(deltakere: List<Deltaker>): Map<NorskIdent, UtbetalingDeltakelse.Person> {
         val identer = deltakere
             .mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }
             .toNonEmptySetOrNull()
