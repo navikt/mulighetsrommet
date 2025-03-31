@@ -76,7 +76,7 @@ services:
       POSTGRES_PASSWORD: "valp"
 
   pdfgen:
-    image: "ghcr.io/navikt/pdfgen:2.0.61"
+    image: "ghcr.io/navikt/pdfgen:2.0.73"
     restart: "always"
     ports:
       - "8888:8080"

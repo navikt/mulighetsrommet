@@ -16,7 +16,6 @@ select gjennomforing.id,
        gjennomforing.estimert_ventetid_enhet,
        gjennomforing.beskrivelse,
        gjennomforing.faneinnhold,
-       gjennomforing.nav_region,
        gjennomforing.publisert,
        tiltaksgjennomforing_status(gjennomforing.start_dato,
                                    gjennomforing.slutt_dato,
@@ -27,7 +26,7 @@ select gjennomforing.id,
        tiltakstype.innsatsgrupper                                     as tiltakstype_innsatsgrupper,
        avtale.personvern_bekreftet,
        personopplysninger_som_kan_behandles,
-       nav_enheter,
+       nav_enheter_json,
        nav_kontaktpersoner_json,
        arrangor.id                                                    as arrangor_id,
        arrangor.organisasjonsnummer                                   as arrangor_organisasjonsnummer,
@@ -40,9 +39,15 @@ from gjennomforing
          left join lateral (select array_agg(personopplysning) as personopplysninger_som_kan_behandles
                             from avtale_personopplysning
                             where avtale_id = avtale.id) on true
-         left join lateral (select array_agg(enhetsnummer) as nav_enheter
-                            from gjennomforing_nav_enhet
-                            where gjennomforing_id = gjennomforing.id) on true
+         left join lateral (select jsonb_agg(
+                                           jsonb_build_object(
+                                                   'enhetsnummer', gjennomforing_nav_enhet.enhetsnummer,
+                                                   'type', nav_enhet.type
+                                           )
+                                   ) as nav_enheter_json
+                                           from gjennomforing_nav_enhet
+                                           left join nav_enhet on nav_enhet.enhetsnummer = gjennomforing_nav_enhet.enhetsnummer
+                                           where gjennomforing_nav_enhet.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navn', concat(nav_ansatt.fornavn, ' ', nav_ansatt.etternavn),

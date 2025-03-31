@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
@@ -15,7 +16,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -32,6 +32,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.toOkonomiPart
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,12 +44,16 @@ import java.time.LocalDateTime
 import java.util.*
 
 class UtbetalingService(
+    private val config: Config,
     private val db: ApiDatabase,
-    private val okonomi: OkonomiBestillingService,
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
+    data class Config(
+        val bestillingTopic: String,
+    )
+
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
     suspend fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
@@ -208,16 +215,6 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.get(request.utbetalingId)
             ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
 
-        // Slett de som ikke er med i requesten
-        queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-            .filter { it.id !in request.delutbetalinger.map { it.id } }
-            .forEach {
-                require(it.status == DelutbetalingStatus.RETURNERT) {
-                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
-                }
-                queries.delutbetaling.delete(it.id)
-            }
-
         UtbetalingValidator.validateOpprettDelutbetalinger(
             utbetaling,
             request.delutbetalinger.map { req ->
@@ -237,6 +234,16 @@ class UtbetalingService(
                 it.forEach {
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
                 }
+            }
+
+        // Slett de som ikke er med i requesten
+        queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+            .filter { it.id !in request.delutbetalinger.map { it.id } }
+            .forEach {
+                require(it.status == DelutbetalingStatus.RETURNERT) {
+                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
+                }
+                queries.delutbetaling.delete(it.id)
             }
 
         return Unit.right()
@@ -425,11 +432,13 @@ class UtbetalingService(
         )
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
-            godkjennUtbetaling(alleDelutbetalinger)
+            val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId))
+            godkjennUtbetaling(utbetaling, alleDelutbetalinger)
         }
     }
 
     private fun QueryContext.godkjennUtbetaling(
+        utbetaling: Utbetaling,
         delutbetalinger: List<Delutbetaling>,
     ) {
         require(delutbetalinger.isNotEmpty())
@@ -443,8 +452,8 @@ class UtbetalingService(
             if (it.gjorOppTilsagn) {
                 tilsagnService.gjorOppAutomatisk(it.tilsagnId, this)
             }
+            storeOpprettFaktura(it, tilsagn, utbetaling.betalingsinformasjon)
         }
-        okonomi.scheduleBehandleGodkjenteUtbetaling(delutbetalinger[0].utbetalingId, session)
 
         logEndring(
             "Utbetaling godkjent",
@@ -554,6 +563,56 @@ class UtbetalingService(
         ) {
             Json.encodeToJsonElement(dto)
         }
+    }
+    private fun QueryContext.storeOpprettFaktura(
+        delutbetaling: Delutbetaling,
+        tilsagn: Tilsagn,
+        betalingsinformasjon: Utbetaling.Betalingsinformasjon,
+    ) {
+        require(delutbetaling.status == DelutbetalingStatus.GODKJENT)
+
+        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+        log.info("Sender delutbetaling med utbetalingId: ${delutbetaling.utbetalingId} tilsagnId: ${delutbetaling.tilsagnId} på kafka")
+
+        val kontonummer = requireNotNull(betalingsinformasjon.kontonummer) {
+            "Kontonummer mangler for utbetaling med id=${delutbetaling.utbetalingId}"
+        }
+        requireNotNull(opprettelse.besluttetTidspunkt)
+        requireNotNull(opprettelse.besluttetAv)
+
+        val faktura = OpprettFaktura(
+            fakturanummer = delutbetaling.faktura.fakturanummer,
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
+                kontonummer = kontonummer,
+                kid = betalingsinformasjon.kid,
+            ),
+            belop = delutbetaling.belop,
+            periode = delutbetaling.periode,
+            behandletAv = opprettelse.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = opprettelse.behandletTidspunkt,
+            besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+            gjorOppBestilling = delutbetaling.gjorOppTilsagn,
+        )
+
+        queries.delutbetaling.setSendtTilOkonomi(
+            delutbetaling.utbetalingId,
+            delutbetaling.tilsagnId,
+            LocalDateTime.now(),
+        )
+        val message = OkonomiBestillingMelding.Faktura(faktura)
+        storeOkonomiMelding(faktura.bestillingsnummer, message)
+    }
+
+    private fun QueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+        val record = StoredProducerRecord(
+            config.bestillingTopic,
+            bestillingsnummer.toByteArray(),
+            Json.encodeToString(message).toByteArray(),
+            null,
+        )
+        queries.kafkaProducerRecord.storeRecord(record)
     }
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {

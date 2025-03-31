@@ -52,6 +52,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                   <Table.DataCell>
                     <LinkWithTabState
+                      aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
                       className="hover:underline font-bold no-underline"
                       to={
                         [

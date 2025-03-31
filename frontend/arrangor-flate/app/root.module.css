@@ -12,6 +12,7 @@ body {
   flex-direction: column;
   max-width: 1400px;
   margin-bottom: 3rem;
+  overflow-x: auto;
 }
 
 :global(#decorator-header) {

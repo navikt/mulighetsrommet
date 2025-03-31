@@ -15,7 +15,7 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<ForhandsgodkjentTilsagn>;
-  defaultKostnadssteder: string[];
+  regioner: string[];
 }
 
 export function TilsagnFormForhandsgodkjent(props: Props) {

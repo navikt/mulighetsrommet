@@ -5,6 +5,7 @@ import {
   Checkbox,
   ErrorSummary,
   Heading,
+  HelpText,
   HStack,
   Link,
   TextField,
@@ -21,6 +22,7 @@ import {
   ActionFunction,
   Form,
   LoaderFunction,
+  MetaFunction,
   redirect,
   useActionData,
   useFetcher,
@@ -44,6 +46,13 @@ type BekreftUtbetalingData = {
 interface ActionData {
   errors?: FieldError[];
 }
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Bekreft utbetaling" },
+    { name: "description", content: "Arrangørflate for bekreftelse av krav om utbetaling" },
+  ];
+};
 
 export const loader: LoaderFunction = async ({
   request,
@@ -161,10 +170,14 @@ export default function BekreftUtbetaling() {
   };
 
   useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
+    if (
+      fetcher.state === "idle" &&
+      fetcher.data &&
+      fetcher.data !== utbetaling.betalingsinformasjon?.kontonummer
+    ) {
       revalidator.revalidate();
     }
-  }, [fetcher.state, fetcher.data, revalidator]);
+  }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon?.kontonummer]);
 
   return (
     <>
@@ -182,19 +195,35 @@ export default function BekreftUtbetaling() {
         <Form method="post">
           <HStack>
             <div>
-              <TextField
-                label="Kontonummer"
-                size="small"
-                description="Kontonummeret hentes automatisk fra Altinn"
-                error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
-                name="kontonummer"
-                defaultValue={utbetaling.betalingsinformasjon?.kontonummer}
-                maxLength={11}
-                minLength={11}
-                readOnly
-              />
-              <small>
-                Dersom kontonummer er feil kan du lese her om <EndreKontonummerLink />
+              <HStack align="end" gap="2">
+                <TextField
+                  label="Kontonummer"
+                  size="small"
+                  description="Kontonummeret hentes automatisk fra Altinn"
+                  error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
+                  name="kontonummer"
+                  defaultValue={utbetaling.betalingsinformasjon?.kontonummer}
+                  maxLength={11}
+                  minLength={11}
+                  readOnly
+                />
+                <HStack align="start" gap="2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="small"
+                    onClick={handleHentKontonummer}
+                  >
+                    Synkroniser kontonummer
+                  </Button>
+                  <HelpText>
+                    Dersom du har oppdatert kontoregisteret via Altinn kan du trykke på knappen
+                    "Synkroniser kontonummer" for å hente kontonummeret på nytt fra Altinn.
+                  </HelpText>
+                </HStack>
+              </HStack>
+              <small className="mt-2 block">
+                Er kontonummeret feil kan du lese her om <EndreKontonummerLink />.
               </small>
               {!utbetaling.betalingsinformasjon?.kontonummer ? (
                 <Alert variant="warning" className="my-5">

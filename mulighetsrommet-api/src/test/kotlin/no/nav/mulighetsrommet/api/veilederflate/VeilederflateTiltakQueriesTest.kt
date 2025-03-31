@@ -93,8 +93,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         test("skal filtrere på brukers enheter") {
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.upsert(Oppfolging1.copy(navEnheter = listOf("0400", "0502")))
-                queries.gjennomforing.upsert(AFT1.copy(navEnheter = listOf("0400", "0300")))
+                queries.gjennomforing.upsert(Oppfolging1.copy(navEnheter = setOf("0400", "0502")))
+                queries.gjennomforing.upsert(AFT1.copy(navEnheter = setOf("0400", "0300")))
 
                 val queries = VeilederflateTiltakQueries(session)
 

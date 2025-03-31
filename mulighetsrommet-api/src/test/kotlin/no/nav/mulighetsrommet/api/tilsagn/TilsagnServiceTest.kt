@@ -9,9 +9,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.kotest.matchers.types.shouldBeTypeOf
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -34,10 +33,8 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.*
 import java.time.LocalDate
 import java.util.*
 
@@ -71,17 +68,17 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createTilsagnService(
-        okonomi: OkonomiBestillingService = mockk(relaxed = true),
-    ): TilsagnService {
+    fun createTilsagnService(): TilsagnService {
         return TilsagnService(
             db = database.db,
-            config = OkonomiConfig(
-                minimumTilsagnPeriodeStart = mapOf(
-                    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to minimumTilsagnPeriodeStart,
+            config = TilsagnService.Config(
+                okonomiConfig = OkonomiConfig(
+                    minimumTilsagnPeriodeStart = mapOf(
+                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to minimumTilsagnPeriodeStart,
+                    ),
                 ),
+                bestillingTopic = "topic",
             ),
-            okonomi = okonomi,
         )
     }
 
@@ -279,10 +276,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("godkjent tilsagn trigger melding til økonomi") {
-            val okonomi = mockk<OkonomiBestillingService>()
-            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
-
-            val service = createTilsagnService(okonomi)
+            val service = createTilsagnService()
 
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -293,9 +287,17 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            verify(exactly = 1) {
-                okonomi.scheduleBehandleGodkjentTilsagn(request.id, any())
-            }
+            val value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+                .shouldHaveSize(1)
+                .first().value
+            Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
+                .shouldBeTypeOf<OkonomiBestillingMelding.Bestilling>()
+                .payload.should {
+                    it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
+                    it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
+                    it.kostnadssted shouldBe NavEnhetNummer(request.kostnadssted)
+                    it.periode shouldBe Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+                }
         }
 
         test("totrinnskontroll blir oppdatert i forbindelse med opprettelse av tilsagn") {
@@ -446,11 +448,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("annullering av tilsagn trigger melding til økonomi") {
-            val okonomi = mockk<OkonomiBestillingService>()
-            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
-            every { okonomi.scheduleBehandleAnnullertTilsagn(any(), any()) } returns Unit
-
-            val service = createTilsagnService(okonomi)
+            val service = createTilsagnService()
 
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -461,9 +459,12 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            verify(exactly = 1) {
-                okonomi.scheduleBehandleGodkjentTilsagn(request.id, any())
-            }
+            var value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+                .shouldHaveSize(1)
+                .first().value
+            val bestillingsnummer = Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
+                .shouldBeTypeOf<OkonomiBestillingMelding.Bestilling>()
+                .payload.bestillingsnummer
 
             service.tilAnnulleringRequest(
                 id = request.id,
@@ -480,9 +481,15 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
-            verify(exactly = 1) {
-                okonomi.scheduleBehandleAnnullertTilsagn(request.id, any())
-            }
+            value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+                .shouldHaveSize(2).elementAt(1).value
+            Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
+                .shouldBeTypeOf<OkonomiBestillingMelding.Annullering>()
+                .payload.should {
+                    it.bestillingsnummer shouldBe bestillingsnummer
+                    it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
+                    it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
+                }
         }
     }
 
@@ -498,6 +505,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+            val bestillingsnummer = database.run { queries.tilsagn.get(request.id) }!!.bestilling.bestillingsnummer
 
             service.tilGjorOppRequest(
                 id = request.id,
@@ -529,6 +537,17 @@ class TilsagnServiceTest : FunSpec({
                     it.besluttelse shouldBe Besluttelse.GODKJENT
                 }
             }
+
+            val value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+                .shouldHaveSize(2)
+                .elementAt(1).value
+            Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
+                .shouldBeTypeOf<OkonomiBestillingMelding.GjorOppBestilling>()
+                .payload.should {
+                    it.bestillingsnummer shouldBe bestillingsnummer
+                    it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
+                    it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
+                }
         }
 
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {

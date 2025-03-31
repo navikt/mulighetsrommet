@@ -91,18 +91,9 @@ class GjennomforingValidator(
                 add(FieldError.of(GjennomforingDbo::navEnheter, "Du må velge minst ett Nav-kontor"))
             }
 
-            if (!avtale.kontorstruktur.any { it.region.enhetsnummer == next.navRegion }) {
-                add(
-                    FieldError.of(
-                        GjennomforingDbo::navEnheter,
-                        "Nav-region ${next.navRegion} mangler i avtalen",
-                    ),
-                )
-            }
-
-            val avtaleNavEnheter = avtale.kontorstruktur.flatMap { it.kontorer }.associateBy { it.enhetsnummer }
+            val avtaleNavEnheter = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer }
             next.navEnheter.forEach { enhetsnummer ->
-                if (!avtaleNavEnheter.containsKey(enhetsnummer)) {
+                if (!avtaleNavEnheter.contains(enhetsnummer)) {
                     add(
                         FieldError.of(
                             GjennomforingDbo::navEnheter,
@@ -164,7 +155,7 @@ class GjennomforingValidator(
                         ),
                     )
                 } else {
-                    val avtalensUtdanninger = avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
+                    val avtalensUtdanninger = avtale.utdanningslop.utdanninger.map { it.id } ?: emptyList()
 
                     if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
                         add(

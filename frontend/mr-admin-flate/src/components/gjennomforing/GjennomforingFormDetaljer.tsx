@@ -71,6 +71,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   });
 
   const watchVisEstimertVentetid = watch("visEstimertVentetid");
+  const navRegioner = watch("navRegioner");
 
   useEffect(() => {
     const resetEstimertVentetid = () => {
@@ -111,7 +112,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
 
   const navEnheterOptions = avtale.kontorstruktur
     .flatMap((struk) => struk.kontorer)
-    .filter((kontor) => kontor.overordnetEnhet === watch("navRegion"))
+    .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? ""))
     .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
   const minStartdato = new Date(avtale.startDato);
@@ -297,15 +298,13 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
         <SkjemaKolonne>
           <div>
             <FormGroup>
-              <ControlledSokeSelect
-                id={"navRegion"}
+              <ControlledMultiSelect
+                inputId={"navRegioner"}
                 size="small"
                 label={gjennomforingTekster.navRegionLabel}
                 placeholder="Velg en"
-                {...register("navRegion")}
-                onChange={() => {
-                  setValue("navEnheter", [] as any);
-                }}
+                {...register("navRegioner")}
+                velgAlle
                 options={regionerOptions}
               />
               <ControlledMultiSelect

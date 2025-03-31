@@ -173,16 +173,20 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
 
                       <SkjulKolonne skjul={!!skjulKolonner?.enhet}>
                         <Table.DataCell
-                          aria-label={`Enheter: ${gjennomforing?.navEnheter
-                            .map((enhet) => enhet?.navn)
+                          aria-label={`Enheter: ${gjennomforing.kontorstruktur
+                            .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
                             .join(", ")}`}
-                          title={`Enheter: ${gjennomforing?.navEnheter
-                            .map((enhet) => enhet?.navn)
+                          title={`Enheter: ${gjennomforing.kontorstruktur
+                            .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
                             .join(", ")}`}
                         >
                           {formaterNavEnheter(
-                            gjennomforing.navRegion?.navn,
-                            gjennomforing.navEnheter,
+                            gjennomforing.kontorstruktur.flatMap((struktur) =>
+                              struktur.kontorer.map((kontor) => ({
+                                navn: kontor.navn,
+                                enhetsnummer: kontor.enhetsnummer,
+                              })),
+                            ),
                           )}
                         </Table.DataCell>
                       </SkjulKolonne>

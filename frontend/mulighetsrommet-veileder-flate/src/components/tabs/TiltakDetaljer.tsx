@@ -120,12 +120,12 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
 }
 
 function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
-  if (!tiltak.fylke) {
+  if (tiltak.fylker.length < 1) {
     return true;
   }
 
   const fylkerSomIkkeVilHaOppskrifter = [
     "0800", // Vestfold og Telemark
   ];
-  return !fylkerSomIkkeVilHaOppskrifter.includes(tiltak.fylke);
+  return !tiltak.fylker.some((fylke) => fylkerSomIkkeVilHaOppskrifter.includes(fylke));
 }

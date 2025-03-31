@@ -122,6 +122,8 @@ dependencies {
         }
     }
 
+    implementation(libs.shedlock.jdbc)
+
     // Test
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)

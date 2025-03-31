@@ -33,7 +33,10 @@ import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { BeregningDetaljer } from "../components/utbetaling/BeregningDetaljer";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Utbetaling" }, { name: "description", content: "Utbetalingdetaljer" }];
+  return [
+    { title: "Beregning" },
+    { name: "description", content: "Beregning for krav om utbetaling" },
+  ];
 };
 
 type LoaderData = {

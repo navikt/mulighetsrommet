@@ -3,10 +3,6 @@
 Kildekode for flate for administrative oppgaver rundt opprettelse og redigering av avtaler og
 gjennomføringer.
 
-## Demo
-
-Se demo av løsningen her https://tiltaksadministrasjon.ekstern.dev.nav.no
-
 ## Oppsett
 
 ### Installere avhengigheter

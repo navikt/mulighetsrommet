@@ -226,7 +226,6 @@ Administrasjonsflate for tiltak- og fagansvarlige i Nav som jobber med tiltaksty
 |                  |                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------|
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mr-admin-flate/README.md> |
-| Url (demo)       | <https://tiltaksadministrasjon.ekstern.dev.nav.no>                                      |
 | Url (dev-miljø)  | <https://tiltaksadministrasjon.intern.dev.nav.no>                                       |
 | Url (prod-miljø) | <https://tiltaksadministrasjon.intern.nav.no>                                           |
 

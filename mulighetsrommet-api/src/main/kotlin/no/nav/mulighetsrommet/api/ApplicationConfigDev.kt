@@ -33,6 +33,7 @@ val ApplicationConfigDev = AppConfig(
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenDefaultProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
+        byteProducerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
         consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-api-kafka-consumer.v1"),
         clients = KafkaClients(
             amtDeltakerV1 = KafkaTopicConsumer.Config(

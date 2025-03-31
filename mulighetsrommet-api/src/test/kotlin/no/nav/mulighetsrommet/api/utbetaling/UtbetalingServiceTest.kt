@@ -14,6 +14,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -40,6 +40,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -53,12 +55,13 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     fun createUtbetalingService(
-        okonomi: OkonomiBestillingService = mockk(relaxed = true),
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
     ) = UtbetalingService(
+        config = UtbetalingService.Config(
+            bestillingTopic = "topic",
+        ),
         db = database.db,
-        okonomi = okonomi,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
@@ -616,6 +619,48 @@ class UtbetalingServiceTest : FunSpec({
                 .shouldNotBeNull().status shouldBe DelutbetalingStatus.RETURNERT
         }
 
+        test("sletting av delutbetaling skjer ikke ved valideringsfeil") {
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            val delutbetaling = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                gjorOppTilsagn = false,
+                belop = 100,
+            )
+            val opprettRequest = OpprettDelutbetalingerRequest(
+                utbetalingId = utbetaling1.id,
+                delutbetalinger = listOf(delutbetaling),
+            )
+            service.opprettDelutbetalinger(
+                request = opprettRequest,
+                navIdent = domain.ansatte[0].navIdent,
+            )
+            service.besluttDelutbetaling(
+                id = delutbetaling.id,
+                request = BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
+                navIdent = domain.ansatte[1].navIdent,
+            )
+            service.opprettDelutbetalinger(
+                request = OpprettDelutbetalingerRequest(utbetaling1.id, emptyList()),
+                navIdent = domain.ansatte[0].navIdent,
+            ).shouldBeLeft()
+            database.run { queries.delutbetaling.get(delutbetaling.id) }
+                .shouldNotBeNull().status shouldBe DelutbetalingStatus.RETURNERT
+        }
+
         test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
@@ -803,17 +848,15 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
-            shouldThrow<IllegalArgumentException> {
-                service.opprettDelutbetalinger(
-                    OpprettDelutbetalingerRequest(
-                        utbetaling.id,
-                        listOf(
-                            DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
-                        ),
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(
+                    utbetaling.id,
+                    listOf(
+                        DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
                     ),
-                    domain.ansatte[0].navIdent,
-                )
-            }
+                ),
+                domain.ansatte[0].navIdent,
+            ).shouldBeLeft()
             service.besluttDelutbetaling(
                 delutbetalingId2,
                 BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
@@ -1038,6 +1081,16 @@ class UtbetalingServiceTest : FunSpec({
                 queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
                     it.belopGjenstaende shouldBe 0
                 }
+                Json.decodeFromString<OkonomiBestillingMelding>(
+                    queries.kafkaProducerRecord.getRecords(50).first().value.decodeToString(),
+                )
+                    .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
+                    .payload.should {
+                        it.belop shouldBe delutbetaling.belop
+                        it.behandletAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
+                        it.besluttetAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
+                        it.periode shouldBe delutbetaling.periode
+                    }
             }
         }
 

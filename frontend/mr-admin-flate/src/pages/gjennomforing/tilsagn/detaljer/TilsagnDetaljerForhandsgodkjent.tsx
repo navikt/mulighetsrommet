@@ -29,6 +29,10 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor 
         <VStack>
           <Bolk>
             <Metadata
+              header={tilsagnTekster.bestillingsnummer.label}
+              verdi={tilsagn.bestillingsnummer}
+            />
+            <Metadata
               header={tilsagnTekster.type.label}
               verdi={avtaletekster.tilsagn.type(tilsagn.type)}
             />

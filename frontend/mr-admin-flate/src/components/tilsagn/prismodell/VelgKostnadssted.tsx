@@ -3,12 +3,11 @@ import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useFormContext } from "react-hook-form";
 
 interface Props {
-  defaultKostnadssteder: string[];
+  regioner: string[];
 }
 
-export function VelgKostnadssted({ defaultKostnadssteder }: Props) {
-  const { data: kostnadssteder } = useKostnadssted(defaultKostnadssteder);
-
+export function VelgKostnadssted({ regioner }: Props) {
+  const { data: kostnadssteder } = useKostnadssted(regioner);
   const { register } = useFormContext<{ kostnadssted: string }>();
 
   return (
