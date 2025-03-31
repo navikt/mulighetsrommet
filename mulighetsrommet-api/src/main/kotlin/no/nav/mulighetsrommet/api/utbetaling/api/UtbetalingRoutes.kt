@@ -26,7 +26,10 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.api.DeltakerForKostnadsfordeling.Companion.toDeltakereForKostnadsfordeling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -69,13 +72,25 @@ fun Route.utbetalingRoutes() {
                         gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
                         belop = delutbetaling.belop,
                         status = delutbetaling.status,
-                        tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let { TilsagnDto.fromTilsagn(it) },
+                        tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                            TilsagnDto.fromTilsagn(
+                                it,
+                            )
+                        },
                         opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(opprettelse, kanBesluttesAvAnsatt),
                     )
                 }
 
+                val deltakere = when (utbetaling.beregning) {
+                    is UtbetalingBeregningForhandsgodkjent -> queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                        .toDeltakereForKostnadsfordeling(utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId })
+
+                    is UtbetalingBeregningFri -> emptyList()
+                }
+
                 UtbetalingDetaljerDto(
                     utbetaling = toUtbetalingDto(utbetaling),
+                    deltakere = deltakere,
                     linjer = linjer,
                 )
             }
@@ -175,6 +190,7 @@ fun Route.utbetalingRoutes() {
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {
     val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
     val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
+
     return UtbetalingDto.fromUtbetaling(utbetaling, status)
 }
 

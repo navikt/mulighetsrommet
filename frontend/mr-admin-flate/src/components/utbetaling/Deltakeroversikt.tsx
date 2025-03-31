@@ -1,73 +1,32 @@
-import { formaterDato } from "@/utils/Utils";
-import { Select, Table, TextField } from "@navikt/ds-react";
-import { v4 as uuid } from "uuid";
+import { DeltakerForKostnadsfordeling } from "@mr/api-client-v2";
+import { Table, Tag } from "@navikt/ds-react";
 
-const mockDeltakelser = [
-  {
-    id: uuid(),
-    person: {
-      navn: "Per Petterson",
-      fodselsdato: "1980-01-01",
-      fodselsaar: 1980,
-    },
-    geografiskTilknytning: "Nav Ullensaker",
-    startDato: "2024-06-01",
-    forstePeriodeStartDato: "2024-06-01",
-    sistePeriodeSluttDato: "2024-06-30",
-    sistePeriodeDeltakelsesprosent: 30,
-    manedsverk: 0.3,
-  },
-  {
-    id: uuid(),
-    person: {
-      navn: "Stian Bjærvik",
-      fodselsdato: "1986-03-09",
-      fodselsaar: 1980,
-    },
-    geografiskTilknytning: "Nav Ullensaker",
-    startDato: "2024-06-01",
-    forstePeriodeStartDato: "2024-06-01",
-    sistePeriodeSluttDato: "2024-06-30",
-    sistePeriodeDeltakelsesprosent: 100,
-    manedsverk: 1,
-  },
-  {
-    id: uuid(),
-    person: {
-      navn: "Donald Duck",
-      fodselsdato: "1979-08-12",
-      fodselsaar: 1980,
-    },
-    geografiskTilknytning: "Nav Nannestad Gjerdrum",
-    startDato: "2024-06-01",
-    forstePeriodeStartDato: "2024-06-01",
-    sistePeriodeSluttDato: "2024-06-30",
-    sistePeriodeDeltakelsesprosent: 100,
-    manedsverk: 1,
-  },
-];
+interface Props {
+  deltakere: DeltakerForKostnadsfordeling[];
+}
 
-export function Deltakeroversikt() {
+export function Deltakeroversikt({ deltakere }: Props) {
   return (
     <Table>
       <Table.Header>
         <Table.Row>
-          <Table.ColumnHeader scope="col">Navn</Table.ColumnHeader>
-          <Table.ColumnHeader scope="col">Fødselsdato</Table.ColumnHeader>
-          <Table.ColumnHeader scope="col">Geografisk tilknytning</Table.ColumnHeader>
+          <Table.ColumnHeader scope="col">Fødselsnummer</Table.ColumnHeader>
+          <Table.ColumnHeader scope="col">Status</Table.ColumnHeader>
           <Table.ColumnHeader scope="col">Månedsverk</Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {mockDeltakelser.map((deltaker) => {
-          const { id, person } = deltaker;
-          const fodselsdato = formaterDato(person.fodselsdato);
+        {deltakere.map((deltaker) => {
+          const { id, fnr, status, manedsverk } = deltaker;
+          const capitalizedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
           return (
             <Table.Row key={id}>
-              <Table.DataCell className="font-bold">{person.navn}</Table.DataCell>
-              <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
-              <Table.DataCell>{deltaker.geografiskTilknytning}</Table.DataCell>
-              <Table.DataCell>{deltaker.manedsverk}</Table.DataCell>
+              <Table.DataCell className="font-bold">{fnr ?? "Ukjent fnr"}</Table.DataCell>
+              <Table.DataCell>
+                <Tag children={capitalizedStatus} variant={"info"}></Tag>
+              </Table.DataCell>
+              <Table.DataCell>{manedsverk}</Table.DataCell>
             </Table.Row>
           );
         })}

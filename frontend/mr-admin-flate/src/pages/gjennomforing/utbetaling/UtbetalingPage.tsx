@@ -44,12 +44,14 @@ function useUtbetalingPageData() {
     tilsagn,
     utbetaling: utbetaling.utbetaling,
     linjer: utbetaling.linjer.toSorted((m, n) => m.id.localeCompare(n.id)),
+    deltakere: utbetaling.deltakere,
   };
 }
 
 export function UtbetalingPage() {
   const { gjennomforingId } = useParams();
-  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer } = useUtbetalingPageData();
+  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, deltakere } =
+    useUtbetalingPageData();
 
   const erSaksbehandlerOkonomi = ansatt.roller.includes(
     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
@@ -154,14 +156,16 @@ export function UtbetalingPage() {
                     </VStack>
                   </HGrid>
                 </VStack>
-                <Accordion>
-                  <AccordionItem>
-                    <AccordionHeader>Deltakeroversikt</AccordionHeader>
-                    <AccordionContent>
-                      <Deltakeroversikt />
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                {deltakere.length > 0 && (
+                  <Accordion>
+                    <AccordionItem>
+                      <AccordionHeader>Deltakeroversikt</AccordionHeader>
+                      <AccordionContent>
+                        <Deltakeroversikt deltakere={deltakere} />
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
                 {erSaksbehandlerOkonomi &&
                 [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(
                   utbetaling.status,
