@@ -78,12 +78,6 @@ object OebsMeldingMapper {
             )
         }
 
-        val beskrivelse = """
-        |Utbetaling fra Nav
-        |Tiltak: ${bestilling.tiltakskode}
-        |Periode: ${formatPeriode(faktura.periode)}
-        """.trimMargin()
-
         return OebsFakturaMelding(
             kilde = OebsKilde.TILTADM,
             fakturaNummer = faktura.fakturanummer,
@@ -101,8 +95,8 @@ object OebsMeldingMapper {
             bankNavn = null,
             bankLandKode = null,
             bicSwiftKode = null,
-            meldingTilLeverandor = beskrivelse.takeIf { faktura.kid == null },
-            beskrivelse = beskrivelse,
+            meldingTilLeverandor = faktura.beskrivelse.takeIf { faktura.kid == null },
+            beskrivelse = faktura.beskrivelse,
             fakturaLinjer = linjer,
         )
     }

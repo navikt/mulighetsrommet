@@ -24,6 +24,7 @@ data class Faktura(
     val besluttetAv: OkonomiPart,
     val besluttetTidspunkt: LocalDateTime,
     val linjer: List<Linje>,
+    val beskrivelse: String?,
 ) {
     data class Linje(
         val linjenummer: Int,
@@ -58,6 +59,7 @@ data class Faktura(
                         belop = belop,
                     )
                 },
+                beskrivelse = faktura.beskrivelse,
             )
         }
 
@@ -85,6 +87,7 @@ data class Faktura(
                         belop = 0,
                     ),
                 ),
+                beskrivelse = null,
             )
         }
     }

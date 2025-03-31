@@ -1,7 +1,10 @@
 package no.nav.tiltak.okonomi.test
 
 import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import java.time.LocalDate
@@ -75,5 +78,10 @@ object Fixtures {
                 belop = 500,
             ),
         ),
+        beskrivelse = """
+            Tiltakstype: Arbeidsforberedende trening
+            Periode: 01.01.2025 - 31.01.2025
+            Tilsagnsnummer: A-1
+        """.trimIndent(),
     )
 }

@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
@@ -580,6 +581,12 @@ class UtbetalingService(
         requireNotNull(opprettelse.besluttetTidspunkt)
         requireNotNull(opprettelse.besluttetAv)
 
+        val beskrivelse = """
+            Tiltakstype: ${tilsagn.tiltakstype.navn}
+            Periode: ${delutbetaling.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${delutbetaling.periode.slutt.formaterDatoTilEuropeiskDatoformat()}
+            Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
+        """.trimIndent()
+
         val faktura = OpprettFaktura(
             fakturanummer = delutbetaling.faktura.fakturanummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
@@ -594,6 +601,7 @@ class UtbetalingService(
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             gjorOppBestilling = delutbetaling.gjorOppTilsagn,
+            beskrivelse = beskrivelse,
         )
 
         queries.delutbetaling.setSendtTilOkonomi(
