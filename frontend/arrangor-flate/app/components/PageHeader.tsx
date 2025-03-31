@@ -1,4 +1,3 @@
-import { UtbetalingIkon } from "./icons/UtbetalingIkon";
 import { LinkWithTabState } from "./LinkWithTabState";
 
 interface Props {
@@ -12,9 +11,6 @@ interface Props {
 export function PageHeader({ title, tilbakeLenke }: Props) {
   return (
     <div className="flex flex-col relative">
-      <span className="hidden lg:inline-block absolute -left-[70px] top-[20px]">
-        <UtbetalingIkon />
-      </span>
       <h1 className="mb-2" data-testid="header">
         {title}
       </h1>
