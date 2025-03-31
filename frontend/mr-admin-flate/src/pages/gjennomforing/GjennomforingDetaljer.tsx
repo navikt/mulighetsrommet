@@ -12,11 +12,18 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
-import { formaterDato, formatertVentetid, isKursTiltak, sorterPaRegionsnavn } from "@/utils/Utils";
-import { AvtaleDto, GjennomforingDto, GjennomforingOppstartstype } from "@mr/api-client-v2";
+import { formaterDato, formatertVentetid, isKursTiltak } from "@/utils/Utils";
+import {
+  AvtaleDto,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
+  NavKontorStruktur,
+} from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
+import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
+import { useState } from "react";
 import { Link } from "react-router";
 
 interface Props {
@@ -193,13 +200,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
             <Bolk aria-label={gjennomforingTekster.fylkessamarbeidLabel}>
               <Metadata
                 header={gjennomforingTekster.fylkessamarbeidLabel}
-                verdi={
-                  <ul>
-                    {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
-                      return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
-                    })}
-                  </ul>
-                }
+                verdi={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
               />
             </Bolk>
           ) : (
@@ -324,5 +325,53 @@ function HentTiltaksnummer({ id }: { id: string }) {
     </HStack>
   ) : (
     data?.tiltaksnummer
+  );
+}
+
+function RegionOgLokalkontorer({ kontorstruktur }: { kontorstruktur: NavKontorStruktur }) {
+  const [openRegions, setOpenRegions] = useState<string[]>([]);
+
+  const toggleRegion = (enhetsnummer: string) => {
+    setOpenRegions((prev) =>
+      prev.includes(enhetsnummer)
+        ? prev.filter((num) => num !== enhetsnummer)
+        : [...prev, enhetsnummer],
+    );
+  };
+
+  function isRegionOpen(enhetsnummer: string) {
+    return openRegions.includes(enhetsnummer);
+  }
+
+  return (
+    <ul>
+      {kontorstruktur.map((kontor) => {
+        return (
+          <li className="font-bold my-2 ml-3" key={kontor.region.enhetsnummer}>
+            <button
+              className="hover:cursor-pointer flex"
+              onClick={() => toggleRegion(kontor.region.enhetsnummer)}
+              title={`${kontor.region.navn} (${kontor.kontorer.length} kontorer)`}
+            >
+              {kontor.region.navn} ({kontor.kontorer.length || 0})
+              {isRegionOpen(kontor.region.enhetsnummer) ? (
+                <CaretUpFillIcon className="text-xl" />
+              ) : (
+                <CaretDownFillIcon className="text-xl" />
+              )}
+            </button>
+            {isRegionOpen(kontor.region.enhetsnummer) && (
+              <ul className="list-disc ml-5">
+                {kontor.kontorer.map((kontor) => (
+                  <li className="ml-5 font-thin" key={kontor.enhetsnummer}>
+                    {kontor.navn}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

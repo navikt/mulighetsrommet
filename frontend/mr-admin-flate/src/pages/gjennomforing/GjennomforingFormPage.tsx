@@ -14,7 +14,7 @@ import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 import { QueryKeys } from "../../api/QueryKeys";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
-
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 function useGjennomforingFormData() {
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
@@ -28,6 +28,7 @@ export function GjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { gjennomforing, avtale, ansatt } = useGjennomforingFormData();
+  const { data: enheter } = useNavEnheter();
   const queryClient = useQueryClient();
 
   const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
@@ -95,6 +96,7 @@ export function GjennomforingFormPage() {
                 avtale,
                 location.state?.dupliserGjennomforing ?? gjennomforing,
               )}
+              enheter={enheter}
             />
           )}
         </Box>
