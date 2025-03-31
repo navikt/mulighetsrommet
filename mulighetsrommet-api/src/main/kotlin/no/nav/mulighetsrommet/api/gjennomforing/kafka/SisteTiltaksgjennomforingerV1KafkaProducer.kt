@@ -8,7 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
 class SisteTiltaksgjennomforingerV1KafkaProducer(
-    private val kafkaProducerClient: KafkaProducerClient<String, String?>,
+    private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
     private val config: Config,
 ) {
     data class Config(
@@ -16,18 +16,18 @@ class SisteTiltaksgjennomforingerV1KafkaProducer(
     )
 
     fun publish(value: TiltaksgjennomforingEksternV1Dto) {
-        val record: ProducerRecord<String, String?> = ProducerRecord(
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.topic,
-            value.id.toString(),
-            Json.encodeToString(value),
+            value.id.toString().toByteArray(),
+            Json.encodeToString(value).toByteArray(),
         )
         kafkaProducerClient.sendSync(record)
     }
 
     fun retract(id: UUID) {
-        val record: ProducerRecord<String, String?> = ProducerRecord(
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.topic,
-            id.toString(),
+            id.toString().toByteArray(),
             null,
         )
         kafkaProducerClient.sendSync(record)
