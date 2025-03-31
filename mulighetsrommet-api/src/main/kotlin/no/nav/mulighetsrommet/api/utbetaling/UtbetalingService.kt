@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
@@ -42,6 +41,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class UtbetalingService(
@@ -583,7 +583,7 @@ class UtbetalingService(
 
         val beskrivelse = """
             Tiltakstype: ${tilsagn.tiltakstype.navn}
-            Periode: ${delutbetaling.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${delutbetaling.periode.slutt.formaterDatoTilEuropeiskDatoformat()}
+            Periode: ${formatPeriode(tilsagn.periode)}
             Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
         """.trimIndent()
 
@@ -654,3 +654,7 @@ private fun isRelevantForUtbetalingsperide(
 private fun getSluttDatoInPeriode(deltaker: DeltakerDto, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
+
+private fun formatPeriode(periode: Periode): String = "${formatDate(periode.start)} - ${formatDate(periode.getLastInclusiveDate())}"
+
+private fun formatDate(localDate: LocalDate): String = localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
