@@ -19,6 +19,7 @@ import {
 import { useEffect, useState } from "react";
 import { Metadata } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
+import { Link, useParams } from "react-router";
 
 interface Props {
   readOnly?: boolean;
@@ -37,6 +38,7 @@ export function UtbetalingLinjeRow({
   readOnly = false,
   grayBackground = false,
 }: Props) {
+  const { gjennomforingId } = useParams();
   const [belopError, setBelopError] = useState<string | undefined>(undefined);
   const skalApneRad =
     errors.length > 0 || Boolean(linje.opprettelse?.type === "BESLUTTET") || linje.gjorOppTilsagn;
@@ -52,7 +54,6 @@ export function UtbetalingLinjeRow({
       shadeOnHover={false}
       open={openRow}
       onOpenChange={() => setOpenRow(!openRow)}
-      onClick={() => setOpenRow(!openRow)}
       key={linje.id}
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
@@ -105,7 +106,11 @@ export function UtbetalingLinjeRow({
         </VStack>
       }
     >
-      <Table.DataCell className={grayBgClass}>{linje.tilsagn.bestillingsnummer}</Table.DataCell>
+      <Table.DataCell className={grayBgClass}>
+        <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${linje.tilsagn.id}`}>
+          {linje.tilsagn.bestillingsnummer}
+        </Link>
+      </Table.DataCell>
       <Table.DataCell className={grayBgClass}>
         {tilsagnTypeToString(linje.tilsagn.type)}
       </Table.DataCell>

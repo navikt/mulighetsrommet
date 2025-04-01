@@ -12,7 +12,7 @@ import {
   UtbetalingDto,
   UtbetalingLinje,
 } from "@mr/api-client-v2";
-import { PiggybankIcon } from "@navikt/aksel-icons";
+import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -119,7 +119,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
           </Heading>
           <ActionMenu>
             <ActionMenu.Trigger>
-              <Button variant="primary" size="small">
+              <Button variant="secondary" size="small">
                 Handlinger
               </Button>
             </ActionMenu.Trigger>
@@ -127,7 +127,9 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
               <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
                 Opprett tilsagn
               </ActionMenu.Item>
-              <ActionMenu.Item onSelect={leggTilLinjer}>Legg til linjer</ActionMenu.Item>
+              <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
+                Hent godkjente tilsagn
+              </ActionMenu.Item>
             </ActionMenu.Content>
           </ActionMenu>
         </HStack>
