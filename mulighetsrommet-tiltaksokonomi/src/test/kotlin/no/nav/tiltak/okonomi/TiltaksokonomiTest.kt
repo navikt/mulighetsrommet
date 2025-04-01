@@ -213,6 +213,11 @@ class TiltaksokonomiTest : FunSpec({
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             gjorOppBestilling = false,
+                            beskrivelse = """
+                                Tiltakstype: Arbeidsforberedende trening
+                                Periode: 2025.01.01-2025.01.31
+                                Tilsagnsnummer: A-2
+                            """.trimIndent(),
                         ),
                     )
                 }.also {

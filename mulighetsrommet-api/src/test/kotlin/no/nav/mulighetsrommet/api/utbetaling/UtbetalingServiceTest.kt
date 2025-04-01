@@ -1090,6 +1090,11 @@ class UtbetalingServiceTest : FunSpec({
                         it.behandletAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
                         it.besluttetAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
                         it.periode shouldBe delutbetaling.periode
+                        it.beskrivelse shouldBe """
+                            Tiltakstype: Arbeidsforberedende trening (AFT)
+                            Periode: 01.01.2025 - 31.01.2025
+                            Tilsagnsnummer: A-2025/1-1
+                        """.trimIndent()
                     }
             }
         }

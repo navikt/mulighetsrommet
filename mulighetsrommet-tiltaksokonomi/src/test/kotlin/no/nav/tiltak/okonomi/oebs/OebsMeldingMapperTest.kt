@@ -130,9 +130,11 @@ class OebsMeldingMapperTest : FunSpec({
             )
 
             meldingUtenKid.kidNummer.shouldBeNull()
-            meldingUtenKid.meldingTilLeverandor shouldBe """Utbetaling fra Nav
-Tiltak: ARBEIDSFORBEREDENDE_TRENING
-Periode: 01.01.2025 - 31.01.2025"""
+            meldingUtenKid.meldingTilLeverandor shouldBe """
+                Tiltakstype: Arbeidsforberedende trening
+                Periode: 01.01.2025 - 31.01.2025
+                Tilsagnsnummer: A-1
+            """.trimIndent()
         }
     }
 })

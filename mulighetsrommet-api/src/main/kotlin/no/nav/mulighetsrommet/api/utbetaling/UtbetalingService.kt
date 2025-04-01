@@ -580,6 +580,12 @@ class UtbetalingService(
         requireNotNull(opprettelse.besluttetTidspunkt)
         requireNotNull(opprettelse.besluttetAv)
 
+        val beskrivelse = """
+            Tiltakstype: ${tilsagn.tiltakstype.navn}
+            Periode: ${tilsagn.periode.formatPeriode()}
+            Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
+        """.trimIndent()
+
         val faktura = OpprettFaktura(
             fakturanummer = delutbetaling.faktura.fakturanummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
@@ -594,6 +600,7 @@ class UtbetalingService(
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             gjorOppBestilling = delutbetaling.gjorOppTilsagn,
+            beskrivelse = beskrivelse,
         )
 
         queries.delutbetaling.setSendtTilOkonomi(
