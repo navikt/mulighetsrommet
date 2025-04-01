@@ -1,7 +1,21 @@
-import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
+import {
+  delutbetalingAarsakTilTekst,
+  formaterPeriodeSlutt,
+  formaterPeriodeStart,
+  tilsagnTypeToString,
+} from "@/utils/Utils";
 import { FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, BodyShort, Checkbox, HStack, Table, TextField, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  BodyShort,
+  Checkbox,
+  HStack,
+  List,
+  Table,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { Metadata } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
@@ -25,24 +39,49 @@ export function UtbetalingLinjeRow({
 }: Props) {
   const [belopError, setBelopError] = useState<string | undefined>(undefined);
   const [openRow, setOpenRow] = useState(
-    errors.length > 0 || Boolean(linje.opprettelse) || linje.gjorOppTilsagn,
+    errors.length > 0 || linje.opprettelse?.type === "BESLUTTET" || linje.gjorOppTilsagn,
   );
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
+
   return (
     <Table.ExpandableRow
       shadeOnHover={false}
-      open={openRow}
+      defaultOpen={openRow}
       onOpenChange={() => setOpenRow(!openRow)}
       onClick={() => setOpenRow(!openRow)}
       key={linje.id}
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
         <VStack gap="2">
-          <VStack className="bg-[var(--a-surface-danger-subtle)]">
-            {errors.map((error) => (
-              <BodyShort>{error.detail}</BodyShort>
-            ))}
-          </VStack>
+          {linje.opprettelse?.aarsaker && linje.opprettelse.aarsaker.length > 0 ? (
+            <VStack>
+              <Alert size="small" variant="warning">
+                <BodyShort>Linjen ble returnert på grunn av følgende årsaker:</BodyShort>
+                <List>
+                  {linje.opprettelse.aarsaker.map((error) => (
+                    <List.Item>{delutbetalingAarsakTilTekst(error)}</List.Item>
+                  ))}
+                </List>
+                {linje.opprettelse.forklaring && (
+                  <BodyShort>
+                    <b>Forklaring:</b> {linje.opprettelse.forklaring}
+                  </BodyShort>
+                )}
+              </Alert>
+            </VStack>
+          ) : null}
+          {errors.length > 0 && (
+            <VStack className="bg-[var(--a-surface-danger-subtle)]">
+              <Alert size="small" variant="error">
+                <BodyShort>Følgende feil må fikses:</BodyShort>
+                <List>
+                  {errors.map((error) => (
+                    <List.Item>{error.detail}</List.Item>
+                  ))}
+                </List>
+              </Alert>
+            </VStack>
+          )}
           {linje.gjorOppTilsagn && (
             <Alert variant="info">
               Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
