@@ -161,6 +161,31 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
+    val AFTMedSluttdato = GjennomforingDbo(
+        id = UUID.randomUUID(),
+        navn = "AFT Med sluttdato",
+        tiltakstypeId = TiltakstypeFixtures.AFT.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = LocalDate.of(2025, 2, 1),
+        antallPlasser = 12,
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = setOf("0400", "0502"),
+        oppstart = GjennomforingOppstartstype.LOPENDE,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
+        stedForGjennomforing = "Oslo",
+        avtaleId = AvtaleFixtures.AFT.id,
+        faneinnhold = null,
+        beskrivelse = null,
+        deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
+        amoKategorisering = null,
+        utdanningslop = null,
+    )
+
     val Jobbklubb1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Jobbklubb 1",

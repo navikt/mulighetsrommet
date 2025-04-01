@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFTMedSluttdato
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -116,6 +117,29 @@ class TilsagnServiceTest : FunSpec({
                 FieldError(
                     pointer = "/periodeStart",
                     detail = "Tilsagn for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet er ikke støttet enda",
+                ),
+            )
+        }
+
+        test("tilsagnet kan ikke slutte etter gjennomføringen") {
+            val service = createTilsagnService()
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFTMedSluttdato),
+            ).initialize(database.db)
+
+            val invalidRequest = request.copy(
+                gjennomforingId = AFTMedSluttdato.id,
+                periodeStart = LocalDate.of(2025, 1, 1),
+                periodeSlutt = LocalDate.of(2025, 3, 1),
+            )
+
+            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/periodeSlutt",
+                    detail = "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
                 ),
             )
         }

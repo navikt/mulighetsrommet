@@ -63,6 +63,14 @@ class TilsagnService(
                 )
                 .nel()
                 .left()
+        } else if (request.periodeSlutt > gjennomforing.sluttDato) {
+            return FieldError
+                .of(
+                    "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
+                    TilsagnRequest::periodeSlutt,
+                )
+                .nel()
+                .left()
         }
 
         val previous = queries.tilsagn.get(request.id)
