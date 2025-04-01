@@ -11,7 +11,7 @@ import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import { AdminUtbetalingStatus, NavAnsattRolle } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Accordion, Alert, Box, Heading, HGrid, HStack, List, VStack } from "@navikt/ds-react";
+import { Accordion, Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -21,12 +21,11 @@ import {
 
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
+import { Deltakeroversikt } from "@/components/utbetaling/Deltakeroversikt";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
+import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
-import { Deltakeroversikt } from "@/components/utbetaling/Deltakeroversikt";
-import { AccordionContent, AccordionHeader, AccordionItem } from "@navikt/ds-react/Accordion";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -68,7 +67,6 @@ export function UtbetalingPage() {
     },
     { tittel: "Utbetaling" },
   ];
-
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -87,20 +85,6 @@ export function UtbetalingPage() {
           </HStack>
           <VStack gap="4">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            {utbetaling.status === "RETURNERT" && (
-              <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
-                <Heading size="xsmall" level="3">
-                  Utbetaling returnert
-                </Heading>
-                <List as="ol">
-                  {linjer.map((linje) => (
-                    <List.Item>
-                      <div>{`Årsaker: ${linje.opprettelse?.aarsaker}, forklaring: ${linje.opprettelse?.forklaring}`}</div>
-                    </List.Item>
-                  ))}
-                </List>
-              </Alert>
-            )}
             <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
               <VStack gap="4" id="kostnadsfordeling">
                 <VStack>
@@ -158,12 +142,12 @@ export function UtbetalingPage() {
                 </VStack>
                 {deltakere.length > 0 && (
                   <Accordion>
-                    <AccordionItem>
-                      <AccordionHeader>Deltakeroversikt</AccordionHeader>
-                      <AccordionContent>
+                    <Accordion.Item>
+                      <Accordion.Header>Deltakeroversikt</Accordion.Header>
+                      <Accordion.Content>
                         <Deltakeroversikt deltakere={deltakere} />
-                      </AccordionContent>
-                    </AccordionItem>
+                      </Accordion.Content>
+                    </Accordion.Item>
                   </Accordion>
                 )}
                 {erSaksbehandlerOkonomi &&

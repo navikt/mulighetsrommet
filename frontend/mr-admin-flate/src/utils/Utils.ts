@@ -3,6 +3,7 @@ import {
   AvtaleDto,
   Avtaletype,
   Bransje,
+  DelutbetalingReturnertAarsak,
   EstimertVentetidEnhet,
   ForerkortKlasse,
   InnholdElement,
@@ -418,6 +419,17 @@ export function tilsagnAarsakTilTekst(
       return "Arrangør har ikke sendt krav";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
       return "Annet";
+  }
+}
+
+export function delutbetalingAarsakTilTekst(aarsak: DelutbetalingReturnertAarsak): string {
+  switch (aarsak) {
+    case DelutbetalingReturnertAarsak.FEIL_BELOP:
+      return "Feil beløp";
+    case DelutbetalingReturnertAarsak.FEIL_ANNET:
+      return "Annet";
+    case DelutbetalingReturnertAarsak.AUTOMATISK_RETURNERT:
+      return "Automatisk returnert av NAV Tiltaksadministrasjon";
   }
 }
 

@@ -267,6 +267,7 @@ class UtbetalingService(
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
                 returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
             }
+
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
@@ -445,7 +446,12 @@ class UtbetalingService(
         delutbetalinger.forEach {
             val tilsagn = requireNotNull(queries.tilsagn.get(it.tilsagnId))
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
-                returnerDelutbetaling(it, emptyList(), "Tilsagn er ikke godkjent", Tiltaksadministrasjon)
+                returnerDelutbetaling(
+                    it,
+                    automatiskReturnertAarsak(),
+                    "Tilsagn er ikke godkjent",
+                    Tiltaksadministrasjon,
+                )
                 return@godkjennUtbetaling
             }
             queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - it.belop)
@@ -474,8 +480,12 @@ class UtbetalingService(
         queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
             .filter { it.id != delutbetaling.id }
             .forEach {
-                setReturnertDelutbetaling(it, emptyList(), null, Tiltaksadministrasjon)
+                setReturnertDelutbetaling(it, automatiskReturnertAarsak(), null, Tiltaksadministrasjon)
             }
+    }
+
+    private fun automatiskReturnertAarsak(): List<String> {
+        return listOf("AUTOMATISK_RETURNERT")
     }
 
     private fun QueryContext.setReturnertDelutbetaling(
@@ -564,6 +574,7 @@ class UtbetalingService(
             Json.encodeToJsonElement(dto)
         }
     }
+
     private fun QueryContext.storeOpprettFaktura(
         delutbetaling: Delutbetaling,
         tilsagn: Tilsagn,
