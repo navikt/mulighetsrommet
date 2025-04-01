@@ -8,9 +8,10 @@ import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducerRecordPublisher
+import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
@@ -84,7 +85,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.kafka.*
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
@@ -196,27 +197,28 @@ private fun kafka(appConfig: AppConfig) = module {
     single {
         val db = get<ApiDatabase>()
         val shedLockLeaderElectionClient = get<ShedLockLeaderElectionClient>()
-        KafkaProducerRecordProcessor(
-            object : KafkaProducerRepository {
-                override fun storeRecord(record: StoredProducerRecord?): Long {
-                    error("Not used")
-                }
+        val repository = object : KafkaProducerRepository {
+            override fun storeRecord(record: StoredProducerRecord?): Long {
+                error("Not used")
+            }
 
-                override fun deleteRecords(ids: List<Long>) {
-                    return db.session { queries.kafkaProducerRecord.deleteRecords(ids) }
-                }
+            override fun deleteRecords(ids: List<Long>) {
+                return db.session { queries.kafkaProducerRecord.deleteRecords(ids) }
+            }
 
-                override fun getRecords(maxMessages: Int): List<StoredProducerRecord> {
-                    return db.session { queries.kafkaProducerRecord.getRecords(maxMessages) }
-                }
+            override fun getRecords(maxMessages: Int): List<StoredProducerRecord> {
+                return db.session { queries.kafkaProducerRecord.getRecords(maxMessages) }
+            }
 
-                override fun getRecords(maxMessages: Int, topics: List<String>): List<StoredProducerRecord> {
-                    return db.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
-                }
-            },
-            get(),
-            shedLockLeaderElectionClient,
-        )
+            override fun getRecords(maxMessages: Int, topics: List<String>): List<StoredProducerRecord> {
+                return db.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
+            }
+        }
+        KafkaProducerRecordProcessorBuilder.builder()
+            .withProducerRepository(repository)
+            .withLeaderElectionClient(shedLockLeaderElectionClient)
+            .withRecordPublisher(QueuedKafkaProducerRecordPublisher(get()))
+            .build()
     }
 }
 
