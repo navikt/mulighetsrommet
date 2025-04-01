@@ -3,6 +3,7 @@ package no.nav.tiltak.okonomi
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.routing.*
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
@@ -15,11 +16,13 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.*
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
+import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
+import no.nav.tiltak.okonomi.oebs.oebsRoutes
 import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
 import no.nav.tiltak.okonomi.plugins.configureSerialization
@@ -48,6 +51,7 @@ fun Application.configure(config: AppConfig) {
     configureAuthentication(config.auth)
     configureSerialization()
     configureMonitoring({ db.isHealthy() })
+    configureStatusPages()
     configureHTTP()
 
     val cachedTokenProvider = CachedTokenProvider.init(
@@ -72,6 +76,10 @@ fun Application.configure(config: AppConfig) {
         oebs = oebs,
         brreg = brreg,
     )
+
+    routing {
+        oebsRoutes(okonomi)
+    }
 
     val kafka = configureKafka(config.kafka, db, okonomi)
 

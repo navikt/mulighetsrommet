@@ -15,9 +15,7 @@ import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
-import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
-import no.nav.tiltak.okonomi.oebs.OebsPoApClient
+import no.nav.tiltak.okonomi.oebs.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -119,7 +117,7 @@ class OkonomiService(
             }
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer} som annullert")
-                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
+                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.SENDT)
                 queries.bestilling.setAnnullering(
                     bestillingsnummer,
                     Bestilling.Totrinnskontroll(
@@ -211,6 +209,72 @@ class OkonomiService(
 
                 faktura
             }
+    }
+
+    fun hentBestilling(bestillingsnummer: String): Bestilling? = db.session {
+        queries.bestilling.getByBestillingsnummer(bestillingsnummer)
+    }
+
+    fun hentFaktura(fakturaNummer: String): Faktura? = db.session {
+        queries.faktura.getByFakturanummer(fakturaNummer)
+    }
+
+    fun mottaBestillingKvittering(
+        bestilling: Bestilling,
+        kvittering: OebsOpprettBestillingKvittering,
+    ) = db.transaction {
+        if (kvittering.isSuccess()) {
+            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.AKTIV)
+        } else {
+            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FEILET)
+            queries.bestilling.setFeilmelding(
+                bestilling.bestillingsnummer,
+                feilKode = kvittering.feilKode,
+                feilMelding = kvittering.feilMelding,
+            )
+        }
+
+        publishBestilling(bestilling.bestillingsnummer)
+    }
+
+    fun mottaAnnullerBestillingKvittering(
+        bestilling: Bestilling,
+        kvittering: OebsAnnullerBestillingKvittering,
+    ) = db.transaction {
+        if (kvittering.isSuccess()) {
+            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.ANNULLERT)
+        } else {
+            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FEILET)
+            queries.bestilling.setFeilmelding(
+                bestilling.bestillingsnummer,
+                feilKode = kvittering.feilKode,
+                feilMelding = kvittering.feilMelding,
+            )
+        }
+
+        publishBestilling(bestilling.bestillingsnummer)
+    }
+
+    fun mottaFakturaKvittering(
+        faktura: Faktura,
+        kvittering: OebsFakturaKvittering,
+    ) = db.transaction {
+        if (kvittering.isSuccess()) {
+            queries.faktura.setStatus(faktura.fakturanummer, FakturaStatusType.UTBETALT)
+        } else {
+            queries.faktura.setStatus(faktura.fakturanummer, FakturaStatusType.FEILET)
+            queries.faktura.setFeilmelding(
+                faktura.fakturanummer,
+                feilKode = kvittering.feilKode,
+                feilMelding = kvittering.feilMelding,
+            )
+        }
+
+        publishFaktura(faktura.fakturanummer).right()
+    }
+
+    fun logKvittering(kvitteringJson: String) = db.session {
+        queries.kvittering.insert(kvitteringJson)
     }
 
     private fun QueryContext.setBestillingOppgjort(bestillingsnummer: String) {

@@ -12,7 +12,27 @@ object ProblemDetailSerializer : KSerializer<ProblemDetail> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ProblemDetail")
 
     override fun deserialize(decoder: Decoder): ProblemDetail {
-        throw UnsupportedOperationException("Deserialization is not supported for ProblemDetail")
+        val input = decoder as? JsonDecoder ?: throw Exception("Decoder could not be cast to JsonDecoder")
+        val jsonObject = input.decodeJsonElement().jsonObject
+
+        val type = jsonObject["type"]?.jsonPrimitive?.content ?: ""
+        val title = jsonObject["title"]?.jsonPrimitive?.content ?: ""
+        val status = jsonObject["status"]?.jsonPrimitive?.int ?: 500
+        val detail = jsonObject["detail"]?.jsonPrimitive?.content ?: ""
+
+        val reservedKeys = setOf("type", "title", "status", "detail", "instance")
+        val extensions = jsonObject
+            .filterKeys { it !in reservedKeys }
+            .mapValues { it.value } // Keep as JsonElement for now
+
+        return object : ProblemDetail() {
+            override val type = type
+            override val title = title
+            override val status = status
+            override val detail = detail
+            override val instance = null
+            override val extensions = extensions
+        }
     }
 
     override fun serialize(

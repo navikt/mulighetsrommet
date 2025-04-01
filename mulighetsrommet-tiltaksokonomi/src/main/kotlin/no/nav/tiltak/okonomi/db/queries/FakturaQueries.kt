@@ -75,6 +75,36 @@ class FakturaQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
+    fun setStatus(fakturanummer: String, status: FakturaStatusType) {
+        @Language("PostgreSQL")
+        val query = """
+            update faktura
+            set status = ?
+            where fakturanummer = ?
+        """.trimIndent()
+        session.execute(queryOf(query, status.name, fakturanummer))
+    }
+
+    fun setFeilmelding(
+        fakturanummer: String,
+        feilKode: String?,
+        feilMelding: String?,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            update faktura set
+                feil_kode = :feil_kode,
+                feil_melding = :feil_melding,
+            where fakturanummer = :fakturanummer
+        """.trimIndent()
+        val params = mapOf(
+            "fakturanummer" to fakturanummer,
+            "feil_kode" to feilKode,
+            "feil_melding" to feilMelding,
+        )
+        session.execute(queryOf(query, params))
+    }
+
     fun getByFakturanummer(fakturanummer: String): Faktura? {
         @Language("PostgreSQL")
         val selectLinje = """
