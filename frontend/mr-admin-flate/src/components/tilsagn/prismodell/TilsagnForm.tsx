@@ -38,6 +38,16 @@ export function TilsagnForm(props: Props) {
   const { handleSubmit, setError } = form;
 
   const postData: SubmitHandler<InferredTilsagn> = async (data): Promise<void> => {
+    const sluttDate = new Date(data.periodeSlutt);
+    const gjennomforingSluttDate = new Date(gjennomforing.sluttDato);
+
+    if (sluttDate > gjennomforingSluttDate) {
+      setError("periodeSlutt", {
+        type: "custom",
+        message: "Sluttdato kan ikke være etter gjennomføringsperiodens sluttdato",
+      });
+    }
+
     const request: TilsagnRequest = {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
