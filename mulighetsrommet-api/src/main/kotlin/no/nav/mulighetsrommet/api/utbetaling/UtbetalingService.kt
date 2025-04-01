@@ -641,7 +641,7 @@ class UtbetalingService(
 fun fakturanummer(bestillingsnummer: String, lopenummer: Int): String = "$bestillingsnummer-$lopenummer"
 
 private fun isRelevantForUtbetalingsperide(
-    deltaker: DeltakerDto,
+    deltaker: Deltaker,
     periode: Periode,
 ): Boolean {
     val relevantDeltakerStatusForUtbetaling = listOf(
@@ -661,6 +661,6 @@ private fun isRelevantForUtbetalingsperide(
     return Periode.of(startDato, sluttDatoInPeriode)?.intersects(periode) ?: false
 }
 
-private fun getSluttDatoInPeriode(deltaker: DeltakerDto, periode: Periode): LocalDate {
+private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }

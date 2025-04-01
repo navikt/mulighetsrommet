@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesmengdeDto
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import java.time.LocalDate
@@ -91,7 +91,7 @@ class DeltakerQueriesTest : FunSpec({
                 ),
             )
             queries.getDeltakelsesmengder(deltaker1.id) shouldBe listOf(
-                DeltakelsesmengdeDto(LocalDate.of(2023, 3, 1), 100.0),
+                Deltakelsesmengde(LocalDate.of(2023, 3, 1), 100.0),
             )
 
             queries.upsert(
@@ -111,8 +111,8 @@ class DeltakerQueriesTest : FunSpec({
                 ),
             )
             queries.getDeltakelsesmengder(deltaker1.id) shouldBe listOf(
-                DeltakelsesmengdeDto(LocalDate.of(2023, 3, 5), 100.0),
-                DeltakelsesmengdeDto(LocalDate.of(2023, 3, 10), 100.0),
+                Deltakelsesmengde(LocalDate.of(2023, 3, 5), 100.0),
+                Deltakelsesmengde(LocalDate.of(2023, 3, 10), 100.0),
             )
         }
     }
@@ -137,7 +137,7 @@ class DeltakerQueriesTest : FunSpec({
     }
 })
 
-fun DeltakerDbo.toDto() = DeltakerDto(
+fun DeltakerDbo.toDto() = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
     norskIdent = null,

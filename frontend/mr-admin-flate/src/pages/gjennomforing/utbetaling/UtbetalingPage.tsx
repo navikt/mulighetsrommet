@@ -1,6 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Header } from "@/components/detaljside/Header";
-import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -11,7 +11,7 @@ import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import { AdminUtbetalingStatus, NavAnsattRolle } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
+import { Accordion, Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -21,6 +21,7 @@ import {
 
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
+import { Deltakeroversikt } from "@/components/utbetaling/Deltakeroversikt";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -42,12 +43,14 @@ function useUtbetalingPageData() {
     tilsagn,
     utbetaling: utbetaling.utbetaling,
     linjer: utbetaling.linjer.toSorted((m, n) => m.id.localeCompare(n.id)),
+    deltakere: utbetaling.deltakere,
   };
 }
 
 export function UtbetalingPage() {
   const { gjennomforingId } = useParams();
-  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer } = useUtbetalingPageData();
+  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, deltakere } =
+    useUtbetalingPageData();
 
   const erSaksbehandlerOkonomi = ansatt.roller.includes(
     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
@@ -137,7 +140,16 @@ export function UtbetalingPage() {
                     </VStack>
                   </HGrid>
                 </VStack>
-                <Separator />
+                {deltakere.length > 0 && (
+                  <Accordion>
+                    <Accordion.Item>
+                      <Accordion.Header>Deltakeroversikt</Accordion.Header>
+                      <Accordion.Content>
+                        <Deltakeroversikt deltakere={deltakere} />
+                      </Accordion.Content>
+                    </Accordion.Item>
+                  </Accordion>
+                )}
                 {erSaksbehandlerOkonomi &&
                 [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(
                   utbetaling.status,

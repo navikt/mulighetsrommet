@@ -5702,12 +5702,17 @@ components:
       properties:
         utbetaling:
           $ref: "#/components/schemas/UtbetalingDto"
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakerForKostnadsfordeling"
         linjer:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingLinje"
       required:
         - utbetaling
+        - deltakere
         - linjer
 
     UtbetalingDto:
@@ -5740,6 +5745,23 @@ components:
         - periode
         - beregning
         - createdAt
+
+    DeltakerForKostnadsfordeling:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fnr:
+          type: string
+        status:
+          $ref: "#/components/schemas/GruppetiltakDeltakerStatus"
+        manedsverk:
+          type: number
+      required:
+        - id
+        - status
+        - manedsverk
 
     ArrFlateUtbetalingKompakt:
       type: object

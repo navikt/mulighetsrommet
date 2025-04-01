@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class DeltakerDto(
+data class Deltaker(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
@@ -30,7 +30,7 @@ data class DeltakerDto(
 )
 
 @Serializable
-data class DeltakelsesmengdeDto(
+data class Deltakelsesmengde(
     @Serializable(with = LocalDateSerializer::class)
     val gyldigFra: LocalDate,
     val deltakelsesprosent: Double,

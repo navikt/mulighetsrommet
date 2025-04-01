@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesmengdeDto
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -100,7 +100,7 @@ class DeltakerQueries(private val session: Session) {
         return session.execute(queryOf(query, params))
     }
 
-    fun get(id: UUID): DeltakerDto? {
+    fun get(id: UUID): Deltaker? {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -118,10 +118,10 @@ class DeltakerQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toDeltakerDto() }
+        return session.single(queryOf(query, id)) { it.toDeltaker() }
     }
 
-    fun getDeltakelsesmengder(id: UUID): List<DeltakelsesmengdeDto> {
+    fun getDeltakelsesmengder(id: UUID): List<Deltakelsesmengde> {
         @Language("PostgreSQL")
         val query = """
             select gyldig_fra, deltakelsesprosent
@@ -131,7 +131,7 @@ class DeltakerQueries(private val session: Session) {
         """.trimIndent()
 
         return session.list(queryOf(query, id)) {
-            DeltakelsesmengdeDto(
+            Deltakelsesmengde(
                 gyldigFra = it.localDate("gyldig_fra"),
                 deltakelsesprosent = it.double("deltakelsesprosent"),
             )
@@ -141,7 +141,7 @@ class DeltakerQueries(private val session: Session) {
     fun getAll(
         pagination: Pagination = Pagination.all(),
         gjennomforingId: UUID? = null,
-    ): List<DeltakerDto> {
+    ): List<Deltaker> {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -163,7 +163,7 @@ class DeltakerQueries(private val session: Session) {
 
         val params = mapOf("gjennomforing_id" to gjennomforingId)
 
-        return session.list(queryOf(query, params + pagination.parameters)) { it.toDeltakerDto() }
+        return session.list(queryOf(query, params + pagination.parameters)) { it.toDeltaker() }
     }
 
     fun delete(id: UUID) {
@@ -178,7 +178,7 @@ class DeltakerQueries(private val session: Session) {
     }
 }
 
-private fun Row.toDeltakerDto() = DeltakerDto(
+private fun Row.toDeltaker() = Deltaker(
     id = uuid("id"),
     gjennomforingId = uuid("gjennomforing_id"),
     norskIdent = stringOrNull("norsk_ident")?.let { NorskIdent(it) },
