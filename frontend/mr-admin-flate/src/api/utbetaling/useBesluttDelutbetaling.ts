@@ -4,6 +4,6 @@ import { BesluttDelutbetalingRequest, ProblemDetail, UtbetalingService } from "@
 export function useBesluttDelutbetaling() {
   return useMutation<unknown, ProblemDetail, { id: string; body: BesluttDelutbetalingRequest }>({
     mutationFn: ({ id, body }: { id: string; body: BesluttDelutbetalingRequest }) =>
-      UtbetalingService.besluttDeltbetaling({ path: { id }, body }),
+      UtbetalingService.besluttDelutbetaling({ path: { id }, body }),
   });
 }

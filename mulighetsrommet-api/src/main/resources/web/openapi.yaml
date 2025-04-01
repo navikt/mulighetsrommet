@@ -2041,7 +2041,7 @@ paths:
     post:
       tags:
         - Utbetaling
-      operationId: besluttDeltbetaling
+      operationId: besluttDelutbetaling
       requestBody:
         content:
           application/json:
@@ -6257,7 +6257,7 @@ components:
         aarsaker:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
         forklaring:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]
