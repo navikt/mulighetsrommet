@@ -450,7 +450,7 @@ class UtbetalingService(
                     it,
                     automatiskReturnertAarsak(),
                     "Tilsagn er ikke godkjent",
-                    Tiltaksadministrasjon
+                    Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
             }
