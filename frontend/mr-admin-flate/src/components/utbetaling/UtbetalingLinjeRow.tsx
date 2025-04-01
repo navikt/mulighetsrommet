@@ -17,9 +17,10 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router";
+import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { Metadata } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
-import { Link, useParams } from "react-router";
 
 interface Props {
   readOnly?: boolean;
@@ -60,21 +61,13 @@ export function UtbetalingLinjeRow({
         <VStack gap="2">
           {linje.opprettelse?.aarsaker && linje.opprettelse.aarsaker.length > 0 ? (
             <VStack>
-              <Alert size="small" variant="warning">
-                <BodyShort>Linjen ble returnert på grunn av følgende årsaker:</BodyShort>
-                <List>
-                  {linje.opprettelse.aarsaker.map((error) => (
-                    <List.Item>
-                      {delutbetalingAarsakTilTekst(error as DelutbetalingReturnertAarsak)}
-                    </List.Item>
-                  ))}
-                </List>
-                {linje.opprettelse.forklaring && (
-                  <BodyShort>
-                    <b>Forklaring:</b> {linje.opprettelse.forklaring}
-                  </BodyShort>
+              <AarsakerOgForklaring
+                aarsaker={linje.opprettelse.aarsaker.map((aarsak) =>
+                  delutbetalingAarsakTilTekst(aarsak as DelutbetalingReturnertAarsak),
                 )}
-              </Alert>
+                forklaring={linje.opprettelse.forklaring}
+                heading="Linjen ble returnert på grunn av følgende årsaker:"
+              />
             </VStack>
           ) : null}
           {errors.length > 0 && (
