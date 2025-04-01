@@ -8,10 +8,10 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato, formaterPeriode } from "@/utils/Utils";
-import { AdminUtbetalingStatus, NavAnsattRolle, TilsagnStatus } from "@mr/api-client-v2";
+import { AdminUtbetalingStatus, NavAnsattRolle } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Accordion, Alert, Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
+import { Accordion, Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -35,6 +35,7 @@ function useUtbetalingPageData() {
   const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
   const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
   const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
+
   return {
     gjennomforing,
     ansatt,
@@ -148,11 +149,6 @@ export function UtbetalingPage() {
                       </Accordion.Content>
                     </Accordion.Item>
                   </Accordion>
-                )}
-                {tilsagn.every((t) => t.status !== TilsagnStatus.GODKJENT) && (
-                  <Alert variant="info">
-                    Det finnes ingen godkjente tilsagn for utbetalingsperioden
-                  </Alert>
                 )}
                 {erSaksbehandlerOkonomi &&
                 [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(

@@ -1,6 +1,9 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
 import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
+import { useTilsagnTilOppgjor } from "@/api/tilsagn/useTilsagnTilOppgjor";
 import { Header } from "@/components/detaljside/Header";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -13,7 +16,7 @@ import {
   isTilsagnForhandsgodkjent,
   isTilsagnFri,
 } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { formaterDato, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   Besluttelse,
   BesluttTilsagnRequest,
@@ -35,13 +38,10 @@ import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@nav
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { AvvistAlert, TilAnnulleringAlert, TilOppgjorAlert } from "../AarsakerAlert";
+import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
-import { useTilsagnTilOppgjor } from "@/api/tilsagn/useTilsagnTilOppgjor";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -50,7 +50,6 @@ function useTilsagnDetaljer() {
   const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
-
   return { ansatt, gjennomforing, historikk, ...tilsagnDetaljer.data };
 }
 
@@ -204,23 +203,47 @@ export function TilsagnDetaljer() {
           </HStack>
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
           {opprettelse.type === "BESLUTTET" && opprettelse.besluttelse === Besluttelse.AVVIST && (
-            <AvvistAlert
-              header="Tilsagnet ble returnert"
-              tidspunkt={opprettelse.besluttetTidspunkt}
+            <AarsakerOgForklaring
+              heading="Tilsagnet ble returnert"
+              tekst={`${opprettelse.behandletAv} returnerte tilsagnet den ${formaterDato(
+                opprettelse.behandletTidspunkt,
+              )} med følgende årsaker:`}
               aarsaker={
                 opprettelse.aarsaker?.map((aarsak) =>
                   tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
                 ) ?? []
               }
               forklaring={opprettelse.forklaring}
-              navIdent={opprettelse.besluttetAv}
-              entitet="tilsagnet"
             />
           )}
           {annullering?.type === "TIL_BESLUTNING" && (
-            <TilAnnulleringAlert annullering={annullering} />
+            <AarsakerOgForklaring
+              heading="Tilsagnet ble annullerert"
+              tekst={`${annullering.behandletAv} sendte tilsagnet til annullering den ${formaterDato(
+                annullering.behandletTidspunkt,
+              )} med følgende årsaker:`}
+              aarsaker={
+                annullering.aarsaker?.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                ) ?? []
+              }
+              forklaring={annullering.forklaring}
+            />
           )}
-          {tilOppgjor?.type === "TIL_BESLUTNING" && <TilOppgjorAlert oppgjor={tilOppgjor} />}
+          {tilOppgjor?.type === "TIL_BESLUTNING" && (
+            <AarsakerOgForklaring
+              heading="Tilsagnet gjøres opp"
+              tekst={`${tilOppgjor.behandletAv} sendte tilsagnet til oppgjør den ${formaterDato(
+                tilOppgjor.behandletTidspunkt,
+              )} med følgende årsaker:`}
+              aarsaker={
+                tilOppgjor.aarsaker?.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                ) ?? []
+              }
+              forklaring={tilOppgjor.forklaring}
+            />
+          )}
           <Box
             borderWidth="2"
             borderColor="border-subtle"
