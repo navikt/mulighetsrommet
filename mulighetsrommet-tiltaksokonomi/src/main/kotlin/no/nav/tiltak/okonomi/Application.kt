@@ -103,12 +103,15 @@ private fun Application.configureKafka(
             override fun storeRecord(record: StoredProducerRecord?): Long {
                 error("Not used")
             }
+
             override fun deleteRecords(ids: List<Long>) {
                 return okonomiDb.session { queries.kafkaProducerRecord.deleteRecords(ids) }
             }
+
             override fun getRecords(maxMessages: Int): List<StoredProducerRecord> {
                 return okonomiDb.session { queries.kafkaProducerRecord.getRecords(maxMessages) }
             }
+
             override fun getRecords(maxMessages: Int, topics: List<String>): List<StoredProducerRecord> {
                 return okonomiDb.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
             }
@@ -132,6 +135,7 @@ private fun Application.configureKafka(
         kafkaConsumerOrchestrator.disableFailedRecordProcessor()
         kafkaConsumerOrchestrator.stopPollingTopicChanges()
         producerRecordProcessor.close()
+        shedLockLeaderElectionClient.close()
     }
 
     return kafkaConsumerOrchestrator

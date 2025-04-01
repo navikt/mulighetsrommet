@@ -177,7 +177,11 @@ private fun kafka(appConfig: AppConfig) = module {
             AmtKoordinatorGjennomforingV1KafkaConsumer(config.clients.amtKoordinatorMeldingV1, get()),
             ReplicateOkonomiBestillingStatus(config.clients.replicateBestillingStatus, get()),
             ReplicateOkonomiFakturaStatus(config.clients.replicateFakturaStatus, get()),
-            OppdaterUtbetalingBeregningForGjennomforingConsumer(config.clients.oppdaterUtbetalingForGjennomforing, get(), get()),
+            OppdaterUtbetalingBeregningForGjennomforingConsumer(
+                config.clients.oppdaterUtbetalingForGjennomforing,
+                get(),
+                get(),
+            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = config.consumerPreset,
@@ -185,20 +189,27 @@ private fun kafka(appConfig: AppConfig) = module {
             consumers = consumers,
         )
     }
+    single<ShedLockLeaderElectionClient> {
+        val db = get<ApiDatabase>()
+        ShedLockLeaderElectionClient(JdbcLockProvider(db.getDatasource()))
+    }
     single {
         val db = get<ApiDatabase>()
-        val shedLockLeaderElectionClient = ShedLockLeaderElectionClient(JdbcLockProvider(db.getDatasource()))
+        val shedLockLeaderElectionClient = get<ShedLockLeaderElectionClient>()
         KafkaProducerRecordProcessor(
             object : KafkaProducerRepository {
                 override fun storeRecord(record: StoredProducerRecord?): Long {
                     error("Not used")
                 }
+
                 override fun deleteRecords(ids: List<Long>) {
                     return db.session { queries.kafkaProducerRecord.deleteRecords(ids) }
                 }
+
                 override fun getRecords(maxMessages: Int): List<StoredProducerRecord> {
                     return db.session { queries.kafkaProducerRecord.getRecords(maxMessages) }
                 }
+
                 override fun getRecords(maxMessages: Int, topics: List<String>): List<StoredProducerRecord> {
                     return db.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
                 }
