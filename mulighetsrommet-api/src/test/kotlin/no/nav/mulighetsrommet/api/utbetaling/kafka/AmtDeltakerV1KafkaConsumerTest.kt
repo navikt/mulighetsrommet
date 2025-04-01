@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -97,7 +97,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
             database.run {
-                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
+                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDeltaker(), deltaker2Dbo.toDeltaker())
             }
         }
 
@@ -156,10 +156,10 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                 queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
                     deltaker1Dbo
                         .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
-                        .toDto(),
+                        .toDeltaker(),
                     deltaker2Dbo
                         .copy(gjennomforingId = VTA1.id, deltakelsesprosent = null)
-                        .toDto(),
+                        .toDeltaker(),
                 )
             }
         }
@@ -271,7 +271,7 @@ private fun createAmtDeltakerV1Dto(
     deltakelsesmengder = listOf(),
 )
 
-fun DeltakerDbo.toDto() = DeltakerDto(
+fun DeltakerDbo.toDeltaker() = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
     norskIdent = null,

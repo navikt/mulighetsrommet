@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -11,7 +11,7 @@ import java.math.RoundingMode
 fun mapUtbetalingToArrFlateUtbetaling(
     utbetaling: Utbetaling,
     status: ArrFlateUtbetalingStatus,
-    deltakere: List<DeltakerDto>,
+    deltakere: List<Deltaker>,
     personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person>,
 ): ArrFlateUtbetaling {
     return when (val beregning = utbetaling.beregning) {
