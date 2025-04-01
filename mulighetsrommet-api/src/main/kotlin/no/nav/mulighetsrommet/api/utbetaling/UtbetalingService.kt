@@ -246,6 +246,12 @@ class UtbetalingService(
                 queries.delutbetaling.delete(it.id)
             }
 
+        logEndring(
+            "Utbetaling sendt til godkjenning",
+            getOrError(utbetaling.id),
+            navIdent,
+        )
+
         return Unit.right()
     }
 
@@ -400,11 +406,6 @@ class UtbetalingService(
                 besluttetTidspunkt = null,
             ),
         )
-        logEndring(
-            "Utbetaling sendt til godkjenning",
-            getOrError(utbetaling.id),
-            behandletAv,
-        )
     }
 
     private fun QueryContext.godkjennDelutbetaling(
@@ -425,11 +426,6 @@ class UtbetalingService(
                 aarsaker = emptyList(),
                 forklaring = null,
             ),
-        )
-        logEndring(
-            "Utbetalingslinje godkjent",
-            getOrError(delutbetaling.utbetalingId),
-            besluttetAv,
         )
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
@@ -482,6 +478,12 @@ class UtbetalingService(
             .forEach {
                 setReturnertDelutbetaling(it, automatiskReturnertAarsak(), null, Tiltaksadministrasjon)
             }
+
+        logEndring(
+            "Utbetaling returnert",
+            getOrError(delutbetaling.utbetalingId),
+            besluttetAv,
+        )
     }
 
     private fun automatiskReturnertAarsak(): List<String> {
@@ -504,11 +506,6 @@ class UtbetalingService(
                 forklaring = forklaring,
                 besluttetTidspunkt = LocalDateTime.now(),
             ),
-        )
-        logEndring(
-            "Utbetaling returnert",
-            getOrError(delutbetaling.utbetalingId),
-            besluttetAv,
         )
     }
 
