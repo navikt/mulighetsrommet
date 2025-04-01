@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 
@@ -138,4 +139,8 @@ data class Periode(
 
         return result
     }
+
+    fun formatPeriode(): String = "${formatDate(start)} - ${formatDate(getLastInclusiveDate())}"
+
+    private fun formatDate(localDate: LocalDate): String = localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
 }

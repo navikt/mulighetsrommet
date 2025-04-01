@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class UtbetalingService(
@@ -583,7 +582,7 @@ class UtbetalingService(
 
         val beskrivelse = """
             Tiltakstype: ${tilsagn.tiltakstype.navn}
-            Periode: ${formatPeriode(tilsagn.periode)}
+            Periode: ${tilsagn.periode.formatPeriode()}
             Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
         """.trimIndent()
 
@@ -654,7 +653,3 @@ private fun isRelevantForUtbetalingsperide(
 private fun getSluttDatoInPeriode(deltaker: DeltakerDto, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
-
-private fun formatPeriode(periode: Periode): String = "${formatDate(periode.start)} - ${formatDate(periode.getLastInclusiveDate())}"
-
-private fun formatDate(localDate: LocalDate): String = localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
