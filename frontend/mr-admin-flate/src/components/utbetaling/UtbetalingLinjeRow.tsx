@@ -4,7 +4,7 @@ import {
   formaterPeriodeStart,
   tilsagnTypeToString,
 } from "@/utils/Utils";
-import { FieldError, UtbetalingLinje } from "@mr/api-client-v2";
+import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -16,7 +16,7 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Metadata } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
@@ -38,15 +38,19 @@ export function UtbetalingLinjeRow({
   grayBackground = false,
 }: Props) {
   const [belopError, setBelopError] = useState<string | undefined>(undefined);
-  const [openRow, setOpenRow] = useState(
-    errors.length > 0 || linje.opprettelse?.type === "BESLUTTET" || linje.gjorOppTilsagn,
-  );
+  const skalApneRad =
+    errors.length > 0 || Boolean(linje.opprettelse?.type === "BESLUTTET") || linje.gjorOppTilsagn;
+  const [openRow, setOpenRow] = useState(skalApneRad);
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
+
+  useEffect(() => {
+    setOpenRow(skalApneRad);
+  }, [errors, linje.opprettelse, linje.gjorOppTilsagn, skalApneRad]);
 
   return (
     <Table.ExpandableRow
       shadeOnHover={false}
-      defaultOpen={openRow}
+      open={openRow}
       onOpenChange={() => setOpenRow(!openRow)}
       onClick={() => setOpenRow(!openRow)}
       key={linje.id}
@@ -59,7 +63,9 @@ export function UtbetalingLinjeRow({
                 <BodyShort>Linjen ble returnert på grunn av følgende årsaker:</BodyShort>
                 <List>
                   {linje.opprettelse.aarsaker.map((error) => (
-                    <List.Item>{delutbetalingAarsakTilTekst(error)}</List.Item>
+                    <List.Item>
+                      {delutbetalingAarsakTilTekst(error as DelutbetalingReturnertAarsak)}
+                    </List.Item>
                   ))}
                 </List>
                 {linje.opprettelse.forklaring && (

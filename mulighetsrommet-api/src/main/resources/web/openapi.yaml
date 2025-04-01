@@ -6260,7 +6260,7 @@ components:
         aarsaker:
           type: array
           items:
-            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
+            type: string
         forklaring:
           type: string
       required:
@@ -6285,7 +6285,7 @@ components:
         aarsaker:
           type: array
           items:
-            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
+            type: string
         forklaring:
           type: string
         besluttetAv:
