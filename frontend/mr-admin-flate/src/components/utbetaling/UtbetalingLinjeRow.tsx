@@ -137,9 +137,8 @@ export function UtbetalingLinjeRow({
             Gjør opp tilsagn
           </Checkbox>
           <HelpText>
-            {" "}
-            Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
-            flere utbetalinger fra tilsagnet
+            Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere
+            utbetalinger på tilsagnet etter at denne utbetalingen er attestert
           </HelpText>
         </HStack>
       </Table.DataCell>
