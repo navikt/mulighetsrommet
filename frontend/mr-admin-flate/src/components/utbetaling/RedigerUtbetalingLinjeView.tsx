@@ -12,7 +12,7 @@ import {
   UtbetalingDto,
   UtbetalingLinje,
 } from "@mr/api-client-v2";
-import { PiggybankIcon } from "@navikt/aksel-icons";
+import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -27,7 +27,7 @@ export interface Props {
   tilsagn: TilsagnDto[];
 }
 
-function godkjenteTilsagnToUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
+function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
   return tilsagn
     .filter((t) => t.status === TilsagnStatus.GODKJENT)
     .map((t) => ({
@@ -40,9 +40,8 @@ function godkjenteTilsagnToUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLi
 
 export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Props) {
   const { gjennomforingId } = useParams();
-  const godkjenteTilsagnLinjer = godkjenteTilsagnToUtbetalingLinjer(tilsagn);
   const [linjerState, setLinjerState] = useState<UtbetalingLinje[]>(() =>
-    linjer.length === 0 ? godkjenteTilsagnLinjer : linjer,
+    linjer.length === 0 ? genrererUtbetalingLinjer(tilsagn) : linjer,
   );
 
   const [error, setError] = useState<FieldError[]>([]);
@@ -66,7 +65,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
   }
 
   function leggTilLinjer() {
-    const nyeLinjer = godkjenteTilsagnLinjer.filter(
+    const nyeLinjer = genrererUtbetalingLinjer(tilsagn).filter(
       (linje) => !linjerState.find((l) => l.tilsagn.id === linje.tilsagn.id),
     );
     setLinjerState([...linjerState, ...nyeLinjer].toSorted((m, n) => m.id.localeCompare(n.id)));
@@ -119,7 +118,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
           </Heading>
           <ActionMenu>
             <ActionMenu.Trigger>
-              <Button variant="primary" size="small">
+              <Button variant="secondary" size="small">
                 Handlinger
               </Button>
             </ActionMenu.Trigger>
@@ -127,7 +126,9 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
               <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
                 Opprett tilsagn
               </ActionMenu.Item>
-              <ActionMenu.Item onSelect={leggTilLinjer}>Legg til linjer</ActionMenu.Item>
+              <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
+                Hent godkjente tilsagn
+              </ActionMenu.Item>
             </ActionMenu.Content>
           </ActionMenu>
         </HStack>

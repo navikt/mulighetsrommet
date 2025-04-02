@@ -2041,7 +2041,7 @@ paths:
     post:
       tags:
         - Utbetaling
-      operationId: besluttDeltbetaling
+      operationId: besluttDelutbetaling
       requestBody:
         content:
           application/json:
@@ -5560,6 +5560,13 @@ components:
         - FEIL_BELOP
         - FEIL_ANNET
 
+    DelutbetalingReturnertAarsak:
+      type: string
+      enum:
+        - FEIL_BELOP
+        - FEIL_ANNET
+        - AUTOMATISK_RETURNERT
+
     TilsagnBeregning:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjent"
@@ -6250,7 +6257,7 @@ components:
         aarsaker:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
         forklaring:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]

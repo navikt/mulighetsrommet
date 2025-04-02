@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.api.DeltakerForKostnadsfordeling.Companion.toDeltakereForKostnadsfordeling
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -82,8 +82,15 @@ fun Route.utbetalingRoutes() {
                 }
 
                 val deltakere = when (utbetaling.beregning) {
-                    is UtbetalingBeregningForhandsgodkjent -> queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                        .toDeltakereForKostnadsfordeling(utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId })
+                    is UtbetalingBeregningForhandsgodkjent -> {
+                        val deltakereById = queries.deltaker
+                            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                            .associateBy { it.id }
+                        utbetaling.beregning.output.deltakelser.map {
+                            val deltaker = deltakereById.getValue(it.deltakelseId)
+                            toDeltakerForKostnadsfordeling(deltaker, it.manedsverk)
+                        }
+                    }
 
                     is UtbetalingBeregningFri -> emptyList()
                 }
@@ -186,6 +193,16 @@ fun Route.utbetalingRoutes() {
         }
     }
 }
+
+private fun toDeltakerForKostnadsfordeling(
+    deltaker: Deltaker,
+    manedsverk: Double,
+): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
+    id = deltaker.gjennomforingId,
+    fnr = deltaker.norskIdent?.value,
+    status = deltaker.status.type,
+    manedsverk = manedsverk,
+)
 
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {
     val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)

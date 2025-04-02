@@ -246,6 +246,12 @@ class UtbetalingService(
                 queries.delutbetaling.delete(it.id)
             }
 
+        logEndring(
+            "Utbetaling sendt til godkjenning",
+            getOrError(utbetaling.id),
+            navIdent,
+        )
+
         return Unit.right()
     }
 
@@ -267,6 +273,7 @@ class UtbetalingService(
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
                 returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
             }
+
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
@@ -399,11 +406,6 @@ class UtbetalingService(
                 besluttetTidspunkt = null,
             ),
         )
-        logEndring(
-            "Utbetaling sendt til godkjenning",
-            getOrError(utbetaling.id),
-            behandletAv,
-        )
     }
 
     private fun QueryContext.godkjennDelutbetaling(
@@ -425,11 +427,6 @@ class UtbetalingService(
                 forklaring = null,
             ),
         )
-        logEndring(
-            "Utbetalingslinje godkjent",
-            getOrError(delutbetaling.utbetalingId),
-            besluttetAv,
-        )
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId))
@@ -445,7 +442,12 @@ class UtbetalingService(
         delutbetalinger.forEach {
             val tilsagn = requireNotNull(queries.tilsagn.get(it.tilsagnId))
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
-                returnerDelutbetaling(it, emptyList(), "Tilsagn er ikke godkjent", Tiltaksadministrasjon)
+                returnerDelutbetaling(
+                    it,
+                    automatiskReturnertAarsak(),
+                    "Tilsagn er ikke godkjent",
+                    Tiltaksadministrasjon,
+                )
                 return@godkjennUtbetaling
             }
             queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - it.belop)
@@ -474,8 +476,18 @@ class UtbetalingService(
         queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
             .filter { it.id != delutbetaling.id }
             .forEach {
-                setReturnertDelutbetaling(it, emptyList(), null, Tiltaksadministrasjon)
+                setReturnertDelutbetaling(it, automatiskReturnertAarsak(), null, Tiltaksadministrasjon)
             }
+
+        logEndring(
+            "Utbetaling returnert",
+            getOrError(delutbetaling.utbetalingId),
+            besluttetAv,
+        )
+    }
+
+    private fun automatiskReturnertAarsak(): List<String> {
+        return listOf("AUTOMATISK_RETURNERT")
     }
 
     private fun QueryContext.setReturnertDelutbetaling(
@@ -494,11 +506,6 @@ class UtbetalingService(
                 forklaring = forklaring,
                 besluttetTidspunkt = LocalDateTime.now(),
             ),
-        )
-        logEndring(
-            "Utbetaling returnert",
-            getOrError(delutbetaling.utbetalingId),
-            besluttetAv,
         )
     }
 
@@ -564,6 +571,7 @@ class UtbetalingService(
             Json.encodeToJsonElement(dto)
         }
     }
+
     private fun QueryContext.storeOpprettFaktura(
         delutbetaling: Delutbetaling,
         tilsagn: Tilsagn,

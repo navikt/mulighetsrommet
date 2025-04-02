@@ -1,6 +1,7 @@
 import {
   BesluttDelutbetalingRequest,
   Besluttelse,
+  DelutbetalingReturnertAarsak,
   DelutbetalingStatus,
   ProblemDetail,
   UtbetalingDto,
@@ -77,13 +78,13 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                     >
                       Send i retur
                     </Button>
-                    <AarsakerOgForklaringModal
+                    <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
                       open={avvisModalOpen}
                       header="Send i retur med forklaring"
                       buttonLabel="Send i retur"
                       aarsaker={[
-                        { value: "FEIL_BELOP", label: "Feil beløp" },
-                        { value: "FEIL_ANNET", label: "Annet" },
+                        { value: DelutbetalingReturnertAarsak.FEIL_BELOP, label: "Feil beløp" },
+                        { value: DelutbetalingReturnertAarsak.FEIL_ANNET, label: "Annet" },
                       ]}
                       onClose={() => setAvvisModalOpen(false)}
                       onConfirm={({ aarsaker, forklaring }) => {

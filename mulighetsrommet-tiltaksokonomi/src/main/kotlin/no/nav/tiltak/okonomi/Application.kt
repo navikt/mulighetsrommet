@@ -5,15 +5,16 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
-import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducerRecordPublisher
+import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
-import no.nav.mulighetsrommet.kafka.*
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.configureApi
@@ -98,24 +99,28 @@ private fun Application.configureKafka(
 
     val okonomiDb = OkonomiDatabase(db)
     val shedLockLeaderElectionClient = ShedLockLeaderElectionClient(JdbcLockProvider(db.getDatasource()))
-    val producerRecordProcessor = KafkaProducerRecordProcessor(
-        object : KafkaProducerRepository {
-            override fun storeRecord(record: StoredProducerRecord?): Long {
-                error("Not used")
-            }
-            override fun deleteRecords(ids: List<Long>) {
-                return okonomiDb.session { queries.kafkaProducerRecord.deleteRecords(ids) }
-            }
-            override fun getRecords(maxMessages: Int): List<StoredProducerRecord> {
-                return okonomiDb.session { queries.kafkaProducerRecord.getRecords(maxMessages) }
-            }
-            override fun getRecords(maxMessages: Int, topics: List<String>): List<StoredProducerRecord> {
-                return okonomiDb.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
-            }
-        },
-        producerClient,
-        shedLockLeaderElectionClient,
-    )
+    val repository = object : KafkaProducerRepository {
+        override fun storeRecord(record: StoredProducerRecord?): Long {
+            error("Not used")
+        }
+
+        override fun deleteRecords(ids: List<Long>) {
+            return okonomiDb.session { queries.kafkaProducerRecord.deleteRecords(ids) }
+        }
+
+        override fun getRecords(maxMessages: Int): List<StoredProducerRecord> {
+            return okonomiDb.session { queries.kafkaProducerRecord.getRecords(maxMessages) }
+        }
+
+        override fun getRecords(maxMessages: Int, topics: List<String>): List<StoredProducerRecord> {
+            return okonomiDb.session { queries.kafkaProducerRecord.getRecords(maxMessages, topics) }
+        }
+    }
+    val producerRecordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+        .withProducerRepository(repository)
+        .withLeaderElectionClient(shedLockLeaderElectionClient)
+        .withRecordPublisher(QueuedKafkaProducerRecordPublisher(producerClient))
+        .build()
 
     val kafkaConsumerOrchestrator = KafkaConsumerOrchestrator(
         consumerPreset = config.consumerPropertiesPreset,
@@ -132,6 +137,7 @@ private fun Application.configureKafka(
         kafkaConsumerOrchestrator.disableFailedRecordProcessor()
         kafkaConsumerOrchestrator.stopPollingTopicChanges()
         producerRecordProcessor.close()
+        shedLockLeaderElectionClient.close()
     }
 
     return kafkaConsumerOrchestrator

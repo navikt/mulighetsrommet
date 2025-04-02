@@ -1,8 +1,24 @@
-import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
-import { FieldError, UtbetalingLinje } from "@mr/api-client-v2";
+import {
+  delutbetalingAarsakTilTekst,
+  formaterPeriodeSlutt,
+  formaterPeriodeStart,
+  tilsagnTypeToString,
+} from "@/utils/Utils";
+import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, BodyShort, Checkbox, HStack, Table, TextField, VStack } from "@navikt/ds-react";
-import { useState } from "react";
+import {
+  Alert,
+  BodyShort,
+  Checkbox,
+  HStack,
+  List,
+  Table,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router";
+import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { Metadata } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
@@ -23,26 +39,49 @@ export function UtbetalingLinjeRow({
   readOnly = false,
   grayBackground = false,
 }: Props) {
+  const { gjennomforingId } = useParams();
   const [belopError, setBelopError] = useState<string | undefined>(undefined);
-  const [openRow, setOpenRow] = useState(
-    errors.length > 0 || Boolean(linje.opprettelse) || linje.gjorOppTilsagn,
-  );
+  const skalApneRad =
+    errors.length > 0 || Boolean(linje.opprettelse?.type === "BESLUTTET") || linje.gjorOppTilsagn;
+  const [openRow, setOpenRow] = useState(skalApneRad);
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
+
+  useEffect(() => {
+    setOpenRow(skalApneRad);
+  }, [errors, linje.opprettelse, linje.gjorOppTilsagn, skalApneRad]);
+
   return (
     <Table.ExpandableRow
       shadeOnHover={false}
       open={openRow}
       onOpenChange={() => setOpenRow(!openRow)}
-      onClick={() => setOpenRow(!openRow)}
       key={linje.id}
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
         <VStack gap="2">
-          <VStack className="bg-[var(--a-surface-danger-subtle)]">
-            {errors.map((error) => (
-              <BodyShort>{error.detail}</BodyShort>
-            ))}
-          </VStack>
+          {linje.opprettelse?.aarsaker && linje.opprettelse.aarsaker.length > 0 ? (
+            <VStack>
+              <AarsakerOgForklaring
+                aarsaker={linje.opprettelse.aarsaker.map((aarsak) =>
+                  delutbetalingAarsakTilTekst(aarsak as DelutbetalingReturnertAarsak),
+                )}
+                forklaring={linje.opprettelse.forklaring}
+                heading="Linjen ble returnert på grunn av følgende årsaker:"
+              />
+            </VStack>
+          ) : null}
+          {errors.length > 0 && (
+            <VStack className="bg-[var(--a-surface-danger-subtle)]">
+              <Alert size="small" variant="error">
+                <BodyShort>Følgende feil må fikses:</BodyShort>
+                <List>
+                  {errors.map((error) => (
+                    <List.Item>{error.detail}</List.Item>
+                  ))}
+                </List>
+              </Alert>
+            </VStack>
+          )}
           {linje.gjorOppTilsagn && (
             <Alert variant="info">
               Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
@@ -60,7 +99,11 @@ export function UtbetalingLinjeRow({
         </VStack>
       }
     >
-      <Table.DataCell className={grayBgClass}>{linje.tilsagn.bestillingsnummer}</Table.DataCell>
+      <Table.DataCell className={grayBgClass}>
+        <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${linje.tilsagn.id}`}>
+          {linje.tilsagn.bestillingsnummer}
+        </Link>
+      </Table.DataCell>
       <Table.DataCell className={grayBgClass}>
         {tilsagnTypeToString(linje.tilsagn.type)}
       </Table.DataCell>
