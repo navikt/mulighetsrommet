@@ -63,7 +63,7 @@ class TilsagnService(
                 )
                 .nel()
                 .left()
-        } else if (request.periodeSlutt > gjennomforing.sluttDato) {
+        } else if (gjennomforing.sluttDato !== null && request.periodeSlutt > gjennomforing.sluttDato) {
             return FieldError
                 .of(
                     "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
