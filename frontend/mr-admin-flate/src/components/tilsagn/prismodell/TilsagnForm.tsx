@@ -28,6 +28,7 @@ export function TilsagnForm(props: Props) {
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType) || TilsagnType.TILSAGN;
 
+  console.log("TilsagnForm", gjennomforing);
   const mutation = useOpprettTilsagn();
 
   const form = useForm<InferredTilsagn>({
@@ -41,7 +42,7 @@ export function TilsagnForm(props: Props) {
     const sluttDate = new Date(data.periodeSlutt);
     const gjennomforingSluttDate = new Date(gjennomforing.sluttDato);
 
-    if (sluttDate > gjennomforingSluttDate) {
+    if (gjennomforing.sluttDato && sluttDate > gjennomforingSluttDate) {
       setError("periodeSlutt", {
         type: "custom",
         message: "Sluttdato kan ikke være etter gjennomføringsperiodens sluttdato",
