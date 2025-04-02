@@ -73,7 +73,7 @@ export function TilsagnTag(props: Props) {
         <Tag
           size="small"
           variant="neutral"
-          className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through`}
+          className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
         >
           Til oppgjør
         </Tag>
