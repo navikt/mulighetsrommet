@@ -38,11 +38,7 @@ export function AvtaleInfo() {
                 onClick={() => setActiveTab("detaljer")}
               />
               {enableOkonomi && (
-                <Tabs.Tab
-                  label="Pris og fakturering"
-                  value="pris-og-fakturering"
-                  onClick={() => setActiveTab("pris-og-fakturering")}
-                />
+                <Tabs.Tab label="Økonomi" value="okonomi" onClick={() => setActiveTab("okonomi")} />
               )}
               <Tabs.Tab
                 label="Personvern"
@@ -63,7 +59,7 @@ export function AvtaleInfo() {
             </InlineErrorBoundary>
           </Tabs.Panel>
           {enableOkonomi && (
-            <Tabs.Panel value="pris-og-fakturering">
+            <Tabs.Panel value="okonomi">
               <InlineErrorBoundary>
                 <AvtalePrisOgFaktureringDetaljer avtale={avtale} />
               </InlineErrorBoundary>
