@@ -33,7 +33,7 @@ object UtbetalingValidator {
             if (totalBelopUtbetales > utbetaling.beregning.output.belop) {
                 add(
                     FieldError.root(
-                        "Kan ikke betale ut mer enn det er krav på",
+                        "Kan ikke utbetale mer enn totalbeløpet",
                     ),
                 )
             }
@@ -72,15 +72,55 @@ object UtbetalingValidator {
                     add(
                         FieldError.ofPointer(
                             "/$index/belop",
-                            "Beløp er større enn gjenstående på tilsagnet",
+                            "Beløp er større enn tilgjengelig beløp på tilsagn",
                         ),
                     )
                 }
-                if (req.tilsagn.status != TilsagnStatus.GODKJENT) {
+                if (req.tilsagn.status == TilsagnStatus.ANNULLERT) {
                     add(
                         FieldError.ofPointer(
                             "/$index/tilsagnId",
-                            "Tilsagn er ikke godkjent, denne må fjernes",
+                            "Tilsagnet er annullert og kan ikke benyttes, linjen må fjernes",
+                        ),
+                    )
+                }
+                if (req.tilsagn.status == TilsagnStatus.TIL_ANNULLERING) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/tilsagnId",
+                            "Tilsagnet er til annullering og kan ikke benyttes, linjen må fjernes",
+                        ),
+                    )
+                }
+                if (req.tilsagn.status == TilsagnStatus.OPPGJORT) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/tilsagnId",
+                            "Tilsagnet er oppgjort og kan ikke benyttes, linjen må fjernes",
+                        ),
+                    )
+                }
+                if (req.tilsagn.status == TilsagnStatus.TIL_OPPGJOR) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/tilsagnId",
+                            "Tilsagnet er til oppgjør og kan ikke benyttes, linjen må fjernes",
+                        ),
+                    )
+                }
+                if (req.tilsagn.status == TilsagnStatus.TIL_OPPGJOR) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/tilsagnId",
+                            "Tilsagnet er til oppgjør og kan ikke benyttes, linjen må fjernes",
+                        ),
+                    )
+                }
+                if (req.tilsagn.status == TilsagnStatus.TIL_GODKJENNING) {
+                    add(
+                        FieldError.ofPointer(
+                            "/$index/tilsagnId",
+                            "Tilsagnet er til godkjenning og kan ikke benyttes, linjen må fjernes",
                         ),
                     )
                 }
