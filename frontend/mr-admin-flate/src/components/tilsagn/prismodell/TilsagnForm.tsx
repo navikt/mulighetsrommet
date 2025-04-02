@@ -28,7 +28,6 @@ export function TilsagnForm(props: Props) {
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType) || TilsagnType.TILSAGN;
 
-  console.log("TilsagnForm", gjennomforing);
   const mutation = useOpprettTilsagn();
 
   const form = useForm<InferredTilsagn>({
