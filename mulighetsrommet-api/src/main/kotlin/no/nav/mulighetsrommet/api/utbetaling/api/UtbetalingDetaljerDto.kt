@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -35,15 +33,4 @@ data class DeltakerForKostnadsfordeling(
     val fnr: String?,
     val status: DeltakerStatus.Type,
     val manedsverk: Double,
-) {
-    companion object {
-        fun List<Deltaker>.toDeltakereForKostnadsfordeling(manedsverkById: Map<UUID, DeltakelseManedsverk>): List<DeltakerForKostnadsfordeling> = this.map {
-            DeltakerForKostnadsfordeling(
-                id = it.gjennomforingId,
-                fnr = it.norskIdent?.value,
-                status = it.status.type,
-                manedsverk = manedsverkById.getValue(it.id).manedsverk,
-            )
-        }
-    }
-}
+)
