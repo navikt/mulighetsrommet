@@ -41,23 +41,29 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
           <Table.HeaderCell scope="col" className="bg-gray-100">
             Tilgjengelig
           </Table.HeaderCell>
-          <Table.HeaderCell scope="col">Gjør opp tilsagn</Table.HeaderCell>
-          <Table.HeaderCell scope="col">Utbetales</Table.HeaderCell>
-          <Table.HeaderCell scope="col" />
+          <Table.HeaderCell scope="col" colSpan={2}>
+            Gjør opp tilsagn
+          </Table.HeaderCell>
+          <Table.HeaderCell scope="col" colSpan={2}>
+            Beløp
+          </Table.HeaderCell>
+          <Table.HeaderCell scope="col" colSpan={2} />
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {linjer.map((linje, i) => renderRow(linje, i))}
         <Table.Row shadeOnHover={false}>
           <Table.DataCell
-            className="font-bold"
             colSpan={6}
+            className="font-bold"
           >{`${utbetalingTekster.beregning.belop.label}: ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-          <Table.DataCell colSpan={2} className="font-bold">
+          <Table.DataCell className="font-bold" colSpan={3}>
             {formaterNOK(totalGjenstaendeBelop)}
           </Table.DataCell>
-          <Table.DataCell className="font-bold">{formaterNOK(utbetalesTotal)}</Table.DataCell>
-          <Table.DataCell colSpan={4} className="font-bold">
+          <Table.DataCell colSpan={1} className="font-bold">
+            {formaterNOK(utbetalesTotal)}
+          </Table.DataCell>
+          <Table.DataCell colSpan={3} className="font-bold min-w-80" align="right">
             <HStack align="center">
               <CopyButton variant="action" copyText={differanse.toString()} size="small" />
               <BodyShort weight="semibold">{`Differanse ${formaterNOK(differanse)}`}</BodyShort>
