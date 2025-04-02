@@ -110,7 +110,7 @@ class GjennomforingServiceTest : FunSpec({
         val service = createService()
 
         test("Ingen administrator-notification hvis administratorer er samme som opprettet") {
-            val navIdent = NavAnsattFixture.ansatt1.navIdent
+            val navIdent = NavAnsattFixture.DonaldDuck.navIdent
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(navIdent),
@@ -122,8 +122,8 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("Bare nye administratorer får notifikasjon når man endrer gjennomføring") {
-            val identAnsatt1 = NavAnsattFixture.ansatt1.navIdent
-            val identAnsatt2 = NavAnsattFixture.ansatt2.navIdent
+            val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
+            val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(identAnsatt2, identAnsatt1),

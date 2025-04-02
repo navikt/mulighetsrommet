@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import java.util.*
 
 object NavAnsattFixture {
-    val ansatt1: NavAnsattDbo = NavAnsattDbo(
+    val DonaldDuck: NavAnsattDbo = NavAnsattDbo(
         navIdent = NavIdent("DD1"),
         fornavn = "Donald",
         etternavn = "Duck",
@@ -15,14 +15,24 @@ object NavAnsattFixture {
         epost = "donald.duck@nav.no",
         skalSlettesDato = null,
     )
-    val ansatt2: NavAnsattDbo = NavAnsattDbo(
+    val MikkeMus: NavAnsattDbo = NavAnsattDbo(
         navIdent = NavIdent("DD2"),
-        fornavn = "Dolly",
-        etternavn = "Duck",
+        fornavn = "Mikke",
+        etternavn = "Mus",
         hovedenhet = "0400",
         azureId = UUID.randomUUID(),
         mobilnummer = "48243214",
-        epost = "dolly.duck@nav.no",
+        epost = "mikke.mus@nav.no",
+        skalSlettesDato = null,
+    )
+    val FetterAnton: NavAnsattDbo = NavAnsattDbo(
+        navIdent = NavIdent("DD3"),
+        fornavn = "Fetter",
+        etternavn = "Anton",
+        hovedenhet = "0400",
+        azureId = UUID.randomUUID(),
+        mobilnummer = "48243214",
+        epost = "fetter.anton@nav.no",
         skalSlettesDato = null,
     )
 }

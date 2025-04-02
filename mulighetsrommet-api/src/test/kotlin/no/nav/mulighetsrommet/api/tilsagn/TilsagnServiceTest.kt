@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -21,6 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
@@ -32,7 +34,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
 import java.time.LocalDate
@@ -43,8 +44,8 @@ class TilsagnServiceTest : FunSpec({
 
     val minimumTilsagnPeriodeStart = LocalDate.of(2025, 1, 1)
 
-    val ansatt1 = NavAnsattFixture.ansatt1.navIdent
-    val ansatt2 = NavAnsattFixture.ansatt2.navIdent
+    val ansatt1 = NavAnsattFixture.DonaldDuck.navIdent
+    val ansatt2 = NavAnsattFixture.MikkeMus.navIdent
 
     val request = TilsagnRequest(
         id = UUID.randomUUID(),
@@ -253,7 +254,9 @@ class TilsagnServiceTest : FunSpec({
                 id = request.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = ansatt1,
-            ) shouldBe Forbidden("Kan ikke beslutte eget tilsagn").left()
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
+                it.errors shouldContain FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet")
+            }
         }
 
         test("kan ikke beslutte to ganger") {

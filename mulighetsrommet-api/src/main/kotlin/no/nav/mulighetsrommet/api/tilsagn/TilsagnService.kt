@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
@@ -22,7 +23,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
@@ -153,8 +153,8 @@ class TilsagnService(
 
             TilsagnStatus.TIL_ANNULLERING -> {
                 when (besluttelse.besluttelse) {
-                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent).right()
-                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent).right()
+                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
+                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent)
                 }
             }
 
@@ -181,7 +181,7 @@ class TilsagnService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         if (besluttetAv == opprettelse.behandletAv) {
-            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         val besluttetOpprettelse = opprettelse.copy(
@@ -208,7 +208,7 @@ class TilsagnService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         if (besluttetAv == opprettelse.behandletAv) {
-            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
         if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
@@ -230,12 +230,12 @@ class TilsagnService(
         dto.right()
     }
 
-    private fun QueryContext.annullerTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): Tilsagn {
+    private fun QueryContext.annullerTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): StatusResponse<Tilsagn> {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-        require(besluttetAv != annullering.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
+        if (besluttetAv == annullering.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         val besluttetAnnullering = annullering.copy(
@@ -250,15 +250,15 @@ class TilsagnService(
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)
-        return dto
+        return dto.right()
     }
 
-    private fun QueryContext.avvisAnnullering(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn {
+    private fun QueryContext.avvisAnnullering(tilsagn: Tilsagn, besluttetAv: Agent): StatusResponse<Tilsagn> {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-        require(besluttetAv != annullering.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
+        if (besluttetAv == annullering.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -272,7 +272,7 @@ class TilsagnService(
 
         val dto = getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, besluttetAv)
-        return dto
+        return dto.right()
     }
 
     private fun QueryContext.setTilOppgjort(

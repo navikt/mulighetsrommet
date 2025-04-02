@@ -14,11 +14,10 @@ import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import java.util.*
 
 data class MulighetsrommetTestDomain(
     val navEnheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
-    val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+    val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
     val arrangorer: List<ArrangorDto> = listOf(
         ArrangorFixtures.hovedenhet,
         ArrangorFixtures.underenhet1,

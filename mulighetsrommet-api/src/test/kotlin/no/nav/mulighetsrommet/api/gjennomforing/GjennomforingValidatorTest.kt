@@ -47,7 +47,7 @@ class GjennomforingValidatorTest : FunSpec({
         sluttDato = avtaleSluttDato,
         navEnheter = setOf("0400", "0502"),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -86,7 +86,7 @@ class GjennomforingValidatorTest : FunSpec({
             ArrangorFixtures.underenhet1,
             ArrangorFixtures.underenhet2,
         ),
-        ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         tiltakstyper = listOf(
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.AFT,
@@ -455,13 +455,13 @@ class GjennomforingValidatorTest : FunSpec({
 
         test("Slettede kontaktpersoner valideres") {
             database.run {
-                queries.ansatt.upsert(NavAnsattFixture.ansatt2.copy(skalSlettesDato = LocalDate.now()))
+                queries.ansatt.upsert(NavAnsattFixture.MikkeMus.copy(skalSlettesDato = LocalDate.now()))
             }
 
             val dbo = gjennomforing.copy(
                 kontaktpersoner = listOf(
                     GjennomforingKontaktpersonDbo(
-                        navIdent = NavAnsattFixture.ansatt2.navIdent,
+                        navIdent = NavAnsattFixture.MikkeMus.navIdent,
                         navEnheter = emptyList(),
                         beskrivelse = null,
                     ),
@@ -475,10 +475,10 @@ class GjennomforingValidatorTest : FunSpec({
 
         test("Slettede administratorer valideres") {
             database.run {
-                queries.ansatt.upsert(NavAnsattFixture.ansatt1.copy(skalSlettesDato = LocalDate.now()))
+                queries.ansatt.upsert(NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()))
             }
 
-            val dbo = gjennomforing.copy(administratorer = listOf(NavAnsattFixture.ansatt1.navIdent))
+            val dbo = gjennomforing.copy(administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent))
 
             validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/administratorer", "Administratorene med Nav ident DD1 er slettet og må fjernes"),

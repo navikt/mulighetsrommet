@@ -33,7 +33,7 @@ class AvtaleValidatorTest : FunSpec({
             NavEnhetFixtures.Innlandet,
             NavEnhetFixtures.Gjovik,
         ),
-        ansatte = listOf(NavAnsattFixture.ansatt1),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck),
         arrangorer = listOf(
             ArrangorFixtures.hovedenhet,
             ArrangorFixtures.underenhet1,
@@ -57,7 +57,7 @@ class AvtaleValidatorTest : FunSpec({
         sakarkivNummer = SakarkivNummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
-        administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         avtaletype = Avtaletype.Rammeavtale,
         prisbetingelser = null,
         navEnheter = listOf("0400", "0502"),
@@ -551,7 +551,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("Slettede administratorer valideres") {
         MulighetsrommetTestDomain(
-            ansatte = listOf(NavAnsattFixture.ansatt1.copy(skalSlettesDato = LocalDate.now())),
+            ansatte = listOf(NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now())),
             avtaler = listOf(avtaleDbo),
         ).initialize(database.db)
 

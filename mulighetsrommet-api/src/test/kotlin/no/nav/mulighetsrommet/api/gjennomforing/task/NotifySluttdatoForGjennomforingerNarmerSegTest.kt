@@ -26,22 +26,22 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 30),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 23),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 17),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 26),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
         ),
     )
@@ -61,9 +61,9 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
             val result = task.getAllGjennomforingerSomNarmerSegSluttdato(today = LocalDate.of(2023, 5, 16))
 
             result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
-                Pair(domain.gjennomforinger[0].id, listOf(NavAnsattFixture.ansatt1.navIdent)),
-                Pair(domain.gjennomforinger[1].id, listOf(NavAnsattFixture.ansatt1.navIdent)),
-                Pair(domain.gjennomforinger[2].id, listOf(NavAnsattFixture.ansatt1.navIdent)),
+                Pair(domain.gjennomforinger[0].id, listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                Pair(domain.gjennomforinger[1].id, listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                Pair(domain.gjennomforinger[2].id, listOf(NavAnsattFixture.DonaldDuck.navIdent)),
             )
         }
     }
@@ -82,7 +82,7 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
             verify(exactly = 1) {
                 notificationTask.scheduleNotification(
                     match {
-                        it.targets == nonEmptyListOf(NavAnsattFixture.ansatt1.navIdent) &&
+                        it.targets == nonEmptyListOf(NavAnsattFixture.DonaldDuck.navIdent) &&
                             it.title == "Gjennomføringen \"Oppfølging 1\" utløper 26.05.2023"
                     },
                     any(),

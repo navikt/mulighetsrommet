@@ -44,8 +44,8 @@ class NavAnsattServiceTest : FunSpec({
         epost = dbo.epost,
     )
 
-    val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt1)
-    val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt2)
+    val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.DonaldDuck)
+    val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.MikkeMus)
 
     val tiltaksadministrasjon = AdGruppeNavAnsattRolleMapping(
         adGruppeId = UUID.randomUUID(),
