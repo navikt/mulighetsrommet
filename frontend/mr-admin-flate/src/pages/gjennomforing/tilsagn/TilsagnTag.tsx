@@ -17,7 +17,7 @@ export function TilsagnTag(props: Props) {
   switch (status) {
     case TilsagnStatus.TIL_GODKJENNING:
       return (
-        <Tag size="small" variant="alt1" className={baseTagClasses}>
+        <Tag size="small" variant="warning" className={baseTagClasses}>
           Til godkjenning
         </Tag>
       );
@@ -47,7 +47,7 @@ export function TilsagnTag(props: Props) {
       return (
         <div className={visAarsakerOgForklaring ? "flex flex-col gap-2 items-start" : ""}>
           <Tag
-            className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
+            className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through`}
             size="small"
             variant="neutral"
           >
@@ -73,7 +73,7 @@ export function TilsagnTag(props: Props) {
         <Tag
           size="small"
           variant="neutral"
-          className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
+          className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through`}
         >
           Til oppgjør
         </Tag>
