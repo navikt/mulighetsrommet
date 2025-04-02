@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFTMedSluttdato
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -124,14 +123,19 @@ class TilsagnServiceTest : FunSpec({
         test("tilsagnet kan ikke slutte etter gjennomføringen") {
             val service = createTilsagnService()
 
+            val gjennomforing = AFT1.copy(
+                startDato = LocalDate.of(2025, 1, 1),
+                sluttDato = LocalDate.of(2025, 2, 1),
+            )
+
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFTMedSluttdato),
+                gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
 
             val invalidRequest = request.copy(
-                gjennomforingId = AFTMedSluttdato.id,
+                gjennomforingId = gjennomforing.id,
                 periodeStart = LocalDate.of(2025, 1, 1),
                 periodeSlutt = LocalDate.of(2025, 3, 1),
             )
