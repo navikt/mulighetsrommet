@@ -6,7 +6,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -14,7 +13,7 @@ import java.util.*
 
 class NavAnsattQueries(private val session: Session) {
 
-    fun upsert(ansatt: NavAnsattDbo) = withTransaction(session) {
+    fun upsert(ansatt: NavAnsattDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, skal_slettes_dato)
@@ -38,25 +37,28 @@ class NavAnsattQueries(private val session: Session) {
             "epost" to ansatt.epost,
             "skal_slettes_dato" to ansatt.skalSlettesDato,
         )
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
+    }
 
+    fun setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
         @Language("PostgreSQL")
         val deleteRoles = """
             delete from nav_ansatt_rolle
             where nav_ansatt_nav_ident = ?
         """.trimIndent()
-        execute(queryOf(deleteRoles, ansatt.navIdent.value))
+        session.execute(queryOf(deleteRoles, navIdent.value))
 
-        if (ansatt.roller.isNotEmpty()) {
+        if (roller.isNotEmpty()) {
             @Language("PostgreSQL")
-            val insertRoles = """
+            val insertRolle = """
                 insert into nav_ansatt_rolle(nav_ansatt_nav_ident, rolle)
                 values (:nav_ident, :rolle::rolle)
             """.trimIndent()
-            batchPreparedNamedStatement(
-                insertRoles,
-                ansatt.roller.map { mapOf("nav_ident" to ansatt.navIdent.value, "rolle" to it.name) },
-            )
+
+            roller.forEach { rolle ->
+                val paramsRolle = mapOf("nav_ident" to navIdent.value, "rolle" to rolle.name)
+                session.execute(queryOf(insertRolle, paramsRolle))
+            }
         }
     }
 

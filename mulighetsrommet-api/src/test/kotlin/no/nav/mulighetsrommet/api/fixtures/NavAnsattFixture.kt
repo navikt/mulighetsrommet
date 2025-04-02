@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavIdent
 import java.util.*
 
@@ -14,11 +13,6 @@ object NavAnsattFixture {
         azureId = UUID.randomUUID(),
         mobilnummer = "12345678",
         epost = "donald.duck@nav.no",
-        roller = setOf(
-            NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-            NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-            NavAnsattRolle.AVTALER_SKRIV,
-        ),
         skalSlettesDato = null,
     )
     val MikkeMus: NavAnsattDbo = NavAnsattDbo(
@@ -29,11 +23,6 @@ object NavAnsattFixture {
         azureId = UUID.randomUUID(),
         mobilnummer = "48243214",
         epost = "mikke.mus@nav.no",
-        roller = setOf(
-            NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-            NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-            NavAnsattRolle.AVTALER_SKRIV,
-        ),
         skalSlettesDato = null,
     )
     val FetterAnton: NavAnsattDbo = NavAnsattDbo(
@@ -44,11 +33,6 @@ object NavAnsattFixture {
         azureId = UUID.randomUUID(),
         mobilnummer = "48243214",
         epost = "fetter.anton@nav.no",
-        roller = setOf(
-            NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-            NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-            NavAnsattRolle.AVTALER_SKRIV,
-        ),
         skalSlettesDato = null,
     )
 }

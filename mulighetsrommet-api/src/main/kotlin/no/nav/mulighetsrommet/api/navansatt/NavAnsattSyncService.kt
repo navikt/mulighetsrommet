@@ -38,6 +38,7 @@ class NavAnsattSyncService(
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
@@ -47,8 +48,9 @@ class NavAnsattSyncService(
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
-            val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
+            val ansattToDelete = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(skalSlettesDato = deletionDate)
+            queries.ansatt.upsert(ansattToDelete)
+            queries.ansatt.setRoller(ansattToDelete.navIdent, setOf())
         }
 
         val ansatteToDelete = queries.ansatt.getAll(skalSlettesDatoLte = today)

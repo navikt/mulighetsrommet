@@ -10,9 +10,11 @@ export const GjennomforingSchema = z
     avtaleId: z.string(),
     startOgSluttDato: z
       .object({
-        startDato: z.string({
-          required_error: "Du må legge inn startdato for gjennomføringen",
-        }),
+        startDato: z
+          .string({
+            required_error: "Du må legge inn startdato for gjennomføringen",
+          })
+          .min(8, "Du må legge inn startdato for gjennomføringen"),
         sluttDato: z.string().optional().nullable(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {

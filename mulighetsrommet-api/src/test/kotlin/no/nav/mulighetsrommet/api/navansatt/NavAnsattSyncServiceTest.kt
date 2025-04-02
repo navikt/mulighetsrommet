@@ -28,8 +28,20 @@ class NavAnsattSyncServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
+        navEnheter = listOf(NavEnhetFixtures.Innlandet),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+        arrangorer = listOf(),
         avtaler = listOf(),
-    )
+    ) {
+        queries.ansatt.setRoller(
+            NavAnsattFixture.DonaldDuck.navIdent,
+            setOf(TILTAKADMINISTRASJON_GENERELL),
+        )
+        queries.ansatt.setRoller(
+            NavAnsattFixture.MikkeMus.navIdent,
+            setOf(TILTAKADMINISTRASJON_GENERELL),
+        )
+    }
 
     beforeEach {
         domain.initialize(database.db)
