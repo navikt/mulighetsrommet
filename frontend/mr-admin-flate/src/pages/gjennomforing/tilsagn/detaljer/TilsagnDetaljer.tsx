@@ -218,7 +218,7 @@ export function TilsagnDetaljer() {
           )}
           {annullering?.type === "TIL_BESLUTNING" && (
             <AarsakerOgForklaring
-              heading="Tilsagnet ble annullerert"
+              heading="Tilsagnet annulleres"
               tekst={`${annullering.behandletAv} sendte tilsagnet til annullering den ${formaterDato(
                 annullering.behandletTidspunkt,
               )} med følgende årsaker:`}
