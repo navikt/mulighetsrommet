@@ -55,7 +55,7 @@ object UtbetalingValidator {
                         add(
                             FieldError.ofPointer(
                                 "/$index",
-                                "Utbetaling kan ikke endres",
+                                "Utbetaling kan ikke endres fordi den har status: ${req.previous.status}",
                             ),
                         )
                     }

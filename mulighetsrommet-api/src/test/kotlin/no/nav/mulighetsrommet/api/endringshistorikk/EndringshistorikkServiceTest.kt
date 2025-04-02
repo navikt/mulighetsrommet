@@ -73,8 +73,8 @@ class EndringshistorikkServiceTest : FunSpec({
     }
 
     test("bruker i endringshistorikk blir utledet fra kjente Nav-ansatte") {
-        val ansatt1 = NavAnsattFixture.ansatt1
-        val ansatt2 = NavAnsattFixture.ansatt2
+        val ansatt1 = NavAnsattFixture.DonaldDuck
+        val ansatt2 = NavAnsattFixture.MikkeMus
         val domain = MulighetsrommetTestDomain(ansatte = listOf(ansatt1, ansatt2))
 
         database.runAndRollback { session ->
@@ -106,7 +106,7 @@ class EndringshistorikkServiceTest : FunSpec({
                         id = id,
                         operation = "ENDRET",
                         editedAt = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
-                        editedBy = EndringshistorikkDto.NavAnsatt(navIdent = "DD2", navn = "Dolly Duck"),
+                        editedBy = EndringshistorikkDto.NavAnsatt(navIdent = "DD2", navn = "Mikke Mus"),
                     ),
                     EndringshistorikkDto.Entry(
                         id = id,

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -259,15 +260,19 @@ class UtbetalingService(
         id: UUID,
         request: BesluttDelutbetalingRequest,
         navIdent: NavIdent,
-    ) = db.transaction {
+    ): StatusResponse<Unit> = db.transaction {
         val delutbetaling = queries.delutbetaling.get(id)
             ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
         require(delutbetaling.status == DelutbetalingStatus.TIL_GODKJENNING) {
             "Utbetaling er allerede besluttet"
         }
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-        require(navIdent != opprettelse.behandletAv) {
-            "Kan ikke beslutte egen utbetaling"
+        if (navIdent == opprettelse.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
+        }
+        val tilsagnOpprettelse = requireNotNull(queries.totrinnskontroll.get(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT))
+        if (navIdent == tilsagnOpprettelse.besluttetAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
         }
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
@@ -278,6 +283,7 @@ class UtbetalingService(
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
+        Unit.right()
     }
 
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(

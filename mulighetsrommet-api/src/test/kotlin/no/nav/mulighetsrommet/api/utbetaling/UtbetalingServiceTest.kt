@@ -539,7 +539,7 @@ class UtbetalingServiceTest : FunSpec({
     context("når utbetaling blir behandlet") {
         test("skal ikke kunne opprette del utbetaling hvis den er godkjent") {
             val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -571,19 +571,19 @@ class UtbetalingServiceTest : FunSpec({
                 id = delutbetaling.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 navIdent = domain.ansatte[1].navIdent,
-            )
+            ).shouldBeRight()
 
             service.opprettDelutbetalinger(
                 request = opprettRequest,
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError("/0", "Utbetaling kan ikke endres")
+                it.errors shouldContain FieldError("/0", "Utbetaling kan ikke endres fordi den har status: GODKJENT")
             }
         }
 
         test("returnering av delutbetaling setter den i RETURNERT status") {
             val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -605,23 +605,23 @@ class UtbetalingServiceTest : FunSpec({
             )
             service.opprettDelutbetalinger(
                 request = opprettRequest,
-                navIdent = domain.ansatte[0].navIdent,
-            )
+                navIdent = domain.ansatte[1].navIdent,
+            ).shouldBeRight()
             service.besluttDelutbetaling(
                 id = delutbetaling.id,
                 request = BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
                     aarsaker = emptyList(),
                     forklaring = null,
                 ),
-                navIdent = domain.ansatte[1].navIdent,
-            )
+                navIdent = domain.ansatte[0].navIdent,
+            ).shouldBeRight()
             database.run { queries.delutbetaling.get(delutbetaling.id) }
                 .shouldNotBeNull().status shouldBe DelutbetalingStatus.RETURNERT
         }
 
         test("sletting av delutbetaling skjer ikke ved valideringsfeil") {
             val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -652,7 +652,7 @@ class UtbetalingServiceTest : FunSpec({
                     forklaring = null,
                 ),
                 navIdent = domain.ansatte[1].navIdent,
-            )
+            ).shouldBeRight()
             service.opprettDelutbetalinger(
                 request = OpprettDelutbetalingerRequest(utbetaling1.id, emptyList()),
                 navIdent = domain.ansatte[0].navIdent,
@@ -663,7 +663,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -680,14 +680,14 @@ class UtbetalingServiceTest : FunSpec({
                 service.besluttDelutbetaling(
                     id = delutbetaling1.id,
                     request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
-                    navIdent = NavAnsattFixture.ansatt2.navIdent,
+                    navIdent = NavAnsattFixture.MikkeMus.navIdent,
                 )
             }.message shouldBe "Utbetaling er allerede besluttet"
         }
 
         test("oppdatering av delutbetaling etter returnert gir TIL_GODKJENNING status") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -711,7 +711,7 @@ class UtbetalingServiceTest : FunSpec({
                         ),
                     ),
                 ),
-                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
             database.run {
@@ -722,7 +722,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -752,7 +752,7 @@ class UtbetalingServiceTest : FunSpec({
             shouldThrow<IllegalArgumentException> {
                 service.opprettDelutbetalinger(
                     request,
-                    NavAnsattFixture.ansatt1.navIdent,
+                    NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.message shouldBe "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
@@ -774,7 +774,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
@@ -825,7 +825,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
@@ -864,7 +864,7 @@ class UtbetalingServiceTest : FunSpec({
                     forklaring = null,
                 ),
                 domain.ansatte[1].navIdent,
-            )
+            ).shouldBeRight()
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
@@ -896,7 +896,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
@@ -917,13 +917,13 @@ class UtbetalingServiceTest : FunSpec({
                         DelutbetalingRequest(delutbetalingId2, tilsagn2.id, gjorOppTilsagn = false, belop = 5),
                     ),
                 ),
-                domain.ansatte[0].navIdent,
+                domain.ansatte[1].navIdent,
             ).shouldBeRight()
             service.besluttDelutbetaling(
                 delutbetalingId1,
                 BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
-                domain.ansatte[1].navIdent,
-            )
+                domain.ansatte[0].navIdent,
+            ).shouldBeRight()
             database.run { queries.delutbetaling.get(delutbetalingId1) }?.status shouldBe DelutbetalingStatus.GODKJENT
             service.besluttDelutbetaling(
                 delutbetalingId2,
@@ -931,8 +931,8 @@ class UtbetalingServiceTest : FunSpec({
                     aarsaker = emptyList(),
                     forklaring = null,
                 ),
-                domain.ansatte[1].navIdent,
-            )
+                domain.ansatte[0].navIdent,
+            ).shouldBeRight()
             database.run { queries.delutbetaling.get(delutbetalingId1) }?.status shouldBe DelutbetalingStatus.RETURNERT
             database.run { queries.totrinnskontroll.getOrError(delutbetalingId1, Totrinnskontroll.Type.OPPRETT) }.besluttetAv shouldBe Tiltaksadministrasjon
         }
@@ -957,7 +957,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
@@ -1049,7 +1049,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("utbetales automatisk når det finnes et enkelt tilsagn med nok midler og det er godkjent") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
@@ -1101,7 +1101,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("ingen automatisk utbetaling hvis tilsagn ikke er godkjent") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -1117,7 +1117,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("ingen automatisk utbetaling hvis ingen tilsagn") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
@@ -1132,7 +1132,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("ingen automatisk utbetaling hvis flere tilsagn") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1, Tilsagn2.copy(periode = Tilsagn1.periode)),
@@ -1151,7 +1151,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("ingen automatisk utbetaling hvis tilsagn ikke har nok penger") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
@@ -1176,7 +1176,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("ingen automatisk utbetaling når prismodell er fri") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
@@ -1201,7 +1201,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("Tilsagn skal oppgjøres automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
@@ -1250,6 +1250,77 @@ class UtbetalingServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 tilsagnService.gjorOppAutomatisk(Tilsagn1.id, any())
+            }
+        }
+    }
+    context("totrinnskontroll regler") {
+        test("kan ikke beslutte egen utbetaling") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            val delutbetaling = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                gjorOppTilsagn = false,
+                belop = 100,
+            )
+            val opprettRequest = OpprettDelutbetalingerRequest(
+                utbetalingId = utbetaling1.id,
+                delutbetalinger = listOf(delutbetaling),
+            )
+            service.opprettDelutbetalinger(
+                request = opprettRequest,
+                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+            )
+            service.besluttDelutbetaling(
+                id = delutbetaling.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldContain FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet")
+            }
+        }
+
+        test("kan ikke beslutte utbetaling når man har besluttet tilsagnet") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT, besluttetAv = NavAnsattFixture.DonaldDuck.navIdent)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            val delutbetaling = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                gjorOppTilsagn = false,
+                belop = 100,
+            )
+            val opprettRequest = OpprettDelutbetalingerRequest(
+                utbetalingId = utbetaling1.id,
+                delutbetalinger = listOf(delutbetaling),
+            )
+            service.opprettDelutbetalinger(
+                request = opprettRequest,
+                navIdent = NavAnsattFixture.MikkeMus.navIdent,
+            )
+            service.besluttDelutbetaling(
+                id = delutbetaling.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldContain FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet")
             }
         }
     }

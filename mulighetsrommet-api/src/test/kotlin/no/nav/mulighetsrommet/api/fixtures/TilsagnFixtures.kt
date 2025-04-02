@@ -76,8 +76,8 @@ object TilsagnFixtures {
 fun QueryContext.setTilsagnStatus(
     tilsagnDbo: TilsagnDbo,
     status: TilsagnStatus,
-    behandletAv: NavIdent = NavAnsattFixture.ansatt1.navIdent,
-    besluttetAv: NavIdent = NavAnsattFixture.ansatt2.navIdent,
+    behandletAv: NavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+    besluttetAv: NavIdent = NavAnsattFixture.FetterAnton.navIdent,
 ) {
     val dto = queries.tilsagn.get(tilsagnDbo.id)
         ?: throw IllegalStateException("Tilsagnet må være gitt til domain først")

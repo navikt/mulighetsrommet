@@ -3,17 +3,19 @@ import {
   Besluttelse,
   DelutbetalingReturnertAarsak,
   DelutbetalingStatus,
+  FieldError,
   ProblemDetail,
   UtbetalingDto,
   UtbetalingLinje,
 } from "@mr/api-client-v2";
-import { Button, Heading, HStack } from "@navikt/ds-react";
+import { Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
+import { isValidationError } from "@/utils/Utils";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -23,6 +25,7 @@ export interface Props {
 export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
+  const [error, setError] = useState<FieldError[]>([]);
 
   const besluttMutation = useBesluttDelutbetaling();
 
@@ -34,14 +37,18 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
           return queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
         },
         onError: (error: ProblemDetail) => {
-          throw error;
+          if (isValidationError(error)) {
+            setError(error.errors);
+          } else {
+            throw error;
+          }
         },
       },
     );
   }
 
   return (
-    <>
+    <VStack gap="2">
       <Heading spacing size="medium">
         Utbetalingslinjer
       </Heading>
@@ -57,7 +64,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               grayBackground
               knappeColumn={
                 linje?.status === DelutbetalingStatus.TIL_GODKJENNING &&
-                linje.opprettelse?.kanBesluttes ? (
+                linje?.opprettelse?.kanBesluttes && (
                   <HStack gap="4">
                     <Button
                       size="small"
@@ -97,12 +104,17 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                       }}
                     />
                   </HStack>
-                ) : null
+                )
               }
             />
           );
         }}
       />
-    </>
+      {error.find((f) => f.pointer === "/") && (
+        <Alert className="self-end" variant="error" size="small">
+          {error.find((f) => f.pointer === "/")!.detail}
+        </Alert>
+      )}
+    </VStack>
   );
 }

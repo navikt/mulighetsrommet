@@ -395,7 +395,6 @@ private fun getTotrinnskontrollForAnsatt(
     totrinnskontroll: Totrinnskontroll,
     ansatt: NavAnsattDto,
 ): TotrinnskontrollDto {
-    val kanBesluttesAvAnsatt = totrinnskontroll.behandletAv != ansatt.navIdent &&
-        NavAnsattRolle.BESLUTTER_TILSAGN in ansatt.roller
+    val kanBesluttesAvAnsatt = NavAnsattRolle.BESLUTTER_TILSAGN in ansatt.roller
     return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt)
 }
