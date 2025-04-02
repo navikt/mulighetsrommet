@@ -148,7 +148,6 @@ export function GjennomforingFormContainer({
 
   const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
   const hasDetaljerErrors = Object.keys(errors).length > (hasRedaksjoneltInnholdErrors ? 1 : 0);
-
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
