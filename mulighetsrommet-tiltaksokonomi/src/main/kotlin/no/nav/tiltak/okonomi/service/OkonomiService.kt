@@ -101,11 +101,12 @@ class OkonomiService(
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
 
-        if (bestilling.status == BestillingStatusType.ANNULLERT) {
+        if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.ANNULLERING_SENDT)) {
             log.info("Bestilling $bestillingsnummer er allerede annullert")
             return publishBestilling(bestillingsnummer).right()
-        } else if (bestilling.status == BestillingStatusType.OPPGJORT) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den er oppgjort").left()
+        } else if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
+            // TODO: Fjern SENDT som valid status her når kvitteringer skal være mottatt
+            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status: ${bestilling.status}").left()
         } else if (queries.faktura.getByBestillingsnummer(bestillingsnummer).isNotEmpty()) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
@@ -117,7 +118,7 @@ class OkonomiService(
             }
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer} som annullert")
-                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.SENDT)
+                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERING_SENDT)
                 queries.bestilling.setAnnullering(
                     bestillingsnummer,
                     Bestilling.Totrinnskontroll(
@@ -146,7 +147,8 @@ class OkonomiService(
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling $bestillingsnummer finnes ikke").left()
 
-        if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.OPPGJORT)) {
+        // TODO: Fjern SENDT som valid status her når kvitteringer skal være mottatt
+        if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
             return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
         }
 
@@ -189,7 +191,7 @@ class OkonomiService(
             return it.right()
         }
 
-        // TODO: Fjern sjekk mot SENDT status når bestillinger blir satt som aktive
+        // TODO: Fjern SENDT som valid status her når kvitteringer skal være mottatt
         if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
             return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
         }
