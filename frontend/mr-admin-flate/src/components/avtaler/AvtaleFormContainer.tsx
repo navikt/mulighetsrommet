@@ -168,9 +168,9 @@ export function AvtaleFormContainer({
               />
               {enableOkonomi && (
                 <TabWithErrorBorder
-                  onClick={() => setActiveTab("pris-og-fakturering")}
-                  value="pris-og-fakturering"
-                  label="Pris og fakturering"
+                  onClick={() => setActiveTab("okonomi")}
+                  value="okonomi"
+                  label="Økonomi"
                   hasError={Boolean(errors.prismodell)}
                 />
               )}
@@ -200,7 +200,7 @@ export function AvtaleFormContainer({
             </Box>
           </Tabs.Panel>
           {enableOkonomi && (
-            <Tabs.Panel value="pris-og-fakturering">
+            <Tabs.Panel value="okonomi">
               <InlineErrorBoundary>
                 <Box marginBlock="4">
                   <AvtalePrisOgFakturering tiltakstype={watchedTiltakstype} />
