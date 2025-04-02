@@ -6,6 +6,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
@@ -16,6 +17,9 @@ import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.api.API_BASE_PATH
+import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
+import no.nav.tiltak.okonomi.api.OebsOpprettBestillingKvittering
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
@@ -67,15 +71,16 @@ class OebsRoutesTest : FunSpec({
         bestilling.linjer,
     )
 
+    val oauth = MockOAuth2Server()
+
     beforeSpec {
         db = OkonomiDatabase(database.db)
         db.session {
             queries.bestilling.insertBestilling(bestilling)
             queries.faktura.insertFaktura(faktura)
         }
+        oauth.start()
     }
-
-    val oauth = MockOAuth2Server()
 
     afterSpec {
         oauth.shutdown()
@@ -87,11 +92,12 @@ class OebsRoutesTest : FunSpec({
 
     context("success gir status endring") {
         test("opprett-bestilling") {
-            withTestApplication {
+            withTestApplication(oauth) {
                 val client = createClient()
 
-                val response = client.post("/api/v1/kvittering/opprett-bestilling") {
+                val response = client.post("${API_BASE_PATH}/kvittering/opprett-bestilling") {
                     contentType(ContentType.Application.Json)
+                    bearerAuth(oauth.issueToken().serialize())
                     setBody(
                         OebsOpprettBestillingKvittering(
                             bestillingsNummer = bestilling.bestillingsnummer,
@@ -106,11 +112,12 @@ class OebsRoutesTest : FunSpec({
         }
 
         test("annuller-bestilling") {
-            withTestApplication {
+            withTestApplication(oauth) {
                 val client = createClient()
 
-                val response = client.post("/api/v1/kvittering/annuller-bestilling") {
+                val response = client.post("${API_BASE_PATH}/kvittering/annuller-bestilling") {
                     contentType(ContentType.Application.Json)
+                    bearerAuth(oauth.issueToken().serialize())
                     setBody(
                         OebsOpprettBestillingKvittering(
                             bestillingsNummer = bestilling.bestillingsnummer,
@@ -125,11 +132,12 @@ class OebsRoutesTest : FunSpec({
         }
 
         test("faktura") {
-            withTestApplication {
+            withTestApplication(oauth) {
                 val client = createClient()
 
-                val response = client.post("/api/v1/kvittering/faktura") {
+                val response = client.post("${API_BASE_PATH}/kvittering/faktura") {
                     contentType(ContentType.Application.Json)
+                    bearerAuth(oauth.issueToken().serialize())
                     setBody(
                         OebsFakturaKvittering(
                             fakturaNummer = faktura.fakturanummer,
@@ -145,11 +153,12 @@ class OebsRoutesTest : FunSpec({
     }
 
     test("bad request ved manglende fakturaNummer") {
-        withTestApplication {
+        withTestApplication(oauth) {
             val client = createClient()
 
-            val response = client.post("/api/v1/kvittering/faktura") {
+            val response = client.post("${API_BASE_PATH}/kvittering/faktura") {
                 contentType(ContentType.Application.Json)
+                bearerAuth(oauth.issueToken().serialize())
                 setBody(
                     """
                         { "statusOebs": "Godkjent", "opprettelsesTidspunkt": "2023-01-01 09:33:16" }
@@ -165,11 +174,12 @@ class OebsRoutesTest : FunSpec({
     }
 
     test("not found når bestilling ikke finnes") {
-        withTestApplication {
+        withTestApplication(oauth) {
             val client = createClient()
 
-            val response = client.post("/api/v1/kvittering/opprett-bestilling") {
+            val response = client.post("${API_BASE_PATH}/kvittering/opprett-bestilling") {
                 contentType(ContentType.Application.Json)
+                bearerAuth(oauth.issueToken().serialize())
                 setBody(
                     """
                         {
@@ -190,11 +200,12 @@ class OebsRoutesTest : FunSpec({
     }
 
     test("ignoreUnknownKeys") {
-        withTestApplication {
+        withTestApplication(oauth) {
             val client = createClient()
 
-            val response = client.post("/api/v1/kvittering/opprett-bestilling") {
+            val response = client.post("/api/v1/okonomi/kvittering/opprett-bestilling") {
                 contentType(ContentType.Application.Json)
+                bearerAuth(oauth.issueToken().serialize())
                 setBody(
                     """
                         {
@@ -225,16 +236,29 @@ class OebsRoutesTest : FunSpec({
                 }
             }
         """.trimIndent()
-        withTestApplication {
+        withTestApplication(oauth) {
             val client = createClient()
 
-            client.post("/api/v1/kvittering/opprett-bestilling") {
+            client.post("${API_BASE_PATH}/kvittering/opprett-bestilling") {
                 contentType(ContentType.Application.Json)
+                bearerAuth(oauth.issueToken().serialize())
                 setBody(kvitteringJson)
             }
 
             val json = Json.decodeFromString<JsonElement>(db.session { getLatestKvittering() })
             json.jsonObject["statusOebs"] shouldBe JsonPrimitive("Godkjent")
+        }
+    }
+
+    test("manglende auth gir 401") {
+        withTestApplication(oauth) {
+            val client = createClient()
+
+            val response = client.post("${API_BASE_PATH}/kvittering/opprett-bestilling") {
+                contentType(ContentType.Application.Json)
+                setBody("")
+            }
+            response.status shouldBe HttpStatusCode.Unauthorized
         }
     }
 })

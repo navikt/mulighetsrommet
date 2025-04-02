@@ -22,7 +22,6 @@ import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
-import no.nav.tiltak.okonomi.oebs.oebsRoutes
 import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
 import no.nav.tiltak.okonomi.plugins.configureSerialization
@@ -76,10 +75,6 @@ fun Application.configure(config: AppConfig) {
         oebs = oebs,
         brreg = brreg,
     )
-
-    routing {
-        oebsRoutes(okonomi)
-    }
 
     val kafka = configureKafka(config.kafka, db, okonomi)
 

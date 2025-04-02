@@ -11,6 +11,9 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.api.OebsAnnullerBestillingKvittering
+import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
+import no.nav.tiltak.okonomi.api.OebsOpprettBestillingKvittering
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling

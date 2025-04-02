@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.serializers
+package no.nav.tiltak.okonomi.api.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
