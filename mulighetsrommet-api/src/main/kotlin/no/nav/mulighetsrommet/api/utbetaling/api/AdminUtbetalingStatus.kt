@@ -19,8 +19,7 @@ enum class AdminUtbetalingStatus {
             utbetaling: Utbetaling,
             delutbetalinger: List<Delutbetaling>,
         ): AdminUtbetalingStatus {
-
-            if(delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status === DelutbetalingStatus.GODKJENT }) {
+            if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status === DelutbetalingStatus.GODKJENT }) {
                 return OVERFORT_TIL_UTBETALING
             }
 

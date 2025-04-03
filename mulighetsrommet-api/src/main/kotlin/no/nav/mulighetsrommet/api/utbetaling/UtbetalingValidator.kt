@@ -51,8 +51,8 @@ object UtbetalingValidator {
                     DelutbetalingStatus.TIL_GODKJENNING,
                     DelutbetalingStatus.GODKJENT,
                     DelutbetalingStatus.UTBETALT,
-                    DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                        -> {
+                    DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    -> {
                         add(
                             FieldError.ofPointer(
                                 "/$index",
