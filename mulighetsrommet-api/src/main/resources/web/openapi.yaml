@@ -5691,11 +5691,12 @@ components:
       type: string
       enum:
         - VENTER_PA_ARRANGOR
-        - BEHANDLES_AV_NAV
+        - KLAR_TIL_BEHANDLING
         - RETURNERT
         - TIL_GODKJENNING
         - GODKJENT
         - UTBETALT
+        - OVERFORT_TIL_UTBETALING
 
     UtbetalingDetaljerDto:
       type: object
@@ -6155,6 +6156,7 @@ components:
         - GODKJENT
         - RETURNERT
         - UTBETALT
+        - OVERFORT_TIL_UTBETALING
 
     UtbetalingLinje:
       type: object

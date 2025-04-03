@@ -537,7 +537,7 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("når utbetaling blir behandlet") {
-        test("skal ikke kunne opprette del utbetaling hvis den er godkjent") {
+        test("skal ikke kunne opprette delutbetaling hvis den er godkjent") {
             val domain = MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -577,7 +577,7 @@ class UtbetalingServiceTest : FunSpec({
                 request = opprettRequest,
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError("/0", "Utbetaling kan ikke endres fordi den har status: GODKJENT")
+                it.errors shouldContain FieldError("/0", "Utbetaling kan ikke endres fordi den har status: OVERFORT_TIL_UTBETALING")
             }
         }
 
@@ -1070,7 +1070,7 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 val delutbetaling = queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldHaveSize(1).first()
-                delutbetaling.status shouldBe DelutbetalingStatus.GODKJENT
+                delutbetaling.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                 delutbetaling.belop shouldBe 1000
 
                 queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT).should {
@@ -1235,7 +1235,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).first().should {
-                    it.status shouldBe DelutbetalingStatus.GODKJENT
+                    it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                     it.gjorOppTilsagn shouldBe false
                 }
             }
@@ -1243,7 +1243,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjentAvArrangor(utbetaling2.id, godkjennUtbetaling)
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).first().should {
-                    it.status shouldBe DelutbetalingStatus.GODKJENT
+                    it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                     it.gjorOppTilsagn shouldBe true
                 }
             }

@@ -270,7 +270,8 @@ class UtbetalingService(
         if (navIdent == opprettelse.behandletAv) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
         }
-        val tilsagnOpprettelse = requireNotNull(queries.totrinnskontroll.get(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT))
+        val tilsagnOpprettelse =
+            requireNotNull(queries.totrinnskontroll.get(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT))
         if (navIdent == tilsagnOpprettelse.besluttetAv) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
         }
@@ -436,6 +437,7 @@ class UtbetalingService(
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId))
+            queries.delutbetaling.setStatusForDelutbetalingerForBetaling(delutbetaling.utbetalingId, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
             godkjennUtbetaling(utbetaling, alleDelutbetalinger)
         }
     }

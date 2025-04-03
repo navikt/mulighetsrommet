@@ -5,4 +5,5 @@ enum class DelutbetalingStatus {
     GODKJENT,
     RETURNERT,
     UTBETALT,
+    OVERFORT_TIL_UTBETALING,
 }

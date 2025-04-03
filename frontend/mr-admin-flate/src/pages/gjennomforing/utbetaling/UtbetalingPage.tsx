@@ -185,9 +185,10 @@ export function UtbetalingPage() {
                   </Alert>
                 )}
                 {erSaksbehandlerOkonomi &&
-                [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(
-                  utbetaling.status,
-                ) ? (
+                [
+                  AdminUtbetalingStatus.KLAR_TIL_BEHANDLING,
+                  AdminUtbetalingStatus.RETURNERT,
+                ].includes(utbetaling.status) ? (
                   <RedigerUtbetalingLinjeView
                     tilsagn={tilsagn}
                     utbetaling={utbetaling}
