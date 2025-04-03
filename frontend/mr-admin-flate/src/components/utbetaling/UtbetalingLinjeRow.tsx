@@ -20,7 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
-import { Metadata } from "../detaljside/Metadata";
+import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
@@ -92,14 +92,7 @@ export function UtbetalingLinjeRow({
             </VStack>
           )}
 
-          {linje.opprettelse && (
-            <HStack gap="4">
-              <Metadata header="Behandlet av" verdi={linje.opprettelse.behandletAv} />
-              {linje.opprettelse.type === "BESLUTTET" && (
-                <Metadata header="Besluttet av" verdi={linje.opprettelse.besluttetAv} />
-              )}
-            </HStack>
-          )}
+          <BehandlerInformasjon linje={linje} />
         </VStack>
       }
     >
