@@ -163,19 +163,22 @@ class TilsagnService(
             }
 
             TilsagnStatus.TIL_OPPGJOR -> {
+                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+                if (oppgjor.behandletAv == navIdent) {
+                    return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+                }
+
                 when (besluttelse.besluttelse) {
                     Besluttelse.GODKJENT ->
                         gjorOppTilsagn(tilsagn, navIdent)
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
                                 // når vi gjør opp på en delutbetaling.
-                                val oppgjor =
-                                    queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-                                storeGjorOppBestilling(it, oppgjor)
+                                storeGjorOppBestilling(it, queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP))
                             }
                             .right()
 
-                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent).right()
+                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent)
                 }
             }
         }
@@ -318,9 +321,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-        require(besluttetAv !is NavIdent || besluttetAv != oppgjor.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
-        }
 
         queries.totrinnskontroll.upsert(
             oppgjor.copy(
@@ -336,12 +336,12 @@ class TilsagnService(
         return dto
     }
 
-    private fun avvisOppgjor(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn = db.transaction {
+    private fun avvisOppgjor(tilsagn: Tilsagn, besluttetAv: Agent): StatusResponse<Tilsagn> = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-        require(besluttetAv != oppgjor.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
+        if (besluttetAv == oppgjor.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -355,7 +355,7 @@ class TilsagnService(
 
         val dto = getOrError(tilsagn.id)
         logEndring("Oppgjør avvist", dto, besluttetAv)
-        return dto
+        return dto.right()
     }
 
     fun gjorOppAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {

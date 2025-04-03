@@ -498,6 +498,33 @@ class TilsagnServiceTest : FunSpec({
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                 }
         }
+
+        test("kan ikke annullere eget tilsagn") {
+            val service = createTilsagnService()
+
+            service.upsert(request, ansatt1).shouldBeRight()
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight()
+            service.tilAnnulleringRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = "Velg et annet beløp",
+                ),
+            )
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt1,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldBe listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))
+            }
+            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_ANNULLERING
+        }
     }
 
     context("Gjør opp tilsagn") {
@@ -555,6 +582,32 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                 }
+        }
+
+        test("kan ikke gjøre opp egen") {
+            val service = createTilsagnService()
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt2,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.tilGjorOppRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
+            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt1,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldBe listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))
+            }
+            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_OPPGJOR
         }
 
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {
