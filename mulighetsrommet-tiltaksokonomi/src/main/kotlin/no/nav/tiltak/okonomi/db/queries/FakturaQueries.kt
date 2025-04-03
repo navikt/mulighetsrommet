@@ -97,7 +97,7 @@ class FakturaQueries(private val session: Session) {
         val query = """
             update faktura set
                 feil_kode = :feil_kode,
-                feil_melding = :feil_melding,
+                feil_melding = :feil_melding
             where fakturanummer = :fakturanummer
         """.trimIndent()
         val params = mapOf(
