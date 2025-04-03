@@ -41,7 +41,7 @@ data class AvtaleRequest(
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
-    val navEnheter: List<String>,
+    val navEnheter: List<NavEnhetNummer>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
@@ -255,7 +255,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val avtaletyper = call.parameters.getAll("avtaletyper")
         ?.map { type -> Avtaletype.valueOf(type) }
         ?: emptyList()
-    val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
+    val navRegioner = call.parameters.getAll("navRegioner")?.map { NavEnhetNummer(it) } ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
     val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
@@ -278,7 +278,7 @@ data class AvtaleFilter(
     val search: String? = null,
     val statuser: List<AvtaleStatus.Enum> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
-    val navRegioner: List<String> = emptyList(),
+    val navRegioner: List<NavEnhetNummer> = emptyList(),
     val sortering: String? = null,
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,

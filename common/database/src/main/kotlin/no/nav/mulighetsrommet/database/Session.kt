@@ -24,6 +24,14 @@ fun Session.createTextArray(list: Collection<Any>): Array {
     return createArrayOf("text", list)
 }
 
+inline fun <reified T> Session.createArrayFromSelector(
+    list: Collection<T>,
+    type: String = "text",
+    valueSelector: (T) -> Any,
+): Array {
+    return createArrayOf(type, list.map(valueSelector))
+}
+
 fun Session.createUuidArray(list: Collection<UUID>): Array {
     return createArrayOf("uuid", list)
 }

@@ -618,13 +618,13 @@ class AvtaleQueriesTest : FunSpec({
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'"))
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0502' where id = '${AvtaleFixtures.VTA.id}'"))
 
-                queries.getAll(navRegioner = listOf("0300")).should { (totalCount) ->
+                queries.getAll(navRegioner = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
-                queries.getAll(navRegioner = listOf("0400")).should { (totalCount) ->
+                queries.getAll(navRegioner = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
                     totalCount shouldBe 2
                 }
-                queries.getAll(navRegioner = listOf("0502")).should { (totalCount) ->
+                queries.getAll(navRegioner = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
             }
@@ -779,8 +779,7 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                var result = queries.getAll(search = "enhet")
-                result.totalCount shouldBe 2
+                queries.getAll(search = "enhet").totalCount shouldBe 2
                 queries.getAll(search = "annen").totalCount shouldBe 1
             }
         }

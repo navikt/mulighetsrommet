@@ -11,7 +11,10 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -23,6 +26,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -114,7 +118,7 @@ class GjennomforingServiceTest : FunSpec({
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(navIdent),
-                navEnheter = setOf("2990"),
+                navEnheter = setOf(NavEnhetNummer("2990")),
             )
             service.upsert(gjennomforing, navIdent).shouldBeRight()
 
@@ -127,7 +131,7 @@ class GjennomforingServiceTest : FunSpec({
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(identAnsatt2, identAnsatt1),
-                navEnheter = setOf("2990"),
+                navEnheter = setOf(NavEnhetNummer("2990")),
             )
             service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
 

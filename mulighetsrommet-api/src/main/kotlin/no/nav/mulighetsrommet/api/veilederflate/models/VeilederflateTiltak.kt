@@ -6,12 +6,7 @@ import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.sanity.RegelverkLenke
-import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.Innsatsgruppe
-import no.nav.mulighetsrommet.model.PersonopplysningData
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -34,8 +29,8 @@ sealed class VeilederflateTiltak {
     abstract val kontaktinfo: VeilederflateKontaktinfo
     abstract val oppstart: GjennomforingOppstartstype
     abstract val stedForGjennomforing: String?
-    abstract val fylker: List<String>
-    abstract val enheter: List<String>
+    abstract val fylker: List<NavEnhetNummer>
+    abstract val enheter: List<NavEnhetNummer>
 }
 
 @Serializable
@@ -49,8 +44,8 @@ data class VeilederflateTiltakGruppe(
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
-    override val fylker: List<String>,
-    override val enheter: List<String>,
+    override val fylker: List<NavEnhetNummer>,
+    override val enheter: List<NavEnhetNummer>,
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltaksnummer: String?,
@@ -76,8 +71,8 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
-    override val fylker: List<String>,
-    override val enheter: List<String>,
+    override val fylker: List<NavEnhetNummer>,
+    override val enheter: List<NavEnhetNummer>,
     val sanityId: String,
     val tiltaksnummer: String?,
     val arrangor: VeilederflateArrangor,
@@ -94,8 +89,8 @@ data class VeilederflateTiltakEgenRegi(
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
-    override val fylker: List<String>,
-    override val enheter: List<String>,
+    override val fylker: List<NavEnhetNummer>,
+    override val enheter: List<NavEnhetNummer>,
     val sanityId: String,
     val tiltaksnummer: String?,
 ) : VeilederflateTiltak()
@@ -111,8 +106,8 @@ data class VeilederflateTiltakEnkeltplass(
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
-    override val fylker: List<String>,
-    override val enheter: List<String>,
+    override val fylker: List<NavEnhetNummer>,
+    override val enheter: List<NavEnhetNummer>,
     val sanityId: String,
 ) : VeilederflateTiltak()
 
@@ -185,6 +180,6 @@ data class EstimertVentetid(
 
 @Serializable
 data class VeilederflateNavEnhet(
-    val enhetsnummer: String,
+    val enhetsnummer: NavEnhetNummer,
     val type: Norg2Type,
 )

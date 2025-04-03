@@ -5,10 +5,11 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createArrayFromSelector
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.OppgaveTiltakstype
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -190,7 +191,7 @@ class DelutbetalingQueries(private val session: Session) {
     }
 
     fun getOppgaveData(
-        kostnadssteder: List<String>?,
+        kostnadssteder: List<NavEnhetNummer>?,
         tiltakskoder: List<Tiltakskode>?,
     ): List<DelutbetalingOppgaveData> {
         @Language("PostgreSQL")
@@ -221,7 +222,7 @@ class DelutbetalingQueries(private val session: Session) {
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createArrayOf("tiltakskode", it) },
-            "kostnadssteder" to kostnadssteder?.let { session.createTextArray(it) },
+            "kostnadssteder" to kostnadssteder?.let { session.createArrayFromSelector(it) { it.value } },
         )
 
         return session.list(queryOf(query, params)) {

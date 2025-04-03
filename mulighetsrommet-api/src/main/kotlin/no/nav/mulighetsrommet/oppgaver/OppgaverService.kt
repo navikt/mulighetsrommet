@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 
@@ -55,7 +56,7 @@ class OppgaverService(val db: ApiDatabase) {
     fun tilsagnOppgaver(
         oppgavetyper: List<OppgaveType>,
         tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<String>,
+        kostnadssteder: List<NavEnhetNummer>,
         roller: Set<NavAnsattRolle>,
         ansatt: NavIdent,
     ): List<Oppgave> = db.session {
@@ -85,7 +86,7 @@ class OppgaverService(val db: ApiDatabase) {
     fun delutbetalingOppgaver(
         oppgavetyper: List<OppgaveType>,
         tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<String>,
+        kostnadssteder: List<NavEnhetNummer>,
         ansatt: NavIdent,
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
@@ -105,7 +106,7 @@ class OppgaverService(val db: ApiDatabase) {
     fun utbetalingOppgaver(
         oppgavetyper: List<OppgaveType>,
         tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<String>,
+        kostnadssteder: List<NavEnhetNummer>,
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
         queries.utbetaling
@@ -122,7 +123,7 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun QueryContext.byKostnadssted(
         utbetaling: Utbetaling,
-        kostnadssteder: List<String>,
+        kostnadssteder: List<NavEnhetNummer>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
         else -> {
@@ -132,7 +133,7 @@ class OppgaverService(val db: ApiDatabase) {
         }
     }
 
-    private fun navEnheter(regioner: List<String>): List<String> {
+    private fun navEnheter(regioner: List<NavEnhetNummer>): List<NavEnhetNummer> {
         return regioner
             .flatMap { region ->
                 db.session { queries.enhet.getAll(overordnetEnhet = region) }

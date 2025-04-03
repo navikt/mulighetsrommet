@@ -5,7 +5,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createArrayFromSelector
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -31,7 +32,7 @@ class NavAnsattQueries(private val session: Session) {
             "nav_ident" to ansatt.navIdent.value,
             "fornavn" to ansatt.fornavn,
             "etternavn" to ansatt.etternavn,
-            "hovedenhet" to ansatt.hovedenhet,
+            "hovedenhet" to ansatt.hovedenhet.value,
             "azure_id" to ansatt.azureId,
             "mobilnummer" to ansatt.mobilnummer,
             "epost" to ansatt.epost,
@@ -64,7 +65,7 @@ class NavAnsattQueries(private val session: Session) {
 
     fun getAll(
         roller: List<NavAnsattRolle>? = null,
-        hovedenhetIn: List<String>? = null,
+        hovedenhetIn: List<NavEnhetNummer>? = null,
         skalSlettesDatoLte: LocalDate? = null,
     ): List<NavAnsattDto> = with(session) {
         @Language("PostgreSQL")
@@ -79,7 +80,7 @@ class NavAnsattQueries(private val session: Session) {
 
         val params = mapOf(
             "roller" to roller?.map { it.name }?.let { createArrayOf("rolle", it) },
-            "hovedenhet" to hovedenhetIn?.let { createTextArray(it) },
+            "hovedenhet" to hovedenhetIn?.let { createArrayFromSelector(it) { it.value } },
             "skal_slettes_dato" to skalSlettesDatoLte,
         )
 
@@ -123,7 +124,7 @@ class NavAnsattQueries(private val session: Session) {
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
         hovedenhet = NavAnsattDto.Hovedenhet(
-            enhetsnummer = string("hovedenhet_enhetsnummer"),
+            enhetsnummer = NavEnhetNummer(string("hovedenhet_enhetsnummer")),
             navn = string("hovedenhet_navn"),
         ),
         azureId = uuid("azure_id"),

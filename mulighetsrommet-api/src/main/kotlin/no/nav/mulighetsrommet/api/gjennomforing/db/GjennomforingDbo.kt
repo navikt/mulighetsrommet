@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.*
@@ -19,7 +16,7 @@ data class GjennomforingDbo(
     val antallPlasser: Int,
     val avtaleId: UUID,
     val administratorer: List<NavIdent>,
-    val navEnheter: Set<String>,
+    val navEnheter: Set<NavEnhetNummer>,
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDbo>,
     val stedForGjennomforing: String?,
@@ -35,6 +32,6 @@ data class GjennomforingDbo(
 
 data class GjennomforingKontaktpersonDbo(
     val navIdent: NavIdent,
-    val navEnheter: List<String>,
+    val navEnheter: List<NavEnhetNummer>,
     val beskrivelse: String?,
 )

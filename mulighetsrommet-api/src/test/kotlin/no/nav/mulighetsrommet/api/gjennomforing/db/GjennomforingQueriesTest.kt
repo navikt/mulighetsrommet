@@ -143,7 +143,9 @@ class GjennomforingQueriesTest : FunSpec({
                 }
 
                 queries.upsert(
-                    Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Lillehammer.enhetsnummer)),
+                    Oppfolging1.copy(
+                        navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Lillehammer.enhetsnummer),
+                    ),
                 )
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
                     it.kontorstruktur[0].region shouldBe Innlandet
@@ -215,8 +217,8 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
                         epost = "donald.duck@nav.no",
-                        navEnheter = listOf("0400"),
-                        hovedenhet = "0400",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
+                        hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = "hei hei kontaktperson",
                     ),
                     GjennomforingKontaktperson(
@@ -224,8 +226,8 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Mikke Mus",
                         mobilnummer = "48243214",
                         epost = "mikke.mus@nav.no",
-                        navEnheter = listOf("0400"),
-                        hovedenhet = "0400",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
+                        hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = null,
                     ),
                 )
@@ -248,8 +250,8 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
                         epost = "donald.duck@nav.no",
-                        navEnheter = listOf("0400"),
-                        hovedenhet = "0400",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
+                        hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = null,
                     ),
                 )
@@ -641,8 +643,14 @@ class GjennomforingQueriesTest : FunSpec({
                     navEnheter = listOf(Innlandet, Lillehammer, Gjovik),
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
-                        Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
-                        Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer)),
+                        Oppfolging1.copy(
+                            id = UUID.randomUUID(),
+                            navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
+                        ),
+                        Oppfolging1.copy(
+                            id = UUID.randomUUID(),
+                            navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+                        ),
                         Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = setOf()),
                     ),
                 ).setup(session)
@@ -652,7 +660,7 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.updateArenaData(
                     id = domain.gjennomforinger[2].id,
                     tiltaksnummer = "2024/1",
-                    arenaAnsvarligEnhet = Lillehammer.enhetsnummer,
+                    arenaAnsvarligEnhet = Lillehammer.enhetsnummer.value,
                 )
 
                 queries.getAll(navEnheter = listOf(Lillehammer.enhetsnummer)).should {
@@ -683,10 +691,16 @@ class GjennomforingQueriesTest : FunSpec({
 
                 val queries = GjennomforingQueries(session)
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent, koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent)
+                queries.getAll(
+                    administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                    koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                )
                     .totalCount shouldBe 2
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent, koordinatorNavIdent = NavAnsattFixture.MikkeMus.navIdent)
+                queries.getAll(
+                    administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
+                    koordinatorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
+                )
                     .should {
                         it.totalCount shouldBe 1
                         it.items shouldContainExactlyIds listOf(domain.gjennomforinger[1].id)
