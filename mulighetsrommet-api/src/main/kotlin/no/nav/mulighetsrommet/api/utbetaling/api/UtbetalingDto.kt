@@ -22,6 +22,7 @@ data class UtbetalingDto(
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val beskrivelse: String?,
     val innsendtAv: String?,
+    val journalpostId: String?,
 ) {
     @Serializable
     data class Beregning(
@@ -41,6 +42,7 @@ data class UtbetalingDto(
                 belop = utbetaling.beregning.output.belop,
             ),
             innsendtAv = formaterInnsendtAv(utbetaling.innsender),
+            journalpostId = utbetaling.journalpostId,
         )
 
         private fun formaterInnsendtAv(innsender: Utbetaling.Innsender?): String? {
