@@ -161,7 +161,8 @@ class VeilederflateService(
                 VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,
                     telefon = it.telefonnummer,
-                    enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
+                    // TODO: enhet fra kontaktperson i sanity er ikke kodet som et enhetsnummer og kan derfor ikke benyttes til å hente enhet her enda
+                    enhet = null, // it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
                     epost = it.epost,
                     beskrivelse = it.beskrivelse,
                 )

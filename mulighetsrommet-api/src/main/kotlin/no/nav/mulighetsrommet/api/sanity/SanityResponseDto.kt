@@ -76,7 +76,7 @@ data class KontaktinfoTiltaksansvarlig(
     val navn: String? = null,
     val telefonnummer: String? = null,
     val _id: String? = null,
-    val enhet: NavEnhetNummer? = null,
+    val enhet: String? = null,
     val _updatedAt: String? = null,
     val _createdAt: String? = null,
     val epost: String? = null,
