@@ -4,7 +4,14 @@ import {
   formaterPeriodeStart,
   tilsagnTypeToString,
 } from "@/utils/Utils";
-import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
+import {
+  DelutbetalingReturnertAarsak,
+  DelutbetalingStatus,
+  FieldError,
+  TotrinnskontrollBesluttetDto,
+  TotrinnskontrollDto,
+  UtbetalingLinje,
+} from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -22,6 +29,7 @@ import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { Metadata } from "../detaljside/Metadata";
 import { DelutbetalingTag } from "./DelutbetalingTag";
+import { BehandlerInformasjon } from "./BehandlerInformasjon";
 
 interface Props {
   readOnly?: boolean;
@@ -92,14 +100,7 @@ export function UtbetalingLinjeRow({
             </VStack>
           )}
 
-          {linje.opprettelse && (
-            <HStack gap="4">
-              <Metadata header="Behandlet av" verdi={linje.opprettelse.behandletAv} />
-              {linje.opprettelse.type === "BESLUTTET" && (
-                <Metadata header="Besluttet av" verdi={linje.opprettelse.besluttetAv} />
-              )}
-            </HStack>
-          )}
+          <BehandlerInformasjon linje={linje} />
         </VStack>
       }
     >

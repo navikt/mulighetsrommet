@@ -73,7 +73,7 @@ export function GjennomforingPage() {
         <div
           className={classNames("flex justify-between gap-6 flex-wrap w-full [&>span]:self-center")}
         >
-          <div className="flex justify-start gap-6 items-start flex-wrap">
+          <div className="flex justify-start gap-6 items-center flex-wrap">
             <GjennomforingIkon />
             <VStack>
               <Heading className="max-w-[50rem]" size="large" level="2">
