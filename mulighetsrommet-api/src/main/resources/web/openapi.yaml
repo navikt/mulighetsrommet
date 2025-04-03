@@ -6079,6 +6079,8 @@ components:
           $ref: "#/components/schemas/TilsagnBeregning"
         gjenstaendeBelop:
           type: integer
+        bestillingsnummer:
+          type: string
       required:
         - periode
         - type
@@ -6089,6 +6091,7 @@ components:
         - beregning
         - id
         - gjenstaendeBelop
+        - bestillingsnummer
 
     Betalingsinformasjon:
       type: object

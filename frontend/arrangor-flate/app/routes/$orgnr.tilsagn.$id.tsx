@@ -48,6 +48,7 @@ export default function TilsagnDetaljerPage() {
         definitions={[
           { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
           { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
+          { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
           { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
         ]}
       />

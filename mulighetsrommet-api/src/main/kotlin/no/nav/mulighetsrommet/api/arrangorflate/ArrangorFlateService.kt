@@ -263,5 +263,6 @@ private fun QueryContext.toArrangorflateTilsagn(
             status = tilsagn.status,
             aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: listOf(),
         ),
+        bestillingsnummer = tilsagn.bestilling.bestillingsnummer
     )
 }

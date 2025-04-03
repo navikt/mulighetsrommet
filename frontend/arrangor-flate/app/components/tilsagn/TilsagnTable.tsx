@@ -28,6 +28,7 @@ export function TilsagnTable({ tilsagn }: Props) {
             <Table.Row>
               <Table.HeaderCell>Tiltakstype</Table.HeaderCell>
               <Table.HeaderCell>Navn</Table.HeaderCell>
+              <Table.HeaderCell>Tilsagnsnummer</Table.HeaderCell>
               <Table.HeaderCell>Tilsagnstype</Table.HeaderCell>
               <Table.HeaderCell>Periode</Table.HeaderCell>
               <Table.HeaderCell>Status</Table.HeaderCell>
@@ -40,6 +41,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                 <Table.Row key={i}>
                   <Table.DataCell>{tilsagn.tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{tilsagn.gjennomforing.navn}</Table.DataCell>
+                  <Table.DataCell>{tilsagn.bestillingsnummer}</Table.DataCell>
                   <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
                   <Table.DataCell>{formaterPeriode(tilsagn.periode)}</Table.DataCell>
                   <Table.DataCell>
