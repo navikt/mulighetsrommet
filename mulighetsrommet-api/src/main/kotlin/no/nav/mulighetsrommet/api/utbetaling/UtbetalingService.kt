@@ -464,7 +464,7 @@ class UtbetalingService(
         }
 
         logEndring(
-            "Utbetaling godkjent",
+            "Overført til utbetaling",
             getOrError(delutbetalinger[0].utbetalingId),
             Tiltaksadministrasjon,
         )
