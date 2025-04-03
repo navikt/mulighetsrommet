@@ -66,6 +66,12 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter-manager
+        - application: <todo-oebs-application-name>
+          namespace: <todo-oebs-namespace>
+          cluster: dev-fss
+          permissions:
+            roles:
+              - oebs-api
     outbound:
       external:
         - host: data.brreg.no

@@ -11,16 +11,14 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.api.serializers.OebsLocalDateTimeSerializer
+import no.nav.tiltak.okonomi.plugins.AuthProvider
 import no.nav.tiltak.okonomi.service.OkonomiService
 import java.time.LocalDateTime
 
 @Resource("$API_BASE_PATH/kvittering")
 class Kvittering {
-    @Resource("opprett-bestilling")
-    class OpprettBestilling(val parent: Kvittering = Kvittering())
-
-    @Resource("annuller-bestilling")
-    class AnnullerBestilling(val parent: Kvittering = Kvittering())
+    @Resource("bestilling")
+    class Bestilling(val parent: Kvittering = Kvittering())
 
     @Resource("faktura")
     class Faktura(val parent: Kvittering = Kvittering())
@@ -28,12 +26,12 @@ class Kvittering {
 
 fun Routing.oebsRoutes(
     okonomiService: OkonomiService,
-) = authenticate {
-    post<Kvittering.OpprettBestilling> {
+) = authenticate(AuthProvider.AZURE_AD_OEBS_API.name) {
+    post<Kvittering.Bestilling> {
         val request = call.receive<String>()
         okonomiService.logKvittering(request)
 
-        val kvittering = JsonIgnoreUnknownKeys.decodeFromString<OebsOpprettBestillingKvittering>(request)
+        val kvittering = JsonIgnoreUnknownKeys.decodeFromString<OebsBestillingKvittering>(request)
 
         val bestilling = okonomiService.hentBestilling(kvittering.bestillingsNummer)
             ?: throw StatusException(
@@ -42,23 +40,6 @@ fun Routing.oebsRoutes(
             )
 
         okonomiService.mottaBestillingKvittering(bestilling, kvittering)
-
-        call.respond(HttpStatusCode.OK)
-    }
-
-    post<Kvittering.AnnullerBestilling> {
-        val request = call.receive<String>()
-        okonomiService.logKvittering(request)
-
-        val kvittering = JsonIgnoreUnknownKeys.decodeFromString<OebsAnnullerBestillingKvittering>(request)
-
-        val bestilling = okonomiService.hentBestilling(kvittering.bestillingsNummer)
-            ?: throw StatusException(
-                HttpStatusCode.NotFound,
-                "Fant ikke bestilling med bestillingsNummer: ${kvittering.bestillingsNummer}",
-            )
-
-        okonomiService.mottaAnnullerBestillingKvittering(bestilling, kvittering)
 
         call.respond(HttpStatusCode.OK)
     }
@@ -81,25 +62,16 @@ fun Routing.oebsRoutes(
 }
 
 @Serializable
-data class OebsOpprettBestillingKvittering(
+data class OebsBestillingKvittering(
     val bestillingsNummer: String,
     @Serializable(with = OebsLocalDateTimeSerializer::class)
     val opprettelsesTidspunkt: LocalDateTime,
     val feilMelding: String? = null,
     val feilKode: String? = null,
+    val annullert: String? = null,
 ) {
     fun isSuccess(): Boolean = feilKode == null && feilMelding == null
-}
-
-@Serializable
-data class OebsAnnullerBestillingKvittering(
-    val bestillingsNummer: String,
-    @Serializable(with = OebsLocalDateTimeSerializer::class)
-    val opprettelsesTidspunkt: LocalDateTime,
-    val feilMelding: String? = null,
-    val feilKode: String? = null,
-) {
-    fun isSuccess(): Boolean = feilKode == null && feilMelding == null
+    fun isAnnulleringKvittering(): Boolean = annullert != null
 }
 
 @Serializable

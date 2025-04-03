@@ -11,9 +11,8 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
-import no.nav.tiltak.okonomi.api.OebsAnnullerBestillingKvittering
+import no.nav.tiltak.okonomi.api.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
-import no.nav.tiltak.okonomi.api.OebsOpprettBestillingKvittering
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
@@ -226,28 +225,14 @@ class OkonomiService(
 
     fun mottaBestillingKvittering(
         bestilling: Bestilling,
-        kvittering: OebsOpprettBestillingKvittering,
+        kvittering: OebsBestillingKvittering,
     ) = db.transaction {
         if (kvittering.isSuccess()) {
-            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.AKTIV)
-        } else {
-            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FEILET)
-            queries.bestilling.setFeilmelding(
-                bestilling.bestillingsnummer,
-                feilKode = kvittering.feilKode,
-                feilMelding = kvittering.feilMelding,
-            )
-        }
-
-        publishBestilling(bestilling.bestillingsnummer)
-    }
-
-    fun mottaAnnullerBestillingKvittering(
-        bestilling: Bestilling,
-        kvittering: OebsAnnullerBestillingKvittering,
-    ) = db.transaction {
-        if (kvittering.isSuccess()) {
-            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.ANNULLERT)
+            if (kvittering.isAnnulleringKvittering()) {
+                queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.ANNULLERT)
+            } else {
+                queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.AKTIV)
+            }
         } else {
             queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FEILET)
             queries.bestilling.setFeilmelding(

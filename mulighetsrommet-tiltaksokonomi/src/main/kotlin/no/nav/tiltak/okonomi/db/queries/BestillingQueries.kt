@@ -133,7 +133,7 @@ class BestillingQueries(private val session: Session) {
         val query = """
             update bestilling set
                 feil_kode = :feil_kode,
-                feil_melding = :feil_melding,
+                feil_melding = :feil_melding
             where bestillingsnummer = :bestillingsnummer
         """.trimIndent()
         val params = mapOf(
