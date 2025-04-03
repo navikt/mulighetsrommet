@@ -25,7 +25,10 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.tiltak.okonomi.*
 import java.time.LocalDateTime
 import java.util.*
@@ -46,7 +49,8 @@ class TilsagnService(
                 .nel()
                 .left()
 
-        val minTilsagnCreationDate = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
+        val minTilsagnCreationDate =
+            config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
         if (minTilsagnCreationDate == null) {
             return FieldError
                 .of(
@@ -165,7 +169,8 @@ class TilsagnService(
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
                                 // når vi gjør opp på en delutbetaling.
-                                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+                                val oppgjor =
+                                    queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
                                 storeGjorOppBestilling(it, oppgjor)
                             }
                             .right()
@@ -456,7 +461,7 @@ class TilsagnService(
             },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,
-            kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
+            kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.belop,
             periode = tilsagn.periode,
@@ -482,7 +487,10 @@ class TilsagnService(
             besluttetTidspunkt = annullering.besluttetTidspunkt,
         )
 
-        storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
+        storeOkonomiMelding(
+            tilsagn.bestilling.bestillingsnummer,
+            OkonomiBestillingMelding.Annullering(annullerBestilling),
+        )
     }
 
     private fun QueryContext.storeGjorOppBestilling(tilsagn: Tilsagn, oppgjor: Totrinnskontroll) {

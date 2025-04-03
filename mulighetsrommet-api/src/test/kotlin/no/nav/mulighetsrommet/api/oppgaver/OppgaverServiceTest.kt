@@ -237,7 +237,6 @@ class OppgaverServiceTest : FunSpec({
                 roller = setOf(NavAnsattRolle.ATTESTANT_UTBETALING),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
-
             )
 
             service.delutbetalingOppgaver(

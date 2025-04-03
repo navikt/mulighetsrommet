@@ -17,7 +17,7 @@ data class AvtaleDbo(
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val opsjonMaksVarighet: LocalDate?,
-    val navEnheter: List<String>,
+    val navEnheter: List<NavEnhetNummer>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
     val antallPlasser: Int?,

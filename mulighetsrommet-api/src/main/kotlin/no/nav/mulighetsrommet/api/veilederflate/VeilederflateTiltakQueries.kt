@@ -6,14 +6,10 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.veilederflate.models.*
-import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createArrayFromSelector
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.Innsatsgruppe
-import no.nav.mulighetsrommet.model.Personopplysning
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -32,7 +28,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
 
     fun getAll(
         innsatsgruppe: Innsatsgruppe,
-        brukersEnheter: List<String>,
+        brukersEnheter: List<NavEnhetNummer>,
         search: String? = null,
         apentForPamelding: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
@@ -40,7 +36,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
     ): List<VeilederflateTiltakGruppe> = with(session) {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
-            "brukers_enheter" to createTextArray(brukersEnheter),
+            "brukers_enheter" to createArrayFromSelector(brukersEnheter) { it.value },
             "search" to search?.toFTSPrefixQuery(),
             "apent_for_pamelding" to apentForPamelding,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { createUuidArray(it) },
@@ -74,9 +70,10 @@ class VeilederflateTiltakQueries(private val session: Session) {
 }
 
 private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe {
-    val navEnheter = stringOrNull("nav_enheter_json")?.let { Json.decodeFromString<List<VeilederflateNavEnhet>>(it) } ?: emptyList()
-    val fylker = navEnheter
-        .filter { it.type == Norg2Type.FYLKE }.map { it.enhetsnummer }
+    val navEnheter = stringOrNull("nav_enheter_json")
+        ?.let { Json.decodeFromString<List<VeilederflateNavEnhet>>(it) }
+        ?: emptyList()
+    val fylker = navEnheter.filter { it.type == Norg2Type.FYLKE }.map { it.enhetsnummer }
     val enheter = navEnheter.filter { it.type != Norg2Type.FYLKE }.map { it.enhetsnummer }
     val personopplysningerSomKanBehandles = arrayOrNull<String>("personopplysninger_som_kan_behandles")
         ?.asList()

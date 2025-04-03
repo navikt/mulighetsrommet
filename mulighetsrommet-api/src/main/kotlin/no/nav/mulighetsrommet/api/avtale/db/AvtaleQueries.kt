@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
+import no.nav.mulighetsrommet.database.createArrayFromSelector
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
@@ -181,19 +182,18 @@ class AvtaleQueries(private val session: Session) {
         execute(queryOf(query, avtale.toSqlParameters()))
 
         batchPreparedStatement(upsertAdministrator, avtale.administratorer.map { listOf(avtale.id, it.value) })
-        execute(queryOf(deleteAdministratorer, avtale.id, createTextArray(avtale.administratorer.map { it.value })))
+        execute(queryOf(deleteAdministratorer, avtale.id, createArrayFromSelector(avtale.administratorer) { it.value }))
 
-        batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it) })
-        execute(queryOf(deleteEnheter, avtale.id, createTextArray(avtale.navEnheter)))
+        batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it.value) })
+        execute(queryOf(deleteEnheter, avtale.id, createArrayFromSelector(avtale.navEnheter) { it.value }))
 
-        avtale.arrangor?.underenheter?.let { batchPreparedStatement(setArrangorUnderenhet, it.map { listOf(avtale.id, it) }) }
+        avtale.arrangor?.underenheter?.let { underenheter ->
+            batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtale.id, it) })
+        }
         execute(queryOf(deleteUnderenheter, avtale.id, avtale.arrangor?.underenheter?.let { createUuidArray(it) }))
 
-        avtale.arrangor?.kontaktpersoner?.let {
-            batchPreparedStatement(
-                upsertArrangorKontaktperson,
-                it.map { listOf(avtale.id, it) },
-            )
+        avtale.arrangor?.kontaktpersoner?.let { kontaktpersoner ->
+            batchPreparedStatement(upsertArrangorKontaktperson, kontaktpersoner.map { listOf(avtale.id, it) })
         }
         execute(
             queryOf(
@@ -299,7 +299,7 @@ class AvtaleQueries(private val session: Session) {
         search: String? = null,
         statuser: List<AvtaleStatus.Enum> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
-        navRegioner: List<String> = emptyList(),
+        navRegioner: List<NavEnhetNummer> = emptyList(),
         sortering: String? = null,
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
@@ -311,7 +311,7 @@ class AvtaleQueries(private val session: Session) {
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
-            "nav_enheter" to navRegioner.ifEmpty { null }?.let { createTextArray(it) },
+            "nav_enheter" to navRegioner.ifEmpty { null }?.let { createArrayFromSelector(it) { it.value } },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { createArrayOf("avtaletype", it) },
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
             "personvern_bekreftet" to personvernBekreftet,

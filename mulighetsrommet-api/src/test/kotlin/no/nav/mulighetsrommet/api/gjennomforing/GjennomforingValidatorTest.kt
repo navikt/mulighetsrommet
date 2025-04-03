@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -38,14 +39,14 @@ class GjennomforingValidatorTest : FunSpec({
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
         ),
-        navEnheter = listOf("0400", "0502"),
+        navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
     )
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
         avtaleId = avtale.id,
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        navEnheter = setOf("0400", "0502"),
+        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
@@ -54,28 +55,28 @@ class GjennomforingValidatorTest : FunSpec({
         navEnheter = listOf(
             NavEnhetDbo(
                 navn = "Nav Oslo",
-                enhetsnummer = "0300",
+                enhetsnummer = NavEnhetNummer("0300"),
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
             NavEnhetDbo(
                 navn = "Nav Innlandet",
-                enhetsnummer = "0400",
+                enhetsnummer = NavEnhetNummer("0400"),
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
             NavEnhetDbo(
                 navn = "Nav Gjøvik",
-                enhetsnummer = "0502",
+                enhetsnummer = NavEnhetNummer("0502"),
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.LOKAL,
-                overordnetEnhet = "0400",
+                overordnetEnhet = NavEnhetNummer("0400"),
             ),
             NavEnhetDbo(
                 navn = "Nav IT",
-                enhetsnummer = "2990",
+                enhetsnummer = NavEnhetNummer("2990"),
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.IT,
                 overordnetEnhet = null,
@@ -325,7 +326,7 @@ class GjennomforingValidatorTest : FunSpec({
                 listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
             ),
             row(
-                gjennomforing.copy(navEnheter = setOf("0401")),
+                gjennomforing.copy(navEnheter = setOf(NavEnhetNummer("0401"))),
                 listOf(FieldError("/navEnheter", "Nav-enhet 0401 mangler i avtalen")),
             ),
             row(

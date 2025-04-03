@@ -6,14 +6,15 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
 
 class NavEnhetQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     fun createEnhet(
-        enhet: String,
-        overordnetEnhet: String?,
+        enhet: NavEnhetNummer,
+        overordnetEnhet: NavEnhetNummer?,
         type: Norg2Type,
         status: NavEnhetStatus = NavEnhetStatus.AKTIV,
     ) = NavEnhetDbo(
@@ -28,12 +29,17 @@ class NavEnhetQueriesTest : FunSpec({
         database.runAndRollback { session ->
             val queries = NavEnhetQueries(session)
 
-            val overordnetEnhet = createEnhet("1200", null, Norg2Type.FYLKE)
-            val underenhet1 = createEnhet("1", overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
-            val underenhet2 = createEnhet("2", overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
-            val underenhet3 = createEnhet("3", overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
-            val underenhet4 = createEnhet("4", overordnetEnhet.enhetsnummer, Norg2Type.ALS)
-            val underenhet5 = createEnhet("5", overordnetEnhet.enhetsnummer, Norg2Type.LOKAL, NavEnhetStatus.NEDLAGT)
+            val overordnetEnhet = createEnhet(NavEnhetNummer("1200"), null, Norg2Type.FYLKE)
+            val underenhet1 = createEnhet(NavEnhetNummer("1111"), overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
+            val underenhet2 = createEnhet(NavEnhetNummer("2222"), overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
+            val underenhet3 = createEnhet(NavEnhetNummer("3333"), overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
+            val underenhet4 = createEnhet(NavEnhetNummer("4444"), overordnetEnhet.enhetsnummer, Norg2Type.ALS)
+            val underenhet5 = createEnhet(
+                NavEnhetNummer("5555"),
+                overordnetEnhet.enhetsnummer,
+                Norg2Type.LOKAL,
+                NavEnhetStatus.NEDLAGT,
+            )
 
             queries.upsert(overordnetEnhet)
             queries.upsert(underenhet1)
@@ -77,7 +83,13 @@ class NavEnhetQueriesTest : FunSpec({
                 underenhet5,
             )
 
-            queries.deleteWhereEnhetsnummer(listOf("1", "2", "3"))
+            queries.deleteWhereEnhetsnummer(
+                listOf(
+                    NavEnhetNummer("1111"),
+                    NavEnhetNummer("2222"),
+                    NavEnhetNummer("3333"),
+                ),
+            )
 
             queries.getAll() shouldContainExactlyInAnyOrder listOf(
                 overordnetEnhet,
@@ -91,10 +103,28 @@ class NavEnhetQueriesTest : FunSpec({
         database.runAndRollback { session ->
             val queries = NavEnhetQueries(session)
 
-            queries.upsert(createEnhet(enhet = "0200", type = Norg2Type.FYLKE, overordnetEnhet = null))
-            queries.upsert(createEnhet(enhet = "0106", type = Norg2Type.LOKAL, overordnetEnhet = "0200"))
-            queries.upsert(createEnhet(enhet = "0101", type = Norg2Type.LOKAL, overordnetEnhet = "0200"))
-            queries.upsert(createEnhet(enhet = "0128", type = Norg2Type.LOKAL, overordnetEnhet = "0200"))
+            queries.upsert(createEnhet(enhet = NavEnhetNummer("0200"), type = Norg2Type.FYLKE, overordnetEnhet = null))
+            queries.upsert(
+                createEnhet(
+                    enhet = NavEnhetNummer("0106"),
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = NavEnhetNummer("0200"),
+                ),
+            )
+            queries.upsert(
+                createEnhet(
+                    enhet = NavEnhetNummer("0101"),
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = NavEnhetNummer("0200"),
+                ),
+            )
+            queries.upsert(
+                createEnhet(
+                    enhet = NavEnhetNummer("0128"),
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = NavEnhetNummer("0200"),
+                ),
+            )
 
             @Language("PostgreSQL")
             val setKostnadssteder = """
@@ -104,11 +134,11 @@ class NavEnhetQueriesTest : FunSpec({
             """.trimIndent()
             session.execute(queryOf(setKostnadssteder))
 
-            queries.getKostnadssted(listOf("0200"))
+            queries.getKostnadssted(listOf(NavEnhetNummer("0200")))
                 .map { it.enhetsnummer } shouldContainExactlyInAnyOrder listOf(
-                "0106",
-                "0101",
-                "0200",
+                NavEnhetNummer("0106"),
+                NavEnhetNummer("0101"),
+                NavEnhetNummer("0200"),
             )
         }
     }

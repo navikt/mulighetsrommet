@@ -12,4 +12,7 @@ value class NavEnhetNummer(val value: String) {
             "'NavEnhet' må være på formatet '$NAV_ENHET_NUMMER'"
         }
     }
+
+    @Override
+    override fun toString(): String = value
 }

@@ -14,6 +14,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.serializers.ZonedDateTimeSerializer
@@ -194,7 +195,7 @@ data class OppfolgingEnhetMedVeilederResponse(
 @Serializable
 data class Oppfolgingsenhet(
     val navn: String?,
-    val enhetId: String,
+    val enhetId: NavEnhetNummer,
 )
 
 @Serializable

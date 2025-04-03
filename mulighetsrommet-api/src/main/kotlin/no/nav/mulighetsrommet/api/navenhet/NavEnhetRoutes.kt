@@ -6,6 +6,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.koin.ktor.ext.inject
 
 fun Route.navEnhetRoutes() {
@@ -22,14 +23,15 @@ fun Route.navEnhetRoutes() {
         }
 
         get("kostnadssted") {
-            val regioner = call.parameters.getAll("regioner") ?: emptyList()
+            val regioner = call.parameters.getAll("regioner")?.map { NavEnhetNummer(it) } ?: emptyList()
             call.respond(navEnhetService.hentKostnadssted(regioner))
         }
 
         get("{enhetsnummer}/overordnet") {
-            val enhetsnummer: String by call.parameters
-            val overordnetEnhet =
-                navEnhetService.hentOverordnetFylkesenhet(enhetsnummer) ?: return@get call.respondText(
+            val enhetsnummer = call.parameters.getOrFail("enhetsnummer").let { NavEnhetNummer(it) }
+
+            val overordnetEnhet = navEnhetService.hentOverordnetFylkesenhet(enhetsnummer)
+                ?: return@get call.respondText(
                     text = "Fant ikke overordnet enhet for enhetsnummer: $enhetsnummer",
                     status = HttpStatusCode.NotFound,
                 )

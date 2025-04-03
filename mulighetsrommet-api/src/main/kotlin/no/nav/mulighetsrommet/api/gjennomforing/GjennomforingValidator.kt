@@ -11,11 +11,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.model.AvtaleStatus
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Tiltakskoder.isKursTiltak
 import java.time.LocalDate
 
@@ -91,7 +87,9 @@ class GjennomforingValidator(
                 add(FieldError.of(GjennomforingDbo::navEnheter, "Du må velge minst ett Nav-kontor"))
             }
 
-            val avtaleNavEnheter = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer }
+            val avtaleNavEnheter = avtale.kontorstruktur.flatMap {
+                it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer
+            }
             next.navEnheter.forEach { enhetsnummer ->
                 if (!avtaleNavEnheter.contains(enhetsnummer)) {
                     add(
@@ -155,8 +153,7 @@ class GjennomforingValidator(
                         ),
                     )
                 } else {
-                    val avtalensUtdanninger = avtale.utdanningslop.utdanninger.map { it.id } ?: emptyList()
-
+                    val avtalensUtdanninger = avtale.utdanningslop.utdanninger.map { it.id }
                     if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
                         add(
                             FieldError.of(
