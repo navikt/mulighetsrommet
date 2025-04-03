@@ -104,7 +104,8 @@ fun QueryContext.setDelutbetalingStatus(
             setTilGodkjenning(dto.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
         }
 
-        DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT -> {
+
+        DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT, DelutbetalingStatus.OVERFORT_TIL_UTBETALING -> {
             setGodkjent(
                 dto.id,
                 Totrinnskontroll.Type.OPPRETT,

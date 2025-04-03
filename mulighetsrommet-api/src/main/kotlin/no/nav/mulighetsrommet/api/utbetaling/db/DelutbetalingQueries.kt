@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
+import io.grpc.InternalChannelz.id
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -113,6 +114,22 @@ class DelutbetalingQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to id,
+            "status" to status.name,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun setStatusForDelutbetalingerForBetaling(utbetalingId: UUID, status: DelutbetalingStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update delutbetaling
+            set status = :status::delutbetaling_status
+            where utbetaling_id = :utbetalingId::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "utbetalingId" to utbetalingId,
             "status" to status.name,
         )
 
