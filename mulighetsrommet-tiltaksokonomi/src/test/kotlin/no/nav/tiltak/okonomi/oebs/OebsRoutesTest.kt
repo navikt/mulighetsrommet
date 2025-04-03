@@ -189,6 +189,40 @@ class OebsRoutesTest : FunSpec({
         }
     }
 
+    test("faktura først feil så godkjent") {
+        withTestApplication(oauth) {
+            val client = createClient()
+
+            client.post("${API_BASE_PATH}/kvittering/faktura") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(bearerAuth)
+                setBody(
+                    OebsFakturaKvittering(
+                        fakturaNummer = faktura.fakturanummer,
+                        opprettelsesTidspunkt = LocalDateTime.now(),
+                        oebsStatus = "Avvist",
+                    ),
+                )
+            }.status shouldBe HttpStatusCode.OK
+            db.session { queries.faktura.getByFakturanummer(faktura.fakturanummer) }
+                ?.status shouldBe FakturaStatusType.FEILET
+
+            client.post("${API_BASE_PATH}/kvittering/faktura") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(bearerAuth)
+                setBody(
+                    OebsFakturaKvittering(
+                        fakturaNummer = faktura.fakturanummer,
+                        opprettelsesTidspunkt = LocalDateTime.now(),
+                        oebsStatus = "Godkjent",
+                    ),
+                )
+            }.status shouldBe HttpStatusCode.OK
+            db.session { queries.faktura.getByFakturanummer(faktura.fakturanummer) }
+                ?.status shouldBe FakturaStatusType.UTBETALT
+        }
+    }
+
     test("bad request ved manglende fakturaNummer") {
         withTestApplication(oauth) {
             val client = createClient()
