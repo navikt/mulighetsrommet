@@ -34,8 +34,12 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.*
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
 import java.util.*
 
@@ -298,7 +302,7 @@ class TilsagnServiceTest : FunSpec({
                 .payload.should {
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
-                    it.kostnadssted shouldBe NavEnhetNummer(request.kostnadssted)
+                    it.kostnadssted shouldBe request.kostnadssted
                     it.periode shouldBe Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
                 }
         }

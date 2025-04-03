@@ -38,13 +38,6 @@ object ForhandsgodkjenteSatser {
                 ),
                 belop = 16_848,
             ),
-            ForhandsgodkjentSats(
-                periode = Periode(
-                    LocalDate.of(2024, 1, 1),
-                    LocalDate.of(2025, 1, 1),
-                ),
-                belop = 16_231,
-            ),
         )
     }
 
@@ -56,13 +49,6 @@ object ForhandsgodkjenteSatser {
                     LocalDate.of(2026, 1, 1),
                 ),
                 belop = 20_975,
-            ),
-            ForhandsgodkjentSats(
-                periode = Periode(
-                    LocalDate.of(2024, 1, 1),
-                    LocalDate.of(2025, 1, 1),
-                ),
-                belop = 20_205,
             ),
         )
     }

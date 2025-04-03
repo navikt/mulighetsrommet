@@ -261,7 +261,7 @@ fun getRelevanteEnheterForBruker(
 
     val virtuellOppfolgingsenhet = if (
         oppfolgingsenhet != null &&
-        NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer)
+        NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer.value)
     ) {
         oppfolgingsenhet
     } else {

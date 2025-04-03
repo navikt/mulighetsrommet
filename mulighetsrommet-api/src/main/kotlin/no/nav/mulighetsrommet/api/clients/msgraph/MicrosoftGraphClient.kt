@@ -15,6 +15,7 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
@@ -220,7 +221,7 @@ class MicrosoftGraphClient(
                 navIdent = NavIdent(user.onPremisesSamAccountName),
                 fornavn = user.givenName,
                 etternavn = user.surname,
-                hovedenhetKode = user.streetAddress,
+                hovedenhetKode = NavEnhetNummer(user.streetAddress),
                 hovedenhetNavn = user.city,
                 mobilnummer = user.mobilePhone,
                 epost = user.mail,

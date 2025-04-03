@@ -14,10 +14,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.Prismodell
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.allowedAvtaletypes
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.unleash.Toggle
 import no.nav.mulighetsrommet.unleash.UnleashService
 
@@ -319,7 +316,7 @@ class AvtaleValidator(
         }
     }
 
-    private fun MutableList<FieldError>.validateNavEnheter(navEnheter: List<String>) {
+    private fun MutableList<FieldError>.validateNavEnheter(navEnheter: List<NavEnhetNummer>) {
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
@@ -338,7 +335,7 @@ class AvtaleValidator(
         }
     }
 
-    private fun resolveNavEnheter(enhetsnummer: List<String>): Map<String, NavEnhetDbo> {
+    private fun resolveNavEnheter(enhetsnummer: List<NavEnhetNummer>): Map<NavEnhetNummer, NavEnhetDbo> {
         val navEnheter = enhetsnummer.mapNotNull { navEnheterService.hentEnhet(it) }
         return navEnheter
             .filter { it.type == Norg2Type.FYLKE }

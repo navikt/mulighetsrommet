@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.util.*
 
@@ -20,7 +21,7 @@ class NavAnsattQueriesTest : FunSpec({
 
     context("NavAnsattQueries") {
         val enhet1 = NavEnhetDbo(
-            enhetsnummer = "1000",
+            enhetsnummer = NavEnhetNummer("1000"),
             navn = "Andeby",
             status = NavEnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
@@ -28,7 +29,7 @@ class NavAnsattQueriesTest : FunSpec({
         )
 
         val enhet2 = NavEnhetDbo(
-            enhetsnummer = "2000",
+            enhetsnummer = NavEnhetNummer("2000"),
             navn = "Gåseby",
             status = NavEnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
@@ -64,7 +65,7 @@ class NavAnsattQueriesTest : FunSpec({
             navIdent = NavIdent("D1"),
             fornavn = "Donald",
             etternavn = "Duck",
-            hovedenhet = "1000",
+            hovedenhet = NavEnhetNummer("1000"),
             mobilnummer = "12345678",
             epost = "donald@nav.no",
             skalSlettesDato = null,
@@ -75,7 +76,7 @@ class NavAnsattQueriesTest : FunSpec({
             navIdent = NavIdent("D2"),
             fornavn = "Dolly",
             etternavn = "Duck",
-            hovedenhet = "2000",
+            hovedenhet = NavEnhetNummer("2000"),
             mobilnummer = "12345678",
             epost = "dolly@nav.no",
             skalSlettesDato = null,
@@ -86,7 +87,7 @@ class NavAnsattQueriesTest : FunSpec({
             navIdent = NavIdent("D3"),
             fornavn = "Ole",
             etternavn = "Duck",
-            hovedenhet = "1000",
+            hovedenhet = NavEnhetNummer("1000"),
             mobilnummer = "12345678",
             epost = "ole@nav.no",
             skalSlettesDato = null,
@@ -177,14 +178,16 @@ class NavAnsattQueriesTest : FunSpec({
                 queries.upsert(ansatt3)
 
                 queries.getAll(hovedenhetIn = listOf()) shouldBe listOf()
-                queries.getAll(hovedenhetIn = listOf("1000")) shouldContainExactlyInAnyOrder listOf(
+                queries.getAll(hovedenhetIn = listOf(NavEnhetNummer("1000"))) shouldContainExactlyInAnyOrder listOf(
                     toDto(ansatt1, enhet1, setOf()),
                     toDto(ansatt3, enhet1, setOf()),
                 )
-                queries.getAll(hovedenhetIn = listOf("2000")) shouldContainExactlyInAnyOrder listOf(
+                queries.getAll(hovedenhetIn = listOf(NavEnhetNummer("2000"))) shouldContainExactlyInAnyOrder listOf(
                     toDto(ansatt2, enhet2, setOf()),
                 )
-                queries.getAll(hovedenhetIn = listOf("1000", "2000")) shouldContainExactlyInAnyOrder listOf(
+                queries.getAll(
+                    hovedenhetIn = listOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
+                ) shouldContainExactlyInAnyOrder listOf(
                     toDto(ansatt2, enhet2, setOf()),
                     toDto(ansatt1, enhet1, setOf()),
                     toDto(ansatt3, enhet1, setOf()),

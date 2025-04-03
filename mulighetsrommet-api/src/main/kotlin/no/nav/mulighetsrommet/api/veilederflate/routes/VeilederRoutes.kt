@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideRequest
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
@@ -76,7 +77,7 @@ data class NavVeilederDto(
 ) {
     @Serializable
     data class Hovedenhet(
-        val enhetsnummer: String,
+        val enhetsnummer: NavEnhetNummer,
         val navn: String,
     )
 }

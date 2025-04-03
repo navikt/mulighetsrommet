@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.sanity.EnhetSlug
 import no.nav.mulighetsrommet.api.sanity.FylkeRef
 import no.nav.mulighetsrommet.api.sanity.SanityEnhet
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 class NavEnheterSyncServiceTest : FunSpec({
 
@@ -20,7 +21,7 @@ class NavEnheterSyncServiceTest : FunSpec({
         slackNotifier = mockk(relaxed = true),
     )
 
-    fun createEnhet(enhet: String, type: Norg2Type) = Norg2EnhetDto(
+    fun createEnhet(enhet: NavEnhetNummer, type: Norg2Type) = Norg2EnhetDto(
         enhetId = Math.random().toInt(),
         enhetNr = enhet,
         navn = "Enhet $enhet",
@@ -31,28 +32,28 @@ class NavEnheterSyncServiceTest : FunSpec({
     test("skal utlede LOKAL- og FYLKE-enheter for synkronisering til sanity") {
         val mockEnheter = listOf(
             Norg2Response(
-                enhet = createEnhet("1000", Norg2Type.AAREG),
-                overordnetEnhet = "1200",
+                enhet = createEnhet(NavEnhetNummer("1000"), Norg2Type.AAREG),
+                overordnetEnhet = NavEnhetNummer("1200"),
             ),
             Norg2Response(
-                enhet = createEnhet("1001", Norg2Type.LOKAL),
-                overordnetEnhet = "1200",
+                enhet = createEnhet(NavEnhetNummer("1001"), Norg2Type.LOKAL),
+                overordnetEnhet = NavEnhetNummer("1200"),
             ),
             Norg2Response(
-                enhet = createEnhet("1200", Norg2Type.FYLKE),
+                enhet = createEnhet(NavEnhetNummer("1200"), Norg2Type.FYLKE),
                 overordnetEnhet = null,
             ),
             Norg2Response(
-                enhet = createEnhet("1291", Norg2Type.ALS),
+                enhet = createEnhet(NavEnhetNummer("1291"), Norg2Type.ALS),
                 overordnetEnhet = null,
             ),
             Norg2Response(
-                enhet = createEnhet("0387", Norg2Type.TILTAK),
+                enhet = createEnhet(NavEnhetNummer("0387"), Norg2Type.TILTAK),
                 overordnetEnhet = null,
             ),
             Norg2Response(
-                enhet = createEnhet("1002", Norg2Type.LOKAL),
-                overordnetEnhet = "1200",
+                enhet = createEnhet(NavEnhetNummer("1002"), Norg2Type.LOKAL),
+                overordnetEnhet = NavEnhetNummer("1200"),
             ),
         )
 

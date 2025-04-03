@@ -12,10 +12,7 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Prismodell
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -73,7 +70,7 @@ class TilsagnQueries(private val session: Session) {
             "status" to TilsagnStatus.TIL_GODKJENNING.name,
             "bestillingsnummer" to dbo.bestillingsnummer,
             "bestilling_status" to dbo.bestillingStatus?.name,
-            "kostnadssted" to dbo.kostnadssted,
+            "kostnadssted" to dbo.kostnadssted.value,
             "type" to dbo.type.name,
             "belop_gjenstaende" to dbo.beregning.output.belop,
             "belop_beregnet" to dbo.beregning.output.belop,
@@ -245,10 +242,10 @@ class TilsagnQueries(private val session: Session) {
                 status = stringOrNull("bestilling_status")?.let { BestillingStatusType.valueOf(it) },
             ),
             kostnadssted = NavEnhetDbo(
-                enhetsnummer = string("kostnadssted"),
+                enhetsnummer = NavEnhetNummer(string("kostnadssted")),
                 navn = string("kostnadssted_navn"),
                 type = Norg2Type.valueOf(string("kostnadssted_type")),
-                overordnetEnhet = stringOrNull("kostnadssted_overordnet_enhet"),
+                overordnetEnhet = stringOrNull("kostnadssted_overordnet_enhet")?.let { NavEnhetNummer(it) },
                 status = NavEnhetStatus.valueOf(string("kostnadssted_status")),
             ),
             arrangor = Tilsagn.Arrangor(

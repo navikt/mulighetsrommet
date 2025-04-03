@@ -11,7 +11,16 @@ import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import { AdminUtbetalingStatus, NavAnsattRolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Accordion, Alert, Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
+import {
+  Accordion,
+  Alert,
+  Box,
+  CopyButton,
+  Heading,
+  HGrid,
+  HStack,
+  VStack,
+} from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -123,20 +132,40 @@ export function UtbetalingPage() {
                         )}
                       </VStack>
                     </VStack>
-                    <VStack>
-                      <Heading size="medium" spacing>
-                        Betalingsinformasjon
-                      </Heading>
-                      <VStack gap="2">
-                        <MetadataHorisontal
-                          header="Kontonummer"
-                          verdi={utbetaling.betalingsinformasjon?.kontonummer}
-                        />
-                        <MetadataHorisontal
-                          header="KID (valgfritt)"
-                          verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
-                        />
-                      </VStack>
+                    <VStack gap="4">
+                      <>
+                        <Heading size="medium">Betalingsinformasjon</Heading>
+                        <VStack gap="2">
+                          <MetadataHorisontal
+                            header="Kontonummer"
+                            verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                          />
+                          <MetadataHorisontal
+                            header="KID (valgfritt)"
+                            verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
+                          />
+                        </VStack>
+                      </>
+                      {utbetaling.journalpostId ? (
+                        <>
+                          <Heading size="medium">Journalføring</Heading>
+                          <VStack gap="2">
+                            <MetadataHorisontal
+                              header="Journalpost-ID i Gosys"
+                              verdi={
+                                <HStack align="center" gap="1">
+                                  <CopyButton
+                                    size="small"
+                                    copyText={utbetaling.journalpostId}
+                                    title="Kopier journalpost-ID"
+                                  ></CopyButton>
+                                  {utbetaling.journalpostId}
+                                </HStack>
+                              }
+                            />
+                          </VStack>
+                        </>
+                      ) : null}
                     </VStack>
                   </HGrid>
                 </VStack>
