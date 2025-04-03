@@ -6,6 +6,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
+import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.apiRoutes
@@ -55,6 +56,7 @@ fun Application.configure(config: AppConfig) {
 
     val kafka: KafkaConsumerOrchestrator by inject()
     val producerRecordProcessor: KafkaProducerRecordProcessor by inject()
+    val shedLockLeaderElectionClient: ShedLockLeaderElectionClient by inject()
 
     val scheduler: Scheduler by inject()
 
@@ -68,7 +70,8 @@ fun Application.configure(config: AppConfig) {
     monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
-        producerRecordProcessor.start()
+        producerRecordProcessor.close()
+        shedLockLeaderElectionClient.close()
 
         db.close()
     }

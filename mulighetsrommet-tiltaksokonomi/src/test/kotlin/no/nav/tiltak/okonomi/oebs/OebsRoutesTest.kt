@@ -67,6 +67,7 @@ class OebsRoutesTest : FunSpec({
             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             gjorOppBestilling = false,
+            beskrivelse = null,
         ),
         bestilling.linjer,
     )

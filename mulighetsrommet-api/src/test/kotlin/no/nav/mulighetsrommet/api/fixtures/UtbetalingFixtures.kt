@@ -90,8 +90,8 @@ object UtbetalingFixtures {
 fun QueryContext.setDelutbetalingStatus(
     delutbetalingDbo: DelutbetalingDbo,
     status: DelutbetalingStatus,
-    behandletAv: NavIdent = NavAnsattFixture.ansatt1.navIdent,
-    besluttetAv: NavIdent = NavAnsattFixture.ansatt2.navIdent,
+    behandletAv: NavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+    besluttetAv: NavIdent = NavAnsattFixture.MikkeMus.navIdent,
     besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
 ) {
     val dto = queries.delutbetaling.get(delutbetalingDbo.id)

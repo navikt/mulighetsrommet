@@ -12,6 +12,7 @@ import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingOppstartstype,
+  NavEnhet,
   Tiltakskode,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -39,13 +40,17 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
+import { getLokaleUnderenheterAsSelectOptions } from "../avtaler/AvtaleFormConst";
+import { MultiValue } from "react-select";
+import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
   avtale: AvtaleDto;
+  enheter: NavEnhet[];
 }
 
-export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
+export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Props) {
   const { data: administratorer } = useGjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
@@ -301,11 +306,29 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
               <ControlledMultiSelect
                 inputId={"navRegioner"}
                 size="small"
-                label={gjennomforingTekster.navRegionLabel}
+                label={gjennomforingTekster.tilgjengeligIModiaLabel}
                 placeholder="Velg en"
                 {...register("navRegioner")}
                 velgAlle
                 options={regionerOptions}
+                additionalOnChange={(selectedOptions) => {
+                  if ((watch("navRegioner")?.length ?? 0) > 1) {
+                    const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
+                      selectedOptions,
+                      enheter,
+                    );
+                    setValue("navEnheter", alleLokaleUnderenheter as [string, ...string[]]);
+                  } else {
+                    const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
+                      selectedOptions,
+                      enheter,
+                    );
+                    const navEnheter = watch("navEnheter")?.filter((enhet) =>
+                      alleLokaleUnderenheter.includes(enhet ?? ""),
+                    );
+                    setValue("navEnheter", navEnheter as [string, ...string[]]);
+                  }
+                }}
               />
               <ControlledMultiSelect
                 inputId={"navEnheter"}
@@ -454,4 +477,12 @@ function SokEtterKontaktperson({
       />
     </>
   );
+}
+
+function velgAlleLokaleUnderenheter(
+  selectedOptions: MultiValue<SelectOption<string>>,
+  enheter: NavEnhet[],
+): string[] {
+  const regioner = selectedOptions?.map((option) => option.value);
+  return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }

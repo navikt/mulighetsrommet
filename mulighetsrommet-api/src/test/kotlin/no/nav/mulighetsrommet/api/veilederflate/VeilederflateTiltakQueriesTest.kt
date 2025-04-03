@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import java.util.*
 
 class VeilederflateTiltakQueriesTest : FunSpec({
@@ -47,21 +48,21 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 val veilederflateTiltakQueries = VeilederflateTiltakQueries(session)
 
                 veilederflateTiltakQueries.getAll(
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
                 queries.gjennomforing.setPublisert(Oppfolging1.id, false)
 
                 veilederflateTiltakQueries.getAll(
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 1
 
                 queries.gjennomforing.setPublisert(AFT1.id, false)
 
                 veilederflateTiltakQueries.getAll(
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 0
             }
@@ -78,14 +79,14 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ) shouldHaveSize 2
             }
         }
@@ -93,13 +94,21 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         test("skal filtrere på brukers enheter") {
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.upsert(Oppfolging1.copy(navEnheter = setOf("0400", "0502")))
-                queries.gjennomforing.upsert(AFT1.copy(navEnheter = setOf("0400", "0300")))
+                queries.gjennomforing.upsert(
+                    Oppfolging1.copy(
+                        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+                    ),
+                )
+                queries.gjennomforing.upsert(
+                    AFT1.copy(
+                        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")),
+                    ),
+                )
 
                 val queries = VeilederflateTiltakQueries(session)
 
                 queries.getAll(
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
@@ -107,19 +116,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0300"),
+                    brukersEnheter = listOf(NavEnhetNummer("0300")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0502", "0300"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502"), NavEnhetNummer("0300")),
                 ) shouldHaveSize 2
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0400"),
+                    brukersEnheter = listOf(NavEnhetNummer("0400")),
                 ) shouldHaveSize 2
             }
         }
@@ -132,14 +141,14 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     sanityTiltakstypeIds = null,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     sanityTiltakstypeIds = listOf(oppfolgingSanityId),
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
@@ -147,7 +156,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
@@ -164,7 +173,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "erik",
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
@@ -172,7 +181,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "frank aft",
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
@@ -180,7 +189,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "aft erik",
                 ).should {
                     it shouldHaveSize 0
@@ -188,7 +197,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "af",
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
@@ -206,7 +215,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = true,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
@@ -214,7 +223,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = false,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
@@ -222,7 +231,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = null,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ) shouldHaveSize 2
             }
         }
@@ -250,19 +259,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 // Riktig innsatsgruppe
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).size shouldBe 1
 
                 // Feil innsatsgruppe
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).size shouldBe 0
 
                 // Feil innsatsgruppe men sykmeldt
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                    brukersEnheter = listOf("0502"),
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
                     erSykmeldtMedArbeidsgiver = true,
                 ).size shouldBe 1
             }

@@ -28,7 +28,8 @@ class FakturaQueries(private val session: Session) {
                 behandlet_av,
                 behandlet_tidspunkt,
                 besluttet_av,
-                besluttet_tidspunkt
+                besluttet_tidspunkt,
+                beskrivelse
             ) values (
                 :fakturanummer,
                 :bestillingsnummer,
@@ -40,7 +41,8 @@ class FakturaQueries(private val session: Session) {
                 :behandlet_av,
                 :behandlet_tidspunkt,
                 :besluttet_av,
-                :besluttet_tidspunkt
+                :besluttet_tidspunkt,
+                :beskrivelse
             )
             returning id
         """
@@ -56,6 +58,7 @@ class FakturaQueries(private val session: Session) {
             "behandlet_tidspunkt" to faktura.behandletTidspunkt,
             "besluttet_av" to faktura.besluttetAv.part,
             "besluttet_tidspunkt" to faktura.besluttetTidspunkt,
+            "beskrivelse" to faktura.beskrivelse,
         )
         val fakturaId = single(queryOf(query, params)) { it.int("id") }
 
@@ -128,7 +131,8 @@ class FakturaQueries(private val session: Session) {
                 behandlet_av,
                 behandlet_tidspunkt,
                 besluttet_av,
-                besluttet_tidspunkt
+                besluttet_tidspunkt,
+                beskrivelse
             from faktura
             where fakturanummer = ?
         """.trimIndent()
@@ -155,6 +159,7 @@ class FakturaQueries(private val session: Session) {
                 besluttetAv = OkonomiPart.fromString(faktura.string("besluttet_av")),
                 besluttetTidspunkt = faktura.localDateTime("besluttet_tidspunkt"),
                 linjer = linjer,
+                beskrivelse = faktura.stringOrNull("beskrivelse"),
             )
         }
     }

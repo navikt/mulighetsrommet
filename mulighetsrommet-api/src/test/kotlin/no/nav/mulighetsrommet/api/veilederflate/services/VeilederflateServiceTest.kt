@@ -15,18 +15,14 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.sanity.CacheUsage
-import no.nav.mulighetsrommet.api.sanity.SanityArrangor
-import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
-import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
+import no.nav.mulighetsrommet.api.sanity.*
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
@@ -90,7 +86,7 @@ class VeilederflateServiceTest : FunSpec({
                     Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
-            fylke = "0300",
+            fylke = NavEnhetNummer("0300"),
             enheter = emptyList(),
             arrangor = SanityArrangor(
                 _id = UUID.randomUUID(),
@@ -122,7 +118,7 @@ class VeilederflateServiceTest : FunSpec({
                     Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
-            fylke = "0400",
+            fylke = NavEnhetNummer("0400"),
             enheter = null,
         ),
         SanityTiltaksgjennomforing(
@@ -130,7 +126,7 @@ class VeilederflateServiceTest : FunSpec({
             tiltaksgjennomforingNavn = "Arbeidstrening",
             stedForGjennomforing = null,
             tiltaksnummer = null,
-            fylke = "0400",
+            fylke = NavEnhetNummer("0400"),
             tiltakstype = SanityTiltakstype(
                 _id = "$arbeidstreningSanityId",
                 tiltakstypeNavn = "Arbeidstrening",
@@ -141,7 +137,7 @@ class VeilederflateServiceTest : FunSpec({
                     Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ),
             ),
-            enheter = listOf("0501"),
+            enheter = listOf(NavEnhetNummer("0501")),
             faneinnhold = Faneinnhold(forHvemInfoboks = "infoboks"),
         ),
     )
@@ -152,7 +148,7 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityService.getAllTiltak(any(), any()) } returns sanityTiltak
 
         val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0300"),
+            enheter = nonEmptyListOf(NavEnhetNummer("0300")),
             apentForPamelding = ApentForPamelding.APENT,
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             cacheUsage = CacheUsage.NoCache,
@@ -177,7 +173,7 @@ class VeilederflateServiceTest : FunSpec({
         coEvery { sanityService.getAllTiltak(any(), any()) } returns sanityTiltak
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0501"),
+            enheter = nonEmptyListOf(NavEnhetNummer("0501")),
             apentForPamelding = ApentForPamelding.APENT,
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
@@ -185,7 +181,7 @@ class VeilederflateServiceTest : FunSpec({
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0501"),
+            enheter = nonEmptyListOf(NavEnhetNummer("0501")),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
@@ -193,7 +189,7 @@ class VeilederflateServiceTest : FunSpec({
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0501"),
+            enheter = nonEmptyListOf(NavEnhetNummer("0501")),
             apentForPamelding = ApentForPamelding.STENGT,
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,

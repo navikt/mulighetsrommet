@@ -26,7 +26,10 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -53,29 +56,42 @@ fun Route.utbetalingRoutes() {
                     ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
 
                 val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
-                    val tilsagnBesluttetAv = queries.totrinnskontroll
-                        .getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
-                        .besluttetAv
-
                     val opprettelse = queries.totrinnskontroll
                         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
-                    val kanBesluttesAvAnsatt = tilsagnBesluttetAv != ansatt.navIdent &&
-                        opprettelse.behandletAv != ansatt.navIdent &&
-                        NavAnsattRolle.ATTESTANT_UTBETALING in ansatt.roller
+                    val kanBesluttesAvAnsatt = NavAnsattRolle.ATTESTANT_UTBETALING in ansatt.roller
 
                     UtbetalingLinje(
                         id = delutbetaling.id,
                         gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
                         belop = delutbetaling.belop,
                         status = delutbetaling.status,
-                        tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let { TilsagnDto.fromTilsagn(it) },
+                        tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                            TilsagnDto.fromTilsagn(
+                                it,
+                            )
+                        },
                         opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(opprettelse, kanBesluttesAvAnsatt),
                     )
                 }
 
+                val deltakere = when (utbetaling.beregning) {
+                    is UtbetalingBeregningForhandsgodkjent -> {
+                        val deltakereById = queries.deltaker
+                            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                            .associateBy { it.id }
+                        utbetaling.beregning.output.deltakelser.map {
+                            val deltaker = deltakereById.getValue(it.deltakelseId)
+                            toDeltakerForKostnadsfordeling(deltaker, it.manedsverk)
+                        }
+                    }
+
+                    is UtbetalingBeregningFri -> emptyList()
+                }
+
                 UtbetalingDetaljerDto(
                     utbetaling = toUtbetalingDto(utbetaling),
+                    deltakere = deltakere,
                     linjer = linjer,
                 )
             }
@@ -152,8 +168,7 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<BesluttDelutbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                service.besluttDelutbetaling(id, request, navIdent)
-                call.respond(HttpStatusCode.OK)
+                call.respondWithStatusResponse(service.besluttDelutbetaling(id, request, navIdent))
             }
         }
     }
@@ -172,9 +187,20 @@ fun Route.utbetalingRoutes() {
     }
 }
 
+private fun toDeltakerForKostnadsfordeling(
+    deltaker: Deltaker,
+    manedsverk: Double,
+): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
+    id = deltaker.gjennomforingId,
+    fnr = deltaker.norskIdent?.value,
+    status = deltaker.status.type,
+    manedsverk = manedsverk,
+)
+
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {
     val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
     val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
+
     return UtbetalingDto.fromUtbetaling(utbetaling, status)
 }
 

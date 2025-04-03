@@ -2,18 +2,19 @@ package no.nav.mulighetsrommet.api.clients.norg2
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 @Serializable
 data class Norg2Response(
     val enhet: Norg2EnhetDto,
-    val overordnetEnhet: String?,
+    val overordnetEnhet: NavEnhetNummer?,
 )
 
 @Serializable
 data class Norg2EnhetDto(
     val enhetId: Int,
     val navn: String,
-    val enhetNr: String,
+    val enhetNr: NavEnhetNummer,
     val status: Norg2EnhetStatus,
     val type: Norg2Type,
 )

@@ -7,6 +7,7 @@ import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.api.navansatt.SanityRedaktor
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -40,8 +41,8 @@ data class SanityTiltaksgjennomforing(
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
     val stedForGjennomforing: String? = null,
-    val fylke: String? = null,
-    val enheter: List<String?>? = null,
+    val fylke: NavEnhetNummer? = null,
+    val enheter: List<NavEnhetNummer?>? = null,
     val arrangor: SanityArrangor? = null,
     val kontaktpersoner: List<SanityKontaktperson>? = null,
     val faneinnhold: Faneinnhold? = null,

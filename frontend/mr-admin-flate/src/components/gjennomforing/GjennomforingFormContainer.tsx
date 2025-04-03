@@ -11,6 +11,7 @@ import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingRequest,
+  NavEnhet,
   ProblemDetail,
   Tiltakskode,
   ValidationError,
@@ -35,6 +36,7 @@ interface Props {
   avtale: AvtaleDto;
   gjennomforing?: GjennomforingDto;
   defaultValues: DeepPartial<InferredGjennomforingSchema>;
+  enheter: NavEnhet[];
 }
 
 function loggRedaktorEndrerTilgjengeligForArrangor(datoValgt: string) {
@@ -52,6 +54,7 @@ export function GjennomforingFormContainer({
   defaultValues,
   onClose,
   onSuccess,
+  enheter,
 }: Props) {
   const redigeringsModus = !!gjennomforing;
   const mutation = useUpsertGjennomforing();
@@ -145,7 +148,6 @@ export function GjennomforingFormContainer({
 
   const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
   const hasDetaljerErrors = Object.keys(errors).length > (hasRedaksjoneltInnholdErrors ? 1 : 0);
-
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -175,7 +177,11 @@ export function GjennomforingFormContainer({
             <InlineErrorBoundary>
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
                 <Box marginBlock="4">
-                  <GjennomforingFormDetaljer avtale={avtale} gjennomforing={gjennomforing} />
+                  <GjennomforingFormDetaljer
+                    avtale={avtale}
+                    gjennomforing={gjennomforing}
+                    enheter={enheter}
+                  />
                 </Box>
               </React.Suspense>
             </InlineErrorBoundary>

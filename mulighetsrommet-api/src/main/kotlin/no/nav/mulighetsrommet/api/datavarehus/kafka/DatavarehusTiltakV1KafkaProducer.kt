@@ -16,7 +16,7 @@ import java.util.*
 
 class DatavarehusTiltakV1KafkaProducer(
     private val config: Config,
-    private val kafkaProducerClient: KafkaProducerClient<String, String?>,
+    private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<String, JsonElement>(
     Config(config.consumerId, config.consumerTopic, config.consumerGroupId),
@@ -44,19 +44,19 @@ class DatavarehusTiltakV1KafkaProducer(
     private fun publishDatavarehusTiltak(id: UUID) = db.session {
         val dto = queries.dvh.getTiltak(id)
 
-        val record: ProducerRecord<String, String?> = ProducerRecord(
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.producerTopic,
-            dto.gjennomforing.id.toString(),
-            Json.encodeToString(dto),
+            dto.gjennomforing.id.toString().toByteArray(),
+            Json.encodeToString(dto).toByteArray(),
         )
 
         kafkaProducerClient.sendSync(record)
     }
 
     private fun retractDatavarehusTiltak(id: UUID) {
-        val record: ProducerRecord<String, String?> = ProducerRecord(
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.producerTopic,
-            id.toString(),
+            id.toString().toByteArray(),
             null,
         )
 

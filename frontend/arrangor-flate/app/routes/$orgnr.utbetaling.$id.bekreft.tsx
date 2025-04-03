@@ -17,7 +17,7 @@ import {
   ArrFlateUtbetaling,
   FieldError,
 } from "api-client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   ActionFunction,
   Form,
@@ -164,6 +164,7 @@ export default function BekreftUtbetaling() {
   const orgnr = useOrgnrFromUrl();
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const handleHentKontonummer = async () => {
     fetcher.load(`/api/${utbetaling.id}/sync-kontonummer`);
@@ -178,6 +179,10 @@ export default function BekreftUtbetaling() {
       revalidator.revalidate();
     }
   }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon?.kontonummer]);
+
+  if (data?.errors) {
+    errorSummaryRef.current?.focus();
+  }
 
   return (
     <>
@@ -205,6 +210,7 @@ export default function BekreftUtbetaling() {
                   defaultValue={utbetaling.betalingsinformasjon?.kontonummer}
                   maxLength={11}
                   minLength={11}
+                  id="kontonummer"
                   readOnly
                 />
                 <HStack align="start" gap="2">
@@ -269,6 +275,7 @@ export default function BekreftUtbetaling() {
               error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
               defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
               maxLength={25}
+              id="kid"
             />
           </HStack>
           <VStack gap="2" justify={"start"} align={"start"}>
@@ -276,6 +283,7 @@ export default function BekreftUtbetaling() {
               name="bekreftelse"
               value="bekreftet"
               error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
+              id="bekreftelse"
             >
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
             </Checkbox>
@@ -283,10 +291,13 @@ export default function BekreftUtbetaling() {
             <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
             <input type="hidden" name="orgnr" value={orgnr} />
             {data?.errors && data.errors.length > 0 && (
-              <ErrorSummary>
+              <ErrorSummary ref={errorSummaryRef}>
                 {data.errors.map((error: FieldError) => {
                   return (
-                    <ErrorSummary.Item key={jsonPointerToFieldPath(error.pointer)}>
+                    <ErrorSummary.Item
+                      href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                      key={jsonPointerToFieldPath(error.pointer)}
+                    >
                       {error.detail}
                     </ErrorSummary.Item>
                   );

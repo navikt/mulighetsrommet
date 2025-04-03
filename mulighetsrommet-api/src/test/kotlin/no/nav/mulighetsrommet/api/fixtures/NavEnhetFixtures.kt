@@ -3,70 +3,71 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object NavEnhetFixtures {
     val IT = NavEnhetDbo(
         navn = "IT",
-        enhetsnummer = "2990",
+        enhetsnummer = NavEnhetNummer("2990"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.DIR,
         overordnetEnhet = null,
     )
     val ITAvdelingen = NavEnhetDbo(
         navn = "IT-avdelinger",
-        enhetsnummer = "2910",
+        enhetsnummer = NavEnhetNummer("2910"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.IT,
         overordnetEnhet = null,
     )
     val Innlandet = NavEnhetDbo(
         navn = "Nav Innlandet",
-        enhetsnummer = "0400",
+        enhetsnummer = NavEnhetNummer("0400"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.FYLKE,
         overordnetEnhet = null,
     )
     val Gjovik = NavEnhetDbo(
         navn = "Nav Gjøvik",
-        enhetsnummer = "0502",
+        enhetsnummer = NavEnhetNummer("0502"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
-        overordnetEnhet = "0400",
+        overordnetEnhet = NavEnhetNummer("0400"),
     )
     val Lillehammer = NavEnhetDbo(
         navn = "Nav Lillehammer",
-        enhetsnummer = "0501",
+        enhetsnummer = NavEnhetNummer("0501"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
-        overordnetEnhet = "0400",
+        overordnetEnhet = NavEnhetNummer("0400"),
     )
     val Sel = NavEnhetDbo(
         navn = "Nav Sel",
-        enhetsnummer = "0517",
+        enhetsnummer = NavEnhetNummer("0517"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
-        overordnetEnhet = "0400",
+        overordnetEnhet = NavEnhetNummer("0400"),
     )
 
     val Oslo = NavEnhetDbo(
         navn = "Nav Oslo",
-        enhetsnummer = "0300",
+        enhetsnummer = NavEnhetNummer("0300"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.FYLKE,
         overordnetEnhet = null,
     )
     val TiltakOslo = NavEnhetDbo(
         navn = "Nav Tiltak Oslo",
-        enhetsnummer = "0387",
+        enhetsnummer = NavEnhetNummer("0387"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.TILTAK,
-        overordnetEnhet = "0300",
+        overordnetEnhet = NavEnhetNummer("0300"),
     )
     val Sagene = NavEnhetDbo(
         navn = "Nav Sagene",
-        enhetsnummer = "0314",
+        enhetsnummer = NavEnhetNummer("0314"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
-        overordnetEnhet = "0300",
+        overordnetEnhet = NavEnhetNummer("0300"),
     )
 }

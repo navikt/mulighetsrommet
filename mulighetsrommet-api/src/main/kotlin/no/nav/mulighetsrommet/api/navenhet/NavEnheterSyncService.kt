@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.sanity.EnhetSlug
 import no.nav.mulighetsrommet.api.sanity.FylkeRef
 import no.nav.mulighetsrommet.api.sanity.SanityEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
@@ -69,14 +70,14 @@ class NavEnheterSyncService(
     private fun lagreEnheter(enheter: List<Norg2Response>) = db.session {
         logger.info("Lagrer ${enheter.size} enheter til database")
 
-        enheter.forEach {
+        enheter.forEach { (enhet, overordnetEnhet) ->
             queries.enhet.upsert(
                 NavEnhetDbo(
-                    navn = it.enhet.navn,
-                    enhetsnummer = it.enhet.enhetNr,
-                    status = NavEnhetStatus.valueOf(it.enhet.status.name),
-                    type = Norg2Type.valueOf(it.enhet.type.name),
-                    overordnetEnhet = it.overordnetEnhet ?: tryResolveOverordnetEnhet(it.enhet),
+                    navn = enhet.navn,
+                    enhetsnummer = enhet.enhetNr,
+                    status = NavEnhetStatus.valueOf(enhet.status.name),
+                    type = Norg2Type.valueOf(enhet.type.name),
+                    overordnetEnhet = overordnetEnhet ?: tryResolveOverordnetEnhet(enhet),
                 ),
             )
         }
@@ -113,7 +114,7 @@ class NavEnheterSyncService(
             fylkeTilEnhet = FylkeRef(
                 _type = "reference",
                 _ref = NavEnhetUtils.toEnhetId(fylke),
-                _key = fylke.enhetNr,
+                _key = fylke.enhetNr.value,
             )
         }
 
@@ -123,7 +124,7 @@ class NavEnheterSyncService(
             navn = enhet.navn,
             nummer = EnhetSlug(
                 _type = "slug",
-                current = enhet.enhetNr,
+                current = enhet.enhetNr.value,
             ),
             type = NavEnhetUtils.toType(enhet.type.name),
             status = NavEnhetUtils.toStatus(enhet.status.name),
@@ -131,7 +132,7 @@ class NavEnheterSyncService(
         )
     }
 
-    private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): String? {
+    private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): NavEnhetNummer? {
         if (!NavEnhetUtils.isRelevantEnhetStatus(enhet.status) ||
             !listOf(Norg2Type.ALS, Norg2Type.TILTAK, Norg2Type.KO).contains(enhet.type)
         ) {
@@ -187,11 +188,12 @@ class NavEnheterSyncService(
             "5771" to "5700",
         ) + NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
 
-        val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr]
+        val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr.value]
         if (fantFylke == null && enhet.type != Norg2Type.KO) {
             slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: ${enhet.enhetNr}. En utvikler må sjekke om enheten skal mappe til et fylke.")
             return null
         }
-        return fantFylke
+
+        return fantFylke?.let { NavEnhetNummer(it) }
     }
 }

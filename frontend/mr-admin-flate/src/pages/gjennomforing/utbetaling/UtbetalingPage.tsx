@@ -1,6 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Header } from "@/components/detaljside/Header";
-import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -8,10 +8,19 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato, formaterPeriode } from "@/utils/Utils";
-import { AdminUtbetalingStatus, NavAnsattRolle } from "@mr/api-client-v2";
+import { AdminUtbetalingStatus, NavAnsattRolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Alert, Box, Heading, HGrid, HStack, List, VStack } from "@navikt/ds-react";
+import {
+  Accordion,
+  Alert,
+  Box,
+  CopyButton,
+  Heading,
+  HGrid,
+  HStack,
+  VStack,
+} from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -21,10 +30,11 @@ import {
 
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
+import { Deltakeroversikt } from "@/components/utbetaling/Deltakeroversikt";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
+import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -42,12 +52,14 @@ function useUtbetalingPageData() {
     tilsagn,
     utbetaling: utbetaling.utbetaling,
     linjer: utbetaling.linjer.toSorted((m, n) => m.id.localeCompare(n.id)),
+    deltakere: utbetaling.deltakere,
   };
 }
 
 export function UtbetalingPage() {
   const { gjennomforingId } = useParams();
-  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer } = useUtbetalingPageData();
+  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, deltakere } =
+    useUtbetalingPageData();
 
   const erSaksbehandlerOkonomi = ansatt.roller.includes(
     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
@@ -64,7 +76,6 @@ export function UtbetalingPage() {
     },
     { tittel: "Utbetaling" },
   ];
-
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -83,20 +94,6 @@ export function UtbetalingPage() {
           </HStack>
           <VStack gap="4">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            {utbetaling.status === "RETURNERT" && (
-              <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
-                <Heading size="xsmall" level="3">
-                  Utbetaling returnert
-                </Heading>
-                <List as="ol">
-                  {linjer.map((linje) => (
-                    <List.Item>
-                      <div>{`Årsaker: ${linje.opprettelse?.aarsaker}, forklaring: ${linje.opprettelse?.forklaring}`}</div>
-                    </List.Item>
-                  ))}
-                </List>
-              </Alert>
-            )}
             <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
               <VStack gap="4" id="kostnadsfordeling">
                 <VStack>
@@ -135,24 +132,58 @@ export function UtbetalingPage() {
                         )}
                       </VStack>
                     </VStack>
-                    <VStack>
-                      <Heading size="medium" spacing>
-                        Betalingsinformasjon
-                      </Heading>
-                      <VStack gap="2">
-                        <MetadataHorisontal
-                          header="Kontonummer"
-                          verdi={utbetaling.betalingsinformasjon?.kontonummer}
-                        />
-                        <MetadataHorisontal
-                          header="KID (valgfritt)"
-                          verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
-                        />
-                      </VStack>
+                    <VStack gap="4">
+                      <>
+                        <Heading size="medium">Betalingsinformasjon</Heading>
+                        <VStack gap="2">
+                          <MetadataHorisontal
+                            header="Kontonummer"
+                            verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                          />
+                          <MetadataHorisontal
+                            header="KID (valgfritt)"
+                            verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
+                          />
+                        </VStack>
+                      </>
+                      {utbetaling.journalpostId ? (
+                        <>
+                          <Heading size="medium">Journalføring</Heading>
+                          <VStack gap="2">
+                            <MetadataHorisontal
+                              header="Journalpost-ID i Gosys"
+                              verdi={
+                                <HStack align="center" gap="1">
+                                  <CopyButton
+                                    size="small"
+                                    copyText={utbetaling.journalpostId}
+                                    title="Kopier journalpost-ID"
+                                  ></CopyButton>
+                                  {utbetaling.journalpostId}
+                                </HStack>
+                              }
+                            />
+                          </VStack>
+                        </>
+                      ) : null}
                     </VStack>
                   </HGrid>
                 </VStack>
-                <Separator />
+                {deltakere.length > 0 && (
+                  <Accordion>
+                    <Accordion.Item>
+                      <Accordion.Header>Deltakeroversikt</Accordion.Header>
+                      <Accordion.Content>
+                        <Deltakeroversikt deltakere={deltakere} />
+                      </Accordion.Content>
+                    </Accordion.Item>
+                  </Accordion>
+                )}
+                {tilsagn.every((t) => t.status !== TilsagnStatus.GODKJENT) && (
+                  <Alert variant="info">
+                    Det finnes ingen godkjente tilsagn for utbetalingsperioden
+                  </Alert>
+                )}
                 {erSaksbehandlerOkonomi &&
                 [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(
                   utbetaling.status,

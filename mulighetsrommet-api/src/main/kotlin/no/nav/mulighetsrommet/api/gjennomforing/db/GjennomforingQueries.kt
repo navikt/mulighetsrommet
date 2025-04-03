@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
+import no.nav.mulighetsrommet.database.createArrayFromSelector
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -186,23 +187,21 @@ class GjennomforingQueries(private val session: Session) {
 
         batchPreparedNamedStatement(
             upsertEnhet,
-            gjennomforing.navEnheter.map { enhetId ->
-                mapOf("id" to gjennomforing.id, "enhet_id" to enhetId)
-            },
+            gjennomforing.navEnheter.map { mapOf("id" to gjennomforing.id, "enhet_id" to it.value) },
         )
 
         execute(
             queryOf(
                 deleteEnheter,
                 gjennomforing.id,
-                createTextArray(gjennomforing.navEnheter),
+                createArrayFromSelector(gjennomforing.navEnheter) { it.value },
             ),
         )
 
         val kontaktpersoner = gjennomforing.kontaktpersoner.map { kontakt ->
             mapOf(
                 "id" to gjennomforing.id,
-                "enheter" to createTextArray(kontakt.navEnheter),
+                "enheter" to createArrayFromSelector(kontakt.navEnheter) { it.value },
                 "nav_ident" to kontakt.navIdent.value,
                 "beskrivelse" to kontakt.beskrivelse,
             )
@@ -213,7 +212,7 @@ class GjennomforingQueries(private val session: Session) {
             queryOf(
                 deleteKontaktpersoner,
                 gjennomforing.id,
-                gjennomforing.kontaktpersoner.map { it.navIdent.value }.let { createTextArray(it) },
+                createArrayFromSelector(gjennomforing.kontaktpersoner) { it.navIdent.value },
             ),
         )
 
@@ -257,7 +256,11 @@ class GjennomforingQueries(private val session: Session) {
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf("id" to id, "tiltaksnummer" to tiltaksnummer, "arena_ansvarlig_enhet" to arenaAnsvarligEnhet)
+        val params = mapOf(
+            "id" to id,
+            "tiltaksnummer" to tiltaksnummer,
+            "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+        )
 
         session.execute(queryOf(query, params))
     }
@@ -299,7 +302,7 @@ class GjennomforingQueries(private val session: Session) {
     fun getAll(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
-        navEnheter: List<String> = emptyList(),
+        navEnheter: List<NavEnhetNummer> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
         statuser: List<GjennomforingStatus> = emptyList(),
         sortering: String? = null,
@@ -317,10 +320,10 @@ class GjennomforingQueries(private val session: Session) {
             "search_arrangor" to search?.trim()?.let { "%$it%" },
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "avtale_id" to avtaleId,
-            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createTextArray(it) },
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayFromSelector(it) { it.value } },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
-            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.map { it.value }?.let { createTextArray(it) },
+            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { createArrayFromSelector(it) { it.value } },
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },

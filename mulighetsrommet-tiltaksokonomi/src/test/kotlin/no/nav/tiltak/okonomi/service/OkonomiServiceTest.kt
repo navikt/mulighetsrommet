@@ -507,6 +507,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     gjorOppBestilling = false,
+    beskrivelse = "Beskrivelse",
 )
 
 private fun createGjorOppBestilling(bestillingsnummer: String) = GjorOppBestilling(

@@ -11,7 +11,10 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -23,6 +26,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -110,11 +114,11 @@ class GjennomforingServiceTest : FunSpec({
         val service = createService()
 
         test("Ingen administrator-notification hvis administratorer er samme som opprettet") {
-            val navIdent = NavAnsattFixture.ansatt1.navIdent
+            val navIdent = NavAnsattFixture.DonaldDuck.navIdent
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(navIdent),
-                navEnheter = setOf("2990"),
+                navEnheter = setOf(NavEnhetNummer("2990")),
             )
             service.upsert(gjennomforing, navIdent).shouldBeRight()
 
@@ -122,12 +126,12 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("Bare nye administratorer får notifikasjon når man endrer gjennomføring") {
-            val identAnsatt1 = NavAnsattFixture.ansatt1.navIdent
-            val identAnsatt2 = NavAnsattFixture.ansatt2.navIdent
+            val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
+            val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(identAnsatt2, identAnsatt1),
-                navEnheter = setOf("2990"),
+                navEnheter = setOf(NavEnhetNummer("2990")),
             )
             service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
 

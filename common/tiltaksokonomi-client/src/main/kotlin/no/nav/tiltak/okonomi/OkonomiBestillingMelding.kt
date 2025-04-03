@@ -98,6 +98,7 @@ data class OpprettFaktura(
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,
     val gjorOppBestilling: Boolean,
+    val beskrivelse: String?,
 ) {
     @Serializable
     data class Betalingsinformasjon(

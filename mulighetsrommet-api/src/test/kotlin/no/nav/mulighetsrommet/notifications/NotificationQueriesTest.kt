@@ -26,8 +26,8 @@ class NotificationQueriesTest : FunSpec({
         avtaler = listOf(),
     )
 
-    val user1 = NavAnsattFixture.ansatt1.navIdent
-    val user2 = NavAnsattFixture.ansatt2.navIdent
+    val user1 = NavAnsattFixture.DonaldDuck.navIdent
+    val user2 = NavAnsattFixture.MikkeMus.navIdent
 
     val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
 

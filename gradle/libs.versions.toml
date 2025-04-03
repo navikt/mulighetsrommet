@@ -1,11 +1,11 @@
 [versions]
-common-java-modules = "3.2025.03.07_13.21-bb112c97720d"
+common-java-modules = "3.2025.04.01_09.46-936a3ae3d5d9"
 flyway = "11.4.0"
 koin = "4.1.0-Beta5"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.1.20"
-ktor = "3.1.1"
+ktor = "3.1.2"
 logback = "1.5.18"
 metrics = "4.2.30"
 arrow = "2.0.1"
@@ -40,10 +40,10 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:15.3.0"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.24.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.24.1"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.50.0"
 
-hikaricp = "com.zaxxer:HikariCP:6.2.1"
+hikaricp = "com.zaxxer:HikariCP:6.3.0"
 
 koin-ktor = { module = "io.insert-koin:koin-ktor3", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
@@ -114,7 +114,7 @@ postgresql = "org.postgresql:postgresql:42.7.5"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.3.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.3.1"
 
 slack-client = "com.slack.api:slack-api-client:1.45.3"
 
@@ -123,4 +123,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.17"
 apache-poi = "org.apache.poi:poi:5.4.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.0"
 
-unleash = "io.getunleash:unleash-client-java:10.2.0"
+unleash = "io.getunleash:unleash-client-java:10.2.2"

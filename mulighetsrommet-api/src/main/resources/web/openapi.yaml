@@ -2041,7 +2041,7 @@ paths:
     post:
       tags:
         - Utbetaling
-      operationId: besluttDeltbetaling
+      operationId: besluttDelutbetaling
       requestBody:
         content:
           application/json:
@@ -5560,6 +5560,13 @@ components:
         - FEIL_BELOP
         - FEIL_ANNET
 
+    DelutbetalingReturnertAarsak:
+      type: string
+      enum:
+        - FEIL_BELOP
+        - FEIL_ANNET
+        - AUTOMATISK_RETURNERT
+
     TilsagnBeregning:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjent"
@@ -5695,12 +5702,17 @@ components:
       properties:
         utbetaling:
           $ref: "#/components/schemas/UtbetalingDto"
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakerForKostnadsfordeling"
         linjer:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingLinje"
       required:
         - utbetaling
+        - deltakere
         - linjer
 
     UtbetalingDto:
@@ -5718,6 +5730,8 @@ components:
         godkjentAvArrangorTidspunkt:
           type: string
           format: date-time
+        journalpostId:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -5733,6 +5747,23 @@ components:
         - periode
         - beregning
         - createdAt
+
+    DeltakerForKostnadsfordeling:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fnr:
+          type: string
+        status:
+          $ref: "#/components/schemas/GruppetiltakDeltakerStatus"
+        manedsverk:
+          type: number
+      required:
+        - id
+        - status
+        - manedsverk
 
     ArrFlateUtbetalingKompakt:
       type: object
@@ -6228,7 +6259,7 @@ components:
         aarsaker:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
         forklaring:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]

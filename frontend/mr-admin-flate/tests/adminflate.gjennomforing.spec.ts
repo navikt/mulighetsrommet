@@ -15,9 +15,6 @@ const fyllInnGjennomforing = async (page: Page) => {
   await page.click("input#navRegioner");
   await page.keyboard.press("Enter");
 
-  await page.click("input#navEnheter");
-  await page.keyboard.press("Enter");
-
   await page.click("input#arrangorId");
   await page.keyboard.press("Enter");
 
@@ -36,6 +33,6 @@ const fyllInnGjennomforing = async (page: Page) => {
   );
 };
 
-test("Opprett ny gjennomforing", async ({ page }) => {
+test("Opprett ny gjennomføring", async ({ page }) => {
   await fyllInnGjennomforing(page);
 });

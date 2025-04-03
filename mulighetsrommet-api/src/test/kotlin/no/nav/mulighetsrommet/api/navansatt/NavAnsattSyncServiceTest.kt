@@ -28,8 +28,20 @@ class NavAnsattSyncServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
+        navEnheter = listOf(NavEnhetFixtures.Innlandet),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+        arrangorer = listOf(),
         avtaler = listOf(),
-    )
+    ) {
+        queries.ansatt.setRoller(
+            NavAnsattFixture.DonaldDuck.navIdent,
+            setOf(TILTAKADMINISTRASJON_GENERELL),
+        )
+        queries.ansatt.setRoller(
+            NavAnsattFixture.MikkeMus.navIdent,
+            setOf(TILTAKADMINISTRASJON_GENERELL),
+        )
+    }
 
     beforeEach {
         domain.initialize(database.db)
@@ -50,8 +62,8 @@ class NavAnsattSyncServiceTest : FunSpec({
         epost = dbo.epost,
     )
 
-    val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt1)
-    val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.ansatt2)
+    val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.DonaldDuck)
+    val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.MikkeMus)
 
     val notificationTask: NotificationTask = mockk()
     val sanityService: SanityService = mockk(relaxed = true)

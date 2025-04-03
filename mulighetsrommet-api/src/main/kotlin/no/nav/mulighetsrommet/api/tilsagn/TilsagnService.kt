@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
@@ -22,10 +23,12 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.tiltak.okonomi.*
 import java.time.LocalDateTime
 import java.util.*
@@ -46,7 +49,8 @@ class TilsagnService(
                 .nel()
                 .left()
 
-        val minTilsagnCreationDate = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
+        val minTilsagnCreationDate =
+            config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
         if (minTilsagnCreationDate == null) {
             return FieldError
                 .of(
@@ -153,24 +157,28 @@ class TilsagnService(
 
             TilsagnStatus.TIL_ANNULLERING -> {
                 when (besluttelse.besluttelse) {
-                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent).right()
-                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent).right()
+                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
+                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent)
                 }
             }
 
             TilsagnStatus.TIL_OPPGJOR -> {
+                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+                if (oppgjor.behandletAv == navIdent) {
+                    return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+                }
+
                 when (besluttelse.besluttelse) {
                     Besluttelse.GODKJENT ->
                         gjorOppTilsagn(tilsagn, navIdent)
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
                                 // når vi gjør opp på en delutbetaling.
-                                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-                                storeGjorOppBestilling(it, oppgjor)
+                                storeGjorOppBestilling(it, queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP))
                             }
                             .right()
 
-                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent).right()
+                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent)
                 }
             }
         }
@@ -181,7 +189,7 @@ class TilsagnService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         if (besluttetAv == opprettelse.behandletAv) {
-            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         val besluttetOpprettelse = opprettelse.copy(
@@ -208,7 +216,7 @@ class TilsagnService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         if (besluttetAv == opprettelse.behandletAv) {
-            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
         if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
@@ -230,12 +238,12 @@ class TilsagnService(
         dto.right()
     }
 
-    private fun QueryContext.annullerTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): Tilsagn {
+    private fun QueryContext.annullerTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): StatusResponse<Tilsagn> {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-        require(besluttetAv != annullering.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
+        if (besluttetAv == annullering.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         val besluttetAnnullering = annullering.copy(
@@ -250,15 +258,15 @@ class TilsagnService(
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)
-        return dto
+        return dto.right()
     }
 
-    private fun QueryContext.avvisAnnullering(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn {
+    private fun QueryContext.avvisAnnullering(tilsagn: Tilsagn, besluttetAv: Agent): StatusResponse<Tilsagn> {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-        require(besluttetAv != annullering.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
+        if (besluttetAv == annullering.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -272,7 +280,7 @@ class TilsagnService(
 
         val dto = getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, besluttetAv)
-        return dto
+        return dto.right()
     }
 
     private fun QueryContext.setTilOppgjort(
@@ -313,9 +321,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-        require(besluttetAv !is NavIdent || besluttetAv != oppgjor.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
-        }
 
         queries.totrinnskontroll.upsert(
             oppgjor.copy(
@@ -331,12 +336,12 @@ class TilsagnService(
         return dto
     }
 
-    private fun avvisOppgjor(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn = db.transaction {
+    private fun avvisOppgjor(tilsagn: Tilsagn, besluttetAv: Agent): StatusResponse<Tilsagn> = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-        require(besluttetAv != oppgjor.behandletAv) {
-            "Kan ikke beslutte eget tilsagn"
+        if (besluttetAv == oppgjor.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -350,7 +355,7 @@ class TilsagnService(
 
         val dto = getOrError(tilsagn.id)
         logEndring("Oppgjør avvist", dto, besluttetAv)
-        return dto
+        return dto.right()
     }
 
     fun gjorOppAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
@@ -456,7 +461,7 @@ class TilsagnService(
             },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,
-            kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
+            kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.belop,
             periode = tilsagn.periode,
@@ -482,7 +487,10 @@ class TilsagnService(
             besluttetTidspunkt = annullering.besluttetTidspunkt,
         )
 
-        storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
+        storeOkonomiMelding(
+            tilsagn.bestilling.bestillingsnummer,
+            OkonomiBestillingMelding.Annullering(annullerBestilling),
+        )
     }
 
     private fun QueryContext.storeGjorOppBestilling(tilsagn: Tilsagn, oppgjor: Totrinnskontroll) {

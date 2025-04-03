@@ -4,12 +4,14 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
 data class UtbetalingDetaljerDto(
     val utbetaling: UtbetalingDto,
+    val deltakere: List<DeltakerForKostnadsfordeling>,
     val linjer: List<UtbetalingLinje>,
 )
 
@@ -22,4 +24,13 @@ data class UtbetalingLinje(
     val belop: Int,
     val gjorOppTilsagn: Boolean,
     val opprettelse: TotrinnskontrollDto,
+)
+
+@Serializable
+data class DeltakerForKostnadsfordeling(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val fnr: String?,
+    val status: DeltakerStatus.Type,
+    val manedsverk: Double,
 )

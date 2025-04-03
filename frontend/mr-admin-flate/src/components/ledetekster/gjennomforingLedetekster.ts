@@ -16,8 +16,7 @@ export const gjennomforingTekster = {
   estimertVentetidLabel: "Estimert ventetid",
   administratorerForGjennomforingenLabel: "Administratorer for gjennomføringen",
   ingenAdministratorerSattForGjennomforingenLabel: "Ingen administratorer satt for gjennomføringen",
-  navRegionLabel: "Nav-region",
-  fylkessamarbeidLabel: "Fylkessamarbeid",
+  tilgjengeligIModiaLabel: "Tilgjengelig i Modia for:",
   navEnheterKontorerLabel: "Nav-enheter (kontorer)",
   ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   kontaktpersonNav: {

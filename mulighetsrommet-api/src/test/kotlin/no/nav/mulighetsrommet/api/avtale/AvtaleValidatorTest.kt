@@ -33,7 +33,7 @@ class AvtaleValidatorTest : FunSpec({
             NavEnhetFixtures.Innlandet,
             NavEnhetFixtures.Gjovik,
         ),
-        ansatte = listOf(NavAnsattFixture.ansatt1),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck),
         arrangorer = listOf(
             ArrangorFixtures.hovedenhet,
             ArrangorFixtures.underenhet1,
@@ -57,10 +57,10 @@ class AvtaleValidatorTest : FunSpec({
         sakarkivNummer = SakarkivNummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
-        administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         avtaletype = Avtaletype.Rammeavtale,
         prisbetingelser = null,
-        navEnheter = listOf("0400", "0502"),
+        navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         antallPlasser = null,
         beskrivelse = null,
         faneinnhold = null,
@@ -159,7 +159,7 @@ class AvtaleValidatorTest : FunSpec({
         val validator = createValidator()
 
         val dbo = avtaleDbo.copy(
-            navEnheter = listOf("0300", "0502"),
+            navEnheter = listOf(NavEnhetNummer("0300"), NavEnhetNummer("0502")),
         )
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -535,11 +535,15 @@ class AvtaleValidatorTest : FunSpec({
             test("skal godta at gjennomføring har andre Nav-enheter enn avtalen") {
                 MulighetsrommetTestDomain(
                     avtaler = listOf(avtaleDbo),
-                    gjennomforinger = listOf(gjennomforing.copy(navEnheter = setOf("0400", "0502"))),
+                    gjennomforinger = listOf(
+                        gjennomforing.copy(
+                            navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+                        ),
+                    ),
                 ).initialize(database.db)
 
                 val dbo = avtaleDbo.copy(
-                    navEnheter = listOf("0400"),
+                    navEnheter = listOf(NavEnhetNummer("0400")),
                 )
 
                 val previous = database.run { queries.avtale.get(avtaleDbo.id) }
@@ -551,12 +555,12 @@ class AvtaleValidatorTest : FunSpec({
 
     test("Slettede administratorer valideres") {
         MulighetsrommetTestDomain(
-            ansatte = listOf(NavAnsattFixture.ansatt1.copy(skalSlettesDato = LocalDate.now())),
+            ansatte = listOf(NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now())),
             avtaler = listOf(avtaleDbo),
         ).initialize(database.db)
 
         val dbo = avtaleDbo.copy(
-            navEnheter = listOf("0400"),
+            navEnheter = listOf(NavEnhetNummer("0400")),
             administratorer = listOf(NavIdent("DD1")),
         )
 

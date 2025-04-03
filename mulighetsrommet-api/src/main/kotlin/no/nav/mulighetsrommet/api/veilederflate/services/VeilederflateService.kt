@@ -13,10 +13,7 @@ import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.Innsatsgruppe
-import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.*
 import java.util.*
 
 class VeilederflateService(
@@ -55,7 +52,7 @@ class VeilederflateService(
     }
 
     suspend fun hentTiltaksgjennomforinger(
-        enheter: NonEmptyList<String>,
+        enheter: NonEmptyList<NavEnhetNummer>,
         tiltakstypeIds: List<String>? = null,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
@@ -82,7 +79,7 @@ class VeilederflateService(
     }
 
     private suspend fun hentSanityTiltak(
-        enheter: NonEmptyList<String>,
+        enheter: NonEmptyList<NavEnhetNummer>,
         tiltakstypeIds: List<String>?,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding,
@@ -96,7 +93,7 @@ class VeilederflateService(
 
         val sanityGjennomforinger = sanityService.getAllTiltak(search, cacheUsage)
 
-        val fylker = enheter.map {
+        val fylker = enheter.mapNotNull {
             navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
         }
 
@@ -114,7 +111,7 @@ class VeilederflateService(
     }
 
     private fun hentGruppetiltak(
-        enheter: NonEmptyList<String>,
+        enheter: NonEmptyList<NavEnhetNummer>,
         tiltakstypeIds: List<String>?,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding,
@@ -164,7 +161,8 @@ class VeilederflateService(
                 VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,
                     telefon = it.telefonnummer,
-                    enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
+                    // TODO: enhet fra kontaktperson i sanity er ikke kodet som et enhetsnummer og kan derfor ikke benyttes til å hente enhet her enda
+                    enhet = null, // it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
                     epost = it.epost,
                     beskrivelse = it.beskrivelse,
                 )

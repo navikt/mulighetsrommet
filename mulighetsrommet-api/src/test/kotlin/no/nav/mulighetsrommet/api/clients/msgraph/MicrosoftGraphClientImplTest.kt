@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.*
@@ -40,7 +41,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
             navIdent = NavIdent("DD123456"),
             fornavn = "Donald",
             etternavn = "Duck",
-            hovedenhetKode = "0400",
+            hovedenhetKode = NavEnhetNummer("0400"),
             hovedenhetNavn = "Andeby",
             mobilnummer = "12345678",
             epost = "donald.duck@nav.no",
