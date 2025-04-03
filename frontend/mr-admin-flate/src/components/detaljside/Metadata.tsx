@@ -27,7 +27,7 @@ export function Separator({ style, classname }: { style?: any; classname?: strin
 
 export function MetadataHorisontal({ header, verdi }: MetadataProps) {
   return (
-    <HGrid columns="0.2fr 1fr" gap="2" align="start">
+    <HGrid columns="0.2fr 1fr" gap="2" align="center">
       <Box minWidth="220px">
         <dt>{header}:</dt>
       </Box>

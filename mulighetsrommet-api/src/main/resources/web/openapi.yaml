@@ -5730,6 +5730,8 @@ components:
         godkjentAvArrangorTidspunkt:
           type: string
           format: date-time
+        journalpostId:
+          type: string
         createdAt:
           type: string
           format: date-time
