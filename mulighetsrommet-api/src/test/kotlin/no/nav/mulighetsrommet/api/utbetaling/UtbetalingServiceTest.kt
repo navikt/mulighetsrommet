@@ -93,7 +93,7 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
 
-            service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1))
+            service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1))
 
             database.run {
                 queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(0)
@@ -108,31 +108,31 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 1, 31),
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1))
+            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1))
                 .shouldHaveSize(1)
                 .first()
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
+            utbetaling.fristForGodkjenning shouldBe LocalDateTime.of(2025, 4, 1, 0, 0, 0)
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningForhandsgodkjent.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                sats = 20205,
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                sats = 20975,
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1)),
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
                         ),
@@ -147,15 +147,15 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 2, 28),
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.betalingsinformasjon.kid shouldBe null
@@ -168,7 +168,7 @@ class UtbetalingServiceTest : FunSpec({
                 )
             }
 
-            val sisteKrav = service.genererUtbetalingForMonth(LocalDate.of(2024, 2, 1)).first()
+            val sisteKrav = service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
         }
@@ -179,22 +179,22 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 1, 31),
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 1, 15),
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 15),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 40.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
-                        sluttDato = LocalDate.of(2024, 12, 31),
+                        sluttDato = LocalDate.of(2025, 12, 31),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 50.0,
                     ),
@@ -207,15 +207,15 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 1, 31),
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatus.Type.IKKE_AKTUELL,
                         deltakelsesprosent = 100.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
-                        sluttDato = LocalDate.of(2024, 12, 31),
+                        sluttDato = LocalDate.of(2025, 12, 31),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 10.0,
                         deltakelsesmengder = listOf(
@@ -225,17 +225,17 @@ class UtbetalingServiceTest : FunSpec({
                                 opprettetTidspunkt = LocalDateTime.now(),
                             ),
                             DeltakerDbo.Deltakelsesmengde(
-                                gyldigFra = LocalDate.of(2024, 1, 10),
+                                gyldigFra = LocalDate.of(2025, 1, 10),
                                 deltakelsesprosent = 15.0,
                                 opprettetTidspunkt = LocalDateTime.now(),
                             ),
                             DeltakerDbo.Deltakelsesmengde(
-                                gyldigFra = LocalDate.of(2024, 1, 20),
+                                gyldigFra = LocalDate.of(2025, 1, 20),
                                 deltakelsesprosent = 10.0,
                                 opprettetTidspunkt = LocalDateTime.now(),
                             ),
                             DeltakerDbo.Deltakelsesmengde(
-                                gyldigFra = LocalDate.of(2024, 2, 1),
+                                gyldigFra = LocalDate.of(2025, 2, 1),
                                 deltakelsesprosent = 5.0,
                                 opprettetTidspunkt = LocalDateTime.now(),
                             ),
@@ -244,7 +244,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser shouldBe setOf(
@@ -252,7 +252,7 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1)),
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
                         ),
@@ -261,7 +261,7 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[1].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 16)),
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
                                 deltakelsesprosent = 40.0,
                             ),
                         ),
@@ -270,7 +270,7 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[2].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1)),
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 50.0,
                             ),
                         ),
@@ -279,15 +279,15 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[5].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 10)),
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)),
                                 deltakelsesprosent = 20.0,
                             ),
                             DeltakelsePeriode(
-                                periode = Periode(LocalDate.of(2024, 1, 10), LocalDate.of(2024, 1, 20)),
+                                periode = Periode(LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 20)),
                                 deltakelsesprosent = 15.0,
                             ),
                             DeltakelsePeriode(
-                                periode = Periode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 1)),
+                                periode = Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 10.0,
                             ),
                         ),
@@ -302,8 +302,8 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 2, 1),
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 2, 1),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 10.0,
                         deltakelsesmengder = listOf(
@@ -313,7 +313,7 @@ class UtbetalingServiceTest : FunSpec({
                                 opprettetTidspunkt = LocalDateTime.now(),
                             ),
                             DeltakerDbo.Deltakelsesmengde(
-                                gyldigFra = LocalDate.of(2024, 1, 15),
+                                gyldigFra = LocalDate.of(2025, 1, 15),
                                 deltakelsesprosent = 10.0,
                                 opprettetTidspunkt = LocalDateTime.now(),
                             ),
@@ -323,27 +323,27 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 queries.gjennomforing.setStengtHosArrangor(
                     AFT1.id,
-                    Periode(LocalDate.of(2023, 12, 10), LocalDate.of(2024, 1, 10)),
+                    Periode(LocalDate.of(2023, 12, 10), LocalDate.of(2025, 1, 10)),
                     "Ferie 1",
                 )
                 queries.gjennomforing.setStengtHosArrangor(
                     AFT1.id,
-                    Periode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 20)),
+                    Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 20)),
                     "Ferie 2",
                 )
                 queries.gjennomforing.setStengtHosArrangor(
                     AFT1.id,
-                    Periode(LocalDate.of(2024, 2, 20), LocalDate.of(2024, 3, 20)),
+                    Periode(LocalDate.of(2025, 2, 20), LocalDate.of(2025, 3, 20)),
                     "Fremtidig ferie",
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.stengt shouldBe setOf(
-                    StengtPeriode(Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 10)), "Ferie 1"),
-                    StengtPeriode(Periode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 1)), "Ferie 2"),
+                    StengtPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)), "Ferie 1"),
+                    StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie 2"),
                 )
             }
         }
@@ -354,18 +354,18 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 1, 31),
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
-                it.belop shouldBe 20205
+                it.belop shouldBe 20975
                 it.deltakelser shouldBe setOf(
                     DeltakelseManedsverk(
                         deltakelseId = domain.deltakere[0].id,
@@ -396,14 +396,14 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).shouldHaveSize(1)
+            service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(1) }
 
-            service.genererUtbetalingForMonth(LocalDate.of(2024, 2, 1)).shouldHaveSize(1)
+            service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
 
             // Februar finnes allerede så ingen nye
-            service.genererUtbetalingForMonth(LocalDate.of(2024, 2, 1)).shouldHaveSize(0)
+            service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).shouldHaveSize(0)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
         }
 
@@ -413,22 +413,22 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 2, 1),
-                        sluttDato = LocalDate.of(2024, 6, 1),
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 6, 1),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
-                        sluttDato = LocalDate.of(2024, 2, 1),
+                        sluttDato = LocalDate.of(2025, 2, 1),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
@@ -445,8 +445,8 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 6, 1),
-                        sluttDato = LocalDate.of(2024, 6, 30),
+                        startDato = LocalDate.of(2025, 6, 1),
+                        sluttDato = LocalDate.of(2025, 6, 30),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
@@ -459,13 +459,13 @@ class UtbetalingServiceTest : FunSpec({
                 val utbetaling = service.createUtbetalingForhandsgodkjent(
                     utbetalingId = utbetalingId,
                     gjennomforingId = AFT1.id,
-                    periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
+                    periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
                 )
                 queries.utbetaling.upsert(utbetaling)
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20205
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20975
 
                 val updatedDeltaker = domain.deltakere[0].copy(
-                    sluttDato = LocalDate.of(2024, 6, 15),
+                    sluttDato = LocalDate.of(2025, 6, 15),
                 )
                 queries.deltaker.upsert(updatedDeltaker)
             }
@@ -475,7 +475,7 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
                 utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
-                    it.belop shouldBe 10103
+                    it.belop shouldBe 10488
                     it.deltakelser shouldBe setOf(
                         DeltakelseManedsverk(
                             deltakelseId = domain.deltakere[0].id,
@@ -492,8 +492,8 @@ class UtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 6, 1),
-                        sluttDato = LocalDate.of(2024, 6, 30),
+                        startDato = LocalDate.of(2025, 6, 1),
+                        sluttDato = LocalDate.of(2025, 6, 30),
                         statusType = DeltakerStatus.Type.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
@@ -506,13 +506,13 @@ class UtbetalingServiceTest : FunSpec({
                 val utbetaling = service.createUtbetalingForhandsgodkjent(
                     utbetalingId = utbetalingId,
                     gjennomforingId = AFT1.id,
-                    periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
+                    periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
                 )
                 queries.utbetaling.upsert(utbetaling)
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20205
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20975
 
                 val updatedDeltaker = domain.deltakere[0].copy(
-                    sluttDato = LocalDate.of(2024, 6, 15),
+                    sluttDato = LocalDate.of(2025, 6, 15),
                 )
                 queries.deltaker.upsert(updatedDeltaker)
 
@@ -524,7 +524,7 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
                 utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
-                    it.belop shouldBe 20205
+                    it.belop shouldBe 20975
                     it.deltakelser shouldBe setOf(
                         DeltakelseManedsverk(
                             deltakelseId = domain.deltakere[0].id,
@@ -759,14 +759,14 @@ class UtbetalingServiceTest : FunSpec({
 
         test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
             val tilsagn1 = Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
             val tilsagn2 = Tilsagn2.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
 
             val utbetaling = utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
                     input = UtbetalingBeregningFri.Input(10),
                     output = UtbetalingBeregningFri.Output(10),
@@ -811,13 +811,13 @@ class UtbetalingServiceTest : FunSpec({
 
         test("ny send til godkjenning sletter rader som ikke er med") {
             val tilsagn1 = Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
             val tilsagn2 = Tilsagn2.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
             val utbetaling = utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
                     input = UtbetalingBeregningFri.Input(10),
                     output = UtbetalingBeregningFri.Output(10),
@@ -882,13 +882,13 @@ class UtbetalingServiceTest : FunSpec({
 
         test("returner returnerer alle delutbetalinger (selv godkjente)") {
             val tilsagn1 = Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
             val tilsagn2 = Tilsagn2.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
             val utbetaling = utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
                     input = UtbetalingBeregningFri.Input(10),
                     output = UtbetalingBeregningFri.Output(10),
@@ -939,21 +939,21 @@ class UtbetalingServiceTest : FunSpec({
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
             val tilsagn1 = Tilsagn2.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                bestillingsnummer = "A-2024/1-1",
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                bestillingsnummer = "A-2025/1-1",
             )
 
             val tilsagn2 = Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                bestillingsnummer = "A-2024/1-2",
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                bestillingsnummer = "A-2025/1-2",
             )
 
             val utbetaling1 = utbetaling1.copy(
-                periode = Periode(LocalDate.of(2023, 12, 15), LocalDate.of(2024, 1, 15)),
+                periode = Periode(LocalDate.of(2023, 12, 15), LocalDate.of(2025, 1, 15)),
             )
 
             val utbetaling2 = utbetaling2.copy(
-                periode = Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 15)),
+                periode = Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 15)),
             )
 
             val domain = MulighetsrommetTestDomain(
@@ -1008,21 +1008,21 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
                     second.belop shouldBe 50
-                    second.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
+                    second.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
                     second.lopenummer shouldBe 1
-                    second.faktura.fakturanummer shouldBe "A-2024/1-2-1"
+                    second.faktura.fakturanummer shouldBe "A-2025/1-2-1"
 
                     first.belop shouldBe 50
-                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
+                    first.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
                     first.lopenummer shouldBe 1
-                    first.faktura.fakturanummer shouldBe "A-2024/1-1-1"
+                    first.faktura.fakturanummer shouldBe "A-2025/1-1-1"
                 }
 
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).should { (first) ->
                     first.belop shouldBe 100
                     first.lopenummer shouldBe 2
-                    first.faktura.fakturanummer shouldBe "A-2024/1-1-2"
-                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 1))
+                    first.faktura.fakturanummer shouldBe "A-2025/1-1-2"
+                    first.periode shouldBe Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1))
                 }
             }
         }
