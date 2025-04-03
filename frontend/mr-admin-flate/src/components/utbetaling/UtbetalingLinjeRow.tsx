@@ -4,14 +4,7 @@ import {
   formaterPeriodeStart,
   tilsagnTypeToString,
 } from "@/utils/Utils";
-import {
-  DelutbetalingReturnertAarsak,
-  DelutbetalingStatus,
-  FieldError,
-  TotrinnskontrollBesluttetDto,
-  TotrinnskontrollDto,
-  UtbetalingLinje,
-} from "@mr/api-client-v2";
+import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -27,9 +20,8 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
-import { Metadata } from "../detaljside/Metadata";
-import { DelutbetalingTag } from "./DelutbetalingTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
+import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
   readOnly?: boolean;
