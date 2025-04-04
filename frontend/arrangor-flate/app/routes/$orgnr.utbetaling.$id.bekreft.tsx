@@ -82,7 +82,10 @@ export const loader: LoaderFunction = async ({
     throw problemDetailResponse(tilsagnError);
   }
 
-  return { utbetaling, tilsagn };
+  return {
+    utbetaling,
+    tilsagn,
+  };
 };
 
 export const action: ActionFunction = async ({ request }) => {
