@@ -22,7 +22,7 @@ data class ArrangorflateTilsagnDto(
     val beregning: TilsagnBeregning,
     val arrangor: Arrangor,
     val status: StatusOgAarsaker,
-    val bestillingsnummer: String
+    val bestillingsnummer: String,
 ) {
     @Serializable
     data class Arrangor(
