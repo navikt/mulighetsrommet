@@ -66,9 +66,9 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter-manager
-        - application: <todo-oebs-application-name>
-          namespace: <todo-oebs-namespace>
-          cluster: dev-fss
+        - application: oebs-po-ap-api-q1
+          namespace: team-oebs
+          cluster: prod-fss
           permissions:
             roles:
               - oebs-api
