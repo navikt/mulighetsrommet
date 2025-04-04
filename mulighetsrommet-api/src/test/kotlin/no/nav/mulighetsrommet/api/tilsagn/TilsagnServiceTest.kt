@@ -125,6 +125,34 @@ class TilsagnServiceTest : FunSpec({
             )
         }
 
+        test("tilsagnet kan ikke slutte etter gjennomføringen") {
+            val service = createTilsagnService()
+
+            val gjennomforing = AFT1.copy(
+                startDato = LocalDate.of(2025, 1, 1),
+                sluttDato = LocalDate.of(2025, 2, 1),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            val invalidRequest = request.copy(
+                gjennomforingId = gjennomforing.id,
+                periodeStart = LocalDate.of(2025, 1, 1),
+                periodeSlutt = LocalDate.of(2025, 3, 1),
+            )
+
+            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/periodeSlutt",
+                    detail = "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
+                ),
+            )
+        }
+
         test("tilsagnet kan ikke starte før konfigurert minimum dato for tilsagn") {
             val service = createTilsagnService()
 
