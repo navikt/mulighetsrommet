@@ -61,7 +61,7 @@ export function TilsagnForGjennomforingContainer() {
         <TilsagnTabell tilsagn={tilsagnForGjennomforing.data} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
-          Det finnes ingen tilsagn for dette tiltaket
+          Det finnes ingen tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
         </Alert>
       )}
     </>
