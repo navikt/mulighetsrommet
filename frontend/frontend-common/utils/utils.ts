@@ -15,7 +15,7 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
 }
 
 export function formaterNOK(tall: number) {
-  return `${formaterTall(tall)} (NOK)`;
+  return `${formaterTall(tall)} NOK`;
 }
 
 export function formaterTall(tall: number) {

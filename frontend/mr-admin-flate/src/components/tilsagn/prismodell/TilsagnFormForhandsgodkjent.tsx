@@ -71,7 +71,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
       <TextField
         size="small"
         type="number"
-        label="Sats"
+        label="Sats (NOK)"
         style={{ width: "180px" }}
         readOnly={true}
         error={errors.beregning?.sats?.message}
