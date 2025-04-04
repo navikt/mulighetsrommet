@@ -325,6 +325,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       slutt: "2024-12-31",
     },
     status: { status: TilsagnStatus.GODKJENT },
+    bestillingsnummer: "A-2024/10354-5",
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
@@ -362,6 +363,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       slutt: "2024-08-31",
     },
     status: { status: TilsagnStatus.GODKJENT },
+    bestillingsnummer: "A-2024/10354-5",
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
@@ -399,6 +401,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       slutt: "2024-08-31",
     },
     status: { status: TilsagnStatus.GODKJENT },
+    bestillingsnummer: "A-2024/10354-5",
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
