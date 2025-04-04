@@ -12,5 +12,7 @@ enum class BestillingStatusType {
     SENDT,
     AKTIV,
     ANNULLERT,
+    ANNULLERING_SENDT,
     OPPGJORT,
+    FEILET,
 }

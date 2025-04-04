@@ -8,6 +8,8 @@ metadata:
 spec:
   image: "{{image}}"
   port: 8080
+  ingresses:
+    - https://mulighetsrommet-tiltaksokonomi.intern.dev.nav.no
   secureLogs:
     enabled: true
   prometheus:
@@ -66,6 +68,12 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter-manager
+        - application: oebs-po-ap-api-q1
+          namespace: team-oebs
+          cluster: dev-fss
+          permissions:
+            roles:
+              - oebs-api
     outbound:
       external:
         - host: data.brreg.no

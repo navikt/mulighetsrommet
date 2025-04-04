@@ -66,6 +66,12 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter-manager
+        - application: oebs-po-ap-api-q1
+          namespace: team-oebs
+          cluster: prod-fss
+          permissions:
+            roles:
+              - oebs-api
     outbound:
       external:
         - host: data.brreg.no

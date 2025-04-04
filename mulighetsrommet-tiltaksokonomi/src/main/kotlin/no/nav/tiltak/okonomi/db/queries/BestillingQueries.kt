@@ -124,6 +124,26 @@ class BestillingQueries(private val session: Session) {
         session.execute(queryOf(query, status.name, bestillingsnummer))
     }
 
+    fun setFeilmelding(
+        bestillingsnummer: String,
+        feilKode: String?,
+        feilMelding: String?,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            update bestilling set
+                feil_kode = :feil_kode,
+                feil_melding = :feil_melding
+            where bestillingsnummer = :bestillingsnummer
+        """.trimIndent()
+        val params = mapOf(
+            "bestillingsnummer" to bestillingsnummer,
+            "feil_kode" to feilKode,
+            "feil_melding" to feilMelding,
+        )
+        session.execute(queryOf(query, params))
+    }
+
     fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
         @Language("PostgreSQL")
         val selectLinje = """
