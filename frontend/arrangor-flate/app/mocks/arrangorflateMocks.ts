@@ -314,18 +314,19 @@ const mockKrav: ArrFlateUtbetaling[] = [
   },
 ];
 
-const mockTilsagn: ArrangorflateTilsagn[] = [
+// Mock data with all TilsagnStatus values
+export const mockTilsagn: ArrangorflateTilsagn[] = [
   {
     id: uuid(),
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
     periode: {
-      start: "2024-06-01",
+      start: "2024-07-01",
       slutt: "2024-12-31",
     },
     status: { status: TilsagnStatus.GODKJENT },
-    bestillingsnummer: "A-2024/10354-5",
+    bestillingsnummer: "A-2024/10354-2",
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
@@ -336,34 +337,35 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       input: {
         type: "FORHANDSGODKJENT",
         periode: {
-          start: "2024-06-01",
+          start: "2024-07-01",
           slutt: "2024-12-31",
         },
-        antallPlasser: 20,
+        antallPlasser: 15,
         sats: 20205,
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 195700,
+        belop: 150000,
       },
     },
     gjenstaendeBelop: 100000,
     gjennomforing: {
-      navn: "Amo tiltak Halden",
+      navn: "AFT tiltak Halden",
     },
     type: TilsagnType.TILSAGN,
   },
+
   {
-    id: "80a49868-0d06-4243-bc39-7ac33fbada88",
+    id: uuid(),
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
     periode: {
-      start: "2024-08-01",
-      slutt: "2024-08-31",
+      start: "2024-09-01",
+      slutt: "2024-12-31",
     },
-    status: { status: TilsagnStatus.GODKJENT },
-    bestillingsnummer: "A-2024/10354-5",
+    status: { status: TilsagnStatus.TIL_ANNULLERING },
+    bestillingsnummer: "A-2024/10354-4",
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
@@ -374,10 +376,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       input: {
         type: "FORHANDSGODKJENT",
         periode: {
-          start: "2024-08-01",
-          slutt: "2024-08-31",
+          start: "2024-09-01",
+          slutt: "2024-12-31",
         },
-        antallPlasser: 2,
+        antallPlasser: 5,
         sats: 20205,
       },
       output: {
@@ -387,7 +389,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     gjenstaendeBelop: 50000,
     gjennomforing: {
-      navn: "Amo tiltak Halden",
+      navn: "AFT tiltak Sarpsborg",
     },
     type: TilsagnType.TILSAGN,
   },
@@ -397,10 +399,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Arbeidsforberedende trening",
     },
     periode: {
-      start: "2024-08-01",
-      slutt: "2024-08-31",
+      start: "2024-10-01",
+      slutt: "2024-12-31",
     },
-    status: { status: TilsagnStatus.GODKJENT },
+    status: { status: TilsagnStatus.ANNULLERT },
     bestillingsnummer: "A-2024/10354-5",
     arrangor: {
       id: uuid(),
@@ -412,22 +414,98 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       input: {
         type: "FORHANDSGODKJENT",
         periode: {
-          start: "2024-08-01",
-          slutt: "2024-08-31",
+          start: "2024-10-01",
+          slutt: "2024-12-31",
+        },
+        antallPlasser: 3,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 30000,
+      },
+    },
+    gjenstaendeBelop: 0,
+    gjennomforing: {
+      navn: "AFT tiltak Råde",
+    },
+    type: TilsagnType.TILSAGN,
+  },
+  {
+    id: uuid(),
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    periode: {
+      start: "2024-11-01",
+      slutt: "2024-12-31",
+    },
+    status: { status: TilsagnStatus.TIL_OPPGJOR },
+    bestillingsnummer: "A-2024/10354-6",
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+    },
+    beregning: {
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periode: {
+          start: "2024-11-01",
+          slutt: "2024-12-31",
         },
         antallPlasser: 2,
         sats: 20205,
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 50000,
+        belop: 20000,
       },
     },
-    gjenstaendeBelop: 50000,
+    gjenstaendeBelop: 20000,
     gjennomforing: {
-      navn: "Amo tiltak Halden",
+      navn: "AFT tiltak Våler",
     },
-    type: TilsagnType.EKSTRATILSAGN,
+    type: TilsagnType.TILSAGN,
+  },
+  {
+    id: uuid(),
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    periode: {
+      start: "2024-12-01",
+      slutt: "2024-12-31",
+    },
+    status: { status: TilsagnStatus.OPPGJORT },
+    bestillingsnummer: "A-2024/10354-7",
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+    },
+    beregning: {
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periode: {
+          start: "2024-12-01",
+          slutt: "2024-12-31",
+        },
+        antallPlasser: 1,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 10000,
+      },
+    },
+    gjenstaendeBelop: 0,
+    gjennomforing: {
+      navn: "AFT tiltak Indre Østfold",
+    },
+    type: TilsagnType.TILSAGN,
   },
 ];
 
@@ -488,7 +566,9 @@ export const arrangorflateHandlers = [
     "*/api/v1/intern/arrangorflate/tilsagn/:id",
     ({ params }) => {
       const { id } = params;
-      return HttpResponse.json(mockTilsagn.find((k) => k.id === id));
+      return HttpResponse.json(
+        mockTilsagn.find((k) => k.id === id) || mockTilsagn.find((k) => k.id === id),
+      );
     },
   ),
   http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
