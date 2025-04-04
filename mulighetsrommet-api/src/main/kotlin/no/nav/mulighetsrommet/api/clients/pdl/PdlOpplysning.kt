@@ -21,18 +21,24 @@ enum class IdentGruppe {
 }
 
 @Serializable
-data class PdlNavn(
-    val fornavn: String,
-    val mellomnavn: String? = null,
-    val etternavn: String,
+data class PdlPerson(
+    val navn: List<PdlNavn>,
 )
 
-sealed class GeografiskTilknytning {
-    data class GtKommune(val value: String) : GeografiskTilknytning()
-    data class GtBydel(val value: String) : GeografiskTilknytning()
-    data class GtUtland(val value: String?) : GeografiskTilknytning()
-    data object GtUdefinert : GeografiskTilknytning()
-}
+@Serializable
+data class PdlNavn(
+    val fornavn: String? = null,
+    val mellomnavn: String? = null,
+    val etternavn: String? = null,
+)
+
+@Serializable
+data class PdlGeografiskTilknytning(
+    val gtType: TypeGeografiskTilknytning,
+    val gtLand: String? = null,
+    val gtKommune: String? = null,
+    val gtBydel: String? = null,
+)
 
 enum class TypeGeografiskTilknytning {
     BYDEL,

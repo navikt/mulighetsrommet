@@ -1,31 +1,61 @@
 package no.nav.mulighetsrommet.api.clients.pdl
 
+import arrow.core.Either
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class PdlClientTest : FunSpec({
+    @Serializable
+    data class HentPerson(
+        val hentPerson: PdlPerson?,
+    )
+
+    class HentFornavnMockQuery(private val pdl: PdlClient) {
+        suspend fun hentFornavn(variables: GraphqlRequest.Ident): Either<PdlError, String?> {
+            val request = GraphqlRequest(
+                query = $$"""
+                query($ident: ID!) {
+                    hentPerson(ident: $ident) {
+                        navn(historikk: false) {
+                            fornavn
+                        }
+                    }
+                }
+                """.trimIndent(),
+                variables = variables,
+            )
+            return pdl.graphqlRequest<GraphqlRequest.Ident, HentPerson>(request, AccessType.M2M).map { response ->
+                response.hentPerson?.navn?.first()?.fornavn
+            }
+        }
+    }
+
     test("Missing errors is parsed ok") {
         val clientEngine = createMockEngine {
             post("/graphql") {
                 respondJson(
                     """
-                         {
-                             "data": { "hentIdenter": { "identer": [] } }
-                         }
+                        {
+                            "data": {
+                                "hentPerson": {
+                                    "navn": [{ "fornavn": "Ola", "mellomnavn": null, "etternavn": null }]
+                                }
+                            }
+                        }
                     """.trimIndent(),
                 )
             }
         }
-        val pdlClient = mockPdlClient(clientEngine)
+        val query = HentFornavnMockQuery(mockPdlClient(clientEngine))
 
-        val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
+        val request = GraphqlRequest.Ident(ident = PdlIdent("12345678910"))
 
-        pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeRight(emptyList())
+        query.hentFornavn(request).shouldBeRight("Ola")
     }
 
     test("not_found gives NotFound") {
@@ -34,7 +64,7 @@ class PdlClientTest : FunSpec({
                 respondJson(
                     """
                         {
-                            "data": { "hentIdenter": null },
+                            "data": { "hentPerson": null },
                             "errors": [
                                 { "extensions": { "code": "not_found" } },
                                 { "extensions": { "code": "bad_request" } }
@@ -44,11 +74,11 @@ class PdlClientTest : FunSpec({
                 )
             }
         }
-        val pdlClient = mockPdlClient(clientEngine)
+        val query = HentFornavnMockQuery(mockPdlClient(clientEngine))
 
-        val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
+        val request = GraphqlRequest.Ident(ident = PdlIdent("12345678910"))
 
-        pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeLeft(PdlError.NotFound)
+        query.hentFornavn(request).shouldBeLeft(PdlError.NotFound)
     }
 
     test("håndterer errors og manglende data") {
@@ -66,124 +96,10 @@ class PdlClientTest : FunSpec({
                 )
             }
         }
-        val pdlClient = mockPdlClient(clientEngine)
+        val query = HentFornavnMockQuery(mockPdlClient(clientEngine))
 
-        val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
+        val request = GraphqlRequest.Ident(ident = PdlIdent("12345678910"))
 
-        pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeLeft(PdlError.Error)
-    }
-
-    test("happy case hentIdenter") {
-        val clientEngine = createMockEngine {
-            post("/graphql") {
-                respondJson(
-                    """
-                        {
-                            "data": {
-                                "hentIdenter": {
-                                    "identer": [
-                                        {
-                                            "ident": "12345678910",
-                                            "gruppe": "FOLKEREGISTERIDENT",
-                                            "historisk": false
-                                        },
-                                        {
-                                            "ident": "123",
-                                            "gruppe": "AKTORID",
-                                            "historisk": true
-                                        },
-                                        {
-                                            "ident": "99999999999",
-                                            "gruppe": "NPID",
-                                            "historisk": true
-                                        }
-                                    ]
-                                }
-                            },
-                            "errors": []
-                        }
-                    """.trimIndent(),
-                )
-            }
-        }
-        val pdlClient = mockPdlClient(clientEngine)
-
-        val request = GraphqlRequest.HentHistoriskeIdenter(
-            ident = PdlIdent("12345678910"),
-            grupper = IdentGruppe.entries,
-        )
-        val identer = pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeRight()
-        identer shouldContainExactlyInAnyOrder listOf(
-            IdentInformasjon(
-                ident = PdlIdent("12345678910"),
-                gruppe = IdentGruppe.FOLKEREGISTERIDENT,
-                historisk = false,
-            ),
-            IdentInformasjon(
-                ident = PdlIdent("123"),
-                gruppe = IdentGruppe.AKTORID,
-                historisk = true,
-            ),
-            IdentInformasjon(
-                ident = PdlIdent("99999999999"),
-                gruppe = IdentGruppe.NPID,
-                historisk = true,
-            ),
-        )
-    }
-
-    test("happy case hentPerson") {
-        val clientEngine = createMockEngine {
-            post("/graphql") {
-                respondJson(
-                    """
-                        {
-                            "data": {
-                                "hentPerson": {
-                                    "navn": [
-                                        {
-                                            "fornavn": "Ola",
-                                            "mellomnavn": null,
-                                            "etternavn": "Normann"
-                                        }
-                                  ]
-                                }
-                            }
-                        }
-                    """.trimIndent(),
-                )
-            }
-        }
-        val pdlClient = mockPdlClient(clientEngine)
-
-        pdlClient
-            .hentPerson(PdlIdent("12345678910"), AccessType.M2M)
-            .shouldBeRight(HentPersonResponse.Person(navn = listOf(PdlNavn(fornavn = "Ola", etternavn = "Normann"))))
-    }
-
-    test("happy case hentGeografiskTilknytning") {
-        val clientEngine = createMockEngine {
-            post("/graphql") {
-                respondJson(
-                    """
-                        {
-                            "data": {
-                                "hentGeografiskTilknytning":{
-                                    "gtType": "BYDEL",
-                                    "gtLand": null,
-                                    "gtKommune": null,
-                                    "gtBydel": "030102"
-                                }
-                            }
-                        }
-                    """.trimIndent(),
-                )
-            }
-        }
-        val pdlClient = mockPdlClient(clientEngine)
-
-        pdlClient
-            .hentGeografiskTilknytning(PdlIdent("12345678910"), AccessType.M2M)
-            .shouldBeRight(GeografiskTilknytning.GtBydel(value = "030102"))
+        query.hentFornavn(request).shouldBeLeft(PdlError.Error)
     }
 })

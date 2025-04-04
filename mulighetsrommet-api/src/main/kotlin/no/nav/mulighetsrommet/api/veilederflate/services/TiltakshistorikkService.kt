@@ -8,18 +8,22 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
+import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakshistorikkService(
-    private val pdlClient: PdlClient,
+    private val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery,
     private val tiltakstypeService: TiltakstypeService,
     private val arrangorService: ArrangorService,
     private val amtDeltakerClient: AmtDeltakerClient,
@@ -205,7 +209,7 @@ class TiltakshistorikkService(
             ident = PdlIdent(norskIdent.value),
             grupper = listOf(IdentGruppe.FOLKEREGISTERIDENT),
         )
-        return pdlClient.hentHistoriskeIdenter(request, obo)
+        return historiskeIdenterQuery.hentHistoriskeIdenter(request, obo)
             .map { identer -> identer.map { NorskIdent(it.ident.value) } }
             .getOrElse {
                 when (it) {

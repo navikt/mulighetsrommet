@@ -7,16 +7,19 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.GruppeTiltakstype
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
+import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Tiltakshistorikk.Arrangor
@@ -142,19 +145,19 @@ class TiltakshistorikkServiceTest : FunSpec({
         innsoktDato = null,
     )
 
-    val pdlClient: PdlClient = mockk()
+    val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery = mockk()
     val tiltakshistorikkClient: TiltakshistorikkClient = mockk()
     val amtDeltakerClient: AmtDeltakerClient = mockk()
 
     fun createTiltakshistorikkService() = TiltakshistorikkService(
-        pdlClient = pdlClient,
+        historiskeIdenterQuery = historiskeIdenterQuery,
         tiltakstypeService = TiltakstypeService(database.db),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
         arrangorService = ArrangorService(database.db, mockk()),
     )
 
-    coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
+    coEvery { historiskeIdenterQuery.hentHistoriskeIdenter(any(), any()) } returns listOf(
         IdentInformasjon(
             ident = PdlIdent("12345678910"),
             gruppe = IdentGruppe.FOLKEREGISTERIDENT,
