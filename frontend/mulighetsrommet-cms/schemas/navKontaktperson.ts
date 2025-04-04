@@ -40,6 +40,13 @@ export const navKontaktperson = defineType({
       validation: (rule) => rule.required().min(2).max(200),
     }),
     defineField({
+      name: "enhetsnummer",
+      title: "Nav-enhetsnummer",
+      type: "string",
+      hidden: true,
+      validation: (rule) => rule.required().length(4),
+    }),
+    defineField({
       name: "telefonnummer",
       title: "Telefonnummer",
       type: "string",

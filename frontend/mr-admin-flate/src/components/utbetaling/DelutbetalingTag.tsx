@@ -23,7 +23,7 @@ export function DelutbetalingTag({ status }: Props) {
       );
     case DelutbetalingStatus.TIL_GODKJENNING:
       return (
-        <Tag size="small" variant="alt1" className={baseTagClasses}>
+        <Tag size="small" variant="warning" className={baseTagClasses}>
           Til godkjenning
         </Tag>
       );
