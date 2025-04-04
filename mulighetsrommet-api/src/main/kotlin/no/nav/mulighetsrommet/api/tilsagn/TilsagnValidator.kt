@@ -47,7 +47,7 @@ object TilsagnValidator {
             if (satsPeriodeStart == null) {
                 add(
                     FieldError.of(
-                        "Sats mangler for valgt periode",
+                        "Tilsagn kan ikke registreres for valgt periode enda",
                         TilsagnRequest::periodeStart,
                     ),
                 )
@@ -57,7 +57,7 @@ object TilsagnValidator {
             if (satsPeriodeSlutt == null) {
                 add(
                     FieldError.of(
-                        "Sats mangler for valgt periode",
+                        "Tilsagn kan ikke registreres for valgt periode enda",
                         TilsagnRequest::periodeSlutt,
                     ),
                 )
