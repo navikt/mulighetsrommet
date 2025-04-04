@@ -213,7 +213,7 @@ data class SanityNavKontaktperson(
     val _type: String,
     val navIdent: Slug,
     val enhet: String,
-    val enhetsnummer: NavEnhetNummer,
+    val enhetsnummer: NavEnhetNummer? = null,
     val telefonnummer: String? = null,
     val epost: String,
     val navn: String,
@@ -225,7 +225,7 @@ data class SanityRedaktor(
     val _type: String,
     val navIdent: Slug,
     val enhet: String,
-    val enhetsnummer: NavEnhetNummer,
+    val enhetsnummer: NavEnhetNummer? = null,
     val epost: Slug,
     val navn: String,
 )
