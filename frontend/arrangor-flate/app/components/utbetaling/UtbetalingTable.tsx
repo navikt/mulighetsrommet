@@ -81,7 +81,7 @@ function statusTilTag(status: ArrFlateUtbetalingStatus): ReactNode {
     case ArrFlateUtbetalingStatus.UTBETALT:
       return <Tag variant="success">Utbetalt</Tag>;
     case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
-      return <Tag variant="neutral">Behandles av Nav</Tag>;
+      return <Tag variant="warning">Behandles av Nav</Tag>;
     case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
       return <Tag variant="alt1">Klar for innsending</Tag>;
     case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING:

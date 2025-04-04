@@ -12,13 +12,13 @@ export function TilsagnStatusTag({ data }: Props) {
       return <Tag variant="success">Godkjent</Tag>;
     case TilsagnStatus.ANNULLERT:
       return (
-        <Tag variant="error" className="line-through bg-white text-text-danger border-text-danger">
+        <Tag variant="error" className="line-through bg-white! text-text-danger!">
           Annullert {skalViseHelptext("Tilsagnet er annullert med følgende årsak(er):", aarsaker)}
         </Tag>
       );
     case TilsagnStatus.TIL_ANNULLERING:
       return (
-        <Tag variant="neutral" className="bg-white  border-text-danger">
+        <Tag variant="warning" className="bg-white! border-text-danger">
           Til annullering{" "}
           {skalViseHelptext(
             "Tilsagnet er til annullering hos NAV med følgende årsak(er):",
@@ -26,6 +26,16 @@ export function TilsagnStatusTag({ data }: Props) {
           )}
         </Tag>
       );
+    case TilsagnStatus.TIL_OPPGJOR:
+      return (
+        <Tag variant="error" className="bg-white!">
+          Til oppgjør
+        </Tag>
+      );
+
+    case TilsagnStatus.OPPGJORT:
+      return <Tag variant="neutral">Oppgjort</Tag>;
+
     default:
       return null;
   }
