@@ -259,7 +259,7 @@ class TilsagnServiceTest : FunSpec({
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = ansatt1,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
-                it.errors shouldContain FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet")
+                it.errors shouldContain FieldError.root("Du kan ikke beslutte et tilsagn du selv har opprettet")
             }
         }
 
@@ -521,7 +521,7 @@ class TilsagnServiceTest : FunSpec({
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = ansatt1,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldBe listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))
+                it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))
             }
             checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_ANNULLERING
         }
@@ -605,7 +605,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt1,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldBe listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))
+                it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))
             }
             checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_OPPGJOR
         }
