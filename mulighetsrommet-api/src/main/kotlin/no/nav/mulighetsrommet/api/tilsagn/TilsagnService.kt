@@ -156,9 +156,9 @@ class TilsagnService(
             }
 
             TilsagnStatus.TIL_ANNULLERING -> {
-                when (besluttelse.besluttelse) {
-                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
-                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent)
+                when (besluttelse) {
+                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> annullerTilsagn(tilsagn, navIdent)
+                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisAnnullering(tilsagn, besluttelse, navIdent)
                 }
             }
 
@@ -168,8 +168,8 @@ class TilsagnService(
                     return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
                 }
 
-                when (besluttelse.besluttelse) {
-                    Besluttelse.GODKJENT ->
+                when (besluttelse) {
+                    BesluttTilsagnRequest.GodkjentTilsagnRequest ->
                         gjorOppTilsagn(tilsagn, navIdent)
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
@@ -178,7 +178,7 @@ class TilsagnService(
                             }
                             .right()
 
-                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, navIdent)
+                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisOppgjor(tilsagn, besluttelse, navIdent)
                 }
             }
         }
@@ -261,7 +261,11 @@ class TilsagnService(
         return dto.right()
     }
 
-    private fun QueryContext.avvisAnnullering(tilsagn: Tilsagn, besluttetAv: Agent): StatusResponse<Tilsagn> {
+    private fun QueryContext.avvisAnnullering(
+        tilsagn: Tilsagn,
+        besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
+        besluttetAv: Agent,
+    ): StatusResponse<Tilsagn> {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
@@ -274,6 +278,8 @@ class TilsagnService(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.AVVIST,
+                aarsaker = besluttelse.aarsaker.map { it.name },
+                forklaring = besluttelse.forklaring,
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
@@ -336,7 +342,11 @@ class TilsagnService(
         return dto
     }
 
-    private fun avvisOppgjor(tilsagn: Tilsagn, besluttetAv: Agent): StatusResponse<Tilsagn> = db.transaction {
+    private fun avvisOppgjor(
+        tilsagn: Tilsagn,
+        besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
+        besluttetAv: Agent,
+    ): StatusResponse<Tilsagn> = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
@@ -349,6 +359,8 @@ class TilsagnService(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.AVVIST,
+                aarsaker = besluttelse.aarsaker.map { it.name },
+                forklaring = besluttelse.forklaring,
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
