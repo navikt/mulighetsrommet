@@ -113,7 +113,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     <>
       <VStack>
         <HStack justify="space-between">
-          <Heading spacing size="medium">
+          <Heading spacing size="medium" level="2">
             Utbetalingslinjer
           </Heading>
           <ActionMenu>

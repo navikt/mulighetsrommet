@@ -78,10 +78,11 @@ export function UtbetalingPage() {
   ];
   return (
     <>
+      <title>Utbetalinger</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <BankNoteIcon className="w-10 h-10" />
-        <Heading size="large" level="2">
+        <Heading size="large" level="1">
           Utbetaling for {gjennomforing.navn}
         </Heading>
       </Header>
@@ -102,7 +103,12 @@ export function UtbetalingPage() {
                   </div>
                   <HGrid columns="1fr 1fr">
                     <VStack>
-                      <Heading size="medium" spacing>
+                      <Heading
+                        size="medium"
+                        level="2"
+                        spacing
+                        data-testid="utbetaling-til-utbetaling"
+                      >
                         Til utbetaling
                       </Heading>
                       <VStack gap="2">
@@ -134,7 +140,9 @@ export function UtbetalingPage() {
                     </VStack>
                     <VStack gap="4">
                       <>
-                        <Heading size="medium">Betalingsinformasjon</Heading>
+                        <Heading size="medium" level="2">
+                          Betalingsinformasjon
+                        </Heading>
                         <VStack gap="2">
                           <MetadataHorisontal
                             header="Kontonummer"
@@ -148,7 +156,9 @@ export function UtbetalingPage() {
                       </>
                       {utbetaling.journalpostId ? (
                         <>
-                          <Heading size="medium">Journalføring</Heading>
+                          <Heading size="medium" level="2">
+                            Journalføring
+                          </Heading>
                           <VStack gap="2">
                             <MetadataHorisontal
                               header="Journalpost-ID i Gosys"
@@ -179,7 +189,9 @@ export function UtbetalingPage() {
                     </Accordion.Item>
                   </Accordion>
                 )}
-                {tilsagn.every((t) => t.status !== TilsagnStatus.GODKJENT) && (
+                {tilsagn.every(
+                  (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
+                ) && (
                   <Alert variant="info">
                     Det finnes ingen godkjente tilsagn for utbetalingsperioden
                   </Alert>
