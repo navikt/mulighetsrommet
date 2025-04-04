@@ -23,12 +23,6 @@ val validateOpenapiExternalSpec = tasks.register<ValidateTask>("validateOpenapiE
     recommend.set(true)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions {
-        freeCompilerArgs.add("-Xmulti-dollar-interpolation")
-    }
-}
-
 val validateOpenapiSpecs = tasks.register<Task>("validateOpenapiSpecs") {
     dependsOn(validateOpenapiSpec.name, validateOpenapiExternalSpec.name)
 }

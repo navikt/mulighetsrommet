@@ -61,11 +61,11 @@ class SanityClientTest : FunSpec({
 
     test("returns error response when query fails") {
         val error = Json.decodeFromString<JsonElement>(
-            """
+            $$"""
             {
                 "error": {
-                    "query": "*[_type == ${'$'}type][0]",
-                    "description": "param ${'$'}type referenced, but not provided",
+                    "query": "*[_type == $type][0]",
+                    "description": "param $type referenced, but not provided",
                     "start": 11,
                     "end": 15,
                     "type": "queryParseError"

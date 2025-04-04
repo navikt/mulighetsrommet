@@ -58,9 +58,9 @@ class TiltakDatadelingClient(
         getAvtalerForPersonCache.getIfPresent(requestInput)?.let { return@getAvtalerForPerson it.right() }
 
         val request = GraphqlRequest(
-            query = """
-                query(${'$'}norskIdent: String!) {
-                    avtalerForPerson(personnummer: ${'$'}norskIdent) {
+            query = $$"""
+                query($norskIdent: String!) {
+                    avtalerForPerson(personnummer: $norskIdent) {
                         avtaleId
                         avtaleNr
                         deltakerFnr
