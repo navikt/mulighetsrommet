@@ -1,13 +1,12 @@
-import { useKostnadssted } from "@/api/enhet/useKostnadssted";
+import { NavEnhet } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useFormContext } from "react-hook-form";
 
 interface Props {
-  regioner: string[];
+  kostnadssteder: NavEnhet[] | undefined;
 }
 
-export function VelgKostnadssted({ regioner }: Props) {
-  const { data: kostnadssteder } = useKostnadssted(regioner);
+export function VelgKostnadssted({ kostnadssteder }: Props) {
   const { register } = useFormContext<{ kostnadssted: string }>();
 
   return (

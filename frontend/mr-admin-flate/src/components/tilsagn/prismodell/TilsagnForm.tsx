@@ -11,6 +11,7 @@ import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
 import { isValidationError } from "@/utils/Utils";
+import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -25,14 +26,20 @@ interface Props {
 export function TilsagnForm(props: Props) {
   const { gjennomforing, onSuccess, onAvbryt, defaultValues, regioner } = props;
   const [searchParams] = useSearchParams();
+  const { data: kostnadssteder } = useKostnadssted(regioner);
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType) || TilsagnType.TILSAGN;
 
   const mutation = useOpprettTilsagn();
 
+  const forhandsvalgKostnadssted =
+    kostnadssteder?.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
   const form = useForm<InferredTilsagn>({
     resolver: zodResolver(TilsagnSchema),
-    defaultValues: defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      kostnadssted: forhandsvalgKostnadssted,
+    },
   });
 
   const { handleSubmit, setError } = form;
@@ -81,7 +88,7 @@ export function TilsagnForm(props: Props) {
               </div>
               <div className="py-3">{props.beregningInput}</div>
               <div className="py-3">
-                <VelgKostnadssted regioner={regioner} />
+                <VelgKostnadssted kostnadssteder={kostnadssteder} />
               </div>
             </div>
             <div className="border-l border-border-subtle pl-6 flex flex-col gap-2">
