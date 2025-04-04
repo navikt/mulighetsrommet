@@ -82,7 +82,7 @@ class ArrangorFlateService(
                 gjennomforingId = gjennomforingId,
                 periodeIntersectsWith = periode,
                 typer = TILSAGN_TYPE_RELEVANT_FOR_UTBETALING,
-                statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
+                statuser = listOf(TilsagnStatus.GODKJENT),
             )
             .map { toArrangorflateTilsagn(it) }
     }
