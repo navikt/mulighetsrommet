@@ -18,7 +18,8 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.Gjeldende14aVedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.HovedmalMedOkeDeltakelse
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
@@ -26,6 +27,9 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.veilederflate.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
+import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -37,7 +41,7 @@ class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
     val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient = mockk()
     val navEnhetService: NavEnhetService = mockk()
-    val pdlClient: PdlClient = mockk()
+    val brukerQuery: HentBrukerPdlQuery = mockk()
     val norg2Client: Norg2Client = mockk()
     val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient = mockk()
 
@@ -45,9 +49,9 @@ class BrukerServiceTest : FunSpec({
         veilarboppfolgingClient,
         veilarbvedtaksstotteClient,
         navEnhetService,
-        pdlClient,
         norg2Client,
         isoppfolgingstilfelleClient,
+        brukerQuery,
     )
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
@@ -89,12 +93,12 @@ class BrukerServiceTest : FunSpec({
             fattetDato = ZonedDateTime.now(),
         ).right()
 
-        coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } answers {
-            GeografiskTilknytning.GtKommune(value = "0301").right()
+        coEvery { brukerQuery.hentBruker(PdlIdent(fnr1.value), any()) } answers {
+            HentBrukerResponse("Ola", GeografiskTilknytning.GtKommune("0301")).right()
         }
 
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } answers {
-            HentPersonResponse.Person(navn = listOf(PdlNavn(fornavn = "Ola", etternavn = "Normann"))).right()
+        coEvery { brukerQuery.hentBruker(PdlIdent(fnr2.value), any()) } answers {
+            HentBrukerResponse("Petter", GeografiskTilknytning.GtKommune("0301")).right()
         }
 
         coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
@@ -114,10 +118,6 @@ class BrukerServiceTest : FunSpec({
             innsatsgruppe = InnsatsgruppeV2.JOBBE_DELVIS,
             hovedmal = HovedmalMedOkeDeltakelse.SKAFFE_ARBEID,
             fattetDato = ZonedDateTime.now(),
-        ).right()
-
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns HentPersonResponse.Person(
-            navn = listOf(PdlNavn(fornavn = "Petter", etternavn = "Pettersen")),
         ).right()
 
         coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0106")) } returns NavEnhetDbo(
@@ -158,7 +158,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Exception kastes hvis personinfo mangler") {
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
+        coEvery { brukerQuery.hentBruker(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
 
         shouldThrow<StatusException> {
             brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))

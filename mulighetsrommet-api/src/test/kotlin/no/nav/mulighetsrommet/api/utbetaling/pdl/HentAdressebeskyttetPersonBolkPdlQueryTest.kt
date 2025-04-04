@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.utbetaling.pdl
 
 import arrow.core.nonEmptyListOf
 import arrow.core.nonEmptySetOf
