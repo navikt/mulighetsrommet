@@ -165,7 +165,7 @@ class TilsagnService(
             TilsagnStatus.TIL_OPPGJOR -> {
                 val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
                 if (oppgjor.behandletAv == navIdent) {
-                    return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+                    return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
                 }
 
                 when (besluttelse) {
@@ -189,7 +189,7 @@ class TilsagnService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         if (besluttetAv == opprettelse.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
 
         val besluttetOpprettelse = opprettelse.copy(
@@ -216,7 +216,7 @@ class TilsagnService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         if (besluttetAv == opprettelse.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte et tilsagn du selv har opprettet"))).left()
         }
         if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
@@ -243,7 +243,7 @@ class TilsagnService(
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
         if (besluttetAv == annullering.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))).left()
         }
 
         val besluttetAnnullering = annullering.copy(
@@ -270,7 +270,7 @@ class TilsagnService(
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
         if (besluttetAv == annullering.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -351,7 +351,7 @@ class TilsagnService(
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
         if (besluttetAv == oppgjor.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke beslutte et tilsagn du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
