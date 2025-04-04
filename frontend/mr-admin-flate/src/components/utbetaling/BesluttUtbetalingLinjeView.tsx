@@ -29,9 +29,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const queryClient = useQueryClient();
   const [error, setError] = useState<FieldError[]>([]);
   const godkjennDelutbetalingModalRef = useRef<HTMLDialogElement | null>(null);
-
   const besluttMutation = useBesluttDelutbetaling();
-
   function beslutt(id: string, body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(
       { id, body },

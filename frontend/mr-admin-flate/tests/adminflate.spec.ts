@@ -1,20 +1,10 @@
-import { expect, Page, test } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
+import { sjekkUU } from "./utils";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
   await page.goto("/");
 });
-
-const sjekkUU = async (page: Page, waitForTestid: string) => {
-  await page.getByTestId(waitForTestid).waitFor();
-  const accessibilityScanResults = await new AxeBuilder({ page })
-    .disableRules(["aria-required-children", "definition-list", "dlitem", "svg-img-alt"])
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
-
-  expect(accessibilityScanResults.violations).toEqual([]);
-};
 
 test.describe("Smoketest og UU", () => {
   test("Adminflate forside", async ({ page }) => {

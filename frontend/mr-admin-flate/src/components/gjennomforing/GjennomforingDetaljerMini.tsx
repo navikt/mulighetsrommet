@@ -11,7 +11,9 @@ interface Props {
 export function GjennomforingDetaljerMini({ gjennomforing }: Props) {
   return (
     <VStack gap="4">
-      <Heading size="medium">Gjennomføring</Heading>
+      <Heading size="medium" level="2">
+        Gjennomføring
+      </Heading>
       <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
         <Metadata header="Tiltaksnavn" verdi={gjennomforing.navn} />
         <Metadata
