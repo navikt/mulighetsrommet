@@ -5,10 +5,11 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.database.createArrayFromSelector
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
+import java.sql.Array
 import java.time.LocalDate
 import java.util.*
 
@@ -79,8 +80,8 @@ class NavAnsattQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "roller" to roller?.map { it.name }?.let { createArrayOf("rolle", it) },
-            "hovedenhet" to hovedenhetIn?.let { createArrayFromSelector(it) { it.value } },
+            "roller" to roller?.let { createArrayOfRolle(it) },
+            "hovedenhet" to hovedenhetIn?.let { createArrayOfValue(it) { it.value } },
             "skal_slettes_dato" to skalSlettesDatoLte,
         )
 
@@ -134,3 +135,7 @@ class NavAnsattQueries(private val session: Session) {
         skalSlettesDato = localDateOrNull("skal_slettes_dato"),
     )
 }
+
+fun Session.createArrayOfRolle(
+    values: Collection<NavAnsattRolle>,
+): Array = createArrayOf("rolle", values)

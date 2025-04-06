@@ -1,13 +1,14 @@
 package no.nav.mulighetsrommet.api.amo
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.database.createBigintArray
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import org.intellij.lang.annotations.Language
+import java.sql.Array
 import java.util.*
 
 class AmoKategoriseringQueries(private val session: Session) {
@@ -112,7 +113,7 @@ class AmoKategoriseringQueries(private val session: Session) {
             sertifiseringer.map { s -> listOf(foreignId, s.konseptId) },
         )
         execute(
-            queryOf(deleteJoins, foreignId, createArrayOf("bigint", sertifiseringer.map { it.konseptId })),
+            queryOf(deleteJoins, foreignId, createBigintArray(sertifiseringer.map { it.konseptId })),
         )
     }
 
@@ -136,9 +137,9 @@ class AmoKategoriseringQueries(private val session: Session) {
         is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
             "kurstype" to "BRANSJE_OG_YRKESRETTET",
             "bransje" to bransje.name,
-            "forerkort" to session.createArrayOf("forerkort_klasse", forerkort.map { it.name }),
+            "forerkort" to session.createArrayOfForerkortKlasse(forerkort),
             "sertifiseringer" to Json.encodeToString(sertifiseringer),
-            "innhold_elementer" to session.createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
+            "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
         AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
@@ -147,13 +148,13 @@ class AmoKategoriseringQueries(private val session: Session) {
 
         is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(
             "kurstype" to "GRUNNLEGGENDE_FERDIGHETER",
-            "innhold_elementer" to session.createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
+            "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
         is AmoKategorisering.Norskopplaering -> mapOf(
             "kurstype" to "NORSKOPPLAERING",
             "norskprove" to norskprove,
-            "innhold_elementer" to session.createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
+            "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
         AmoKategorisering.Studiespesialisering -> mapOf(
@@ -161,3 +162,11 @@ class AmoKategoriseringQueries(private val session: Session) {
         )
     }
 }
+
+fun Session.createArrayOfForerkortKlasse(
+    items: List<AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse>,
+): Array = createArrayOf("forerkort_klasse", items)
+
+fun Session.createArrayOfAmoInnholdElement(
+    items: List<AmoKategorisering.InnholdElement>,
+): Array = createArrayOf("amo_innhold_element", items)

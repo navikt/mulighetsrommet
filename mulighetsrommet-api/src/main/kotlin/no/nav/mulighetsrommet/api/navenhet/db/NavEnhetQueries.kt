@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.database.createArrayFromSelector
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
@@ -41,8 +41,8 @@ class NavEnhetQueries(private val session: Session) {
         overordnetEnhet: NavEnhetNummer? = null,
     ): List<NavEnhetDbo> {
         val parameters = mapOf(
-            "statuser" to statuser?.map { it.name }?.let { session.createTextArray(it) },
-            "typer" to typer?.map { it.name }?.let { session.createTextArray(it) },
+            "statuser" to statuser?.let { session.createTextArray(it) },
+            "typer" to typer?.let { session.createTextArray(it) },
             "overordnet_enhet" to overordnetEnhet?.value,
         )
 
@@ -72,7 +72,7 @@ class NavEnhetQueries(private val session: Session) {
 
     fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<NavEnhetNummer>) {
         val parameters = mapOf(
-            "ider" to session.createArrayFromSelector(enhetsnummerForSletting) { it.value },
+            "ider" to session.createArrayOfValue(enhetsnummerForSletting) { it.value },
         )
 
         @Language("PostgreSQL")

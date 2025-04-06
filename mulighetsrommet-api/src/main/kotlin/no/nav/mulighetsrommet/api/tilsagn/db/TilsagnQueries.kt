@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
+import java.sql.Array
 import java.util.*
 
 class TilsagnQueries(private val session: Session) {
@@ -181,10 +182,10 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "typer" to typer?.map { it.name }?.let { session.createArrayOf("tilsagn_type", it) },
+            "typer" to typer?.let { session.createArrayOfTilsagnType(it) },
             "gjennomforing_id" to gjennomforingId,
             "arrangor" to arrangor?.value,
-            "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
+            "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
             "periode" to periodeIntersectsWith?.toDaterange(),
         )
 
@@ -308,3 +309,11 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 }
+
+fun Session.createArrayOfTilsagnType(
+    types: List<TilsagnType>,
+): Array = createArrayOf("tilsagn_type", types)
+
+fun Session.createArrayOfTilsagnStatus(
+    statuser: List<TilsagnStatus>,
+): Array = createArrayOf("tilsagn_status", statuser)

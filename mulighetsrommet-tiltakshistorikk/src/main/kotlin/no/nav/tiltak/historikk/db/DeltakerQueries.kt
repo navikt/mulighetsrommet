@@ -5,6 +5,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -73,7 +74,7 @@ class DeltakerQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "identer" to session.createArrayOf("text", identer.map { it.value }),
+            "identer" to session.createArrayOfValue(identer) { it.value },
             "max_age_years" to maxAgeYears,
         )
 
@@ -163,7 +164,7 @@ class DeltakerQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "identer" to session.createArrayOf("text", identer.map { it.value }),
+            "identer" to session.createArrayOfValue(identer) { it.value },
             "max_age_years" to maxAgeYears,
         )
 
