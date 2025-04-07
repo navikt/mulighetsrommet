@@ -12,9 +12,11 @@ export function BehandlerInformasjon({ linje }: { linje: UtbetalingLinje }) {
           <Metadata header="Returnert av" verdi={linje.opprettelse.besluttetAv} />
         ) : linje.opprettelse.type === "BESLUTTET" &&
           linje.status &&
-          [DelutbetalingStatus.GODKJENT, DelutbetalingStatus.OVERFORT_TIL_UTBETALING].includes(
-            linje.status,
-          ) ? (
+          [
+            DelutbetalingStatus.GODKJENT,
+            DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+            DelutbetalingStatus.UTBETALT,
+          ].includes(linje.status) ? (
           <Metadata header="Attestert av" verdi={linje.opprettelse.besluttetAv} />
         ) : null}
       </HStack>
