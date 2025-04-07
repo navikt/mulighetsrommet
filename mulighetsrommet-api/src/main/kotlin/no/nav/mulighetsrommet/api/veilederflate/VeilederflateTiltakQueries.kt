@@ -6,7 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.veilederflate.models.*
-import no.nav.mulighetsrommet.database.createArrayFromSelector
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.model.*
@@ -36,7 +36,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
     ): List<VeilederflateTiltakGruppe> = with(session) {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
-            "brukers_enheter" to createArrayFromSelector(brukersEnheter) { it.value },
+            "brukers_enheter" to createArrayOfValue(brukersEnheter) { it.value },
             "search" to search?.toFTSPrefixQuery(),
             "apent_for_pamelding" to apentForPamelding,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { createUuidArray(it) },

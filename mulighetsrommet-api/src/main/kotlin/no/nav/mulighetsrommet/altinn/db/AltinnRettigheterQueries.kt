@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.altinn.db
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
-import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
+import java.sql.Array
 
 class AltinnRettigheterQueries(private val session: Session) {
     fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheterDbo): Unit = withTransaction(session) {
@@ -50,7 +50,7 @@ class AltinnRettigheterQueries(private val session: Session) {
             val deleteParams = mapOf(
                 "norsk_ident" to personBedriftRettigheter.norskIdent.value,
                 "organisasjonsnummer" to bedriftRettighet.organisasjonsnummer.value,
-                "rettigheter" to createEnumArray("altinn_ressurs", bedriftRettighet.rettigheter),
+                "rettigheter" to createArrayOfAltinnRessurs(bedriftRettighet.rettigheter),
             )
             execute(queryOf(deleteRoller, deleteParams))
         }
@@ -82,3 +82,7 @@ class AltinnRettigheterQueries(private val session: Session) {
         }
     }
 }
+
+fun Session.createArrayOfAltinnRessurs(
+    ressurs: List<AltinnRessurs>,
+): Array = createArrayOf("altinn_ressurs", ressurs)

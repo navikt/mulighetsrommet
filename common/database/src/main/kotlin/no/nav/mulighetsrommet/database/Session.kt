@@ -20,11 +20,7 @@ inline fun <R> withTransaction(session: Session, block: TransactionalSession.() 
     }
 }
 
-fun Session.createTextArray(list: Collection<Any>): Array {
-    return createArrayOf("text", list)
-}
-
-inline fun <reified T> Session.createArrayFromSelector(
+fun <T> Session.createArrayOfValue(
     list: Collection<T>,
     type: String = "text",
     valueSelector: (T) -> Any,
@@ -32,12 +28,16 @@ inline fun <reified T> Session.createArrayFromSelector(
     return createArrayOf(type, list.map(valueSelector))
 }
 
-fun Session.createUuidArray(list: Collection<UUID>): Array {
-    return createArrayOf("uuid", list)
+fun Session.createTextArray(list: Collection<Any>): Array {
+    return createArrayOf("text", list)
 }
 
-fun <T : Enum<T>> Session.createEnumArray(name: String, list: Collection<T>): Array {
-    return createArrayOf(name, list.map { it.name })
+fun Session.createBigintArray(list: Collection<Any>): Array {
+    return createArrayOf("bigint", list)
+}
+
+fun Session.createUuidArray(list: Collection<UUID>): Array {
+    return createArrayOf("uuid", list)
 }
 
 fun <A> Session.requireSingle(query: Query, extractor: (Row) -> A): A {

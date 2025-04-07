@@ -4,6 +4,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.mulighetsrommet.database.createBigintArray
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle
 import org.intellij.lang.annotations.Language
@@ -27,7 +28,7 @@ class KafkaProducerRecordQueries(private val session: Session) {
             delete from kafka_producer_record where id = any(?::bigint[])
         """.trimIndent()
 
-        session.update(queryOf(sql, session.createArrayOf("bigint", ids)))
+        session.update(queryOf(sql, session.createBigintArray(ids)))
     }
 
     fun getRecords(maxMessages: Int): List<StoredProducerRecord> {

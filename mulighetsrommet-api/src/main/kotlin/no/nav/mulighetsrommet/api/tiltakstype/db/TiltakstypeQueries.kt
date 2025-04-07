@@ -7,8 +7,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
+import java.sql.Array
 import java.util.*
 
 class TiltakstypeQueries(private val session: Session) {
@@ -258,3 +258,7 @@ class TiltakstypeQueries(private val session: Session) {
         )
     }
 }
+
+fun Session.createArrayOfTiltakskode(
+    values: Collection<Tiltakskode>,
+): Array = createArrayOf("tiltakskode", values)

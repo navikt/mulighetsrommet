@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
@@ -255,7 +256,7 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "tiltakskoder" to tiltakskoder?.let { session.createArrayOf("tiltakskode", it) },
+            "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
         )
 
         return list(queryOf(utbetalingQuery, params)) { it.toUtbetalingDto() }
