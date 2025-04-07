@@ -308,12 +308,12 @@ class AvtaleValidatorTest : FunSpec({
 
         val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, sakarkivNummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
-            listOf(FieldError("/sakarkivNummer", "Du må skrive inn Websaknummer til avtalesaken")),
+            listOf(FieldError("/sakarkivNummer", "Du må skrive inn saksnummer til avtalesaken")),
         )
 
         val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, sakarkivNummer = null)
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(FieldError("/sakarkivNummer", "Du må skrive inn Websaknummer til avtalesaken")),
+            listOf(FieldError("/sakarkivNummer", "Du må skrive inn saksnummer til avtalesaken")),
         )
 
         val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(
