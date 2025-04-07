@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -45,12 +45,12 @@ class NavAnsattQueriesTest : FunSpec({
         ).initialize(database.db)
 
         fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo, roller: Set<Rolle>) = ansatt.run {
-            NavAnsattDto(
+            NavAnsatt(
                 azureId = azureId,
                 navIdent = navIdent,
                 fornavn = fornavn,
                 etternavn = etternavn,
-                hovedenhet = NavAnsattDto.Hovedenhet(
+                hovedenhet = NavAnsatt.Hovedenhet(
                     enhetsnummer = enhet.enhetsnummer,
                     navn = enhet.navn,
                 ),

@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -195,12 +195,12 @@ class NavAnsattSyncServiceTest : FunSpec({
     }
 })
 
-private fun NavAnsattDbo.toNavAnsattDto(roller: Set<Rolle>): NavAnsattDto = NavAnsattDto(
+private fun NavAnsattDbo.toNavAnsattDto(roller: Set<Rolle>): NavAnsatt = NavAnsatt(
     azureId = azureId,
     navIdent = navIdent,
     fornavn = fornavn,
     etternavn = etternavn,
-    hovedenhet = NavAnsattDto.Hovedenhet(
+    hovedenhet = NavAnsatt.Hovedenhet(
         enhetsnummer = NavEnhetFixtures.Innlandet.enhetsnummer,
         navn = NavEnhetFixtures.Innlandet.navn,
     ),

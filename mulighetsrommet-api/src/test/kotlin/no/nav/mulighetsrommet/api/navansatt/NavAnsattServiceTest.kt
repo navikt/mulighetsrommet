@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.KONTAKTPERSON
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
@@ -75,7 +75,7 @@ class NavAnsattServiceTest : FunSpec({
 
             coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
 
-            service.getNavAnsattFromAzure(azureId, AccessType.M2M) shouldBe NavAnsattDto.fromAzureAdNavAnsatt(ansatt1)
+            service.getNavAnsattFromAzure(azureId, AccessType.M2M) shouldBe NavAnsatt.fromAzureAdNavAnsatt(ansatt1)
         }
     }
 
@@ -135,21 +135,21 @@ class NavAnsattServiceTest : FunSpec({
                 row(
                     setOf(tiltaksadministrasjon),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
+                        NavAnsatt.fromAzureAdNavAnsatt(ansatt1),
+                        NavAnsatt.fromAzureAdNavAnsatt(ansatt2),
                     ),
                 ),
                 row(
                     setOf(kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
+                        NavAnsatt.fromAzureAdNavAnsatt(ansatt2),
                     ),
                 ),
                 row(
                     setOf(tiltaksadministrasjon, kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
+                        NavAnsatt.fromAzureAdNavAnsatt(ansatt1),
+                        NavAnsatt.fromAzureAdNavAnsatt(ansatt2),
                     ),
                 ),
             ) { roles, ansatteMedRoller ->
@@ -176,8 +176,8 @@ class NavAnsattServiceTest : FunSpec({
             val resolvedAnsatte = service.getNavAnsatteInGroups(roles.toSet())
 
             resolvedAnsatte shouldContainExactlyInAnyOrder listOf(
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt1),
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
+                NavAnsatt.fromAzureAdNavAnsatt(ansatt1),
+                NavAnsatt.fromAzureAdNavAnsatt(ansatt2),
             )
         }
     }

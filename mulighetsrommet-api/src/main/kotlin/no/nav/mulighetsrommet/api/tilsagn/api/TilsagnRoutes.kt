@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -397,7 +397,7 @@ private fun resolveEkstraTilsagnDefaults(
 private fun getTotrinnskontrollForAnsatt(
     totrinnskontroll: Totrinnskontroll,
     kostnadssted: NavEnhetNummer,
-    ansatt: NavAnsattDto,
+    ansatt: NavAnsatt,
 ): TotrinnskontrollDto {
     val kanBesluttesAvAnsatt = ansatt.hasRole(Rolle.BeslutterTilsagn(setOf(kostnadssted)))
     return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt)

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.navansatt.db
 
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
@@ -17,7 +17,7 @@ data class NavAnsattDbo(
     val skalSlettesDato: LocalDate?,
 ) {
     companion object {
-        fun fromNavAnsattDto(dto: NavAnsattDto): NavAnsattDbo = NavAnsattDbo(
+        fun fromNavAnsattDto(dto: NavAnsatt): NavAnsattDbo = NavAnsattDbo(
             navIdent = dto.navIdent,
             fornavn = dto.fornavn,
             etternavn = dto.etternavn,

@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
-import no.nav.mulighetsrommet.api.navansatt.navAnsattRoutes
+import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
 import no.nav.mulighetsrommet.api.navenhet.navEnhetRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate

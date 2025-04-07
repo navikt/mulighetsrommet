@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -66,7 +66,7 @@ class NavAnsattSyncService(
         }
     }
 
-    private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto): Unit = db.transaction {
+    private suspend fun deleteNavAnsatt(ansatt: NavAnsatt): Unit = db.transaction {
         val avtaleIds = queries.avtale.getAvtaleIdsByAdministrator(ansatt.navIdent)
         val gjennomforinger = sanityService.getTiltakByNavIdent(ansatt.navIdent)
 
@@ -91,7 +91,7 @@ class NavAnsattSyncService(
 
     private fun QueryContext.notifyRelevantAdministrators(
         avtale: AvtaleDto,
-        hovedenhet: NavAnsattDto.Hovedenhet,
+        hovedenhet: NavAnsatt.Hovedenhet,
     ) {
         val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)
             ?: return
@@ -129,7 +129,7 @@ class NavAnsattSyncService(
 
     private fun QueryContext.notifyRelevantAdministratorsForSanityGjennomforing(
         tiltak: SanityTiltaksgjennomforing,
-        hovedenhet: NavAnsattDto.Hovedenhet,
+        hovedenhet: NavAnsatt.Hovedenhet,
     ) {
         val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)
             ?: return
@@ -165,7 +165,7 @@ class NavAnsattSyncService(
         notificationTask.scheduleNotification(notification)
     }
 
-    private suspend fun upsertSanityAnsatte(ansatte: List<NavAnsattDto>) {
+    private suspend fun upsertSanityAnsatte(ansatte: List<NavAnsatt>) {
         val existingNavKontaktpersonIds = sanityService.getNavKontaktpersoner()
             .associate { it.navIdent.current to it._id }
         val existingRedaktorIds = sanityService.getRedaktorer()

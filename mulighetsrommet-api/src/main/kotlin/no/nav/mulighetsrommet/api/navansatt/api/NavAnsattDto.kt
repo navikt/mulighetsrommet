@@ -1,12 +1,12 @@
-package no.nav.mulighetsrommet.api.navansatt.model
+package no.nav.mulighetsrommet.api.navansatt.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.LocalDate
 import java.util.*
 
 @Serializable
@@ -19,9 +19,7 @@ data class NavAnsattDto(
     val hovedenhet: Hovedenhet,
     val mobilnummer: String?,
     val epost: String,
-    val roller: Set<Rolle>,
-    @Serializable(with = LocalDateSerializer::class)
-    val skalSlettesDato: LocalDate?,
+    val roller: Set<NavAnsattRolle>,
 ) {
     @Serializable
     data class Hovedenhet(
@@ -29,20 +27,21 @@ data class NavAnsattDto(
         val navn: String,
     )
 
-    fun hasRole(
-        requiredRole: Rolle,
-    ): Boolean = when (requiredRole) {
-        is Rolle.Generell -> roller.any { it.rolle == requiredRole.rolle }
-
-        is Rolle.Kontorspesifikk -> roller.any {
-            when (it) {
-                is Rolle.Kontorspesifikk -> it.rolle == requiredRole.rolle && it.enheter.containsAll(requiredRole.enheter)
-                else -> false
-            }
-        }
-    }
-
     companion object {
+        fun fromNavAnsatt(ansatt: NavAnsatt): NavAnsattDto = NavAnsattDto(
+            azureId = ansatt.azureId,
+            navIdent = ansatt.navIdent,
+            fornavn = ansatt.fornavn,
+            etternavn = ansatt.etternavn,
+            hovedenhet = Hovedenhet(
+                enhetsnummer = ansatt.hovedenhet.enhetsnummer,
+                navn = ansatt.hovedenhet.navn,
+            ),
+            mobilnummer = ansatt.mobilnummer,
+            epost = ansatt.epost,
+            roller = ansatt.roller.map { it.rolle }.toSet(),
+        )
+
         fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt): NavAnsattDto = NavAnsattDto(
             azureId = dto.azureId,
             navIdent = dto.navIdent,
@@ -55,7 +54,6 @@ data class NavAnsattDto(
             mobilnummer = dto.mobilnummer,
             epost = dto.epost,
             roller = setOf(),
-            skalSlettesDato = null,
         )
     }
 }

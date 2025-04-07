@@ -4,7 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -117,7 +117,7 @@ class NavAnsattQueries(private val session: Session) {
         rollerContainsAll: List<Rolle>? = null,
         hovedenhetIn: List<NavEnhetNummer>? = null,
         skalSlettesDatoLte: LocalDate? = null,
-    ): List<NavAnsattDto> = with(session) {
+    ): List<NavAnsatt> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -137,7 +137,7 @@ class NavAnsattQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toNavAnsattDto() }
     }
 
-    fun getByNavIdent(navIdent: NavIdent): NavAnsattDto? = with(session) {
+    fun getByNavIdent(navIdent: NavIdent): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -148,7 +148,7 @@ class NavAnsattQueries(private val session: Session) {
         return single(queryOf(query, navIdent.value)) { it.toNavAnsattDto() }
     }
 
-    fun getByAzureId(azureId: UUID): NavAnsattDto? = with(session) {
+    fun getByAzureId(azureId: UUID): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -170,15 +170,15 @@ class NavAnsattQueries(private val session: Session) {
     }
 }
 
-private fun Row.toNavAnsattDto(): NavAnsattDto {
+private fun Row.toNavAnsattDto(): NavAnsatt {
     val roller = stringOrNull("roller_json")
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<Set<Rolle>>(it) }
         ?: setOf<Rolle>()
-    return NavAnsattDto(
+    return NavAnsatt(
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
-        hovedenhet = NavAnsattDto.Hovedenhet(
+        hovedenhet = NavAnsatt.Hovedenhet(
             enhetsnummer = NavEnhetNummer(string("hovedenhet_enhetsnummer")),
             navn = string("hovedenhet_navn"),
         ),
