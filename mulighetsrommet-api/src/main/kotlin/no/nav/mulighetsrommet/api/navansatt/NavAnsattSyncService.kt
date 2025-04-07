@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.navansatt
 
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -19,12 +20,14 @@ import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
 class NavAnsattSyncService(
+    private val ansattGroupsToSync: Set<AdGruppeNavAnsattRolleMapping>,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
@@ -34,12 +37,14 @@ class NavAnsattSyncService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
-        val ansatteToUpsert = navAnsattService.getNavAnsatteFromAzure()
+        val ansatteToUpsert = navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync)
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
-            queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
+
+            val roles = navAnsattService.getNavAnsattRoles(ansatt.azureId, AccessType.M2M)
+            queries.ansatt.setRoller(ansatt.navIdent, roles)
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
@@ -69,13 +74,12 @@ class NavAnsattSyncService(
         sanityService.removeNavIdentFromTiltaksgjennomforinger(ansatt.navIdent)
         sanityService.deleteNavIdent(ansatt.navIdent)
 
-        gjennomforinger
-            .forEach { gjennomforing ->
-                notifyRelevantAdministratorsForSanityGjennomforing(
-                    gjennomforing,
-                    ansatt.hovedenhet,
-                )
-            }
+        gjennomforinger.forEach { gjennomforing ->
+            notifyRelevantAdministratorsForSanityGjennomforing(
+                gjennomforing,
+                ansatt.hovedenhet,
+            )
+        }
 
         avtaleIds.forEach {
             val avtale = requireNotNull(queries.avtale.get(it))

@@ -72,7 +72,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -122,7 +122,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(correctRole)),
+            auth = createAuthConfig(oauth, roles = setOf(correctRole)),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -158,7 +158,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -196,7 +196,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -244,7 +244,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(

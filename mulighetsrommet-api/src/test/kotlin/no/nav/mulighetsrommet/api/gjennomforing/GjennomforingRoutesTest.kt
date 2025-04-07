@@ -50,7 +50,7 @@ class GjennomforingRoutesTest : FunSpec({
     fun appConfig(
         engine: HttpClientEngine = CIO.create(),
     ) = createTestApplicationConfig().copy(
-        auth = createAuthConfig(oauth, roles = listOf(generellRolle, gjennomforingerSkriv)),
+        auth = createAuthConfig(oauth, roles = setOf(generellRolle, gjennomforingerSkriv)),
         engine = engine,
     )
 

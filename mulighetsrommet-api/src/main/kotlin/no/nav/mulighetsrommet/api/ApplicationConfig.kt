@@ -66,7 +66,7 @@ data class AuthConfig(
     val azure: AuthProvider,
     val tokenx: AuthProvider,
     val maskinporten: AuthProvider,
-    val roles: List<AdGruppeNavAnsattRolleMapping>,
+    val roles: Set<AdGruppeNavAnsattRolleMapping>,
 )
 
 data class AdGruppeNavAnsattRolleMapping(

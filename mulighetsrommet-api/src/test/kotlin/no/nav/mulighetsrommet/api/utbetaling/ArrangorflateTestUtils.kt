@@ -199,7 +199,7 @@ object ArrangorflateTestUtils {
         },
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,
-        auth = createAuthConfig(oauth, roles = emptyList()),
+        auth = createAuthConfig(oauth, roles = setOf()),
         engine = engine,
     )
 

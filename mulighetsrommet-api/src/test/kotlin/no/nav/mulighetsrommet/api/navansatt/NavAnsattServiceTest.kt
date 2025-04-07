@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.navansatt
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
@@ -18,9 +17,12 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.KONTAKTPERSON
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.*
 
@@ -58,7 +60,7 @@ class NavAnsattServiceTest : FunSpec({
     coEvery { msGraph.getGroupMembers(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
     fun createNavAnsattService(
-        roles: List<AdGruppeNavAnsattRolleMapping>,
+        roles: Set<AdGruppeNavAnsattRolleMapping>,
     ) = NavAnsattService(
         roles = roles,
         db = database.db,
@@ -66,12 +68,23 @@ class NavAnsattServiceTest : FunSpec({
     )
 
     context("getNavAnsattFromAzure") {
-        test("should get NavAnsatt with roles filtered by the configured roles") {
-            val service = createNavAnsattService(listOf(tiltaksadministrasjon))
+        test("should get NavAnsatt by azure id") {
+            val service = createNavAnsattService(setOf(tiltaksadministrasjon))
 
             val azureId = UUID.randomUUID()
 
             coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
+
+            service.getNavAnsattFromAzure(azureId, AccessType.M2M) shouldBe NavAnsattDto.fromAzureAdNavAnsatt(ansatt1)
+        }
+    }
+
+    context("getNavAnsattRoles") {
+        test("should get NavAnsatt roles filtered by the configured roles") {
+            val service = createNavAnsattService(setOf(tiltaksadministrasjon))
+
+            val azureId = UUID.randomUUID()
+
             coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
                 AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
                 AdGruppe(
@@ -80,25 +93,39 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             )
 
-            service.getNavAnsattFromAzure(azureId, AccessType.M2M) shouldBe NavAnsattDto.fromAzureAdNavAnsatt(
-                ansatt1,
-                setOf(TILTAKADMINISTRASJON_GENERELL),
-            )
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(Rolle.TiltakadministrasjonGenerell)
         }
 
-        test("should fail when the requested NavAnsatt does not have any of the configured roles") {
-            val service = createNavAnsattService(listOf(kontaktperson))
+        test("should return empty set when the NavAnsatt does not have any of the configured roles") {
+            val service = createNavAnsattService(setOf(kontaktperson))
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
             coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
                 AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
             )
 
-            shouldThrow<IllegalStateException> {
-                service.getNavAnsattFromAzure(azureId, AccessType.M2M)
-            }
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf()
+        }
+
+        test("should resolve Nav-enheter from the group name") {
+            val beslutter = AdGruppeNavAnsattRolleMapping(
+                adGruppeId = UUID.randomUUID(),
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+            )
+
+            val service = createNavAnsattService(setOf(beslutter))
+
+            val azureId = UUID.randomUUID()
+
+            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
+                AdGruppe(id = beslutter.adGruppeId, navn = "0400-CA-TILTAK-beslutter_tilsagn"),
+                AdGruppe(id = beslutter.adGruppeId, navn = "0300-CA-TILTAK-beslutter_tilsagn"),
+            )
+
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
+                Rolle.BeslutterTilsagn(enheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300"))),
+            )
         }
     }
 
@@ -106,31 +133,30 @@ class NavAnsattServiceTest : FunSpec({
         test("should resolve all roles from the specified groups") {
             forAll(
                 row(
-                    listOf(tiltaksadministrasjon),
+                    setOf(tiltaksadministrasjon),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL)),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
                     ),
                 ),
                 row(
-                    listOf(kontaktperson),
-                    listOf(NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON))),
+                    setOf(kontaktperson),
+                    listOf(
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
+                    ),
                 ),
                 row(
-                    listOf(tiltaksadministrasjon, kontaktperson),
+                    setOf(tiltaksadministrasjon, kontaktperson),
                     listOf(
-                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                        NavAnsattDto.fromAzureAdNavAnsatt(
-                            ansatt2,
-                            setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON),
-                        ),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt1),
+                        NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
                     ),
                 ),
             ) { roles, ansatteMedRoller ->
                 runBlocking {
                     val service = createNavAnsattService(roles)
 
-                    val resolvedAnsatte = service.getNavAnsatteFromAzure()
+                    val resolvedAnsatte = service.getNavAnsatteInGroups(roles.toSet())
 
                     resolvedAnsatte shouldContainExactlyInAnyOrder ansatteMedRoller
                 }
@@ -139,7 +165,7 @@ class NavAnsattServiceTest : FunSpec({
 
         test("should support multiple roles from the same group") {
             val id = UUID.randomUUID()
-            val roles = listOf(
+            val roles = setOf(
                 AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = TILTAKADMINISTRASJON_GENERELL),
                 AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = KONTAKTPERSON),
             )
@@ -147,11 +173,11 @@ class NavAnsattServiceTest : FunSpec({
 
             val service = createNavAnsattService(roles)
 
-            val resolvedAnsatte = service.getNavAnsatteFromAzure()
+            val resolvedAnsatte = service.getNavAnsatteInGroups(roles.toSet())
 
             resolvedAnsatte shouldContainExactlyInAnyOrder listOf(
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                NavAnsattDto.fromAzureAdNavAnsatt(ansatt1),
+                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2),
             )
         }
     }

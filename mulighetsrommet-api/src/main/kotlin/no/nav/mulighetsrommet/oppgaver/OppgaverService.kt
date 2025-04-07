@@ -18,6 +18,7 @@ class OppgaverService(val db: ApiDatabase) {
     fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<Rolle>): List<Oppgave> {
         val ansattesRoller = roller.map { it.rolle }.toSet()
 
+        // TODO: kostnadssteder basert på ansattes roller (Dette må gjøres per rolle/oppgavetype)
         val kostnadssteder = getNavEnheterForRegioner(filter.regioner)
 
         return buildList {

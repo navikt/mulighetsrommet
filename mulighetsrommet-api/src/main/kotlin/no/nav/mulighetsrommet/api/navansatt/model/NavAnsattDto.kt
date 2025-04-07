@@ -43,8 +43,7 @@ data class NavAnsattDto(
     }
 
     companion object {
-        // TODO: office specific roles
-        fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt, roller: Set<NavAnsattRolle>): NavAnsattDto = NavAnsattDto(
+        fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt): NavAnsattDto = NavAnsattDto(
             azureId = dto.azureId,
             navIdent = dto.navIdent,
             fornavn = dto.fornavn,
@@ -55,7 +54,7 @@ data class NavAnsattDto(
             ),
             mobilnummer = dto.mobilnummer,
             epost = dto.epost,
-            roller = roller.map { Rolle.fromRolleAndEnheter(it) }.toSet(),
+            roller = setOf(),
             skalSlettesDato = null,
         )
     }

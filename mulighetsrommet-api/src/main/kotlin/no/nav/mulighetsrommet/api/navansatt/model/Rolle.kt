@@ -75,7 +75,7 @@ sealed class Rolle {
     }
 
     companion object {
-        // TODO: office specific roles
+        // TODO: vurdere om denne skal splittes en metode per type rolle
         fun fromRolleAndEnheter(rolle: NavAnsattRolle, enheter: Set<NavEnhetNummer>? = null): Rolle {
             return when (rolle) {
                 NavAnsattRolle.TEAM_MULIGHETSROMMET -> TeamMulighetsrommet

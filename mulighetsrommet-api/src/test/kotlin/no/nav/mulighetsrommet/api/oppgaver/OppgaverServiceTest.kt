@@ -142,7 +142,7 @@ class OppgaverServiceTest : FunSpec({
             )
         }
 
-        test("Skal bare returnere oppgaver for valgt region") {
+        test("Skal bare returnere oppgaver for valgt kostnadssted") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
