@@ -73,6 +73,46 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
   },
+  {
+    id: "129e4567-e89b-12d3-a456-426614174002",
+    periode: {
+      start: "2025-03-01",
+      slutt: "2025-03-31",
+    },
+    status: AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+    createdAt: "2025-01-01T08:00:00",
+    godkjentAvArrangorTidspunkt: undefined,
+    beregning: {
+      belop: 9000,
+    },
+    betalingsinformasjon: {
+      kontonummer: "1111.22.33333",
+      kid: "11122233344",
+    },
+    beskrivelse: "Utbetaling for første kvartal 2025",
+    innsendtAv: "Z987654",
+    journalpostId: "JP123458",
+  },
+  {
+    id: "130e4567-e89b-12d3-a456-426614174002",
+    periode: {
+      start: "2025-06-01",
+      slutt: "2025-06-31",
+    },
+    status: AdminUtbetalingStatus.UTBETALT,
+    createdAt: "2025-01-01T08:00:00",
+    godkjentAvArrangorTidspunkt: undefined,
+    beregning: {
+      belop: 9000,
+    },
+    betalingsinformasjon: {
+      kontonummer: "1111.22.33333",
+      kid: "11122233344",
+    },
+    beskrivelse: "Utbetaling for første kvartal 2025",
+    innsendtAv: "Z987654",
+    journalpostId: "JP123458",
+  },
 ];
 
 // Mock data for UtbetalingLinje
@@ -231,5 +271,87 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       forklaring: "Utbetaling for første halvår 2025",
       kanBesluttes: true,
     } as TotrinnskontrollTilBeslutningDto,
+  },
+  {
+    id: "456e4567-e89b-12d3-a456-426614174002",
+    tilsagn: {
+      id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
+      type: TilsagnType.TILSAGN,
+      periode: {
+        start: "2025-03-01",
+        slutt: "2025-03-31",
+      },
+      belopGjenstaende: 10000,
+      kostnadssted: {
+        enhetsnummer: "0300",
+        navn: "Nav Oslo",
+        overordnetEnhet: null,
+        status: NavEnhetStatus.AKTIV,
+        type: NavEnhetType.TILTAK,
+      },
+      beregning: {
+        type: "FRI",
+        input: { type: "FRI", belop: 14000 },
+        output: { type: "FRI", belop: 14000 },
+      },
+      status: TilsagnStatus.GODKJENT,
+      bestillingsnummer: "A-2025/123",
+    },
+
+    status: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+    belop: 3000,
+    gjorOppTilsagn: false,
+    opprettelse: {
+      type: "BESLUTTET",
+      behandletAv: "B123456",
+      behandletTidspunkt: "2025-01-01T10:00:00",
+      aarsaker: [],
+      forklaring: "Utbetaling for første halvår 2025",
+      kanBesluttes: true,
+      besluttetAv: "N123456",
+      besluttetTidspunkt: "2025-01-01T10:00:00",
+      besluttelse: Besluttelse.GODKJENT,
+    } as TotrinnskontrollBesluttetDto,
+  },
+  {
+    id: "456e4567-e89b-12d3-a456-426614174002",
+    tilsagn: {
+      id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
+      type: TilsagnType.TILSAGN,
+      periode: {
+        start: "2025-06-01",
+        slutt: "2025-06-31",
+      },
+      belopGjenstaende: 10000,
+      kostnadssted: {
+        enhetsnummer: "0300",
+        navn: "Nav Oslo",
+        overordnetEnhet: null,
+        status: NavEnhetStatus.AKTIV,
+        type: NavEnhetType.TILTAK,
+      },
+      beregning: {
+        type: "FRI",
+        input: { type: "FRI", belop: 14000 },
+        output: { type: "FRI", belop: 14000 },
+      },
+      status: TilsagnStatus.GODKJENT,
+      bestillingsnummer: "A-2025/123",
+    },
+
+    status: DelutbetalingStatus.UTBETALT,
+    belop: 3000,
+    gjorOppTilsagn: false,
+    opprettelse: {
+      type: "BESLUTTET",
+      behandletAv: "B123456",
+      behandletTidspunkt: "2025-01-01T10:00:00",
+      aarsaker: [],
+      forklaring: "Utbetaling for første halvår 2025",
+      kanBesluttes: true,
+      besluttetAv: "N123456",
+      besluttetTidspunkt: "2025-01-01T10:00:00",
+      besluttelse: Besluttelse.GODKJENT,
+    } as TotrinnskontrollBesluttetDto,
   },
 ];
