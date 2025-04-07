@@ -44,6 +44,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+val AUTOMATISK_RETURNERT_AARSAK: String = "AUTOMATISK_RETURNERT"
+
 class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
@@ -452,8 +454,8 @@ class UtbetalingService(
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 returnerDelutbetaling(
                     it,
-                    emptyList(),
-                    "Tilsagnet har status ${tilsagn.status} og kan derfor ikke benyttes for utbetaling",
+                    listOf(AUTOMATISK_RETURNERT_AARSAK),
+                    "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling",
                     Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
@@ -484,7 +486,12 @@ class UtbetalingService(
         queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
             .filter { it.id != delutbetaling.id }
             .forEach {
-                setReturnertDelutbetaling(it, automatiskReturnertAarsak(), null, Tiltaksadministrasjon)
+                setReturnertDelutbetaling(
+                    it,
+                    listOf(AUTOMATISK_RETURNERT_AARSAK),
+                    "Automatisk returnert av Nav Tiltaksadministrasjon som følge av at en annen utbetalingslinje ble returnert",
+                    Tiltaksadministrasjon,
+                )
             }
 
         logEndring(
@@ -492,10 +499,6 @@ class UtbetalingService(
             getOrError(delutbetaling.utbetalingId),
             besluttetAv,
         )
-    }
-
-    private fun automatiskReturnertAarsak(): List<String> {
-        return listOf("AUTOMATISK_RETURNERT")
     }
 
     private fun QueryContext.setReturnertDelutbetaling(
