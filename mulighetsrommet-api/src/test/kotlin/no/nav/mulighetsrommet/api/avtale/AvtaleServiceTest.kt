@@ -211,7 +211,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = createAvtaleService()
 
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
-            val identAnsatt1 = NavAnsattFixture.ansatt1.navIdent
+            val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(identAnsatt1))
             avtaleService.upsert(avtale, identAnsatt1)
@@ -222,8 +222,8 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("Bare nye administratorer får notification når man endrer gjennomføring") {
-            val identAnsatt1 = NavAnsattFixture.ansatt1.navIdent
-            val identAnsatt2 = NavAnsattFixture.ansatt2.navIdent
+            val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
+            val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(identAnsatt2))
             avtaleService.upsert(avtale, identAnsatt1)

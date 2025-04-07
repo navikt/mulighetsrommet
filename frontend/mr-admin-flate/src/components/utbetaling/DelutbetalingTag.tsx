@@ -1,5 +1,5 @@
-import { Tag } from "@navikt/ds-react";
 import { DelutbetalingStatus } from "@mr/api-client-v2";
+import { Tag } from "@navikt/ds-react";
 
 interface Props {
   status: DelutbetalingStatus;
@@ -23,7 +23,7 @@ export function DelutbetalingTag({ status }: Props) {
       );
     case DelutbetalingStatus.TIL_GODKJENNING:
       return (
-        <Tag size="small" variant="alt1" className={baseTagClasses}>
+        <Tag size="small" variant="warning" className={baseTagClasses}>
           Til godkjenning
         </Tag>
       );
@@ -31,6 +31,12 @@ export function DelutbetalingTag({ status }: Props) {
       return (
         <Tag size="small" variant="error" className={baseTagClasses}>
           Returnert
+        </Tag>
+      );
+    case DelutbetalingStatus.OVERFORT_TIL_UTBETALING:
+      return (
+        <Tag size="small" variant="success" className={baseTagClasses}>
+          Overført til utbetaling
         </Tag>
       );
   }

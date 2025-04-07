@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -259,15 +260,20 @@ class UtbetalingService(
         id: UUID,
         request: BesluttDelutbetalingRequest,
         navIdent: NavIdent,
-    ) = db.transaction {
+    ): StatusResponse<Unit> = db.transaction {
         val delutbetaling = queries.delutbetaling.get(id)
             ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
         require(delutbetaling.status == DelutbetalingStatus.TIL_GODKJENNING) {
             "Utbetaling er allerede besluttet"
         }
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-        require(navIdent != opprettelse.behandletAv) {
-            "Kan ikke beslutte egen utbetaling"
+        if (navIdent == opprettelse.behandletAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
+        }
+        val tilsagnOpprettelse =
+            requireNotNull(queries.totrinnskontroll.get(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT))
+        if (navIdent == tilsagnOpprettelse.besluttetAv) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
         }
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
@@ -278,6 +284,7 @@ class UtbetalingService(
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
+        Unit.right()
     }
 
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
@@ -430,6 +437,7 @@ class UtbetalingService(
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId))
+            queries.delutbetaling.setStatusForDelutbetalingerForBetaling(delutbetaling.utbetalingId, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
             godkjennUtbetaling(utbetaling, alleDelutbetalinger)
         }
     }
@@ -444,8 +452,8 @@ class UtbetalingService(
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 returnerDelutbetaling(
                     it,
-                    automatiskReturnertAarsak(),
-                    "Tilsagn er ikke godkjent",
+                    emptyList(),
+                    "Tilsagnet har status ${tilsagn.status} og kan derfor ikke benyttes for utbetaling",
                     Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
@@ -458,7 +466,7 @@ class UtbetalingService(
         }
 
         logEndring(
-            "Utbetaling godkjent",
+            "Overført til utbetaling",
             getOrError(delutbetalinger[0].utbetalingId),
             Tiltaksadministrasjon,
         )

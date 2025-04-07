@@ -10,6 +10,7 @@ import {
   Alert,
   BodyShort,
   Checkbox,
+  HelpText,
   HStack,
   List,
   Table,
@@ -19,7 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
-import { Metadata } from "../detaljside/Metadata";
+import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
@@ -40,15 +41,23 @@ export function UtbetalingLinjeRow({
   grayBackground = false,
 }: Props) {
   const { gjennomforingId } = useParams();
-  const [belopError, setBelopError] = useState<string | undefined>(undefined);
+  const [belopError, setBelopError] = useState<string | undefined>();
   const skalApneRad =
-    errors.length > 0 || Boolean(linje.opprettelse?.type === "BESLUTTET") || linje.gjorOppTilsagn;
+    filterBelopErrors(errors).length > 0 || Boolean(linje.opprettelse?.type === "BESLUTTET");
   const [openRow, setOpenRow] = useState(skalApneRad);
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
+
+  function filterBelopErrors(errors: FieldError[]) {
+    return errors.filter((e) => !e.pointer.includes("belop"));
+  }
 
   useEffect(() => {
     setOpenRow(skalApneRad);
   }, [errors, linje.opprettelse, linje.gjorOppTilsagn, skalApneRad]);
+
+  useEffect(() => {
+    setBelopError(errors.find((e) => e.pointer.includes("belop"))?.detail);
+  }, [belopError, errors]);
 
   return (
     <Table.ExpandableRow
@@ -70,7 +79,7 @@ export function UtbetalingLinjeRow({
               />
             </VStack>
           ) : null}
-          {errors.length > 0 && (
+          {errors.filter((e) => !e.pointer.includes("belop")).length > 0 && (
             <VStack className="bg-[var(--a-surface-danger-subtle)]">
               <Alert size="small" variant="error">
                 <BodyShort>Følgende feil må fikses:</BodyShort>
@@ -82,20 +91,8 @@ export function UtbetalingLinjeRow({
               </Alert>
             </VStack>
           )}
-          {linje.gjorOppTilsagn && (
-            <Alert variant="info">
-              Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
-              flere utbetalinger fra tilsagnet
-            </Alert>
-          )}
-          {linje.opprettelse && (
-            <HStack gap="4">
-              <Metadata header="Behandlet av" verdi={linje.opprettelse.behandletAv} />
-              {linje.opprettelse.type === "BESLUTTET" && (
-                <Metadata header="Besluttet av" verdi={linje.opprettelse.besluttetAv} />
-              )}
-            </HStack>
-          )}
+
+          <BehandlerInformasjon linje={linje} />
         </VStack>
       }
     >
@@ -117,28 +114,35 @@ export function UtbetalingLinjeRow({
       <Table.DataCell className={grayBgClass}>
         {formaterNOK(linje.tilsagn.belopGjenstaende)}
       </Table.DataCell>
-      <Table.DataCell>
-        <Checkbox
-          hideLabel
-          readOnly={readOnly}
-          checked={linje.gjorOppTilsagn}
-          onChange={(e) => {
-            onChange?.({
-              ...linje,
-              gjorOppTilsagn: e.target.checked,
-            });
-          }}
-        >
-          Gjør opp tilsagn
-        </Checkbox>
+      <Table.DataCell colSpan={2}>
+        <HStack gap="2" align="start">
+          <Checkbox
+            hideLabel
+            readOnly={readOnly}
+            checked={linje.gjorOppTilsagn}
+            onChange={(e) => {
+              onChange?.({
+                ...linje,
+                gjorOppTilsagn: e.target.checked,
+              });
+            }}
+          >
+            Gjør opp tilsagn
+          </Checkbox>
+          <HelpText>
+            Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere
+            utbetalinger på tilsagnet etter at denne utbetalingen er attestert
+          </HelpText>
+        </HStack>
       </Table.DataCell>
-      <Table.DataCell>
+      <Table.DataCell colSpan={2}>
         <TextField
           size="small"
           error={belopError}
           label="Utbetales"
           readOnly={readOnly}
           hideLabel
+          className="w-60"
           inputMode="numeric"
           htmlSize={14}
           onChange={(e) => {
@@ -156,7 +160,7 @@ export function UtbetalingLinjeRow({
           value={linje.belop}
         />
       </Table.DataCell>
-      <Table.DataCell>
+      <Table.DataCell colSpan={2} align="right">
         {knappeColumn || (linje.status && <DelutbetalingTag status={linje.status} />)}
       </Table.DataCell>
     </Table.ExpandableRow>

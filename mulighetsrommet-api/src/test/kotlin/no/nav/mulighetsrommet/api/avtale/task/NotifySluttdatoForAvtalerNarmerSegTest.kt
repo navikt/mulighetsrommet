@@ -25,37 +25,37 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusMonths(8),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusMonths(6),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusMonths(3),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusDays(14),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusDays(7),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2022, 6, 7),
                 sluttDato = LocalDate.of(2024, 1, 1),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
         ),
     )
@@ -98,7 +98,7 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
             verify(exactly = 1) {
                 notificationTask.scheduleNotification(
                     match {
-                        it.targets == nonEmptyListOf(NavAnsattFixture.ansatt1.navIdent) &&
+                        it.targets == nonEmptyListOf(NavAnsattFixture.DonaldDuck.navIdent) &&
                             it.title == "Avtalen \"Avtalenavn\" utløper 01.01.2024"
                     },
                     any(),

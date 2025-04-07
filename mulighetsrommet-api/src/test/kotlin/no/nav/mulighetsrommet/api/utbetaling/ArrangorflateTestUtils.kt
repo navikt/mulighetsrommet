@@ -135,7 +135,7 @@ object ArrangorflateTestUtils {
         utbetalinger: List<UtbetalingDbo> = listOf(createTestUtbetalingForhandsgodkjent(deltaker.id)),
     ): MulighetsrommetTestDomain = MulighetsrommetTestDomain(
         navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
-        ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(
             AvtaleFixtures.AFT.copy(

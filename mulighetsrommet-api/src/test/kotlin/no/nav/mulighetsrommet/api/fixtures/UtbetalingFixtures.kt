@@ -90,8 +90,8 @@ object UtbetalingFixtures {
 fun QueryContext.setDelutbetalingStatus(
     delutbetalingDbo: DelutbetalingDbo,
     status: DelutbetalingStatus,
-    behandletAv: NavIdent = NavAnsattFixture.ansatt1.navIdent,
-    besluttetAv: NavIdent = NavAnsattFixture.ansatt2.navIdent,
+    behandletAv: NavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+    besluttetAv: NavIdent = NavAnsattFixture.MikkeMus.navIdent,
     besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
 ) {
     val dto = queries.delutbetaling.get(delutbetalingDbo.id)
@@ -104,7 +104,7 @@ fun QueryContext.setDelutbetalingStatus(
             setTilGodkjenning(dto.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
         }
 
-        DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT -> {
+        DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT, DelutbetalingStatus.OVERFORT_TIL_UTBETALING -> {
             setGodkjent(
                 dto.id,
                 Totrinnskontroll.Type.OPPRETT,

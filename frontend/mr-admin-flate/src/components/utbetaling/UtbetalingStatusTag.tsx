@@ -14,7 +14,7 @@ export function UtbetalingStatusTag({ status }: { status: AdminUtbetalingStatus 
       );
     case AdminUtbetalingStatus.TIL_GODKJENNING:
       return (
-        <Tag size="small" variant="alt1" className={baseTagClasses}>
+        <Tag size="small" variant="warning" className={baseTagClasses}>
           Til godkjenning
         </Tag>
       );
@@ -30,16 +30,22 @@ export function UtbetalingStatusTag({ status }: { status: AdminUtbetalingStatus 
           Utbetalt
         </Tag>
       );
-    case AdminUtbetalingStatus.BEHANDLES_AV_NAV:
+    case AdminUtbetalingStatus.KLAR_TIL_BEHANDLING:
       return (
         <Tag size="small" variant="warning" className={baseTagClasses}>
-          Behandles av Nav
+          Klar til behandling
         </Tag>
       );
     case AdminUtbetalingStatus.VENTER_PA_ARRANGOR:
       return (
         <Tag size="small" variant="alt1" className={baseTagClasses}>
           Venter på arrangør
+        </Tag>
+      );
+    case AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING:
+      return (
+        <Tag size="small" variant="success" className={baseTagClasses}>
+          Overført til utbetaling
         </Tag>
       );
   }

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.Slug
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -38,6 +39,7 @@ class NavAnsattSyncService(
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
@@ -47,8 +49,9 @@ class NavAnsattSyncService(
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
-            val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
+            val ansattToDelete = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(skalSlettesDato = deletionDate)
+            queries.ansatt.upsert(ansattToDelete)
+            queries.ansatt.setRoller(ansattToDelete.navIdent, setOf())
         }
 
         val ansatteToDelete = queries.ansatt.getAll(skalSlettesDatoLte = today)
@@ -179,6 +182,7 @@ class NavAnsattSyncService(
                         telefonnummer = ansatt.mobilnummer,
                         epost = ansatt.epost,
                         navn = "${ansatt.fornavn} ${ansatt.etternavn}",
+                        enhetsnummer = ansatt.hovedenhet.enhetsnummer,
                     ),
                 )
             }
@@ -193,6 +197,7 @@ class NavAnsattSyncService(
                         navn = "${ansatt.fornavn} ${ansatt.etternavn}",
                         navIdent = Slug(current = ansatt.navIdent.value),
                         epost = Slug(current = ansatt.epost),
+                        enhetsnummer = ansatt.hovedenhet.enhetsnummer,
                     ),
                 )
             }
@@ -208,6 +213,7 @@ data class SanityNavKontaktperson(
     val _type: String,
     val navIdent: Slug,
     val enhet: String,
+    val enhetsnummer: NavEnhetNummer? = null,
     val telefonnummer: String? = null,
     val epost: String,
     val navn: String,
@@ -219,6 +225,7 @@ data class SanityRedaktor(
     val _type: String,
     val navIdent: Slug,
     val enhet: String,
+    val enhetsnummer: NavEnhetNummer? = null,
     val epost: Slug,
     val navn: String,
 )

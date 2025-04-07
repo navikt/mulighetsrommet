@@ -14,8 +14,6 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
@@ -24,6 +22,8 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.veilederflate.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -33,17 +33,16 @@ class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient,
     private val navEnhetService: NavEnhetService,
-    private val pdlClient: PdlClient,
     private val norg2Client: Norg2Client,
     private val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient,
+    private val brukerPdlQuery: HentBrukerPdlQuery,
 ) {
     suspend fun hentBrukerdata(fnr: NorskIdent, obo: AccessType.OBO): Brukerdata = coroutineScope {
         val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
         val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }
         val deferredGjeldendeVedtak = async { veilarbvedtaksstotteClient.hentGjeldende14aVedtak(fnr, obo) }
-        val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
-        val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
+        val deferredBruker = async { brukerPdlQuery.hentBruker(PdlIdent(fnr.value), obo) }
         val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
@@ -98,7 +97,7 @@ class BrukerService(
                 }
             }
 
-        val pdlPerson = deferredPdlPerson.await()
+        val bruker = deferredBruker.await()
             .getOrElse {
                 when (it) {
                     PdlError.Error -> throw StatusException(
@@ -112,6 +111,8 @@ class BrukerService(
                     )
                 }
             }
+
+        val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(bruker.geografiskTilknytning) }
 
         val gjeldendeVedtak = deferredGjeldendeVedtak.await()
             .getOrElse {
@@ -130,14 +131,6 @@ class BrukerService(
                 }
             }
 
-        val brukersGeografiskeEnhet = deferredBrukersGeografiskeEnhet.await()
-
-        val brukersOppfolgingsenhet = oppfolgingsenhet?.enhetId?.let {
-            navEnhetService.hentEnhet(it)
-        }
-
-        val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
-
         val erSykmeldtMedArbeidsgiver = deferredErSykmeldtMedArbeidsgiver.await()
             .getOrElse {
                 when (it) {
@@ -155,11 +148,15 @@ class BrukerService(
                 }
             }
 
+        val brukersGeografiskeEnhet = deferredBrukersGeografiskeEnhet.await()
+        val brukersOppfolgingsenhet = oppfolgingsenhet?.enhetId?.let { navEnhetService.hentEnhet(it) }
+        val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
+
         Brukerdata(
             fnr = fnr,
             innsatsgruppe = gjeldendeVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
             enheter = enheter,
-            fornavn = pdlPerson.navn.firstOrNull()?.fornavn,
+            fornavn = bruker.fornavn,
             manuellStatus = manuellStatus,
             erUnderOppfolging = erUnderOppfolging,
             erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
@@ -179,21 +176,7 @@ class BrukerService(
         )
     }
 
-    private suspend fun hentBrukersGeografiskeEnhet(fnr: NorskIdent, obo: AccessType.OBO): NavEnhetDbo? {
-        val geografiskTilknytning = pdlClient.hentGeografiskTilknytning(PdlIdent(fnr.value), obo)
-            .getOrElse {
-                when (it) {
-                    PdlError.Error -> {
-                        throw StatusException(
-                            HttpStatusCode.InternalServerError,
-                            "Klarte ikke hente geografisk tilknytning fra Pdl.",
-                        )
-                    }
-
-                    PdlError.NotFound -> null
-                }
-            }
-
+    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
         val norgResult = when (geografiskTilknytning) {
             is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
             is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
@@ -261,7 +244,7 @@ fun getRelevanteEnheterForBruker(
 
     val virtuellOppfolgingsenhet = if (
         oppfolgingsenhet != null &&
-        NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer)
+        NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer.value)
     ) {
         oppfolgingsenhet
     } else {

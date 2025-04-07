@@ -7,25 +7,26 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class NavEnhetService(
     private val db: ApiDatabase,
 ) {
-    val cache: Cache<String, NavEnhetDbo> = Caffeine.newBuilder()
+    val cache: Cache<NavEnhetNummer, NavEnhetDbo> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
         .maximumSize(500)
         .recordStats()
         .build()
 
-    fun hentEnhet(enhetsnummer: String): NavEnhetDbo? = db.session {
+    fun hentEnhet(enhetsnummer: NavEnhetNummer): NavEnhetDbo? = db.session {
         CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
             queries.enhet.get(enhetsnummer)
         }
     }
 
-    fun hentOverordnetFylkesenhet(enhetsnummer: String): NavEnhetDbo? {
+    fun hentOverordnetFylkesenhet(enhetsnummer: NavEnhetNummer): NavEnhetDbo? {
         val enhet = CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
             hentEnhet(enhetsnummer)
         }
@@ -62,7 +63,7 @@ class NavEnhetService(
                     enheter = alleEnheter
                         .filter {
                             it.overordnetEnhet == region.enhetsnummer &&
-                                (it.type == Norg2Type.LOKAL || NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer))
+                                (it.type == Norg2Type.LOKAL || NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value))
                         }
                         // K er før L så egne ansatte (som er KO) legger seg nederst (med desc)
                         .sortedByDescending { it.type },
@@ -70,13 +71,13 @@ class NavEnhetService(
             }
     }
 
-    fun hentKostnadssted(regioner: List<String>): List<NavEnhetDbo> = db.session {
+    fun hentKostnadssted(regioner: List<NavEnhetNummer>): List<NavEnhetDbo> = db.session {
         queries.enhet.getKostnadssted(regioner)
     }
 
     @Serializable
     data class NavRegionDto(
-        val enhetsnummer: String,
+        val enhetsnummer: NavEnhetNummer,
         val navn: String,
         val status: NavEnhetStatus,
         val type: Norg2Type,
@@ -87,5 +88,5 @@ class NavEnhetService(
 data class EnhetFilter(
     val statuser: List<NavEnhetStatus>? = null,
     val typer: List<Norg2Type>? = null,
-    val overordnetEnhet: String? = null,
+    val overordnetEnhet: NavEnhetNummer? = null,
 )

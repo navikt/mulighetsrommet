@@ -41,7 +41,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(
                     TilsagnFixtures.Tilsagn1,
                     TilsagnStatus.TIL_GODKJENNING,
-                    behandletAv = NavAnsattFixture.ansatt1.navIdent,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
 
@@ -49,7 +49,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
-                ansatt = NavAnsattFixture.ansatt2.navIdent,
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(
                     NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
                     NavAnsattRolle.BESLUTTER_TILSAGN,
@@ -70,7 +70,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(
                     TilsagnFixtures.Tilsagn1,
                     TilsagnStatus.TIL_GODKJENNING,
-                    behandletAv = NavAnsattFixture.ansatt1.navIdent,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
 
@@ -78,7 +78,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
-                ansatt = NavAnsattFixture.ansatt1.navIdent,
+                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
                 roller = setOf(
                     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
                     NavAnsattRolle.BESLUTTER_TILSAGN,
@@ -109,7 +109,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
-                ansatt = NavAnsattFixture.ansatt2.navIdent,
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.BESLUTTER_TILSAGN),
             ).size shouldBe 3
         }
@@ -135,7 +135,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
-                ansatt = NavAnsattFixture.ansatt2.navIdent,
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn3.id, OppgaveType.TILSAGN_RETURNERT),
@@ -165,7 +165,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                ansatt = NavAnsattFixture.ansatt2.navIdent,
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.BESLUTTER_TILSAGN),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn2.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
@@ -195,7 +195,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
-                ansatt = NavAnsattFixture.ansatt2.navIdent,
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = emptySet(),
             ).shouldBeEmpty()
         }
@@ -205,7 +205,7 @@ class OppgaverServiceTest : FunSpec({
         test("Skal hente oppgaver for delutbetalinger med filter") {
             val service = OppgaverService(database.db)
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(
                     NavEnhetFixtures.Innlandet,
                     NavEnhetFixtures.Gjovik,
@@ -233,18 +233,17 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
-                ansatt = NavAnsattFixture.ansatt2.navIdent,
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.ATTESTANT_UTBETALING),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
-
             )
 
             service.delutbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = listOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
-                ansatt = NavAnsattFixture.ansatt2.navIdent,
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.SAKSBEHANDLER_OKONOMI, NavAnsattRolle.ATTESTANT_UTBETALING),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
@@ -254,7 +253,7 @@ class OppgaverServiceTest : FunSpec({
         test("Skal ikke hente oppgaver som ansatt selv har sendt til godkjenning") {
             val service = OppgaverService(database.db)
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -266,7 +265,7 @@ class OppgaverServiceTest : FunSpec({
                 setDelutbetalingStatus(
                     UtbetalingFixtures.delutbetaling1,
                     DelutbetalingStatus.TIL_GODKJENNING,
-                    behandletAv = NavAnsattFixture.ansatt1.navIdent,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
 
@@ -274,7 +273,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
-                ansatt = NavAnsattFixture.ansatt1.navIdent,
+                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
                 roller = setOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV, NavAnsattRolle.ATTESTANT_UTBETALING),
             ).shouldBeEmpty()
         }
@@ -283,7 +282,7 @@ class OppgaverServiceTest : FunSpec({
     context("utbetalinger") {
         test("Skal hente oppgaver for utbetalinger med filter") {
             MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.VTA),
                 navEnheter = listOf(

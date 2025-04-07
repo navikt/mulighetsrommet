@@ -1,14 +1,16 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
+import io.grpc.InternalChannelz.id
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createArrayFromSelector
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.OppgaveTiltakstype
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -118,6 +120,22 @@ class DelutbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setStatusForDelutbetalingerForBetaling(utbetalingId: UUID, status: DelutbetalingStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update delutbetaling
+            set status = :status::delutbetaling_status
+            where utbetaling_id = :utbetalingId::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "utbetalingId" to utbetalingId,
+            "status" to status.name,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun setSendtTilOkonomi(utbetalingId: UUID, tilsagnId: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
@@ -190,7 +208,7 @@ class DelutbetalingQueries(private val session: Session) {
     }
 
     fun getOppgaveData(
-        kostnadssteder: List<String>?,
+        kostnadssteder: List<NavEnhetNummer>?,
         tiltakskoder: List<Tiltakskode>?,
     ): List<DelutbetalingOppgaveData> {
         @Language("PostgreSQL")
@@ -221,7 +239,7 @@ class DelutbetalingQueries(private val session: Session) {
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createArrayOf("tiltakskode", it) },
-            "kostnadssteder" to kostnadssteder?.let { session.createTextArray(it) },
+            "kostnadssteder" to kostnadssteder?.let { session.createArrayFromSelector(it) { it.value } },
         )
 
         return session.list(queryOf(query, params)) {

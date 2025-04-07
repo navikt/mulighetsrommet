@@ -113,7 +113,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     <>
       <VStack>
         <HStack justify="space-between">
-          <Heading spacing size="medium">
+          <Heading spacing size="medium" level="2">
             Utbetalingslinjer
           </Heading>
           <ActionMenu>
@@ -155,7 +155,9 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
                     prev.map((linje) => (linje.id === updated.id ? updated : linje)),
                   );
                 }}
-                errors={error.filter((f) => f.pointer.startsWith(`/${index}`))}
+                errors={error.filter(
+                  (f) => f.pointer.startsWith(`/${index}`) || f.pointer.includes("totalbelop"),
+                )}
               />
             );
           }}

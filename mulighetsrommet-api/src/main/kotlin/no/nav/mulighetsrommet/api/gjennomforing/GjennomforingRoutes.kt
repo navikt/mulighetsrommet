@@ -301,7 +301,7 @@ fun Route.gjennomforingRoutes() {
 
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
-    val navEnheter: List<String> = emptyList(),
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
     val statuser: List<GjennomforingStatus> = emptyList(),
     val sortering: String? = null,
@@ -314,7 +314,7 @@ data class AdminTiltaksgjennomforingFilter(
 
 fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
     val search = call.request.queryParameters["search"]
-    val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
+    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
         ?.map { GjennomforingStatus.valueOf(it) }
@@ -374,7 +374,7 @@ data class GjennomforingRequest(
         UUID,
         >,
     val administratorer: List<NavIdent>,
-    val navEnheter: Set<String>,
+    val navEnheter: Set<NavEnhetNummer>,
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val stedForGjennomforing: String?,
@@ -434,7 +434,7 @@ data class SetAvtaleForGjennomforingRequest(
 @Serializable
 data class GjennomforingKontaktpersonDto(
     val navIdent: NavIdent,
-    val navEnheter: List<String>,
+    val navEnheter: List<NavEnhetNummer>,
     val beskrivelse: String?,
 )
 

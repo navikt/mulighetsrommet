@@ -18,7 +18,8 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.Gjeldende14aVedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.HovedmalMedOkeDeltakelse
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
@@ -26,8 +27,12 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.veilederflate.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
+import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.ZonedDateTime
@@ -36,7 +41,7 @@ class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
     val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient = mockk()
     val navEnhetService: NavEnhetService = mockk()
-    val pdlClient: PdlClient = mockk()
+    val brukerQuery: HentBrukerPdlQuery = mockk()
     val norg2Client: Norg2Client = mockk()
     val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient = mockk()
 
@@ -44,35 +49,35 @@ class BrukerServiceTest : FunSpec({
         veilarboppfolgingClient,
         veilarbvedtaksstotteClient,
         navEnhetService,
-        pdlClient,
         norg2Client,
         isoppfolgingstilfelleClient,
+        brukerQuery,
     )
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
 
     val navEgneAnsatteEnhet = NavEnhetDbo(
         navn = "Nav egne ansatte Lerkendal",
-        enhetsnummer = "1683",
+        enhetsnummer = NavEnhetNummer("1683"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.KO,
-        overordnetEnhet = "0500",
+        overordnetEnhet = NavEnhetNummer("0500"),
     )
 
     val navLerkendalEnhet = NavEnhetDbo(
         navn = "Nav Lerkendal",
-        enhetsnummer = "0501",
+        enhetsnummer = NavEnhetNummer("0501"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
-        overordnetEnhet = "0500",
+        overordnetEnhet = NavEnhetNummer("0500"),
     )
 
     val navVikafossenEnhet = NavEnhetDbo(
         navn = "Nav Vikafossen",
-        enhetsnummer = "2103",
+        enhetsnummer = NavEnhetNummer("2103"),
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.KO,
-        overordnetEnhet = "2100",
+        overordnetEnhet = NavEnhetNummer("2100"),
     )
 
     beforeSpec {
@@ -88,18 +93,18 @@ class BrukerServiceTest : FunSpec({
             fattetDato = ZonedDateTime.now(),
         ).right()
 
-        coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } answers {
-            GeografiskTilknytning.GtKommune(value = "0301").right()
+        coEvery { brukerQuery.hentBruker(PdlIdent(fnr1.value), any()) } answers {
+            HentBrukerResponse("Ola", GeografiskTilknytning.GtKommune("0301")).right()
         }
 
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } answers {
-            HentPersonResponse.Person(navn = listOf(PdlNavn(fornavn = "Ola", etternavn = "Normann"))).right()
+        coEvery { brukerQuery.hentBruker(PdlIdent(fnr2.value), any()) } answers {
+            HentBrukerResponse("Petter", GeografiskTilknytning.GtKommune("0301")).right()
         }
 
         coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
             enhetId = 1,
             navn = "Nav Fredrikstad",
-            enhetNr = "0106",
+            enhetNr = NavEnhetNummer("0106"),
             status = Norg2EnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
         ).right()
@@ -115,16 +120,12 @@ class BrukerServiceTest : FunSpec({
             fattetDato = ZonedDateTime.now(),
         ).right()
 
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns HentPersonResponse.Person(
-            navn = listOf(PdlNavn(fornavn = "Petter", etternavn = "Pettersen")),
-        ).right()
-
-        coEvery { navEnhetService.hentEnhet(any()) } returns NavEnhetDbo(
+        coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0106")) } returns NavEnhetDbo(
             navn = "Nav Fredrikstad",
-            enhetsnummer = "0106",
+            enhetsnummer = NavEnhetNummer("0106"),
             status = NavEnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
-            overordnetEnhet = "0100",
+            overordnetEnhet = NavEnhetNummer("0100"),
         )
     }
 
@@ -144,9 +145,9 @@ class BrukerServiceTest : FunSpec({
                 enheter = listOf(
                     NavEnhetDbo(
                         navn = "Nav Fredrikstad",
-                        enhetsnummer = "0106",
+                        enhetsnummer = NavEnhetNummer("0106"),
                         type = Norg2Type.LOKAL,
-                        overordnetEnhet = "0100",
+                        overordnetEnhet = NavEnhetNummer("0100"),
                         status = NavEnhetStatus.AKTIV,
                     ),
                 ),
@@ -157,7 +158,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Exception kastes hvis personinfo mangler") {
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
+        coEvery { brukerQuery.hentBruker(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
 
         shouldThrow<StatusException> {
             brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))
@@ -178,7 +179,8 @@ class BrukerServiceTest : FunSpec({
         }
 
         test("Hent relevante enheter returnerer liste med oppfølgingsenhet enhet hvis oppfølgingsenhet er Lokal") {
-            val oppfolgingsenhet = navEgneAnsatteEnhet.copy(enhetsnummer = "0502", type = Norg2Type.LOKAL)
+            val oppfolgingsenhet =
+                navEgneAnsatteEnhet.copy(enhetsnummer = NavEnhetNummer("0502"), type = Norg2Type.LOKAL)
             getRelevanteEnheterForBruker(navLerkendalEnhet, oppfolgingsenhet).should {
                 it shouldContainExactly listOf(oppfolgingsenhet)
             }
@@ -196,17 +198,17 @@ class BrukerServiceTest : FunSpec({
             val result = oppfolgingsenhetLokalOgUlik(
                 NavEnhetDbo(
                     navn = "",
-                    enhetsnummer = "1234",
+                    enhetsnummer = NavEnhetNummer("1234"),
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "1000",
+                    overordnetEnhet = NavEnhetNummer("1000"),
                 ),
                 NavEnhetDbo(
                     navn = "",
-                    enhetsnummer = "4321",
+                    enhetsnummer = NavEnhetNummer("4321"),
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "4000",
+                    overordnetEnhet = NavEnhetNummer("4000"),
                 ),
             )
             result shouldBe true
@@ -215,17 +217,17 @@ class BrukerServiceTest : FunSpec({
             val result = oppfolgingsenhetLokalOgUlik(
                 NavEnhetDbo(
                     navn = "",
-                    enhetsnummer = "1234",
+                    enhetsnummer = NavEnhetNummer("1234"),
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "1000",
+                    overordnetEnhet = NavEnhetNummer("1000"),
                 ),
                 NavEnhetDbo(
                     navn = "",
-                    enhetsnummer = "1234",
+                    enhetsnummer = NavEnhetNummer("1234"),
                     status = NavEnhetStatus.AKTIV,
                     type = Norg2Type.LOKAL,
-                    overordnetEnhet = "1000",
+                    overordnetEnhet = NavEnhetNummer("1000"),
                 ),
             )
             result shouldBe false
@@ -244,5 +246,5 @@ fun mockManuellStatus(): ManuellStatusDto {
 }
 
 fun mockOppfolgingsenhet(): Oppfolgingsenhet {
-    return Oppfolgingsenhet(navn = "Nav Fredrikstad", enhetId = "0106")
+    return Oppfolgingsenhet(navn = "Nav Fredrikstad", enhetId = NavEnhetNummer("0106"))
 }

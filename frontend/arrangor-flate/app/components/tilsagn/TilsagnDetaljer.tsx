@@ -10,6 +10,10 @@ interface Props {
 export function TilsagnDetaljer({ tilsagn }: Props) {
   const tilsagnDetaljer: Definition[] = [
     {
+      key: "Tilsagnsnummer",
+      value: tilsagn.bestillingsnummer,
+    },
+    {
       key: "Tilsagnsperiode",
       value: formaterPeriode(tilsagn.periode),
     },

@@ -11,7 +11,16 @@ import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import { AdminUtbetalingStatus, NavAnsattRolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Accordion, Alert, Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
+import {
+  Accordion,
+  Alert,
+  Box,
+  CopyButton,
+  Heading,
+  HGrid,
+  HStack,
+  VStack,
+} from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -69,10 +78,11 @@ export function UtbetalingPage() {
   ];
   return (
     <>
+      <title>Utbetalinger</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <BankNoteIcon className="w-10 h-10" />
-        <Heading size="large" level="2">
+        <Heading size="large" level="1">
           Utbetaling for {gjennomforing.navn}
         </Heading>
       </Header>
@@ -93,7 +103,12 @@ export function UtbetalingPage() {
                   </div>
                   <HGrid columns="1fr 1fr">
                     <VStack>
-                      <Heading size="medium" spacing>
+                      <Heading
+                        size="medium"
+                        level="2"
+                        spacing
+                        data-testid="utbetaling-til-utbetaling"
+                      >
                         Til utbetaling
                       </Heading>
                       <VStack gap="2">
@@ -123,20 +138,44 @@ export function UtbetalingPage() {
                         )}
                       </VStack>
                     </VStack>
-                    <VStack>
-                      <Heading size="medium" spacing>
-                        Betalingsinformasjon
-                      </Heading>
-                      <VStack gap="2">
-                        <MetadataHorisontal
-                          header="Kontonummer"
-                          verdi={utbetaling.betalingsinformasjon?.kontonummer}
-                        />
-                        <MetadataHorisontal
-                          header="KID (valgfritt)"
-                          verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
-                        />
-                      </VStack>
+                    <VStack gap="4">
+                      <>
+                        <Heading size="medium" level="2">
+                          Betalingsinformasjon
+                        </Heading>
+                        <VStack gap="2">
+                          <MetadataHorisontal
+                            header="Kontonummer"
+                            verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                          />
+                          <MetadataHorisontal
+                            header="KID (valgfritt)"
+                            verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
+                          />
+                        </VStack>
+                      </>
+                      {utbetaling.journalpostId ? (
+                        <>
+                          <Heading size="medium" level="2">
+                            Journalføring
+                          </Heading>
+                          <VStack gap="2">
+                            <MetadataHorisontal
+                              header="Journalpost-ID i Gosys"
+                              verdi={
+                                <HStack align="center" gap="1">
+                                  <CopyButton
+                                    size="small"
+                                    copyText={utbetaling.journalpostId}
+                                    title="Kopier journalpost-ID"
+                                  ></CopyButton>
+                                  {utbetaling.journalpostId}
+                                </HStack>
+                              }
+                            />
+                          </VStack>
+                        </>
+                      ) : null}
                     </VStack>
                   </HGrid>
                 </VStack>
@@ -150,15 +189,18 @@ export function UtbetalingPage() {
                     </Accordion.Item>
                   </Accordion>
                 )}
-                {tilsagn.every((t) => t.status !== TilsagnStatus.GODKJENT) && (
+                {tilsagn.every(
+                  (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
+                ) && (
                   <Alert variant="info">
                     Det finnes ingen godkjente tilsagn for utbetalingsperioden
                   </Alert>
                 )}
                 {erSaksbehandlerOkonomi &&
-                [AdminUtbetalingStatus.BEHANDLES_AV_NAV, AdminUtbetalingStatus.RETURNERT].includes(
-                  utbetaling.status,
-                ) ? (
+                [
+                  AdminUtbetalingStatus.KLAR_TIL_BEHANDLING,
+                  AdminUtbetalingStatus.RETURNERT,
+                ].includes(utbetaling.status) ? (
                   <RedigerUtbetalingLinjeView
                     tilsagn={tilsagn}
                     utbetaling={utbetaling}

@@ -56,16 +56,10 @@ fun Route.utbetalingRoutes() {
                     ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
 
                 val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
-                    val tilsagnBesluttetAv = queries.totrinnskontroll
-                        .getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
-                        .besluttetAv
-
                     val opprettelse = queries.totrinnskontroll
                         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
-                    val kanBesluttesAvAnsatt = tilsagnBesluttetAv != ansatt.navIdent &&
-                        opprettelse.behandletAv != ansatt.navIdent &&
-                        NavAnsattRolle.ATTESTANT_UTBETALING in ansatt.roller
+                    val kanBesluttesAvAnsatt = NavAnsattRolle.ATTESTANT_UTBETALING in ansatt.roller
 
                     UtbetalingLinje(
                         id = delutbetaling.id,
@@ -174,8 +168,7 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<BesluttDelutbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                service.besluttDelutbetaling(id, request, navIdent)
-                call.respond(HttpStatusCode.OK)
+                call.respondWithStatusResponse(service.besluttDelutbetaling(id, request, navIdent))
             }
         }
     }

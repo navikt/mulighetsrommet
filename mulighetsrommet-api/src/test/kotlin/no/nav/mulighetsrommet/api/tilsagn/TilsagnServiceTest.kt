@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -21,6 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
@@ -32,9 +34,12 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
-import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.*
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
 import java.util.*
 
@@ -43,8 +48,8 @@ class TilsagnServiceTest : FunSpec({
 
     val minimumTilsagnPeriodeStart = LocalDate.of(2025, 1, 1)
 
-    val ansatt1 = NavAnsattFixture.ansatt1.navIdent
-    val ansatt2 = NavAnsattFixture.ansatt2.navIdent
+    val ansatt1 = NavAnsattFixture.DonaldDuck.navIdent
+    val ansatt2 = NavAnsattFixture.MikkeMus.navIdent
 
     val request = TilsagnRequest(
         id = UUID.randomUUID(),
@@ -116,6 +121,34 @@ class TilsagnServiceTest : FunSpec({
                 FieldError(
                     pointer = "/periodeStart",
                     detail = "Tilsagn for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet er ikke støttet enda",
+                ),
+            )
+        }
+
+        test("tilsagnet kan ikke slutte etter gjennomføringen") {
+            val service = createTilsagnService()
+
+            val gjennomforing = AFT1.copy(
+                startDato = LocalDate.of(2025, 1, 1),
+                sluttDato = LocalDate.of(2025, 2, 1),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            val invalidRequest = request.copy(
+                gjennomforingId = gjennomforing.id,
+                periodeStart = LocalDate.of(2025, 1, 1),
+                periodeSlutt = LocalDate.of(2025, 3, 1),
+            )
+
+            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/periodeSlutt",
+                    detail = "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
                 ),
             )
         }
@@ -253,7 +286,9 @@ class TilsagnServiceTest : FunSpec({
                 id = request.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = ansatt1,
-            ) shouldBe Forbidden("Kan ikke beslutte eget tilsagn").left()
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
+                it.errors shouldContain FieldError.root("Du kan ikke beslutte et tilsagn du selv har opprettet")
+            }
         }
 
         test("kan ikke beslutte to ganger") {
@@ -295,7 +330,7 @@ class TilsagnServiceTest : FunSpec({
                 .payload.should {
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
-                    it.kostnadssted shouldBe NavEnhetNummer(request.kostnadssted)
+                    it.kostnadssted shouldBe request.kostnadssted
                     it.periode shouldBe Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
                 }
         }
@@ -491,6 +526,33 @@ class TilsagnServiceTest : FunSpec({
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                 }
         }
+
+        test("kan ikke annullere eget tilsagn") {
+            val service = createTilsagnService()
+
+            service.upsert(request, ansatt1).shouldBeRight()
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight()
+            service.tilAnnulleringRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = "Velg et annet beløp",
+                ),
+            )
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt1,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))
+            }
+            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_ANNULLERING
+        }
     }
 
     context("Gjør opp tilsagn") {
@@ -548,6 +610,32 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                 }
+        }
+
+        test("kan ikke gjøre opp egen") {
+            val service = createTilsagnService()
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt2,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.tilGjorOppRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
+            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt1,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))
+            }
+            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_OPPGJOR
         }
 
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {

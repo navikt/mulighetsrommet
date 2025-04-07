@@ -1,11 +1,12 @@
 package no.nav.mulighetsrommet.oppgaver
 
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
 
@@ -36,5 +37,5 @@ fun Route.oppgaverRoutes() {
 data class OppgaverFilter(
     val oppgavetyper: List<OppgaveType>,
     val tiltakskoder: List<Tiltakskode>,
-    val regioner: List<String>,
+    val regioner: List<NavEnhetNummer>,
 )

@@ -5691,11 +5691,12 @@ components:
       type: string
       enum:
         - VENTER_PA_ARRANGOR
-        - BEHANDLES_AV_NAV
+        - KLAR_TIL_BEHANDLING
         - RETURNERT
         - TIL_GODKJENNING
         - GODKJENT
         - UTBETALT
+        - OVERFORT_TIL_UTBETALING
 
     UtbetalingDetaljerDto:
       type: object
@@ -5730,6 +5731,8 @@ components:
         godkjentAvArrangorTidspunkt:
           type: string
           format: date-time
+        journalpostId:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -6076,6 +6079,8 @@ components:
           $ref: "#/components/schemas/TilsagnBeregning"
         gjenstaendeBelop:
           type: integer
+        bestillingsnummer:
+          type: string
       required:
         - periode
         - type
@@ -6086,6 +6091,7 @@ components:
         - beregning
         - id
         - gjenstaendeBelop
+        - bestillingsnummer
 
     Betalingsinformasjon:
       type: object
@@ -6153,6 +6159,7 @@ components:
         - GODKJENT
         - RETURNERT
         - UTBETALT
+        - OVERFORT_TIL_UTBETALING
 
     UtbetalingLinje:
       type: object

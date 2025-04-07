@@ -2,14 +2,15 @@ package no.nav.mulighetsrommet.api.navenhet.db
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 @Serializable
 data class NavEnhetDbo(
     val navn: String,
-    val enhetsnummer: String,
+    val enhetsnummer: NavEnhetNummer,
     val status: NavEnhetStatus,
     val type: Norg2Type,
-    val overordnetEnhet: String? = null,
+    val overordnetEnhet: NavEnhetNummer? = null,
 )
 
 @Serializable

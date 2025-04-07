@@ -53,7 +53,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         val domain = MulighetsrommetTestDomain(
-            ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+            ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             arrangorer = listOf(
                 ArrangorFixtures.hovedenhet,
                 ArrangorFixtures.underenhet1,
@@ -154,8 +154,8 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                val ansatt1 = NavAnsattFixture.ansatt1
-                val ansatt2 = NavAnsattFixture.ansatt2
+                val ansatt1 = NavAnsattFixture.DonaldDuck
+                val ansatt2 = NavAnsattFixture.MikkeMus
 
                 val avtale1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -170,7 +170,7 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtale1.copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)))
                 queries.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
                     AvtaleDto.Administrator(ansatt1.navIdent, "Donald Duck"),
-                    AvtaleDto.Administrator(ansatt2.navIdent, "Dolly Duck"),
+                    AvtaleDto.Administrator(ansatt2.navIdent, "Mikke Mus"),
                 )
 
                 queries.upsert(avtale1.copy(administratorer = listOf()))
@@ -461,12 +461,12 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 val avtale1 = AvtaleFixtures.oppfolging.copy(
-                    administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                    administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                 )
 
                 queries.upsert(avtale1)
 
-                queries.getAvtaleIdsByAdministrator(NavAnsattFixture.ansatt1.navIdent) shouldBe listOf(avtale1.id)
+                queries.getAvtaleIdsByAdministrator(NavAnsattFixture.DonaldDuck.navIdent) shouldBe listOf(avtale1.id)
             }
         }
 
@@ -530,21 +530,21 @@ class AvtaleQueriesTest : FunSpec({
 
                 val a1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                    administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                 )
                 val a2 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    administratorer = listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
+                    administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent, NavAnsattFixture.MikkeMus.navIdent),
                 )
 
                 queries.upsert(a1)
                 queries.upsert(a2)
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent).should {
+                queries.getAll(administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent).should {
                     it.items shouldContainExactlyIds listOf(a1.id, a2.id)
                 }
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent).should {
+                queries.getAll(administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent).should {
                     it.items shouldContainExactlyIds listOf(a2.id)
                 }
             }
@@ -618,13 +618,13 @@ class AvtaleQueriesTest : FunSpec({
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'"))
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0502' where id = '${AvtaleFixtures.VTA.id}'"))
 
-                queries.getAll(navRegioner = listOf("0300")).should { (totalCount) ->
+                queries.getAll(navRegioner = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
-                queries.getAll(navRegioner = listOf("0400")).should { (totalCount) ->
+                queries.getAll(navRegioner = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
                     totalCount shouldBe 2
                 }
-                queries.getAll(navRegioner = listOf("0502")).should { (totalCount) ->
+                queries.getAll(navRegioner = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
             }
@@ -779,8 +779,7 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                var result = queries.getAll(search = "enhet")
-                result.totalCount shouldBe 2
+                queries.getAll(search = "enhet").totalCount shouldBe 2
                 queries.getAll(search = "annen").totalCount shouldBe 1
             }
         }

@@ -8,7 +8,7 @@ enum class Avtaletype {
     Forhaandsgodkjent,
     OffentligOffentlig, ;
 
-    fun kreverWebsaknummer(): Boolean {
+    fun kreverSakarkivNummer(): Boolean {
         return listOf(Rammeavtale, Avtale).contains(this)
     }
 }

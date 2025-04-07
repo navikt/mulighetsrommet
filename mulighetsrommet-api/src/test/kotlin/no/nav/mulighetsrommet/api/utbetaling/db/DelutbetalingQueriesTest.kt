@@ -23,7 +23,7 @@ class DelutbetalingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        ansatte = listOf(NavAnsattFixture.ansatt1),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck),
         avtaler = listOf(AvtaleFixtures.AFT),
         gjennomforinger = listOf(AFT1),
         tilsagn = listOf(TilsagnFixtures.Tilsagn1),

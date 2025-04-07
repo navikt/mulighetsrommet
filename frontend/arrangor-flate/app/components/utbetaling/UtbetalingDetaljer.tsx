@@ -19,7 +19,7 @@ export function UtbetalingDetaljer({ utbetaling, tilsagn }: Props) {
       <Separator />
       <Heading size="medium">Tilsagnsdetaljer</Heading>
       {tilsagn.length === 0 && (
-        <Alert variant="info">Det finnes ingen tilsagn for utbetalingsperioden</Alert>
+        <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
       )}
       {tilsagn.map((t) => (
         <Box

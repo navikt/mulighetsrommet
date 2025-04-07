@@ -20,4 +20,5 @@ fun Application.configureApi(
 
     bestillingRoutes(db, okonomi)
     fakturaRoutes(db, okonomi)
+    oebsRoutes(okonomi)
 }

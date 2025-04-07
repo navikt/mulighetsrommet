@@ -16,11 +16,12 @@ import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.koin.ktor.ext.inject
 import java.util.*
 
 internal data class ArbeidsmarkedstiltakFilter(
-    val enheter: NonEmptyList<String>,
+    val enheter: NonEmptyList<NavEnhetNummer>,
     val innsatsgruppe: Innsatsgruppe,
     val tiltakstyper: List<String>?,
     val search: String?,
@@ -39,6 +40,7 @@ internal fun RoutingContext.getArbeidsmarkedstiltakFilter(): Arbeidsmarkedstilta
 
     val enheter = queryParameters.getAll("enheter")
         ?.toNonEmptyListOrNull()
+        ?.map { NavEnhetNummer(it) }
         ?: throw StatusException(HttpStatusCode.BadRequest, "Nav-enheter er påkrevd")
     val innsatsgruppe = queryParameters["innsatsgruppe"]
         ?.let { Innsatsgruppe.valueOf(it) }

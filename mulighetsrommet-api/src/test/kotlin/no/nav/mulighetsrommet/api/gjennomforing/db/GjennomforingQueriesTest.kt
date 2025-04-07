@@ -109,13 +109,13 @@ class GjennomforingQueriesTest : FunSpec({
                 val queries = GjennomforingQueries(session)
 
                 val gjennomforing = Oppfolging1.copy(
-                    administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                    administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                 )
                 queries.upsert(gjennomforing)
 
                 queries.get(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
                     GjennomforingDto.Administrator(
-                        navIdent = NavAnsattFixture.ansatt1.navIdent,
+                        navIdent = NavAnsattFixture.DonaldDuck.navIdent,
                         navn = "Donald Duck",
                     ),
                 )
@@ -143,7 +143,9 @@ class GjennomforingQueriesTest : FunSpec({
                 }
 
                 queries.upsert(
-                    Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Lillehammer.enhetsnummer)),
+                    Oppfolging1.copy(
+                        navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Lillehammer.enhetsnummer),
+                    ),
                 )
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
                     it.kontorstruktur[0].region shouldBe Innlandet
@@ -196,13 +198,13 @@ class GjennomforingQueriesTest : FunSpec({
                     Oppfolging1.copy(
                         kontaktpersoner = listOf(
                             GjennomforingKontaktpersonDbo(
-                                navIdent = NavAnsattFixture.ansatt1.navIdent,
-                                navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
+                                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                                navEnheter = listOf(NavAnsattFixture.DonaldDuck.hovedenhet),
                                 beskrivelse = "hei hei kontaktperson",
                             ),
                             GjennomforingKontaktpersonDbo(
-                                navIdent = NavAnsattFixture.ansatt2.navIdent,
-                                navEnheter = listOf(NavAnsattFixture.ansatt2.hovedenhet),
+                                navIdent = NavAnsattFixture.MikkeMus.navIdent,
+                                navEnheter = listOf(NavAnsattFixture.MikkeMus.hovedenhet),
                                 beskrivelse = null,
                             ),
                         ),
@@ -215,17 +217,17 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
                         epost = "donald.duck@nav.no",
-                        navEnheter = listOf("0400"),
-                        hovedenhet = "0400",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
+                        hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = "hei hei kontaktperson",
                     ),
                     GjennomforingKontaktperson(
                         navIdent = NavIdent("DD2"),
-                        navn = "Dolly Duck",
+                        navn = "Mikke Mus",
                         mobilnummer = "48243214",
-                        epost = "dolly.duck@nav.no",
-                        navEnheter = listOf("0400"),
-                        hovedenhet = "0400",
+                        epost = "mikke.mus@nav.no",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
+                        hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = null,
                     ),
                 )
@@ -234,8 +236,8 @@ class GjennomforingQueriesTest : FunSpec({
                     Oppfolging1.copy(
                         kontaktpersoner = listOf(
                             GjennomforingKontaktpersonDbo(
-                                navIdent = NavAnsattFixture.ansatt1.navIdent,
-                                navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
+                                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                                navEnheter = listOf(NavAnsattFixture.DonaldDuck.hovedenhet),
                                 beskrivelse = null,
                             ),
                         ),
@@ -248,8 +250,8 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
                         epost = "donald.duck@nav.no",
-                        navEnheter = listOf("0400"),
-                        hovedenhet = "0400",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
+                        hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = null,
                     ),
                 )
@@ -641,8 +643,14 @@ class GjennomforingQueriesTest : FunSpec({
                     navEnheter = listOf(Innlandet, Lillehammer, Gjovik),
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
-                        Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
-                        Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer)),
+                        Oppfolging1.copy(
+                            id = UUID.randomUUID(),
+                            navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
+                        ),
+                        Oppfolging1.copy(
+                            id = UUID.randomUUID(),
+                            navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+                        ),
                         Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = setOf()),
                     ),
                 ).setup(session)
@@ -652,7 +660,7 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.updateArenaData(
                     id = domain.gjennomforinger[2].id,
                     tiltaksnummer = "2024/1",
-                    arenaAnsvarligEnhet = Lillehammer.enhetsnummer,
+                    arenaAnsvarligEnhet = Lillehammer.enhetsnummer.value,
                 )
 
                 queries.getAll(navEnheter = listOf(Lillehammer.enhetsnummer)).should {
@@ -669,13 +677,13 @@ class GjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(
                         Oppfolging1.copy(
                             id = UUID.randomUUID(),
-                            administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+                            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                         ),
                         Oppfolging1.copy(
                             id = UUID.randomUUID(),
                             administratorer = listOf(
-                                NavAnsattFixture.ansatt1.navIdent,
-                                NavAnsattFixture.ansatt2.navIdent,
+                                NavAnsattFixture.DonaldDuck.navIdent,
+                                NavAnsattFixture.MikkeMus.navIdent,
                             ),
                         ),
                     ),
@@ -683,10 +691,16 @@ class GjennomforingQueriesTest : FunSpec({
 
                 val queries = GjennomforingQueries(session)
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent, koordinatorNavIdent = NavAnsattFixture.ansatt1.navIdent)
+                queries.getAll(
+                    administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                    koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                )
                     .totalCount shouldBe 2
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent, koordinatorNavIdent = NavAnsattFixture.ansatt2.navIdent)
+                queries.getAll(
+                    administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
+                    koordinatorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
+                )
                     .should {
                         it.totalCount shouldBe 1
                         it.items shouldContainExactlyIds listOf(domain.gjennomforinger[1].id)

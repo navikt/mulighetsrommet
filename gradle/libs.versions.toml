@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2025.04.01_09.46-936a3ae3d5d9"
-flyway = "11.4.0"
+flyway = "11.6.0"
 koin = "4.1.0-Beta5"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
@@ -54,7 +54,7 @@ kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-exten
 kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest-extensions-testcontainers-kafka", version.ref = "kotest-testcontainers" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1"
 kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
@@ -91,7 +91,7 @@ ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref =
 
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:8.0"
+logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:8.1"
 
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
@@ -108,7 +108,7 @@ nav-common-client = { module = "no.nav.common:client", version.ref = "common-jav
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.03.17_10.46-e6359712fa6d"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.10"
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.48.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.49.0"
 
 postgresql = "org.postgresql:postgresql:42.7.5"
 
@@ -120,7 +120,7 @@ slack-client = "com.slack.api:slack-api-client:1.45.3"
 
 slf4j = "org.slf4j:slf4j-api:2.0.17"
 
-apache-poi = "org.apache.poi:poi:5.4.0"
-apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.0"
+apache-poi = "org.apache.poi:poi:5.4.1"
+apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.1"
 
 unleash = "io.getunleash:unleash-client-java:10.2.2"

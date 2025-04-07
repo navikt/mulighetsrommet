@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -222,7 +223,7 @@ data class TilsagnDefaultsRequest(
     val periodeStart: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate?,
-    val kostnadssted: String?,
+    val kostnadssted: NavEnhetNummer?,
     val belop: Int?,
     val prismodell: Prismodell?,
 )
@@ -238,7 +239,7 @@ data class TilsagnDefaults(
     val periodeStart: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate?,
-    val kostnadssted: String?,
+    val kostnadssted: NavEnhetNummer?,
     val beregning: TilsagnBeregningInput?,
 )
 
@@ -254,7 +255,7 @@ data class TilsagnRequest(
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
-    val kostnadssted: String,
+    val kostnadssted: NavEnhetNummer,
     val beregning: TilsagnBeregningInput,
 )
 
@@ -395,7 +396,6 @@ private fun getTotrinnskontrollForAnsatt(
     totrinnskontroll: Totrinnskontroll,
     ansatt: NavAnsattDto,
 ): TotrinnskontrollDto {
-    val kanBesluttesAvAnsatt = totrinnskontroll.behandletAv != ansatt.navIdent &&
-        NavAnsattRolle.BESLUTTER_TILSAGN in ansatt.roller
+    val kanBesluttesAvAnsatt = NavAnsattRolle.BESLUTTER_TILSAGN in ansatt.roller
     return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt)
 }

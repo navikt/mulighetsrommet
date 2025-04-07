@@ -3,11 +3,8 @@ package no.nav.mulighetsrommet.api.clients.pdl
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
@@ -19,7 +16,6 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
-import java.util.concurrent.TimeUnit
 
 /**
  * Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
@@ -47,135 +43,6 @@ class PdlClient(
         install(HttpTimeout) {
             requestTimeoutMillis = 5000
         }
-    }
-
-    private val hentIdenterCache: Cache<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse.Identliste> =
-        Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .maximumSize(10_000)
-            .recordStats()
-            .build()
-
-    private val hentPersonCache: Cache<PdlIdent, HentPersonResponse.Person> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
-    private val hentGeografiskTilknytningCache: Cache<PdlIdent, GeografiskTilknytning> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
-    suspend fun hentHistoriskeIdenter(
-        variables: GraphqlRequest.HentHistoriskeIdenter,
-        accessType: AccessType,
-    ): Either<PdlError, List<IdentInformasjon>> {
-        hentIdenterCache.getIfPresent(variables)?.let { return@hentHistoriskeIdenter it.identer.right() }
-
-        val request = GraphqlRequest(
-            query = """
-                query(${'$'}ident: ID!, ${'$'}grupper: [IdentGruppe!]) {
-                    hentIdenter(ident: ${'$'}ident, grupper: ${'$'}grupper, historikk: true) {
-                        identer {
-                            ident,
-                            historisk,
-                            gruppe
-                        }
-                    }
-                }
-            """.trimIndent(),
-            variables = variables,
-        )
-        return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(request, accessType)
-            .onRight { response ->
-                response.hentIdenter?.also { hentIdenterCache.put(variables, it) }
-            }
-            .map { response ->
-                requireNotNull(response.hentIdenter) {
-                    "hentIdenter var null og errors tom! response: $response"
-                }
-                response.hentIdenter.identer
-            }
-    }
-
-    suspend fun hentPerson(ident: PdlIdent, accessType: AccessType): Either<PdlError, HentPersonResponse.Person> {
-        hentPersonCache.getIfPresent(ident)?.let { return@hentPerson it.right() }
-
-        val request = GraphqlRequest(
-            query = """
-                query(${'$'}ident: ID!) {
-                    hentPerson(ident: ${'$'}ident) {
-                    	navn(historikk: false) {
-                            fornavn
-                            mellomnavn
-                            etternavn
-                        }
-                    }
-                }
-            """.trimIndent(),
-            variables = GraphqlRequest.Ident(ident),
-        )
-        return graphqlRequest<GraphqlRequest.Ident, HentPersonResponse>(request, accessType)
-            .map {
-                require(it.hentPerson != null) {
-                    "hentPerson var null og errors tom! response: $it"
-                }
-                it.hentPerson
-            }
-            .onRight {
-                hentPersonCache.put(ident, it)
-            }
-    }
-
-    suspend fun hentGeografiskTilknytning(
-        ident: PdlIdent,
-        accessType: AccessType,
-    ): Either<PdlError, GeografiskTilknytning> {
-        hentGeografiskTilknytningCache.getIfPresent(ident)?.let { return@hentGeografiskTilknytning it.right() }
-
-        val request = GraphqlRequest(
-            query = """
-                query(${'$'}ident: ID!) {
-                    hentGeografiskTilknytning(ident: ${'$'}ident) {
-                        gtType
-                        gtKommune
-                        gtBydel
-                        gtLand
-                    }
-                }
-            """.trimIndent(),
-            variables = GraphqlRequest.Ident(ident),
-        )
-        return graphqlRequest<GraphqlRequest.Ident, HentGeografiskTilknytningResponse>(request, accessType)
-            .map {
-                require(it.hentGeografiskTilknytning != null) {
-                    "hentGeografiskTilknytning var null og errors tom! response: $it"
-                }
-                when (it.hentGeografiskTilknytning.gtType) {
-                    TypeGeografiskTilknytning.BYDEL -> {
-                        GeografiskTilknytning.GtBydel(requireNotNull(it.hentGeografiskTilknytning.gtBydel))
-                    }
-
-                    TypeGeografiskTilknytning.KOMMUNE -> {
-                        GeografiskTilknytning.GtKommune(requireNotNull(it.hentGeografiskTilknytning.gtKommune))
-                    }
-
-                    TypeGeografiskTilknytning.UTLAND -> {
-                        log.warn("Pdl returnerte UTLAND geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        GeografiskTilknytning.GtUtland(it.hentGeografiskTilknytning.gtLand)
-                    }
-
-                    TypeGeografiskTilknytning.UDEFINERT -> {
-                        log.warn("Pdl returnerte UDEFINERT geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        GeografiskTilknytning.GtUdefinert
-                    }
-                }
-            }
-            .onRight {
-                hentGeografiskTilknytningCache.put(ident, it)
-            }
     }
 
     internal suspend inline fun <reified T, reified V> graphqlRequest(
@@ -296,37 +163,4 @@ enum class PdlErrorCode {
      */
     @SerialName("server_error")
     SERVER_ERROR,
-}
-
-@Serializable
-data class HentIdenterResponse(
-    val hentIdenter: Identliste? = null,
-) {
-    @Serializable
-    data class Identliste(
-        val identer: List<IdentInformasjon>,
-    )
-}
-
-@Serializable
-data class HentPersonResponse(
-    val hentPerson: Person? = null,
-) {
-    @Serializable
-    data class Person(
-        val navn: List<PdlNavn>,
-    )
-}
-
-@Serializable
-data class HentGeografiskTilknytningResponse(
-    val hentGeografiskTilknytning: GeografiskTilknytning? = null,
-) {
-    @Serializable
-    data class GeografiskTilknytning(
-        val gtType: TypeGeografiskTilknytning,
-        val gtLand: String? = null,
-        val gtKommune: String? = null,
-        val gtBydel: String? = null,
-    )
 }

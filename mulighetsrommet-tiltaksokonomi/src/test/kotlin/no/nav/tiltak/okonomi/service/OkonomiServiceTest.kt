@@ -200,7 +200,7 @@ class OkonomiServiceTest : FunSpec({
 
             val annullerBestilling = createAnnullerBestilling("4")
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling 4 kan ikke annulleres fordi den er oppgjort"
+                it.message shouldBe "Bestilling 4 kan ikke annulleres fordi den har status: OPPGJORT"
             }
         }
 
@@ -247,7 +247,7 @@ class OkonomiServiceTest : FunSpec({
             val annullerBestilling = createAnnullerBestilling("6")
             service.annullerBestilling(annullerBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe "6"
-                it.status shouldBe BestillingStatusType.ANNULLERT
+                it.status shouldBe BestillingStatusType.ANNULLERING_SENDT
             }
 
             db.session { getLatestRecord() }.should {
@@ -256,7 +256,7 @@ class OkonomiServiceTest : FunSpec({
                 it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
                         bestillingsnummer = "6",
-                        status = BestillingStatusType.ANNULLERT,
+                        status = BestillingStatusType.ANNULLERING_SENDT,
                     ),
                 )
             }
@@ -268,7 +268,7 @@ class OkonomiServiceTest : FunSpec({
             val annullerBestilling = createAnnullerBestilling("6")
             service.annullerBestilling(annullerBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe "6"
-                it.status shouldBe BestillingStatusType.ANNULLERT
+                it.status shouldBe BestillingStatusType.ANNULLERING_SENDT
             }
 
             db.session { getLatestRecord() }.should {

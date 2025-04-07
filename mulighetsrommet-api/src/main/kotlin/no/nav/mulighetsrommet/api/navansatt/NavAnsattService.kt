@@ -47,11 +47,8 @@ class NavAnsattService(
             return
         }
 
-        val dbo = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(
-            roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON),
-        )
-
-        queries.ansatt.upsert(dbo)
+        val roller = ansatt.roller + NavAnsattRolle.KONTAKTPERSON
+        queries.ansatt.setRoller(ansatt.navIdent, roller)
 
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }

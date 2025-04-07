@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.utbetaling.pdl
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
@@ -20,9 +20,9 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
 
     suspend fun hentPersonBolk(identer: NonEmptySet<PdlIdent>): Either<PdlError, Map<PdlIdent, HentPersonBolkResponse.Person>> {
         val request = GraphqlRequest(
-            query = """
-                query(${'$'}identer: [ID!]!) {
-                    hentPersonBolk(identer: ${'$'}identer) {
+            query = $$"""
+                query($identer: [ID!]!) {
+                    hentPersonBolk(identer: $identer) {
                         ident
                         person {
                             navn {

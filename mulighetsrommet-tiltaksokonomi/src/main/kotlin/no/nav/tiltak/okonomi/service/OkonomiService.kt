@@ -11,13 +11,13 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.api.OebsBestillingKvittering
+import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
-import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
-import no.nav.tiltak.okonomi.oebs.OebsPoApClient
+import no.nav.tiltak.okonomi.oebs.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -103,11 +103,12 @@ class OkonomiService(
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
 
-        if (bestilling.status == BestillingStatusType.ANNULLERT) {
+        if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.ANNULLERING_SENDT)) {
             log.info("Bestilling $bestillingsnummer er allerede annullert")
             return publishBestilling(bestillingsnummer).right()
-        } else if (bestilling.status == BestillingStatusType.OPPGJORT) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den er oppgjort").left()
+        } else if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
+            // TODO: Fjern SENDT som valid status her når kvitteringer skal være mottatt
+            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status: ${bestilling.status}").left()
         } else if (queries.faktura.getByBestillingsnummer(bestillingsnummer).isNotEmpty()) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
@@ -119,7 +120,7 @@ class OkonomiService(
             }
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer} som annullert")
-                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
+                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERING_SENDT)
                 queries.bestilling.setAnnullering(
                     bestillingsnummer,
                     Bestilling.Totrinnskontroll(
@@ -148,7 +149,8 @@ class OkonomiService(
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling $bestillingsnummer finnes ikke").left()
 
-        if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.OPPGJORT)) {
+        // TODO: Fjern SENDT som valid status her når kvitteringer skal være mottatt
+        if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
             return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
         }
 
@@ -191,7 +193,7 @@ class OkonomiService(
             return it.right()
         }
 
-        // TODO: Fjern sjekk mot SENDT status når bestillinger blir satt som aktive
+        // TODO: Fjern SENDT som valid status her når kvitteringer skal være mottatt
         if (bestilling.status !in listOf(BestillingStatusType.SENDT, BestillingStatusType.AKTIV)) {
             return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
         }
@@ -211,6 +213,58 @@ class OkonomiService(
 
                 faktura
             }
+    }
+
+    fun hentBestilling(bestillingsnummer: String): Bestilling? = db.session {
+        queries.bestilling.getByBestillingsnummer(bestillingsnummer)
+    }
+
+    fun hentFaktura(fakturaNummer: String): Faktura? = db.session {
+        queries.faktura.getByFakturanummer(fakturaNummer)
+    }
+
+    fun mottaBestillingKvittering(
+        bestilling: Bestilling,
+        kvittering: OebsBestillingKvittering,
+    ) = db.transaction {
+        if (kvittering.isSuccess()) {
+            if (kvittering.isAnnulleringKvittering()) {
+                queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.ANNULLERT)
+            } else {
+                queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.AKTIV)
+            }
+        } else {
+            queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FEILET)
+            queries.bestilling.setFeilmelding(
+                bestilling.bestillingsnummer,
+                feilKode = kvittering.feilKode,
+                feilMelding = kvittering.feilMelding,
+            )
+        }
+
+        publishBestilling(bestilling.bestillingsnummer)
+    }
+
+    fun mottaFakturaKvittering(
+        faktura: Faktura,
+        kvittering: OebsFakturaKvittering,
+    ) = db.transaction {
+        if (kvittering.isSuccess()) {
+            queries.faktura.setStatus(faktura.fakturanummer, FakturaStatusType.UTBETALT)
+        } else {
+            queries.faktura.setStatus(faktura.fakturanummer, FakturaStatusType.FEILET)
+            queries.faktura.setFeilmelding(
+                faktura.fakturanummer,
+                feilKode = kvittering.feilKode,
+                feilMelding = kvittering.feilMelding,
+            )
+        }
+
+        publishFaktura(faktura.fakturanummer).right()
+    }
+
+    fun logKvittering(kvitteringJson: String) = db.session {
+        queries.kvittering.insert(kvitteringJson)
     }
 
     private fun QueryContext.setBestillingOppgjort(bestillingsnummer: String) {

@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.server.plugins.NotFoundException
+import io.ktor.server.plugins.*
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
@@ -111,9 +111,9 @@ class SanityService(
         id: UUID,
         perspective: SanityPerspective,
     ): SanityTiltaksgjennomforing {
-        val query = """
-            *[_type == "tiltaksgjennomforing" && _id == ${'$'}id]
-            $sanityTiltaksgjennomforingQuery
+        val query = $$"""
+            *[_type == "tiltaksgjennomforing" && _id == $id]
+            $$sanityTiltaksgjennomforingQuery
             [0]
         """.trimIndent()
 
@@ -127,6 +127,7 @@ class SanityService(
                     return result.decode()
                 }
             }
+
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
@@ -233,8 +234,8 @@ class SanityService(
         tiltakstypeId: UUID,
         perspective: SanityPerspective,
     ): List<Oppskrift> {
-        val query = """
-              *[_type == "tiltakstype" && defined(oppskrifter) && _id == ${'$'}id] {
+        val query = $$"""
+              *[_type == "tiltakstype" && defined(oppskrifter) && _id == $id] {
                oppskrifter[] -> {
                   ...,
                   steg[] {
@@ -369,8 +370,8 @@ class SanityService(
     }
 
     private suspend fun isPublished(sanityId: UUID): Boolean {
-        val query = """
-            *[_id == ${'$'}id]{_id}
+        val query = $$"""
+            *[_id == $id]{_id}
         """.trimIndent()
 
         val params = listOf(SanityParam.of("id", sanityId))
@@ -387,8 +388,8 @@ class SanityService(
     }
 
     private suspend fun isDraft(sanityId: UUID): Boolean {
-        val query = """
-            *[_id == ${'$'}id]{_id}
+        val query = $$"""
+            *[_id == $id]{_id}
         """.trimIndent()
 
         val params = listOf(SanityParam.of("id", sanityId))
@@ -413,9 +414,9 @@ class SanityService(
 
     suspend fun getTiltakByNavIdent(navIdent: NavIdent): List<SanityTiltaksgjennomforing> {
         val query =
-            """
-            *[_type == "tiltaksgjennomforing" && (${'$'}navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || ${'$'}navIdent in redaktor[]->navIdent.current)]
-            $sanityTiltaksgjennomforingQuery
+            $$"""
+            *[_type == "tiltaksgjennomforing" && ($navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || $navIdent in redaktor[]->navIdent.current)]
+            $$sanityTiltaksgjennomforingQuery
             """.trimIndent()
 
         val params = listOf(SanityParam.of("navIdent", navIdent.value))
@@ -427,7 +428,7 @@ class SanityService(
     }
 
     suspend fun getNavKontaktperson(navIdent: NavIdent): SanityNavKontaktperson? {
-        val query = """ *[_type == "navKontaktperson" && navIdent.current == ${'$'}navIdent] """.trimIndent()
+        val query = $$""" *[_type == "navKontaktperson" && navIdent.current == $navIdent] """.trimIndent()
         val params = listOf(SanityParam.of("navIdent", navIdent.value))
 
         return when (val response = sanityClient.query(query, params)) {
@@ -457,7 +458,7 @@ class SanityService(
     }
 
     suspend fun getRedaktor(navIdent: NavIdent): SanityRedaktor? {
-        val query = """ *[_type == "redaktor" && navIdent.current == ${'$'}navIdent] """.trimIndent()
+        val query = $$""" *[_type == "redaktor" && navIdent.current == $navIdent] """.trimIndent()
         val params = listOf(SanityParam.of("navIdent", navIdent.value))
 
         return when (val response = sanityClient.query(query, params)) {
@@ -513,8 +514,8 @@ class SanityService(
 
     suspend fun deleteNavIdent(navIdent: NavIdent) {
         val queryResponse = sanityClient.query(
-            """
-            *[_type == "navKontaktperson" && navIdent.current == ${'$'}navIdent || _type == "redaktor" && navIdent.current == ${'$'}navIdent]._id
+            $$"""
+            *[_type == "navKontaktperson" && navIdent.current == $navIdent || _type == "redaktor" && navIdent.current == $navIdent]._id
             """.trimIndent(),
             params = listOf(SanityParam.of("navIdent", navIdent.value)),
         )

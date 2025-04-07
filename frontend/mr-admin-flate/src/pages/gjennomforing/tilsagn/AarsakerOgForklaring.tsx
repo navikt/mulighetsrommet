@@ -19,7 +19,7 @@ export function AarsakerOgForklaring({
       {tekst && <BodyShort>{tekst}</BodyShort>}
       <List>
         {aarsaker.map((aarsak) => (
-          <List.Item>{aarsak}</List.Item>
+          <List.Item key={aarsak}>{aarsak}</List.Item>
         ))}
       </List>
       {forklaring && (
