@@ -44,6 +44,9 @@ import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
+import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { TilsagnTabell } from "../tabell/TilsagnTabell";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -59,11 +62,16 @@ export function TilsagnDetaljer() {
   const { gjennomforingId } = useParams();
   const { ansatt, gjennomforing, tilsagn, opprettelse, annullering, tilOppgjor, historikk } =
     useTilsagnDetaljer();
+  const { data: godkjenteTilsagn } = useSuspenseQuery({
+    ...godkjenteTilsagnQuery(gjennomforingId),
+  });
+  const andreGodkjenteTilsagn = godkjenteTilsagn?.data.filter((x) => x.id !== tilsagn.id);
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
   const tilOppgjorMutation = useTilsagnTilOppgjor();
   const slettMutation = useSlettTilsagn();
+
   const navigate = useNavigate();
   const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
   const [tilOppgjorModalOpen, setTilOppgjorModalOpen] = useState<boolean>(false);
@@ -493,6 +501,16 @@ export function TilsagnDetaljer() {
           </Box>
         </Box>
       </ContentBox>
+      <WhitePaddedBox>
+        <VStack gap="4">
+          <Heading size="medium">Aktive tilsagn</Heading>
+          {andreGodkjenteTilsagn.length > 0 ? (
+            <TilsagnTabell tilsagn={andreGodkjenteTilsagn} />
+          ) : (
+            <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
+          )}
+        </VStack>
+      </WhitePaddedBox>
     </main>
   );
 }
