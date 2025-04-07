@@ -35,7 +35,7 @@ fun Route.oppgaverRoutes() {
 
 @Serializable
 data class OppgaverFilter(
-    val oppgavetyper: List<OppgaveType>,
-    val tiltakskoder: List<Tiltakskode>,
-    val regioner: List<NavEnhetNummer>,
+    val oppgavetyper: Set<OppgaveType>,
+    val tiltakskoder: Set<Tiltakskode>,
+    val regioner: Set<NavEnhetNummer>,
 )

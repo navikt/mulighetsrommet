@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.*
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -35,11 +36,11 @@ class NavAnsattSyncServiceTest : FunSpec({
     ) {
         queries.ansatt.setRoller(
             NavAnsattFixture.DonaldDuck.navIdent,
-            setOf(TILTAKADMINISTRASJON_GENERELL),
+            setOf(Rolle.TiltakadministrasjonGenerell),
         )
         queries.ansatt.setRoller(
             NavAnsattFixture.MikkeMus.navIdent,
-            setOf(TILTAKADMINISTRASJON_GENERELL),
+            setOf(Rolle.TiltakadministrasjonGenerell),
         )
     }
 

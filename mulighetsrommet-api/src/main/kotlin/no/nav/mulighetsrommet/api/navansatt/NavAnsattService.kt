@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -28,7 +29,8 @@ class NavAnsattService(
     }
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> = db.session {
-        queries.ansatt.getAll(roller = filter.roller)
+        val roller = filter.roller.map { Rolle.fromRolleAndEnheter(it, setOf()) }
+        queries.ansatt.getAll(rollerContainsAll = roller)
     }
 
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
@@ -43,11 +45,11 @@ class NavAnsattService(
             "Fant ikke ansatt med navIdent=$navIdent i AzureAd"
         }
 
-        if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
+        if (ansatt.hasRole(Rolle.Kontaktperson)) {
             return
         }
 
-        val roller = ansatt.roller + NavAnsattRolle.KONTAKTPERSON
+        val roller = ansatt.roller + Rolle.Kontaktperson
         queries.ansatt.setRoller(ansatt.navIdent, roller)
 
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)

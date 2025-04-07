@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -68,14 +68,16 @@ fun Route.tilsagnRoutes() {
                     val ansatt = queries.ansatt.getByNavIdent(navIdent)
                         ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
+                    val kostnadssted = tilsagn.kostnadssted.enhetsnummer
+
                     val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
-                        getTotrinnskontrollForAnsatt(it, ansatt)
+                        getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt)
                     }
                     val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
-                        getTotrinnskontrollForAnsatt(it, ansatt)
+                        getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt)
                     }
                     val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
-                        getTotrinnskontrollForAnsatt(it, ansatt)
+                        getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt)
                     }
                     TilsagnDetaljerDto(
                         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
@@ -394,8 +396,9 @@ private fun resolveEkstraTilsagnDefaults(
 
 private fun getTotrinnskontrollForAnsatt(
     totrinnskontroll: Totrinnskontroll,
+    kostnadssted: NavEnhetNummer,
     ansatt: NavAnsattDto,
 ): TotrinnskontrollDto {
-    val kanBesluttesAvAnsatt = NavAnsattRolle.BESLUTTER_TILSAGN in ansatt.roller
+    val kanBesluttesAvAnsatt = ansatt.hasRole(Rolle.BeslutterTilsagn(setOf(kostnadssted)))
     return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt)
 }
