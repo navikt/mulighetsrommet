@@ -34,7 +34,7 @@ select gjennomforing.id,
        arrangor_kontaktpersoner_json
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-         join avtale on avtale.id = gjennomforing.avtale_id
+         left join avtale on avtale.id = gjennomforing.avtale_id
          left join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join lateral (select array_agg(personopplysning) as personopplysninger_som_kan_behandles
                             from avtale_personopplysning
