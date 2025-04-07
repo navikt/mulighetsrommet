@@ -36,7 +36,11 @@ data class NavAnsatt(
 
         is Rolle.Kontorspesifikk -> roller.any {
             when (it) {
-                is Rolle.Kontorspesifikk -> it.rolle == requiredRole.rolle && it.enheter.containsAll(requiredRole.enheter)
+                is Rolle.Kontorspesifikk ->
+                    it.rolle == requiredRole.rolle &&
+                        // TODO: fjern isEmpty()-sjekk når nye ad-grupper er på plass
+                        (it.enheter.isEmpty() || it.enheter.containsAll(requiredRole.enheter))
+
                 else -> false
             }
         }
