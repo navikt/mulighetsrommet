@@ -80,8 +80,8 @@ export const AvtaleSchema = z
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Du må skrive inn Websaknummer til avtalesaken",
-        path: ["websaknummer"],
+        message: "Du må skrive inn saksnummer til avtalesaken",
+        path: ["sakarkivNummer"],
       });
     }
 

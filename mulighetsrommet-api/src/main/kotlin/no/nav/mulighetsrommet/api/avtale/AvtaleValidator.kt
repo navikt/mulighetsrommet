@@ -90,8 +90,8 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.avtaletype.kreverWebsaknummer() && avtale.sakarkivNummer == null) {
-                add(FieldError.of(AvtaleDbo::sakarkivNummer, "Du må skrive inn Websaknummer til avtalesaken"))
+            if (avtale.avtaletype.kreverSakarkivNummer() && avtale.sakarkivNummer == null) {
+                add(FieldError.of(AvtaleDbo::sakarkivNummer, "Du må skrive inn saksnummer til avtalesaken"))
             }
 
             if (avtale.arrangor?.underenheter?.isEmpty() == true) {
