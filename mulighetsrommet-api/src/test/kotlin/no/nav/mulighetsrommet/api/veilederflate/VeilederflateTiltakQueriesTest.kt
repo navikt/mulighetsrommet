@@ -277,4 +277,35 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             }
         }
     }
+
+    context("tiltak uten avtale") {
+        val domain = MulighetsrommetTestDomain(
+            navEnheter = listOf(Innlandet, Gjovik),
+            tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
+            avtaler = listOf(AvtaleFixtures.ArbeidsrettetRehabilitering),
+            gjennomforinger = listOf(ArbeidsrettetRehabilitering),
+        ) {
+            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
+            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
+            session.execute(Query("update gjennomforing set avtale_id = null"))
+
+            queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
+        }
+
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = VeilederflateTiltakQueries(session)
+
+            val res = queries.getAll(
+                innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+                brukersEnheter = listOf(NavEnhetNummer("0502")),
+            )
+            res.size shouldBe 1
+
+            val tiltak = res[0]
+            tiltak.personopplysningerSomKanBehandles shouldBe emptyList()
+            tiltak.personvernBekreftet shouldBe false
+        }
+    }
 })
