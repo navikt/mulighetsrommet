@@ -68,7 +68,7 @@ export function UtbetalingLinjeRow({
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
         <VStack gap="2">
-          {linje.opprettelse?.aarsaker && linje.opprettelse.aarsaker.length > 0 ? (
+          {linje.opprettelse?.type === "BESLUTTET" && linje.opprettelse.besluttelse === "AVVIST" ? (
             <VStack>
               <AarsakerOgForklaring
                 aarsaker={linje.opprettelse.aarsaker.map((aarsak) =>

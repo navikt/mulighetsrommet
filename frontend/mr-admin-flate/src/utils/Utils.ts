@@ -429,7 +429,7 @@ export function delutbetalingAarsakTilTekst(aarsak: DelutbetalingReturnertAarsak
     case DelutbetalingReturnertAarsak.FEIL_ANNET:
       return "Annet";
     case DelutbetalingReturnertAarsak.AUTOMATISK_RETURNERT:
-      return "Automatisk returnert av Nav Tiltaksadministrasjon som følge av at en annen utbetalingslinje ble returnert";
+      return "Automatisk returnert";
   }
 }
 
