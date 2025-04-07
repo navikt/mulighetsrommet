@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
@@ -1025,6 +1026,31 @@ class UtbetalingServiceTest : FunSpec({
                     first.periode shouldBe Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1))
                 }
             }
+        }
+
+        test("delutbetaling blir returnert hvis tilsagn har endret status") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+                delutbetalinger = listOf(delutbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.OPPGJORT)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.besluttDelutbetaling(
+                id = delutbetaling1.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                navIdent = NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeRight()
+            val opprettelse = database.run { queries.totrinnskontroll.getOrError(delutbetaling1.id, Totrinnskontroll.Type.OPPRETT) }
+            opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
+            opprettelse.besluttelse shouldBe Besluttelse.AVVIST
         }
     }
 

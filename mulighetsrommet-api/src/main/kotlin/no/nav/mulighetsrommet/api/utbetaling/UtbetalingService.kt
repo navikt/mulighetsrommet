@@ -452,8 +452,8 @@ class UtbetalingService(
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 returnerDelutbetaling(
                     it,
-                    automatiskReturnertAarsak(),
-                    "Tilsagn er ikke godkjent",
+                    emptyList(),
+                    "Tilsagnet har status ${tilsagn.status} og kan derfor ikke benyttes for utbetaling",
                     Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
