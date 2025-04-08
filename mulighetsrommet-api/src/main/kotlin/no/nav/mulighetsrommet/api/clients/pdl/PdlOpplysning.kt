@@ -53,3 +53,30 @@ enum class PdlGradering {
     STRENGT_FORTROLIG_UTLAND,
     UGRADERT,
 }
+
+sealed class GeografiskTilknytningResponse {
+    data class GtKommune(val value: String) : GeografiskTilknytningResponse()
+    data class GtBydel(val value: String) : GeografiskTilknytningResponse()
+    data class GtUtland(val value: String?) : GeografiskTilknytningResponse()
+    data object GtUdefinert : GeografiskTilknytningResponse()
+}
+
+fun PdlGeografiskTilknytning.toGeografiskTilknytningResponse(): GeografiskTilknytningResponse {
+    return when (this.gtType) {
+        TypeGeografiskTilknytning.BYDEL -> {
+            GeografiskTilknytningResponse.GtBydel(requireNotNull(this.gtBydel))
+        }
+
+        TypeGeografiskTilknytning.KOMMUNE -> {
+            GeografiskTilknytningResponse.GtKommune(requireNotNull(this.gtKommune))
+        }
+
+        TypeGeografiskTilknytning.UTLAND -> {
+            GeografiskTilknytningResponse.GtUtland(this.gtLand)
+        }
+
+        TypeGeografiskTilknytning.UDEFINERT -> {
+            GeografiskTilknytningResponse.GtUdefinert
+        }
+    }
+}

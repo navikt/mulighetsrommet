@@ -1,7 +1,19 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.OutgoingContent
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.readText
+import kotlinx.serialization.json.JsonObject
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -13,6 +25,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
@@ -169,6 +182,114 @@ val ApplicationConfigLocal = AppConfig(
     pdl = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/pdl",
         scope = "default",
+        engine = MockEngine { request ->
+            val requestBodyString = when (val content = request.body) {
+                is OutgoingContent.ByteArrayContent -> content.bytes().decodeToString()
+                is OutgoingContent.ReadChannelContent -> content.readFrom().readRemaining().readText()
+                else -> error("Unsupported content type: ${request.body::class}")
+            }
+
+            val parsedReq = JsonIgnoreUnknownKeys.decodeFromString<GraphqlRequest<JsonObject>>(requestBodyString)
+            when {
+                "identer" in parsedReq.variables.keys -> {
+                    val identer =
+                        JsonIgnoreUnknownKeys.decodeFromString<GraphqlRequest<Identer>>(requestBodyString).variables.identer
+                    val hentPersonBolk = identer.joinToString(",\n") { ident ->
+                        """
+                          {
+                            "ident": "${ident.value}",
+                            "person": {
+                              "navn": [
+                                {
+                                  "fornavn": "Ola",
+                                  "mellomnavn": null,
+                                  "etternavn": "Normann"
+                                }
+                              ],
+                              "adressebeskyttelse": [
+                              ],
+                              "foedselsdato": [
+                                {
+                                  "foedselsaar": 1993,
+                                  "foedselsdato": "1993-11-01"
+                                }
+                              ]
+                            },
+                            "code": "ok"
+                          }
+                        """.trimIndent()
+                    }
+                    val geografiskTilknytningBolk = identer.joinToString(",\n") { ident ->
+                        """
+                        {
+                            "ident": "${ident.value}",
+                            "geografiskTilknytning": {
+                              "gtType": "BYDEL",
+                              "gtLand": null,
+                              "gtKommune": null,
+                              "gtBydel": "030102"
+                            },
+                            "code": "ok"
+                        }
+                        """.trimIndent()
+                    }
+                    respond(
+                        content = ByteReadChannel(
+                            """
+                            {
+                              "data": {
+                                "hentGeografiskTilknytningBolk": [$geografiskTilknytningBolk],
+                                "hentPersonBolk": [$hentPersonBolk]
+                              },
+                              "errors": []
+                            }
+                            """.trimIndent(),
+                        ),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+                }
+
+                else ->
+                    respond(
+                        content = ByteReadChannel(
+                            """
+                            {
+                              "data": {
+                                "hentGeografiskTilknytning": {
+                                  "gtType": "BYDEL",
+                                  "gtLand": ,
+                                  "gtKommune": null,
+                                  "gtBydel": "030102"
+                                },
+                                "hentPerson": {
+                                  "navn": [
+                                    {
+                                      "fornavn": "Ola",
+                                      "mellomnavn": null,
+                                      "etternavn": "Nordmann"
+                                    }
+                                  ]
+                                },
+                                "hentIdenter": {
+                                  "identer": [
+                                    {
+                                      "ident": "12118323058",
+                                      "gruppe": "AKTORID",
+                                      "historisk": false
+                                    }
+                                  ]
+                                },
+                              },
+                              "errors": []
+                            }
+                            """.trimIndent(),
+                        ),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+            }
+        },
     ),
     pamOntologi = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",

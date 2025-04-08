@@ -61,25 +61,15 @@ class HentBrukerPdlQuery(
                     "hentGeografiskTilknytning var null og errors tom! response: $it"
                 }
 
-                val geografiskTilknytning = when (it.hentGeografiskTilknytning.gtType) {
-                    TypeGeografiskTilknytning.BYDEL -> {
-                        GeografiskTilknytning.GtBydel(requireNotNull(it.hentGeografiskTilknytning.gtBydel))
-                    }
-
-                    TypeGeografiskTilknytning.KOMMUNE -> {
-                        GeografiskTilknytning.GtKommune(requireNotNull(it.hentGeografiskTilknytning.gtKommune))
-                    }
-
-                    TypeGeografiskTilknytning.UTLAND -> {
-                        log.warn("Pdl returnerte UTLAND geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        GeografiskTilknytning.GtUtland(it.hentGeografiskTilknytning.gtLand)
-                    }
-
-                    TypeGeografiskTilknytning.UDEFINERT -> {
-                        log.warn("Pdl returnerte UDEFINERT geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        GeografiskTilknytning.GtUdefinert
-                    }
+                if (it.hentGeografiskTilknytning.gtType in setOf(
+                        TypeGeografiskTilknytning.UTLAND,
+                        TypeGeografiskTilknytning.UDEFINERT,
+                    )
+                ) {
+                    log.warn("Pdl returnerte ${it.hentGeografiskTilknytning.gtType} geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
                 }
+
+                val geografiskTilknytning = it.hentGeografiskTilknytning.toGeografiskTilknytningResponse()
 
                 HentBrukerResponse(it.hentPerson.navn.firstOrNull()?.fornavn, geografiskTilknytning)
             }
@@ -91,12 +81,5 @@ class HentBrukerPdlQuery(
 
 data class HentBrukerResponse(
     val fornavn: String?,
-    val geografiskTilknytning: GeografiskTilknytning,
+    val geografiskTilknytningResponse: GeografiskTilknytningResponse,
 )
-
-sealed class GeografiskTilknytning {
-    data class GtKommune(val value: String) : GeografiskTilknytning()
-    data class GtBydel(val value: String) : GeografiskTilknytning()
-    data class GtUtland(val value: String?) : GeografiskTilknytning()
-    data object GtUdefinert : GeografiskTilknytning()
-}
