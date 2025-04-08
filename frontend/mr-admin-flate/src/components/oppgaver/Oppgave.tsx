@@ -1,7 +1,8 @@
-import { Heading, Link } from "@navikt/ds-react";
-import { type Oppgave, OppgaveIcon, OppgaveType } from "@mr/api-client-v2";
 import { formaterDato } from "@/utils/Utils";
+import { type Oppgave, OppgaveIcon, OppgaveType } from "@mr/api-client-v2";
 import { BankNoteIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import { Heading } from "@navikt/ds-react";
+import { Link } from "react-router";
 
 interface OppgaveProps {
   oppgave: Oppgave;
@@ -24,7 +25,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
             </Heading>
           </div>
           <div>{description}</div>
-          <Link className="mt-3" href={link.link}>
+          <Link className="mt-3" to={link.link}>
             {link.linkText}
           </Link>
         </div>
