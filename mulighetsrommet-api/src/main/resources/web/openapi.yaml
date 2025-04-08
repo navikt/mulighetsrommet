@@ -5694,7 +5694,6 @@ components:
         - KLAR_TIL_BEHANDLING
         - RETURNERT
         - TIL_GODKJENNING
-        - GODKJENT
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
 
