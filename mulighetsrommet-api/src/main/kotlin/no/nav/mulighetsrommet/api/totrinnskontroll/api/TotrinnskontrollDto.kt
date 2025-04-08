@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 
 @Serializable
 sealed class TotrinnskontrollDto {
-    abstract val behandletAv: Agent
+    abstract val behandletAvMetadata: AgentMetadata
     abstract val behandletTidspunkt: LocalDateTime
     abstract val aarsaker: List<String>
     abstract val forklaring: String?
@@ -20,8 +20,8 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("TIL_BESLUTNING")
     data class TilBeslutning(
-        @Serializable(with = AgentSerializer::class)
-        override val behandletAv: Agent,
+        override val behandletAvMetadata: AgentMetadata,
+        val behandletAvNavn: String?,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
@@ -32,14 +32,12 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("BESLUTTET")
     data class Besluttet(
-        @Serializable(with = AgentSerializer::class)
-        override val behandletAv: Agent,
+        override val behandletAvMetadata: AgentMetadata,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
         override val forklaring: String?,
-        @Serializable(with = AgentSerializer::class)
-        val besluttetAv: Agent,
+        val besluttetAvMetadata: AgentMetadata,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
         val besluttelse: Besluttelse,
@@ -48,24 +46,37 @@ sealed class TotrinnskontrollDto {
     }
 
     companion object {
-        fun fromTotrinnskontroll(totrinnskontroll: Totrinnskontroll, kanBesluttes: Boolean) = when {
+        fun fromTotrinnskontroll(
+            totrinnskontroll: Totrinnskontroll,
+            kanBesluttes: Boolean,
+            behandletAvNavn: String?,
+            besluttetAvNavn: String?,
+        ) = when {
             totrinnskontroll.besluttetAv == null -> TilBeslutning(
-                behandletAv = totrinnskontroll.behandletAv,
+                behandletAvMetadata = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
                 kanBesluttes = kanBesluttes,
+                behandletAvNavn = behandletAvNavn,
             )
 
             else -> Besluttet(
-                behandletAv = totrinnskontroll.behandletAv,
+                behandletAvMetadata = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
-                besluttetAv = totrinnskontroll.besluttetAv,
+                besluttetAvMetadata = AgentMetadata(totrinnskontroll.besluttetAv, besluttetAvNavn),
                 besluttetTidspunkt = checkNotNull(totrinnskontroll.besluttetTidspunkt),
                 besluttelse = checkNotNull(totrinnskontroll.besluttelse),
             )
         }
     }
 }
+
+@Serializable
+data class AgentMetadata(
+    @Serializable(with = AgentSerializer::class)
+    val type: Agent,
+    val navn: String?,
+)

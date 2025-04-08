@@ -6278,8 +6278,8 @@ components:
       properties:
         type:
           const: TIL_BESLUTNING
-        behandletAv:
-          type: string
+        behandletAvMetadata:
+          $ref: "#/components/schemas/AgentMetadata"
         behandletTidspunkt:
           type: string
           format: date-time
@@ -6293,7 +6293,7 @@ components:
           type: string
       required:
         - type
-        - behandletAv
+        - behandletAvMetadata
         - behandletTidspunkt
         - kanBesluttes
         - aarsaker
@@ -6303,8 +6303,8 @@ components:
       properties:
         type:
           const: BESLUTTET
-        behandletAv:
-          type: string
+        behandletAvMetadata:
+          $ref: "#/components/schemas/AgentMetadata"
         behandletTidspunkt:
           type: string
           format: date-time
@@ -6316,8 +6316,8 @@ components:
             type: string
         forklaring:
           type: string
-        besluttetAv:
-          type: string
+        besluttetAvMetadata:
+          $ref: "#/components/schemas/AgentMetadata"
         besluttetTidspunkt:
           type: string
           format: date-time
@@ -6325,10 +6325,20 @@ components:
           $ref: "#/components/schemas/Besluttelse"
       required:
         - type
-        - behandletAv
+        - behandletAvMetadata
         - behandletTidspunkt
         - aarsaker
         - kanBesluttes
-        - besluttetAv
+        - besluttetAvMetadata
         - besluttetTidspunkt
         - besluttelse
+
+    AgentMetadata:
+      type: object
+      properties:
+        "type":
+          type: string
+        navn:
+          type: string
+      required:
+        - type

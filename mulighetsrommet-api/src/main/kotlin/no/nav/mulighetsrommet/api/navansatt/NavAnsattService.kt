@@ -31,6 +31,10 @@ class NavAnsattService(
         queries.ansatt.getAll(roller = filter.roller)
     }
 
+    fun getNavAnsattByNavIdent(navIdent: NavIdent): NavAnsattDto? = db.session {
+        queries.ansatt.getByNavIdent(navIdent)
+    }
+
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
         val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)

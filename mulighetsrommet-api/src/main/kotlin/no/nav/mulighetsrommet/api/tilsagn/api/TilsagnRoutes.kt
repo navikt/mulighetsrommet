@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -41,6 +42,7 @@ fun Route.tilsagnRoutes() {
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
     val gjennomforinger: GjennomforingService by inject()
+    val totrinnskontrollService: TotrinnskontrollService by inject()
 
     route("tilsagn") {
         get {
@@ -69,13 +71,13 @@ fun Route.tilsagnRoutes() {
                         ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
                     val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
-                        getTotrinnskontrollForAnsatt(it, ansatt)
+                        getTotrinnskontrollForAnsatt(it, ansatt, totrinnskontrollService)
                     }
                     val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
-                        getTotrinnskontrollForAnsatt(it, ansatt)
+                        getTotrinnskontrollForAnsatt(it, ansatt, totrinnskontrollService)
                     }
                     val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
-                        getTotrinnskontrollForAnsatt(it, ansatt)
+                        getTotrinnskontrollForAnsatt(it, ansatt, totrinnskontrollService)
                     }
                     TilsagnDetaljerDto(
                         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
@@ -395,7 +397,11 @@ private fun resolveEkstraTilsagnDefaults(
 private fun getTotrinnskontrollForAnsatt(
     totrinnskontroll: Totrinnskontroll,
     ansatt: NavAnsattDto,
+    totrinnskontrollService: TotrinnskontrollService,
 ): TotrinnskontrollDto {
     val kanBesluttesAvAnsatt = NavAnsattRolle.BESLUTTER_TILSAGN in ansatt.roller
-    return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt)
+
+    var besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(totrinnskontroll)
+    var behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(totrinnskontroll)
+    return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt, behandletAvNavn, besluttetAvNavn)
 }

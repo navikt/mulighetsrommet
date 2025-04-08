@@ -79,7 +79,10 @@ export const tilsagnHandlers = [
 
 const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
   type: "TIL_BESLUTNING",
-  behandletAv: "B123456",
+  behandletAvMetadata: {
+    type: "P654321",
+    navn: "Per Haraldsen",
+  },
   behandletTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
   kanBesluttes: true,
@@ -87,9 +90,15 @@ const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
 
 const godkjent: TotrinnskontrollBesluttetDto = {
   type: "BESLUTTET",
-  behandletAv: "B123456",
+  besluttetAvMetadata: {
+    type: "P654321",
+    navn: "Per Haraldsen",
+  },
+  behandletAvMetadata: {
+    type: "B123456",
+    navn: "Bertil Bengtson",
+  },
   behandletTidspunkt: "2024-01-01T22:00:00",
-  besluttetAv: "F123456",
   besluttetTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
   kanBesluttes: false,
@@ -98,9 +107,15 @@ const godkjent: TotrinnskontrollBesluttetDto = {
 
 const avvist: TotrinnskontrollBesluttetDto = {
   type: "BESLUTTET",
-  behandletAv: "B123456",
+  besluttetAvMetadata: {
+    type: "P654321",
+    navn: "Per Haraldsen",
+  },
   behandletTidspunkt: "2024-01-01T22:00:00",
-  besluttetAv: "F123456",
+  behandletAvMetadata: {
+    type: "B123456",
+    navn: "Bertil Bengtson",
+  },
   besluttetTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
   kanBesluttes: false,
