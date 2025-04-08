@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
@@ -62,7 +63,7 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
         navEnhetService: NavEnhetService = mockk(relaxed = true),
-        pdl: HentAdressebeskyttetPersonBolkPdlQuery = mockk(relaxed = true),
+        pdl: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true),
     ) = UtbetalingService(
         config = UtbetalingService.Config(
             bestillingTopic = "topic",
@@ -586,7 +587,10 @@ class UtbetalingServiceTest : FunSpec({
                 request = opprettRequest,
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError("/0", "Utbetaling kan ikke endres fordi den har status: OVERFORT_TIL_UTBETALING")
+                it.errors shouldContain FieldError(
+                    "/0",
+                    "Utbetaling kan ikke endres fordi den har status: OVERFORT_TIL_UTBETALING",
+                )
             }
         }
 
@@ -1061,7 +1065,8 @@ class UtbetalingServiceTest : FunSpec({
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight()
-            val opprettelse = database.run { queries.totrinnskontroll.getOrError(delutbetaling1.id, Totrinnskontroll.Type.OPPRETT) }
+            val opprettelse =
+                database.run { queries.totrinnskontroll.getOrError(delutbetaling1.id, Totrinnskontroll.Type.OPPRETT) }
             opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
             opprettelse.besluttelse shouldBe Besluttelse.AVVIST
         }

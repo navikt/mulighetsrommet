@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -51,7 +52,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
 
 class UtbetalingService(
     private val config: Config,

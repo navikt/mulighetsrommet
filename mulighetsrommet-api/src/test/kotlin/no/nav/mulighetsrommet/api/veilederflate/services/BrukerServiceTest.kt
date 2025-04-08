@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.Gjeldende14aVedtakDto
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.veilederflate.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -94,11 +94,11 @@ class BrukerServiceTest : FunSpec({
         ).right()
 
         coEvery { brukerQuery.hentBruker(PdlIdent(fnr1.value), any()) } answers {
-            HentBrukerResponse("Ola", GeografiskTilknytning.GtKommune("0301")).right()
+            HentBrukerResponse("Ola", GeografiskTilknytningResponse.GtKommune("0301")).right()
         }
 
         coEvery { brukerQuery.hentBruker(PdlIdent(fnr2.value), any()) } answers {
-            HentBrukerResponse("Petter", GeografiskTilknytning.GtKommune("0301")).right()
+            HentBrukerResponse("Petter", GeografiskTilknytningResponse.GtKommune("0301")).right()
         }
 
         coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
