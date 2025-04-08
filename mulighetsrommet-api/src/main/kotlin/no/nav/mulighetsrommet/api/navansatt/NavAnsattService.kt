@@ -1,5 +1,10 @@
 package no.nav.mulighetsrommet.api.navansatt
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
@@ -27,10 +32,8 @@ class NavAnsattService(
             logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
 
             val ansatt = getNavAnsattFromAzure(azureId, accessType)
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
-
-            val roles = getNavAnsattRoles(azureId, accessType)
-            queries.ansatt.setRoller(ansatt.navIdent, roles)
+            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
+            queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
 
             checkNotNull(queries.ansatt.getByAzureId(azureId))
         }
@@ -49,15 +52,7 @@ class NavAnsattService(
         val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)
 
-        val ansatt = queries.ansatt.getByNavIdent(navIdent)
-            ?: microsoftGraphClient.getNavAnsattByNavIdent(navIdent, AccessType.M2M)?.let {
-                NavAnsatt.fromAzureAdNavAnsatt(it)
-            }
-
-        requireNotNull(ansatt) {
-            "Fant ikke ansatt med navIdent=$navIdent i AzureAd"
-        }
-
+        val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: getNavAnsattFromAzure(navIdent, AccessType.M2M)
         if (ansatt.hasRole(Rolle.Kontaktperson)) {
             return
         }
@@ -68,38 +63,77 @@ class NavAnsattService(
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }
 
-    suspend fun getNavAnsatteInGroups(groups: Set<AdGruppeNavAnsattRolleMapping>): List<NavAnsatt> {
-        return groups
-            .flatMap {
-                val members = microsoftGraphClient.getGroupMembers(it.adGruppeId)
-                logger.info("Fant ${members.size} i AD gruppe id=${it.adGruppeId}")
-                members.map { NavAnsatt.fromAzureAdNavAnsatt(it) }
+    suspend fun getNavAnsatteInGroups(groups: Set<AdGruppeNavAnsattRolleMapping>): List<NavAnsatt> = coroutineScope {
+        // For å begrense antall parallelle requests mot msgraph
+        val semaphore = Semaphore(permits = 20)
+        groups
+            .map { group ->
+                async {
+                    semaphore.withPermit {
+                        microsoftGraphClient.getGroupMembers(group.adGruppeId).also {
+                            logger.info("Fant ${it.size} i AD gruppe id=${group.adGruppeId}")
+                        }
+                    }
+                }
             }
-            .toSet()
-            .toList()
+            .awaitAll()
+            .flatMapTo(mutableSetOf()) { it }
+            .map { ansatt ->
+                async { semaphore.withPermit { toNavAnsatt(ansatt, AccessType.M2M) } }
+            }
+            .awaitAll()
     }
 
     suspend fun getNavAnsattFromAzure(azureId: UUID, accessType: AccessType): NavAnsatt {
         val ansatt = microsoftGraphClient.getNavAnsatt(azureId, accessType)
-        return NavAnsatt.fromAzureAdNavAnsatt(ansatt)
+        return toNavAnsatt(ansatt, accessType)
+    }
+
+    suspend fun getNavAnsattFromAzure(navIdent: NavIdent, accessType: AccessType): NavAnsatt {
+        val ansatt = checkNotNull(microsoftGraphClient.getNavAnsattByNavIdent(navIdent, accessType))
+        return toNavAnsatt(ansatt, accessType)
     }
 
     suspend fun getNavAnsattRoles(azureId: UUID, accessType: AccessType): Set<Rolle> {
-        val rolesDirectory = roles.associateBy { it.adGruppeId }
+        val rolesDirectory = roles.groupBy { it.adGruppeId }
 
-        return microsoftGraphClient
-            .getMemberGroups(azureId, accessType)
-            .filter { rolesDirectory.containsKey(it.id) }
-            .groupBy { rolesDirectory.getValue(it.id).rolle }
-            .map { (rolle, groups) ->
-                val enheter = groups.mapNotNull { resolveNavEnhetFromRolle(it.navn) }.toSet()
-                Rolle.fromRolleAndEnheter(rolle, enheter)
+        val roleToEnheter = buildMap {
+            microsoftGraphClient.getMemberGroups(azureId, accessType).forEach { group ->
+                rolesDirectory[group.id]?.forEach { (_, rolle) ->
+                    val enheter = resolveNavEnhetFromRolle(group.navn)
+                    computeIfAbsent(rolle) { mutableSetOf() }.addAll(enheter)
+                }
             }
-            .toSet()
+        }
+
+        return roleToEnheter.mapTo(mutableSetOf()) { (rolle, enheter) ->
+            Rolle.fromRolleAndEnheter(rolle, enheter)
+        }
     }
 
-    private fun resolveNavEnhetFromRolle(navn: String): NavEnhetNummer? {
+    private suspend fun toNavAnsatt(ansatt: AzureAdNavAnsatt, accessType: AccessType): NavAnsatt {
+        val roles = getNavAnsattRoles(ansatt.azureId, accessType)
+        return ansatt.toNavAnsatt(roles)
+    }
+
+    private fun resolveNavEnhetFromRolle(navn: String): Set<NavEnhetNummer> {
         val navEnhetRegex = "^(\\d{4})-.+$".toRegex()
-        return navEnhetRegex.find(navn)?.groupValues?.get(1)?.let { NavEnhetNummer(it) }
+        val navEnhetNummer = navEnhetRegex.find(navn)?.groupValues?.get(1)?.let { NavEnhetNummer(it) }
+        return setOfNotNull(navEnhetNummer)
     }
 }
+
+fun AzureAdNavAnsatt.toNavAnsatt(roles: Set<Rolle>) = NavAnsatt(
+    azureId = azureId,
+    navIdent = navIdent,
+    fornavn = fornavn,
+    etternavn = etternavn,
+    hovedenhet = NavAnsatt.Hovedenhet(
+        enhetsnummer = hovedenhetKode,
+        navn = hovedenhetNavn,
+    ),
+    mobilnummer = mobilnummer,
+    epost = epost,
+    roller = roles,
+    skalSlettesDato = null,
+)

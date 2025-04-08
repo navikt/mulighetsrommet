@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
@@ -41,10 +40,8 @@ class NavAnsattSyncService(
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
-
-            val roles = navAnsattService.getNavAnsattRoles(ansatt.azureId, AccessType.M2M)
-            queries.ansatt.setRoller(ansatt.navIdent, roles)
+            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
+            queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
@@ -54,7 +51,7 @@ class NavAnsattSyncService(
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
-            val ansattToDelete = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(skalSlettesDato = deletionDate)
+            val ansattToDelete = NavAnsattDbo.fromNavAnsatt(ansatt).copy(skalSlettesDato = deletionDate)
             queries.ansatt.upsert(ansattToDelete)
             queries.ansatt.setRoller(ansattToDelete.navIdent, setOf())
         }

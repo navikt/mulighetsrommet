@@ -17,7 +17,7 @@ data class NavAnsattDbo(
     val skalSlettesDato: LocalDate?,
 ) {
     companion object {
-        fun fromNavAnsattDto(dto: NavAnsatt): NavAnsattDbo = NavAnsattDbo(
+        fun fromNavAnsatt(dto: NavAnsatt): NavAnsattDbo = NavAnsattDbo(
             navIdent = dto.navIdent,
             fornavn = dto.fornavn,
             etternavn = dto.etternavn,

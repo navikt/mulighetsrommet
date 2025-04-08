@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.navansatt.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -44,22 +43,5 @@ data class NavAnsatt(
                 else -> false
             }
         }
-    }
-
-    companion object {
-        fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt): NavAnsatt = NavAnsatt(
-            azureId = dto.azureId,
-            navIdent = dto.navIdent,
-            fornavn = dto.fornavn,
-            etternavn = dto.etternavn,
-            hovedenhet = Hovedenhet(
-                enhetsnummer = dto.hovedenhetKode,
-                navn = dto.hovedenhetNavn,
-            ),
-            mobilnummer = dto.mobilnummer,
-            epost = dto.epost,
-            roller = setOf(),
-            skalSlettesDato = null,
-        )
     }
 }
