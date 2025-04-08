@@ -12,8 +12,9 @@ import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
-import { godkjenteTilsagnQuery, tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
+import { tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
 import { Laster } from "../../../../components/laster/Laster";
+import { aktiveTilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 
 function useHentData() {
   const [searchParams] = useSearchParams();
@@ -41,16 +42,16 @@ function useHentData() {
     }),
   });
 
-  const { data: godkjenteTilsagn } = useSuspenseQuery({
-    ...godkjenteTilsagnQuery(gjennomforingId),
+  const { data: aktiveTilsagn } = useSuspenseQuery({
+    ...aktiveTilsagnQuery(gjennomforingId),
   });
 
-  return { gjennomforing, avtale, defaults, godkjenteTilsagn };
+  return { gjennomforing, avtale, defaults, aktiveTilsagn };
 }
 
 export function OpprettTilsagnFormPage() {
   const { gjennomforingId } = useParams();
-  const { gjennomforing, avtale, defaults, godkjenteTilsagn } = useHentData();
+  const { gjennomforing, avtale, defaults, aktiveTilsagn } = useHentData();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -92,8 +93,8 @@ export function OpprettTilsagnFormPage() {
           <WhitePaddedBox>
             <VStack gap="4">
               <Heading size="medium">Aktive tilsagn</Heading>
-              {godkjenteTilsagn.data.length > 0 ? (
-                <TilsagnTabell tilsagn={godkjenteTilsagn.data} />
+              {aktiveTilsagn.data.length > 0 ? (
+                <TilsagnTabell tilsagn={aktiveTilsagn.data} />
               ) : (
                 <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
               )}

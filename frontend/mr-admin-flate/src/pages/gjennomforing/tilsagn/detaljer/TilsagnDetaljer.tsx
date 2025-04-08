@@ -43,8 +43,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
-import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
-import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
+import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 
@@ -55,17 +54,30 @@ function useTilsagnDetaljer() {
   const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
-  return { ansatt, gjennomforing, historikk, ...tilsagnDetaljer.data };
+  const { data: aktiveTilsagn } = useSuspenseQuery({
+    ...aktiveTilsagnQuery(gjennomforingId),
+  });
+  return {
+    ansatt,
+    gjennomforing,
+    historikk,
+    ...tilsagnDetaljer.data,
+    aktiveTilsagn: aktiveTilsagn?.data.filter((x) => x.id !== tilsagnDetaljer.data.tilsagn.id),
+  };
 }
 
 export function TilsagnDetaljer() {
   const { gjennomforingId } = useParams();
-  const { ansatt, gjennomforing, tilsagn, opprettelse, annullering, tilOppgjor, historikk } =
-    useTilsagnDetaljer();
-  const { data: godkjenteTilsagn } = useSuspenseQuery({
-    ...godkjenteTilsagnQuery(gjennomforingId),
-  });
-  const andreGodkjenteTilsagn = godkjenteTilsagn?.data.filter((x) => x.id !== tilsagn.id);
+  const {
+    ansatt,
+    gjennomforing,
+    tilsagn,
+    opprettelse,
+    annullering,
+    tilOppgjor,
+    historikk,
+    aktiveTilsagn,
+  } = useTilsagnDetaljer();
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
@@ -504,8 +516,8 @@ export function TilsagnDetaljer() {
       <WhitePaddedBox>
         <VStack gap="4">
           <Heading size="medium">Aktive tilsagn</Heading>
-          {andreGodkjenteTilsagn.length > 0 ? (
-            <TilsagnTabell tilsagn={andreGodkjenteTilsagn} />
+          {aktiveTilsagn.length > 0 ? (
+            <TilsagnTabell tilsagn={aktiveTilsagn} />
           ) : (
             <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
           )}
