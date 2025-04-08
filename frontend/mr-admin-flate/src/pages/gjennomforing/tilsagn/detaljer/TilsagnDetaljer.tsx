@@ -51,6 +51,7 @@ import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkje
 import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
+import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -240,20 +241,7 @@ export function TilsagnDetaljer() {
               ) : null}
             </HStack>
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            {opprettelse.type === "BESLUTTET" && opprettelse.besluttelse === Besluttelse.AVVIST && (
-              <AarsakerOgForklaring
-                heading="Tilsagnet ble returnert"
-                tekst={`${navnEllerIdent(opprettelse.besluttetAv)} returnerte tilsagnet den ${formaterDato(
-                  opprettelse.besluttetTidspunkt,
-                )} med følgende årsaker:`}
-                aarsaker={
-                  opprettelse.aarsaker?.map((aarsak) =>
-                    tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
-                  ) ?? []
-                }
-                forklaring={opprettelse.forklaring}
-              />
-            )}
+            <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
             {annullering?.type === "TIL_BESLUTNING" && (
               <AarsakerOgForklaring
                 heading="Tilsagnet annulleres"
