@@ -1,13 +1,13 @@
 import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata, MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
 import { TilsagnDto, TotrinnskontrollDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, VStack } from "@navikt/ds-react";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 interface Props {
   tilsagn: TilsagnDto;

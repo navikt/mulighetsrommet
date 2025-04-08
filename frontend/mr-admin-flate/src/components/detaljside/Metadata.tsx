@@ -1,4 +1,4 @@
-import { Box, HGrid, HStack } from "@navikt/ds-react";
+import { Box, HGrid } from "@navikt/ds-react";
 import classNames from "classnames";
 import { ReactNode } from "react";
 
