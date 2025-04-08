@@ -18,12 +18,6 @@ export function UtbetalingStatusTag({ status }: { status: AdminUtbetalingStatus 
           Til godkjenning
         </Tag>
       );
-    case AdminUtbetalingStatus.GODKJENT:
-      return (
-        <Tag size="small" variant="success" className={baseTagClasses}>
-          Godkjent
-        </Tag>
-      );
     case AdminUtbetalingStatus.UTBETALT:
       return (
         <Tag size="small" variant="success" className={baseTagClasses}>
