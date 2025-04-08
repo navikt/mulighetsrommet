@@ -11,12 +11,12 @@ export const PORTEN_URL_FOR_TILBAKEMELDING = (tiltaksnummer: string = "", fylke:
 const PORTEN_URL_CONFIG = {
   prod: {
     customField_tiltaksnummer: "customfield_30210",
-    customField_fylke: "customfield_33211",
+    customField_fylke: "customfield_34510",
     baseUrl: "https://jira.adeo.no/plugins/servlet/desk/portal/741/create/5593",
   },
   dev: {
     customField_tiltaksnummer: "customfield_30210",
-    customField_fylke: "customfield_33112",
+    customField_fylke: "customfield_34510",
     baseUrl: "https://jira-q1.adeo.no/plugins/servlet/desk/portal/761/create/5606",
   },
 };
