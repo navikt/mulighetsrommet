@@ -1,5 +1,5 @@
 import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata } from "@/components/detaljside/Metadata";
+import { Metadata, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
@@ -24,25 +24,25 @@ export function TilsagnDetaljerFri({ tilsagn, annullering, oppgjor }: Props) {
       <TwoColumnGrid separator>
         <VStack>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.bestillingsnummer.label}
               verdi={tilsagn.bestillingsnummer}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.type.label}
               verdi={avtaletekster.tilsagn.type(tilsagn.type)}
             />
           </Bolk>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.periode.start.label}
               verdi={formaterPeriodeStart(tilsagn.periode)}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.periode.slutt.label}
               verdi={formaterPeriodeSlutt(tilsagn.periode)}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.status.label}
               verdi={
                 <TilsagnTag
@@ -55,7 +55,7 @@ export function TilsagnDetaljerFri({ tilsagn, annullering, oppgjor }: Props) {
             />
           </Bolk>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.kostnadssted.label}
               verdi={`${tilsagn.kostnadssted.enhetsnummer} ${tilsagn.kostnadssted.navn}`}
             />
@@ -66,11 +66,11 @@ export function TilsagnDetaljerFri({ tilsagn, annullering, oppgjor }: Props) {
             Beløp
           </Heading>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.beregning.belop.label}
               verdi={formaterNOK(tilsagn.beregning.output.belop)}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.belopGjenstaende.label}
               verdi={formaterNOK(tilsagn.belopGjenstaende)}
             />
