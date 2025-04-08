@@ -4,12 +4,11 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.OutgoingContent
+import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.readRemaining
-import io.ktor.utils.io.readText
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
@@ -183,17 +182,11 @@ val ApplicationConfigLocal = AppConfig(
         url = "http://localhost:8090/pdl",
         scope = "default",
         engine = MockEngine { request ->
-            val requestBodyString = when (val content = request.body) {
-                is OutgoingContent.ByteArrayContent -> content.bytes().decodeToString()
-                is OutgoingContent.ReadChannelContent -> content.readFrom().readRemaining().readText()
-                else -> error("Unsupported content type: ${request.body::class}")
-            }
-
-            val parsedReq = JsonIgnoreUnknownKeys.decodeFromString<GraphqlRequest<JsonObject>>(requestBodyString)
+            val parsedReq =
+                JsonIgnoreUnknownKeys.decodeFromString<GraphqlRequest<JsonObject>>((request.body as TextContent).text)
             when {
                 "identer" in parsedReq.variables.keys -> {
-                    val identer =
-                        JsonIgnoreUnknownKeys.decodeFromString<GraphqlRequest<Identer>>(requestBodyString).variables.identer
+                    val identer = JsonIgnoreUnknownKeys.decodeFromJsonElement<Identer>(parsedReq.variables).identer
                     val hentPersonBolk = identer.joinToString(",\n") { ident ->
                         """
                           {
@@ -203,7 +196,7 @@ val ApplicationConfigLocal = AppConfig(
                                 {
                                   "fornavn": "Ola",
                                   "mellomnavn": null,
-                                  "etternavn": "Normann"
+                                  "etternavn": "Nordmann"
                                 }
                               ],
                               "adressebeskyttelse": [
