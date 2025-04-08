@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
+import arrow.core.*
+import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -12,8 +11,14 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.NorgError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -30,8 +35,11 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.NotFound
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -43,6 +51,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
 
 class UtbetalingService(
     private val config: Config,
@@ -50,6 +59,9 @@ class UtbetalingService(
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
+    private val pdl: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
+    private val norg2Client: Norg2Client,
+    private val navEnhetService: NavEnhetService,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -79,6 +91,75 @@ class UtbetalingService(
                 logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
                 dto
             }
+    }
+
+    private suspend fun getPersoner(deltakerIdenter: List<NorskIdent>): Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytningResponse?>> {
+        val identer = deltakerIdenter
+            .map { ident -> PdlIdent(ident.value) }
+            .toNonEmptySetOrNull()
+            ?: return mapOf()
+
+        return pdl.hentPersonOgGeografiskTilknytningBolk(identer).getOrElse {
+            throw StatusException(
+                status = HttpStatusCode.InternalServerError,
+                detail = "Klarte ikke hente informasjon om deltakere for kostnadsfordeling",
+            )
+        }
+    }
+
+    private suspend fun hentEnhetForGeografiskTilknytning(geografiskTilknytningResponse: GeografiskTilknytningResponse?): NavEnhetDbo? {
+        val norgEnhet = when (geografiskTilknytningResponse) {
+            is GeografiskTilknytningResponse.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytningResponse.value)
+            is GeografiskTilknytningResponse.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytningResponse.value)
+            else -> return null
+        }
+
+        return norgEnhet
+            .map { navEnhetService.hentEnhet(it.enhetNr) }
+            .getOrElse {
+                when (it) {
+                    NorgError.NotFound -> null
+                    NorgError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke navenhet til geografisk tilknytning.",
+                    )
+                }
+            }
+    }
+
+    suspend fun getDeltakereForKostnadsfordeling(deltakerIdenter: List<NorskIdent>): Map<NorskIdent, DeltakerPerson> {
+        val personer = getPersoner(deltakerIdenter)
+
+        val deltakereForKostnadsfordeling = personer.map { (ident, pair) ->
+            val (person, geografiskTilknytning) = pair
+            val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
+
+            if (gradering == PdlGradering.UGRADERT) {
+                val navEnhet = hentEnhetForGeografiskTilknytning(geografiskTilknytning)
+                val region = navEnhet?.overordnetEnhet?.let { navEnhetService.hentEnhet(it) }
+
+                DeltakerPerson(
+                    norskIdent = NorskIdent(ident.value),
+                    navn = person.navn.first().let { navn ->
+                        val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
+                        listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
+                    },
+                    foedselsdato = person.foedselsdato.first().foedselsdato,
+                    geografiskEnhet = navEnhet,
+                    region = region,
+                )
+            } else {
+                DeltakerPerson(
+                    norskIdent = NorskIdent(ident.value),
+                    navn = "Adressebeskyttet person",
+                    foedselsdato = null,
+                    geografiskEnhet = null,
+                    region = null,
+                )
+            }
+        }.associateBy { it.norskIdent }
+
+        return deltakereForKostnadsfordeling
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
@@ -437,7 +518,10 @@ class UtbetalingService(
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId))
-            queries.delutbetaling.setStatusForDelutbetalingerForBetaling(delutbetaling.utbetalingId, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+            queries.delutbetaling.setStatusForDelutbetalingerForBetaling(
+                delutbetaling.utbetalingId,
+                DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+            )
             godkjennUtbetaling(utbetaling, alleDelutbetalinger)
         }
     }

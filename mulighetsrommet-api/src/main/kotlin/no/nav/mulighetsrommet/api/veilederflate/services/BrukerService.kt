@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
@@ -22,7 +23,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.veilederflate.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
@@ -112,7 +112,7 @@ class BrukerService(
                 }
             }
 
-        val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(bruker.geografiskTilknytning) }
+        val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(bruker.geografiskTilknytningResponse) }
 
         val gjeldendeVedtak = deferredGjeldendeVedtak.await()
             .getOrElse {
@@ -176,10 +176,10 @@ class BrukerService(
         )
     }
 
-    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
-        val norgResult = when (geografiskTilknytning) {
-            is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
-            is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
+    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytningResponse: GeografiskTilknytningResponse): NavEnhetDbo? {
+        val norgResult = when (geografiskTilknytningResponse) {
+            is GeografiskTilknytningResponse.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytningResponse.value)
+            is GeografiskTilknytningResponse.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytningResponse.value)
             else -> return null
         }
 

@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerPerson
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -80,9 +81,14 @@ fun Route.utbetalingRoutes() {
                         val deltakereById = queries.deltaker
                             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
                             .associateBy { it.id }
+
+                        val deltakerPersoner =
+                            service.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
+
                         utbetaling.beregning.output.deltakelser.map {
                             val deltaker = deltakereById.getValue(it.deltakelseId)
-                            toDeltakerForKostnadsfordeling(deltaker, it.manedsverk)
+                            val person = deltaker.norskIdent?.let { deltakerPersoner.getValue(deltaker.norskIdent) }
+                            toDeltakerForKostnadsfordeling(deltaker, person, it.manedsverk)
                         }
                     }
 
@@ -189,12 +195,16 @@ fun Route.utbetalingRoutes() {
 
 private fun toDeltakerForKostnadsfordeling(
     deltaker: Deltaker,
+    person: DeltakerPerson?,
     manedsverk: Double,
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
     id = deltaker.gjennomforingId,
-    fnr = deltaker.norskIdent?.value,
     status = deltaker.status.type,
     manedsverk = manedsverk,
+    navn = person?.navn,
+    geografiskEnhet = person?.geografiskEnhet?.navn,
+    region = person?.region?.navn,
+    foedselsdato = person?.foedselsdato,
 )
 
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {

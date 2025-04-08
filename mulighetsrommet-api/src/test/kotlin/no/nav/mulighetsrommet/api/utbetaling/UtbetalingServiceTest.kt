@@ -18,6 +18,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.delutbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -50,6 +52,7 @@ import java.util.*
 class UtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
     val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
+    val norg2Client: Norg2Client = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
@@ -58,6 +61,8 @@ class UtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
+        navEnhetService: NavEnhetService = mockk(relaxed = true),
+        pdl: HentAdressebeskyttetPersonBolkPdlQuery = mockk(relaxed = true),
     ) = UtbetalingService(
         config = UtbetalingService.Config(
             bestillingTopic = "topic",
@@ -66,6 +71,9 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
+        pdl = pdl,
+        norg2Client = norg2Client,
+        navEnhetService = navEnhetService,
     )
 
     coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
@@ -935,7 +943,12 @@ class UtbetalingServiceTest : FunSpec({
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
             database.run { queries.delutbetaling.get(delutbetalingId1) }?.status shouldBe DelutbetalingStatus.RETURNERT
-            database.run { queries.totrinnskontroll.getOrError(delutbetalingId1, Totrinnskontroll.Type.OPPRETT) }.besluttetAv shouldBe Tiltaksadministrasjon
+            database.run {
+                queries.totrinnskontroll.getOrError(
+                    delutbetalingId1,
+                    Totrinnskontroll.Type.OPPRETT,
+                )
+            }.besluttetAv shouldBe Tiltaksadministrasjon
         }
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
