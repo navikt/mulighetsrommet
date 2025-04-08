@@ -1,5 +1,4 @@
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { Separator } from "@/components/detaljside/Metadata";
 import { formaterDatoSomYYYYMMDD, isValidationError, subtractDays } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
@@ -163,7 +162,6 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
           }}
         />
       </VStack>
-      <Separator />
       <VStack align="end" gap="4">
         <HStack>
           <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
