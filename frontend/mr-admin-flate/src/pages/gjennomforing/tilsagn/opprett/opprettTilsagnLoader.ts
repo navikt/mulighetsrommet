@@ -1,4 +1,4 @@
-import { Prismodell, TilsagnService, TilsagnStatus, TilsagnType } from "@mr/api-client-v2";
+import { Prismodell, TilsagnService, TilsagnType } from "@mr/api-client-v2";
 
 import { queryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "../../../../api/QueryKeys";
@@ -19,21 +19,4 @@ export const tilsagnDefaultsQuery = (params: {
         body: { gjennomforingId: params.gjennomforingId!, ...params },
       }),
     enabled: !!params.gjennomforingId,
-  });
-
-export const godkjenteTilsagnQuery = (gjennomforingId?: string) =>
-  queryOptions({
-    queryKey: QueryKeys.getTilsagnForGjennomforing(gjennomforingId),
-    queryFn: () =>
-      TilsagnService.getAll({
-        query: {
-          gjennomforingId,
-          statuser: [
-            TilsagnStatus.GODKJENT,
-            TilsagnStatus.TIL_GODKJENNING,
-            TilsagnStatus.RETURNERT,
-          ],
-        },
-      }),
-    enabled: !!gjennomforingId,
   });
