@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OppgaverService(val db: ApiDatabase) {
-    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<Rolle>): List<Oppgave> {
+    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<NavAnsattRolle>): List<Oppgave> {
         val ansattesRoller = roller.map { it.rolle }.toSet()
 
         // TODO: kostnadssteder basert på ansattes roller (Dette må gjøres per rolle/oppgavetype)
@@ -61,7 +61,7 @@ class OppgaverService(val db: ApiDatabase) {
         oppgavetyper: Set<OppgaveType>,
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
-        roller: Set<NavAnsattRolle>,
+        roller: Set<Rolle>,
         ansatt: NavIdent,
     ): List<Oppgave> = db.session {
         queries.tilsagn
@@ -92,7 +92,7 @@ class OppgaverService(val db: ApiDatabase) {
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavIdent,
-        roller: Set<NavAnsattRolle>,
+        roller: Set<Rolle>,
     ): List<Oppgave> = db.session {
         queries.delutbetaling
             .getOppgaveData(
@@ -111,7 +111,7 @@ class OppgaverService(val db: ApiDatabase) {
         oppgavetyper: Set<OppgaveType>,
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
-        roller: Set<NavAnsattRolle>,
+        roller: Set<Rolle>,
     ): List<Oppgave> = db.session {
         queries.utbetaling
             .getOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })

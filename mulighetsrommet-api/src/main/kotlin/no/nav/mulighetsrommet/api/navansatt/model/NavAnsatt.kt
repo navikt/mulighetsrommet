@@ -18,7 +18,7 @@ data class NavAnsatt(
     val hovedenhet: Hovedenhet,
     val mobilnummer: String?,
     val epost: String,
-    val roller: Set<Rolle>,
+    val roller: Set<NavAnsattRolle>,
     @Serializable(with = LocalDateSerializer::class)
     val skalSlettesDato: LocalDate?,
 ) {
@@ -29,13 +29,13 @@ data class NavAnsatt(
     )
 
     fun hasRole(
-        requiredRole: Rolle,
+        requiredRole: NavAnsattRolle,
     ): Boolean = when (requiredRole) {
-        is Rolle.Generell -> roller.any { it.rolle == requiredRole.rolle }
+        is NavAnsattRolle.Generell -> roller.any { it.rolle == requiredRole.rolle }
 
-        is Rolle.Kontorspesifikk -> roller.any {
+        is NavAnsattRolle.Kontorspesifikk -> roller.any {
             when (it) {
-                is Rolle.Kontorspesifikk ->
+                is NavAnsattRolle.Kontorspesifikk ->
                     it.rolle == requiredRole.rolle &&
                         // TODO: fjern isEmpty()-sjekk når nye ad-grupper er på plass
                         (it.enheter.isEmpty() || it.enheter.containsAll(requiredRole.enheter))

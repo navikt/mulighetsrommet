@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
+import { NavAnsatt, Rolle } from "@mr/api-client-v2";
 
 interface Props {
   children: ReactNode;
@@ -13,18 +13,15 @@ export function HarSkrivetilgang({ ressurs, children, condition }: Props) {
 
   if (!ansatt || condition === false) {
     return null;
-  } else if (ressurs === "Avtale" && harRolle(ansatt, NavAnsattRolle.AVTALER_SKRIV)) {
+  } else if (ressurs === "Avtale" && harRolle(ansatt, Rolle.AVTALER_SKRIV)) {
     return children;
-  } else if (
-    ressurs === "Gjennomføring" &&
-    harRolle(ansatt, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
-  ) {
+  } else if (ressurs === "Gjennomføring" && harRolle(ansatt, Rolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
     return children;
   } else {
     return null;
   }
 }
 
-function harRolle(ansatt: NavAnsatt, rolle: NavAnsattRolle) {
+function harRolle(ansatt: NavAnsatt, rolle: Rolle) {
   return ansatt.roller.includes(rolle);
 }

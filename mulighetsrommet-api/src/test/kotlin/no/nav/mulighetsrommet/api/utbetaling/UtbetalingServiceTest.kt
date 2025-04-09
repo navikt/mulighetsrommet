@@ -29,7 +29,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.delutbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -577,7 +577,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setRoller(NavAnsattFixture.MikkeMus, setOf(Rolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
+                setRoller(NavAnsattFixture.MikkeMus, setOf(NavAnsattRolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -625,7 +625,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setRoller(NavAnsattFixture.DonaldDuck, setOf(Rolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
+                setRoller(NavAnsattFixture.DonaldDuck, setOf(NavAnsattRolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -664,7 +664,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setRoller(NavAnsattFixture.MikkeMus, setOf(Rolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
+                setRoller(NavAnsattFixture.MikkeMus, setOf(NavAnsattRolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -870,7 +870,7 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
-                setRoller(NavAnsattFixture.MikkeMus, setOf(Rolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
+                setRoller(NavAnsattFixture.MikkeMus, setOf(NavAnsattRolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
             }.initialize(database.db)
             val service = createUtbetalingService()
 
@@ -942,7 +942,7 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
-                setRoller(NavAnsattFixture.DonaldDuck, setOf(Rolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
+                setRoller(NavAnsattFixture.DonaldDuck, setOf(NavAnsattRolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
             }.initialize(database.db)
             val service = createUtbetalingService()
 
@@ -1082,7 +1082,7 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.OPPGJORT)
                 setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
-                setRoller(NavAnsattFixture.MikkeMus, setOf(Rolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
+                setRoller(NavAnsattFixture.MikkeMus, setOf(NavAnsattRolle.AttestantUtbetaling(setOf(Innlandet.enhetsnummer))))
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -1397,7 +1397,7 @@ class UtbetalingServiceTest : FunSpec({
     }
 })
 
-private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<Rolle>) {
+private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRolle>) {
     queries.ansatt.setRoller(
         navIdent = ansatt.navIdent,
         roller = roller,

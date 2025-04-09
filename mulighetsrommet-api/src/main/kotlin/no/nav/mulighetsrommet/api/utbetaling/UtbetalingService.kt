@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -282,7 +282,7 @@ class UtbetalingService(
 
         val kostnadssted = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
-        if (!ansatt.hasRole(Rolle.AttestantUtbetaling(setOf(kostnadssted.enhetsnummer)))) {
+        if (!ansatt.hasRole(NavAnsattRolle.AttestantUtbetaling(setOf(kostnadssted.enhetsnummer)))) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})"))).left()
         }
 

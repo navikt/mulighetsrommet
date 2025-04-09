@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
@@ -68,8 +68,8 @@ class TilsagnServiceTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
         ) {
-            queries.ansatt.setRoller(ansatt1, setOf(Rolle.BeslutterTilsagn(setOf(Gjovik.enhetsnummer))))
-            queries.ansatt.setRoller(ansatt2, setOf(Rolle.BeslutterTilsagn(setOf(Gjovik.enhetsnummer))))
+            queries.ansatt.setRoller(ansatt1, setOf(NavAnsattRolle.BeslutterTilsagn(setOf(Gjovik.enhetsnummer))))
+            queries.ansatt.setRoller(ansatt2, setOf(NavAnsattRolle.BeslutterTilsagn(setOf(Gjovik.enhetsnummer))))
         }.initialize(database.db)
     }
 
@@ -287,7 +287,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("kan ikke beslutte når ansatt bare har beslutter-rolle ved andre kostnadssteder") {
             database.run {
-                queries.ansatt.setRoller(ansatt1, setOf(Rolle.BeslutterTilsagn(setOf(Lillehammer.enhetsnummer))))
+                queries.ansatt.setRoller(ansatt1, setOf(NavAnsattRolle.BeslutterTilsagn(setOf(Lillehammer.enhetsnummer))))
             }
 
             service.upsert(request, ansatt1)

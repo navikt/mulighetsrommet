@@ -26,7 +26,7 @@ import {
   Besluttelse,
   BesluttTilsagnRequest,
   FieldError,
-  NavAnsattRolle,
+  Rolle,
   ProblemDetail,
   TilsagnAvvisningAarsak,
   TilsagnStatus,
@@ -168,7 +168,7 @@ export function TilsagnDetaljer() {
   }
 
   const visHandlingerMeny =
-    ansatt.roller.includes(NavAnsattRolle.SAKSBEHANDLER_OKONOMI) &&
+    ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI) &&
     [TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status);
 
   return (

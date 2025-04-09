@@ -1148,7 +1148,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/NavAnsattRolle"
+              $ref: "#/components/schemas/Rolle"
           description: Nav-Ansatt rollen du ønsker å filtrere på
       responses:
         200:
@@ -3472,7 +3472,7 @@ components:
         roller:
           type: array
           items:
-            $ref: "#/components/schemas/NavAnsattRolle"
+            $ref: "#/components/schemas/Rolle"
         skalSlettesDato:
           type: [string, "null"]
           format: date
@@ -3487,7 +3487,7 @@ components:
         - roller
         - skalSlettesDato
 
-    NavAnsattRolle:
+    Rolle:
       type: string
       enum:
         - TEAM_MULIGHETSROMMET

@@ -7,7 +7,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
@@ -31,8 +31,8 @@ class AvtaleRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-    val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
+    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
+    val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.AVTALER_SKRIV)
 
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(generellRolle, avtaleSkrivRolle)),
