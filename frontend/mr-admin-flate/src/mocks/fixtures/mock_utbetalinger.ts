@@ -147,7 +147,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: true,
     opprettelse: {
       type: "TIL_BESLUTNING",
-      behandletAv: "B123456",
+      behandletAv: {
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
       behandletTidspunkt: "2024-01-01T22:00:00",
       aarsaker: ["Utbetaling for første halvår 2024"],
       forklaring: "Utbetaling for tilsagn",
@@ -184,9 +188,17 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAv: "B123456",
+      behandletAv: {
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
       behandletTidspunkt: "2024-01-01T22:00:00",
-      besluttetAv: "F123456",
+      besluttetAv: {
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
+        navn: "Per Haraldsen",
+      },
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil. Du må justere antall deltakere",
@@ -224,9 +236,17 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: true,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAv: "B123456",
+      behandletAv: {
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
       behandletTidspunkt: "2024-01-01T22:00:00",
-      besluttetAv: "F123456",
+      besluttetAv: {
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
+        navn: "Per Haraldsen",
+      },
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
@@ -265,7 +285,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "TIL_BESLUTNING",
-      behandletAv: "B123456",
+      behandletAv: {
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
       behandletTidspunkt: "2025-01-01T10:00:00",
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
@@ -303,12 +327,20 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAv: "B123456",
+      behandletAv: {
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
       behandletTidspunkt: "2025-01-01T10:00:00",
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
       kanBesluttes: true,
-      besluttetAv: "N123456",
+      besluttetAv: {
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
+        navn: "Per Haraldsen",
+      },
       besluttetTidspunkt: "2025-01-01T10:00:00",
       besluttelse: Besluttelse.GODKJENT,
     } as TotrinnskontrollBesluttetDto,
@@ -344,12 +376,20 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAv: "B123456",
+      behandletAv: {
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
       behandletTidspunkt: "2025-01-01T10:00:00",
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
       kanBesluttes: true,
-      besluttetAv: "N123456",
+      besluttetAv: {
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
+        navn: "Per Haraldsen",
+      },
       besluttetTidspunkt: "2025-01-01T10:00:00",
       besluttelse: Besluttelse.GODKJENT,
     } as TotrinnskontrollBesluttetDto,

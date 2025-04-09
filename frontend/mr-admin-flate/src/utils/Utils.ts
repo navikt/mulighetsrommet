@@ -1,4 +1,6 @@
+import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 import {
+  AgentDto,
   AvbrytAvtaleAarsak,
   AvtaleDto,
   Avtaletype,
@@ -19,7 +21,6 @@ import {
   TiltakskodeArena,
   ValidationError,
 } from "@mr/api-client-v2";
-import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -473,4 +474,15 @@ export function joinWithCommaAndOg(aarsaker: string[]): string {
 export function capitalizeFirstLetter(text: string): string {
   if (!text) return "";
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
+export function navnEllerIdent(agent: AgentDto): string {
+  switch (agent.type) {
+    case "NAV_ANSATT":
+      return agent.navn || agent.navIdent;
+    case "SYSTEM":
+      return agent.navn;
+    case "ARRANGOR":
+      return "Tiltaksarrangør";
+  }
 }

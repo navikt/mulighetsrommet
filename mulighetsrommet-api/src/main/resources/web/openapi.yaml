@@ -6279,7 +6279,7 @@ components:
         type:
           const: TIL_BESLUTNING
         behandletAv:
-          type: string
+          $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
           type: string
           format: date-time
@@ -6304,7 +6304,7 @@ components:
         type:
           const: BESLUTTET
         behandletAv:
-          type: string
+          $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
           type: string
           format: date-time
@@ -6317,7 +6317,7 @@ components:
         forklaring:
           type: string
         besluttetAv:
-          type: string
+          $ref: "#/components/schemas/AgentDto"
         besluttetTidspunkt:
           type: string
           format: date-time
@@ -6332,3 +6332,42 @@ components:
         - besluttetAv
         - besluttetTidspunkt
         - besluttelse
+
+    AgentDto:
+      oneOf:
+        - $ref: "#/components/schemas/NavAnsattAgentDto"
+        - $ref: "#/components/schemas/ArrangorAgentDto"
+        - $ref: "#/components/schemas/SystemAgentDto"
+
+    NavAnsattAgentDto:
+      type: object
+      properties:
+        type:
+          const: NAV_ANSATT
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - type
+        - navIdent
+
+    ArrangorAgentDto:
+      type: object
+      properties:
+        type:
+          const: ARRANGOR
+      required:
+        - type
+
+    SystemAgentDto:
+      type: object
+      properties:
+        type:
+          const: SYSTEM
+        navn:
+          type: string
+      required:
+        - type
+        - navn
+

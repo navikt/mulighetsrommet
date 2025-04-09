@@ -48,6 +48,10 @@ class NavAnsattService(
         return microsoftGraphClient.getNavAnsattSok(query)
     }
 
+    fun getNavAnsattByNavIdent(navIdent: NavIdent): NavAnsatt? = db.session {
+        queries.ansatt.getByNavIdent(navIdent)
+    }
+
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
         val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)

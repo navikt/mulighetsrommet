@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -42,6 +43,7 @@ import java.util.*
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val service: UtbetalingService by inject()
+    val totrinnskontrollService: TotrinnskontrollService by inject()
 
     route("/utbetaling/{id}") {
         get {
@@ -67,6 +69,8 @@ fun Route.utbetalingRoutes() {
                     val requiredRole = Rolle.AttestantUtbetaling(
                         setOf(tilsagn.kostnadssted.enhetsnummer),
                     )
+                    val besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(opprettelse)
+                    val behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(opprettelse)
 
                     UtbetalingLinje(
                         id = delutbetaling.id,
@@ -77,6 +81,8 @@ fun Route.utbetalingRoutes() {
                         opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
                             opprettelse,
                             ansatt.hasRole(requiredRole),
+                            behandletAvNavn,
+                            besluttetAvNavn,
                         ),
                     )
                 }
