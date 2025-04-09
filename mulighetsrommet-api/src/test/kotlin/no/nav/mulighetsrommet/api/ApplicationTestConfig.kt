@@ -29,7 +29,7 @@ fun <R> withTestApplication(
 fun createTestApplicationConfig() = ApplicationConfigLocal.copy(
     database = databaseConfig,
     flyway = FlywayMigrationManager.MigrationConfig(),
-    auth = createAuthConfig(oauth = null, roles = listOf()),
+    auth = createAuthConfig(oauth = null, roles = setOf()),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
@@ -38,7 +38,7 @@ fun createAuthConfig(
     oauth: MockOAuth2Server?,
     issuer: String = "default",
     audience: String = "default",
-    roles: List<AdGruppeNavAnsattRolleMapping>,
+    roles: Set<AdGruppeNavAnsattRolleMapping>,
 ): AuthConfig = AuthConfig(
     azure = AuthProvider(
         issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,

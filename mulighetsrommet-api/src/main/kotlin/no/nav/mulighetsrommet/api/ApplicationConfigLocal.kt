@@ -66,7 +66,7 @@ val ApplicationConfigLocal = AppConfig(
             tokenEndpointUrl = "http://localhost:8081/maskinporten/token",
             privateJwk = createMockRSAKey("maskinporten"),
         ),
-        roles = listOf(
+        roles = setOf(
             AdGruppeNavAnsattRolleMapping(
                 "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
                 NavAnsattRolle.TEAM_MULIGHETSROMMET,

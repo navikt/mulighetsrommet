@@ -208,8 +208,8 @@ class DelutbetalingQueries(private val session: Session) {
     }
 
     fun getOppgaveData(
-        kostnadssteder: List<NavEnhetNummer>?,
-        tiltakskoder: List<Tiltakskode>?,
+        kostnadssteder: Set<NavEnhetNummer>?,
+        tiltakskoder: Set<Tiltakskode>?,
     ): List<DelutbetalingOppgaveData> {
         @Language("PostgreSQL")
         val query = """

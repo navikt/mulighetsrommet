@@ -2,12 +2,13 @@ package no.nav.mulighetsrommet.api.navansatt
 
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -25,6 +26,7 @@ import java.time.LocalDate
 import java.util.*
 
 class NavAnsattSyncService(
+    private val ansattGroupsToSync: Set<AdGruppeNavAnsattRolleMapping>,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
@@ -34,11 +36,11 @@ class NavAnsattSyncService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
-        val ansatteToUpsert = navAnsattService.getNavAnsatteFromAzure()
+        val ansatteToUpsert = navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync)
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
             queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
         }
         upsertSanityAnsatte(ansatteToUpsert)
@@ -49,7 +51,7 @@ class NavAnsattSyncService(
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
-            val ansattToDelete = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(skalSlettesDato = deletionDate)
+            val ansattToDelete = NavAnsattDbo.fromNavAnsatt(ansatt).copy(skalSlettesDato = deletionDate)
             queries.ansatt.upsert(ansattToDelete)
             queries.ansatt.setRoller(ansattToDelete.navIdent, setOf())
         }
@@ -61,7 +63,7 @@ class NavAnsattSyncService(
         }
     }
 
-    private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto): Unit = db.transaction {
+    private suspend fun deleteNavAnsatt(ansatt: NavAnsatt): Unit = db.transaction {
         val avtaleIds = queries.avtale.getAvtaleIdsByAdministrator(ansatt.navIdent)
         val gjennomforinger = sanityService.getTiltakByNavIdent(ansatt.navIdent)
 
@@ -69,13 +71,12 @@ class NavAnsattSyncService(
         sanityService.removeNavIdentFromTiltaksgjennomforinger(ansatt.navIdent)
         sanityService.deleteNavIdent(ansatt.navIdent)
 
-        gjennomforinger
-            .forEach { gjennomforing ->
-                notifyRelevantAdministratorsForSanityGjennomforing(
-                    gjennomforing,
-                    ansatt.hovedenhet,
-                )
-            }
+        gjennomforinger.forEach { gjennomforing ->
+            notifyRelevantAdministratorsForSanityGjennomforing(
+                gjennomforing,
+                ansatt.hovedenhet,
+            )
+        }
 
         avtaleIds.forEach {
             val avtale = requireNotNull(queries.avtale.get(it))
@@ -87,7 +88,7 @@ class NavAnsattSyncService(
 
     private fun QueryContext.notifyRelevantAdministrators(
         avtale: AvtaleDto,
-        hovedenhet: NavAnsattDto.Hovedenhet,
+        hovedenhet: NavAnsatt.Hovedenhet,
     ) {
         val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)
             ?: return
@@ -103,7 +104,7 @@ class NavAnsattSyncService(
 
         val administrators = queries.ansatt
             .getAll(
-                roller = listOf(NavAnsattRolle.AVTALER_SKRIV),
+                rollerContainsAll = listOf(Rolle.AvtalerSkriv),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .map { it.navIdent }
@@ -125,7 +126,7 @@ class NavAnsattSyncService(
 
     private fun QueryContext.notifyRelevantAdministratorsForSanityGjennomforing(
         tiltak: SanityTiltaksgjennomforing,
-        hovedenhet: NavAnsattDto.Hovedenhet,
+        hovedenhet: NavAnsatt.Hovedenhet,
     ) {
         val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)
             ?: return
@@ -141,7 +142,7 @@ class NavAnsattSyncService(
 
         val administrators = queries.ansatt
             .getAll(
-                roller = listOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                rollerContainsAll = listOf(Rolle.TiltaksgjennomforingerSkriv),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .map { it.navIdent }
@@ -161,7 +162,7 @@ class NavAnsattSyncService(
         notificationTask.scheduleNotification(notification)
     }
 
-    private suspend fun upsertSanityAnsatte(ansatte: List<NavAnsattDto>) {
+    private suspend fun upsertSanityAnsatte(ansatte: List<NavAnsatt>) {
         val existingNavKontaktpersonIds = sanityService.getNavKontaktpersoner()
             .associate { it.navIdent.current to it._id }
         val existingRedaktorIds = sanityService.getRedaktorer()
@@ -171,7 +172,7 @@ class NavAnsattSyncService(
         val navKontaktpersoner = mutableListOf<SanityNavKontaktperson>()
         val redaktorer = mutableListOf<SanityRedaktor>()
         ansatte.forEach { ansatt ->
-            if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
+            if (ansatt.hasRole(Rolle.Kontaktperson)) {
                 val id = existingNavKontaktpersonIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 navKontaktpersoner.add(
                     SanityNavKontaktperson(
@@ -187,7 +188,7 @@ class NavAnsattSyncService(
                 )
             }
 
-            if (ansatt.roller.contains(NavAnsattRolle.AVTALER_SKRIV) || ansatt.roller.contains(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
+            if (ansatt.hasRole(Rolle.AvtalerSkriv) || ansatt.hasRole(Rolle.TiltaksgjennomforingerSkriv)) {
                 val id = existingRedaktorIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 redaktorer.add(
                     SanityRedaktor(

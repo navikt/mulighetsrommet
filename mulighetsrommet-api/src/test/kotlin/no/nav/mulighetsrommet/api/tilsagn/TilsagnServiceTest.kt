@@ -14,13 +14,12 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
@@ -63,10 +62,15 @@ class TilsagnServiceTest : FunSpec({
 
     beforeEach {
         MulighetsrommetTestDomain(
+            navEnheter = listOf(NavEnhetFixtures.Innlandet, Gjovik, Lillehammer),
+            ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
-        ).initialize(database.db)
+        ) {
+            queries.ansatt.setRoller(ansatt1, setOf(Rolle.BeslutterTilsagn(setOf(Gjovik.enhetsnummer))))
+            queries.ansatt.setRoller(ansatt2, setOf(Rolle.BeslutterTilsagn(setOf(Gjovik.enhetsnummer))))
+        }.initialize(database.db)
     }
 
     afterEach {
@@ -88,9 +92,9 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("opprett tilsagn") {
-        test("tilsagn kan ikke vare over årsskiftet") {
-            val service = createTilsagnService()
+        val service = createTilsagnService()
 
+        test("tilsagn kan ikke vare over årsskiftet") {
             val invalidRequest = request.copy(
                 periodeStart = LocalDate.of(2025, 1, 1),
                 periodeSlutt = LocalDate.of(2026, 1, 31),
@@ -105,8 +109,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("minimum dato for tilsagn må være satt for at tilsagn skal opprettes") {
-            val service = createTilsagnService()
-
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.VTA),
@@ -126,8 +128,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("tilsagnet kan ikke slutte etter gjennomføringen") {
-            val service = createTilsagnService()
-
             val gjennomforing = AFT1.copy(
                 startDato = LocalDate.of(2025, 1, 1),
                 sluttDato = LocalDate.of(2025, 2, 1),
@@ -154,8 +154,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("tilsagnet kan ikke starte før konfigurert minimum dato for tilsagn") {
-            val service = createTilsagnService()
-
             val invalidRequest = request.copy(
                 periodeStart = LocalDate.of(2024, 12, 1),
                 periodeSlutt = LocalDate.of(2025, 1, 31),
@@ -170,8 +168,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("oppretter tilsagn med riktig periode og totrinnskontroll") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1))
@@ -186,8 +182,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("genererer løpenummer og bestillingsnummer") {
-            val service = createTilsagnService()
-
             val domain2 = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1, AFT1.copy(id = UUID.randomUUID())),
@@ -230,9 +224,9 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("slett tilsagn") {
-        test("kan ikke slette tilsagn når det er til godkjenning") {
-            val service = createTilsagnService()
+        val service = createTilsagnService()
 
+        test("kan ikke slette tilsagn når det er til godkjenning") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -240,8 +234,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -255,8 +247,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan slette tilsagn når det er returnert") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -276,9 +266,43 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("beslutt tilsagn") {
-        test("kan ikke beslutte egne opprettelser") {
-            val service = createTilsagnService()
+        val service = createTilsagnService()
 
+        test("kan ikke beslutte når ansatt mangler beslutter-rolle") {
+            database.run {
+                queries.ansatt.setRoller(ansatt1, setOf())
+            }
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt1,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
+                it.errors shouldContain FieldError.root("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)")
+            }
+        }
+
+        test("kan ikke beslutte når ansatt bare har beslutter-rolle ved andre kostnadssteder") {
+            database.run {
+                queries.ansatt.setRoller(ansatt1, setOf(Rolle.BeslutterTilsagn(setOf(Lillehammer.enhetsnummer))))
+            }
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt1,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
+                it.errors shouldContain FieldError.root("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)")
+            }
+        }
+
+        test("kan ikke beslutte egne opprettelser") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -292,8 +316,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan ikke beslutte to ganger") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -311,8 +333,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("godkjent tilsagn trigger melding til økonomi") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -336,8 +356,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("totrinnskontroll blir oppdatert i forbindelse med opprettelse av tilsagn") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -395,8 +413,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("løpenummer beholdes når tilsagn blir returnert") {
-            val service = createTilsagnService()
-
             val aft1 = database.run { queries.gjennomforing.get(AFT1.id).shouldNotBeNull() }
 
             service.upsert(request, ansatt1).shouldBeRight().should {
@@ -423,9 +439,9 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("annuller tilsagn") {
-        test("totrinnskontroll blir oppdatert ved annullering av tilsagn") {
-            val service = createTilsagnService()
+        val service = createTilsagnService()
 
+        test("totrinnskontroll blir oppdatert ved annullering av tilsagn") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -483,8 +499,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("annullering av tilsagn trigger melding til økonomi") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -528,8 +542,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan ikke annullere eget tilsagn") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1).shouldBeRight()
             service.beslutt(
                 id = request.id,
@@ -556,9 +568,9 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("Gjør opp tilsagn") {
-        test("totrinnskontroll kreves for oppgjør av tilsagn") {
-            val service = createTilsagnService()
+        val service = createTilsagnService()
 
+        test("totrinnskontroll kreves for oppgjør av tilsagn") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -613,8 +625,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan ikke gjøre opp egen") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
             service.beslutt(
@@ -639,8 +649,6 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {
-            val service = createTilsagnService()
-
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 

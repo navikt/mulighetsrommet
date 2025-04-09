@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -14,8 +15,11 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OppgaverService(val db: ApiDatabase) {
-    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<NavAnsattRolle>): List<Oppgave> {
-        val navEnheter = navEnheter(filter.regioner)
+    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<Rolle>): List<Oppgave> {
+        val ansattesRoller = roller.map { it.rolle }.toSet()
+
+        // TODO: kostnadssteder basert på ansattes roller (Dette må gjøres per rolle/oppgavetype)
+        val kostnadssteder = getNavEnheterForRegioner(filter.regioner)
 
         return buildList {
             if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { OppgaveType.TilsagnOppgaver.contains(it) }) {
@@ -23,8 +27,8 @@ class OppgaverService(val db: ApiDatabase) {
                     tilsagnOppgaver(
                         tiltakskoder = filter.tiltakskoder,
                         oppgavetyper = filter.oppgavetyper,
-                        kostnadssteder = navEnheter,
-                        roller = roller,
+                        kostnadssteder = kostnadssteder,
+                        roller = ansattesRoller,
                         ansatt = ansatt,
                     ),
                 )
@@ -34,9 +38,9 @@ class OppgaverService(val db: ApiDatabase) {
                     delutbetalingOppgaver(
                         tiltakskoder = filter.tiltakskoder,
                         oppgavetyper = filter.oppgavetyper,
-                        kostnadssteder = navEnheter,
+                        kostnadssteder = kostnadssteder,
                         ansatt = ansatt,
-                        roller = roller,
+                        roller = ansattesRoller,
                     ),
                 )
             }
@@ -45,8 +49,8 @@ class OppgaverService(val db: ApiDatabase) {
                     utbetalingOppgaver(
                         tiltakskoder = filter.tiltakskoder,
                         oppgavetyper = filter.oppgavetyper,
-                        kostnadssteder = navEnheter,
-                        roller = roller,
+                        kostnadssteder = kostnadssteder,
+                        roller = ansattesRoller,
                     ),
                 )
             }
@@ -54,9 +58,9 @@ class OppgaverService(val db: ApiDatabase) {
     }
 
     fun tilsagnOppgaver(
-        oppgavetyper: List<OppgaveType>,
-        tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<NavEnhetNummer>,
+        oppgavetyper: Set<OppgaveType>,
+        tiltakskoder: Set<Tiltakskode>,
+        kostnadssteder: Set<NavEnhetNummer>,
         roller: Set<NavAnsattRolle>,
         ansatt: NavIdent,
     ): List<Oppgave> = db.session {
@@ -84,9 +88,9 @@ class OppgaverService(val db: ApiDatabase) {
     }
 
     fun delutbetalingOppgaver(
-        oppgavetyper: List<OppgaveType>,
-        tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<NavEnhetNummer>,
+        oppgavetyper: Set<OppgaveType>,
+        tiltakskoder: Set<Tiltakskode>,
+        kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavIdent,
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
@@ -104,9 +108,9 @@ class OppgaverService(val db: ApiDatabase) {
     }
 
     fun utbetalingOppgaver(
-        oppgavetyper: List<OppgaveType>,
-        tiltakskoder: List<Tiltakskode>,
-        kostnadssteder: List<NavEnhetNummer>,
+        oppgavetyper: Set<OppgaveType>,
+        tiltakskoder: Set<Tiltakskode>,
+        kostnadssteder: Set<NavEnhetNummer>,
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
         queries.utbetaling
@@ -123,7 +127,7 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun QueryContext.byKostnadssted(
         utbetaling: Utbetaling,
-        kostnadssteder: List<NavEnhetNummer>,
+        kostnadssteder: Set<NavEnhetNummer>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
         else -> {
@@ -133,12 +137,10 @@ class OppgaverService(val db: ApiDatabase) {
         }
     }
 
-    private fun navEnheter(regioner: List<NavEnhetNummer>): List<NavEnhetNummer> {
-        return regioner
-            .flatMap { region ->
-                db.session { queries.enhet.getAll(overordnetEnhet = region) }
-            }
-            .map { it.enhetsnummer }
+    private fun getNavEnheterForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> = db.session {
+        regioner.flatMapTo(mutableSetOf()) { region ->
+            queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer }
+        }
     }
 }
 

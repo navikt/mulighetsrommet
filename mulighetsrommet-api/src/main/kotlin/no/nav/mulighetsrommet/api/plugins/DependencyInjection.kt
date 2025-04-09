@@ -383,7 +383,7 @@ private fun services(appConfig: AppConfig) = module {
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
-    single { NavAnsattSyncService(get(), get(), get(), get(), get()) }
+    single { NavAnsattSyncService(appConfig.auth.roles, get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single {
