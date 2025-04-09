@@ -33,43 +33,46 @@ class TotrinnskontrollServiceTest : FunSpec({
         mobilnummer = null,
         epost = "bertil.bengtson@nav.no",
         roller = emptySet(),
-        skalSlettesDato = null
+        skalSlettesDato = null,
     )
 
     context("TotrinnskontrollService") {
         test("Skal hente ut navn på beslutter") {
-            val result = service.getBesluttetAvNavn(Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = UUID.randomUUID(),
-                type = Type.ANNULLER,
-                behandletAv = NavIdent("B123456"),
-                behandletTidspunkt = LocalDateTime.now(),
-                aarsaker = emptyList(),
-                forklaring = null,
-                besluttetAv = NavIdent("B123456"),
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.GODKJENT
-            ))
+            val result = service.getBesluttetAvNavn(
+                Totrinnskontroll(
+                    id = UUID.randomUUID(),
+                    entityId = UUID.randomUUID(),
+                    type = Type.ANNULLER,
+                    behandletAv = NavIdent("B123456"),
+                    behandletTidspunkt = LocalDateTime.now(),
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                    besluttetAv = NavIdent("B123456"),
+                    besluttetTidspunkt = LocalDateTime.now(),
+                    besluttelse = Besluttelse.GODKJENT,
+                ),
+            )
 
             result shouldBe "Bertil Bengtson"
         }
 
         test("Skal hente ut navn på behandler") {
-            val result = service.getBehandletAvNavn(Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = UUID.randomUUID(),
-                type = Type.ANNULLER,
-                behandletAv = NavIdent("B123456"),
-                behandletTidspunkt = LocalDateTime.now(),
-                aarsaker = emptyList(),
-                forklaring = null,
-                besluttetAv = NavIdent("B123456"),
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.GODKJENT
-            ))
+            val result = service.getBehandletAvNavn(
+                Totrinnskontroll(
+                    id = UUID.randomUUID(),
+                    entityId = UUID.randomUUID(),
+                    type = Type.ANNULLER,
+                    behandletAv = NavIdent("B123456"),
+                    behandletTidspunkt = LocalDateTime.now(),
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                    besluttetAv = NavIdent("B123456"),
+                    besluttetTidspunkt = LocalDateTime.now(),
+                    besluttelse = Besluttelse.GODKJENT,
+                ),
+            )
 
             result shouldBe "Bertil Bengtson"
         }
     }
-
 })
