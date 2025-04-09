@@ -54,7 +54,7 @@ val ApplicationConfigProd = AppConfig(
             tokenEndpointUrl = System.getenv("MASKINPORTEN_TOKEN_ENDPOINT"),
             privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
         ),
-        roles = listOf(
+        roles = setOf(
             AdGruppeNavAnsattRolleMapping(
                 // team-mulighetsrommet
                 adGruppeId = "debefa6e-1865-446d-b22b-9579fc735de3".toUUID(),

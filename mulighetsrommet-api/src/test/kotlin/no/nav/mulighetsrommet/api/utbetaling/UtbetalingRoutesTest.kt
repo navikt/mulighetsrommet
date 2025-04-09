@@ -57,7 +57,7 @@ class UtbetalingRoutesTest : FunSpec({
         database = databaseConfig,
         auth = createAuthConfig(
             oauth,
-            roles = listOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
+            roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
         ),
         engine = engine,
     )

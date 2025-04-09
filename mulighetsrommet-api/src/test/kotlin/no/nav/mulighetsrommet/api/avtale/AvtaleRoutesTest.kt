@@ -35,7 +35,7 @@ class AvtaleRoutesTest : FunSpec({
     val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
 
     fun appConfig() = createTestApplicationConfig().copy(
-        auth = createAuthConfig(oauth, roles = listOf(generellRolle, avtaleSkrivRolle)),
+        auth = createAuthConfig(oauth, roles = setOf(generellRolle, avtaleSkrivRolle)),
     )
 
     test("401 Unauthorized for uautentisert kall for PUT av avtaledata") {

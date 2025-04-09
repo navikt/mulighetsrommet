@@ -66,12 +66,13 @@ data class AuthConfig(
     val azure: AuthProvider,
     val tokenx: AuthProvider,
     val maskinporten: AuthProvider,
-    val roles: List<AdGruppeNavAnsattRolleMapping>,
+    val roles: Set<AdGruppeNavAnsattRolleMapping>,
 )
 
 data class AdGruppeNavAnsattRolleMapping(
     val adGruppeId: UUID,
     val rolle: NavAnsattRolle,
+    val kommentar: String? = null,
 )
 
 data class KafkaConfig(
