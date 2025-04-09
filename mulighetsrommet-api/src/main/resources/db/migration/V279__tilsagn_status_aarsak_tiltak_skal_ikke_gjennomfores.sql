@@ -1,1 +1,0 @@
-alter type name rename value 'GJENNOMFORING_AVBRYTES' to 'TILTAK_SKAL_IKKE_GJENNOMFORES';
