@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -37,11 +37,11 @@ class NavAnsattSyncServiceTest : FunSpec({
     ) {
         queries.ansatt.setRoller(
             NavAnsattFixture.DonaldDuck.navIdent,
-            setOf(Rolle.TiltakadministrasjonGenerell),
+            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
         )
         queries.ansatt.setRoller(
             NavAnsattFixture.MikkeMus.navIdent,
-            setOf(Rolle.TiltakadministrasjonGenerell),
+            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
         )
     }
 
@@ -70,8 +70,8 @@ class NavAnsattSyncServiceTest : FunSpec({
         ansattGroupsToSync = mappings,
     )
 
-    val ansatt1 = NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(Rolle.TiltakadministrasjonGenerell))
-    val ansatt2 = NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(Rolle.TiltakadministrasjonGenerell))
+    val ansatt1 = NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
+    val ansatt2 = NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
 
     context("should schedule nav_ansatt to be deleted when they are not in the list of ansatte to sync") {
         val today = LocalDate.now()
@@ -166,7 +166,7 @@ class NavAnsattSyncServiceTest : FunSpec({
         every { notificationTask.scheduleNotification(any(), any()) } returns Unit
 
         coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
-            ansatt2.copy(roller = setOf(Rolle.AvtalerSkriv)),
+            ansatt2.copy(roller = setOf(NavAnsattRolle.AvtalerSkriv)),
         )
 
         val today = LocalDate.now()
@@ -182,7 +182,7 @@ class NavAnsattSyncServiceTest : FunSpec({
     }
 })
 
-private fun NavAnsattDbo.toNavAnsattDto(roller: Set<Rolle>): NavAnsatt = NavAnsatt(
+private fun NavAnsattDbo.toNavAnsattDto(roller: Set<NavAnsattRolle>): NavAnsatt = NavAnsatt(
     azureId = azureId,
     navIdent = navIdent,
     fornavn = fornavn,

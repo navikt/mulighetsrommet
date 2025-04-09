@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -58,52 +58,52 @@ val ApplicationConfigProd = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 // team-mulighetsrommet
                 adGruppeId = "debefa6e-1865-446d-b22b-9579fc735de3".toUUID(),
-                rolle = NavAnsattRolle.TEAM_MULIGHETSROMMET,
+                rolle = Rolle.TEAM_MULIGHETSROMMET,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // team-mulighetsrommet
                 adGruppeId = "debefa6e-1865-446d-b22b-9579fc735de3".toUUID(),
-                rolle = NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-ANSVARLIG
                 adGruppeId = "2cf8d881-c2da-47b5-b409-fa088440a629".toUUID(),
-                rolle = NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
                 adGruppeId = "33053061-86da-4d6b-9372-33238fabd25f".toUUID(),
-                rolle = NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-avtaler_skriv
                 adGruppeId = "46ba8787-eb24-4f7b-830f-4c5e9256de65".toUUID(),
-                rolle = NavAnsattRolle.AVTALER_SKRIV,
+                rolle = Rolle.AVTALER_SKRIV,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-ENDRINGSMELDING
                 adGruppeId = "4e4bfc3e-58c5-4f1c-879b-df1a86016de9".toUUID(),
-                rolle = NavAnsattRolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
+                rolle = Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // (GRP) mr-nav_kontaktperson
                 adGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(),
-                rolle = NavAnsattRolle.KONTAKTPERSON,
+                rolle = Rolle.KONTAKTPERSON,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+                rolle = Rolle.SAKSBEHANDLER_OKONOMI,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.BESLUTTER_TILSAGN,
             ),
             AdGruppeNavAnsattRolleMapping(
                 // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
+                rolle = Rolle.ATTESTANT_UTBETALING,
             ),
         ),
     ),

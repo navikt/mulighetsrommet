@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.navansatt.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -19,7 +19,7 @@ data class NavAnsattDto(
     val hovedenhet: Hovedenhet,
     val mobilnummer: String?,
     val epost: String,
-    val roller: Set<NavAnsattRolle>,
+    val roller: Set<Rolle>,
 ) {
     @Serializable
     data class Hovedenhet(

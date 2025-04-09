@@ -17,9 +17,9 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.KONTAKTPERSON
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle.KONTAKTPERSON
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -92,7 +92,7 @@ class NavAnsattServiceTest : FunSpec({
             coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeGenerell)
 
             service.getNavAnsattFromAzure(navIdent, AccessType.M2M) shouldBe ansatt1.toNavAnsatt(
-                setOf(Rolle.TiltakadministrasjonGenerell),
+                setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
             )
         }
     }
@@ -111,7 +111,7 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             )
 
-            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(Rolle.TiltakadministrasjonGenerell)
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(NavAnsattRolle.TiltakadministrasjonGenerell)
         }
 
         test("should return empty set when the NavAnsatt does not have any of the configured roles") {
@@ -130,11 +130,11 @@ class NavAnsattServiceTest : FunSpec({
 
             val rolleBeslutterInnlandet = AdGruppeNavAnsattRolleMapping(
                 adGruppeId = adGruppeBeslutterInnlandet.id,
-                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.BESLUTTER_TILSAGN,
             )
             val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
                 adGruppeId = adGruppeBeslutterOslo.id,
-                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.BESLUTTER_TILSAGN,
             )
 
             val service = createNavAnsattService(setOf(rolleBeslutterInnlandet, rolleBeslutterOslo))
@@ -147,7 +147,7 @@ class NavAnsattServiceTest : FunSpec({
             )
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
-                Rolle.BeslutterTilsagn(enheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300"))),
+                NavAnsattRolle.BeslutterTilsagn(enheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300"))),
             )
         }
 
@@ -156,7 +156,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val rolleBeslutterGenerell = AdGruppeNavAnsattRolleMapping(
                 adGruppeId = adGruppeBeslutterGenerell.id,
-                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.BESLUTTER_TILSAGN,
             )
 
             val service = createNavAnsattService(setOf(rolleBeslutterGenerell))
@@ -166,7 +166,7 @@ class NavAnsattServiceTest : FunSpec({
             coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeBeslutterGenerell)
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
-                Rolle.BeslutterTilsagn(enheter = setOf()),
+                NavAnsattRolle.BeslutterTilsagn(enheter = setOf()),
             )
         }
 
@@ -184,8 +184,8 @@ class NavAnsattServiceTest : FunSpec({
             val service = createNavAnsattService(roles)
 
             service.getNavAnsattRoles(ansatt1.azureId, AccessType.M2M) shouldBe setOf(
-                Rolle.TiltakadministrasjonGenerell,
-                Rolle.Kontaktperson,
+                NavAnsattRolle.TiltakadministrasjonGenerell,
+                NavAnsattRolle.Kontaktperson,
             )
         }
     }
@@ -205,19 +205,19 @@ class NavAnsattServiceTest : FunSpec({
                 row(
                     setOf(rolleGenerell),
                     listOf(
-                        ansatt1.toNavAnsatt(setOf(Rolle.TiltakadministrasjonGenerell)),
-                        ansatt2.toNavAnsatt(setOf(Rolle.TiltakadministrasjonGenerell)),
+                        ansatt1.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell)),
+                        ansatt2.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell)),
                     ),
                 ),
                 row(
                     setOf(rolleKontaktperson),
-                    listOf(ansatt2.toNavAnsatt(setOf(Rolle.Kontaktperson))),
+                    listOf(ansatt2.toNavAnsatt(setOf(NavAnsattRolle.Kontaktperson))),
                 ),
                 row(
                     setOf(rolleGenerell, rolleKontaktperson),
                     listOf(
-                        ansatt1.toNavAnsatt(setOf(Rolle.TiltakadministrasjonGenerell)),
-                        ansatt2.toNavAnsatt(setOf(Rolle.TiltakadministrasjonGenerell, Rolle.Kontaktperson)),
+                        ansatt1.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell)),
+                        ansatt2.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell, NavAnsattRolle.Kontaktperson)),
                     ),
                 ),
             ) { groups, expectedAnsatte ->
@@ -250,8 +250,8 @@ class NavAnsattServiceTest : FunSpec({
             val resolvedAnsatte = service.getNavAnsatteInGroups(roles.toSet())
 
             resolvedAnsatte shouldContainExactlyInAnyOrder listOf(
-                ansatt1.toNavAnsatt(setOf(Rolle.TiltakadministrasjonGenerell, Rolle.Kontaktperson)),
-                ansatt2.toNavAnsatt(setOf(Rolle.TiltakadministrasjonGenerell, Rolle.Kontaktperson)),
+                ansatt1.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell, NavAnsattRolle.Kontaktperson)),
+                ansatt2.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell, NavAnsattRolle.Kontaktperson)),
             )
         }
     }

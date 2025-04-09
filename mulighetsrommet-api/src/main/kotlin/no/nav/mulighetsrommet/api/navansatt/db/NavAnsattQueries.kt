@@ -46,7 +46,7 @@ class NavAnsattQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setRoller(navIdent: NavIdent, roller: Set<Rolle>) {
+    fun setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
         @Language("PostgreSQL")
         val deleteRoles = """
             delete from nav_ansatt_rolle
@@ -96,9 +96,9 @@ class NavAnsattQueries(private val session: Session) {
                 session.execute(queryOf(insertRolle, paramsRolle))
 
                 when (rolle) {
-                    is Rolle.Generell -> Unit
+                    is NavAnsattRolle.Generell -> Unit
 
-                    is Rolle.Kontorspesifikk -> {
+                    is NavAnsattRolle.Kontorspesifikk -> {
                         val id = session.requireSingle(queryOf(selectRolleId, paramsRolle)) { it.int("id") }
 
                         session.execute(
@@ -114,7 +114,7 @@ class NavAnsattQueries(private val session: Session) {
     }
 
     fun getAll(
-        rollerContainsAll: List<Rolle>? = null,
+        rollerContainsAll: List<NavAnsattRolle>? = null,
         hovedenhetIn: List<NavEnhetNummer>? = null,
         skalSlettesDatoLte: LocalDate? = null,
     ): List<NavAnsatt> = with(session) {
@@ -172,8 +172,8 @@ class NavAnsattQueries(private val session: Session) {
 
 private fun Row.toNavAnsattDto(): NavAnsatt {
     val roller = stringOrNull("roller_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<Set<Rolle>>(it) }
-        ?: setOf<Rolle>()
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<Set<NavAnsattRolle>>(it) }
+        ?: setOf<NavAnsattRolle>()
     return NavAnsatt(
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
@@ -191,5 +191,5 @@ private fun Row.toNavAnsattDto(): NavAnsatt {
 }
 
 fun Session.createArrayOfRolle(
-    values: Collection<NavAnsattRolle>,
+    values: Collection<Rolle>,
 ): Array = createArrayOf("rolle", values)

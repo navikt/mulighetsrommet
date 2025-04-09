@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -104,7 +104,7 @@ class NavAnsattSyncService(
 
         val administrators = queries.ansatt
             .getAll(
-                rollerContainsAll = listOf(Rolle.AvtalerSkriv),
+                rollerContainsAll = listOf(NavAnsattRolle.AvtalerSkriv),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .map { it.navIdent }
@@ -142,7 +142,7 @@ class NavAnsattSyncService(
 
         val administrators = queries.ansatt
             .getAll(
-                rollerContainsAll = listOf(Rolle.TiltaksgjennomforingerSkriv),
+                rollerContainsAll = listOf(NavAnsattRolle.TiltaksgjennomforingerSkriv),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .map { it.navIdent }
@@ -172,7 +172,7 @@ class NavAnsattSyncService(
         val navKontaktpersoner = mutableListOf<SanityNavKontaktperson>()
         val redaktorer = mutableListOf<SanityRedaktor>()
         ansatte.forEach { ansatt ->
-            if (ansatt.hasRole(Rolle.Kontaktperson)) {
+            if (ansatt.hasRole(NavAnsattRolle.Kontaktperson)) {
                 val id = existingNavKontaktpersonIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 navKontaktpersoner.add(
                     SanityNavKontaktperson(
@@ -188,7 +188,7 @@ class NavAnsattSyncService(
                 )
             }
 
-            if (ansatt.hasRole(Rolle.AvtalerSkriv) || ansatt.hasRole(Rolle.TiltaksgjennomforingerSkriv)) {
+            if (ansatt.hasRole(NavAnsattRolle.AvtalerSkriv) || ansatt.hasRole(NavAnsattRolle.TiltaksgjennomforingerSkriv)) {
                 val id = existingRedaktorIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 redaktorer.add(
                     SanityRedaktor(

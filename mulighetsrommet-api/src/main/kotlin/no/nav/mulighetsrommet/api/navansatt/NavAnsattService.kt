@@ -40,7 +40,7 @@ class NavAnsattService(
     }
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsatt> = db.session {
-        val roller = filter.roller.map { Rolle.fromRolleAndEnheter(it, setOf()) }
+        val roller = filter.roller.map { NavAnsattRolle.fromRolleAndEnheter(it, setOf()) }
         queries.ansatt.getAll(rollerContainsAll = roller)
     }
 
@@ -53,15 +53,15 @@ class NavAnsattService(
     }
 
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
-        val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
+        val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)
 
         val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: getNavAnsattFromAzure(navIdent, AccessType.M2M)
-        if (ansatt.hasRole(Rolle.Kontaktperson)) {
+        if (ansatt.hasRole(NavAnsattRolle.Kontaktperson)) {
             return
         }
 
-        val roller = ansatt.roller + Rolle.Kontaktperson
+        val roller = ansatt.roller + NavAnsattRolle.Kontaktperson
         queries.ansatt.setRoller(ansatt.navIdent, roller)
 
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
@@ -98,7 +98,7 @@ class NavAnsattService(
         return toNavAnsatt(ansatt, accessType)
     }
 
-    suspend fun getNavAnsattRoles(azureId: UUID, accessType: AccessType): Set<Rolle> {
+    suspend fun getNavAnsattRoles(azureId: UUID, accessType: AccessType): Set<NavAnsattRolle> {
         val rolesDirectory = roles.groupBy { it.adGruppeId }
 
         val roleToEnheter = buildMap {
@@ -111,7 +111,7 @@ class NavAnsattService(
         }
 
         return roleToEnheter.mapTo(mutableSetOf()) { (rolle, enheter) ->
-            Rolle.fromRolleAndEnheter(rolle, enheter)
+            NavAnsattRolle.fromRolleAndEnheter(rolle, enheter)
         }
     }
 
@@ -135,7 +135,7 @@ class NavAnsattService(
     }
 }
 
-fun AzureAdNavAnsatt.toNavAnsatt(roles: Set<Rolle>) = NavAnsatt(
+fun AzureAdNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
     azureId = azureId,
     navIdent = navIdent,
     fornavn = fornavn,

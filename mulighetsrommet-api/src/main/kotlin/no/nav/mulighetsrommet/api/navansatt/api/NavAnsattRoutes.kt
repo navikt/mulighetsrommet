@@ -4,7 +4,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -49,12 +49,12 @@ fun Route.navAnsattRoutes() {
 
 fun RoutingContext.getNavAnsattFilter(): NavAnsattFilter {
     val azureIder = call.parameters.getAll("roller")
-        ?.map { NavAnsattRolle.valueOf(it) }
+        ?.map { Rolle.valueOf(it) }
         ?: emptyList()
 
     return NavAnsattFilter(roller = azureIder)
 }
 
 data class NavAnsattFilter(
-    val roller: List<NavAnsattRolle> = emptyList(),
+    val roller: List<Rolle> = emptyList(),
 )
