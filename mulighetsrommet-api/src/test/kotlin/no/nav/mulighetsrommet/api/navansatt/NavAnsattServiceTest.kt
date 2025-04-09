@@ -151,6 +151,25 @@ class NavAnsattServiceTest : FunSpec({
             )
         }
 
+        test("should treat 0000 Nav-enhet as empty set") {
+            val adGruppeBeslutterGenerell = AdGruppe(id = UUID.randomUUID(), navn = "0000-CA-TILTAK-beslutter_tilsagn")
+
+            val rolleBeslutterGenerell = AdGruppeNavAnsattRolleMapping(
+                adGruppeId = adGruppeBeslutterGenerell.id,
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+            )
+
+            val service = createNavAnsattService(setOf(rolleBeslutterGenerell))
+
+            val azureId = UUID.randomUUID()
+
+            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeBeslutterGenerell)
+
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
+                Rolle.BeslutterTilsagn(enheter = setOf()),
+            )
+        }
+
         test("should support multiple roles from the same group") {
             val id = UUID.randomUUID()
 

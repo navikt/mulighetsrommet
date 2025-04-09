@@ -118,7 +118,15 @@ class NavAnsattService(
 
     private fun resolveNavEnhetFromRolle(navn: String): Set<NavEnhetNummer> {
         val navEnhetRegex = "^(\\d{4})-.+$".toRegex()
-        val navEnhetNummer = navEnhetRegex.find(navn)?.groupValues?.get(1)?.let { NavEnhetNummer(it) }
+        val navEnhetNummer = navEnhetRegex.find(navn)?.groupValues?.get(1)
+            ?.let { NavEnhetNummer(it) }
+            // TODO: Håndter 0000 på en bedre måte
+            /**
+             * EntraId-grupper i Nav har ofte en navnestandard der de begynner med et enhetsnummer, eller 0000 når
+             * den er generell (ikke enhetsspesifikk). Enn så lenge filtrerer vi vekk denne "enheten", men det kan
+             * hende vi ønsker å mappe det til noe annen styredata på rollen i stedet.
+             */
+            ?.takeIf { it != NavEnhetNummer("0000") }
         return setOfNotNull(navEnhetNummer)
     }
 }
