@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -181,34 +180,32 @@ class UtbetalingService(
     }
 
     fun opprettManuellUtbetaling(
-        utbetalingId: UUID,
-        request: OpprettManuellUtbetalingRequest,
-        navIdent: NavIdent,
-    ) {
-        db.transaction {
-            queries.utbetaling.upsert(
-                UtbetalingDbo(
-                    id = utbetalingId,
-                    gjennomforingId = request.gjennomforingId,
-                    fristForGodkjenning = request.periode.slutt.plusMonths(2).atStartOfDay(),
-                    kontonummer = request.kontonummer,
-                    kid = request.kidNummer,
-                    beregning = UtbetalingBeregningFri.beregn(
-                        input = UtbetalingBeregningFri.Input(
-                            belop = request.belop,
-                        ),
+        request: UtbetalingValidator.ValidatedManuellUtbetalingRequest,
+        agent: Agent,
+    ): UUID = db.transaction {
+        queries.utbetaling.upsert(
+            UtbetalingDbo(
+                id = request.id,
+                gjennomforingId = request.gjennomforingId,
+                fristForGodkjenning = request.periodeSlutt.plusMonths(2).atStartOfDay(),
+                kontonummer = request.kontonummer,
+                kid = request.kidNummer,
+                beregning = UtbetalingBeregningFri.beregn(
+                    input = UtbetalingBeregningFri.Input(
+                        belop = request.belop,
                     ),
-                    periode = Periode.fromInclusiveDates(
-                        request.periode.start,
-                        request.periode.slutt,
-                    ),
-                    innsender = Utbetaling.Innsender.NavAnsatt(navIdent),
-                    beskrivelse = request.beskrivelse,
                 ),
-            )
-            val dto = getOrError(utbetalingId)
-            logEndring("Utbetaling sendt inn", dto, navIdent)
-        }
+                periode = Periode.fromInclusiveDates(
+                    request.periodeStart,
+                    request.periodeSlutt,
+                ),
+                innsender = agent,
+                beskrivelse = request.beskrivelse,
+            ),
+        )
+        val dto = getOrError(request.id)
+        logEndring("Utbetaling sendt inn", dto, agent)
+        dto.id
     }
 
     fun opprettDelutbetalinger(

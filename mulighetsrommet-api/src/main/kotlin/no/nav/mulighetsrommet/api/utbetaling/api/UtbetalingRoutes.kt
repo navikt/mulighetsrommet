@@ -139,12 +139,11 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<OpprettManuellUtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                UtbetalingValidator.validateManuellUtbetalingskrav(request)
+                UtbetalingValidator.validateManuellUtbetalingskrav(utbetalingId, request)
                     .onLeft {
                         return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                     }
-
-                service.opprettManuellUtbetaling(utbetalingId, request, navIdent)
+                    .onRight { service.opprettManuellUtbetaling(it, navIdent) }
 
                 call.respond(request)
             }
