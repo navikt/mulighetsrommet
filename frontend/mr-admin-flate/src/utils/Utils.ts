@@ -415,7 +415,7 @@ export function tilsagnAarsakTilTekst(
     case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
     case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
-      return "Gjennomføring skal avbrytes";
+      return "Tiltaket skal ikke gjennomføres";
     case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:

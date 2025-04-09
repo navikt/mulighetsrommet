@@ -72,6 +72,16 @@ function useTilsagnDetaljer() {
   };
 }
 
+const tilAnnuleringAarsaker = [
+  TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
+  TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+  TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES,
+  TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+].map((aarsak) => ({
+  value: aarsak,
+  label: tilsagnAarsakTilTekst(aarsak),
+}));
+
 export function TilsagnDetaljer() {
   const { gjennomforingId } = useParams();
   const {
@@ -397,21 +407,7 @@ export function TilsagnDetaljer() {
                       )}
                     </HStack>
                     <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
-                      aarsaker={[
-                        {
-                          value: TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
-                          label: "Arrangør har ikke sendt krav",
-                        },
-                        {
-                          value: TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-                          label: "Feilregistrering",
-                        },
-                        {
-                          value: TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES,
-                          label: "Gjennomføring skal avbrytes",
-                        },
-                        { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
-                      ]}
+                      aarsaker={tilAnnuleringAarsaker}
                       header="Annuller tilsagn med forklaring"
                       buttonLabel="Send til godkjenning"
                       open={tilAnnulleringModalOpen}
