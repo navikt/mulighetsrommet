@@ -261,4 +261,7 @@ val ApplicationConfigDev = AppConfig(
     okonomi = OkonomiConfig(
         minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
     ),
+    clamav = HttpClientConfig(
+        url = "http://clamav.nais-system.svc.nais.local/scan"
+    )
 )

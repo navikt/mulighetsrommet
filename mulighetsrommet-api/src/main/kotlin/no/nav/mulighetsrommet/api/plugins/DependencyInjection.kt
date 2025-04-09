@@ -86,6 +86,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
@@ -432,6 +433,12 @@ private fun services(appConfig: AppConfig) = module {
     single { OppgaverService(get()) }
     single { ArrangorFlateService(get(), get(), get()) }
     single { TotrinnskontrollService(get()) }
+    single {
+        ClamAvClient(
+            baseUrl = appConfig.clamav.url,
+            clientEngine = appConfig.engine,
+        )
+    }
 }
 
 private fun tasks(config: TaskConfig) = module {

@@ -228,4 +228,7 @@ val ApplicationConfigProd = AppConfig(
             Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to LocalDate.of(2025, 7, 1),
         ),
     ),
+    clamav = HttpClientConfig(
+        url = "http://clamav.nais-system.svc.nais.local/scan"
+    )
 )
