@@ -57,16 +57,13 @@ class HentBrukerPdlQuery(
                     "hentPerson var null og errors tom! response: $it"
                 }
 
-                require(it.hentGeografiskTilknytning != null) {
-                    "hentGeografiskTilknytning var null og errors tom! response: $it"
-                }
-
-                if (it.hentGeografiskTilknytning.gtType in setOf(
+                if (it.hentGeografiskTilknytning?.gtType in setOf(
                         TypeGeografiskTilknytning.UTLAND,
                         TypeGeografiskTilknytning.UDEFINERT,
+                        null,
                     )
                 ) {
-                    log.warn("Pdl returnerte ${it.hentGeografiskTilknytning.gtType} geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
+                    log.warn("Pdl returnerte ${it.hentGeografiskTilknytning?.gtType} geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
                 }
 
                 val geografiskTilknytning = it.hentGeografiskTilknytning.toGeografiskTilknytningResponse()

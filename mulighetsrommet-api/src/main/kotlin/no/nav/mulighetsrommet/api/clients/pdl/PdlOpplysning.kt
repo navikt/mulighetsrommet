@@ -61,8 +61,8 @@ sealed class GeografiskTilknytningResponse {
     data object GtUdefinert : GeografiskTilknytningResponse()
 }
 
-fun PdlGeografiskTilknytning.toGeografiskTilknytningResponse(): GeografiskTilknytningResponse {
-    return when (this.gtType) {
+fun PdlGeografiskTilknytning?.toGeografiskTilknytningResponse(): GeografiskTilknytningResponse {
+    return when (this?.gtType) {
         TypeGeografiskTilknytning.BYDEL -> {
             GeografiskTilknytningResponse.GtBydel(requireNotNull(this.gtBydel))
         }
@@ -75,7 +75,7 @@ fun PdlGeografiskTilknytning.toGeografiskTilknytningResponse(): GeografiskTilkny
             GeografiskTilknytningResponse.GtUtland(this.gtLand)
         }
 
-        TypeGeografiskTilknytning.UDEFINERT -> {
+        TypeGeografiskTilknytning.UDEFINERT, null -> {
             GeografiskTilknytningResponse.GtUdefinert
         }
     }
