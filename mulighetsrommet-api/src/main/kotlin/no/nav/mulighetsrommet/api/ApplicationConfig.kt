@@ -72,6 +72,7 @@ data class AuthConfig(
 data class AdGruppeNavAnsattRolleMapping(
     val adGruppeId: UUID,
     val rolle: NavAnsattRolle,
+    val kommentar: String? = null,
 )
 
 data class KafkaConfig(

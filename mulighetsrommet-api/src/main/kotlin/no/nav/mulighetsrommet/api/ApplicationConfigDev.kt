@@ -90,17 +90,58 @@ val ApplicationConfigDev = AppConfig(
                 adGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toUUID(),
                 rolle = NavAnsattRolle.KONTAKTPERSON,
             ),
+
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
                 rolle = NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
             ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "d776c0f9-9c8a-4299-8d34-aa563925b00b".toUUID(),
+                rolle = NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+                kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-okonomi",
+            ),
+
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
                 rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
             ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "f2d4a628-c17d-4ae0-b720-0abf9add8c30".toUUID(),
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                kommentar = "0000-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "059b2db3-e38d-4482-bf2f-21d4a226aa94".toUUID(),
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                kommentar = "0300-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "3e6fe3c5-58e2-466e-9117-adecb4c1ee74".toUUID(),
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                kommentar = "0400-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+            ),
+
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
                 rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
+                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
+                rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
+                kommentar = "0000-CA-Tiltaksadministrasjon_attestant-utbetaling",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "88c9cffb-bb4f-4e9d-9af3-cf66ac11f156".toUUID(),
+                rolle = NavAnsattRolle.ATTESTANT_UTBETALING,
+                kommentar = "0300-CA-Tiltaksadministrasjon_attestant-utbetaling",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "e79ba9ba-efd9-456b-8567-dadbe65f8b24".toUUID(),
+                rolle = NavAnsattRolle.BESLUTTER_TILSAGN,
+                kommentar = "0400-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
         ),
     ),
