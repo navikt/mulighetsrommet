@@ -243,7 +243,7 @@ export function TilsagnDetaljer() {
             {opprettelse.type === "BESLUTTET" && opprettelse.besluttelse === Besluttelse.AVVIST && (
               <AarsakerOgForklaring
                 heading="Tilsagnet ble returnert"
-                tekst={`${opprettelse.besluttetAvMetadata?.navn || opprettelse.behandletAvMetadata.type} returnerte tilsagnet den ${formaterDato(
+                tekst={`${opprettelse.besluttetAv?.navn || opprettelse.behandletAv.type} returnerte tilsagnet den ${formaterDato(
                   opprettelse.besluttetTidspunkt,
                 )} med følgende årsaker:`}
                 aarsaker={
@@ -257,7 +257,7 @@ export function TilsagnDetaljer() {
             {annullering?.type === "TIL_BESLUTNING" && (
               <AarsakerOgForklaring
                 heading="Tilsagnet annulleres"
-                tekst={`${navnEllerIdent(annullering.behandletAvMetadata)} sendte tilsagnet til annullering den ${formaterDato(
+                tekst={`${navnEllerIdent(annullering.behandletAv)} sendte tilsagnet til annullering den ${formaterDato(
                   annullering.behandletTidspunkt,
                 )} med følgende årsaker:`}
                 aarsaker={
@@ -273,7 +273,7 @@ export function TilsagnDetaljer() {
               !tilOppgjor && (
                 <AarsakerOgForklaring
                   heading="Annullering returnert"
-                  tekst={`${navnEllerIdent(annullering.besluttetAvMetadata)} returnerte annullering den ${formaterDato(
+                  tekst={`${navnEllerIdent(annullering.besluttetAv)} returnerte annullering den ${formaterDato(
                     annullering.behandletTidspunkt,
                   )} med følgende årsaker:`}
                   aarsaker={
@@ -287,7 +287,7 @@ export function TilsagnDetaljer() {
             {tilOppgjor?.type === "TIL_BESLUTNING" && (
               <AarsakerOgForklaring
                 heading="Tilsagnet gjøres opp"
-                tekst={`${navnEllerIdent(tilOppgjor.behandletAvMetadata)} sendte tilsagnet til oppgjør den ${formaterDato(
+                tekst={`${navnEllerIdent(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
                   tilOppgjor.behandletTidspunkt,
                 )} med følgende årsaker:`}
                 aarsaker={
@@ -301,7 +301,7 @@ export function TilsagnDetaljer() {
             {tilOppgjor?.type === "BESLUTTET" && tilOppgjor.besluttelse === "AVVIST" && (
               <AarsakerOgForklaring
                 heading="Oppgjør returnert"
-                tekst={`${navnEllerIdent(tilOppgjor.besluttetAvMetadata)} returnerte oppgjør den ${formaterDato(
+                tekst={`${navnEllerIdent(tilOppgjor.besluttetAv)} returnerte oppgjør den ${formaterDato(
                   tilOppgjor.behandletTidspunkt,
                 )} med følgende årsaker:`}
                 aarsaker={

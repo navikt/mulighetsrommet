@@ -6,16 +6,10 @@ export function BehandlerInformasjon({ linje }: { linje: UtbetalingLinje }) {
   return (
     linje.opprettelse && (
       <HStack gap="4">
-        <Metadata
-          header="Behandlet av"
-          verdi={navnEllerIdent(linje.opprettelse.behandletAvMetadata)}
-        />
+        <Metadata header="Behandlet av" verdi={navnEllerIdent(linje.opprettelse.behandletAv)} />
         {linje.status === DelutbetalingStatus.RETURNERT &&
         linje.opprettelse.type === "BESLUTTET" ? (
-          <Metadata
-            header="Returnert av"
-            verdi={navnEllerIdent(linje.opprettelse.besluttetAvMetadata)}
-          />
+          <Metadata header="Returnert av" verdi={navnEllerIdent(linje.opprettelse.besluttetAv)} />
         ) : linje.opprettelse.type === "BESLUTTET" &&
           linje.status &&
           [
@@ -23,10 +17,7 @@ export function BehandlerInformasjon({ linje }: { linje: UtbetalingLinje }) {
             DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
             DelutbetalingStatus.UTBETALT,
           ].includes(linje.status) ? (
-          <Metadata
-            header="Attestert av"
-            verdi={navnEllerIdent(linje.opprettelse.besluttetAvMetadata)}
-          />
+          <Metadata header="Attestert av" verdi={navnEllerIdent(linje.opprettelse.besluttetAv)} />
         ) : null}
       </HStack>
     )

@@ -147,7 +147,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: true,
     opprettelse: {
       type: "TIL_BESLUTNING",
-      behandletAvMetadata: {
+      behandletAv: {
         type: "B123456",
         navn: "Bertil Bengtson",
       },
@@ -187,12 +187,12 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAvMetadata: {
+      behandletAv: {
         type: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
-      besluttetAvMetadata: {
+      besluttetAv: {
         type: "P654321",
         navn: "Per Haraldsen",
       },
@@ -233,12 +233,12 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: true,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAvMetadata: {
+      behandletAv: {
         type: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
-      besluttetAvMetadata: {
+      besluttetAv: {
         type: "P654321",
         navn: "Per Haraldsen",
       },
@@ -280,7 +280,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "TIL_BESLUTNING",
-      behandletAvMetadata: {
+      behandletAv: {
         type: "B123456",
         navn: "Bertil Bengtson",
       },
@@ -321,7 +321,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAvMetadata: {
+      behandletAv: {
         type: "B123456",
         navn: "Bertil Bengtson",
       },
@@ -329,7 +329,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
       kanBesluttes: true,
-      besluttetAvMetadata: {
+      besluttetAv: {
         type: "P654321",
         navn: "Per Haraldsen",
       },
@@ -368,7 +368,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "BESLUTTET",
-      behandletAvMetadata: {
+      behandletAv: {
         type: "B123456",
         navn: "Bertil Bengtson",
       },
@@ -376,7 +376,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
       kanBesluttes: true,
-      besluttetAvMetadata: {
+      besluttetAv: {
         type: "P654321",
         navn: "Per Haraldsen",
       },

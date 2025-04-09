@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 
 @Serializable
 sealed class TotrinnskontrollDto {
-    abstract val behandletAvMetadata: AgentMetadata
+    abstract val behandletAv: AgentMetadata
     abstract val behandletTidspunkt: LocalDateTime
     abstract val aarsaker: List<String>
     abstract val forklaring: String?
@@ -20,7 +20,7 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("TIL_BESLUTNING")
     data class TilBeslutning(
-        override val behandletAvMetadata: AgentMetadata,
+        override val behandletAv: AgentMetadata,
         val behandletAvNavn: String?,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
@@ -32,12 +32,12 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("BESLUTTET")
     data class Besluttet(
-        override val behandletAvMetadata: AgentMetadata,
+        override val behandletAv: AgentMetadata,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
         override val forklaring: String?,
-        val besluttetAvMetadata: AgentMetadata,
+        val besluttetAv: AgentMetadata,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
         val besluttelse: Besluttelse,
@@ -53,7 +53,7 @@ sealed class TotrinnskontrollDto {
             besluttetAvNavn: String?,
         ) = when {
             totrinnskontroll.besluttetAv == null -> TilBeslutning(
-                behandletAvMetadata = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
+                behandletAv = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
@@ -62,11 +62,11 @@ sealed class TotrinnskontrollDto {
             )
 
             else -> Besluttet(
-                behandletAvMetadata = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
+                behandletAv = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
-                besluttetAvMetadata = AgentMetadata(totrinnskontroll.besluttetAv, besluttetAvNavn),
+                besluttetAv = AgentMetadata(totrinnskontroll.besluttetAv, besluttetAvNavn),
                 besluttetTidspunkt = checkNotNull(totrinnskontroll.besluttetTidspunkt),
                 besluttelse = checkNotNull(totrinnskontroll.besluttelse),
             )
