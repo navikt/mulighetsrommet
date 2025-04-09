@@ -15,9 +15,9 @@ class TotrinnskontrollService(private val navAnsattService: NavAnsattService) {
     }
 
     fun getBehandletAvNavn(totrinnskontroll: Totrinnskontroll): String? {
-        return if (totrinnskontroll.besluttelse != null && totrinnskontroll.behandletAv is NavIdent) {
-            val beslutter = navAnsattService.getNavAnsattByNavIdent(totrinnskontroll.behandletAv)
-            beslutter?.let { "${beslutter.fornavn} ${beslutter.etternavn}" }
+        return if (totrinnskontroll.behandletAv is NavIdent) {
+            val behandler = navAnsattService.getNavAnsattByNavIdent(totrinnskontroll.behandletAv)
+            behandler?.let { "${behandler.fornavn} ${behandler.etternavn}" }
         } else {
             null
         }
