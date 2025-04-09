@@ -65,8 +65,8 @@ from gjennomforing
                                                    'overordnetEnhet', enhet.overordnet_enhet
                                            )
                                    ) as nav_enheter_json
-                            from gjennomforing_nav_enhet
-                                     natural join nav_enhet enhet
+                            from gjennomforing_nav_enhet gjennomforing_enhet
+                                     join nav_enhet enhet on enhet.enhetsnummer = gjennomforing_enhet.enhetsnummer
                             where gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
@@ -89,7 +89,7 @@ from gjennomforing
                                            )
                                    ) as administratorer_json
                             from gjennomforing_administrator administrator
-                                     natural join nav_ansatt ansatt
+                                     join nav_ansatt ansatt on ansatt.nav_ident = administrator.nav_ident
                             where administrator.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
@@ -98,7 +98,7 @@ from gjennomforing
                                            )
                                    ) as koordinator_json
                             from gjennomforing_koordinator koordinator
-                                     natural join nav_ansatt ansatt
+                                     join nav_ansatt ansatt on ansatt.nav_ident = koordinator.nav_ident
                             where koordinator.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
