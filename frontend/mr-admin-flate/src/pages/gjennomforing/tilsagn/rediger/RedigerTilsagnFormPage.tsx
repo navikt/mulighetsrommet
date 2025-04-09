@@ -15,6 +15,7 @@ import { aktiveTilsagnQuery, tilsagnQuery } from "../detaljer/tilsagnDetaljerLoa
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
 import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
+import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -29,13 +30,14 @@ function useRedigerTilsagnFormData() {
     avtale,
     gjennomforing,
     aktiveTilsagn: aktiveTilsagn.data.filter((t) => t.id !== tilsagnDetaljer.data.tilsagn.id),
-    tilsagn: tilsagnDetaljer.data.tilsagn,
+    ...tilsagnDetaljer.data,
   };
 }
 
 export function RedigerTilsagnFormPage() {
   const { gjennomforingId } = useParams();
-  const { avtale, gjennomforing, aktiveTilsagn, tilsagn } = useRedigerTilsagnFormData();
+  const { avtale, gjennomforing, aktiveTilsagn, tilsagn, opprettelse } =
+    useRedigerTilsagnFormData();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -77,9 +79,10 @@ export function RedigerTilsagnFormPage() {
       <ContentBox>
         <VStack gap={"8"}>
           <WhitePaddedBox>
-            <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          </WhitePaddedBox>
-          <WhitePaddedBox>
+            <VStack gap="4">
+              <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+              <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
+            </VStack>
             <TilsagnFormContainer
               avtale={avtale}
               gjennomforing={gjennomforing}
