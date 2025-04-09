@@ -20,7 +20,6 @@ sealed class TotrinnskontrollDto {
     @SerialName("TIL_BESLUTNING")
     data class TilBeslutning(
         override val behandletAv: AgentDto,
-        val behandletAvNavn: String?,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
@@ -57,7 +56,6 @@ sealed class TotrinnskontrollDto {
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
                 kanBesluttes = kanBesluttes,
-                behandletAvNavn = behandletAvNavn,
             )
 
             else -> Besluttet(
