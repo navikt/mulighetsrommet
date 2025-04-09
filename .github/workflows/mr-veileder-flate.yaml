@@ -88,7 +88,7 @@ jobs:
       - name: Set special cache for asset-manifest.json
         shell: bash
         run: |
-          gcloud storage objects update gs://arbeidsmarkedstiltak-nav-dev/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
+          gcloud storage objects update gs://${BUCKET_NAME}/team-mulighetsrommet/dev/arbeidsmarkedstiltak-modia/dist/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
 
   deploy-modia-prod:
     name: Deploy (modia-prod)
@@ -119,7 +119,7 @@ jobs:
       - name: Set special cache for asset-manifest.json
         shell: bash
         run: |
-          gcloud storage objects update gs://arbeidsmarkedstiltak-nav-prod/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
+          gcloud storage objects update gs://${BUCKET_NAME}/team-mulighetsrommet/prod/arbeidsmarkedstiltak-modia/dist/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
 
   deploy-nav-dev:
     name: Deploy (nav-dev)
