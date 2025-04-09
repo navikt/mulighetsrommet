@@ -148,7 +148,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "TIL_BESLUTNING",
       behandletAv: {
-        type: "B123456",
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
@@ -188,12 +189,14 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "BESLUTTET",
       behandletAv: {
-        type: "B123456",
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
       besluttetAv: {
-        type: "P654321",
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2024-01-02T10:00:00",
@@ -234,12 +237,14 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "BESLUTTET",
       behandletAv: {
-        type: "B123456",
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
       besluttetAv: {
-        type: "P654321",
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2024-01-02T10:00:00",
@@ -281,7 +286,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "TIL_BESLUTNING",
       behandletAv: {
-        type: "B123456",
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2025-01-01T10:00:00",
@@ -322,7 +328,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "BESLUTTET",
       behandletAv: {
-        type: "B123456",
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2025-01-01T10:00:00",
@@ -330,7 +337,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       forklaring: "Utbetaling for første halvår 2025",
       kanBesluttes: true,
       besluttetAv: {
-        type: "P654321",
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2025-01-01T10:00:00",
@@ -369,7 +377,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "BESLUTTET",
       behandletAv: {
-        type: "B123456",
+        type: "NAV_ANSATT",
+        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2025-01-01T10:00:00",
@@ -377,7 +386,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       forklaring: "Utbetaling for første halvår 2025",
       kanBesluttes: true,
       besluttetAv: {
-        type: "P654321",
+        type: "NAV_ANSATT",
+        navIdent: "P654321",
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2025-01-01T10:00:00",

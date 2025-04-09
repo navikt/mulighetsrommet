@@ -80,8 +80,9 @@ export const tilsagnHandlers = [
 const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
   type: "TIL_BESLUTNING",
   behandletAv: {
-    type: "P654321",
+    type: "NAV_ANSATT",
     navn: "Per Haraldsen",
+    navIdent: "P654321",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
@@ -91,12 +92,14 @@ const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
 const godkjent: TotrinnskontrollBesluttetDto = {
   type: "BESLUTTET",
   besluttetAv: {
-    type: "P654321",
+    type: "NAV_ANSATT",
     navn: "Per Haraldsen",
+    navIdent: "P654321",
   },
   behandletAv: {
-    type: "B123456",
+    type: "NAV_ANSATT",
     navn: "Bertil Bengtson",
+    navIdent: "B123456",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   besluttetTidspunkt: "2024-01-01T22:00:00",
@@ -108,13 +111,15 @@ const godkjent: TotrinnskontrollBesluttetDto = {
 const avvist: TotrinnskontrollBesluttetDto = {
   type: "BESLUTTET",
   besluttetAv: {
-    type: "P654321",
+    type: "NAV_ANSATT",
     navn: "Per Haraldsen",
+    navIdent: "P654321",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   behandletAv: {
-    type: "B123456",
+    type: "NAV_ANSATT",
     navn: "Bertil Bengtson",
+    navIdent: "B123456",
   },
   besluttetTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],

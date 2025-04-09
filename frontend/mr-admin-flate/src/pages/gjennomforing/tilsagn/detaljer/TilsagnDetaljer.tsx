@@ -243,7 +243,7 @@ export function TilsagnDetaljer() {
             {opprettelse.type === "BESLUTTET" && opprettelse.besluttelse === Besluttelse.AVVIST && (
               <AarsakerOgForklaring
                 heading="Tilsagnet ble returnert"
-                tekst={`${opprettelse.besluttetAv?.navn || opprettelse.behandletAv.type} returnerte tilsagnet den ${formaterDato(
+                tekst={`${navnEllerIdent(opprettelse.besluttetAv)} returnerte tilsagnet den ${formaterDato(
                   opprettelse.besluttetTidspunkt,
                 )} med følgende årsaker:`}
                 aarsaker={

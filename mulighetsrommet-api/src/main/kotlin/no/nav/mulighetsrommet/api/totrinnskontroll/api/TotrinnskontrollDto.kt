@@ -4,14 +4,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.serializers.AgentSerializer
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
 sealed class TotrinnskontrollDto {
-    abstract val behandletAv: AgentMetadata
+    abstract val behandletAv: AgentDto
     abstract val behandletTidspunkt: LocalDateTime
     abstract val aarsaker: List<String>
     abstract val forklaring: String?
@@ -20,7 +19,7 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("TIL_BESLUTNING")
     data class TilBeslutning(
-        override val behandletAv: AgentMetadata,
+        override val behandletAv: AgentDto,
         val behandletAvNavn: String?,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
@@ -32,12 +31,12 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("BESLUTTET")
     data class Besluttet(
-        override val behandletAv: AgentMetadata,
+        override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
         override val forklaring: String?,
-        val besluttetAv: AgentMetadata,
+        val besluttetAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
         val besluttelse: Besluttelse,
@@ -53,7 +52,7 @@ sealed class TotrinnskontrollDto {
             besluttetAvNavn: String?,
         ) = when {
             totrinnskontroll.besluttetAv == null -> TilBeslutning(
-                behandletAv = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
+                behandletAv = toAgentDto(totrinnskontroll.behandletAv, behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
@@ -62,11 +61,11 @@ sealed class TotrinnskontrollDto {
             )
 
             else -> Besluttet(
-                behandletAv = AgentMetadata(totrinnskontroll.behandletAv, behandletAvNavn),
+                behandletAv = toAgentDto(totrinnskontroll.behandletAv, behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
-                besluttetAv = AgentMetadata(totrinnskontroll.besluttetAv, besluttetAvNavn),
+                besluttetAv = toAgentDto(totrinnskontroll.besluttetAv, besluttetAvNavn),
                 besluttetTidspunkt = checkNotNull(totrinnskontroll.besluttetTidspunkt),
                 besluttelse = checkNotNull(totrinnskontroll.besluttelse),
             )
@@ -74,9 +73,29 @@ sealed class TotrinnskontrollDto {
     }
 }
 
+fun toAgentDto(agent: Agent, navAnsattNavn: String?) = when (agent) {
+    is Arrangor -> AgentDto.Arrangor
+    is Tiltaksadministrasjon -> AgentDto.System("Tiltaksadministrasjon")
+    is Arena -> AgentDto.System("Arena")
+    is NavIdent -> AgentDto.NavAnsatt(agent, navAnsattNavn)
+}
+
 @Serializable
-data class AgentMetadata(
-    @Serializable(with = AgentSerializer::class)
-    val type: Agent,
-    val navn: String?,
-)
+sealed class AgentDto {
+    @Serializable
+    @SerialName("NAV_ANSATT")
+    data class NavAnsatt(
+        val navIdent: NavIdent,
+        val navn: String?,
+    ) : AgentDto()
+
+    @Serializable
+    @SerialName("ARRANGOR")
+    data object Arrangor : AgentDto()
+
+    @Serializable
+    @SerialName("SYSTEM")
+    data class System(
+        val navn: String,
+    ) : AgentDto()
+}

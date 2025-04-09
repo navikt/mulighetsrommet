@@ -1,6 +1,6 @@
 import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 import {
-  AgentMetadata,
+  AgentDto,
   AvbrytAvtaleAarsak,
   AvtaleDto,
   Avtaletype,
@@ -476,6 +476,13 @@ export function capitalizeFirstLetter(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
 
-export function navnEllerIdent(payload: AgentMetadata): string {
-  return payload.navn || payload.type;
+export function navnEllerIdent(agent: AgentDto): string {
+  switch (agent.type) {
+    case "NAV_ANSATT":
+      return agent.navn || agent.navIdent;
+    case "SYSTEM":
+      return agent.navn;
+    case "ARRANGOR":
+      return "Tiltaksarrangør";
+  }
 }
