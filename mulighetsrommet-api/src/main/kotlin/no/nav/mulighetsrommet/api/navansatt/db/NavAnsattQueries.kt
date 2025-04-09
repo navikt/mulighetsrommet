@@ -168,6 +168,17 @@ class NavAnsattQueries(private val session: Session) {
 
         return update(queryOf(query, azureId))
     }
+
+    fun getNavAnsattDbo(navIdent: NavIdent): NavAnsattDbo? = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from nav_ansatt
+            where nav_ident = ?
+        """.trimIndent()
+
+        return single(queryOf(query, navIdent.value)) { it.toNavAnsattDbo() }
+    }
 }
 
 private fun Row.toNavAnsattDto(): NavAnsatt {
@@ -189,6 +200,17 @@ private fun Row.toNavAnsattDto(): NavAnsatt {
         skalSlettesDato = localDateOrNull("skal_slettes_dato"),
     )
 }
+
+private fun Row.toNavAnsattDbo(): NavAnsattDbo = NavAnsattDbo(
+    navIdent = NavIdent(string("nav_ident")),
+    fornavn = string("fornavn"),
+    etternavn = string("etternavn"),
+    hovedenhet = NavEnhetNummer(string("hovedenhet")),
+    azureId = uuid("azure_id"),
+    mobilnummer = stringOrNull("mobilnummer"),
+    epost = string("epost"),
+    skalSlettesDato = localDateOrNull("skal_slettes_dato"),
+)
 
 fun Session.createArrayOfRolle(
     values: Collection<Rolle>,

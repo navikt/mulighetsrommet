@@ -40,7 +40,10 @@ class NavAnsattSyncService(
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
+            val currentAnsattDbo = queries.ansatt.getNavAnsattDbo(ansatt.navIdent)
+            NavAnsattDbo.fromNavAnsatt(ansatt).takeIf { it != currentAnsattDbo }?.also {
+                queries.ansatt.upsert(it)
+            }
             queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
         }
         upsertSanityAnsatte(ansatteToUpsert)
