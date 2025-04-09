@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -28,7 +29,14 @@ import java.util.*
 class NavAnsattServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val domain = MulighetsrommetTestDomain()
+    val domain = MulighetsrommetTestDomain(
+        navEnheter = listOf(
+            NavEnhetFixtures.Oslo,
+            NavEnhetFixtures.Innlandet,
+            NavEnhetFixtures.Gjovik,
+        ),
+        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+    )
 
     beforeEach {
         domain.initialize(database.db)
@@ -111,7 +119,10 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             )
 
-            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(NavAnsattRolle.TiltakadministrasjonGenerell)
+            service.getNavAnsattRoles(
+                azureId,
+                AccessType.M2M,
+            ) shouldBe setOf(NavAnsattRolle.TiltakadministrasjonGenerell)
         }
 
         test("should return empty set when the NavAnsatt does not have any of the configured roles") {
@@ -124,7 +135,36 @@ class NavAnsattServiceTest : FunSpec({
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf()
         }
 
-        test("should resolve Nav-enheter from the group name") {
+        test("should resolve Nav-enhet from the group name") {
+            val adGruppeBeslutterOslo = AdGruppe(id = UUID.randomUUID(), navn = "0387-CA-TILTAK-beslutter_tilsagn")
+
+            val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
+                adGruppeId = adGruppeBeslutterOslo.id,
+                rolle = Rolle.BESLUTTER_TILSAGN,
+            )
+
+            val service = createNavAnsattService(setOf(rolleBeslutterOslo))
+
+            val azureId = UUID.randomUUID()
+
+            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeBeslutterOslo)
+
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
+                NavAnsattRolle.BeslutterTilsagn(enheter = setOf(NavEnhetNummer("0387"))),
+            )
+        }
+
+        test("should resolve Nav-enhet with underliggende Nav-enheter from multiple groups") {
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(
+                    NavEnhetFixtures.Innlandet,
+                    NavEnhetFixtures.Gjovik,
+                    NavEnhetFixtures.Lillehammer,
+                    NavEnhetFixtures.Oslo,
+                    NavEnhetFixtures.TiltakOslo,
+                ),
+            ).initialize(database.db)
+
             val adGruppeBeslutterInnlandet = AdGruppe(id = UUID.randomUUID(), navn = "0400-CA-TILTAK-beslutter_tilsagn")
             val adGruppeBeslutterOslo = AdGruppe(id = UUID.randomUUID(), navn = "0300-CA-TILTAK-beslutter_tilsagn")
 
@@ -147,7 +187,15 @@ class NavAnsattServiceTest : FunSpec({
             )
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
-                NavAnsattRolle.BeslutterTilsagn(enheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300"))),
+                NavAnsattRolle.BeslutterTilsagn(
+                    enheter = setOf(
+                        NavEnhetNummer("0400"),
+                        NavEnhetNummer("0501"),
+                        NavEnhetNummer("0502"),
+                        NavEnhetNummer("0300"),
+                        NavEnhetNummer("0387"),
+                    ),
+                ),
             )
         }
 
@@ -217,7 +265,12 @@ class NavAnsattServiceTest : FunSpec({
                     setOf(rolleGenerell, rolleKontaktperson),
                     listOf(
                         ansatt1.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell)),
-                        ansatt2.toNavAnsatt(setOf(NavAnsattRolle.TiltakadministrasjonGenerell, NavAnsattRolle.Kontaktperson)),
+                        ansatt2.toNavAnsatt(
+                            setOf(
+                                NavAnsattRolle.TiltakadministrasjonGenerell,
+                                NavAnsattRolle.Kontaktperson,
+                            ),
+                        ),
                     ),
                 ),
             ) { groups, expectedAnsatte ->
