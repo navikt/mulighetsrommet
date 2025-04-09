@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -112,7 +113,7 @@ class OppgaverService(val db: ApiDatabase) {
         queries.utbetaling
             .getOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
             .asSequence()
-            .filter { utbetaling -> utbetaling.innsender == Utbetaling.Innsender.ArrangorAnsatt }
+            .filter { utbetaling -> utbetaling.innsender == Arrangor }
             .filter { utbetaling -> queries.delutbetaling.getByUtbetalingId(utbetaling.id).isEmpty() }
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
             .map { toOppgave(it) }
