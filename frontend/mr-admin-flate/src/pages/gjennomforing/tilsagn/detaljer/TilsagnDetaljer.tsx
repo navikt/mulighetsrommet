@@ -75,7 +75,7 @@ function useTilsagnDetaljer() {
 const tilAnnuleringAarsaker = [
   TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
   TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-  TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES,
+  TilsagnTilAnnulleringAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES,
   TilsagnTilAnnulleringAarsak.FEIL_ANNET,
 ].map((aarsak) => ({
   value: aarsak,

@@ -5547,7 +5547,7 @@ components:
       type: string
       enum:
         - FEIL_REGISTRERING
-        - GJENNOMFORING_AVBRYTES
+        - TILTAK_SKAL_IKKE_GJENNOMFORES
         - ARRANGOR_HAR_IKKE_SENDT_KRAV
         - FEIL_ANNET
 
