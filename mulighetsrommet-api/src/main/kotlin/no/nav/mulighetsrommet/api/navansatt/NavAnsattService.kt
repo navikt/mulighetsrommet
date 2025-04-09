@@ -122,7 +122,8 @@ class NavAnsattService(
 
     private fun resolveNavEnhetFromRolle(navn: String): Set<NavEnhetNummer> {
         val navEnhetRegex = "^(\\d{4})-.+$".toRegex()
-        val navEnhetNummer = navEnhetRegex.find(navn)?.groupValues?.get(1)
+
+        return navEnhetRegex.find(navn)?.groupValues?.get(1)
             ?.let { NavEnhetNummer(it) }
             // TODO: Håndter 0000 på en bedre måte
             /**
@@ -131,7 +132,14 @@ class NavAnsattService(
              * hende vi ønsker å mappe det til noe annen styredata på rollen i stedet.
              */
             ?.takeIf { it != NavEnhetNummer("0000") }
-        return setOfNotNull(navEnhetNummer)
+            ?.let { enhetsnummer ->
+                db.session {
+                    queries.enhet.getAll(overordnetEnhet = enhetsnummer)
+                        .mapTo(mutableSetOf()) { it.enhetsnummer }
+                        .plus(enhetsnummer)
+                }
+            }
+            ?: setOf()
     }
 }
 
