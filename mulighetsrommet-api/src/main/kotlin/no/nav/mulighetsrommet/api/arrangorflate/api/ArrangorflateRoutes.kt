@@ -19,11 +19,14 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
@@ -53,6 +56,29 @@ fun Route.arrangorflateRoutes() {
         }
 
         route("/arrangor/{orgnr}") {
+            get("/kontonummer") {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
+                requireTilgangHosArrangor(orgnr)
+
+                arrangorFlateService.getKontonummer(orgnr)
+                    .onLeft {
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Kunne ikke synkronisere kontonummer",
+                        )
+                    }
+                    .onRight { call.respond(it) }
+            }
+
+            get("/gjennomforing") {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
+                requireTilgangHosArrangor(orgnr)
+
+                call.respond(arrangorFlateService.getGjennomforinger(orgnr))
+            }
+
             get("/utbetaling") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
@@ -61,6 +87,21 @@ fun Route.arrangorflateRoutes() {
                 val utbetalinger = arrangorFlateService.getUtbetalinger(orgnr)
 
                 call.respond(utbetalinger)
+            }
+
+            post("/utbetaling") {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
+                requireTilgangHosArrangor(orgnr)
+                val request = call.receive<ArrangorflateManuellUtbetalingRequest>()
+
+                UtbetalingValidator.validateArrangorflateManuellUtbetalingskrav(request)
+                    .onLeft {
+                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                    }
+                    .onRight {
+                        call.respondText(utbetalingService.opprettManuellUtbetaling(it, Arrangor).toString())
+                    }
             }
 
             get("/tilsagn") {
@@ -186,6 +227,17 @@ fun Route.arrangorflateRoutes() {
 }
 
 @Serializable
+data class ArrangorflateGjennomforing(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+)
+
+@Serializable
 data class GodkjennUtbetaling(
     val betalingsinformasjon: Betalingsinformasjon,
     val digest: String,
@@ -202,4 +254,16 @@ data class RelevanteForslag(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val antallRelevanteForslag: Int,
+)
+
+@Serializable
+data class ArrangorflateManuellUtbetalingRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+    val periodeStart: String,
+    val periodeSlutt: String,
+    val beskrivelse: String,
+    val kontonummer: String,
+    val kidNummer: String? = null,
+    val belop: Int,
 )

@@ -34,6 +34,8 @@ data class ArrangorflateTilsagnDto(
 
     @Serializable
     data class Gjennomforing(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
         val navn: String,
     )
 

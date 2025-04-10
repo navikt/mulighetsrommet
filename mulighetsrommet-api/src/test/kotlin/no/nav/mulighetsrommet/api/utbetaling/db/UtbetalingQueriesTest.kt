@@ -12,10 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import java.time.LocalDate
@@ -45,7 +42,7 @@ class UtbetalingQueriesTest : FunSpec({
         kontonummer = Kontonummer("11111111111"),
         kid = Kid("12345"),
         periode = periode,
-        innsender = Utbetaling.Innsender.NavAnsatt(NavIdent("Z123456")),
+        innsender = NavIdent("Z123456"),
         beskrivelse = "En beskrivelse",
     )
 
@@ -82,7 +79,7 @@ class UtbetalingQueriesTest : FunSpec({
                 it.journalpostId shouldBe null
                 it.periode shouldBe periode
                 it.godkjentAvArrangorTidspunkt shouldBe null
-                it.innsender shouldBe Utbetaling.Innsender.NavAnsatt(NavIdent("Z123456"))
+                it.innsender shouldBe NavIdent("Z123456")
                 it.beskrivelse shouldBe "En beskrivelse"
             }
         }
@@ -102,7 +99,7 @@ class UtbetalingQueriesTest : FunSpec({
             queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
             queries.get(utbetaling.id)
-                .shouldNotBeNull().innsender shouldBe Utbetaling.Innsender.ArrangorAnsatt
+                .shouldNotBeNull().innsender shouldBe Arrangor
         }
     }
 

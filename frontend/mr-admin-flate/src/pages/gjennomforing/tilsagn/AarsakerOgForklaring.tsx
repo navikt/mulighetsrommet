@@ -2,12 +2,12 @@ import { Alert, BodyShort, Heading, List } from "@navikt/ds-react";
 
 export function AarsakerOgForklaring({
   heading,
-  tekst,
+  tekster,
   aarsaker,
   forklaring,
 }: {
   heading: string;
-  tekst?: string;
+  tekster?: string[];
   aarsaker: string[];
   forklaring?: string;
 }) {
@@ -16,7 +16,7 @@ export function AarsakerOgForklaring({
       <Heading spacing size="small" level="4">
         {heading}
       </Heading>
-      {tekst && <BodyShort>{tekst}</BodyShort>}
+      {tekster && tekster.map((tekst, index) => <BodyShort key={index}>{tekst}</BodyShort>)}
       <List>
         {aarsaker.map((aarsak) => (
           <List.Item key={aarsak}>{aarsak}</List.Item>
