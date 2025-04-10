@@ -22,8 +22,10 @@
   },
   "dependencies": {
     "@axe-core/playwright": "4.10.1",
-    "@mr/frontend-common": "workspace:*",
     "@hey-api/client-fetch": "0.8.4",
+    "@mjackson/file-storage": "^0.6.1",
+    "@mjackson/form-data-parser": "^0.7.0",
+    "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.18.0",
     "@navikt/ds-css": "7.18.0",
     "@navikt/ds-react": "7.18.0",
@@ -54,9 +56,9 @@
     "winston": "3.17.0"
   },
   "devDependencies": {
+    "@hey-api/openapi-ts": "0.64.15",
     "@playwright/test": "1.51.1",
     "@react-router/dev": "7.5.0",
-    "@hey-api/openapi-ts": "0.64.15",
     "@react-router/fs-routes": "7.5.0",
     "@tailwindcss/typography": "0.5.16",
     "@types/compression": "1.7.5",
