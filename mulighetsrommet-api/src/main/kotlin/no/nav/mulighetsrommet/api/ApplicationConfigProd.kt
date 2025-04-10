@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
+import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
@@ -18,6 +19,10 @@ import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
+
+private val teamMulighetsrommetAdGruppeId = "debefa6e-1865-446d-b22b-9579fc735de3".toUUID()
+private val tiltaksadministrasjonAdGruppeId = "2cf8d881-c2da-47b5-b409-fa088440a629".toUUID()
+private val kontaktpersonAdGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID()
 
 val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
@@ -56,55 +61,62 @@ val ApplicationConfigProd = AppConfig(
         ),
         roles = setOf(
             AdGruppeNavAnsattRolleMapping(
-                // team-mulighetsrommet
-                adGruppeId = "debefa6e-1865-446d-b22b-9579fc735de3".toUUID(),
+                adGruppeId = teamMulighetsrommetAdGruppeId,
                 rolle = Rolle.TEAM_MULIGHETSROMMET,
+                kommentar = "Team Mulighetsrommet",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // team-mulighetsrommet
-                adGruppeId = "debefa6e-1865-446d-b22b-9579fc735de3".toUUID(),
+                adGruppeId = teamMulighetsrommetAdGruppeId,
                 rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
+                kommentar = "Team Mulighetsrommet",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // 0000-GA-TILTAK-ANSVARLIG
-                adGruppeId = "2cf8d881-c2da-47b5-b409-fa088440a629".toUUID(),
+                adGruppeId = tiltaksadministrasjonAdGruppeId,
                 rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
+                kommentar = "0000-GA-TILTAK-ANSVARLIG",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
                 adGruppeId = "33053061-86da-4d6b-9372-33238fabd25f".toUUID(),
                 rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                kommentar = "0000-GA-TILTAK-tiltaksgjennomforinger_skriv",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // 0000-GA-TILTAK-avtaler_skriv
                 adGruppeId = "46ba8787-eb24-4f7b-830f-4c5e9256de65".toUUID(),
                 rolle = Rolle.AVTALER_SKRIV,
+                kommentar = "0000-GA-TILTAK-avtaler_skriv",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // 0000-GA-TILTAK-ENDRINGSMELDING
                 adGruppeId = "4e4bfc3e-58c5-4f1c-879b-df1a86016de9".toUUID(),
                 rolle = Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
+                kommentar = "0000-GA-TILTAK-ENDRINGSMELDING",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // (GRP) mr-nav_kontaktperson
-                adGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(),
+                adGruppeId = kontaktpersonAdGruppeId,
                 rolle = Rolle.KONTAKTPERSON,
+                kommentar = "(GRP) mr-nav_kontaktperson",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
                 rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+                kommentar = "0000-GA-TILTAK-okonomi_beslutter",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                kommentar = "TODO: slett denne",
             ),
             AdGruppeNavAnsattRolleMapping(
-                // 0000-GA-TILTAK-okonomi_beslutter
                 adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
                 rolle = Rolle.ATTESTANT_UTBETALING,
+                kommentar = "TODO: slett denne",
             ),
+        ),
+    ),
+    navAnsattSync = NavAnsattSyncService.Config(
+        ansattGroupsToSync = setOf(
+            teamMulighetsrommetAdGruppeId,
+            tiltaksadministrasjonAdGruppeId,
+            kontaktpersonAdGruppeId,
         ),
     ),
     sanity = SanityClient.Config(

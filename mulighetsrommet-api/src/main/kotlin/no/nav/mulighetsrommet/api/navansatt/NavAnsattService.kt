@@ -69,15 +69,15 @@ class NavAnsattService(
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }
 
-    suspend fun getNavAnsatteInGroups(groups: Set<AdGruppeNavAnsattRolleMapping>): List<NavAnsatt> = coroutineScope {
+    suspend fun getNavAnsatteInGroups(groups: Set<UUID>): List<NavAnsatt> = coroutineScope {
         // For å begrense antall parallelle requests mot msgraph
         val semaphore = Semaphore(permits = 20)
         groups
-            .map { group ->
+            .map { groupId ->
                 async {
                     semaphore.withPermit {
-                        microsoftGraphClient.getGroupMembers(group.adGruppeId).also {
-                            logger.info("Fant ${it.size} i AD gruppe id=${group.adGruppeId}")
+                        microsoftGraphClient.getGroupMembers(groupId).also {
+                            logger.info("Fant ${it.size} i AD gruppe id=$groupId")
                         }
                     }
                 }
