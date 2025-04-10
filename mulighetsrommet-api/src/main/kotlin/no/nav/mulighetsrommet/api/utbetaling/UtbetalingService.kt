@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -260,20 +261,28 @@ class UtbetalingService(
         request: BesluttDelutbetalingRequest,
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
-        val delutbetaling = queries.delutbetaling.get(id)
-            ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
+        val delutbetaling = requireNotNull(queries.delutbetaling.get(id))
         require(delutbetaling.status == DelutbetalingStatus.TIL_GODKJENNING) {
             "Utbetaling er allerede besluttet"
         }
+
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
         if (navIdent == opprettelse.behandletAv) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
         }
+
         val tilsagnOpprettelse =
-            requireNotNull(queries.totrinnskontroll.get(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT))
+            queries.totrinnskontroll.getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
         if (navIdent == tilsagnOpprettelse.besluttetAv) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
         }
+
+        val kostnadssted = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).kostnadssted
+        val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
+        if (!ansatt.hasRole(NavAnsattRolle.AttestantUtbetaling(setOf(kostnadssted.enhetsnummer)))) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})"))).left()
+        }
+
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
                 returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
@@ -283,6 +292,7 @@ class UtbetalingService(
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
+
         Unit.right()
     }
 
@@ -436,7 +446,10 @@ class UtbetalingService(
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId))
-            queries.delutbetaling.setStatusForDelutbetalingerForBetaling(delutbetaling.utbetalingId, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+            queries.delutbetaling.setStatusForDelutbetalingerForBetaling(
+                delutbetaling.utbetalingId,
+                DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+            )
             godkjennUtbetaling(utbetaling, alleDelutbetalinger)
         }
     }

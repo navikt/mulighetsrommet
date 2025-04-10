@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -150,7 +151,12 @@ class TilsagnService(
     }
 
     fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Tilsagn> = db.transaction {
-        val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
+        val tilsagn = requireNotNull(queries.tilsagn.get(id))
+
+        val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))
+        if (!ansatt.hasRole(NavAnsattRolle.BeslutterTilsagn(setOf(tilsagn.kostnadssted.enhetsnummer)))) {
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})"))).left()
+        }
 
         return when (tilsagn.status) {
             TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT ->

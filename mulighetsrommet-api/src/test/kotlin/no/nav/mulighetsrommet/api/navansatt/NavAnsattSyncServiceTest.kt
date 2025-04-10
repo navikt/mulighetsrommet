@@ -7,15 +7,16 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
+import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle.*
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -23,6 +24,7 @@ import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
+import java.util.*
 
 class NavAnsattSyncServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -35,11 +37,11 @@ class NavAnsattSyncServiceTest : FunSpec({
     ) {
         queries.ansatt.setRoller(
             NavAnsattFixture.DonaldDuck.navIdent,
-            setOf(TILTAKADMINISTRASJON_GENERELL),
+            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
         )
         queries.ansatt.setRoller(
             NavAnsattFixture.MikkeMus.navIdent,
-            setOf(TILTAKADMINISTRASJON_GENERELL),
+            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
         )
     }
 
@@ -51,82 +53,77 @@ class NavAnsattSyncServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun toAzureAdNavAnsattDto(dbo: NavAnsattDbo) = AzureAdNavAnsatt(
-        azureId = dbo.azureId,
-        navIdent = dbo.navIdent,
-        fornavn = dbo.fornavn,
-        etternavn = dbo.etternavn,
-        hovedenhetKode = NavEnhetFixtures.Innlandet.enhetsnummer,
-        hovedenhetNavn = NavEnhetFixtures.Innlandet.navn,
-        mobilnummer = dbo.mobilnummer,
-        epost = dbo.epost,
-    )
-
-    val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.DonaldDuck)
-    val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.MikkeMus)
-
     val notificationTask: NotificationTask = mockk()
     val sanityService: SanityService = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk()
 
-    fun createaService() = NavAnsattSyncService(
+    val ansattGroupsToSync = setOf(
+        AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = TILTAKADMINISTRASJON_GENERELL),
+    )
+
+    fun createaService(mappings: Set<AdGruppeNavAnsattRolleMapping>) = NavAnsattSyncService(
         db = database.db,
         navAnsattService = navAnsattService,
         sanityService = sanityService,
         navEnhetService = NavEnhetService(database.db),
         notificationTask = notificationTask,
+        ansattGroupsToSync = mappings,
     )
+
+    val ansatt1 = NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
+    val ansatt2 = NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
 
     context("should schedule nav_ansatt to be deleted when they are not in the list of ansatte to sync") {
         val today = LocalDate.now()
-        val deletionDate = today.plusDays(1)
+        val tomorrow = today.plusDays(1)
 
-        val service = createaService()
+        val service = createaService(ansattGroupsToSync)
 
         test("begge finnes i azure => ingen skal slettes") {
-            coEvery { navAnsattService.getNavAnsatteFromAzure() } returns listOf(
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL)),
+            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
+                ansatt1,
+                ansatt2,
             )
 
-            service.synchronizeNavAnsatte(today, deletionDate)
+            service.synchronizeNavAnsatte(today, deletionDate = tomorrow)
 
             database.run {
-                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                )
+                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(ansatt1, ansatt2)
             }
         }
 
-        test("kontaktperson fra azure => den andre satt til sletting") {
-            coEvery { navAnsattService.getNavAnsatteFromAzure() } returns listOf(
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON)),
+        test("bare en ansatt i gruppen => den andre satt til sletting og roller blir fratatt") {
+            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
+                ansatt2,
             )
 
-            service.synchronizeNavAnsatte(today, deletionDate)
+            service.synchronizeNavAnsatte(today, deletionDate = tomorrow)
 
             database.run {
                 queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf()).copy(
-                        skalSlettesDato = deletionDate,
+                    ansatt1.copy(
+                        roller = setOf(),
+                        skalSlettesDato = tomorrow,
                     ),
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON)),
+                    ansatt2,
                 )
             }
         }
 
         test("ingen fra azure => begge satt til sletting") {
-            coEvery { navAnsattService.getNavAnsatteFromAzure() } returns emptyList()
-            service.synchronizeNavAnsatte(today, deletionDate)
+            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns emptyList()
+
+            service.synchronizeNavAnsatte(today, deletionDate = tomorrow)
 
             database.run {
                 queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf()).copy(
-                        skalSlettesDato = deletionDate,
+                    ansatt1.copy(
+                        roller = setOf(),
+                        skalSlettesDato = tomorrow,
                     ),
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf()).copy(
-                        skalSlettesDato = deletionDate,
+                    ansatt2.copy(
+                        roller = setOf(),
+                        skalSlettesDato = tomorrow,
                     ),
                 )
             }
@@ -134,25 +131,25 @@ class NavAnsattSyncServiceTest : FunSpec({
     }
 
     context("should delete nav_ansatt when their deletion date matches the provided deletion date") {
-        val service = createaService()
+        val service = createaService(ansattGroupsToSync)
 
         val today = LocalDate.now()
 
-        test("kontaktperson fra azure => da skal den ikke slettes") {
-            coEvery { navAnsattService.getNavAnsatteFromAzure() } returns listOf(
-                NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON)),
+        test("bare en ansatt i gruppen => den andre blir slettet") {
+            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
+                ansatt2,
             )
+
             service.synchronizeNavAnsatte(today, deletionDate = today)
 
             database.run {
-                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON)),
-                )
+                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(ansatt2)
             }
         }
 
-        test("ingen fra azure => begge har blitt slettet") {
-            coEvery { navAnsattService.getNavAnsatteFromAzure() } returns emptyList()
+        test("ingen ansatt i gruppen => begge blir slettet") {
+            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns emptyList()
+
             service.synchronizeNavAnsatte(today, deletionDate = today)
 
             database.run {
@@ -168,12 +165,12 @@ class NavAnsattSyncServiceTest : FunSpec({
 
         every { notificationTask.scheduleNotification(any(), any()) } returns Unit
 
-        coEvery { navAnsattService.getNavAnsatteFromAzure() } returns listOf(
-            NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(AVTALER_SKRIV)),
+        coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
+            ansatt2.copy(roller = setOf(NavAnsattRolle.AvtalerSkriv)),
         )
 
         val today = LocalDate.now()
-        val service = createaService()
+        val service = createaService(ansattGroupsToSync)
         service.synchronizeNavAnsatte(today, deletionDate = today)
 
         verify(exactly = 1) {
@@ -184,3 +181,18 @@ class NavAnsattSyncServiceTest : FunSpec({
         }
     }
 })
+
+private fun NavAnsattDbo.toNavAnsattDto(roller: Set<NavAnsattRolle>): NavAnsatt = NavAnsatt(
+    azureId = azureId,
+    navIdent = navIdent,
+    fornavn = fornavn,
+    etternavn = etternavn,
+    hovedenhet = NavAnsatt.Hovedenhet(
+        enhetsnummer = NavEnhetFixtures.Innlandet.enhetsnummer,
+        navn = NavEnhetFixtures.Innlandet.navn,
+    ),
+    mobilnummer = mobilnummer,
+    epost = epost,
+    roller = roller,
+    skalSlettesDato = null,
+)

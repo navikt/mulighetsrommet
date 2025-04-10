@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjenn
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -66,12 +66,13 @@ data class AuthConfig(
     val azure: AuthProvider,
     val tokenx: AuthProvider,
     val maskinporten: AuthProvider,
-    val roles: List<AdGruppeNavAnsattRolleMapping>,
+    val roles: Set<AdGruppeNavAnsattRolleMapping>,
 )
 
 data class AdGruppeNavAnsattRolleMapping(
     val adGruppeId: UUID,
-    val rolle: NavAnsattRolle,
+    val rolle: Rolle,
+    val kommentar: String? = null,
 )
 
 data class KafkaConfig(

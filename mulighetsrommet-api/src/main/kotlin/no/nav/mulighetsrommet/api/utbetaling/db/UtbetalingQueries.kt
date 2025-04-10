@@ -244,7 +244,7 @@ class UtbetalingQueries(private val session: Session) {
         return single(queryOf(utbetalingQuery, id)) { it.toUtbetalingDto() }
     }
 
-    fun getOppgaveData(tiltakskoder: List<Tiltakskode>?): List<Utbetaling> = with(session) {
+    fun getOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<Utbetaling> = with(session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select *

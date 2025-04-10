@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.navansatt.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -10,7 +9,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-data class NavAnsattDto(
+data class NavAnsatt(
     @Serializable(with = UUIDSerializer::class)
     val azureId: UUID,
     val navIdent: NavIdent,
@@ -29,20 +28,20 @@ data class NavAnsattDto(
         val navn: String,
     )
 
-    companion object {
-        fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt, roller: Set<NavAnsattRolle>): NavAnsattDto = NavAnsattDto(
-            azureId = dto.azureId,
-            navIdent = dto.navIdent,
-            fornavn = dto.fornavn,
-            etternavn = dto.etternavn,
-            hovedenhet = Hovedenhet(
-                enhetsnummer = dto.hovedenhetKode,
-                navn = dto.hovedenhetNavn,
-            ),
-            mobilnummer = dto.mobilnummer,
-            epost = dto.epost,
-            roller = roller,
-            skalSlettesDato = null,
-        )
+    fun hasRole(
+        requiredRole: NavAnsattRolle,
+    ): Boolean = when (requiredRole) {
+        is NavAnsattRolle.Generell -> roller.any { it.rolle == requiredRole.rolle }
+
+        is NavAnsattRolle.Kontorspesifikk -> roller.any {
+            when (it) {
+                is NavAnsattRolle.Kontorspesifikk ->
+                    it.rolle == requiredRole.rolle &&
+                        // TODO: fjern isEmpty()-sjekk når nye ad-grupper er på plass
+                        (it.enheter.isEmpty() || it.enheter.containsAll(requiredRole.enheter))
+
+                else -> false
+            }
+        }
     }
 }

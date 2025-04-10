@@ -8,7 +8,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato, formaterPeriode } from "@/utils/Utils";
-import { AdminUtbetalingStatus, NavAnsattRolle, TilsagnStatus } from "@mr/api-client-v2";
+import { AdminUtbetalingStatus, Rolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon } from "@navikt/aksel-icons";
 import {
@@ -61,9 +61,7 @@ export function UtbetalingPage() {
   const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, deltakere } =
     useUtbetalingPageData();
 
-  const erSaksbehandlerOkonomi = ansatt.roller.includes(
-    NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-  );
+  const erSaksbehandlerOkonomi = ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI);
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
     {

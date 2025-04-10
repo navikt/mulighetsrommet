@@ -3,7 +3,7 @@ import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
-import { AnsattService, NavAnsattRolle } from "@mr/api-client-v2";
+import { AnsattService, Rolle } from "@mr/api-client-v2";
 import { useApiQuery } from "@mr/frontend-common";
 import { Page } from "@navikt/ds-react";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
@@ -67,17 +67,17 @@ export function App() {
     return null;
   }
 
-  if (!ansatt.roller.includes(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)) {
+  if (!ansatt.roller.includes(Rolle.TILTAKADMINISTRASJON_GENERELL)) {
     return <IngenLesetilgang />;
   }
 
   if (
     !ansatt.roller?.some(
       (rolle) =>
-        rolle === NavAnsattRolle.AVTALER_SKRIV ||
-        rolle === NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV ||
-        rolle === NavAnsattRolle.TEAM_MULIGHETSROMMET ||
-        rolle === NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+        rolle === Rolle.AVTALER_SKRIV ||
+        rolle === Rolle.TILTAKSGJENNOMFORINGER_SKRIV ||
+        rolle === Rolle.TEAM_MULIGHETSROMMET ||
+        rolle === Rolle.TILTAKADMINISTRASJON_GENERELL,
     )
   ) {
     return <IkkeAutentisertApp />;

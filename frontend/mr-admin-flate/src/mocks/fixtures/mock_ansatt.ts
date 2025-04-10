@@ -1,4 +1,4 @@
-import { NavAnsatt, NavAnsattRolle, GjennomforingKontaktperson } from "@mr/api-client-v2";
+import { NavAnsatt, Rolle, GjennomforingKontaktperson } from "@mr/api-client-v2";
 
 const bertil: NavAnsatt = {
   azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",
@@ -12,13 +12,13 @@ const bertil: NavAnsatt = {
   mobilnummer: null,
   epost: "bertil.Bengtson@nav.no",
   roller: [
-    NavAnsattRolle.KONTAKTPERSON,
-    NavAnsattRolle.AVTALER_SKRIV,
-    NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
-    NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-    NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
-    NavAnsattRolle.BESLUTTER_TILSAGN,
-    NavAnsattRolle.ATTESTANT_UTBETALING,
+    Rolle.KONTAKTPERSON,
+    Rolle.AVTALER_SKRIV,
+    Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
+    Rolle.TILTAKADMINISTRASJON_GENERELL,
+    Rolle.SAKSBEHANDLER_OKONOMI,
+    Rolle.BESLUTTER_TILSAGN,
+    Rolle.ATTESTANT_UTBETALING,
   ],
   skalSlettesDato: null,
 };
@@ -34,7 +34,7 @@ const pelle: NavAnsatt = {
   },
   mobilnummer: null,
   epost: "pelle.pilotbruker@nav.no",
-  roller: [NavAnsattRolle.KONTAKTPERSON],
+  roller: [Rolle.KONTAKTPERSON],
   skalSlettesDato: null,
 };
 
@@ -49,7 +49,7 @@ const perRichard: NavAnsatt = {
     enhetsnummer: "2990",
     navn: "IT Drift",
   },
-  roller: [NavAnsattRolle.KONTAKTPERSON],
+  roller: [Rolle.KONTAKTPERSON],
   skalSlettesDato: null,
 };
 
@@ -64,7 +64,7 @@ const nikoline: NavAnsatt = {
     enhetsnummer: "2990",
     navn: "IT Drift",
   },
-  roller: [NavAnsattRolle.KONTAKTPERSON],
+  roller: [Rolle.KONTAKTPERSON],
   skalSlettesDato: null,
 };
 
@@ -79,7 +79,7 @@ const petrus: NavAnsatt = {
     enhetsnummer: "2990",
     navn: "IT Drift",
   },
-  roller: [NavAnsattRolle.KONTAKTPERSON],
+  roller: [Rolle.KONTAKTPERSON],
   skalSlettesDato: null,
 };
 

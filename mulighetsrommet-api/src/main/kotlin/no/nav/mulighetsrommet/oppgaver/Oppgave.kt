@@ -1,21 +1,21 @@
 package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
-enum class OppgaveType(val rolle: NavAnsattRolle) {
-    TILSAGN_TIL_GODKJENNING(NavAnsattRolle.BESLUTTER_TILSAGN),
-    TILSAGN_TIL_ANNULLERING(NavAnsattRolle.BESLUTTER_TILSAGN),
-    TILSAGN_TIL_OPPGJOR(NavAnsattRolle.BESLUTTER_TILSAGN),
-    TILSAGN_RETURNERT(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
-    UTBETALING_TIL_GODKJENNING(NavAnsattRolle.ATTESTANT_UTBETALING),
-    UTBETALING_RETURNERT(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
-    UTBETALING_TIL_BEHANDLING(NavAnsattRolle.SAKSBEHANDLER_OKONOMI),
+enum class OppgaveType(val rolle: Rolle) {
+    TILSAGN_TIL_GODKJENNING(Rolle.BESLUTTER_TILSAGN),
+    TILSAGN_TIL_ANNULLERING(Rolle.BESLUTTER_TILSAGN),
+    TILSAGN_TIL_OPPGJOR(Rolle.BESLUTTER_TILSAGN),
+    TILSAGN_RETURNERT(Rolle.SAKSBEHANDLER_OKONOMI),
+    UTBETALING_TIL_GODKJENNING(Rolle.ATTESTANT_UTBETALING),
+    UTBETALING_RETURNERT(Rolle.SAKSBEHANDLER_OKONOMI),
+    UTBETALING_TIL_BEHANDLING(Rolle.SAKSBEHANDLER_OKONOMI),
     ;
 
     companion object {
