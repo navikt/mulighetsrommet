@@ -350,6 +350,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     gjenstaendeBelop: 100000,
     gjennomforing: {
+      id: uuid(),
       navn: "AFT tiltak Halden",
     },
     type: TilsagnType.TILSAGN,
@@ -389,6 +390,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     gjenstaendeBelop: 50000,
     gjennomforing: {
+      id: uuid(),
       navn: "AFT tiltak Sarpsborg",
     },
     type: TilsagnType.TILSAGN,
@@ -427,6 +429,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     gjenstaendeBelop: 0,
     gjennomforing: {
+      id: uuid(),
       navn: "AFT tiltak Råde",
     },
     type: TilsagnType.TILSAGN,
@@ -465,6 +468,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     gjenstaendeBelop: 20000,
     gjennomforing: {
+      id: uuid(),
       navn: "AFT tiltak Våler",
     },
     type: TilsagnType.TILSAGN,
@@ -503,6 +507,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     gjenstaendeBelop: 0,
     gjennomforing: {
+      id: uuid(),
       navn: "AFT tiltak Indre Østfold",
     },
     type: TilsagnType.TILSAGN,

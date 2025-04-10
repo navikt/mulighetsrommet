@@ -261,6 +261,7 @@ private fun QueryContext.toArrangorflateTilsagn(
     return ArrangorflateTilsagnDto(
         id = tilsagn.id,
         gjennomforing = ArrangorflateTilsagnDto.Gjennomforing(
+            id = tilsagn.gjennomforing.id,
             navn = tilsagn.gjennomforing.navn,
         ),
         gjenstaendeBelop = tilsagn.belopGjenstaende,

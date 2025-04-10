@@ -1,4 +1,6 @@
 import {
+  Alert,
+  Box,
   Button,
   Checkbox,
   ErrorSummary,
@@ -23,16 +25,23 @@ import {
 } from "react-router";
 import { formaterDato, isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { PageHeader } from "~/components/PageHeader";
-import { ArrangorflateGjennomforing, ArrangorflateService, FieldError } from "api-client";
+import {
+  ArrangorflateGjennomforing,
+  ArrangorflateService,
+  ArrangorflateTilsagn,
+  FieldError,
+} from "api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
 import { getCurrentTab } from "~/utils/currentTab";
+import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 
 type LoaderData = {
   kontonummer?: string;
   gjennomforinger: ArrangorflateGjennomforing[];
+  tilsagn: ArrangorflateTilsagn[];
 };
 
 export const meta: MetaFunction = () => {
@@ -51,12 +60,17 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const [
     { data: kontonummer, error: kontonummerError },
     { data: gjennomforinger, error: gjennomforingerError },
+    { data: tilsagn, error: tilsagnError },
   ] = await Promise.all([
     ArrangorflateService.getKontonummer({
       path: { orgnr },
       headers: await apiHeaders(request),
     }),
     ArrangorflateService.getArrangorflateGjennomforinger({
+      path: { orgnr },
+      headers: await apiHeaders(request),
+    }),
+    ArrangorflateService.getAllArrangorflateTilsagn({
       path: { orgnr },
       headers: await apiHeaders(request),
     }),
@@ -68,7 +82,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (gjennomforingerError) {
     throw problemDetailResponse(gjennomforingerError);
   }
-  return { kontonummer, gjennomforinger };
+  if (tilsagnError || !tilsagn) {
+    throw problemDetailResponse(tilsagnError);
+  }
+  return { kontonummer, gjennomforinger, tilsagn };
 };
 
 interface ActionData {
@@ -174,17 +191,32 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function UtbetalingKvittering() {
-  const { kontonummer, gjennomforinger } = useLoaderData<LoaderData>();
+  const { kontonummer, gjennomforinger, tilsagn } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const revalidator = useRevalidator();
 
   const [gjennomforingId, setGjennomforingId] = useState<string | undefined>(undefined);
+  const [periodeStart, setPeriodeStart] = useState<string>("");
+  const [periodeSlutt, setPeriodeSlutt] = useState<string>("");
 
   function errorAt(pointer: string): string | undefined {
     return data?.errors?.find((error) => error.pointer === pointer)?.detail;
   }
+
+  const relevanteTilsagn = useMemo(() => {
+    const start = new Date(periodeStart);
+    const slutt = new Date(periodeSlutt);
+
+    if (gjennomforingId && !isNaN(start.getTime()) && !isNaN(slutt.getTime())) {
+      return tilsagn
+        .filter((t) => t.gjennomforing.id === gjennomforingId)
+        .filter((t) => start < new Date(t.periode.slutt) && slutt > new Date(t.periode.start));
+    }
+
+    return [];
+  }, [gjennomforingId, periodeStart, periodeSlutt, tilsagn]);
 
   return (
     <>
@@ -238,17 +270,31 @@ export default function UtbetalingKvittering() {
               label="Periodestart"
               error={errorAt("/periodeStart")}
               size="small"
+              onChange={(e) => setPeriodeStart(e.target.value)}
               name="periodeStart"
               id="periodeStart"
             />
             <TextField
               label="Periodeslutt"
               size="small"
+              onChange={(e) => setPeriodeSlutt(e.target.value)}
               error={errorAt("/periodeSlutt")}
               name="periodeSlutt"
               id="periodeSlutt"
             />
           </HStack>
+          <Separator />
+          {relevanteTilsagn.length > 0 ? (
+            relevanteTilsagn.map((tilsagn) => (
+              <Box borderColor="border-subtle" padding="2" borderWidth="2" borderRadius="large">
+                <TilsagnDetaljer tilsagn={tilsagn} />
+              </Box>
+            ))
+          ) : (
+            <Alert variant="info" className="my-5">
+              Fant ingen relevante tilsagn for gjennomføring i perioden
+            </Alert>
+          )}
           <Separator />
           <Textarea
             label="Beskrivelse"

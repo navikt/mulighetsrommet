@@ -6110,17 +6110,18 @@ components:
         gjennomforing:
           type: object
           properties:
+            id:
+              type: string
+              format: uuid
             navn:
               type: string
-          required:
-            - navn
+          required: [navn, id]
         tiltakstype:
           type: object
           properties:
             navn:
               type: string
-          required:
-            - navn
+          required: [navn]
         type:
           $ref: "#/components/schemas/TilsagnType"
         periode:
@@ -6137,27 +6138,14 @@ components:
               type: string
             navn:
               type: string
-          required:
-            - id
-            - organisasjonsnummer
-            - navn
+          required: [id, organisasjonsnummer, navn]
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
         gjenstaendeBelop:
           type: integer
         bestillingsnummer:
           type: string
-      required:
-        - periode
-        - type
-        - status
-        - gjennomforing
-        - tiltakstype
-        - arrangor
-        - beregning
-        - id
-        - gjenstaendeBelop
-        - bestillingsnummer
+      required: [periode, type, status, gjennomforing, tiltakstype, arrangor, beregning, id, gjenstaendeBelop, bestillingsnummer]
 
     Betalingsinformasjon:
       type: object
