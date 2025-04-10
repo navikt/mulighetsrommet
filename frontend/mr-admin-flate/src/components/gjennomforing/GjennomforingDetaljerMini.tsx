@@ -1,19 +1,24 @@
 import { GjennomforingDto } from "@mr/api-client-v2";
-import { Heading, HGrid, VStack } from "@navikt/ds-react";
+import { Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "../../utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
+import { ReactNode } from "react";
 
 interface Props {
   gjennomforing: GjennomforingDto;
+  meny?: ReactNode;
 }
 
-export function GjennomforingDetaljerMini({ gjennomforing }: Props) {
+export function GjennomforingDetaljerMini({ gjennomforing, meny }: Props) {
   return (
     <VStack gap="4">
-      <Heading size="medium" level="2">
-        Gjennomføring
-      </Heading>
+      <HStack justify={"space-between"}>
+        <Heading size="medium" level="2">
+          Gjennomføring
+        </Heading>
+        {meny}
+      </HStack>
       <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
         <Metadata header="Tiltaksnavn" verdi={gjennomforing.navn} />
         <Metadata

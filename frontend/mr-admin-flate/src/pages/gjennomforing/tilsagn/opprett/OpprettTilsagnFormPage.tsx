@@ -81,27 +81,29 @@ export function OpprettTilsagnFormPage() {
         </Heading>
       </Header>
       <ContentBox>
-        <VStack gap={"8"}>
+        <VStack gap="6">
           <WhitePaddedBox>
-            <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            <TilsagnFormContainer
-              avtale={avtale}
-              gjennomforing={gjennomforing}
-              defaults={defaults.data}
-            />
-          </WhitePaddedBox>
-          <WhitePaddedBox>
-            <VStack gap="4">
-              <Heading size="medium">Aktive tilsagn</Heading>
-              {aktiveTilsagn.data.length > 0 ? (
-                <TilsagnTabell tilsagn={aktiveTilsagn.data} />
-              ) : (
-                <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
-              )}
+            <VStack gap="6">
+              <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+              <TilsagnFormContainer
+                avtale={avtale}
+                gjennomforing={gjennomforing}
+                defaults={defaults.data}
+              />
             </VStack>
           </WhitePaddedBox>
         </VStack>
       </ContentBox>
+      <WhitePaddedBox>
+        <VStack gap="4">
+          <Heading size="medium">Aktive tilsagn</Heading>
+          {aktiveTilsagn.data.length > 0 ? (
+            <TilsagnTabell tilsagn={aktiveTilsagn.data} />
+          ) : (
+            <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
+          )}
+        </VStack>
+      </WhitePaddedBox>
     </main>
   );
 }

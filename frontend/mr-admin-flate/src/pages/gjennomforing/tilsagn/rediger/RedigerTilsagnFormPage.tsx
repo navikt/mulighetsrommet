@@ -77,9 +77,9 @@ export function RedigerTilsagnFormPage() {
         </Heading>
       </Header>
       <ContentBox>
-        <VStack gap={"8"}>
+        <VStack gap="4">
           <WhitePaddedBox>
-            <VStack gap="4">
+            <VStack gap="6">
               <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
               <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
             </VStack>
