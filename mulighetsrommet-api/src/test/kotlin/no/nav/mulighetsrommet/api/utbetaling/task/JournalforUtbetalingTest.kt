@@ -19,11 +19,11 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import org.junit.jupiter.api.assertThrows
@@ -57,7 +57,7 @@ class JournalforUtbetalingTest : FunSpec({
         kontonummer = Kontonummer("12312312312"),
         kid = null,
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-        innsender = Utbetaling.Innsender.ArrangorAnsatt,
+        innsender = Arrangor,
         beskrivelse = null,
     )
 

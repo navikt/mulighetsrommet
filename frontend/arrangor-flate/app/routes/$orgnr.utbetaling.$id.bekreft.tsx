@@ -1,13 +1,10 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
-  Alert,
   Button,
   Checkbox,
   ErrorSummary,
   Heading,
-  HelpText,
   HStack,
-  Link,
   TextField,
   VStack,
 } from "@navikt/ds-react";
@@ -37,6 +34,7 @@ import { internalNavigation } from "~/internal-navigation";
 import { isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
+import { KontonummerInput } from "~/components/KontonummerInput";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -142,7 +140,7 @@ export const action: ActionFunction = async ({ request }) => {
   );
 };
 
-function validateBetalingsinformasjon(kontonummer: string, kid?: string) {
+export function validateBetalingsinformasjon(kontonummer: string, kid?: string) {
   const errors = [];
   const KONTONUMMER_REGEX = /^\d{11}$/;
   const KID_REGEX = /^\d{2,25}$/;
@@ -201,74 +199,11 @@ export default function BekreftUtbetaling() {
         <Separator />
         <Heading size="medium">Betalingsinformasjon</Heading>
         <Form method="post">
-          <HStack>
-            <div>
-              <HStack align="end" gap="2">
-                <TextField
-                  label="Kontonummer"
-                  size="small"
-                  description="Kontonummeret hentes automatisk fra Altinn"
-                  error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
-                  name="kontonummer"
-                  defaultValue={utbetaling.betalingsinformasjon?.kontonummer}
-                  maxLength={11}
-                  minLength={11}
-                  id="kontonummer"
-                  readOnly
-                />
-                <HStack align="start" gap="2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="small"
-                    onClick={handleHentKontonummer}
-                  >
-                    Synkroniser kontonummer
-                  </Button>
-                  <HelpText>
-                    Dersom du har oppdatert kontoregisteret via Altinn kan du trykke på knappen
-                    "Synkroniser kontonummer" for å hente kontonummeret på nytt fra Altinn.
-                  </HelpText>
-                </HStack>
-              </HStack>
-              <small className="mt-2 block">
-                Er kontonummeret feil kan du lese her om <EndreKontonummerLink />.
-              </small>
-              {!utbetaling.betalingsinformasjon?.kontonummer ? (
-                <Alert variant="warning" className="my-5">
-                  <VStack align="start" gap="2">
-                    <Heading spacing size="xsmall" level="3">
-                      Fant ikke kontonummer for utbetalingen
-                    </Heading>
-                    <p>
-                      Vi fant ikke noe kontonummer for din organisasjon. Her kan du lese om{" "}
-                      <EndreKontonummerLink />.
-                    </p>
-                    <p className="text-balance">
-                      Når du har registrert kontonummer kan du prøve på nytt ved å trykke på knappen{" "}
-                      <b>Hent kontonummer</b>.
-                    </p>
-                  </VStack>
-                  <VStack align="end">
-                    <Button
-                      variant="primary"
-                      type="button"
-                      size="small"
-                      onClick={(e) => {
-                        e.preventDefault(); // Prevent form submission
-                        handleHentKontonummer();
-                      }}
-                      disabled={fetcher.state === "loading"}
-                    >
-                      {fetcher.state === "submitting"
-                        ? "Henter kontonummer..."
-                        : "Hent kontonummer"}
-                    </Button>
-                  </VStack>
-                </Alert>
-              ) : null}
-            </div>
-          </HStack>
+          <KontonummerInput
+            kontonummer={utbetaling.betalingsinformasjon.kontonummer}
+            error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
+            onClick={() => handleHentKontonummer()}
+          />
           <HStack>
             <TextField
               className="mt-5"
@@ -313,17 +248,5 @@ export default function BekreftUtbetaling() {
         </Form>
       </VStack>
     </>
-  );
-}
-
-function EndreKontonummerLink() {
-  return (
-    <Link
-      rel="noopener noreferrer"
-      href="https://www.nav.no/arbeidsgiver/endre-kontonummer#hvordan"
-      target="_blank"
-    >
-      endring av kontonummer for refusjoner fra Nav
-    </Link>
   );
 }

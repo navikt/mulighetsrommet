@@ -64,7 +64,7 @@ class UtbetalingQueries(private val session: Session) {
                 is UtbetalingBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT.name
                 is UtbetalingBeregningFri -> Prismodell.FRI.name
             },
-            "innsender" to dbo.innsender?.value,
+            "innsender" to dbo.innsender?.textRepr(),
             "beskrivelse" to dbo.beskrivelse,
         )
 
@@ -196,7 +196,7 @@ class UtbetalingQueries(private val session: Session) {
         val query = """
             update utbetaling set
                 godkjent_av_arrangor_tidspunkt = :tidspunkt,
-                innsender = 'ARRANGOR_ANSATT'
+                innsender = 'Arrangor'
             where id = :id::uuid
         """.trimIndent()
 
@@ -307,7 +307,7 @@ class UtbetalingQueries(private val session: Session) {
     private fun Row.toUtbetalingDto(): Utbetaling {
         val id = uuid("id")
         val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
-        val innsender = stringOrNull("innsender")?.let { Utbetaling.Innsender.fromString(it) }
+        val innsender = stringOrNull("innsender")?.toAgent()
         return Utbetaling(
             id = id,
             fristForGodkjenning = localDateTime("frist_for_godkjenning"),

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
@@ -45,10 +45,12 @@ data class UtbetalingDto(
             journalpostId = utbetaling.journalpostId,
         )
 
-        private fun formaterInnsendtAv(innsender: Utbetaling.Innsender?): String? {
-            return when (innsender) {
-                is Utbetaling.Innsender.ArrangorAnsatt -> "Arrangør"
-                is Utbetaling.Innsender.NavAnsatt -> innsender.navIdent.value
+        private fun formaterInnsendtAv(agent: Agent?): String? {
+            return when (agent) {
+                Arena -> "Arena"
+                Arrangor -> "Arrangør"
+                is NavIdent -> agent.value
+                Tiltaksadministrasjon -> "System"
                 else -> null
             }
         }
