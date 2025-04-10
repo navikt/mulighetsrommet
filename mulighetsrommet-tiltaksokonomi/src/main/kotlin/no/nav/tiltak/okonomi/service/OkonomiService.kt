@@ -329,10 +329,19 @@ private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<Opprett
 }
 
 private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adresse? {
-    return OebsBestillingMelding.Selger.Adresse(
-        gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
-        by = it.poststed ?: return null,
-        postNummer = it.postnummer ?: return null,
-        landsKode = it.landkode ?: return null,
-    )
+    return when (it.landkode) {
+        "NO" -> OebsBestillingMelding.Selger.Adresse(
+            gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
+            by = it.poststed ?: return null,
+            postNummer = it.postnummer ?: return null,
+            landsKode = it.landkode ?: return null,
+        )
+        null -> null
+        else -> OebsBestillingMelding.Selger.Adresse(
+            gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
+            by = it.poststed ?: return null,
+            postNummer = it.postnummer,
+            landsKode = it.landkode ?: return null,
+        )
+    }
 }
