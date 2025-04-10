@@ -14,7 +14,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -65,8 +65,8 @@ fun Route.utbetalingRoutes() {
 
                     val opprettelse = queries.totrinnskontroll
                         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-
-                    val requiredRole = NavAnsattRolle.AttestantUtbetaling(
+                    val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
+                        Rolle.ATTESTANT_UTBETALING,
                         setOf(tilsagn.kostnadssted.enhetsnummer),
                     )
                     val besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(opprettelse)
@@ -80,7 +80,7 @@ fun Route.utbetalingRoutes() {
                         tilsagn = tilsagn,
                         opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
                             opprettelse,
-                            ansatt.hasRole(requiredRole),
+                            kanBesluttesAvAnsatt,
                             behandletAvNavn,
                             besluttetAvNavn,
                         ),

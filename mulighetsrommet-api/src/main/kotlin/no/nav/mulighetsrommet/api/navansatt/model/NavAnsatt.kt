@@ -28,20 +28,25 @@ data class NavAnsatt(
         val navn: String,
     )
 
-    fun hasRole(
-        requiredRole: NavAnsattRolle,
-    ): Boolean = when (requiredRole) {
-        is NavAnsattRolle.Generell -> roller.any { it.rolle == requiredRole.rolle }
+    fun hasGenerellRolle(
+        rolle: Rolle,
+    ): Boolean = hasRolle(NavAnsattRolle.generell(rolle))
 
-        is NavAnsattRolle.Kontorspesifikk -> roller.any {
-            when (it) {
-                is NavAnsattRolle.Kontorspesifikk ->
-                    it.rolle == requiredRole.rolle &&
-                        // TODO: fjern isEmpty()-sjekk når nye ad-grupper er på plass
-                        (it.enheter.isEmpty() || it.enheter.containsAll(requiredRole.enheter))
+    fun hasKontorspesifikkRolle(
+        rolle: Rolle,
+        enheter: Set<NavEnhetNummer>,
+    ): Boolean = hasRolle(NavAnsattRolle.kontorspesifikk(rolle, enheter))
 
-                else -> false
-            }
+    fun hasAnyGenerellRolle(requiredRole: Rolle, vararg otherRoles: Rolle): Boolean {
+        return setOf(requiredRole, *otherRoles).any { hasGenerellRolle(it) }
+    }
+
+    private fun hasRolle(
+        requiredRolle: NavAnsattRolle,
+    ): Boolean = when (requiredRolle.generell) {
+        true -> roller.any { it.rolle == requiredRolle.rolle }
+        false -> roller.any {
+            it.rolle == requiredRolle.rolle && (it.generell || it.enheter.containsAll(requiredRolle.enheter))
         }
     }
 }

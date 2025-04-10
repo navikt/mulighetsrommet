@@ -64,9 +64,10 @@ class NavAnsattQueries(private val session: Session) {
         if (roller.isNotEmpty()) {
             @Language("PostgreSQL")
             val insertRolle = """
-                insert into nav_ansatt_rolle(nav_ansatt_nav_ident, rolle)
-                values (:nav_ident, :rolle::rolle)
-                on conflict (nav_ansatt_nav_ident, rolle) do nothing;
+                insert into nav_ansatt_rolle(nav_ansatt_nav_ident, generell, rolle)
+                values (:nav_ident, :generell, :rolle::rolle)
+                on conflict (nav_ansatt_nav_ident, rolle) do update set
+                    generell = excluded.generell
             """.trimIndent()
 
             @Language("PostgreSQL")
@@ -92,23 +93,20 @@ class NavAnsattQueries(private val session: Session) {
             """.trimIndent()
 
             roller.forEach { rolle ->
-                val paramsRolle = mapOf("nav_ident" to navIdent.value, "rolle" to rolle.rolle.name)
+                val paramsRolle = mapOf(
+                    "nav_ident" to navIdent.value,
+                    "generell" to rolle.generell,
+                    "rolle" to rolle.rolle.name,
+                )
                 session.execute(queryOf(insertRolle, paramsRolle))
 
-                when (rolle) {
-                    is NavAnsattRolle.Generell -> Unit
+                val id = session.requireSingle(queryOf(selectRolleId, paramsRolle)) { it.int("id") }
+                session.execute(
+                    queryOf(deleteEnheter, id, session.createArrayOfValue(rolle.enheter) { it.value }),
+                )
 
-                    is NavAnsattRolle.Kontorspesifikk -> {
-                        val id = session.requireSingle(queryOf(selectRolleId, paramsRolle)) { it.int("id") }
-
-                        session.execute(
-                            queryOf(deleteEnheter, id, session.createArrayOfValue(rolle.enheter) { it.value }),
-                        )
-
-                        val paramsRolleEnheter = rolle.enheter.map { mapOf("role_id" to id, "enhet" to it.value) }
-                        session.batchPreparedNamedStatement(insertRolleEnhet, paramsRolleEnheter)
-                    }
-                }
+                val paramsRolleEnheter = rolle.enheter.map { mapOf("role_id" to id, "enhet" to it.value) }
+                session.batchPreparedNamedStatement(insertRolleEnhet, paramsRolleEnheter)
             }
         }
     }
