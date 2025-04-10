@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -154,7 +154,7 @@ class TilsagnService(
         val tilsagn = requireNotNull(queries.tilsagn.get(id))
 
         val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))
-        if (!ansatt.hasRole(NavAnsattRolle.BeslutterTilsagn(setOf(tilsagn.kostnadssted.enhetsnummer)))) {
+        if (!ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
             return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})"))).left()
         }
 
@@ -172,7 +172,11 @@ class TilsagnService(
             TilsagnStatus.TIL_ANNULLERING -> {
                 when (besluttelse) {
                     BesluttTilsagnRequest.GodkjentTilsagnRequest -> annullerTilsagn(tilsagn, navIdent)
-                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisAnnullering(tilsagn, besluttelse, navIdent)
+                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisAnnullering(
+                        tilsagn,
+                        besluttelse,
+                        navIdent,
+                    )
                 }
             }
 
@@ -188,7 +192,7 @@ class TilsagnService(
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
                                 // når vi gjør opp på en delutbetaling.
-                                storeGjorOppBestilling(it, queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP))
+                                storeGjorOppBestilling(it)
                             }
                             .right()
 
@@ -519,7 +523,8 @@ class TilsagnService(
         )
     }
 
-    private fun QueryContext.storeGjorOppBestilling(tilsagn: Tilsagn, oppgjor: Totrinnskontroll) {
+    private fun QueryContext.storeGjorOppBestilling(tilsagn: Tilsagn) {
+        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
         require(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å sende null melding til økonomi"
         }

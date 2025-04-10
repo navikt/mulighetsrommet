@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -37,11 +38,11 @@ class NavAnsattSyncServiceTest : FunSpec({
     ) {
         queries.ansatt.setRoller(
             NavAnsattFixture.DonaldDuck.navIdent,
-            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
+            setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
         )
         queries.ansatt.setRoller(
             NavAnsattFixture.MikkeMus.navIdent,
-            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
+            setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
         )
     }
 
@@ -70,8 +71,8 @@ class NavAnsattSyncServiceTest : FunSpec({
         ansattGroupsToSync = mappings,
     )
 
-    val ansatt1 = NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
-    val ansatt2 = NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
+    val ansatt1 = NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)))
+    val ansatt2 = NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)))
 
     context("should schedule nav_ansatt to be deleted when they are not in the list of ansatte to sync") {
         val today = LocalDate.now()
@@ -166,7 +167,7 @@ class NavAnsattSyncServiceTest : FunSpec({
         every { notificationTask.scheduleNotification(any(), any()) } returns Unit
 
         coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
-            ansatt2.copy(roller = setOf(NavAnsattRolle.AvtalerSkriv)),
+            ansatt2.copy(roller = setOf(NavAnsattRolle.generell(Rolle.AVTALER_SKRIV))),
         )
 
         val today = LocalDate.now()
