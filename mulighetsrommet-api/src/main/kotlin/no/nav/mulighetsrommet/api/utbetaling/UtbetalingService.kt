@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
@@ -42,6 +41,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
@@ -61,7 +61,6 @@ class UtbetalingService(
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
     private val pdl: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
     private val norg2Client: Norg2Client,
-    private val navEnhetService: NavEnhetService,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -99,7 +98,7 @@ class UtbetalingService(
             .toNonEmptySetOrNull()
             ?: return mapOf()
 
-        return pdl.hentPersonOgGeografiskTilknytningBolk(identer).getOrElse {
+        return pdl.hentPersonOgGeografiskTilknytningBolk(identer, AccessType.M2M).getOrElse {
             throw StatusException(
                 status = HttpStatusCode.InternalServerError,
                 detail = "Klarte ikke hente informasjon om deltakere for kostnadsfordeling",
@@ -109,13 +108,17 @@ class UtbetalingService(
 
     private suspend fun hentEnhetForGeografiskTilknytning(geografiskTilknytningResponse: GeografiskTilknytningResponse?): NavEnhetDbo? {
         val norgEnhet = when (geografiskTilknytningResponse) {
-            is GeografiskTilknytningResponse.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytningResponse.value)
-            is GeografiskTilknytningResponse.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytningResponse.value)
+            is GeografiskTilknytningResponse.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(
+                geografiskTilknytningResponse.value,
+            )
+            is GeografiskTilknytningResponse.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(
+                geografiskTilknytningResponse.value,
+            )
             else -> return null
         }
 
         return norgEnhet
-            .map { navEnhetService.hentEnhet(it.enhetNr) }
+            .map { hentNavEnhet(it.enhetNr) }
             .getOrElse {
                 when (it) {
                     NorgError.NotFound -> null
@@ -127,16 +130,20 @@ class UtbetalingService(
             }
     }
 
+    fun hentNavEnhet(enhetsNummer: NavEnhetNummer) = db.session {
+        queries.enhet.get(enhetsNummer)
+    }
+
     suspend fun getDeltakereForKostnadsfordeling(deltakerIdenter: List<NorskIdent>): Map<NorskIdent, DeltakerPerson> {
         val personer = getPersoner(deltakerIdenter)
 
         val deltakereForKostnadsfordeling = personer.map { (ident, pair) ->
             val (person, geografiskTilknytning) = pair
-            val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
+            val gradering = person.adressebeskyttelse.firstOrNull()?.gradering
 
             if (gradering == PdlGradering.UGRADERT) {
                 val navEnhet = hentEnhetForGeografiskTilknytning(geografiskTilknytning)
-                val region = navEnhet?.overordnetEnhet?.let { navEnhetService.hentEnhet(it) }
+                val region = navEnhet?.overordnetEnhet?.let { hentNavEnhet(it) }
 
                 DeltakerPerson(
                     norskIdent = NorskIdent(ident.value),

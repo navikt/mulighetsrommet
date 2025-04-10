@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
+import arrow.core.nonEmptyListOf
+import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
@@ -19,6 +21,13 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.PdlNavn
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -27,7 +36,6 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.delutbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -41,6 +49,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
@@ -54,6 +63,8 @@ class UtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
     val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
     val norg2Client: Norg2Client = mockk(relaxed = true)
+    val pdl:
+        HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
@@ -62,8 +73,6 @@ class UtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
-        navEnhetService: NavEnhetService = mockk(relaxed = true),
-        pdl: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true),
     ) = UtbetalingService(
         config = UtbetalingService.Config(
             bestillingTopic = "topic",
@@ -74,22 +83,100 @@ class UtbetalingServiceTest : FunSpec({
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
         pdl = pdl,
         norg2Client = norg2Client,
-        navEnhetService = navEnhetService,
     )
 
-    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
-        KontonummerResponse(
-            mottaker = "123456789",
-            kontonr = "12345678901",
-        ),
-    )
+    val fnr1 = NorskIdent("12345678910")
+    val fnr2 = NorskIdent("99887766554")
 
-    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("976663934")) } returns Either.Right(
-        KontonummerResponse(
-            mottaker = "976663934",
-            kontonr = "12345678901",
-        ),
-    )
+    beforeTest {
+        coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
+            KontonummerResponse(
+                mottaker = "123456789",
+                kontonr = "12345678901",
+            ),
+        )
+
+        coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("976663934")) } returns Either.Right(
+            KontonummerResponse(
+                mottaker = "976663934",
+                kontonr = "12345678901",
+            ),
+        )
+
+        coEvery {
+            pdl.hentPersonOgGeografiskTilknytningBolk(
+                any(),
+                any(),
+            )
+        } returns Either.Right(
+            mapOf(
+                PdlIdent("12345678910") to Pair(
+                    HentPersonBolkResponse.Person(
+                        navn = nonEmptyListOf(
+                            PdlNavn(fornavn = "Ola", etternavn = "Normann"),
+                        ),
+                        adressebeskyttelse = listOf(
+                            HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
+                        ),
+                        foedselsdato = nonEmptyListOf(
+                            HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
+                        ),
+                    ),
+                    GeografiskTilknytningResponse.GtBydel(
+                        value = "030102",
+                    ),
+                ),
+                PdlIdent("99887766554") to Pair(
+                    HentPersonBolkResponse.Person(
+                        navn = nonEmptyListOf(
+                            PdlNavn(fornavn = "Kari", etternavn = "Normann"),
+                        ),
+                        adressebeskyttelse = listOf(
+                            HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
+                        ),
+                        foedselsdato = nonEmptyListOf(
+                            HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
+                        ),
+                    ),
+                    GeografiskTilknytningResponse.GtBydel(
+                        value = "030102",
+                    ),
+                ),
+            ),
+        )
+
+        coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
+            enhetId = 1,
+            navn = "Nav Gjovik",
+            enhetNr = NavEnhetNummer("0502"),
+            status = Norg2EnhetStatus.AKTIV,
+            type = Norg2Type.LOKAL,
+        ).right()
+    }
+
+    test("Fjerner opplysninger på deltakere med adressebeskyttelse ved henting av deltakereForKostnadsfordeling") {
+        val service = createUtbetalingService()
+        MulighetsrommetTestDomain().initialize(database.db)
+
+        service.getDeltakereForKostnadsfordeling(listOf(fnr1, fnr2)) shouldBe mapOf(
+            fnr1 to DeltakerPerson(
+                norskIdent = fnr1,
+                foedselsdato = null,
+                navn = "Normann, Ola",
+                geografiskEnhet = NavEnhetFixtures.Gjovik,
+                region = NavEnhetFixtures.Innlandet,
+
+            ),
+            fnr2 to DeltakerPerson(
+                norskIdent = fnr2,
+                foedselsdato = null,
+                navn = "Adressebeskyttet person",
+                geografiskEnhet = null,
+                region = null,
+
+            ),
+        )
+    }
 
     context("generering av utbetaling for AFT") {
         val service = createUtbetalingService()

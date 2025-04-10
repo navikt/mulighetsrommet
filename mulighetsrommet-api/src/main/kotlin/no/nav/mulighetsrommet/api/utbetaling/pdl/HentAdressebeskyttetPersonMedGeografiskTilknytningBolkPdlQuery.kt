@@ -13,7 +13,10 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentPersonOgGeografiskTilknytningBolk(identer: NonEmptySet<PdlIdent>): Either<PdlError, Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytningResponse?>>> {
+    suspend fun hentPersonOgGeografiskTilknytningBolk(
+        identer: Set<PdlIdent>,
+        accessType: AccessType,
+    ): Either<PdlError, Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytningResponse?>>> {
         val request = GraphqlRequest(
             query = $$"""
                 query(identer: [ID!]!) {
@@ -52,7 +55,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
         val response =
             pdl.graphqlRequest<GraphqlRequest.Identer, HentPersonOgGeografiskTilknytningBolkResponse>(
                 request,
-                AccessType.M2M,
+                accessType,
             )
                 .getOrElse { return it.left() }
 
