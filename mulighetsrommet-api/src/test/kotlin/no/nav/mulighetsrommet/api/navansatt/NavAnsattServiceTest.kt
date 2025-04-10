@@ -275,7 +275,8 @@ class NavAnsattServiceTest : FunSpec({
                 runBlocking {
                     val service = createNavAnsattService(groups)
 
-                    val resolvedAnsatte = service.getNavAnsatteInGroups(groups.toSet())
+                    val groupIds = groups.map { it.adGruppeId }.toSet()
+                    val resolvedAnsatte = service.getNavAnsatteInGroups(groupIds)
 
                     resolvedAnsatte shouldContainExactlyInAnyOrder expectedAnsatte
                 }
@@ -298,7 +299,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val service = createNavAnsattService(roles)
 
-            val resolvedAnsatte = service.getNavAnsatteInGroups(roles.toSet())
+            val resolvedAnsatte = service.getNavAnsatteInGroups(setOf(id))
 
             resolvedAnsatte shouldContainExactlyInAnyOrder listOf(
                 ansatt1.toNavAnsatt(setOf(rolleGenerell, rolleKontaktperson)),

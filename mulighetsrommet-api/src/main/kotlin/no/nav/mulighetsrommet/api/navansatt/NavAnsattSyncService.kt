@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.navansatt
 
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -27,7 +26,7 @@ import java.time.LocalDate
 import java.util.*
 
 class NavAnsattSyncService(
-    private val ansattGroupsToSync: Set<AdGruppeNavAnsattRolleMapping>,
+    private val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
@@ -36,8 +35,12 @@ class NavAnsattSyncService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    data class Config(
+        val ansattGroupsToSync: Set<UUID>,
+    )
+
     suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
-        val ansatteToUpsert = navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync)
+        val ansatteToUpsert = navAnsattService.getNavAnsatteInGroups(config.ansattGroupsToSync)
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
