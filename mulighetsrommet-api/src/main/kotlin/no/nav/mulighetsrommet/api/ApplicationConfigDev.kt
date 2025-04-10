@@ -99,21 +99,11 @@ val ApplicationConfigDev = AppConfig(
             ),
 
             AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = Rolle.SAKSBEHANDLER_OKONOMI,
-                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
-            ),
-            AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "d776c0f9-9c8a-4299-8d34-aa563925b00b".toUUID(),
                 rolle = Rolle.SAKSBEHANDLER_OKONOMI,
                 kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-okonomi",
             ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = Rolle.BESLUTTER_TILSAGN,
-                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
-            ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "f2d4a628-c17d-4ae0-b720-0abf9add8c30".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
@@ -130,11 +120,6 @@ val ApplicationConfigDev = AppConfig(
                 kommentar = "0400-CA-Tiltaksadministrasjon_beslutter-tilsagn",
             ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = Rolle.ATTESTANT_UTBETALING,
-                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
-            ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
                 rolle = Rolle.ATTESTANT_UTBETALING,
