@@ -267,7 +267,7 @@ export default function UtbetalingKvittering() {
           />
           <HStack gap="4">
             <TextField
-              label="Periodestart"
+              label="Fra dato"
               error={errorAt("/periodeStart")}
               size="small"
               onChange={(e) => setPeriodeStart(e.target.value)}
@@ -275,7 +275,7 @@ export default function UtbetalingKvittering() {
               id="periodeStart"
             />
             <TextField
-              label="Periodeslutt"
+              label="Til dato"
               size="small"
               onChange={(e) => setPeriodeSlutt(e.target.value)}
               error={errorAt("/periodeSlutt")}
@@ -285,14 +285,17 @@ export default function UtbetalingKvittering() {
           </HStack>
           <Separator />
           {relevanteTilsagn.length > 0 ? (
-            relevanteTilsagn.map((tilsagn) => (
-              <Box borderColor="border-subtle" padding="2" borderWidth="2" borderRadius="large">
-                <TilsagnDetaljer tilsagn={tilsagn} />
-              </Box>
-            ))
+            <VStack gap="2" className="max-h-128 overflow-auto">
+              {relevanteTilsagn.map((tilsagn) => (
+                <Box borderColor="border-subtle" padding="2" borderWidth="2" borderRadius="large">
+                  <TilsagnDetaljer tilsagn={tilsagn} />
+                </Box>
+              ))}
+            </VStack>
           ) : (
             <Alert variant="info" className="my-5">
-              Fant ingen relevante tilsagn for gjennomføring i perioden
+              Fant ingen relevante tilsagn for gjennomføring i perioden. Det er fortsatt mulig å
+              sende inn.
             </Alert>
           )}
           <Separator />
