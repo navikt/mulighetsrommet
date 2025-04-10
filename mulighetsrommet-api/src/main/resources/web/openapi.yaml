@@ -5808,12 +5808,9 @@ components:
           type: [string, "null"]
         innsendtAv:
           type: string
-      required:
-        - id
-        - status
-        - periode
-        - beregning
-        - createdAt
+        tilskuddstype:
+          $ref: "#/components/schemas/Tilskuddstype"
+      required: [id, status, periode, beregning, createdAt, tilskuddstype]
 
     DeltakerForKostnadsfordeling:
       type: object
@@ -6264,14 +6261,17 @@ components:
             $ref: "#/components/schemas/DelutbetalingRequest"
       required: [delutbetalinger, utbetalingId]
 
+    Tilskuddstype:
+      type: string
+      enum:
+        - TILTAK_DRIFTSTILSKUDD
+        - TILTAK_INVESTERINGER
+
     ArrangorflateManuellUtbetalingRequest:
       type: object
       properties:
-        type:
-          type: string
-          enum:
-            - DRIFT
-            - INVESTERING
+        tilskuddstype:
+          $ref: "#/components/schemas/Tilskuddstype"
         gjennomforingId:
           type: string
           format: UUID
@@ -6287,7 +6287,7 @@ components:
           type: [string, "null"]
         belop:
           type: number
-      required: [type, gjennomforingId, periodeStart, periodeSlutt, beskrivelse, kontonummer, kidNummer, belop]
+      required: [tilskuddstype, gjennomforingId, periodeStart, periodeSlutt, beskrivelse, kontonummer, kidNummer, belop]
 
     OpprettManuellUtbetalingRequest:
       type: object

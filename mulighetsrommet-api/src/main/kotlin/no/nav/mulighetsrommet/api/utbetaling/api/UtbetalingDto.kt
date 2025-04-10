@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDateTime
 import java.util.*
 
@@ -23,6 +24,7 @@ data class UtbetalingDto(
     val beskrivelse: String?,
     val innsendtAv: String?,
     val journalpostId: String?,
+    val tilskuddstype: Tilskuddstype,
 ) {
     @Serializable
     data class Beregning(
@@ -43,6 +45,7 @@ data class UtbetalingDto(
             ),
             innsendtAv = formaterInnsendtAv(utbetaling.innsender),
             journalpostId = utbetaling.journalpostId,
+            tilskuddstype = utbetaling.tilskuddstype,
         )
 
         private fun formaterInnsendtAv(agent: Agent?): String? {

@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
@@ -266,4 +267,5 @@ data class ArrangorflateManuellUtbetalingRequest(
     val kontonummer: String,
     val kidNummer: String? = null,
     val belop: Int,
+    val tilskuddstype: Tilskuddstype,
 )

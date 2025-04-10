@@ -30,6 +30,7 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagn,
   FieldError,
+  Tilskuddstype,
 } from "api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useMemo, useRef, useState } from "react";
@@ -104,7 +105,7 @@ export const action: ActionFunction = async ({ request }) => {
   const periodeSlutt = formData.get("periodeSlutt")?.toString();
   const gjennomforingId = formData.get("gjennomforingId")?.toString();
   const belop = Number(formData.get("belop")?.toString());
-  const type = formData.get("type")?.toString();
+  const tilskuddstype = formData.get("tilskuddstype")?.toString();
   const kid = formData.get("kid")?.toString();
 
   const errors: FieldError[] = [];
@@ -151,9 +152,9 @@ export const action: ActionFunction = async ({ request }) => {
       detail: "Du må fylle ut beløp",
     });
   }
-  if (!type || !["DRIFT", "INVESTERING"].includes(type)) {
+  if (!tilskuddstype || !Object.values(Tilskuddstype).includes(tilskuddstype as Tilskuddstype)) {
     errors.push({
-      pointer: "/type",
+      pointer: "/tilskuddstype",
       detail: "Du må fylle ut type",
     });
   }
@@ -165,7 +166,7 @@ export const action: ActionFunction = async ({ request }) => {
     await ArrangorflateService.opprettArrangorflateManuellUtbetaling({
       path: { orgnr: orgnr! },
       body: {
-        type: type as "DRIFT" | "INVESTERING",
+        tilskuddstype: tilskuddstype as Tilskuddstype,
         belop: belop,
         gjennomforingId: gjennomforingId!,
         beskrivelse: beskrivelse!,
@@ -234,12 +235,12 @@ export default function UtbetalingKvittering() {
             error={errorAt("/type")}
             label="Velg type utbetaling"
             description="TODO: denne gjør ikke noe ennå. Må implementere utbetalingstype"
-            name="type"
+            name="tilskuddstype"
             size="small"
           >
             <option>- Velg type -</option>
-            <option value="INVESTERING">Investering</option>
-            <option value="DRIFT">Drift</option>
+            <option value={Tilskuddstype.TILTAK_INVESTERINGER}>Investering</option>
+            <option value={Tilskuddstype.TILTAK_DRIFTSTILSKUDD}>Drift</option>
           </Select>
           <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
           <UNSAFE_Combobox
@@ -265,7 +266,7 @@ export default function UtbetalingKvittering() {
             name="belop"
             id="belop"
           />
-          <HStack gap="4">
+          <HStack gap="4" align="start">
             <TextField
               label="Fra dato"
               error={errorAt("/periodeStart")}

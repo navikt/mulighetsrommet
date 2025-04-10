@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
@@ -59,6 +60,7 @@ class JournalforUtbetalingTest : FunSpec({
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = Arrangor,
         beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 
     val domain = MulighetsrommetTestDomain(
