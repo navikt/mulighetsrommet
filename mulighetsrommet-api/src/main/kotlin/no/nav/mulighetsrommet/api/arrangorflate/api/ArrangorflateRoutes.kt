@@ -350,7 +350,7 @@ data class FormData(
     val kidNummer: String?,
     val belop: Int,
     val tilskuddstype: Tilskuddstype,
-    val vedlegg: List<Vedlegg>
+    val vedlegg: List<Vedlegg>,
 )
 
 @Serializable
