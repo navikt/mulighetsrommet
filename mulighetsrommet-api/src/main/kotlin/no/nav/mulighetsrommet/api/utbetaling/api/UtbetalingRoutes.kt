@@ -138,7 +138,7 @@ fun Route.utbetalingRoutes() {
                 queries.tilsagn.getAll(
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periodeIntersectsWith = utbetaling.periode,
-                    typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
+                    typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 ).map { TilsagnDto.fromTilsagn(it) }
             }
 

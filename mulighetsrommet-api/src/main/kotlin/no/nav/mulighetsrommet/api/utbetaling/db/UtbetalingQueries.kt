@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -31,6 +32,7 @@ class UtbetalingQueries(private val session: Session) {
                 periode,
                 prismodell,
                 innsender,
+                tilskuddstype,
                 beskrivelse
             ) values (
                 :id::uuid,
@@ -41,6 +43,7 @@ class UtbetalingQueries(private val session: Session) {
                 :periode::daterange,
                 :prismodell::prismodell,
                 :innsender,
+                :tilskuddstype::tilskuddstype,
                 :beskrivelse
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
@@ -50,6 +53,7 @@ class UtbetalingQueries(private val session: Session) {
                 periode = excluded.periode,
                 prismodell = excluded.prismodell,
                 innsender = excluded.innsender,
+                tilskuddstype = excluded.tilskuddstype,
                 beskrivelse = excluded.beskrivelse
         """.trimIndent()
 
@@ -66,6 +70,7 @@ class UtbetalingQueries(private val session: Session) {
             },
             "innsender" to dbo.innsender?.textRepr(),
             "beskrivelse" to dbo.beskrivelse,
+            "tilskuddstype" to dbo.tilskuddstype.name,
         )
 
         execute(queryOf(utbetalingQuery, params))
@@ -336,6 +341,7 @@ class UtbetalingQueries(private val session: Session) {
             innsender = innsender,
             createdAt = localDateTime("created_at"),
             beskrivelse = stringOrNull("beskrivelse"),
+            tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
         )
     }
 

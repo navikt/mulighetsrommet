@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDateTime
 import java.util.*
 
@@ -28,6 +29,7 @@ data class Utbetaling(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val beskrivelse: String?,
+    val tilskuddstype: Tilskuddstype,
 ) {
     @Serializable
     data class Gjennomforing(

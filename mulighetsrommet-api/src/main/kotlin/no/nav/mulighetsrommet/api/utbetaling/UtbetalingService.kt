@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -160,6 +161,7 @@ class UtbetalingService(
             periode = periode,
             innsender = null,
             beskrivelse = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )
     }
 
@@ -202,6 +204,7 @@ class UtbetalingService(
                 ),
                 innsender = agent,
                 beskrivelse = request.beskrivelse,
+                tilskuddstype = request.tilskuddstype,
             ),
         )
         val dto = getOrError(request.id)

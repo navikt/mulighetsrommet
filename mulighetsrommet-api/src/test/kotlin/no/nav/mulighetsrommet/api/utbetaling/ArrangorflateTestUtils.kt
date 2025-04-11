@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -108,6 +109,7 @@ object ArrangorflateTestUtils {
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = null,
         beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
@@ -127,6 +129,7 @@ object ArrangorflateTestUtils {
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = null,
         beskrivelse = "Test utbetaling",
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 
     fun createTestDomain(
@@ -177,7 +180,7 @@ object ArrangorflateTestUtils {
         }
     }
 
-    fun mockJournalpost(builder: MockEngineBuilder) {
+    private fun mockJournalpost(builder: MockEngineBuilder) {
         builder.post("/dokark/rest/journalpostapi/v1/journalpost") {
             respondJson(
                 DokarkResponse(
