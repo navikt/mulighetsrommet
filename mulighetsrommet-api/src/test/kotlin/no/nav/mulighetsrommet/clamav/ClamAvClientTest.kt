@@ -27,7 +27,7 @@ class ClamAvClientTest : FunSpec({
             val vedlegg = Vedlegg(
                 content = Content(
                     contentType = "text/plain",
-                    content = "test".toByteArray().decodeToString(),
+                    content = "test".toByteArray(),
                 ),
                 description = "test.txt",
             )
@@ -55,7 +55,7 @@ class ClamAvClientTest : FunSpec({
             val vedlegg = Vedlegg(
                 content = Content(
                     contentType = "text/plain",
-                    content = "test".toByteArray().decodeToString(),
+                    content = "test".toByteArray(),
                 ),
                 description = "test.txt",
             )
@@ -83,7 +83,7 @@ class ClamAvClientTest : FunSpec({
             val vedlegg = Vedlegg(
                 content = Content(
                     contentType = "text/plain",
-                    content = "test".toByteArray().decodeToString(),
+                    content = "test".toByteArray(),
                 ),
                 description = "test.txt",
             )
