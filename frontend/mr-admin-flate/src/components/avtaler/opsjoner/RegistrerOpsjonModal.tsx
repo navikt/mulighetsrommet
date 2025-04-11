@@ -44,11 +44,11 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
     switch (opsjonsvalg) {
       case "1":
-        return OpsjonStatus.OPSJON_UTLØST;
+        return OpsjonStatus.OPSJON_UTLOST;
       case "Annet":
-        return OpsjonStatus.OPSJON_UTLØST;
+        return OpsjonStatus.OPSJON_UTLOST;
       case "Opsjon_skal_ikke_utloses":
-        return OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON;
+        return OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON;
     }
   }
 
@@ -70,7 +70,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   const avtaleSkalIkkeUtloseOpsjoner = avtale?.opsjonerRegistrert?.some(
-    (opsjon) => opsjon.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON,
+    (opsjon) => opsjon.status === OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON,
   );
 
   return (

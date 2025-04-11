@@ -37,7 +37,7 @@ export function AvtaleVarighet({
   } = useFormContext<InferredAvtaleSchema>();
 
   const antallOpsjonerUtlost = (
-    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
+    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
   ).length;
 
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;

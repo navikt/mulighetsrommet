@@ -5492,9 +5492,8 @@ components:
     OpsjonStatus:
       type: string
       enum:
-        - OPSJON_UTLØST
-        - SKAL_IKKE_UTLØSE_OPSJON
-        - PÅGÅENDE_OPSJONSPROSESS
+        - OPSJON_UTLOST
+        - SKAL_IKKE_UTLOSE_OPSJON
 
     OpsjonLoggRegistrert:
       type: object

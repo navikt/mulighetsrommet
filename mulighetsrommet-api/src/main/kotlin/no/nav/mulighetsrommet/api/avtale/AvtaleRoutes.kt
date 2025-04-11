@@ -90,8 +90,8 @@ data class OpsjonLoggRequest(
     val status: OpsjonsLoggStatus,
 ) {
     enum class OpsjonsLoggStatus {
-        OPSJON_UTLØST,
-        SKAL_IKKE_UTLØSE_OPSJON,
+        OPSJON_UTLOST,
+        SKAL_IKKE_UTLOSE_OPSJON,
     }
 }
 

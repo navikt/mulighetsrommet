@@ -20,9 +20,9 @@ object OpsjonLoggValidator {
             )
 
         val errors = buildList {
-            if (entry.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST) {
+            if (entry.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST) {
                 val skalIkkeUtloseOpsjonerForAvtale =
-                    avtale.opsjonerRegistrert?.any { it.status === OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON }
+                    avtale.opsjonerRegistrert?.any { it.status === OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLOSE_OPSJON }
                 if (skalIkkeUtloseOpsjonerForAvtale == true) {
                     add(
                         FieldError.of(
