@@ -3,15 +3,19 @@ import { OpsjonerService, SlettOpsjonLoggRequest } from "@mr/api-client-v2";
 import { QueryKeys } from "../QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
-export function useSlettOpsjon() {
+export function useSlettOpsjon(avtaleId: string) {
   const queryClient = useQueryClient();
 
   return useApiMutation({
-    mutationFn: (body: SlettOpsjonLoggRequest) => OpsjonerService.slettOpsjon({ body }),
-    onSuccess(_, request) {
+    mutationFn: (body: SlettOpsjonLoggRequest) =>
+      OpsjonerService.slettOpsjon({
+        path: { id: avtaleId },
+        body,
+      }),
+    onSuccess() {
       return Promise.all([
         queryClient.invalidateQueries({
-          queryKey: QueryKeys.avtale(request.avtaleId),
+          queryKey: QueryKeys.avtale(avtaleId),
         }),
 
         queryClient.invalidateQueries({

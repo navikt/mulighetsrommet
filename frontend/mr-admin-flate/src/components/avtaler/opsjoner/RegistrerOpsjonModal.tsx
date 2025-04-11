@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
-  const mutation = useRegistrerOpsjon();
+  const mutation = useRegistrerOpsjon(avtale.id);
   const form = useForm<InferredRegistrerOpsjonSchema>({
     resolver: zodResolver(RegistrerOpsjonSchema),
     defaultValues: {},
@@ -29,7 +29,6 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
 
   const postData: SubmitHandler<InferredRegistrerOpsjonSchema> = async (data): Promise<void> => {
     const request: OpsjonLoggRequest = {
-      avtaleId: avtale.id,
       nySluttdato: data.opsjonsdatoValgt || null,
       forrigeSluttdato: avtale?.sluttDato || null,
       status: getStatus(data.opsjonsvalg),

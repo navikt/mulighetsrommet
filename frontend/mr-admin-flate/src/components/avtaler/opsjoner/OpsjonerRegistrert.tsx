@@ -11,7 +11,7 @@ interface Props {
 
 export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
-  const mutation = useSlettOpsjon();
+  const mutation = useSlettOpsjon(avtale.id);
 
   function kanSletteOpsjon(opsjon: OpsjonLoggRegistrert): boolean {
     const sisteUtlosteOpsjon = logg.at(-1);
@@ -21,7 +21,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
 
   function fjernOpsjon(id: string) {
     mutation.mutate(
-      { id, avtaleId: avtale.id },
+      { id },
       {
         onSuccess: async () => {
           mutation.reset();

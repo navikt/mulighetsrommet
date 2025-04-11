@@ -1836,7 +1836,9 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/opsjoner:
+  /api/v1/intern/avtaler/{id}/opsjoner:
+    parameters:
+      - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Opsjoner
@@ -5474,9 +5476,6 @@ components:
     OpsjonLoggRequest:
       type: object
       properties:
-        avtaleId:
-          type: string
-          format: uuid
         nySluttdato:
           type: [string, "null"]
           format: date
@@ -5486,7 +5485,6 @@ components:
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
-        - avtaleId
         - nySluttdato
         - forrigeSluttdato
         - status
@@ -5528,12 +5526,8 @@ components:
         id:
           type: string
           format: uuid
-        avtaleId:
-          type: string
-          format: uuid
       required:
         - id
-        - avtaleId
 
     LagretFilterType:
       type: string
