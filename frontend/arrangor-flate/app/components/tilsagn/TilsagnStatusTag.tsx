@@ -64,8 +64,8 @@ function aarsakTilTekst(aarsak: TilsagnTilAnnulleringAarsak): string {
   switch (aarsak) {
     case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
-    case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
-      return "Gjennomføring avbrytes";
+    case TilsagnTilAnnulleringAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES:
+      return "Tiltaket skal ikke gjennomføres";
     case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
