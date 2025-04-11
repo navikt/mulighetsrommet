@@ -54,7 +54,7 @@ class HentBrukerPdlQuery(
                     "hentPerson var null og errors tom! response: $it"
                 }
 
-                val geografiskTilknytning = it.hentGeografiskTilknytning.toGeografiskTilknytningResponse()
+                val geografiskTilknytning = toGeografiskTilknytning(it.hentGeografiskTilknytning)
 
                 HentBrukerResponse(it.hentPerson.navn.firstOrNull()?.fornavn, geografiskTilknytning)
             }
@@ -66,5 +66,5 @@ class HentBrukerPdlQuery(
 
 data class HentBrukerResponse(
     val fornavn: String?,
-    val geografiskTilknytningResponse: GeografiskTilknytningResponse,
+    val geografiskTilknytning: GeografiskTilknytning,
 )

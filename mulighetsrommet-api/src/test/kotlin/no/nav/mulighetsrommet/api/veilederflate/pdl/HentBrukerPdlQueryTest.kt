@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.veilederflate.pdl
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -37,7 +37,7 @@ class HentBrukerPdlQueryTest : FunSpec({
         query.hentBruker(PdlIdent("12345678910"), AccessType.M2M).shouldBeRight(
             HentBrukerResponse(
                 "Ola",
-                GeografiskTilknytningResponse.GtBydel(value = "030102"),
+                GeografiskTilknytning.GtBydel(value = "030102"),
             ),
         )
     }

@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.pdl.PdlNavn
@@ -88,94 +88,96 @@ class UtbetalingServiceTest : FunSpec({
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
 
-    beforeTest {
-        coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
-            KontonummerResponse(
-                mottaker = "123456789",
-                kontonr = "12345678901",
-            ),
-        )
+    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
+        KontonummerResponse(
+            mottaker = "123456789",
+            kontonr = "12345678901",
+        ),
+    )
 
-        coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("976663934")) } returns Either.Right(
-            KontonummerResponse(
-                mottaker = "976663934",
-                kontonr = "12345678901",
-            ),
-        )
+    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("976663934")) } returns Either.Right(
+        KontonummerResponse(
+            mottaker = "976663934",
+            kontonr = "12345678901",
+        ),
+    )
 
-        coEvery {
-            pdl.hentPersonOgGeografiskTilknytningBolk(
-                any(),
-                any(),
+    context("Henting av deltakere til kostnadsfordeling") {
+        beforeTest {
+            coEvery {
+                pdl.hentPersonOgGeografiskTilknytningBolk(
+                    any(),
+                    any(),
+                )
+            } returns Either.Right(
+                mapOf(
+                    PdlIdent("12345678910") to Pair(
+                        HentPersonBolkResponse.Person(
+                            navn = nonEmptyListOf(
+                                PdlNavn(fornavn = "Ola", etternavn = "Normann"),
+                            ),
+                            adressebeskyttelse = listOf(
+                                HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
+                            ),
+                            foedselsdato = nonEmptyListOf(
+                                HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
+                            ),
+                        ),
+                        GeografiskTilknytning.GtBydel(
+                            value = "030102",
+                        ),
+                    ),
+                    PdlIdent("99887766554") to Pair(
+                        HentPersonBolkResponse.Person(
+                            navn = nonEmptyListOf(
+                                PdlNavn(fornavn = "Kari", etternavn = "Normann"),
+                            ),
+                            adressebeskyttelse = listOf(
+                                HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
+                            ),
+                            foedselsdato = nonEmptyListOf(
+                                HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
+                            ),
+                        ),
+                        GeografiskTilknytning.GtBydel(
+                            value = "030102",
+                        ),
+                    ),
+                ),
             )
-        } returns Either.Right(
-            mapOf(
-                PdlIdent("12345678910") to Pair(
-                    HentPersonBolkResponse.Person(
-                        navn = nonEmptyListOf(
-                            PdlNavn(fornavn = "Ola", etternavn = "Normann"),
-                        ),
-                        adressebeskyttelse = listOf(
-                            HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
-                        ),
-                        foedselsdato = nonEmptyListOf(
-                            HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
-                        ),
-                    ),
-                    GeografiskTilknytningResponse.GtBydel(
-                        value = "030102",
-                    ),
+
+            coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
+                enhetId = 1,
+                navn = "Nav Gjovik",
+                enhetNr = NavEnhetNummer("0502"),
+                status = Norg2EnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL,
+            ).right()
+        }
+
+        test("Fjerner opplysninger på deltakere med adressebeskyttelse ved henting av deltakere") {
+            val service = createUtbetalingService()
+            MulighetsrommetTestDomain().initialize(database.db)
+
+            service.getDeltakereForKostnadsfordeling(listOf(fnr1, fnr2)) shouldBe mapOf(
+                fnr1 to DeltakerPerson(
+                    norskIdent = fnr1,
+                    foedselsdato = null,
+                    navn = "Normann, Ola",
+                    geografiskEnhet = NavEnhetFixtures.Gjovik,
+                    region = NavEnhetFixtures.Innlandet,
+
                 ),
-                PdlIdent("99887766554") to Pair(
-                    HentPersonBolkResponse.Person(
-                        navn = nonEmptyListOf(
-                            PdlNavn(fornavn = "Kari", etternavn = "Normann"),
-                        ),
-                        adressebeskyttelse = listOf(
-                            HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
-                        ),
-                        foedselsdato = nonEmptyListOf(
-                            HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
-                        ),
-                    ),
-                    GeografiskTilknytningResponse.GtBydel(
-                        value = "030102",
-                    ),
+                fnr2 to DeltakerPerson(
+                    norskIdent = fnr2,
+                    foedselsdato = null,
+                    navn = "Adressebeskyttet person",
+                    geografiskEnhet = null,
+                    region = null,
+
                 ),
-            ),
-        )
-
-        coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
-            enhetId = 1,
-            navn = "Nav Gjovik",
-            enhetNr = NavEnhetNummer("0502"),
-            status = Norg2EnhetStatus.AKTIV,
-            type = Norg2Type.LOKAL,
-        ).right()
-    }
-
-    test("Fjerner opplysninger på deltakere med adressebeskyttelse ved henting av deltakereForKostnadsfordeling") {
-        val service = createUtbetalingService()
-        MulighetsrommetTestDomain().initialize(database.db)
-
-        service.getDeltakereForKostnadsfordeling(listOf(fnr1, fnr2)) shouldBe mapOf(
-            fnr1 to DeltakerPerson(
-                norskIdent = fnr1,
-                foedselsdato = null,
-                navn = "Normann, Ola",
-                geografiskEnhet = NavEnhetFixtures.Gjovik,
-                region = NavEnhetFixtures.Innlandet,
-
-            ),
-            fnr2 to DeltakerPerson(
-                norskIdent = fnr2,
-                foedselsdato = null,
-                navn = "Adressebeskyttet person",
-                geografiskEnhet = null,
-                region = null,
-
-            ),
-        )
+            )
+        }
     }
 
     context("generering av utbetaling for AFT") {

@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -92,7 +92,7 @@ class UtbetalingService(
             }
     }
 
-    private suspend fun getPersoner(deltakerIdenter: List<NorskIdent>): Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytningResponse?>> {
+    private suspend fun getPersoner(deltakerIdenter: List<NorskIdent>): Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytning?>> {
         val identer = deltakerIdenter
             .map { ident -> PdlIdent(ident.value) }
             .toNonEmptySetOrNull()
@@ -106,14 +106,16 @@ class UtbetalingService(
         }
     }
 
-    private suspend fun hentEnhetForGeografiskTilknytning(geografiskTilknytningResponse: GeografiskTilknytningResponse?): NavEnhetDbo? {
-        val norgEnhet = when (geografiskTilknytningResponse) {
-            is GeografiskTilknytningResponse.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(
-                geografiskTilknytningResponse.value,
+    private suspend fun hentEnhetForGeografiskTilknytning(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
+        val norgEnhet = when (geografiskTilknytning) {
+            is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(
+                geografiskTilknytning.value,
             )
-            is GeografiskTilknytningResponse.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(
-                geografiskTilknytningResponse.value,
+
+            is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(
+                geografiskTilknytning.value,
             )
+
             else -> return null
         }
 
@@ -142,7 +144,7 @@ class UtbetalingService(
             val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
 
             if (gradering == PdlGradering.UGRADERT) {
-                val navEnhet = hentEnhetForGeografiskTilknytning(geografiskTilknytning)
+                val navEnhet = geografiskTilknytning?.let { hentEnhetForGeografiskTilknytning(it) }
                 val region = navEnhet?.overordnetEnhet?.let { hentNavEnhet(it) }
 
                 DeltakerPerson(

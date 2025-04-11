@@ -16,7 +16,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
     suspend fun hentPersonOgGeografiskTilknytningBolk(
         identer: Set<PdlIdent>,
         accessType: AccessType,
-    ): Either<PdlError, Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytningResponse?>>> {
+    ): Either<PdlError, Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytning?>>> {
         val request = GraphqlRequest(
             query = $$"""
                 query(identer: [ID!]!) {
@@ -75,7 +75,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
 
         val geografiskTilknytningBolkResponse = response.hentGeografiskTilknytningBolk.mapNotNull {
             if (it.code == HentGeografiskTilknytningBolkResponseEntry.Code.OK) {
-                val geografiskTilknytning = it.geografiskTilknytning.toGeografiskTilknytningResponse()
+                val geografiskTilknytning = toGeografiskTilknytning(it.geografiskTilknytning)
 
                 PdlIdent(it.ident) to geografiskTilknytning
             } else {

@@ -54,29 +54,29 @@ enum class PdlGradering {
     UGRADERT,
 }
 
-sealed class GeografiskTilknytningResponse {
-    data class GtKommune(val value: String) : GeografiskTilknytningResponse()
-    data class GtBydel(val value: String) : GeografiskTilknytningResponse()
-    data class GtUtland(val value: String?) : GeografiskTilknytningResponse()
-    data object GtUdefinert : GeografiskTilknytningResponse()
+sealed class GeografiskTilknytning {
+    data class GtKommune(val value: String) : GeografiskTilknytning()
+    data class GtBydel(val value: String) : GeografiskTilknytning()
+    data class GtUtland(val value: String?) : GeografiskTilknytning()
+    data object GtUdefinert : GeografiskTilknytning()
 }
 
-fun PdlGeografiskTilknytning?.toGeografiskTilknytningResponse(): GeografiskTilknytningResponse {
-    return when (this?.gtType) {
+fun toGeografiskTilknytning(pdlGeografiskTilknytning: PdlGeografiskTilknytning?): GeografiskTilknytning {
+    return when (pdlGeografiskTilknytning?.gtType) {
         TypeGeografiskTilknytning.BYDEL -> {
-            GeografiskTilknytningResponse.GtBydel(requireNotNull(this.gtBydel))
+            GeografiskTilknytning.GtBydel(requireNotNull(pdlGeografiskTilknytning.gtBydel))
         }
 
         TypeGeografiskTilknytning.KOMMUNE -> {
-            GeografiskTilknytningResponse.GtKommune(requireNotNull(this.gtKommune))
+            GeografiskTilknytning.GtKommune(requireNotNull(pdlGeografiskTilknytning.gtKommune))
         }
 
         TypeGeografiskTilknytning.UTLAND -> {
-            GeografiskTilknytningResponse.GtUtland(this.gtLand)
+            GeografiskTilknytning.GtUtland(pdlGeografiskTilknytning.gtLand)
         }
 
         TypeGeografiskTilknytning.UDEFINERT, null -> {
-            GeografiskTilknytningResponse.GtUdefinert
+            GeografiskTilknytning.GtUdefinert
         }
     }
 }

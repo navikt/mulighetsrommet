@@ -7,7 +7,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytningResponse
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
@@ -112,7 +112,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                         HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
                     ),
                 ),
-                GeografiskTilknytningResponse.GtBydel(
+                GeografiskTilknytning.GtBydel(
                     value = "030102",
                 ),
             ),
@@ -189,7 +189,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                         HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
                     ),
                 ),
-                GeografiskTilknytningResponse.GtBydel(
+                GeografiskTilknytning.GtBydel(
                     value = "030102",
                 ),
             ),
@@ -261,7 +261,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                         HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
                     ),
                 ),
-                GeografiskTilknytningResponse.GtUdefinert,
+                GeografiskTilknytning.GtUdefinert,
             ),
 
         )
