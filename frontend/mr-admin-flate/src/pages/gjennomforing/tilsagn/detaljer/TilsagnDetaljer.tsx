@@ -16,22 +16,17 @@ import {
   isTilsagnForhandsgodkjent,
   isTilsagnFri,
 } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
-import {
-  formaterDato,
-  isValidationError,
-  navnEllerIdent,
-  tilsagnAarsakTilTekst,
-} from "@/utils/Utils";
+import { formaterDato, navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   Besluttelse,
   BesluttTilsagnRequest,
   FieldError,
   Rolle,
-  ProblemDetail,
   TilsagnAvvisningAarsak,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
   TilsagnTilAnnulleringRequest,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import {
@@ -131,12 +126,8 @@ export function TilsagnDetaljer() {
       },
       {
         onSuccess: navigerTilTilsagnTabell,
-        onError: (error: ProblemDetail) => {
-          if (isValidationError(error)) {
-            setError(error.errors);
-          } else {
-            throw error;
-          }
+        onValidationError: (error: ValidationError) => {
+          setError(error.errors);
         },
       },
     );

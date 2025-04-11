@@ -3,7 +3,7 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { formaterDato } from "@/utils/Utils";
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { TrashIcon } from "@navikt/aksel-icons";
-import { Alert, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface StengtHosArrangorTableProps {
@@ -66,13 +66,6 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
           })}
         </Table.Body>
       </Table>
-      {deleteStengtHosArrangor.error && (
-        <VStack>
-          <Alert inline variant="error">
-            Klarte ikke slette periode
-          </Alert>
-        </VStack>
-      )}
     </section>
   );
 }

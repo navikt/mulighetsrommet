@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonRequest,
@@ -6,11 +6,12 @@ import {
   ProblemDetail,
 } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useUpsertArrangorKontaktperson(arrangorId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<any, ProblemDetail, ArrangorKontaktpersonRequest>({
+  return useApiMutation<any, ProblemDetail, ArrangorKontaktpersonRequest>({
     mutationFn: (body: ArrangorKontaktpersonRequest) =>
       ArrangorService.upsertArrangorKontaktperson({
         path: { id: arrangorId },

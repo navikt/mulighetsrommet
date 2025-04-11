@@ -1,5 +1,5 @@
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { formaterDatoSomYYYYMMDD, isValidationError, subtractDays } from "@/utils/Utils";
+import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   FieldError,
@@ -11,6 +11,7 @@ import {
   Tilskuddstype,
   UtbetalingDto,
   UtbetalingLinje,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
@@ -95,10 +96,8 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
           refetchType: "all",
         });
       },
-      onError: (error) => {
-        if (isValidationError(error)) {
-          setError(error.errors);
-        }
+      onValidationError: (error: ValidationError) => {
+        setError(error.errors);
       },
     });
   }

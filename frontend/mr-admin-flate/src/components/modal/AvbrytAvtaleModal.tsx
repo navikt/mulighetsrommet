@@ -8,7 +8,7 @@ import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client-v2";
+import { AvbrytAvtaleAarsak, AvtaleDto, ProblemDetail } from "@mr/api-client-v2";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
@@ -54,6 +54,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const navigate = useNavigate();
   const { data: gjennomforingerMedAvtaleId } = useAktiveGjennomforingerByAvtaleId(avtale.id);
   const [state, setState] = useState<State>(initialState);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const avtalenHarGjennomforinger =
     gjennomforingerMedAvtaleId && gjennomforingerMedAvtaleId.data.length > 0;
@@ -68,6 +69,10 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     setState(initialState);
     modalRef.current?.close();
     navigate(`/avtaler/${avtale.id}`);
+  }
+
+  function onError(error: ProblemDetail) {
+    setError(error.detail);
   }
 
   const handleAvbrytAvtale = () => {
@@ -93,7 +98,10 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             id: avtale.id,
             aarsak: state.customAarsak,
           },
-          { onSuccess: navigateOnSuccess },
+          {
+            onSuccess: navigateOnSuccess,
+            onError: onError,
+          },
         );
       } else
         mutation.mutate(
@@ -101,7 +109,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             id: avtale?.id,
             aarsak: state.aarsak,
           },
-          { onSuccess: navigateOnSuccess },
+          { onSuccess: navigateOnSuccess, onError: onError },
         );
     }
   };
@@ -118,7 +126,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
       handleClose={onClose}
       headingIconType="warning"
       headingText={
-        mutation.isError || avtalenHarGjennomforinger
+        error || avtalenHarGjennomforinger
           ? `Kan ikke avbryte «${avtale?.navn}»`
           : `Ønsker du å avbryte «${avtale?.navn}»?`
       }
@@ -167,12 +175,12 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             />
           )}
 
-          {mutation?.isError && (
+          {error && (
             <BodyShort>
               <AvbrytModalError
                 aarsak={state.aarsak}
                 customAarsak={state?.customAarsak}
-                error={mutation.error.detail}
+                error={error}
               />
             </BodyShort>
           )}

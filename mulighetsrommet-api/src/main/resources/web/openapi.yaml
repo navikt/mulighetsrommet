@@ -26,15 +26,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Bruker"
-        403:
-          description: Mangler tilganger til å hente data om bruker
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/avtaler/{id}:
     parameters:
@@ -50,12 +43,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AvtaleDto"
-        404:
-          description: "Avtalen ble ikke funnet"
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
@@ -74,12 +63,8 @@ paths:
       responses:
         200:
           description: The specified avtale you want to 'Avbryte'
-        404:
-          description: "Avtalen ble ikke funnet og kunne ikke avbrytes"
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/avtaler:
     get:
@@ -153,6 +138,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertAvtale"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
     put:
       tags:
         - Avtaler
@@ -170,17 +157,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/AvtaleDto"
         400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
-        500:
-          description: "Kunne ikke opprette avtale"
-          content:
-            application/json:
-              schema:
-                type: string
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/avtaler/mine:
     get:
@@ -243,6 +222,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertAvtale"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/avtaler/excel:
     get:
@@ -321,6 +302,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/avtaler/kontaktperson:
     delete:
@@ -339,6 +322,8 @@ paths:
             application/json:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/avtaler/{id}/historikk:
     get:
@@ -360,6 +345,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/janzz/sertifiseringer/sok:
     get:
@@ -383,6 +370,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Sertifisering"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/historikk:
     get:
@@ -404,6 +393,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/deltaker-summary:
     get:
@@ -425,6 +416,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GjennomforingDeltakerSummary"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger:
     get:
@@ -501,6 +494,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertGjennomforing"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
     put:
       tags:
         - Gjennomforinger
@@ -517,18 +512,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GjennomforingDto"
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
-        500:
-          description: "Kunne ikke opprette gjennomforing"
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/mine:
     get:
@@ -601,6 +586,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertGjennomforing"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/excel:
     get:
@@ -682,6 +669,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}:
     parameters:
@@ -697,12 +686,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GjennomforingDto"
-        404:
-          description: "Gjennomføringen ble ikke funnet"
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/tiltaksnummer:
     parameters:
@@ -720,12 +705,8 @@ paths:
                 $ref: "#/components/schemas/TiltaksnummerResponse"
         204:
           description: Gjennomføringen har enda ikke tiltaksnummer.
-        404:
-          description: Gjennomføringen ble ikke funnet.
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/avtale:
     parameters:
@@ -742,6 +723,8 @@ paths:
       responses:
         200:
           description: "Gjennomføring ble oppdatert med avtale"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/avbryt:
     parameters:
@@ -764,12 +747,8 @@ paths:
             application/json:
               schema:
                 type: string
-        404:
-          description: "Mangler eller ugyldig id"
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/tilgjengelig-for-veileder:
     parameters:
@@ -786,6 +765,8 @@ paths:
       responses:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/apent-for-pamelding:
     parameters:
@@ -802,6 +783,8 @@ paths:
       responses:
         200:
           description: OK
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/tilgjengelig-for-arrangor:
     parameters:
@@ -818,6 +801,8 @@ paths:
       responses:
         200:
           description: OK
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/stengt-hos-arrangor:
     parameters:
@@ -834,12 +819,8 @@ paths:
       responses:
         200:
           description: OK
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{id}/stengt-hos-arrangor/{periodeId}:
     parameters:
@@ -857,6 +838,8 @@ paths:
       responses:
         200:
           description: OK
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/kontaktperson:
     delete:
@@ -875,6 +858,8 @@ paths:
             application/json:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tiltakstyper:
     get:
@@ -915,6 +900,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertTiltakstype"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tiltakstyper/{id}:
     get:
@@ -930,12 +917,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TiltakstypeDto"
-        404:
-          description: "Tiltakstypen ble ikke funnet"
-          content:
-            text/plain:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tiltakstyper/{id}/faneinnhold:
     get:
@@ -951,12 +934,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltakstype"
-        404:
-          description: "Faneinnholdet for tiltakstypen ble ikke funnet"
-          content:
-            text/plain:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/innsatsgrupper:
     get:
@@ -972,6 +951,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/tiltakstyper:
     get:
@@ -987,6 +968,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/gjennomforinger:
     get:
@@ -1009,6 +992,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltak"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/gjennomforinger/{id}:
     get:
@@ -1024,6 +1009,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltak"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/preview/gjennomforinger:
     get:
@@ -1045,6 +1032,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltak"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/preview/gjennomforinger/{id}:
     get:
@@ -1060,6 +1049,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltak"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/nav/gjennomforinger:
     get:
@@ -1081,6 +1072,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltak"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/nav/gjennomforinger/{id}:
     get:
@@ -1096,6 +1089,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltak"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/bruker/tiltakshistorikk:
     post:
@@ -1115,6 +1110,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GetDeltakelserForBrukerResponse"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/bruker/deltakelse:
     post:
@@ -1136,6 +1133,8 @@ paths:
                 $ref: "#/components/schemas/DeltakelseGruppetiltak"
         204:
           description: Fant ikke deltakelse for tiltak
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/ansatt:
     get:
@@ -1159,6 +1158,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavAnsatt"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/me:
     get:
@@ -1172,6 +1173,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NavVeileder"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/ansatt/me:
     get:
@@ -1185,12 +1188,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NavAnsatt"
-        404:
-          description: "Fant ingen data om 'ansatt'"
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/ansatt/sok:
     get:
@@ -1213,6 +1212,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavAnsatt"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/del-med-bruker:
     post:
@@ -1237,6 +1238,8 @@ paths:
             application/json:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/del-med-bruker/status:
     post:
@@ -1258,6 +1261,8 @@ paths:
                 $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/del-med-bruker/alle:
     post:
@@ -1281,6 +1286,8 @@ paths:
                   $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/del-med-bruker/historikk:
     post:
@@ -1304,6 +1311,8 @@ paths:
                   $ref: "#/components/schemas/TiltakDeltMedBruker"
         204:
           description: "No content found"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/nav-enheter:
     get:
@@ -1334,6 +1343,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavEnhet"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/nav-enheter/regioner:
     get:
@@ -1349,6 +1360,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavRegion"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/nav-enheter/kostnadssted:
     get:
@@ -1372,6 +1385,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavEnhet"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/nav-enheter/{enhetsnummer}/overordnet:
     parameters:
@@ -1392,6 +1407,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NavEnhet"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorer:
     get:
@@ -1430,6 +1447,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertArrangor"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorer/{id}:
     get:
@@ -1450,6 +1469,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Arrangor"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorer/hovedenhet/{id}:
     get:
@@ -1470,6 +1491,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Arrangor"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorer/{orgnr}:
     post:
@@ -1490,7 +1513,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Arrangor"
-
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorer/{orgnr}/kontonummer:
     get:
@@ -1511,6 +1535,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorer/{id}/kontaktpersoner:
     get:
@@ -1533,6 +1559,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrangorKontaktperson"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
     put:
       tags:
         - Arrangor
@@ -1556,6 +1584,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrangorKontaktperson"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorer/kontaktperson/{id}:
     get:
@@ -1576,7 +1606,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/KoblingerForKontaktperson"
-
+        default:
+          $ref: "#/components/responses/ProblemDetail"
     delete:
       tags:
         - Arrangor
@@ -1591,8 +1622,8 @@ paths:
       responses:
         200:
           description: Om kontaktpersonen ble slettet eller ikke
-        500:
-          description: Hvis noe gikk galt ved sletting av kontaktperson
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/brreg/sok:
     get:
@@ -1615,6 +1646,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/BrregVirksomhet"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/brreg/{orgnr}/underenheter:
     get:
@@ -1637,6 +1670,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/BrregVirksomhet"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/notifications:
     get:
@@ -1656,6 +1691,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertUserNotifications"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/notifications/summary:
     get:
@@ -1669,6 +1706,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserNotificationSummary"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/notifications/status:
     post:
@@ -1688,6 +1727,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/features:
     parameters:
@@ -1715,6 +1756,8 @@ paths:
             application/json:
               schema:
                 type: boolean
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/veileder/oppskrifter/{tiltakstypeId}:
     parameters:
@@ -1751,6 +1794,8 @@ paths:
                       $ref: "#/components/schemas/Oppskrift"
                 required:
                   - data
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/joyride/lagre:
     post:
@@ -1769,6 +1814,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/joyride/{joyrideType}/har-fullfort:
     parameters:
@@ -1789,6 +1836,8 @@ paths:
             text/plain:
               schema:
                 type: boolean
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/personopplysninger:
     get:
@@ -1804,6 +1853,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PersonopplysningData"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/opsjoner:
     post:
@@ -1822,6 +1873,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
     delete:
       tags:
         - Opsjoner
@@ -1838,6 +1891,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/lagret-filter:
     post:
@@ -1856,6 +1911,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/lagret-filter/mine/{dokumenttype}:
     get:
@@ -1878,6 +1935,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LagretFilter"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/lagret-filter/{id}:
     delete:
@@ -1899,6 +1958,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn:
     put:
@@ -1917,6 +1978,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
     get:
       tags:
         - Tilsagn
@@ -1942,6 +2005,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/gjennomforinger/{gjennomforingId}/utbetalinger:
     parameters:
@@ -1959,6 +2024,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/UtbetalingDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/utbetaling/{id}:
     parameters:
@@ -1974,6 +2041,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UtbetalingDetaljerDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/utbetaling/{id}/historikk:
     get:
@@ -1995,6 +2064,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/utbetaling/{id}/tilsagn:
     parameters:
@@ -2012,6 +2083,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/delutbetalinger:
     parameters:
@@ -2028,12 +2101,8 @@ paths:
       responses:
         200:
           description: OK
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/delutbetalinger/{id}/beslutt:
     parameters:
@@ -2050,12 +2119,8 @@ paths:
       responses:
         200:
           description: OK
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/utbetaling/{id}/opprett-utbetaling:
     parameters:
@@ -2072,18 +2137,8 @@ paths:
       responses:
         200:
           description: OK
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
-        500:
-          description: "Kunne ikke opprette manuell utbetaling"
-          content:
-            application/json:
-              schema:
-                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn/beregn:
     post:
@@ -2102,6 +2157,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnBeregningOutput"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn/defaults:
     post:
@@ -2120,6 +2177,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDefaults"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn/{id}:
     parameters:
@@ -2135,6 +2194,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDetaljerDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
     delete:
       tags:
         - Tilsagn
@@ -2142,6 +2203,8 @@ paths:
       responses:
         200:
           description: OK
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn/{id}/historikk:
     get:
@@ -2163,6 +2226,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn/{id}/til-annullering:
     parameters:
@@ -2183,6 +2248,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn/{id}/gjor-opp:
     parameters:
@@ -2203,6 +2270,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/tilsagn/{id}/beslutt:
     parameters:
@@ -2223,6 +2292,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/prismodell/satser:
     get:
@@ -2246,6 +2317,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AvtaltSats"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/utbetaling:
     get:
@@ -2284,8 +2357,6 @@ paths:
               schema:
                 type: string
                 format: uuid
-        400:
-          $ref: "#/components/responses/ValidationError"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2507,6 +2578,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/oppgaver:
     post:
@@ -2528,6 +2601,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Oppgave"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
 components:
   responses:

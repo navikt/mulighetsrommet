@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
 import { BesluttDelutbetalingRequest, ProblemDetail, UtbetalingService } from "@mr/api-client-v2";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useBesluttDelutbetaling() {
-  return useMutation<unknown, ProblemDetail, { id: string; body: BesluttDelutbetalingRequest }>({
+  return useApiMutation<unknown, ProblemDetail, { id: string; body: BesluttDelutbetalingRequest }>({
     mutationFn: ({ id, body }: { id: string; body: BesluttDelutbetalingRequest }) =>
       UtbetalingService.besluttDelutbetaling({ path: { id }, body }),
   });

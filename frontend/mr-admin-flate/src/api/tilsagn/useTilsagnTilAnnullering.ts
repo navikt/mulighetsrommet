@@ -1,9 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
 import { TilsagnService, TilsagnTilAnnulleringAarsak } from "@mr/api-client-v2";
 import { QueryKeys } from "../../api/QueryKeys";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useTilsagnTilAnnullering() {
-  return useMutation({
+  return useApiMutation({
     mutationFn: ({
       id,
       aarsaker,

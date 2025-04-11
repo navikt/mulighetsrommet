@@ -4,7 +4,7 @@ import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/use
 import { Laster } from "@/components/laster/Laster";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
-import { AvbrytGjennomforingAarsak, GjennomforingDto } from "@mr/api-client-v2";
+import { AvbrytGjennomforingAarsak, GjennomforingDto, ProblemDetail } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
@@ -51,6 +51,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
   const navigate = useNavigate();
   const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(gjennomforing.id);
   const [state, setState] = useState<State>(initialState);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const onClose = () => {
     setState(initialState);
@@ -58,10 +59,14 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
     modalRef.current?.close();
   };
 
-  function onSuccessMutation() {
+  function onSuccess() {
     setState(initialState);
     modalRef.current?.close();
     navigate(`/gjennomforinger/${gjennomforing?.id}`);
+  }
+
+  function onError(error: ProblemDetail) {
+    setError(error.detail);
   }
 
   const handleAvbrytGjennomforing = () => {
@@ -87,7 +92,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
             id: gjennomforing.id,
             aarsak: state.customAarsak,
           },
-          { onSuccess: onSuccessMutation },
+          { onSuccess, onError },
         );
       } else
         mutation.mutate(
@@ -95,7 +100,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
             id: gjennomforing?.id,
             aarsak: state.aarsak,
           },
-          { onSuccess: onSuccessMutation },
+          { onSuccess, onError },
         );
     }
   };
@@ -121,7 +126,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
       handleClose={onClose}
       headingIconType="warning"
       headingText={
-        mutation.isError
+        error
           ? `Kan ikke avbryte «${gjennomforing?.navn}»`
           : `Ønsker du å avbryte «${gjennomforing?.navn}»?`
       }
@@ -164,12 +169,12 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
               </>
             }
           />
-          {mutation?.isError && (
+          {error && (
             <BodyShort>
               <AvbrytModalError
                 aarsak={state.aarsak}
                 customAarsak={state?.customAarsak}
-                error={mutation.error.detail}
+                error={error}
               />
             </BodyShort>
           )}

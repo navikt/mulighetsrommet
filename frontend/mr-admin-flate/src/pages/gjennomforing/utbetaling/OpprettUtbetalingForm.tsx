@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   GjennomforingDto,
   OpprettManuellUtbetalingRequest,
-  ProblemDetail,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
@@ -24,7 +24,7 @@ import { Separator } from "../../../components/detaljside/Metadata";
 import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/GjennomforingDetaljerMini";
 import { ControlledDateInput } from "../../../components/skjema/ControlledDateInput";
 import { FormGroup } from "../../../components/skjema/FormGroup";
-import { addYear, isValidationError } from "@/utils/Utils";
+import { addYear } from "@/utils/Utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -115,16 +115,14 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
           form.reset();
           navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger/${utbetalingId.current}`);
         },
-        onError: (error: ProblemDetail) => {
-          if (isValidationError(error)) {
-            error.errors.forEach((error) => {
-              const name = jsonPointerToFieldPath(error.pointer) as keyof Omit<
-                OpprettManuellUtbetalingRequest,
-                "gjennomforingId"
-              >;
-              setError(name, { type: "custom", message: error.detail });
-            });
-          }
+        onValidationError: (error: ValidationError) => {
+          error.errors.forEach((error) => {
+            const name = jsonPointerToFieldPath(error.pointer) as keyof Omit<
+              OpprettManuellUtbetalingRequest,
+              "gjennomforingId"
+            >;
+            setError(name, { type: "custom", message: error.detail });
+          });
         },
       },
     );

@@ -1,15 +1,16 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   AvbrytGjennomforingAarsak,
   GjennomforingerService,
   ProblemDetail,
 } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useAvbrytGjennomforing() {
   const client = useQueryClient();
 
-  return useMutation<
+  return useApiMutation<
     unknown,
     ProblemDetail,
     { id: string; aarsak?: AvbrytGjennomforingAarsak | string }

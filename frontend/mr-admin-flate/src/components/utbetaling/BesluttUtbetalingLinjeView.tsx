@@ -1,14 +1,13 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
-import { isValidationError } from "@/utils/Utils";
 import {
   BesluttDelutbetalingRequest,
   Besluttelse,
   DelutbetalingReturnertAarsak,
   DelutbetalingStatus,
   FieldError,
-  ProblemDetail,
   UtbetalingDto,
   UtbetalingLinje,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Heading, HStack, Modal, VStack } from "@navikt/ds-react";
@@ -37,12 +36,8 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
         onSuccess: () => {
           return queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
         },
-        onError: (error: ProblemDetail) => {
-          if (isValidationError(error)) {
-            setError(error.errors);
-          } else {
-            throw error;
-          }
+        onValidationError: (error: ValidationError) => {
+          setError(error.errors);
         },
       },
     );

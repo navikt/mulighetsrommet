@@ -2,7 +2,11 @@ import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangor
 import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "@/api/arrangor/useKoblingerTilDokumenterForKontaktpersonHosArrangor";
 import { useFrikobleArrangorKontaktpersonFraAvtale } from "@/api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";
 import { useFrikobleArrangorKontaktpersonFraGjennomforing } from "@/api/gjennomforing/useFrikobleArrangorKontaktpersonFraGjennomforing";
-import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "@mr/api-client-v2";
+import {
+  ArrangorKontaktperson,
+  DokumentKoblingForKontaktperson,
+  ProblemDetail,
+} from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
@@ -118,7 +122,7 @@ interface DokumentKoblingerProps {
   baseUrl: "gjennomforinger" | "avtaler";
   frikobleMutation: UseMutationResult<
     { data: string },
-    Error,
+    ProblemDetail,
     {
       kontaktpersonId: string;
       dokumentId: string;

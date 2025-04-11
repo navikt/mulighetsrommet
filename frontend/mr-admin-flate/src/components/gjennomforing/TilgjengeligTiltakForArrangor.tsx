@@ -1,8 +1,8 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { formaterDato, isValidationError, max, subtractDays, subtractMonths } from "@/utils/Utils";
+import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldError, GjennomforingDto, ProblemDetail } from "@mr/api-client-v2";
+import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
@@ -39,18 +39,16 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     modalRef.current?.close();
   };
 
-  const onError = (error: ProblemDetail) => {
-    if (isValidationError(error)) {
-      error.errors.forEach((error: FieldError) => {
-        form.setError(
-          jsonPointerToFieldPath(error.pointer) as keyof InferredEditTilgjengeligForArrangorSchema,
-          {
-            type: "custom",
-            message: error.detail,
-          },
-        );
-      });
-    }
+  const onValidationError = (error: ValidationError) => {
+    error.errors.forEach((error: FieldError) => {
+      form.setError(
+        jsonPointerToFieldPath(error.pointer) as keyof InferredEditTilgjengeligForArrangorSchema,
+        {
+          type: "custom",
+          message: error.detail,
+        },
+      );
+    });
   };
 
   const submit = form.handleSubmit(async (values) => {
@@ -59,7 +57,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         id: gjennomforing.id,
         dato: values.tilgjengeligForArrangorFraOgMedDato!,
       },
-      { onSuccess, onError },
+      { onSuccess, onValidationError },
     );
   });
 
