@@ -27,7 +27,7 @@ data class Deltakelsesmengde(
 data class DeltakerPerson(
     val norskIdent: NorskIdent,
     val foedselsdato: LocalDate?,
-    val navn: String?,
+    val navn: String,
     val geografiskEnhet: NavEnhetDbo?,
     val region: NavEnhetDbo?,
 )
