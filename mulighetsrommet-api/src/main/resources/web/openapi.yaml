@@ -5835,6 +5835,7 @@ components:
         - id
         - status
         - manedsverk
+        - navn
 
     ArrFlateUtbetalingKompakt:
       type: object
