@@ -4,7 +4,7 @@ import {
   GetEnheterData,
   GetGjennomforingerData,
   LagretDokumenttype,
-  NavAnsattRolle,
+  Rolle,
   NotificationStatus,
 } from "@mr/api-client-v2";
 
@@ -38,7 +38,7 @@ export const QueryKeys = {
   brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
   sokSertifiseringer: (q: string) => ["sokSertifiseringer", "q", q],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
-  navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
+  navansatt: (rolle: Rolle) => ["nav-ansatte", rolle],
   sokNavansatt: (q: string, id: string) => ["sok-nav-ansatte", q, id],
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],

@@ -9,7 +9,7 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AuthConfig
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -105,7 +105,7 @@ fun Application.configureAuthentication(
         return requiredRoles.all { it in roles }
     }
 
-    fun hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
+    fun hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: Rolle): Boolean {
         val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
         return requiredRoles.all { requiredRole ->
             auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
@@ -121,7 +121,7 @@ fun Application.configureAuthentication(
             validate { credentials ->
                 credentials["NAVident"] ?: return@validate null
 
-                if (!hasNavAnsattRoles(credentials, NavAnsattRolle.TEAM_MULIGHETSROMMET)) {
+                if (!hasNavAnsattRoles(credentials, Rolle.TEAM_MULIGHETSROMMET)) {
                     return@validate null
                 }
 
@@ -139,7 +139,7 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                        Rolle.TILTAKADMINISTRASJON_GENERELL,
                     )
                 ) {
                     return@validate null
@@ -159,8 +159,8 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                        NavAnsattRolle.AVTALER_SKRIV,
+                        Rolle.TILTAKADMINISTRASJON_GENERELL,
+                        Rolle.AVTALER_SKRIV,
                     )
                 ) {
                     return@validate null
@@ -180,8 +180,8 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                        NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                        Rolle.TILTAKADMINISTRASJON_GENERELL,
+                        Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
                     )
                 ) {
                     return@validate null
@@ -201,8 +201,8 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                        NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+                        Rolle.TILTAKADMINISTRASJON_GENERELL,
+                        Rolle.SAKSBEHANDLER_OKONOMI,
                     )
                 ) {
                     return@validate null
@@ -222,8 +222,8 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                        NavAnsattRolle.BESLUTTER_TILSAGN,
+                        Rolle.TILTAKADMINISTRASJON_GENERELL,
+                        Rolle.BESLUTTER_TILSAGN,
                     )
                 ) {
                     return@validate null
@@ -243,8 +243,8 @@ fun Application.configureAuthentication(
 
                 if (!hasNavAnsattRoles(
                         credentials,
-                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
-                        NavAnsattRolle.ATTESTANT_UTBETALING,
+                        Rolle.TILTAKADMINISTRASJON_GENERELL,
+                        Rolle.ATTESTANT_UTBETALING,
                     )
                 ) {
                     return@validate null

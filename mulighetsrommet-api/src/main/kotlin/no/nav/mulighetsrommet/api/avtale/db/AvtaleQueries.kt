@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
-import no.nav.mulighetsrommet.database.createArrayFromSelector
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
+import java.sql.Array
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -182,10 +183,10 @@ class AvtaleQueries(private val session: Session) {
         execute(queryOf(query, avtale.toSqlParameters()))
 
         batchPreparedStatement(upsertAdministrator, avtale.administratorer.map { listOf(avtale.id, it.value) })
-        execute(queryOf(deleteAdministratorer, avtale.id, createArrayFromSelector(avtale.administratorer) { it.value }))
+        execute(queryOf(deleteAdministratorer, avtale.id, createArrayOfValue(avtale.administratorer) { it.value }))
 
         batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it.value) })
-        execute(queryOf(deleteEnheter, avtale.id, createArrayFromSelector(avtale.navEnheter) { it.value }))
+        execute(queryOf(deleteEnheter, avtale.id, createArrayOfValue(avtale.navEnheter) { it.value }))
 
         avtale.arrangor?.underenheter?.let { underenheter ->
             batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtale.id, it) })
@@ -211,7 +212,7 @@ class AvtaleQueries(private val session: Session) {
             queryOf(
                 deletePersonopplysninger,
                 avtale.id,
-                createArrayOf("personopplysning", avtale.personopplysninger),
+                createArrayOfPersonopplysning(avtale.personopplysninger),
             ),
         )
 
@@ -311,8 +312,8 @@ class AvtaleQueries(private val session: Session) {
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
-            "nav_enheter" to navRegioner.ifEmpty { null }?.let { createArrayFromSelector(it) { it.value } },
-            "avtaletyper" to avtaletyper.ifEmpty { null }?.let { createArrayOf("avtaletype", it) },
+            "nav_enheter" to navRegioner.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
+            "avtaletyper" to avtaletyper.ifEmpty { null }?.let { createArrayOfAvtaletype(it) },
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
             "personvern_bekreftet" to personvernBekreftet,
         )
@@ -566,3 +567,11 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 }
+
+fun Session.createArrayOfAvtaletype(
+    avtaletypes: List<Avtaletype>,
+): Array = createArrayOf("avtaletype", avtaletypes)
+
+fun Session.createArrayOfPersonopplysning(
+    personopplysnings: List<Personopplysning>,
+): Array = createArrayOf("personopplysning", personopplysnings)

@@ -7,8 +7,9 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -44,12 +45,12 @@ class NavAnsattQueriesTest : FunSpec({
         ).initialize(database.db)
 
         fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo, roller: Set<NavAnsattRolle>) = ansatt.run {
-            NavAnsattDto(
+            NavAnsatt(
                 azureId = azureId,
                 navIdent = navIdent,
                 fornavn = fornavn,
                 etternavn = etternavn,
-                hovedenhet = NavAnsattDto.Hovedenhet(
+                hovedenhet = NavAnsatt.Hovedenhet(
                     enhetsnummer = enhet.enhetsnummer,
                     navn = enhet.navn,
                 ),
@@ -115,13 +116,15 @@ class NavAnsattQueriesTest : FunSpec({
 
                 queries.upsert(ansatt1)
 
-                val enRolle = setOf(NavAnsattRolle.KONTAKTPERSON)
+                val enRolle = setOf(
+                    NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
+                )
                 queries.setRoller(ansatt1.navIdent, enRolle)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
-                    NavAnsattRolle.BESLUTTER_TILSAGN,
-                    NavAnsattRolle.ATTESTANT_UTBETALING,
+                    NavAnsattRolle.generell(Rolle.KONTAKTPERSON),
+                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                 )
                 queries.setRoller(ansatt1.navIdent, flereRoller)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
@@ -132,40 +135,114 @@ class NavAnsattQueriesTest : FunSpec({
             }
         }
 
+        test("oppdatere roller med kontortilhørlighet") {
+            database.runAndRollback { session ->
+                val queries = NavAnsattQueries(session)
+
+                queries.upsert(ansatt1)
+
+                val enRolle = setOf(
+                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("1000"))),
+                )
+                queries.setRoller(ansatt1.navIdent, enRolle)
+                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
+
+                val flereRoller = setOf(
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000"))),
+                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("2000"))),
+                )
+                queries.setRoller(ansatt1.navIdent, flereRoller)
+                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
+
+                val ingenRoller = setOf<NavAnsattRolle>(
+                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf()),
+                )
+                queries.setRoller(ansatt1.navIdent, ingenRoller)
+                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
+            }
+        }
+
         test("hent ansatte gitt rolle") {
             database.runAndRollback { session ->
                 val queries = NavAnsattQueries(session)
 
-                val rolleTiltaksadministrasjon = NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
+                val generell = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
-                val rolleKontaktperson = NavAnsattRolle.KONTAKTPERSON
+                val kontaktperson = NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
 
                 queries.upsert(ansatt1)
-                queries.setRoller(ansatt1.navIdent, setOf(rolleTiltaksadministrasjon))
+                queries.setRoller(ansatt1.navIdent, setOf(generell))
 
                 queries.upsert(ansatt2)
-                queries.setRoller(ansatt2.navIdent, setOf(rolleKontaktperson))
+                queries.setRoller(ansatt2.navIdent, setOf(kontaktperson))
 
                 queries.upsert(ansatt3)
-                queries.setRoller(ansatt3.navIdent, setOf(rolleTiltaksadministrasjon, rolleKontaktperson))
+                queries.setRoller(ansatt3.navIdent, setOf(generell, kontaktperson))
+
+                val expectedAnsatt1 = toDto(ansatt1, enhet1, setOf(generell))
+                val expectedAnsatt2 = toDto(ansatt2, enhet2, setOf(kontaktperson))
+                val expectedAnsatt3 = toDto(ansatt3, enhet1, setOf(generell, kontaktperson))
 
                 queries.getAll(
-                    roller = listOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
-                ) shouldContainExactlyInAnyOrder listOf(
-                    toDto(ansatt1, enhet1, setOf(rolleTiltaksadministrasjon)),
-                    toDto(ansatt3, enhet1, setOf(rolleTiltaksadministrasjon, rolleKontaktperson)),
-                )
+                    rollerContainsAll = listOf(generell),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt3)
+
                 queries.getAll(
-                    roller = listOf(NavAnsattRolle.KONTAKTPERSON),
-                ) shouldContainExactlyInAnyOrder listOf(
-                    toDto(ansatt2, enhet2, setOf(rolleKontaktperson)),
-                    toDto(ansatt3, enhet1, setOf(rolleTiltaksadministrasjon, rolleKontaktperson)),
-                )
+                    rollerContainsAll = listOf(kontaktperson),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2, expectedAnsatt3)
+
                 queries.getAll(
-                    roller = listOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
-                ) shouldContainExactlyInAnyOrder listOf(
-                    toDto(ansatt3, enhet1, setOf(rolleTiltaksadministrasjon, rolleKontaktperson)),
-                )
+                    rollerContainsAll = listOf(generell, kontaktperson),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt3)
+            }
+        }
+
+        test("hent ansatte gitt rolle med kontortilhørlighet") {
+            database.runAndRollback { session ->
+                val queries = NavAnsattQueries(session)
+
+                val beslutterTilsagnAndeby =
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000")))
+                val beslutterTilsagnGaseby =
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("2000")))
+                val beslutterTilsagnUtenKontor =
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf())
+                val beslutterTilsagnForBeggeKontor =
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.BESLUTTER_TILSAGN,
+                        setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
+                    )
+                val beslutterTilsagnForUkjentKontor =
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("3000")))
+
+                queries.upsert(ansatt1)
+                queries.setRoller(ansatt1.navIdent, setOf(beslutterTilsagnAndeby))
+
+                queries.upsert(ansatt2)
+                queries.setRoller(ansatt2.navIdent, setOf(beslutterTilsagnForBeggeKontor))
+
+                val expectedAnsatt1 = toDto(ansatt1, enhet1, setOf(beslutterTilsagnAndeby))
+                val expectedAnsatt2 = toDto(ansatt2, enhet2, setOf(beslutterTilsagnForBeggeKontor))
+
+                queries.getAll(
+                    rollerContainsAll = listOf(beslutterTilsagnAndeby),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt2)
+
+                queries.getAll(
+                    rollerContainsAll = listOf(beslutterTilsagnGaseby),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2)
+
+                queries.getAll(
+                    rollerContainsAll = listOf(beslutterTilsagnUtenKontor),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt2)
+
+                queries.getAll(
+                    rollerContainsAll = listOf(beslutterTilsagnForBeggeKontor),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2)
+
+                queries.getAll(
+                    rollerContainsAll = listOf(beslutterTilsagnForUkjentKontor),
+                ) shouldContainExactlyInAnyOrder listOf()
             }
         }
 
@@ -177,21 +254,22 @@ class NavAnsattQueriesTest : FunSpec({
                 queries.upsert(ansatt2)
                 queries.upsert(ansatt3)
 
+                val expectedAnsatt1 = toDto(ansatt1, enhet1, setOf())
+                val expectedAnsatt2 = toDto(ansatt2, enhet2, setOf())
+                val expectedAnsatt3 = toDto(ansatt3, enhet1, setOf())
+
                 queries.getAll(hovedenhetIn = listOf()) shouldBe listOf()
-                queries.getAll(hovedenhetIn = listOf(NavEnhetNummer("1000"))) shouldContainExactlyInAnyOrder listOf(
-                    toDto(ansatt1, enhet1, setOf()),
-                    toDto(ansatt3, enhet1, setOf()),
-                )
-                queries.getAll(hovedenhetIn = listOf(NavEnhetNummer("2000"))) shouldContainExactlyInAnyOrder listOf(
-                    toDto(ansatt2, enhet2, setOf()),
-                )
+                queries.getAll(
+                    hovedenhetIn = listOf(NavEnhetNummer("1000")),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt3)
+
+                queries.getAll(
+                    hovedenhetIn = listOf(NavEnhetNummer("2000")),
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2)
+
                 queries.getAll(
                     hovedenhetIn = listOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
-                ) shouldContainExactlyInAnyOrder listOf(
-                    toDto(ansatt2, enhet2, setOf()),
-                    toDto(ansatt1, enhet1, setOf()),
-                    toDto(ansatt3, enhet1, setOf()),
-                )
+                ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2, expectedAnsatt1, expectedAnsatt3)
             }
         }
     }

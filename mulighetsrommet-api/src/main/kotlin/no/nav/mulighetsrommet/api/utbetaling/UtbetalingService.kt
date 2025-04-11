@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -44,6 +44,7 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -52,6 +53,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+
+val AUTOMATISK_RETURNERT_AARSAK: String = "AUTOMATISK_RETURNERT"
 
 class UtbetalingService(
     private val config: Config,
@@ -248,6 +251,7 @@ class UtbetalingService(
             periode = periode,
             innsender = null,
             beskrivelse = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )
     }
 
@@ -269,34 +273,33 @@ class UtbetalingService(
     }
 
     fun opprettManuellUtbetaling(
-        utbetalingId: UUID,
-        request: OpprettManuellUtbetalingRequest,
-        navIdent: NavIdent,
-    ) {
-        db.transaction {
-            queries.utbetaling.upsert(
-                UtbetalingDbo(
-                    id = utbetalingId,
-                    gjennomforingId = request.gjennomforingId,
-                    fristForGodkjenning = request.periode.slutt.plusMonths(2).atStartOfDay(),
-                    kontonummer = request.kontonummer,
-                    kid = request.kidNummer,
-                    beregning = UtbetalingBeregningFri.beregn(
-                        input = UtbetalingBeregningFri.Input(
-                            belop = request.belop,
-                        ),
+        request: UtbetalingValidator.ValidatedManuellUtbetalingRequest,
+        agent: Agent,
+    ): UUID = db.transaction {
+        queries.utbetaling.upsert(
+            UtbetalingDbo(
+                id = request.id,
+                gjennomforingId = request.gjennomforingId,
+                fristForGodkjenning = request.periodeSlutt.plusMonths(2).atStartOfDay(),
+                kontonummer = request.kontonummer,
+                kid = request.kidNummer,
+                beregning = UtbetalingBeregningFri.beregn(
+                    input = UtbetalingBeregningFri.Input(
+                        belop = request.belop,
                     ),
-                    periode = Periode.fromInclusiveDates(
-                        request.periode.start,
-                        request.periode.slutt,
-                    ),
-                    innsender = Utbetaling.Innsender.NavAnsatt(navIdent),
-                    beskrivelse = request.beskrivelse,
                 ),
-            )
-            val dto = getOrError(utbetalingId)
-            logEndring("Utbetaling sendt inn", dto, navIdent)
-        }
+                periode = Periode.fromInclusiveDates(
+                    request.periodeStart,
+                    request.periodeSlutt,
+                ),
+                innsender = agent,
+                beskrivelse = request.beskrivelse,
+                tilskuddstype = request.tilskuddstype,
+            ),
+        )
+        val dto = getOrError(request.id)
+        logEndring("Utbetaling sendt inn", dto, agent)
+        dto.id
     }
 
     fun opprettDelutbetalinger(
@@ -351,20 +354,28 @@ class UtbetalingService(
         request: BesluttDelutbetalingRequest,
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
-        val delutbetaling = queries.delutbetaling.get(id)
-            ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
+        val delutbetaling = requireNotNull(queries.delutbetaling.get(id))
         require(delutbetaling.status == DelutbetalingStatus.TIL_GODKJENNING) {
             "Utbetaling er allerede besluttet"
         }
+
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
         if (navIdent == opprettelse.behandletAv) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
         }
+
         val tilsagnOpprettelse =
-            requireNotNull(queries.totrinnskontroll.get(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT))
+            queries.totrinnskontroll.getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
         if (navIdent == tilsagnOpprettelse.besluttetAv) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
         }
+
+        val kostnadssted = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).kostnadssted
+        val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
+        if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
+            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})"))).left()
+        }
+
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
                 returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
@@ -374,6 +385,7 @@ class UtbetalingService(
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
+
         Unit.right()
     }
 
@@ -545,8 +557,8 @@ class UtbetalingService(
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 returnerDelutbetaling(
                     it,
-                    emptyList(),
-                    "Tilsagnet har status ${tilsagn.status} og kan derfor ikke benyttes for utbetaling",
+                    listOf(AUTOMATISK_RETURNERT_AARSAK),
+                    "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling",
                     Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
@@ -577,7 +589,12 @@ class UtbetalingService(
         queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
             .filter { it.id != delutbetaling.id }
             .forEach {
-                setReturnertDelutbetaling(it, automatiskReturnertAarsak(), null, Tiltaksadministrasjon)
+                setReturnertDelutbetaling(
+                    it,
+                    listOf(AUTOMATISK_RETURNERT_AARSAK),
+                    "Automatisk returnert av Nav Tiltaksadministrasjon som følge av at en annen utbetalingslinje ble returnert",
+                    Tiltaksadministrasjon,
+                )
             }
 
         logEndring(
@@ -585,10 +602,6 @@ class UtbetalingService(
             getOrError(delutbetaling.utbetalingId),
             besluttetAv,
         )
-    }
-
-    private fun automatiskReturnertAarsak(): List<String> {
-        return listOf("AUTOMATISK_RETURNERT")
     }
 
     private fun QueryContext.setReturnertDelutbetaling(

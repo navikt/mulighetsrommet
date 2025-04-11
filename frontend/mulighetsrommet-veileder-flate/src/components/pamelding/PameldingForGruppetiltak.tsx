@@ -119,6 +119,24 @@ function utledTekster(deltakelse: DeltakelseGruppetiltak): Tekst {
         lenketekst: "Gå til kladden",
         variant: "warning",
       };
+    case GruppetiltakDeltakerStatus.SOKT_INN:
+      return {
+        overskrift: "Brukeren er søkt inn",
+        lenketekst: "Les om brukerens deltakelse",
+        variant: "info",
+      };
+    case GruppetiltakDeltakerStatus.VENTELISTE:
+      return {
+        overskrift: "Brukeren er på venteliste",
+        lenketekst: "Les om brukerens deltakelse",
+        variant: "info",
+      };
+    case GruppetiltakDeltakerStatus.VURDERES:
+      return {
+        overskrift: "Brukeren er søkt inn",
+        lenketekst: "Les om brukerens deltakelse",
+        variant: "info",
+      };
     default:
       throw new Error("Ukjent deltakerstatus");
   }

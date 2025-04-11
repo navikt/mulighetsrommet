@@ -69,6 +69,7 @@ import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
@@ -384,7 +385,7 @@ private fun services(appConfig: AppConfig) = module {
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
-    single { NavAnsattSyncService(get(), get(), get(), get(), get()) }
+    single { NavAnsattSyncService(appConfig.navAnsattSync, get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single {
@@ -434,6 +435,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
     single { ArrangorFlateService(get(), get(), get()) }
+    single { TotrinnskontrollService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

@@ -16,7 +16,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
@@ -78,45 +79,46 @@ val ApplicationConfigLocal = AppConfig(
             tokenEndpointUrl = "http://localhost:8081/maskinporten/token",
             privateJwk = createMockRSAKey("maskinporten"),
         ),
-        roles = listOf(
+        roles = setOf(
             AdGruppeNavAnsattRolleMapping(
                 "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
-                NavAnsattRolle.TEAM_MULIGHETSROMMET,
+                Rolle.TEAM_MULIGHETSROMMET,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
-                NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                Rolle.TILTAKADMINISTRASJON_GENERELL,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
-                NavAnsattRolle.AVTALER_SKRIV,
+                Rolle.AVTALER_SKRIV,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "279039a0-39fd-4860-afdd-a1a2ccaa6323".toUUID(),
-                NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "d9f317a1-2444-4fcd-b696-df8dbd6cc942".toUUID(),
-                NavAnsattRolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
+                Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(),
-                NavAnsattRolle.KONTAKTPERSON,
+                Rolle.KONTAKTPERSON,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+                Rolle.SAKSBEHANDLER_OKONOMI,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                NavAnsattRolle.BESLUTTER_TILSAGN,
+                Rolle.BESLUTTER_TILSAGN,
             ),
             AdGruppeNavAnsattRolleMapping(
                 "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                NavAnsattRolle.ATTESTANT_UTBETALING,
+                Rolle.ATTESTANT_UTBETALING,
             ),
         ),
     ),
+    navAnsattSync = NavAnsattSyncService.Config(setOf()),
     sanity = SanityClient.Config(
         dataset = "test",
         projectId = "xegcworx",

@@ -79,7 +79,11 @@ export const tilsagnHandlers = [
 
 const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
   type: "TIL_BESLUTNING",
-  behandletAv: "B123456",
+  behandletAv: {
+    type: "NAV_ANSATT",
+    navn: "Per Haraldsen",
+    navIdent: "P654321",
+  },
   behandletTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
   kanBesluttes: true,
@@ -87,9 +91,17 @@ const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
 
 const godkjent: TotrinnskontrollBesluttetDto = {
   type: "BESLUTTET",
-  behandletAv: "B123456",
+  besluttetAv: {
+    type: "NAV_ANSATT",
+    navn: "Per Haraldsen",
+    navIdent: "P654321",
+  },
+  behandletAv: {
+    type: "NAV_ANSATT",
+    navn: "Bertil Bengtson",
+    navIdent: "B123456",
+  },
   behandletTidspunkt: "2024-01-01T22:00:00",
-  besluttetAv: "F123456",
   besluttetTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
   kanBesluttes: false,
@@ -98,9 +110,17 @@ const godkjent: TotrinnskontrollBesluttetDto = {
 
 const avvist: TotrinnskontrollBesluttetDto = {
   type: "BESLUTTET",
-  behandletAv: "B123456",
+  besluttetAv: {
+    type: "NAV_ANSATT",
+    navn: "Per Haraldsen",
+    navIdent: "P654321",
+  },
   behandletTidspunkt: "2024-01-01T22:00:00",
-  besluttetAv: "F123456",
+  behandletAv: {
+    type: "NAV_ANSATT",
+    navn: "Bertil Bengtson",
+    navIdent: "B123456",
+  },
   besluttetTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
   kanBesluttes: false,

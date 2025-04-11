@@ -143,22 +143,20 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
               antallValgteFilter={filter.navEnheter.length}
             />
           </Accordion.Header>
-          <Accordion.Content>
-            <div style={{ marginLeft: "-2rem" }}>
-              <NavEnhetFilter
-                navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: string[]) => {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    lagretFilterIdValgt: undefined,
-                    navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
-                  });
-                  loggBrukAvFilter("navEnheter", navEnheter);
-                }}
-                regioner={regioner}
-              />
-            </div>
+          <Accordion.Content className="ml-[-2rem]">
+            <NavEnhetFilter
+              navEnheter={filter.navEnheter}
+              setNavEnheter={(navEnheter: string[]) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  lagretFilterIdValgt: undefined,
+                  navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
+                });
+                loggBrukAvFilter("navEnheter", navEnheter);
+              }}
+              regioner={regioner}
+            />
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("status")}>
@@ -169,7 +167,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
           >
             <FilterAccordionHeader tittel="Status" antallValgteFilter={filter.statuser.length} />
           </Accordion.Header>
-          <Accordion.Content>
+          <Accordion.Content className="ml-[-2rem]">
             <CheckboxList
               onSelectAll={(checked) => {
                 selectDeselectAll(
@@ -207,7 +205,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
               antallValgteFilter={filter.arrangorer.length}
             />
           </Accordion.Header>
-          <Accordion.Content>
+          <Accordion.Content className="ml-[-2rem]">
             <CheckboxList
               searchable
               items={arrangorOptions(arrangorer.data)}
@@ -237,7 +235,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
                 antallValgteFilter={filter.tiltakstyper.length}
               />
             </Accordion.Header>
-            <Accordion.Content>
+            <Accordion.Content className="ml-[-2rem]">
               <CheckboxList
                 onSelectAll={(checked) => {
                   selectDeselectAll(
@@ -276,7 +274,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
               antallValgteFilter={filter.publisert.length}
             />
           </Accordion.Header>
-          <Accordion.Content>
+          <Accordion.Content className="ml-[-2rem]">
             <CheckboxList
               items={[
                 { value: "publisert", label: "Publisert" },

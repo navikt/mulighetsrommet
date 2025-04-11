@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.kafka
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import org.intellij.lang.annotations.Language
 
 enum class TopicType {
@@ -57,7 +58,7 @@ class TopicRepository(private val db: Database) {
                     .let { tx.run(it) }
             }
 
-            val ids = tx.createArrayOf("text", topics.map { it.id })
+            val ids = tx.createArrayOfValue(topics) { it.id }
             queryOf(delete, ids)
                 .asExecute
                 .let { tx.run(it) }

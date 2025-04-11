@@ -25,7 +25,7 @@ class UtbetalingValidatorTest : FunSpec({
             belop = 150,
         )
 
-        val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
+        val result = UtbetalingValidator.validateManuellUtbetalingskrav(UUID.randomUUID(), request)
         result.shouldBeRight()
     }
 
@@ -42,7 +42,7 @@ class UtbetalingValidatorTest : FunSpec({
             belop = 150,
         )
 
-        val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
+        val result = UtbetalingValidator.validateManuellUtbetalingskrav(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError(
@@ -66,7 +66,7 @@ class UtbetalingValidatorTest : FunSpec({
             belop = 0,
         )
 
-        val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
+        val result = UtbetalingValidator.validateManuellUtbetalingskrav(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError(
@@ -90,7 +90,7 @@ class UtbetalingValidatorTest : FunSpec({
             belop = 150,
         )
 
-        val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
+        val result = UtbetalingValidator.validateManuellUtbetalingskrav(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError(

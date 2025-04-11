@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.database.createArrayFromSelector
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -194,14 +194,14 @@ class GjennomforingQueries(private val session: Session) {
             queryOf(
                 deleteEnheter,
                 gjennomforing.id,
-                createArrayFromSelector(gjennomforing.navEnheter) { it.value },
+                createArrayOfValue(gjennomforing.navEnheter) { it.value },
             ),
         )
 
         val kontaktpersoner = gjennomforing.kontaktpersoner.map { kontakt ->
             mapOf(
                 "id" to gjennomforing.id,
-                "enheter" to createArrayFromSelector(kontakt.navEnheter) { it.value },
+                "enheter" to createArrayOfValue(kontakt.navEnheter) { it.value },
                 "nav_ident" to kontakt.navIdent.value,
                 "beskrivelse" to kontakt.beskrivelse,
             )
@@ -212,7 +212,7 @@ class GjennomforingQueries(private val session: Session) {
             queryOf(
                 deleteKontaktpersoner,
                 gjennomforing.id,
-                createArrayFromSelector(gjennomforing.kontaktpersoner) { it.navIdent.value },
+                createArrayOfValue(gjennomforing.kontaktpersoner) { it.navIdent.value },
             ),
         )
 
@@ -320,10 +320,10 @@ class GjennomforingQueries(private val session: Session) {
             "search_arrangor" to search?.trim()?.let { "%$it%" },
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "avtale_id" to avtaleId,
-            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayFromSelector(it) { it.value } },
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
-            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { createArrayFromSelector(it) { it.value } },
+            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },

@@ -11,32 +11,33 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
-import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
+import { aktiveTilsagnQuery, tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
 import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
+import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
   const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
-  const { data: godkjenteTilsagn } = useSuspenseQuery({
-    ...godkjenteTilsagnQuery(gjennomforingId),
+  const { data: aktiveTilsagn } = useSuspenseQuery({
+    ...aktiveTilsagnQuery(gjennomforingId),
   });
 
   return {
     avtale,
     gjennomforing,
-    godkjenteTilsagn: godkjenteTilsagn.data.filter((t) => t.id !== tilsagnDetaljer.data.tilsagn.id),
-    tilsagn: tilsagnDetaljer.data.tilsagn,
+    aktiveTilsagn: aktiveTilsagn.data.filter((t) => t.id !== tilsagnDetaljer.data.tilsagn.id),
+    ...tilsagnDetaljer.data,
   };
 }
 
 export function RedigerTilsagnFormPage() {
   const { gjennomforingId } = useParams();
-  const { avtale, gjennomforing, godkjenteTilsagn, tilsagn } = useRedigerTilsagnFormData();
+  const { avtale, gjennomforing, aktiveTilsagn, tilsagn, opprettelse } =
+    useRedigerTilsagnFormData();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -78,9 +79,10 @@ export function RedigerTilsagnFormPage() {
       <ContentBox>
         <VStack gap={"8"}>
           <WhitePaddedBox>
-            <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          </WhitePaddedBox>
-          <WhitePaddedBox>
+            <VStack gap="4">
+              <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+              <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
+            </VStack>
             <TilsagnFormContainer
               avtale={avtale}
               gjennomforing={gjennomforing}
@@ -90,8 +92,8 @@ export function RedigerTilsagnFormPage() {
           <WhitePaddedBox>
             <VStack gap="4">
               <Heading size="medium">Aktive tilsagn</Heading>
-              {godkjenteTilsagn.length > 0 ? (
-                <TilsagnTabell tilsagn={godkjenteTilsagn} />
+              {aktiveTilsagn.length > 0 ? (
+                <TilsagnTabell tilsagn={aktiveTilsagn} />
               ) : (
                 <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
               )}

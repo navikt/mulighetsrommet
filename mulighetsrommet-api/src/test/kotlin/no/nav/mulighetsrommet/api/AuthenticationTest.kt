@@ -10,7 +10,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -72,7 +72,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -90,8 +90,8 @@ class AuthenticationTest : FunSpec({
     }
 
     test("verify provider AZURE_AD_TEAM_MULIGHETSROMMET") {
-        val wrongRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.KONTAKTPERSON)
-        val correctRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TEAM_MULIGHETSROMMET)
+        val wrongRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.KONTAKTPERSON)
+        val correctRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
 
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
@@ -122,7 +122,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(correctRole)),
+            auth = createAuthConfig(oauth, roles = setOf(correctRole)),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -158,7 +158,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -196,7 +196,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -244,7 +244,7 @@ class AuthenticationTest : FunSpec({
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
+            auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(

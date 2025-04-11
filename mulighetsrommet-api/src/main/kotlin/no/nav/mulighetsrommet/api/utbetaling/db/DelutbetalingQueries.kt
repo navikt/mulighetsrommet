@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
-import io.grpc.InternalChannelz.id
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.database.createArrayFromSelector
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
@@ -208,8 +208,8 @@ class DelutbetalingQueries(private val session: Session) {
     }
 
     fun getOppgaveData(
-        kostnadssteder: List<NavEnhetNummer>?,
-        tiltakskoder: List<Tiltakskode>?,
+        kostnadssteder: Set<NavEnhetNummer>?,
+        tiltakskoder: Set<Tiltakskode>?,
     ): List<DelutbetalingOppgaveData> {
         @Language("PostgreSQL")
         val query = """
@@ -238,8 +238,8 @@ class DelutbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "tiltakskoder" to tiltakskoder?.let { session.createArrayOf("tiltakskode", it) },
-            "kostnadssteder" to kostnadssteder?.let { session.createArrayFromSelector(it) { it.value } },
+            "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
+            "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
         )
 
         return session.list(queryOf(query, params)) {

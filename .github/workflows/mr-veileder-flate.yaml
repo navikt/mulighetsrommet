@@ -83,9 +83,12 @@ jobs:
           team: team-mulighetsrommet
           source: frontend/mulighetsrommet-veileder-flate/dist
           destination: dev/arbeidsmarkedstiltak-modia
-          no_cache_paths: dev/arbeidsmarkedstiltak-modia/dist/asset-manifest.json
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - name: Set special cache for asset-manifest.json
+        shell: bash
+        run: |
+          gcloud storage objects update gs://${BUCKET_NAME}/team-mulighetsrommet/dev/arbeidsmarkedstiltak-modia/dist/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
 
   deploy-modia-prod:
     name: Deploy (modia-prod)
@@ -111,9 +114,12 @@ jobs:
           team: team-mulighetsrommet
           source: frontend/mulighetsrommet-veileder-flate/dist
           destination: prod/arbeidsmarkedstiltak-modia
-          no_cache_paths: prod/arbeidsmarkedstiltak-modia/dist/asset-manifest.json
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - name: Set special cache for asset-manifest.json
+        shell: bash
+        run: |
+          gcloud storage objects update gs://${BUCKET_NAME}/team-mulighetsrommet/prod/arbeidsmarkedstiltak-modia/dist/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
 
   deploy-nav-dev:
     name: Deploy (nav-dev)

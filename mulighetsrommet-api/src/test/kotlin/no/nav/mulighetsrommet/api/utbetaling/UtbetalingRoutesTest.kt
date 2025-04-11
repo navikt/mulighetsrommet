@@ -14,10 +14,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest.Periode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -44,12 +43,12 @@ class UtbetalingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val saksbehandlerOkonomiRolle = AdGruppeNavAnsattRolleMapping(
         UUID.randomUUID(),
-        NavAnsattRolle.SAKSBEHANDLER_OKONOMI,
+        Rolle.SAKSBEHANDLER_OKONOMI,
     )
-    val attestantUtbetalingRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.ATTESTANT_UTBETALING)
+    val attestantUtbetalingRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
 
     fun appConfig(
         engine: HttpClientEngine = CIO.create(),
@@ -57,7 +56,7 @@ class UtbetalingRoutesTest : FunSpec({
         database = databaseConfig,
         auth = createAuthConfig(
             oauth,
-            roles = listOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
+            roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
         ),
         engine = engine,
     )
@@ -87,7 +86,7 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(
                         OpprettManuellUtbetalingRequest(
                             gjennomforingId = AFT1.id,
-                            periode = Periode(
+                            periode = OpprettManuellUtbetalingRequest.Periode(
                                 start = LocalDate.now().plusDays(5),
                                 slutt = LocalDate.now().plusDays(1),
                             ),
@@ -124,7 +123,7 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(
                         OpprettManuellUtbetalingRequest(
                             gjennomforingId = AFT1.id,
-                            periode = Periode(
+                            periode = OpprettManuellUtbetalingRequest.Periode(
                                 start = LocalDate.now(),
                                 slutt = LocalDate.now().plusDays(1),
                             ),
@@ -163,7 +162,7 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(
                         OpprettManuellUtbetalingRequest(
                             gjennomforingId = AFT1.id,
-                            periode = Periode(
+                            periode = OpprettManuellUtbetalingRequest.Periode(
                                 start = LocalDate.now(),
                                 slutt = LocalDate.now().plusDays(1),
                             ),

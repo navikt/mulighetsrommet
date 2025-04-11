@@ -17,6 +17,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -31,11 +32,15 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlNavn
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.delutbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -636,6 +641,32 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("når utbetaling blir behandlet") {
+        test("skal ikke kunne beslutte delutbetaling når ansatt mangler attestant-rolle") {
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+                delutbetalinger = listOf(delutbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.besluttDelutbetaling(
+                id = delutbetaling1.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                navIdent = domain.ansatte[1].navIdent,
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldContain FieldError.root(
+                    "Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (Nav Innlandet)",
+                )
+            }
+        }
+
         test("skal ikke kunne opprette delutbetaling hvis den er godkjent") {
             val domain = MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -645,6 +676,10 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -692,6 +727,10 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.DonaldDuck,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -730,6 +769,10 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -935,6 +978,10 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
             val service = createUtbetalingService()
 
@@ -1006,6 +1053,10 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.DonaldDuck,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
             val service = createUtbetalingService()
 
@@ -1145,6 +1196,10 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.OPPGJORT)
                 setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -1458,6 +1513,13 @@ class UtbetalingServiceTest : FunSpec({
         }
     }
 })
+
+private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRolle>) {
+    queries.ansatt.setRoller(
+        navIdent = ansatt.navIdent,
+        roller = roller,
+    )
+}
 
 private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = UtbetalingBeregningForhandsgodkjent(
     input = UtbetalingBeregningForhandsgodkjent.Input(

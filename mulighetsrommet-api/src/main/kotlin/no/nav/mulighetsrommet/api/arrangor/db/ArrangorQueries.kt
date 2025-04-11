@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
+import java.sql.Array
 import java.util.*
 
 class ArrangorQueries(private val session: Session) {
@@ -207,9 +208,7 @@ class ArrangorQueries(private val session: Session) {
             "telefon" to kontaktperson.telefon,
             "epost" to kontaktperson.epost,
             "beskrivelse" to kontaktperson.beskrivelse,
-            "ansvarligFor" to kontaktperson.ansvarligFor?.let {
-                session.createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", it)
-            },
+            "ansvarligFor" to kontaktperson.ansvarligFor?.let { session.createArrayOfAnsvarligFor(it) },
         )
 
         session.execute(queryOf(query, params))
@@ -289,6 +288,10 @@ class ArrangorQueries(private val session: Session) {
             ?: emptyList(),
     )
 }
+
+fun Session.createArrayOfAnsvarligFor(
+    ansvarligFor: List<ArrangorKontaktperson.AnsvarligFor>,
+): Array = createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", ansvarligFor)
 
 @Serializable
 data class DokumentKoblingForKontaktperson(

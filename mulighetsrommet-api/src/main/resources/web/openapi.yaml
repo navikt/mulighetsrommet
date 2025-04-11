@@ -1148,7 +1148,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/NavAnsattRolle"
+              $ref: "#/components/schemas/Rolle"
           description: Nav-Ansatt rollen du ønsker å filtrere på
       responses:
         200:
@@ -2265,6 +2265,29 @@ paths:
                   $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
         default:
           $ref: "#/components/responses/ProblemDetail"
+    post:
+      tags:
+        - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      operationId: opprettArrangorflateManuellUtbetaling
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArrangorflateManuellUtbetalingRequest"
+      responses:
+        200:
+          description: Lag manuell utbetaling
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: uuid
+        400:
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
     get:
@@ -2304,6 +2327,42 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/gjennomforing:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getArrangorflateGjennomforinger
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      responses:
+        200:
+          description: Get gjennomforinger til arrangør
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/kontonummer:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getKontonummer
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      responses:
+        200:
+          description: Get kontonummer til arrangør
+          content:
+            text/plain:
+              schema:
+                type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/arrangorflate/utbetaling/{id}/sync-kontonummer:
     get:
       tags:
@@ -2318,6 +2377,8 @@ paths:
             text/plain:
               schema:
                 type: string
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}/relevante-forslag:
     get:
@@ -2476,6 +2537,12 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ProblemDetail"
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationError"
   securitySchemes:
     bearerAuth:
       type: http
@@ -3472,7 +3539,7 @@ components:
         roller:
           type: array
           items:
-            $ref: "#/components/schemas/NavAnsattRolle"
+            $ref: "#/components/schemas/Rolle"
         skalSlettesDato:
           type: [string, "null"]
           format: date
@@ -3487,7 +3554,7 @@ components:
         - roller
         - skalSlettesDato
 
-    NavAnsattRolle:
+    Rolle:
       type: string
       enum:
         - TEAM_MULIGHETSROMMET
@@ -5694,7 +5761,6 @@ components:
         - KLAR_TIL_BEHANDLING
         - RETURNERT
         - TIL_GODKJENNING
-        - GODKJENT
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
 
@@ -5742,12 +5808,9 @@ components:
           type: [string, "null"]
         innsendtAv:
           type: string
-      required:
-        - id
-        - status
-        - periode
-        - beregning
-        - createdAt
+        tilskuddstype:
+          $ref: "#/components/schemas/Tilskuddstype"
+      required: [id, status, periode, beregning, createdAt, tilskuddstype]
 
     DeltakerForKostnadsfordeling:
       type: object
@@ -6051,17 +6114,18 @@ components:
         gjennomforing:
           type: object
           properties:
+            id:
+              type: string
+              format: uuid
             navn:
               type: string
-          required:
-            - navn
+          required: [navn, id]
         tiltakstype:
           type: object
           properties:
             navn:
               type: string
-          required:
-            - navn
+          required: [navn]
         type:
           $ref: "#/components/schemas/TilsagnType"
         periode:
@@ -6078,27 +6142,14 @@ components:
               type: string
             navn:
               type: string
-          required:
-            - id
-            - organisasjonsnummer
-            - navn
+          required: [id, organisasjonsnummer, navn]
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
         gjenstaendeBelop:
           type: integer
         bestillingsnummer:
           type: string
-      required:
-        - periode
-        - type
-        - status
-        - gjennomforing
-        - tiltakstype
-        - arrangor
-        - beregning
-        - id
-        - gjenstaendeBelop
-        - bestillingsnummer
+      required: [periode, type, status, gjennomforing, tiltakstype, arrangor, beregning, id, gjenstaendeBelop, bestillingsnummer]
 
     Betalingsinformasjon:
       type: object
@@ -6217,6 +6268,34 @@ components:
             $ref: "#/components/schemas/DelutbetalingRequest"
       required: [delutbetalinger, utbetalingId]
 
+    Tilskuddstype:
+      type: string
+      enum:
+        - TILTAK_DRIFTSTILSKUDD
+        - TILTAK_INVESTERINGER
+
+    ArrangorflateManuellUtbetalingRequest:
+      type: object
+      properties:
+        tilskuddstype:
+          $ref: "#/components/schemas/Tilskuddstype"
+        gjennomforingId:
+          type: string
+          format: UUID
+        periodeStart:
+          type: string
+        periodeSlutt:
+          type: string
+        beskrivelse:
+          type: string
+        kontonummer:
+          type: string
+        kidNummer:
+          type: [string, "null"]
+        belop:
+          type: number
+      required: [tilskuddstype, gjennomforingId, periodeStart, periodeSlutt, beskrivelse, kontonummer, kidNummer, belop]
+
     OpprettManuellUtbetalingRequest:
       type: object
       properties:
@@ -6224,7 +6303,7 @@ components:
           type: string
           format: UUID
         periode:
-          $ref: "#/components/schemas/ManuellUtbetalingPeriode"
+          $ref: "#/components/schemas/Periode"
         beskrivelse:
           type: string
         kontonummer:
@@ -6240,16 +6319,6 @@ components:
         - beskrivelse
         - kontonummer
         - belop
-
-    ManuellUtbetalingPeriode:
-      type: object
-      properties:
-        start:
-          type: string
-          format: date
-        slutt:
-          type: string
-          format: date
 
     BesluttDelutbetalingRequest:
       oneOf:
@@ -6287,7 +6356,7 @@ components:
         type:
           const: TIL_BESLUTNING
         behandletAv:
-          type: string
+          $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
           type: string
           format: date-time
@@ -6312,7 +6381,7 @@ components:
         type:
           const: BESLUTTET
         behandletAv:
-          type: string
+          $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
           type: string
           format: date-time
@@ -6325,7 +6394,7 @@ components:
         forklaring:
           type: string
         besluttetAv:
-          type: string
+          $ref: "#/components/schemas/AgentDto"
         besluttetTidspunkt:
           type: string
           format: date-time
@@ -6340,3 +6409,57 @@ components:
         - besluttetAv
         - besluttetTidspunkt
         - besluttelse
+
+    ArrangorflateGjennomforing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+      required: [id, navn, periode, startDato]
+
+    AgentDto:
+      oneOf:
+        - $ref: "#/components/schemas/NavAnsattAgentDto"
+        - $ref: "#/components/schemas/ArrangorAgentDto"
+        - $ref: "#/components/schemas/SystemAgentDto"
+
+    NavAnsattAgentDto:
+      type: object
+      properties:
+        type:
+          const: NAV_ANSATT
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - type
+        - navIdent
+
+    ArrangorAgentDto:
+      type: object
+      properties:
+        type:
+          const: ARRANGOR
+      required:
+        - type
+
+    SystemAgentDto:
+      type: object
+      properties:
+        type:
+          const: SYSTEM
+        navn:
+          type: string
+      required:
+        - type
+        - navn

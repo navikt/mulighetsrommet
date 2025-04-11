@@ -16,7 +16,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
@@ -40,17 +40,17 @@ class GjennomforingRoutesTest : FunSpec({
 
     val generellRolle = AdGruppeNavAnsattRolleMapping(
         UUID.randomUUID(),
-        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+        Rolle.TILTAKADMINISTRASJON_GENERELL,
     )
     val gjennomforingerSkriv = AdGruppeNavAnsattRolleMapping(
         UUID.randomUUID(),
-        NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+        Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
     )
 
     fun appConfig(
         engine: HttpClientEngine = CIO.create(),
     ) = createTestApplicationConfig().copy(
-        auth = createAuthConfig(oauth, roles = listOf(generellRolle, gjennomforingerSkriv)),
+        auth = createAuthConfig(oauth, roles = setOf(generellRolle, gjennomforingerSkriv)),
         engine = engine,
     )
 

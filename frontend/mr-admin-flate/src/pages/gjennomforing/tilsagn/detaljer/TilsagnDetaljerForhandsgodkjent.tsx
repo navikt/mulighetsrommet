@@ -1,5 +1,7 @@
 import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
@@ -10,8 +12,6 @@ import {
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, VStack } from "@navikt/ds-react";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 interface Props {
   tilsagn: TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent };
@@ -28,25 +28,25 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor 
       <TwoColumnGrid separator>
         <VStack>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.bestillingsnummer.label}
               verdi={tilsagn.bestillingsnummer}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.type.label}
               verdi={avtaletekster.tilsagn.type(tilsagn.type)}
             />
           </Bolk>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.periode.start.label}
               verdi={formaterPeriodeStart(tilsagn.periode)}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.periode.slutt.label}
               verdi={formaterPeriodeSlutt(tilsagn.periode)}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.status.label}
               verdi={
                 <TilsagnTag
@@ -59,17 +59,17 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor 
             />
           </Bolk>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.antallPlasser.label}
               verdi={tilsagn.beregning.input.antallPlasser}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.sats.label}
               verdi={formaterNOK(tilsagn.beregning.input.sats)}
             />
           </Bolk>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.kostnadssted.label}
               verdi={`${tilsagn.kostnadssted.enhetsnummer} ${tilsagn.kostnadssted.navn}`}
             />
@@ -80,11 +80,11 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor 
             Beløp
           </Heading>
           <Bolk>
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.beregning.belop.label}
               verdi={formaterNOK(tilsagn.beregning.output.belop)}
             />
-            <Metadata
+            <MetadataHorisontal
               header={tilsagnTekster.belopGjenstaende.label}
               verdi={formaterNOK(tilsagn.belopGjenstaende)}
             />
