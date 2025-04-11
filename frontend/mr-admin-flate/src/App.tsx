@@ -115,6 +115,11 @@ const router = (queryClient: QueryClient) => {
         errorElement: <ErrorPage />,
         children: [
           {
+            path: "error",
+            element: <ErrorPage />,
+            errorElement: <ErrorPage />,
+          },
+          {
             path: "tiltakstyper",
             element: <TiltakstyperPage />,
             errorElement: <ErrorPage />,

@@ -2,8 +2,8 @@ import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArra
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { addYear, isValidationError } from "@/utils/Utils";
-import { GjennomforingDto, ProblemDetail, SetStengtHosArrangorRequest } from "@mr/api-client-v2";
+import { addYear } from "@/utils/Utils";
+import { GjennomforingDto, SetStengtHosArrangorRequest, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { Alert, Button, HGrid, TextField, VStack } from "@navikt/ds-react";
@@ -39,15 +39,11 @@ export function RegistrerStengtHosArrangorForm({
             refetchType: "all",
           });
         },
-        onError: (error: ProblemDetail) => {
-          if (isValidationError(error)) {
-            error.errors.forEach((error) => {
-              const name = jsonPointerToFieldPath(
-                error.pointer,
-              ) as keyof SetStengtHosArrangorRequest;
-              setError(name, { type: "custom", message: error.detail });
-            });
-          }
+        onValidationError: (error: ValidationError) => {
+          error.errors.forEach((error) => {
+            const name = jsonPointerToFieldPath(error.pointer) as keyof SetStengtHosArrangorRequest;
+            setError(name, { type: "custom", message: error.detail });
+          });
         },
       },
     );
