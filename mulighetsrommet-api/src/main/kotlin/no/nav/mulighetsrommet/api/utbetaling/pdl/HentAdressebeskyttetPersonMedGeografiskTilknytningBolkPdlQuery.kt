@@ -19,7 +19,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
     ): Either<PdlError, Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytning?>>> {
         val request = GraphqlRequest(
             query = $$"""
-                query(identer: [ID!]!) {
+                query($identer: [ID!]!) {
                     hentPersonBolk(identer: $identer) {
                         ident
                         person {
