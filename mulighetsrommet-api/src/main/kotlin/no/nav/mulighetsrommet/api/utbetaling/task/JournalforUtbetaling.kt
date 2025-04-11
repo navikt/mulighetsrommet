@@ -123,7 +123,7 @@ fun utbetalingJournalpost(
             dokumentvarianter = listOf(
                 Journalpost.Dokument.Dokumentvariant(
                     "PDF",
-                    it.content.content.toByteArray(),
+                    Base64.getMimeDecoder().decode(it.content.content),
                     "ARKIV",
                 ),
             ),
