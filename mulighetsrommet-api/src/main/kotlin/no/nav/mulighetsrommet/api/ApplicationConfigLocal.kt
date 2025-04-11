@@ -231,6 +231,6 @@ val ApplicationConfigLocal = AppConfig(
         scope = "default",
     ),
     clamav = HttpClientConfig(
-        url = "http://localhost:8090"
-    )
+        url = "http://localhost:8090",
+    ),
 )

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import java.time.LocalDate
@@ -172,6 +173,7 @@ object UtbetalingValidator {
             kontonummer = request.kontonummer,
             kidNummer = request.kidNummer,
             beskrivelse = request.beskrivelse,
+            vedlegg = emptyList(),
         ).right()
     }
 
@@ -184,6 +186,7 @@ object UtbetalingValidator {
         val kontonummer: Kontonummer,
         val kidNummer: Kid? = null,
         val belop: Int,
+        val vedlegg: List<Vedlegg>,
     )
 
     fun validateArrangorflateManuellUtbetalingskrav(
@@ -230,6 +233,11 @@ object UtbetalingValidator {
             if (request.beskrivelse.length < 10) {
                 add(FieldError.of(ArrangorflateManuellUtbetalingRequest::beskrivelse, "Du må beskrive utbetalingen"))
             }
+
+            if (request.vedlegg.isEmpty()) {
+                add(FieldError.of(ArrangorflateManuellUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
+            }
+
             val kontonummer = try {
                 Kontonummer(request.kontonummer)
             } catch (e: IllegalArgumentException) {
@@ -264,6 +272,7 @@ object UtbetalingValidator {
                     beskrivelse = request.beskrivelse,
                     kontonummer = kontonummer,
                     kidNummer = kid,
+                    vedlegg = request.vedlegg,
                 )
             }
         }

@@ -20,6 +20,7 @@ import {
   MetaFunction,
   redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
   useRevalidator,
 } from "react-router";
@@ -37,7 +38,9 @@ import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
 import { getCurrentTab } from "~/utils/currentTab";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-
+import { FileUploader } from "../components/fileUploader/FileUploader";
+import { FileUploadHandler, FileUpload } from "@mjackson/form-data-parser";
+import { parseFormData } from "@mjackson/form-data-parser";
 type LoaderData = {
   kontonummer?: string;
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -92,12 +95,28 @@ interface ActionData {
   errors?: FieldError[];
 }
 
+const uploadHandler: FileUploadHandler = async (fileUpload: FileUpload) => {
+  if (fileUpload.fieldName === "vedlegg" && fileUpload.name.endsWith(".pdf")) {
+    // process the upload and return a File
+    const bytes = await fileUpload.bytes();
+    return new File([bytes], fileUpload.name, { type: fileUpload.type });
+  }
+};
+
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
+  const formData = await parseFormData(
+    request,
+    {
+      maxFileSize: 10000000, // 10MB
+    },
+    uploadHandler,
+  );
+
   const currentTab = getCurrentTab(request);
 
   const orgnr = formData.get("orgnr")?.toString();
   const bekreftelse = formData.get("bekreftelse")?.toString();
+  const vedlegg = formData.getAll("vedlegg") as File[];
   const beskrivelse = formData.get("beskrivelse")?.toString();
   const kontonummer = formData.get("kontonummer")?.toString();
   const periodeStart = formData.get("periodeStart")?.toString();
@@ -106,33 +125,29 @@ export const action: ActionFunction = async ({ request }) => {
   const belop = Number(formData.get("belop")?.toString());
   const type = formData.get("type")?.toString();
   const kid = formData.get("kid")?.toString();
-
   const errors: FieldError[] = [];
 
-  if (!bekreftelse) {
+  if (!type || !["DRIFT", "INVESTERING"].includes(type)) {
     errors.push({
-      pointer: "/bekreftelse",
-      detail: "Du må bekrefte at opplysningene er korrekte",
+      pointer: "/type",
+      detail: "Du må fylle ut type",
     });
   }
-  if (!kontonummer) {
-    errors.push({
-      pointer: "/kontonummer",
-      detail: "Fant ikke kontonummer",
-    });
-  }
+
   if (!gjennomforingId) {
     errors.push({
       pointer: "/gjennomforingId",
       detail: "Du må velge gjennomføring",
     });
   }
-  if (!beskrivelse) {
+
+  if (!belop) {
     errors.push({
-      pointer: "/beskrivelse",
-      detail: "Du må fylle ut beskrivelsen",
+      pointer: "/belop",
+      detail: "Du må fylle ut beløp",
     });
   }
+
   if (!periodeStart) {
     errors.push({
       pointer: "/periodeStart",
@@ -145,18 +160,35 @@ export const action: ActionFunction = async ({ request }) => {
       detail: "Du må fylle ut periode slutt",
     });
   }
-  if (!belop) {
+
+  if (vedlegg.length === 0) {
     errors.push({
-      pointer: "/belop",
-      detail: "Du må fylle ut beløp",
+      pointer: "/vedlegg",
+      detail: "Du må laste opp minst ett vedlegg",
     });
   }
-  if (!type || !["DRIFT", "INVESTERING"].includes(type)) {
+
+  if (!beskrivelse) {
     errors.push({
-      pointer: "/type",
-      detail: "Du må fylle ut type",
+      pointer: "/beskrivelse",
+      detail: "Du må fylle ut beskrivelsen",
     });
   }
+
+  if (!kontonummer) {
+    errors.push({
+      pointer: "/kontonummer",
+      detail: "Fant ikke kontonummer",
+    });
+  }
+
+  if (!bekreftelse) {
+    errors.push({
+      pointer: "/bekreftelse",
+      detail: "Du må bekrefte at opplysningene er korrekte",
+    });
+  }
+
   if (errors.length > 0) {
     return { errors };
   }
@@ -173,6 +205,7 @@ export const action: ActionFunction = async ({ request }) => {
         periodeSlutt: periodeSlutt!,
         kontonummer: kontonummer!,
         kidNummer: kid || null,
+        vedlegg: vedlegg,
       },
       headers: await apiHeaders(request),
     });
@@ -190,13 +223,13 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-export default function UtbetalingKvittering() {
+export default function ManuellUtbetalingForm() {
   const { kontonummer, gjennomforinger, tilsagn } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const revalidator = useRevalidator();
-
+  const fetcher = useFetcher();
   const [gjennomforingId, setGjennomforingId] = useState<string | undefined>(undefined);
   const [periodeStart, setPeriodeStart] = useState<string>("");
   const [periodeSlutt, setPeriodeSlutt] = useState<string>("");
@@ -227,7 +260,7 @@ export default function UtbetalingKvittering() {
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
-      <Form method="post">
+      <Form method="post" encType="multipart/form-data">
         <input type="hidden" name="orgnr" value={orgnr} />
         <VStack gap="4" className="max-w-[50%]">
           <Select
@@ -236,6 +269,7 @@ export default function UtbetalingKvittering() {
             description="TODO: denne gjør ikke noe ennå. Må implementere utbetalingstype"
             name="type"
             size="small"
+            id="type"
           >
             <option>- Velg type -</option>
             <option value="INVESTERING">Investering</option>
@@ -244,6 +278,7 @@ export default function UtbetalingKvittering() {
           <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
           <UNSAFE_Combobox
             size="small"
+            id="gjennomforingId"
             label="Velg gjennomføring"
             error={errorAt("/gjennomforingId")}
             options={gjennomforinger.map((g) => ({
@@ -299,6 +334,7 @@ export default function UtbetalingKvittering() {
             </Alert>
           )}
           <Separator />
+          <FileUploader maxFiles={10} maxSizeMB={3} maxSizeBytes={3 * 1024 * 1024} id="vedlegg" />
           <Textarea
             label="Beskrivelse"
             description="Her kan du spesifisere hva utbetalingen gjelder"
@@ -344,7 +380,9 @@ export default function UtbetalingKvittering() {
                 })}
               </ErrorSummary>
             )}
-            <Button type="submit">Bekreft og send inn</Button>
+            <Button disabled={fetcher.state !== "idle"} type="submit">
+              {fetcher.state === "submitting" ? "Sender inn..." : "Bekreft og send inn"}
+            </Button>
           </VStack>
         </VStack>
       </Form>

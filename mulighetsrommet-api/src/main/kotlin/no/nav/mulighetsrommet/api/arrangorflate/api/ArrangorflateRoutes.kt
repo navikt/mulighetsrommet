@@ -3,12 +3,15 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import arrow.core.getOrElse
 import arrow.core.left
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
@@ -18,6 +21,10 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.clamav.ClamAvClient
+import no.nav.mulighetsrommet.clamav.Content
+import no.nav.mulighetsrommet.clamav.Status
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
@@ -34,6 +41,7 @@ fun Route.arrangorflateRoutes() {
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorFlateService by inject()
+    val clamAvClient: ClamAvClient by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -93,7 +101,93 @@ fun Route.arrangorflateRoutes() {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                 requireTilgangHosArrangor(orgnr)
-                val request = call.receive<ArrangorflateManuellUtbetalingRequest>()
+                var gjennomforingId: UUID? = null
+                var periodeStart: String? = null
+                var periodeSlutt: String? = null
+                var beskrivelse: String? = null
+                var kontonummer: String? = null
+                var kidNummer: String? = null
+                var belop: Int? = null
+                var vedlegg: MutableList<Vedlegg> = mutableListOf()
+                val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
+
+                multipart.forEachPart { part ->
+                    when (part) {
+                        is PartData.FormItem -> {
+                            when (part.name) {
+                                "gjennomforingId" -> gjennomforingId = UUID.fromString(part.value)
+                                "beskrivelse" -> beskrivelse = part.value
+                                "kontonummer" -> kontonummer = part.value
+                                "kidNummer" -> kidNummer = part.value
+                                "belop" -> belop = part.value.toInt()
+                                "periodeStart" -> periodeStart = part.value
+                                "periodeSlutt" -> periodeSlutt = part.value
+                            }
+                        }
+
+                        is PartData.FileItem -> {
+                            if (part.name == "vedlegg") {
+                                vedlegg.add(
+                                    generateVedlegg(part),
+                                )
+                            }
+                        }
+
+                        else -> {}
+                    }
+
+                    part.dispose()
+                }
+
+                requireNotNull(gjennomforingId) { "Mangler gjennomforingId" }
+                requireNotNull(beskrivelse) { "Mangler beskrivelse" }
+                requireNotNull(kontonummer) { "Mangler kontonummer" }
+                requireNotNull(periodeStart) { "Mangler periodeStart" }
+                requireNotNull(periodeSlutt) { "Mangler periodeSlutt" }
+
+                val validatedVedlegg = vedlegg.map { filePart ->
+                    val bytes = filePart.content.content.toByteArray()
+                    // Optionally validate file type and size here
+                    val fileName = filePart.description
+                    val contentType = filePart.content.contentType
+
+                    if (!contentType.equals("application/pdf", ignoreCase = true)) {
+                        throw IllegalArgumentException("Vedlegg $fileName er ikke en PDF")
+                    }
+
+                    Vedlegg(
+                        content = Content(
+                            contentType = contentType,
+                            content = Base64.getEncoder().encodeToString(bytes),
+                        ),
+                        description = fileName,
+                    )
+                }
+
+                // Scan vedlegg for virus
+                val virusScanResult = clamAvClient.virusScanVedlegg(vedlegg)
+
+                val virusEksisterer = virusScanResult.any {
+                    it.Result == Status.FOUND
+                }
+
+                if (virusEksisterer) {
+                    throw StatusException(
+                        HttpStatusCode.BadRequest,
+                        "Et eller flere vedlegg inneholder virus",
+                    )
+                }
+
+                val request = ArrangorflateManuellUtbetalingRequest(
+                    gjennomforingId = gjennomforingId,
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    beskrivelse = beskrivelse,
+                    kontonummer = kontonummer,
+                    kidNummer = kidNummer,
+                    belop = belop ?: 0,
+                    vedlegg = validatedVedlegg,
+                )
 
                 UtbetalingValidator.validateArrangorflateManuellUtbetalingskrav(request)
                     .onLeft {
@@ -226,6 +320,14 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
+private suspend fun generateVedlegg(part: PartData.FileItem) = Vedlegg(
+    content = Content(
+        contentType = part.contentType.toString(),
+        content = Base64.getEncoder().encodeToString(part.provider().readBuffer().readBytes()),
+    ),
+    description = part.originalFileName ?: "ukjent.pdf",
+)
+
 @Serializable
 data class ArrangorflateGjennomforing(
     @Serializable(with = UUIDSerializer::class)
@@ -266,4 +368,5 @@ data class ArrangorflateManuellUtbetalingRequest(
     val kontonummer: String,
     val kidNummer: String? = null,
     val belop: Int,
+    val vedlegg: List<Vedlegg>,
 )

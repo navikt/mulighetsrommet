@@ -229,6 +229,6 @@ val ApplicationConfigProd = AppConfig(
         ),
     ),
     clamav = HttpClientConfig(
-        url = "http://clamav.nais-system.svc.nais.local/scan"
-    )
+        url = "http://clamav.nais-system.svc.nais.local/scan",
+    ),
 )

@@ -25,21 +25,21 @@ class ClamAvClient(
             client.submitFormWithBinaryData(
                 url = "$baseUrl/scan",
                 formData =
-                    formData {
-                        vedleggList.forEachIndexed { index, vedlegg ->
-                            append(
-                                "file$index",
-                                Base64.getMimeDecoder().decode(vedlegg.content.content),
-                                Headers.build {
-                                    append(HttpHeaders.ContentType, vedlegg.content.contentType)
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "filename=${removeNewLines(vedlegg.description)}"
-                                    )
-                                },
-                            )
-                        }
-                    },
+                formData {
+                    vedleggList.forEachIndexed { index, vedlegg ->
+                        append(
+                            "file$index",
+                            Base64.getMimeDecoder().decode(vedlegg.content.content),
+                            Headers.build {
+                                append(HttpHeaders.ContentType, vedlegg.content.contentType)
+                                append(
+                                    HttpHeaders.ContentDisposition,
+                                    "filename=${removeNewLines(vedlegg.description)}",
+                                )
+                            },
+                        )
+                    }
+                },
             )
         return httpResponse.body<List<ScanResult>>()
     }
@@ -55,7 +55,7 @@ data class ScanResult(
 enum class Status {
     FOUND,
     OK,
-    ERROR
+    ERROR,
 }
 
 fun removeNewLines(description: String): String {
@@ -65,7 +65,6 @@ fun removeNewLines(description: String): String {
 @Serializable
 data class Vedlegg(
     val content: Content,
-    val type: String,
     val description: String,
 )
 

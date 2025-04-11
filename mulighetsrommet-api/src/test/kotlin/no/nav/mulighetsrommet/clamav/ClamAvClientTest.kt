@@ -17,20 +17,20 @@ class ClamAvClientTest : FunSpec({
                                 ScanResult(
                                     Filename = "test.txt",
                                     Result = Status.OK,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
-                }
+                },
             )
 
             val vedlegg = Vedlegg(
                 content = Content(
-                    content = "test".toByteArray().decodeToString(),
                     contentType = "text/plain",
+                    content = "test".toByteArray().decodeToString(),
+                    size = part.headers["Content-Length"]?.toLongOrNull() ?: 0L,
                 ),
                 description = "test.txt",
-                type = "txt"
             )
             val result = clamAvClient.virusScanVedlegg(listOf(vedlegg))
             result[0].Result shouldBe Status.OK
@@ -46,20 +46,20 @@ class ClamAvClientTest : FunSpec({
                                 ScanResult(
                                     Filename = "test.txt",
                                     Result = Status.FOUND,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
-                }
+                },
             )
 
             val vedlegg = Vedlegg(
                 content = Content(
-                    content = "test".toByteArray().decodeToString(),
                     contentType = "text/plain",
+                    content = "test".toByteArray().decodeToString(),
+                    size = part.headers["Content-Length"]?.toLongOrNull() ?: 0L,
                 ),
                 description = "test.txt",
-                type = "txt"
             )
             val result = clamAvClient.virusScanVedlegg(listOf(vedlegg))
             result[0].Result shouldBe Status.FOUND
@@ -75,20 +75,20 @@ class ClamAvClientTest : FunSpec({
                                 ScanResult(
                                     Filename = "test.txt",
                                     Result = Status.ERROR,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
-                }
+                },
             )
 
             val vedlegg = Vedlegg(
                 content = Content(
-                    content = "test".toByteArray().decodeToString(),
                     contentType = "text/plain",
+                    content = "test".toByteArray().decodeToString(),
+                    size = part.headers["Content-Length"]?.toLongOrNull() ?: 0L,
                 ),
                 description = "test.txt",
-                type = "txt"
             )
             val result = clamAvClient.virusScanVedlegg(listOf(vedlegg))
             result[0].Result shouldBe Status.ERROR
