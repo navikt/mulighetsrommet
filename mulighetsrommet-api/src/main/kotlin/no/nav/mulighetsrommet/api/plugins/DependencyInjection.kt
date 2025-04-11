@@ -76,6 +76,7 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
@@ -266,10 +267,11 @@ private fun services(appConfig: AppConfig) = module {
         PdlClient(
             config = PdlClient.Config(appConfig.pdl.url, maxRetries = 3),
             tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
-            clientEngine = appConfig.engine,
+            clientEngine = appConfig.pdl.engine ?: appConfig.engine,
         )
     }
     single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
+    single { HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(get()) }
     single { HentHistoriskeIdenterPdlQuery(get()) }
     single { HentBrukerPdlQuery(get()) }
     single<PoaoTilgangClient> {
@@ -403,6 +405,8 @@ private fun services(appConfig: AppConfig) = module {
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
             ),
+            get(),
+            get(),
             get(),
             get(),
             get(),

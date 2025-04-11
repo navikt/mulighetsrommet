@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/norg2/norg2/api/v1/enhet/navkontor/\\d+$"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "enhetId": 123213,
+      "enhetNr": "0230",
+      "navn": "Nav Lørenskog",
+      "status": "Aktiv",
+      "type": "LOKAL"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

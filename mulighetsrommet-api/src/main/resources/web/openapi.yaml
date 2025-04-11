@@ -5818,7 +5818,14 @@ components:
         id:
           type: string
           format: uuid
-        fnr:
+        navn:
+          type: string
+        foedselsdato:
+          type: string
+          format: date
+        geografiskEnhet:
+          type: string
+        region:
           type: string
         status:
           $ref: "#/components/schemas/GruppetiltakDeltakerStatus"

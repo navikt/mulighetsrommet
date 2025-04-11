@@ -7,14 +7,11 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class HentBrukerPdlQuery(
     private val pdl: PdlClient,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     @Serializable
     data class PdlResponse(
         val hentPerson: PdlPerson? = null,
@@ -57,29 +54,7 @@ class HentBrukerPdlQuery(
                     "hentPerson var null og errors tom! response: $it"
                 }
 
-                require(it.hentGeografiskTilknytning != null) {
-                    "hentGeografiskTilknytning var null og errors tom! response: $it"
-                }
-
-                val geografiskTilknytning = when (it.hentGeografiskTilknytning.gtType) {
-                    TypeGeografiskTilknytning.BYDEL -> {
-                        GeografiskTilknytning.GtBydel(requireNotNull(it.hentGeografiskTilknytning.gtBydel))
-                    }
-
-                    TypeGeografiskTilknytning.KOMMUNE -> {
-                        GeografiskTilknytning.GtKommune(requireNotNull(it.hentGeografiskTilknytning.gtKommune))
-                    }
-
-                    TypeGeografiskTilknytning.UTLAND -> {
-                        log.warn("Pdl returnerte UTLAND geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        GeografiskTilknytning.GtUtland(it.hentGeografiskTilknytning.gtLand)
-                    }
-
-                    TypeGeografiskTilknytning.UDEFINERT -> {
-                        log.warn("Pdl returnerte UDEFINERT geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        GeografiskTilknytning.GtUdefinert
-                    }
-                }
+                val geografiskTilknytning = toGeografiskTilknytning(it.hentGeografiskTilknytning)
 
                 HentBrukerResponse(it.hentPerson.navn.firstOrNull()?.fornavn, geografiskTilknytning)
             }
@@ -93,10 +68,3 @@ data class HentBrukerResponse(
     val fornavn: String?,
     val geografiskTilknytning: GeografiskTilknytning,
 )
-
-sealed class GeografiskTilknytning {
-    data class GtKommune(val value: String) : GeografiskTilknytning()
-    data class GtBydel(val value: String) : GeografiskTilknytning()
-    data class GtUtland(val value: String?) : GeografiskTilknytning()
-    data object GtUdefinert : GeografiskTilknytning()
-}
