@@ -2273,7 +2273,7 @@ paths:
       operationId: opprettArrangorflateManuellUtbetaling
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/ArrangorflateManuellUtbetalingRequest"
       responses:
@@ -6295,7 +6295,12 @@ components:
           type: [string, "null"]
         belop:
           type: number
-      required: [tilskuddstype, gjennomforingId, periodeStart, periodeSlutt, beskrivelse, kontonummer, kidNummer, belop]
+        vedlegg:
+          type: array
+          items:
+            type: string
+            format: binary
+      required: [tilskuddstype, gjennomforingId, periodeStart, periodeSlutt, beskrivelse, kontonummer, kidNummer, belop, vedlegg]
 
     OpprettManuellUtbetalingRequest:
       type: object

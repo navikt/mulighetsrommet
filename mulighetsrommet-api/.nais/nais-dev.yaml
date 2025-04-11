@@ -133,6 +133,8 @@ spec:
           namespace: poao
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
+        - application: clamav
+          namespace: nais-system
       external:
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io

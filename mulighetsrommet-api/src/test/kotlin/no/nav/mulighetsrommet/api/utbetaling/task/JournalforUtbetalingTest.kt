@@ -115,7 +115,7 @@ class JournalforUtbetalingTest : FunSpec({
         val task = createTask()
 
         shouldThrow<Throwable> {
-            task.journalfor(utbetaling.id)
+            task.journalfor(utbetaling.id, emptyList())
         }
     }
 
@@ -134,7 +134,7 @@ class JournalforUtbetalingTest : FunSpec({
             dokumenter = emptyList(),
         ).right()
 
-        task.journalfor(utbetaling.id)
+        task.journalfor(utbetaling.id, emptyList())
 
         database.run {
             queries.utbetaling.get(utbetaling.id).shouldNotBeNull().journalpostId shouldBe "123"
@@ -146,7 +146,7 @@ class JournalforUtbetalingTest : FunSpec({
 
         assertThrows<Exception>("Test") {
             database.run { tx ->
-                task.schedule(utbetaling.id, Instant.now(), tx)
+                task.schedule(utbetaling.id, Instant.now(), tx, emptyList())
                 throw Exception("Test")
             }
         }
@@ -159,7 +159,7 @@ class JournalforUtbetalingTest : FunSpec({
         val task = createTask()
 
         database.run { tx ->
-            task.schedule(utbetaling.id, Instant.now(), tx)
+            task.schedule(utbetaling.id, Instant.now(), tx, emptyList())
         }
 
         database.assertTable("scheduled_tasks")

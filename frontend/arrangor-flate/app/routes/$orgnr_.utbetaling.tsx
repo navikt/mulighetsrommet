@@ -3,15 +3,16 @@ import {
   ArrFlateUtbetalingKompakt,
   ArrFlateUtbetalingStatus,
 } from "api-client";
-import { Tabs } from "@navikt/ds-react";
+import { Button, HStack, Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { PageHeader } from "../components/PageHeader";
 import { useTabState } from "../hooks/useTabState";
 import { apiHeaders } from "~/auth/auth.server";
-import { problemDetailResponse } from "~/utils";
+import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
+import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
   return [
@@ -50,17 +51,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return { utbetalinger, tilsagn };
 }
 
-export default function TilsagnDetaljer() {
+export default function UtbetalingOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const { utbetalinger, tilsagn } = useLoaderData<typeof loader>();
   const historiske: ArrFlateUtbetalingKompakt[] = utbetalinger.filter(
     (k) => k.status === ArrFlateUtbetalingStatus.UTBETALT,
   );
   const aktive = utbetalinger.filter((k) => k.status !== ArrFlateUtbetalingStatus.UTBETALT);
+  const orgnr = useOrgnrFromUrl();
 
   return (
     <>
-      <PageHeader title="Tilgjengelige innsendelser" />
+      <HStack justify={"space-between"}>
+        <PageHeader title="Tilgjengelige innsendelser" />
+        <Link to={internalNavigation(orgnr).manueltUtbetalingskrav}>
+          <Button variant="secondary" as="a">
+            Opprett manuelt krav om utbetaling
+          </Button>
+        </Link>
+      </HStack>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
           <Tabs.Tab value="aktive" label="Aktive" />
