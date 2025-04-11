@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.util.*
@@ -174,6 +175,7 @@ object UtbetalingValidator {
             kidNummer = request.kidNummer,
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         ).right()
     }
 
@@ -186,6 +188,7 @@ object UtbetalingValidator {
         val kontonummer: Kontonummer,
         val kidNummer: Kid? = null,
         val belop: Int,
+        val tilskuddstype: Tilskuddstype,
         val vedlegg: List<Vedlegg>,
     )
 
@@ -272,6 +275,7 @@ object UtbetalingValidator {
                     beskrivelse = request.beskrivelse,
                     kontonummer = kontonummer,
                     kidNummer = kid,
+                    tilskuddstype = request.tilskuddstype,
                     vedlegg = request.vedlegg,
                 )
             }

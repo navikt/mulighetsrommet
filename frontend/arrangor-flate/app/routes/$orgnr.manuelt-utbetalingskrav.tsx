@@ -31,6 +31,7 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagn,
   FieldError,
+  Tilskuddstype,
 } from "api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useMemo, useRef, useState } from "react";
@@ -41,6 +42,10 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { FileUploader } from "../components/fileUploader/FileUploader";
 import { FileUploadHandler, FileUpload } from "@mjackson/form-data-parser";
 import { parseFormData } from "@mjackson/form-data-parser";
+
+const MIN_BESKRIVELSE_LENGTH = 10;
+const MAX_BESKRIVELSE_LENGTH = 500;
+
 type LoaderData = {
   kontonummer?: string;
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -123,13 +128,18 @@ export const action: ActionFunction = async ({ request }) => {
   const periodeSlutt = formData.get("periodeSlutt")?.toString();
   const gjennomforingId = formData.get("gjennomforingId")?.toString();
   const belop = Number(formData.get("belop")?.toString());
-  const type = formData.get("type")?.toString();
+  const tilskuddstype = formData.get("tilskuddstype")?.toString();
   const kid = formData.get("kid")?.toString();
   const errors: FieldError[] = [];
 
-  if (!type || !["DRIFT", "INVESTERING"].includes(type)) {
+  if (
+    !tilskuddstype ||
+    ![Tilskuddstype.TILTAK_DRIFTSTILSKUDD, Tilskuddstype.TILTAK_INVESTERINGER].includes(
+      tilskuddstype as Tilskuddstype,
+    )
+  ) {
     errors.push({
-      pointer: "/type",
+      pointer: "/tilskuddstype",
       detail: "Du må fylle ut type",
     });
   }
@@ -151,13 +161,13 @@ export const action: ActionFunction = async ({ request }) => {
   if (!periodeStart) {
     errors.push({
       pointer: "/periodeStart",
-      detail: "Du må fylle ut periode start",
+      detail: "Du må fylle ut fra dato",
     });
   }
   if (!periodeSlutt) {
     errors.push({
       pointer: "/periodeSlutt",
-      detail: "Du må fylle ut periode slutt",
+      detail: "Du må fylle ut til dato",
     });
   }
 
@@ -172,6 +182,27 @@ export const action: ActionFunction = async ({ request }) => {
     errors.push({
       pointer: "/beskrivelse",
       detail: "Du må fylle ut beskrivelsen",
+    });
+  }
+
+  if (beskrivelse && beskrivelse.length < MIN_BESKRIVELSE_LENGTH) {
+    errors.push({
+      pointer: "/beskrivelse",
+      detail: `Beskrivelse må være minst ${MIN_BESKRIVELSE_LENGTH} tegn`,
+    });
+  }
+
+  if (beskrivelse && beskrivelse.length > MAX_BESKRIVELSE_LENGTH) {
+    errors.push({
+      pointer: "/beskrivelse",
+      detail: `Beskrivelse kan være maks ${MAX_BESKRIVELSE_LENGTH} tegn`,
+    });
+  }
+
+  if (!tilskuddstype || !Object.values(Tilskuddstype).includes(tilskuddstype as Tilskuddstype)) {
+    errors.push({
+      pointer: "/tilskuddstype",
+      detail: "Du må velge type",
     });
   }
 
@@ -197,7 +228,7 @@ export const action: ActionFunction = async ({ request }) => {
     await ArrangorflateService.opprettArrangorflateManuellUtbetaling({
       path: { orgnr: orgnr! },
       body: {
-        type: type as "DRIFT" | "INVESTERING",
+        tilskuddstype: tilskuddstype as Tilskuddstype,
         belop: belop,
         gjennomforingId: gjennomforingId!,
         beskrivelse: beskrivelse!,
@@ -263,44 +294,7 @@ export default function ManuellUtbetalingForm() {
       <Form method="post" encType="multipart/form-data">
         <input type="hidden" name="orgnr" value={orgnr} />
         <VStack gap="4" className="max-w-[50%]">
-          <Select
-            error={errorAt("/type")}
-            label="Velg type utbetaling"
-            description="TODO: denne gjør ikke noe ennå. Må implementere utbetalingstype"
-            name="type"
-            size="small"
-            id="type"
-          >
-            <option>- Velg type -</option>
-            <option value="INVESTERING">Investering</option>
-            <option value="DRIFT">Drift</option>
-          </Select>
-          <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
-          <UNSAFE_Combobox
-            size="small"
-            id="gjennomforingId"
-            label="Velg gjennomføring"
-            error={errorAt("/gjennomforingId")}
-            options={gjennomforinger.map((g) => ({
-              label: `${g.navn} - ${formaterDato(g.startDato)} - ${g.sluttDato ? formaterDato(g.sluttDato) : ""}`,
-              value: g.id,
-            }))}
-            onToggleSelected={(option, isSelected) => {
-              if (isSelected) {
-                setGjennomforingId(option);
-              } else {
-                setGjennomforingId(undefined);
-              }
-            }}
-          />
-          <TextField
-            label="Beløp til utbetaling"
-            error={errorAt("/belop")}
-            size="small"
-            name="belop"
-            id="belop"
-          />
-          <HStack gap="4">
+          <HStack gap="4" align="start">
             <TextField
               label="Fra dato"
               error={errorAt("/periodeStart")}
@@ -318,6 +312,36 @@ export default function ManuellUtbetalingForm() {
               id="periodeSlutt"
             />
           </HStack>
+          <Select
+            error={errorAt("/tilskuddstype")}
+            label="Velg type utbetaling"
+            name="tilskuddstype"
+            size="small"
+            id="tilskuddstype"
+          >
+            <option>- Velg type -</option>
+            <option value={Tilskuddstype.TILTAK_INVESTERINGER}>Investering</option>
+            <option value={Tilskuddstype.TILTAK_DRIFTSTILSKUDD}>Drift</option>
+          </Select>
+          <>
+            <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
+            <UNSAFE_Combobox
+              size="small"
+              label="Velg gjennomføring"
+              error={errorAt("/gjennomforingId")}
+              options={gjennomforinger.map((g) => ({
+                label: `${g.navn} - ${formaterDato(g.startDato)} - ${g.sluttDato ? formaterDato(g.sluttDato) : ""}`,
+                value: g.id,
+              }))}
+              onToggleSelected={(option, isSelected) => {
+                if (isSelected) {
+                  setGjennomforingId(option);
+                } else {
+                  setGjennomforingId(undefined);
+                }
+              }}
+            />
+          </>
           <Separator />
           {relevanteTilsagn.length > 0 ? (
             <VStack gap="2" className="max-h-128 overflow-auto">
@@ -342,7 +366,18 @@ export default function ManuellUtbetalingForm() {
             name="beskrivelse"
             error={errorAt("/beskrivelse")}
             id="beskrivelse"
+            minLength={10}
+            maxLength={500}
           />
+          <Separator />
+          <TextField
+            label="Beløp til utbetaling"
+            error={errorAt("/belop")}
+            size="small"
+            name="belop"
+            id="belop"
+          />
+          <Separator />
           <KontonummerInput
             kontonummer={kontonummer}
             error={errorAt("/kontonummer")}

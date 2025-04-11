@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import java.time.LocalDate
@@ -44,6 +45,7 @@ class UtbetalingQueriesTest : FunSpec({
         periode = periode,
         innsender = NavIdent("Z123456"),
         beskrivelse = "En beskrivelse",
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 
     test("upsert and get utbetaling med fri beregning") {
@@ -215,6 +217,7 @@ class UtbetalingQueriesTest : FunSpec({
                     periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                     innsender = null,
                     beskrivelse = null,
+                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                 )
 
                 assertThrows<SQLException> {

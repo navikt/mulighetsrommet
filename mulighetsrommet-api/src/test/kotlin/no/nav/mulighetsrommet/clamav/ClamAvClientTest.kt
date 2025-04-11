@@ -28,7 +28,6 @@ class ClamAvClientTest : FunSpec({
                 content = Content(
                     contentType = "text/plain",
                     content = "test".toByteArray().decodeToString(),
-                    size = part.headers["Content-Length"]?.toLongOrNull() ?: 0L,
                 ),
                 description = "test.txt",
             )
@@ -57,7 +56,6 @@ class ClamAvClientTest : FunSpec({
                 content = Content(
                     contentType = "text/plain",
                     content = "test".toByteArray().decodeToString(),
-                    size = part.headers["Content-Length"]?.toLongOrNull() ?: 0L,
                 ),
                 description = "test.txt",
             )
@@ -86,7 +84,6 @@ class ClamAvClientTest : FunSpec({
                 content = Content(
                     contentType = "text/plain",
                     content = "test".toByteArray().decodeToString(),
-                    size = part.headers["Content-Length"]?.toLongOrNull() ?: 0L,
                 ),
                 description = "test.txt",
             )

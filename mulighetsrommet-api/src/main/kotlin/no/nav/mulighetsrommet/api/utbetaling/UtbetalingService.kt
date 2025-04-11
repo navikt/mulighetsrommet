@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -160,6 +161,7 @@ class UtbetalingService(
             periode = periode,
             innsender = null,
             beskrivelse = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )
     }
 
@@ -202,6 +204,7 @@ class UtbetalingService(
                 ),
                 innsender = agent,
                 beskrivelse = request.beskrivelse,
+                tilskuddstype = request.tilskuddstype,
             ),
         )
         val dto = getOrError(request.id)
@@ -280,7 +283,7 @@ class UtbetalingService(
 
         val kostnadssted = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
-        if (!ansatt.hasRole(NavAnsattRolle.AttestantUtbetaling(setOf(kostnadssted.enhetsnummer)))) {
+        if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})"))).left()
         }
 
