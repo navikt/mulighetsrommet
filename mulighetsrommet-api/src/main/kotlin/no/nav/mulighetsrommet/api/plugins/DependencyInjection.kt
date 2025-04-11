@@ -53,6 +53,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
+import no.nav.mulighetsrommet.api.navansatt.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
@@ -284,6 +285,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         MicrosoftGraphClient(
+            engine = appConfig.engine,
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.msGraphConfig.scope),
         )
@@ -384,6 +386,7 @@ private fun services(appConfig: AppConfig) = module {
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
     single { NavAnsattSyncService(appConfig.navAnsattSync, get(), get(), get(), get(), get()) }
+    single { NavAnsattPrincipalService(get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single {

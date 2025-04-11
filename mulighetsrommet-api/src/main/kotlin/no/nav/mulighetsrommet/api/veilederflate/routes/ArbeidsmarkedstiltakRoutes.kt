@@ -155,7 +155,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             }
         }
 
-        authenticate(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
+        authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
             route("/preview") {
                 get("/gjennomforinger") {
                     val filter = getArbeidsmarkedstiltakFilter()
