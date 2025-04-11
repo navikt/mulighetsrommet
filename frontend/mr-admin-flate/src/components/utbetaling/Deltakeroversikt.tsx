@@ -26,10 +26,10 @@ export function Deltakeroversikt({ deltakere }: Props) {
 
           return (
             <Table.Row key={id}>
-              <Table.DataCell className="font-bold">{navn}</Table.DataCell>
-              <Table.DataCell>{formaterDato(foedselsdato)}</Table.DataCell>
-              <Table.DataCell>{region}</Table.DataCell>
-              <Table.DataCell>{geografiskEnhet}</Table.DataCell>
+              <Table.DataCell className="font-bold">{navn ?? "-"}</Table.DataCell>
+              <Table.DataCell>{formaterDato(foedselsdato) ?? "-"}</Table.DataCell>
+              <Table.DataCell>{region ?? "-"}</Table.DataCell>
+              <Table.DataCell>{geografiskEnhet ?? "-"}</Table.DataCell>
               <Table.DataCell>
                 <Tag children={capitalizedStatus} variant={"info"}></Tag>
               </Table.DataCell>
