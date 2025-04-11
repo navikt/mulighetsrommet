@@ -16,9 +16,9 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
-import no.nav.mulighetsrommet.api.plugins.AuthProvider
-import no.nav.mulighetsrommet.api.plugins.authenticate
+import no.nav.mulighetsrommet.api.plugins.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -42,7 +42,7 @@ fun Route.gjennomforingRoutes() {
     val avtaler: AvtaleService by inject()
 
     route("gjennomforinger") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+        authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
             put {
                 val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
