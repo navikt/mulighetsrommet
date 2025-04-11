@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -35,23 +35,24 @@ class JournalforUtbetaling(
     data class TaskData(
         @Serializable(with = UUIDSerializer::class)
         val utbetalingId: UUID,
+        val vedlegg: List<Vedlegg>,
     )
 
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            journalfor(inst.data.utbetalingId)
+            journalfor(inst.data.utbetalingId, inst.data.vedlegg)
         }
 
-    fun schedule(utbetalingId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
+    fun schedule(utbetalingId: UUID, startTime: Instant, tx: TransactionalSession, vedlegg: List<Vedlegg>): UUID {
         val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), TaskData(utbetalingId))
+        val instance = task.instance(id.toString(), TaskData(utbetalingId, vedlegg))
         val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
         return id
     }
 
-    suspend fun journalfor(id: UUID): Either<DokarkError, DokarkResponse> = db.session {
+    suspend fun journalfor(id: UUID, vedlegg: List<Vedlegg>): Either<DokarkError, DokarkResponse> = db.session {
         logger.info("Journalfører utbetaling med id: $id")
 
         val utbetaling = requireNotNull(queries.utbetaling.get(id)) { "Fant ikke utbetaling med id=$id" }
@@ -71,7 +72,7 @@ class JournalforUtbetaling(
             pdf.utbetalingJournalpost(utbetalingAft, tilsagn)
         }
 
-        val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId)
+        val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId, vedlegg)
 
         dokarkClient.opprettJournalpost(journalpost, AccessType.M2M)
             .onRight {
@@ -88,6 +89,7 @@ fun utbetalingJournalpost(
     utbetalingId: UUID,
     arrangor: Utbetaling.Arrangor,
     fagsakId: String,
+    vedlegg: List<Vedlegg>,
 ): Journalpost = Journalpost(
     tittel = "Utbetaling",
     journalposttype = "INNGAAENDE",
@@ -113,7 +115,18 @@ fun utbetalingJournalpost(
                 ),
             ),
         ),
-    ),
+    ) + vedlegg.map {
+        Journalpost.Dokument(
+            tittel = it.description,
+            dokumentvarianter = listOf(
+                Journalpost.Dokument.Dokumentvariant(
+                    "PDF",
+                    it.content.content,
+                    "ARKIV",
+                ),
+            ),
+        )
+    },
     eksternReferanseId = utbetalingId.toString(),
     journalfoerendeEnhet = "9999", // Automatisk journalføring
     kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal

@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/scan"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [
+      {
+        "Filename": "MockedFile_from_Wiremock.pdf",
+        "Result": "OK"
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

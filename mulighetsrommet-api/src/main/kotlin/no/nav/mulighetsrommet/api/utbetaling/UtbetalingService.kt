@@ -268,7 +268,7 @@ class UtbetalingService(
         )
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
-        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession)
+        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
         automatiskUtbetaling(utbetalingId)
     }
 
@@ -299,6 +299,7 @@ class UtbetalingService(
         )
         val dto = getOrError(request.id)
         logEndring("Utbetaling sendt inn", dto, agent)
+        journalforUtbetaling.schedule(dto.id, Instant.now(), session as TransactionalSession, request.vedlegg)
         dto.id
     }
 

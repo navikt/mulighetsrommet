@@ -58,6 +58,7 @@ data class AppConfig(
     val dokark: AuthenticatedHttpClientConfig,
     val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
+    val clamav: HttpClientConfig,
 )
 
 data class OkonomiConfig(
