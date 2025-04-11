@@ -122,7 +122,7 @@ fun utbetalingJournalpost(
             tittel = it.description,
             dokumentvarianter = listOf(
                 Journalpost.Dokument.Dokumentvariant(
-                    "PDFA",
+                    "PDF",
                     it.content.content.toByteArray(),
                     "ARKIV",
                 ),
