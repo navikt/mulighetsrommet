@@ -7,14 +7,11 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class HentBrukerPdlQuery(
     private val pdl: PdlClient,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     @Serializable
     data class PdlResponse(
         val hentPerson: PdlPerson? = null,
@@ -55,15 +52,6 @@ class HentBrukerPdlQuery(
             .map {
                 require(it.hentPerson != null) {
                     "hentPerson var null og errors tom! response: $it"
-                }
-
-                if (it.hentGeografiskTilknytning?.gtType in setOf(
-                        TypeGeografiskTilknytning.UTLAND,
-                        TypeGeografiskTilknytning.UDEFINERT,
-                        null,
-                    )
-                ) {
-                    log.warn("Pdl returnerte ${it.hentGeografiskTilknytning?.gtType} geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
                 }
 
                 val geografiskTilknytning = it.hentGeografiskTilknytning.toGeografiskTilknytningResponse()

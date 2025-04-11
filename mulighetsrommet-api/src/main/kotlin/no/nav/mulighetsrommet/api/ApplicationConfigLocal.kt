@@ -251,7 +251,7 @@ val ApplicationConfigLocal = AppConfig(
                               "data": {
                                 "hentGeografiskTilknytning": {
                                   "gtType": "BYDEL",
-                                  "gtLand": ,
+                                  "gtLand": null,
                                   "gtKommune": null,
                                   "gtBydel": "030102"
                                 },
@@ -272,7 +272,7 @@ val ApplicationConfigLocal = AppConfig(
                                       "historisk": false
                                     }
                                   ]
-                                },
+                                }
                               },
                               "errors": []
                             }

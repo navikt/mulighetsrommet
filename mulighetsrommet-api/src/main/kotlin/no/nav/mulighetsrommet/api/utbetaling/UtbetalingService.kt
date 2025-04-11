@@ -59,7 +59,7 @@ class UtbetalingService(
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
-    private val pdl: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
+    private val pdlQuery: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
     private val norg2Client: Norg2Client,
 ) {
     data class Config(
@@ -98,10 +98,10 @@ class UtbetalingService(
             .toNonEmptySetOrNull()
             ?: return mapOf()
 
-        return pdl.hentPersonOgGeografiskTilknytningBolk(identer, AccessType.M2M).getOrElse {
+        return pdlQuery.hentPersonOgGeografiskTilknytningBolk(identer, AccessType.M2M).getOrElse {
             throw StatusException(
                 status = HttpStatusCode.InternalServerError,
-                detail = "Klarte ikke hente informasjon om deltakere for kostnadsfordeling",
+                detail = "Klarte ikke hente informasjon om personer og geografisk tilknytning",
             )
         }
     }
@@ -139,7 +139,7 @@ class UtbetalingService(
 
         val deltakereForKostnadsfordeling = personer.map { (ident, pair) ->
             val (person, geografiskTilknytning) = pair
-            val gradering = person.adressebeskyttelse.firstOrNull()?.gradering
+            val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
 
             if (gradering == PdlGradering.UGRADERT) {
                 val navEnhet = hentEnhetForGeografiskTilknytning(geografiskTilknytning)

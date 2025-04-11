@@ -81,7 +81,7 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
-        pdl = pdl,
+        pdlQuery = pdl,
         norg2Client = norg2Client,
     )
 

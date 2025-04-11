@@ -75,14 +75,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
 
         val geografiskTilknytningBolkResponse = response.hentGeografiskTilknytningBolk.mapNotNull {
             if (it.code == HentGeografiskTilknytningBolkResponseEntry.Code.OK) {
-                if (it.geografiskTilknytning?.gtType in setOf(
-                        TypeGeografiskTilknytning.UTLAND,
-                        TypeGeografiskTilknytning.UDEFINERT,
-                        null,
-                    )
-                ) {
-                    log.warn("Pdl returnerte ${it.geografiskTilknytning?.gtType} for geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                }
                 val geografiskTilknytning = it.geografiskTilknytning.toGeografiskTilknytningResponse()
 
                 PdlIdent(it.ident) to geografiskTilknytning
