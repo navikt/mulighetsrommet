@@ -63,8 +63,6 @@ class JournalforUtbetaling(
 
         val fagsakId = gjennomforing.tiltaksnummer ?: gjennomforing.lopenummer
 
-        // TODO Koble vedlegg til journalposten
-
         val pdf = run {
             val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
                 gjennomforingId = utbetaling.gjennomforing.id,
@@ -123,7 +121,7 @@ fun utbetalingJournalpost(
             dokumentvarianter = listOf(
                 Journalpost.Dokument.Dokumentvariant(
                     "PDF",
-                    Base64.getMimeDecoder().decode(it.content.content),
+                    it.content.content,
                     "ARKIV",
                 ),
             ),

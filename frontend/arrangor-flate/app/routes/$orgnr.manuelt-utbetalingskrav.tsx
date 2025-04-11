@@ -1,3 +1,5 @@
+import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
   Box,
@@ -11,8 +13,14 @@ import {
   UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import { Separator } from "~/components/Separator";
-import { internalNavigation } from "../internal-navigation";
+import {
+  ArrangorflateGjennomforing,
+  ArrangorflateService,
+  ArrangorflateTilsagn,
+  FieldError,
+  Tilskuddstype,
+} from "api-client";
+import { useMemo, useRef, useState } from "react";
 import {
   ActionFunction,
   Form,
@@ -24,24 +32,15 @@ import {
   useLoaderData,
   useRevalidator,
 } from "react-router";
-import { formaterDato, isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { PageHeader } from "~/components/PageHeader";
-import {
-  ArrangorflateGjennomforing,
-  ArrangorflateService,
-  ArrangorflateTilsagn,
-  FieldError,
-  Tilskuddstype,
-} from "api-client";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useMemo, useRef, useState } from "react";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
-import { getCurrentTab } from "~/utils/currentTab";
+import { PageHeader } from "~/components/PageHeader";
+import { Separator } from "~/components/Separator";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
+import { formaterDato, isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
+import { getCurrentTab } from "~/utils/currentTab";
 import { FileUploader } from "../components/fileUploader/FileUploader";
-import { FileUploadHandler, FileUpload } from "@mjackson/form-data-parser";
-import { parseFormData } from "@mjackson/form-data-parser";
+import { internalNavigation } from "../internal-navigation";
 
 const MIN_BESKRIVELSE_LENGTH = 10;
 const MAX_BESKRIVELSE_LENGTH = 500;
@@ -261,7 +260,7 @@ export default function ManuellUtbetalingForm() {
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const revalidator = useRevalidator();
   const fetcher = useFetcher();
-  const [gjennomforingId, setGjennomforingId] = useState<string | undefined>(undefined);
+  const [gjennomforingId, setGjennomforingId] = useState<string | undefined>();
   const [periodeStart, setPeriodeStart] = useState<string>("");
   const [periodeSlutt, setPeriodeSlutt] = useState<string>("");
 
@@ -358,7 +357,13 @@ export default function ManuellUtbetalingForm() {
             </Alert>
           )}
           <Separator />
-          <FileUploader maxFiles={10} maxSizeMB={3} maxSizeBytes={3 * 1024 * 1024} id="vedlegg" />
+          <FileUploader
+            error={errorAt("/vedlegg")}
+            maxFiles={10}
+            maxSizeMB={3}
+            maxSizeBytes={3 * 1024 * 1024}
+            id="vedlegg"
+          />
           <Textarea
             label="Beskrivelse"
             description="Her kan du spesifisere hva utbetalingen gjelder"

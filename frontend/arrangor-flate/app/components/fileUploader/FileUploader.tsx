@@ -13,9 +13,10 @@ interface Props {
   maxSizeMB: number;
   maxSizeBytes: number;
   id?: string;
+  error?: string;
 }
 
-export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id }: Props) {
+export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id, error }: Props) {
   const [files, setFiles] = useState<FileObject[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +40,7 @@ export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id }: Props) {
           description={`Du kan laste opp PDF-filer. Maks ${maxFiles} filer. Maks størrelse ${maxSizeMB} MB per fil.`}
           accept=".pdf"
           id={id}
+          error={error}
           maxSizeInBytes={maxSizeBytes}
           fileLimit={{ max: maxFiles, current: acceptedFiles.length }}
           onSelect={(newFiles: FileObject[]) => {

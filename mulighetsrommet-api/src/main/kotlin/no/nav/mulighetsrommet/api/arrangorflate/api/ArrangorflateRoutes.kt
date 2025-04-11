@@ -11,7 +11,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
@@ -255,7 +254,7 @@ fun Route.arrangorflateRoutes() {
 private suspend fun generateVedlegg(part: PartData.FileItem) = Vedlegg(
     content = Content(
         contentType = part.contentType.toString(),
-        content = Base64.getEncoder().encodeToString(part.provider().readBuffer().readBytes()),
+        content = part.provider().toByteArray(),
     ),
     description = part.originalFileName ?: "ukjent.pdf",
 )
@@ -309,23 +308,16 @@ private suspend fun getFormData(call: RoutingCall): FormData {
     requireNotNull(vedlegg) { "Mangler vedlegg" }
     requireNotNull(tilskuddstype) { "Mangler tilskuddstype" }
 
-    val validatedVedlegg = vedlegg.map { filePart ->
-        val bytes = filePart.content.content.toByteArray()
+    val validatedVedlegg = vedlegg.map { v ->
         // Optionally validate file type and size here
-        val fileName = filePart.description
-        val contentType = filePart.content.contentType
+        val fileName = v.description
+        val contentType = v.content.contentType
 
         if (!contentType.equals("application/pdf", ignoreCase = true)) {
             throw IllegalArgumentException("Vedlegg $fileName er ikke en PDF")
         }
 
-        Vedlegg(
-            content = Content(
-                contentType = contentType,
-                content = Base64.getEncoder().encodeToString(bytes),
-            ),
-            description = fileName,
-        )
+        v
     }
 
     return FormData(

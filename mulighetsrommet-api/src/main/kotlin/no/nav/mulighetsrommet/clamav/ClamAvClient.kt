@@ -8,7 +8,6 @@ import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
-import java.util.*
 
 class ClamAvClient(
     private val baseUrl: String,
@@ -29,7 +28,7 @@ class ClamAvClient(
                     vedleggList.forEachIndexed { index, vedlegg ->
                         append(
                             "file$index",
-                            Base64.getMimeDecoder().decode(vedlegg.content.content),
+                            vedlegg.content.content,
                             Headers.build {
                                 append(HttpHeaders.ContentType, vedlegg.content.contentType)
                                 append(
@@ -69,4 +68,4 @@ data class Vedlegg(
 )
 
 @Serializable
-data class Content(val contentType: String, val content: String)
+data class Content(val contentType: String, val content: ByteArray)
