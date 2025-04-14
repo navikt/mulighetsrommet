@@ -66,7 +66,7 @@ export function TilsagnTable({ tilsagn }: Props) {
   );
 }
 
-function formaterTilsagnType(type: TilsagnType): string {
+export function formaterTilsagnType(type: TilsagnType): string {
   switch (type) {
     case TilsagnType.TILSAGN:
       return "Tilsagn";
