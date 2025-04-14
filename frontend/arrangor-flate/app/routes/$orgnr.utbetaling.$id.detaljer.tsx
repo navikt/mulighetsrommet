@@ -15,7 +15,7 @@ import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import GenerelleUtbetalingDetaljer from "~/components/utbetaling/GenerelleUtbetalingDetaljer";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
-import InnsendtAvUtbetalingDetaljer from "~/components/utbetaling/InnsendtAvUtbetalingDetaljer";
+import InnsendtUtbetalingDetaljer from "~/components/utbetaling/InnsendtUtbetalingDetaljer";
 import BetalingsInformasjon from "~/components/utbetaling/BetalingsInformasjon";
 import UtbetalingTilsagnDetaljer from "~/components/utbetaling/UtbetalingTilsagnDetaljer";
 
@@ -95,7 +95,7 @@ export default function UtbetalingDetaljerSide() {
         <GenerelleDetaljer utbetaling={utbetaling} utenTittel />
 
         <GenerelleUtbetalingDetaljer utbetaling={utbetaling} />
-        <InnsendtAvUtbetalingDetaljer />
+        <InnsendtUtbetalingDetaljer utbetaling={utbetaling} />
         <BetalingsInformasjon utbetaling={utbetaling} />
         <Separator />
         <UtbetalingStatusList utbetaling={utbetaling} />
