@@ -15,6 +15,8 @@ data class ArrFlateUtbetalingKompaktDto(
     val status: ArrFlateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
     val tiltakstype: Utbetaling.Tiltakstype,
     val gjennomforing: Utbetaling.Gjennomforing,
     val arrangor: Utbetaling.Arrangor,
@@ -26,6 +28,7 @@ data class ArrFlateUtbetalingKompaktDto(
             id = utbetaling.id,
             status = status,
             fristForGodkjenning = utbetaling.fristForGodkjenning,
+            godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
             tiltakstype = utbetaling.tiltakstype,
             gjennomforing = utbetaling.gjennomforing,
             arrangor = utbetaling.arrangor,

@@ -5871,7 +5871,7 @@ components:
         beregning:
           $ref: "#/components/schemas/UtbetalingKompaktBeregning"
         godkjentAvArrangorTidspunkt:
-          type: string
+          type: [ string, "null" ]
           format: date-time
         journalpostId:
           type: string
@@ -5924,6 +5924,9 @@ components:
         fristForGodkjenning:
           type: string
           format: date-time
+        godkjentAvArrangorTidspunkt:
+          type: [ string, "null" ]
+          format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
         gjennomforing:
@@ -5962,6 +5965,9 @@ components:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
+          format: date-time
+        godkjentAvArrangorTidspunkt:
+          type: [ string, "null" ]
           format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
