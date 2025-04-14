@@ -1,10 +1,11 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, Table, Tag, TagProps } from "@navikt/ds-react";
-import React, { ReactNode } from "react";
+import { Alert, Table } from "@navikt/ds-react";
+import React from "react";
 import { formaterDato, formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
 import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "api-client";
+import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
@@ -49,7 +50,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   </Table.DataCell>
                   <Table.DataCell className="min-w-44">{formaterNOK(belop)}</Table.DataCell>
                   <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
-                  <Table.DataCell>{UtbetalingStatusTag(status)}</Table.DataCell>
+                  <Table.DataCell>
+                    <UtbetalingStatusTag status={status} />
+                  </Table.DataCell>
                   <Table.DataCell>
                     <LinkWithTabState
                       aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
@@ -74,37 +77,4 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       </Table.Body>
     </Table>
   );
-}
-
-export function UtbetalingStatusTag(
-  status: ArrFlateUtbetalingStatus,
-  size?: TagProps["size"],
-): ReactNode {
-  const tagSize = size || "medium";
-  switch (status) {
-    case ArrFlateUtbetalingStatus.UTBETALT:
-      return (
-        <Tag variant="success" size={tagSize}>
-          Utbetalt
-        </Tag>
-      );
-    case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
-      return (
-        <Tag variant="warning" size={tagSize}>
-          Behandles av Nav
-        </Tag>
-      );
-    case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
-      return (
-        <Tag variant="alt1" size={tagSize}>
-          Klar for innsending
-        </Tag>
-      );
-    case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING:
-      return (
-        <Tag variant="warning" size={tagSize}>
-          Venter på endring
-        </Tag>
-      );
-  }
 }

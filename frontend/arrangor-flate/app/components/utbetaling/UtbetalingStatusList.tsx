@@ -1,6 +1,6 @@
 import { Definisjonsliste } from "../Definisjonsliste";
 import { ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
-import { UtbetalingStatusTag } from "./UtbetalingTable";
+import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 
 interface Props {
   utbetaling: ArrFlateUtbetaling;
@@ -15,7 +15,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
       definitions={[
         {
           key: "Status",
-          value: UtbetalingStatusTag(utbetaling.status, "small"),
+          value: <UtbetalingStatusTag status={utbetaling.status} size={"small"} />,
         },
         // TODO:
         { key: "Dato", value: placeholder() },
