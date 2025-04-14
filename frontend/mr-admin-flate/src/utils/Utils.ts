@@ -429,8 +429,10 @@ export function delutbetalingAarsakTilTekst(aarsak: DelutbetalingReturnertAarsak
       return "Feil beløp";
     case DelutbetalingReturnertAarsak.FEIL_ANNET:
       return "Annet";
-    case DelutbetalingReturnertAarsak.AUTOMATISK_RETURNERT:
-      return "Automatisk returnert";
+    case DelutbetalingReturnertAarsak.PROPAGERT_RETUR:
+      return "Automatisk returnert som følge av at en annen utbetalingslinje ble returnert";
+    case DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS:
+      return "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling";
   }
 }
 

@@ -54,8 +54,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-val AUTOMATISK_RETURNERT_AARSAK: String = "AUTOMATISK_RETURNERT"
-
 class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
@@ -135,7 +133,7 @@ class UtbetalingService(
             }
     }
 
-    fun hentNavEnhet(enhetsNummer: NavEnhetNummer) = db.session {
+    private fun hentNavEnhet(enhetsNummer: NavEnhetNummer) = db.session {
         queries.enhet.get(enhetsNummer)
     }
 
@@ -558,8 +556,8 @@ class UtbetalingService(
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 returnerDelutbetaling(
                     it,
-                    listOf(AUTOMATISK_RETURNERT_AARSAK),
-                    "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling",
+                    listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
+                    null,
                     Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
@@ -580,7 +578,7 @@ class UtbetalingService(
 
     private fun QueryContext.returnerDelutbetaling(
         delutbetaling: Delutbetaling,
-        aarsaker: List<String>,
+        aarsaker: List<DelutbetalingReturnertAarsak>,
         forklaring: String?,
         besluttetAv: Agent,
     ) {
@@ -592,8 +590,8 @@ class UtbetalingService(
             .forEach {
                 setReturnertDelutbetaling(
                     it,
-                    listOf(AUTOMATISK_RETURNERT_AARSAK),
-                    "Automatisk returnert av Nav Tiltaksadministrasjon som følge av at en annen utbetalingslinje ble returnert",
+                    listOf(DelutbetalingReturnertAarsak.PROPAGERT_RETUR),
+                    null,
                     Tiltaksadministrasjon,
                 )
             }
@@ -607,7 +605,7 @@ class UtbetalingService(
 
     private fun QueryContext.setReturnertDelutbetaling(
         delutbetaling: Delutbetaling,
-        aarsaker: List<String>,
+        aarsaker: List<DelutbetalingReturnertAarsak>,
         forklaring: String?,
         besluttetAv: Agent,
     ) {
@@ -617,7 +615,7 @@ class UtbetalingService(
             opprettelse.copy(
                 besluttetAv = besluttetAv,
                 besluttelse = Besluttelse.AVVIST,
-                aarsaker = aarsaker,
+                aarsaker = aarsaker.map { it.name },
                 forklaring = forklaring,
                 besluttetTidspunkt = LocalDateTime.now(),
             ),
@@ -775,4 +773,11 @@ private fun isRelevantForUtbetalingsperide(
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+}
+
+enum class DelutbetalingReturnertAarsak {
+    FEIL_BELOP,
+    FEIL_ANNET,
+    TILSAGN_FEIL_STATUS,
+    PROPAGERT_RETUR,
 }
