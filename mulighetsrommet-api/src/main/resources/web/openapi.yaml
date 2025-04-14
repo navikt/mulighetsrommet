@@ -5880,8 +5880,6 @@ components:
     ArrFlateUtbetaling:
       type: object
       properties:
-        type:
-          const: FORHANDSGODKJENT
         id:
           type: string
           format: uuid
@@ -5903,7 +5901,6 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
       required:
-        - type
         - id
         - status
         - fristForGodkjenning

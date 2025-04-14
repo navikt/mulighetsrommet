@@ -3,9 +3,8 @@ import { Separator } from "~/components/Separator";
 import { ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
-import { formaterDato, formaterPeriode } from "~/utils";
-import { Definisjonsliste } from "../Definisjonsliste";
 import { BeregningDetaljer } from "./BeregningDetaljer";
+import GenerelleUtbetalingDetaljer from "./GenerelleUtbetalingDetaljer";
 
 interface Props {
   utbetaling: ArrFlateUtbetaling;
@@ -33,16 +32,7 @@ export function UtbetalingDetaljer({ utbetaling, tilsagn }: Props) {
         </Box>
       ))}
       <Separator />
-      <Definisjonsliste
-        title="Utbetaling"
-        definitions={[
-          {
-            key: "Utbetalingsperiode",
-            value: formaterPeriode(utbetaling.periode),
-          },
-          { key: "Frist for innsending", value: formaterDato(utbetaling.fristForGodkjenning) },
-        ]}
-      />
+      <GenerelleUtbetalingDetaljer utbetaling={utbetaling} />
       <BeregningDetaljer beregning={utbetaling.beregning} />
     </>
   );

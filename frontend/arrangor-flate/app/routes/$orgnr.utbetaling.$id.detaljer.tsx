@@ -1,25 +1,32 @@
-import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Button, VStack } from "@navikt/ds-react";
-import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
+import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagn,
+  ArrFlateUtbetaling,
+  ArrFlateUtbetalingStatus,
+} from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData, useParams } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
 import { Separator } from "~/components/Separator";
-import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
-import { LinkWithTabState } from "../components/LinkWithTabState";
 import { internalNavigation } from "../internal-navigation";
 import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
+import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
+import GenerelleUtbetalingDetaljer from "~/components/utbetaling/GenerelleUtbetalingDetaljer";
+import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
+import InnsendtAvUtbetalingDetaljer from "~/components/utbetaling/InnsendtAvUtbetalingDetaljer";
+import BetalingsInformasjon from "~/components/utbetaling/BetalingsInformasjon";
+import UtbetalingTilsagnDetaljer from "~/components/utbetaling/UtbetalingTilsagnDetaljer";
 
-type UtbetalingKvitteringData = {
+type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
   tilsagn: ArrangorflateTilsagn[];
 };
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Kvittering" },
+    { title: "Utbetaling | Detaljer" },
     { name: "description", content: "Arrangørflate for kvittering av krav om utbetaling" },
   ];
 };
@@ -27,7 +34,7 @@ export const meta: MetaFunction = () => {
 export const loader: LoaderFunction = async ({
   request,
   params,
-}): Promise<UtbetalingKvitteringData> => {
+}): Promise<UtbetalingDetaljerSideData> => {
   const { id } = params;
   if (!id) {
     throw new Response("Mangler id", { status: 400 });
@@ -55,21 +62,25 @@ export const loader: LoaderFunction = async ({
   return { utbetaling, tilsagn };
 };
 
-export default function UtbetalingKvittering() {
-  const { utbetaling, tilsagn } = useLoaderData<UtbetalingKvitteringData>();
+export default function UtbetalingDetaljerSide() {
+  const { utbetaling, tilsagn } = useLoaderData<UtbetalingDetaljerSideData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
   return (
     <>
       <PageHeader
-        title="Kvittering"
+        title="Detaljer"
         tilbakeLenke={{
           navn: "Tilbake til utbetalinger",
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
-      <div className="flex justify-end">
+
+      <HStack gap="2" justify="space-between">
+        <Heading level="2" size="medium">
+          Innsending
+        </Heading>
         <a href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
             <span className="flex gap-2 items-center">
@@ -77,34 +88,21 @@ export default function UtbetalingKvittering() {
             </span>
           </Button>
         </a>
-      </div>
+      </HStack>
       <Separator />
 
-      <VStack gap="5" className="max-w-[50%] mt-5">
-        <UtbetalingDetaljer utbetaling={utbetaling} tilsagn={tilsagn} />
+      <VStack gap="6" className="max-w-[1250px] mt-5">
+        <GenerelleDetaljer utbetaling={utbetaling} utenTittel />
+
+        <GenerelleUtbetalingDetaljer utbetaling={utbetaling} />
+        <InnsendtAvUtbetalingDetaljer />
+        <BetalingsInformasjon utbetaling={utbetaling} />
         <Separator />
-        <Definisjonsliste
-          title="Betalingsinformasjon"
-          definitions={[
-            {
-              key: "Kontonummer",
-              value: formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer),
-            },
-            {
-              key: "KID-nummer",
-              value: utbetaling.betalingsinformasjon.kid!,
-            },
-          ]}
-        />
-        <VStack align={"start"}>
-          <Button
-            as={LinkWithTabState}
-            to={internalNavigation(orgnr).utbetalinger}
-            variant="secondary"
-          >
-            Tilbake til utbetalinger
-          </Button>
-        </VStack>
+        <UtbetalingStatusList utbetaling={utbetaling} />
+        {utbetaling.status !== ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV && tilsagn.length ? (
+          // TODO: spiss mot et tilsagn?
+          <UtbetalingTilsagnDetaljer tilsagn={tilsagn[0]} />
+        ) : null}
       </VStack>
     </>
   );
