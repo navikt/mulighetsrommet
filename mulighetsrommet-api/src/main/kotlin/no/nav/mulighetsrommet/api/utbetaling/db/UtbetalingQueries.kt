@@ -33,7 +33,8 @@ class UtbetalingQueries(private val session: Session) {
                 prismodell,
                 innsender,
                 tilskuddstype,
-                beskrivelse
+                beskrivelse,
+                godkjent_av_arrangor_tidspunkt
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -44,7 +45,8 @@ class UtbetalingQueries(private val session: Session) {
                 :prismodell::prismodell,
                 :innsender,
                 :tilskuddstype::tilskuddstype,
-                :beskrivelse
+                :beskrivelse,
+                :godkjent_av_arrangor_tidspunkt
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 frist_for_godkjenning = excluded.frist_for_godkjenning,
@@ -54,7 +56,8 @@ class UtbetalingQueries(private val session: Session) {
                 prismodell = excluded.prismodell,
                 innsender = excluded.innsender,
                 tilskuddstype = excluded.tilskuddstype,
-                beskrivelse = excluded.beskrivelse
+                beskrivelse = excluded.beskrivelse,
+                godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt
         """.trimIndent()
 
         val params = mapOf(
@@ -71,6 +74,7 @@ class UtbetalingQueries(private val session: Session) {
             "innsender" to dbo.innsender?.textRepr(),
             "beskrivelse" to dbo.beskrivelse,
             "tilskuddstype" to dbo.tilskuddstype.name,
+            "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
         )
 
         execute(queryOf(utbetalingQuery, params))

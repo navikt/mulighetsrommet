@@ -61,6 +61,7 @@ class JournalforUtbetalingTest : FunSpec({
         innsender = Arrangor,
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     val domain = MulighetsrommetTestDomain(

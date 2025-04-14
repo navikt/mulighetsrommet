@@ -112,6 +112,7 @@ object ArrangorflateTestUtils {
         innsender = null,
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
@@ -132,6 +133,7 @@ object ArrangorflateTestUtils {
         innsender = null,
         beskrivelse = "Test utbetaling",
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     fun createTestDomain(

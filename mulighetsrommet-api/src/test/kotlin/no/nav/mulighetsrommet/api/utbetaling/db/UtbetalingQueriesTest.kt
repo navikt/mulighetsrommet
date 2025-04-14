@@ -46,6 +46,7 @@ class UtbetalingQueriesTest : FunSpec({
         innsender = NavIdent("Z123456"),
         beskrivelse = "En beskrivelse",
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     test("upsert and get utbetaling med fri beregning") {
@@ -218,6 +219,7 @@ class UtbetalingQueriesTest : FunSpec({
                     innsender = null,
                     beskrivelse = null,
                     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                    godkjentAvArrangorTidspunkt = null,
                 )
 
                 assertThrows<SQLException> {
