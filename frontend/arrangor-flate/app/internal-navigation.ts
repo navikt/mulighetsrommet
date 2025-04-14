@@ -6,7 +6,7 @@ export const internalNavigation = (orgnr: string) => {
     beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
     bekreft: (id: string) => `/${orgnr}/utbetaling/${id}/bekreft`,
     innsendtUtbetaling: (id: string) => `/${orgnr}/utbetaling/${id}/innsendt-utbetaling`,
-    kvittering: (id: string) => `/${orgnr}/utbetaling/${id}/kvittering`,
+    detaljer: (id: string) => `/${orgnr}/utbetaling/${id}/detaljer`,
     tilsagn: (id: string) => `/${orgnr}/tilsagn/${id}`,
   };
 };

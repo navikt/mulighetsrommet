@@ -60,7 +60,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                           ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
                         ].includes(status)
                           ? internalNavigation(orgnr).beregning(id)
-                          : internalNavigation(orgnr).kvittering(id)
+                          : internalNavigation(orgnr).detaljer(id)
                       }
                     >
                       Detaljer
