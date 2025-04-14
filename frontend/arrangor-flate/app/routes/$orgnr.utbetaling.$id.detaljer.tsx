@@ -19,14 +19,14 @@ import InnsendtAvUtbetalingDetaljer from "~/components/utbetaling/InnsendtAvUtbe
 import BetalingsInformasjon from "~/components/utbetaling/BetalingsInformasjon";
 import UtbetalingTilsagnDetaljer from "~/components/utbetaling/UtbetalingTilsagnDetaljer";
 
-type UtbetalingKvitteringData = {
+type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
   tilsagn: ArrangorflateTilsagn[];
 };
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Kvittering" },
+    { title: "Utbetaling | Detaljer" },
     { name: "description", content: "Arrangørflate for kvittering av krav om utbetaling" },
   ];
 };
@@ -34,7 +34,7 @@ export const meta: MetaFunction = () => {
 export const loader: LoaderFunction = async ({
   request,
   params,
-}): Promise<UtbetalingKvitteringData> => {
+}): Promise<UtbetalingDetaljerSideData> => {
   const { id } = params;
   if (!id) {
     throw new Response("Mangler id", { status: 400 });
@@ -62,8 +62,8 @@ export const loader: LoaderFunction = async ({
   return { utbetaling, tilsagn };
 };
 
-export default function UtbetalingKvittering() {
-  const { utbetaling, tilsagn } = useLoaderData<UtbetalingKvitteringData>();
+export default function UtbetalingDetaljerSide() {
+  const { utbetaling, tilsagn } = useLoaderData<UtbetalingDetaljerSideData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
