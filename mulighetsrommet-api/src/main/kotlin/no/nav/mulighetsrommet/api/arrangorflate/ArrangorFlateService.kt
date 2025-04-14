@@ -170,18 +170,34 @@ class ArrangorFlateService(
         }
     }
 
-    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> {
-        db.session {
-            return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer(utbetaling.arrangor.organisasjonsnummer.value))
-                .map {
-                    queries.utbetaling.setBetalingsinformasjon(
-                        id = utbetaling.id,
-                        kontonummer = Kontonummer(it.kontonr),
-                        kid = utbetaling.betalingsinformasjon.kid,
-                    )
-                    it.kontonr
-                }
+    fun getGjennomforinger(orgnr: Organisasjonsnummer): List<ArrangorflateGjennomforing> = db.session {
+        queries.gjennomforing.getAll(
+            arrangorOrgnr = listOf(orgnr),
+        )
+    }
+        .items.map {
+            ArrangorflateGjennomforing(
+                id = it.id,
+                navn = it.navn,
+                startDato = it.startDato,
+                sluttDato = it.sluttDato,
+            )
         }
+
+    suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
+        return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(orgnr)
+            .map { it.kontonr }
+    }
+
+    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> = db.session {
+        getKontonummer(utbetaling.arrangor.organisasjonsnummer)
+            .onRight {
+                queries.utbetaling.setBetalingsinformasjon(
+                    id = utbetaling.id,
+                    kontonummer = Kontonummer(it),
+                    kid = utbetaling.betalingsinformasjon.kid,
+                )
+            }
     }
 }
 
@@ -245,6 +261,7 @@ private fun QueryContext.toArrangorflateTilsagn(
     return ArrangorflateTilsagnDto(
         id = tilsagn.id,
         gjennomforing = ArrangorflateTilsagnDto.Gjennomforing(
+            id = tilsagn.gjennomforing.id,
             navn = tilsagn.gjennomforing.navn,
         ),
         gjenstaendeBelop = tilsagn.belopGjenstaende,

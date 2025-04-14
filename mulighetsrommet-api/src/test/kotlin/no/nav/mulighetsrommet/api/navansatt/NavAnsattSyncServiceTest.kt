@@ -7,7 +7,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -16,6 +15,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -37,11 +37,11 @@ class NavAnsattSyncServiceTest : FunSpec({
     ) {
         queries.ansatt.setRoller(
             NavAnsattFixture.DonaldDuck.navIdent,
-            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
+            setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
         )
         queries.ansatt.setRoller(
             NavAnsattFixture.MikkeMus.navIdent,
-            setOf(NavAnsattRolle.TiltakadministrasjonGenerell),
+            setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
         )
     }
 
@@ -57,27 +57,27 @@ class NavAnsattSyncServiceTest : FunSpec({
     val sanityService: SanityService = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk()
 
-    val ansattGroupsToSync = setOf(
-        AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = TILTAKADMINISTRASJON_GENERELL),
-    )
+    val ansattGroupsToSync = setOf(UUID.randomUUID())
 
-    fun createaService(mappings: Set<AdGruppeNavAnsattRolleMapping>) = NavAnsattSyncService(
+    fun createService(groupsToSync: Set<UUID>) = NavAnsattSyncService(
+        config = NavAnsattSyncService.Config(groupsToSync),
         db = database.db,
         navAnsattService = navAnsattService,
         sanityService = sanityService,
         navEnhetService = NavEnhetService(database.db),
         notificationTask = notificationTask,
-        ansattGroupsToSync = mappings,
     )
 
-    val ansatt1 = NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
-    val ansatt2 = NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(NavAnsattRolle.TiltakadministrasjonGenerell))
+    val ansatt1 =
+        NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)))
+    val ansatt2 =
+        NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)))
 
     context("should schedule nav_ansatt to be deleted when they are not in the list of ansatte to sync") {
         val today = LocalDate.now()
         val tomorrow = today.plusDays(1)
 
-        val service = createaService(ansattGroupsToSync)
+        val service = createService(ansattGroupsToSync)
 
         test("begge finnes i azure => ingen skal slettes") {
             coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
@@ -131,7 +131,7 @@ class NavAnsattSyncServiceTest : FunSpec({
     }
 
     context("should delete nav_ansatt when their deletion date matches the provided deletion date") {
-        val service = createaService(ansattGroupsToSync)
+        val service = createService(ansattGroupsToSync)
 
         val today = LocalDate.now()
 
@@ -166,11 +166,11 @@ class NavAnsattSyncServiceTest : FunSpec({
         every { notificationTask.scheduleNotification(any(), any()) } returns Unit
 
         coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
-            ansatt2.copy(roller = setOf(NavAnsattRolle.AvtalerSkriv)),
+            ansatt2.copy(roller = setOf(NavAnsattRolle.generell(Rolle.AVTALER_SKRIV))),
         )
 
         val today = LocalDate.now()
-        val service = createaService(ansattGroupsToSync)
+        val service = createService(ansattGroupsToSync)
         service.synchronizeNavAnsatte(today, deletionDate = today)
 
         verify(exactly = 1) {

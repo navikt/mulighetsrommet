@@ -76,6 +76,7 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
@@ -86,6 +87,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
@@ -266,10 +268,11 @@ private fun services(appConfig: AppConfig) = module {
         PdlClient(
             config = PdlClient.Config(appConfig.pdl.url, maxRetries = 3),
             tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
-            clientEngine = appConfig.engine,
+            clientEngine = appConfig.pdl.engine ?: appConfig.engine,
         )
     }
     single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
+    single { HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(get()) }
     single { HentHistoriskeIdenterPdlQuery(get()) }
     single { HentBrukerPdlQuery(get()) }
     single<PoaoTilgangClient> {
@@ -383,7 +386,7 @@ private fun services(appConfig: AppConfig) = module {
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
-    single { NavAnsattSyncService(appConfig.auth.roles, get(), get(), get(), get(), get()) }
+    single { NavAnsattSyncService(appConfig.navAnsattSync, get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single {
@@ -403,6 +406,8 @@ private fun services(appConfig: AppConfig) = module {
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
             ),
+            get(),
+            get(),
             get(),
             get(),
             get(),
@@ -432,6 +437,12 @@ private fun services(appConfig: AppConfig) = module {
     single { OppgaverService(get()) }
     single { ArrangorFlateService(get(), get(), get()) }
     single { TotrinnskontrollService(get()) }
+    single {
+        ClamAvClient(
+            baseUrl = appConfig.clamav.url,
+            clientEngine = appConfig.engine,
+        )
+    }
 }
 
 private fun tasks(config: TaskConfig) = module {

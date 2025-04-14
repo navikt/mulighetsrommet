@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -402,8 +402,13 @@ private fun getTotrinnskontrollForAnsatt(
     ansatt: NavAnsatt,
     totrinnskontrollService: TotrinnskontrollService,
 ): TotrinnskontrollDto {
-    val kanBesluttesAvAnsatt = ansatt.hasRole(NavAnsattRolle.BeslutterTilsagn(setOf(kostnadssted)))
+    val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
     var besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(totrinnskontroll)
     var behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(totrinnskontroll)
-    return TotrinnskontrollDto.fromTotrinnskontroll(totrinnskontroll, kanBesluttesAvAnsatt, behandletAvNavn, besluttetAvNavn)
+    return TotrinnskontrollDto.fromTotrinnskontroll(
+        totrinnskontroll,
+        kanBesluttesAvAnsatt,
+        behandletAvNavn,
+        besluttetAvNavn,
+    )
 }

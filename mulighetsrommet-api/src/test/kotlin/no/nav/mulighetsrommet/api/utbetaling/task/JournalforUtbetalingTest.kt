@@ -19,13 +19,14 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
@@ -57,8 +58,9 @@ class JournalforUtbetalingTest : FunSpec({
         kontonummer = Kontonummer("12312312312"),
         kid = null,
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-        innsender = Utbetaling.Innsender.ArrangorAnsatt,
+        innsender = Arrangor,
         beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -113,7 +115,7 @@ class JournalforUtbetalingTest : FunSpec({
         val task = createTask()
 
         shouldThrow<Throwable> {
-            task.journalfor(utbetaling.id)
+            task.journalfor(utbetaling.id, emptyList())
         }
     }
 
@@ -132,7 +134,7 @@ class JournalforUtbetalingTest : FunSpec({
             dokumenter = emptyList(),
         ).right()
 
-        task.journalfor(utbetaling.id)
+        task.journalfor(utbetaling.id, emptyList())
 
         database.run {
             queries.utbetaling.get(utbetaling.id).shouldNotBeNull().journalpostId shouldBe "123"
@@ -144,7 +146,7 @@ class JournalforUtbetalingTest : FunSpec({
 
         assertThrows<Exception>("Test") {
             database.run { tx ->
-                task.schedule(utbetaling.id, Instant.now(), tx)
+                task.schedule(utbetaling.id, Instant.now(), tx, emptyList())
                 throw Exception("Test")
             }
         }
@@ -157,7 +159,7 @@ class JournalforUtbetalingTest : FunSpec({
         val task = createTask()
 
         database.run { tx ->
-            task.schedule(utbetaling.id, Instant.now(), tx)
+            task.schedule(utbetaling.id, Instant.now(), tx, emptyList())
         }
 
         database.assertTable("scheduled_tasks")

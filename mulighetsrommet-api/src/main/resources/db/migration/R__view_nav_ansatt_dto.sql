@@ -17,8 +17,10 @@ from nav_ansatt
          join nav_enhet on nav_ansatt.hovedenhet = nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
-                                                   'type',
+                                                   'rolle',
                                                    rolle.rolle,
+                                                   'generell',
+                                                   rolle.generell,
                                                    'enheter',
                                                    (select coalesce(jsonb_agg(enhet.nav_enhet_enhetsnummer), '[]'::jsonb)
                                                     from nav_ansatt_rolle_nav_enhet enhet

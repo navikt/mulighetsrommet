@@ -2,13 +2,13 @@ package no.nav.mulighetsrommet.api.navansatt
 
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -26,7 +26,7 @@ import java.time.LocalDate
 import java.util.*
 
 class NavAnsattSyncService(
-    private val ansattGroupsToSync: Set<AdGruppeNavAnsattRolleMapping>,
+    private val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
@@ -35,8 +35,12 @@ class NavAnsattSyncService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    data class Config(
+        val ansattGroupsToSync: Set<UUID>,
+    )
+
     suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
-        val ansatteToUpsert = navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync)
+        val ansatteToUpsert = navAnsattService.getNavAnsatteInGroups(config.ansattGroupsToSync)
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
@@ -107,7 +111,7 @@ class NavAnsattSyncService(
 
         val administrators = queries.ansatt
             .getAll(
-                rollerContainsAll = listOf(NavAnsattRolle.AvtalerSkriv),
+                rollerContainsAll = listOf(NavAnsattRolle.generell(Rolle.AVTALER_SKRIV)),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .map { it.navIdent }
@@ -145,7 +149,7 @@ class NavAnsattSyncService(
 
         val administrators = queries.ansatt
             .getAll(
-                rollerContainsAll = listOf(NavAnsattRolle.TiltaksgjennomforingerSkriv),
+                rollerContainsAll = listOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
             .map { it.navIdent }
@@ -175,7 +179,7 @@ class NavAnsattSyncService(
         val navKontaktpersoner = mutableListOf<SanityNavKontaktperson>()
         val redaktorer = mutableListOf<SanityRedaktor>()
         ansatte.forEach { ansatt ->
-            if (ansatt.hasRole(NavAnsattRolle.Kontaktperson)) {
+            if (ansatt.hasGenerellRolle(Rolle.KONTAKTPERSON)) {
                 val id = existingNavKontaktpersonIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 navKontaktpersoner.add(
                     SanityNavKontaktperson(
@@ -191,7 +195,7 @@ class NavAnsattSyncService(
                 )
             }
 
-            if (ansatt.hasRole(NavAnsattRolle.AvtalerSkriv) || ansatt.hasRole(NavAnsattRolle.TiltaksgjennomforingerSkriv)) {
+            if (ansatt.hasAnyGenerellRolle(Rolle.AVTALER_SKRIV, Rolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
                 val id = existingRedaktorIds[ansatt.navIdent.value] ?: UUID.randomUUID()
                 redaktorer.add(
                     SanityRedaktor(

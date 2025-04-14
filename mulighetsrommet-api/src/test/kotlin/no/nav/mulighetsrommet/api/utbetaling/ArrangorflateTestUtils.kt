@@ -23,6 +23,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.clamav.ScanResult
+import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -32,6 +34,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -108,6 +111,7 @@ object ArrangorflateTestUtils {
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = null,
         beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
@@ -127,6 +131,7 @@ object ArrangorflateTestUtils {
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = null,
         beskrivelse = "Test utbetaling",
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 
     fun createTestDomain(
@@ -177,7 +182,7 @@ object ArrangorflateTestUtils {
         }
     }
 
-    fun mockJournalpost(builder: MockEngineBuilder) {
+    private fun mockJournalpost(builder: MockEngineBuilder) {
         builder.post("/dokark/rest/journalpostapi/v1/journalpost") {
             respondJson(
                 DokarkResponse(
@@ -191,11 +196,18 @@ object ArrangorflateTestUtils {
         }
     }
 
+    private fun mockClamAvScan(builder: MockEngineBuilder) {
+        builder.post("/scan") {
+            respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
+        }
+    }
+
     fun appConfig(
         oauth: MockOAuth2Server,
         engine: MockEngine = createMockEngine {
             mockAltinnAuthorizedParties(this)
             mockJournalpost(this)
+            mockClamAvScan(this)
         },
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,

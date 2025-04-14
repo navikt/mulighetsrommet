@@ -1,5 +1,4 @@
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { Separator } from "@/components/detaljside/Metadata";
 import { formaterDatoSomYYYYMMDD, isValidationError, subtractDays } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
@@ -9,6 +8,7 @@ import {
   TilsagnDto,
   TilsagnStatus,
   TilsagnType,
+  Tilskuddstype,
   UtbetalingDto,
   UtbetalingLinje,
 } from "@mr/api-client-v2";
@@ -55,7 +55,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     const defaultBelop = tilsagn.length === 0 ? utbetaling.beregning.belop : 0;
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
-        `?type=${TilsagnType.EKSTRATILSAGN}` +
+        `?type=${tilsagnType(utbetaling.tilskuddstype)}` +
         `&prismodell=${Prismodell.FRI}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
@@ -163,7 +163,6 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
           }}
         />
       </VStack>
-      <Separator />
       <VStack align="end" gap="4">
         <HStack>
           <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
@@ -178,4 +177,13 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
       </VStack>
     </>
   );
+}
+
+function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
+  switch (tilskuddstype) {
+    case Tilskuddstype.TILTAK_DRIFTSTILSKUDD:
+      return TilsagnType.EKSTRATILSAGN;
+    case Tilskuddstype.TILTAK_INVESTERINGER:
+      return TilsagnType.INVESTERING;
+  }
 }

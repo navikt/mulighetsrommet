@@ -20,6 +20,8 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.util.*
 
+private val NAV_ENHET_GENERELL = NavEnhetNummer("0000")
+
 class NavAnsattService(
     private val roles: Set<AdGruppeNavAnsattRolleMapping>,
     private val db: ApiDatabase,
@@ -40,7 +42,7 @@ class NavAnsattService(
     }
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsatt> = db.session {
-        val roller = filter.roller.map { NavAnsattRolle.fromRolleAndEnheter(it, setOf()) }
+        val roller = filter.roller.map { NavAnsattRolle.generell(it) }
         queries.ansatt.getAll(rollerContainsAll = roller)
     }
 
@@ -57,25 +59,25 @@ class NavAnsattService(
         requireNotNull(kontaktPersonGruppeId)
 
         val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: getNavAnsattFromAzure(navIdent, AccessType.M2M)
-        if (ansatt.hasRole(NavAnsattRolle.Kontaktperson)) {
+        if (ansatt.hasGenerellRolle(Rolle.KONTAKTPERSON)) {
             return
         }
 
-        val roller = ansatt.roller + NavAnsattRolle.Kontaktperson
+        val roller = ansatt.roller + NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
         queries.ansatt.setRoller(ansatt.navIdent, roller)
 
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }
 
-    suspend fun getNavAnsatteInGroups(groups: Set<AdGruppeNavAnsattRolleMapping>): List<NavAnsatt> = coroutineScope {
+    suspend fun getNavAnsatteInGroups(groups: Set<UUID>): List<NavAnsatt> = coroutineScope {
         // For å begrense antall parallelle requests mot msgraph
         val semaphore = Semaphore(permits = 20)
         groups
-            .map { group ->
+            .map { groupId ->
                 async {
                     semaphore.withPermit {
-                        microsoftGraphClient.getGroupMembers(group.adGruppeId).also {
-                            logger.info("Fant ${it.size} i AD gruppe id=${group.adGruppeId}")
+                        microsoftGraphClient.getGroupMembers(groupId).also {
+                            logger.info("Fant ${it.size} i AD gruppe id=$groupId")
                         }
                     }
                 }
@@ -110,8 +112,17 @@ class NavAnsattService(
             }
         }
 
+        /**
+         * EntraId-grupper i Nav har ofte en navnestandard der de begynner med et enhetsnummer, eller 0000 når den er
+         * generell (ikke enhetsspesifikk).
+         *
+         * Vi sier at rollen er generell om 0000 finnes blandt minst én av EntraId-gruppene som tildeler rollen, eller
+         * om ingen av EntraId-gruppene som tildeler rollen definerer et enhetsnummer (og settet med Nav-enheter er
+         * tomt).
+         */
         return roleToEnheter.mapTo(mutableSetOf()) { (rolle, enheter) ->
-            NavAnsattRolle.fromRolleAndEnheter(rolle, enheter)
+            val generell = enheter.isEmpty() || NAV_ENHET_GENERELL in enheter
+            NavAnsattRolle(rolle, generell, enheter.minus(NAV_ENHET_GENERELL))
         }
     }
 
@@ -125,13 +136,6 @@ class NavAnsattService(
 
         return navEnhetRegex.find(navn)?.groupValues?.get(1)
             ?.let { NavEnhetNummer(it) }
-            // TODO: Håndter 0000 på en bedre måte
-            /**
-             * EntraId-grupper i Nav har ofte en navnestandard der de begynner med et enhetsnummer, eller 0000 når
-             * den er generell (ikke enhetsspesifikk). Enn så lenge filtrerer vi vekk denne "enheten", men det kan
-             * hende vi ønsker å mappe det til noe annen styredata på rollen i stedet.
-             */
-            ?.takeIf { it != NavEnhetNummer("0000") }
             ?.let { enhetsnummer ->
                 db.session {
                     queries.enhet.getAll(overordnetEnhet = enhetsnummer)

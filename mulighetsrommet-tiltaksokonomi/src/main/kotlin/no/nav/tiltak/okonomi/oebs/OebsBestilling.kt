@@ -158,7 +158,7 @@ data class OebsBestillingMelding(
         data class Adresse(
             val gateNavn: String,
             val by: String,
-            val postNummer: String,
+            val postNummer: String?,
             val landsKode: String,
         )
     }
