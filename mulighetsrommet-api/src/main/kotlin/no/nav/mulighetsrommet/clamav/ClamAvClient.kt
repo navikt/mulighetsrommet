@@ -33,7 +33,7 @@ class ClamAvClient(
                                 append(HttpHeaders.ContentType, vedlegg.content.contentType)
                                 append(
                                     HttpHeaders.ContentDisposition,
-                                    "filename=${removeNewLines(vedlegg.description)}",
+                                    "filename=${vedlegg.filename.replace("\n", "")}",
                                 )
                             },
                         )
@@ -57,14 +57,10 @@ enum class Status {
     ERROR,
 }
 
-fun removeNewLines(description: String): String {
-    return description.replace("\n", "")
-}
-
 @Serializable
 data class Vedlegg(
     val content: Content,
-    val description: String,
+    val filename: String,
 )
 
 @Serializable
