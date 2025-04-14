@@ -101,24 +101,12 @@ fun Route.arrangorflateRoutes() {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                 requireTilgangHosArrangor(orgnr)
-                val formData = getFormData(call)
+                val request = receiveArrangorflateManuellUtbetalingRequest(call)
 
                 // Scan vedlegg for virus
-                if (clamAvClient.virusScanVedlegg(formData.vedlegg).any { it.Result == Status.FOUND }) {
-                    throw BadRequestException("Virus funnet i minst ett vedlegg")
+                if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
+                    throw StatusException(HttpStatusCode.BadRequest, "Virus funnet i minst ett vedlegg")
                 }
-
-                val request = ArrangorflateManuellUtbetalingRequest(
-                    gjennomforingId = formData.gjennomforingId,
-                    periodeStart = formData.periodeStart,
-                    periodeSlutt = formData.periodeSlutt,
-                    beskrivelse = formData.beskrivelse,
-                    kontonummer = formData.kontonummer,
-                    kidNummer = formData.kidNummer,
-                    belop = formData.belop,
-                    vedlegg = formData.vedlegg,
-                    tilskuddstype = formData.tilskuddstype,
-                )
 
                 UtbetalingValidator.validateArrangorflateManuellUtbetalingskrav(request)
                     .onLeft {
@@ -251,15 +239,7 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-private suspend fun generateVedlegg(part: PartData.FileItem) = Vedlegg(
-    content = Content(
-        contentType = part.contentType.toString(),
-        content = part.provider().toByteArray(),
-    ),
-    description = part.originalFileName ?: "ukjent.pdf",
-)
-
-private suspend fun getFormData(call: RoutingCall): FormData {
+private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCall): ArrangorflateManuellUtbetalingRequest {
     var gjennomforingId: UUID? = null
     var periodeStart: String? = null
     var periodeSlutt: String? = null
@@ -268,7 +248,7 @@ private suspend fun getFormData(call: RoutingCall): FormData {
     var kidNummer: String? = null
     var belop: Int? = null
     var tilskuddstype: Tilskuddstype? = null
-    var vedlegg: MutableList<Vedlegg> = mutableListOf()
+    val vedlegg: MutableList<Vedlegg> = mutableListOf()
     val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
 
     multipart.forEachPart { part ->
@@ -289,7 +269,13 @@ private suspend fun getFormData(call: RoutingCall): FormData {
             is PartData.FileItem -> {
                 if (part.name == "vedlegg") {
                     vedlegg.add(
-                        generateVedlegg(part),
+                        Vedlegg(
+                            content = Content(
+                                contentType = part.contentType.toString(),
+                                content = part.provider().toByteArray(),
+                            ),
+                            filename = part.originalFileName ?: "ukjent.pdf",
+                        ),
                     )
                 }
             }
@@ -300,50 +286,30 @@ private suspend fun getFormData(call: RoutingCall): FormData {
         part.dispose()
     }
 
-    requireNotNull(gjennomforingId) { "Mangler gjennomforingId" }
-    requireNotNull(beskrivelse) { "Mangler beskrivelse" }
-    requireNotNull(kontonummer) { "Mangler kontonummer" }
-    requireNotNull(periodeStart) { "Mangler periodeStart" }
-    requireNotNull(periodeSlutt) { "Mangler periodeSlutt" }
-    requireNotNull(vedlegg) { "Mangler vedlegg" }
-    requireNotNull(tilskuddstype) { "Mangler tilskuddstype" }
-
     val validatedVedlegg = vedlegg.map { v ->
         // Optionally validate file type and size here
-        val fileName = v.description
+        val fileName = v.filename
         val contentType = v.content.contentType
 
-        if (!contentType.equals("application/pdf", ignoreCase = true)) {
-            throw IllegalArgumentException("Vedlegg $fileName er ikke en PDF")
+        require(contentType.equals("application/pdf", ignoreCase = true)) {
+            "Vedlegg $fileName er ikke en PDF"
         }
 
         v
     }
 
-    return FormData(
-        gjennomforingId = gjennomforingId,
-        periodeStart = periodeStart,
-        periodeSlutt = periodeSlutt,
-        beskrivelse = beskrivelse,
-        kontonummer = kontonummer,
+    return ArrangorflateManuellUtbetalingRequest(
+        gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
+        periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
+        periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
+        beskrivelse = requireNotNull(beskrivelse) { "Mangler beskrivelse" },
+        kontonummer = requireNotNull(kontonummer) { "Mangler kontonummer" },
         kidNummer = kidNummer,
         belop = belop ?: 0,
-        tilskuddstype = tilskuddstype,
+        tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
         vedlegg = validatedVedlegg,
     )
 }
-
-data class FormData(
-    val gjennomforingId: UUID,
-    val periodeStart: String,
-    val periodeSlutt: String,
-    val beskrivelse: String,
-    val kontonummer: String,
-    val kidNummer: String?,
-    val belop: Int,
-    val tilskuddstype: Tilskuddstype,
-    val vedlegg: List<Vedlegg>,
-)
 
 @Serializable
 data class ArrangorflateGjennomforing(

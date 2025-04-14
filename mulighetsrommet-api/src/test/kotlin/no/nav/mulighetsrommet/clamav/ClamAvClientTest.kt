@@ -29,7 +29,7 @@ class ClamAvClientTest : FunSpec({
                     contentType = "text/plain",
                     content = "test".toByteArray(),
                 ),
-                description = "test.txt",
+                filename = "test.txt",
             )
             val result = clamAvClient.virusScanVedlegg(listOf(vedlegg))
             result[0].Result shouldBe Status.OK
@@ -57,7 +57,7 @@ class ClamAvClientTest : FunSpec({
                     contentType = "text/plain",
                     content = "test".toByteArray(),
                 ),
-                description = "test.txt",
+                filename = "test.txt",
             )
             val result = clamAvClient.virusScanVedlegg(listOf(vedlegg))
             result[0].Result shouldBe Status.FOUND
@@ -85,7 +85,7 @@ class ClamAvClientTest : FunSpec({
                     contentType = "text/plain",
                     content = "test".toByteArray(),
                 ),
-                description = "test.txt",
+                filename = "test.txt",
             )
             val result = clamAvClient.virusScanVedlegg(listOf(vedlegg))
             result[0].Result shouldBe Status.ERROR

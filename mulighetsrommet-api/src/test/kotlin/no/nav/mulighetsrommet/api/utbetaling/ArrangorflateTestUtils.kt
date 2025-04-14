@@ -23,6 +23,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.clamav.ScanResult
+import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -194,11 +196,18 @@ object ArrangorflateTestUtils {
         }
     }
 
+    private fun mockClamAvScan(builder: MockEngineBuilder) {
+        builder.post("/scan") {
+            respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
+        }
+    }
+
     fun appConfig(
         oauth: MockOAuth2Server,
         engine: MockEngine = createMockEngine {
             mockAltinnAuthorizedParties(this)
             mockJournalpost(this)
+            mockClamAvScan(this)
         },
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,

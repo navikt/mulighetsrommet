@@ -117,7 +117,7 @@ fun utbetalingJournalpost(
         ),
     ) + vedlegg.map {
         Journalpost.Dokument(
-            tittel = it.description,
+            tittel = it.filename,
             dokumentvarianter = listOf(
                 Journalpost.Dokument.Dokumentvariant(
                     "PDF",
