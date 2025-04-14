@@ -66,7 +66,7 @@ export function TilsagnForm(props: Props) {
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
-        <div className="border border-border-default rounded p-4 mt-8 mb-2">
+        <div className="border border-border-default rounded p-4 mt-6 mb-6">
           <div className="flex justify-between my-3 flex-col gap-5">
             <Heading size="medium" level="3">
               Tilsagn
