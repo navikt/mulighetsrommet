@@ -20,4 +20,5 @@ data class UtbetalingDbo(
     val periode: Periode,
     val beskrivelse: String?,
     val tilskuddstype: Tilskuddstype,
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
 )

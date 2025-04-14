@@ -250,6 +250,7 @@ class UtbetalingService(
             innsender = null,
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            godkjentAvArrangorTidspunkt = null,
         )
     }
 
@@ -293,6 +294,11 @@ class UtbetalingService(
                 innsender = agent,
                 beskrivelse = request.beskrivelse,
                 tilskuddstype = request.tilskuddstype,
+                godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
+                    LocalDateTime.now()
+                } else {
+                    null
+                },
             ),
         )
         val dto = getOrError(request.id)
