@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -240,7 +241,7 @@ sealed class BesluttDelutbetalingRequest(
     @Serializable
     @SerialName("AVVIST")
     data class AvvistDelutbetalingRequest(
-        val aarsaker: List<String>,
+        val aarsaker: List<DelutbetalingReturnertAarsak>,
         val forklaring: String?,
     ) : BesluttDelutbetalingRequest(
         besluttelse = Besluttelse.AVVIST,
