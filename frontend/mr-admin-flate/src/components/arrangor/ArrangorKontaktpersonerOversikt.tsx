@@ -4,7 +4,7 @@ import {
   Arrangor,
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  ProblemDetail,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
@@ -21,7 +21,6 @@ import { RefObject, useRef, useState } from "react";
 import { z } from "zod";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
-import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   arrangor: Arrangor;
@@ -249,24 +248,18 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
       return;
     }
     mutation.mutate(state, {
-      onSuccess,
-      onError,
+      onSuccess: () => {
+        setRedigerKontaktperson(undefined);
+        mutation.reset();
+      },
+      onValidationError: (error: ValidationError) => {
+        const errors = error.errors.reduce((errors: Record<string, string>, error) => {
+          return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
+        }, {});
+        setState({ ...state, errors });
+      },
     });
   }
-
-  const onSuccess = () => {
-    setRedigerKontaktperson(undefined);
-    mutation.reset();
-  };
-
-  const onError = (error: ProblemDetail) => {
-    if (isValidationError(error)) {
-      const errors = error.errors.reduce((errors: Record<string, string>, error) => {
-        return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
-      }, {});
-      setState({ ...state, errors });
-    }
-  };
 
   return (
     <Table.Row key={kontaktperson.id}>

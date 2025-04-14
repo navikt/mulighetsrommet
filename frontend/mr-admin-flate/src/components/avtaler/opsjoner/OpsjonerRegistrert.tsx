@@ -2,7 +2,7 @@ import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { formaterDato } from "@/utils/Utils";
 import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
 import { TrashIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
 
 interface Props {
   avtale: AvtaleDto;
@@ -74,16 +74,6 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
                       >
                         Fjern
                       </Button>
-                      {mutation.error && (
-                        <VStack>
-                          <Alert inline variant="error">
-                            Klarte ikke fjerne opsjonen
-                          </Alert>
-                          <Button size="small" type="button" onClick={() => fjernOpsjon(log.id)}>
-                            Prøv igjen
-                          </Button>
-                        </VStack>
-                      )}
                     </>
                   ) : null}
                 </Table.DataCell>

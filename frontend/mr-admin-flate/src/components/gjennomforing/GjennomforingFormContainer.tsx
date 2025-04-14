@@ -12,7 +12,6 @@ import {
   GjennomforingDto,
   GjennomforingRequest,
   NavEnhet,
-  ProblemDetail,
   Tiltakskode,
   ValidationError,
 } from "@mr/api-client-v2";
@@ -28,7 +27,6 @@ import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 import { GjennomforingRedaksjoneltInnholdForm } from "./GjennomforingRedaksjoneltInnholdForm";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
-import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   onClose: () => void;
@@ -138,11 +136,7 @@ export function GjennomforingFormContainer({
 
     mutation.mutate(body, {
       onSuccess: handleSuccess,
-      onError: (error: ProblemDetail) => {
-        if (isValidationError(error)) {
-          handleValidationError(error);
-        }
-      },
+      onValidationError: handleValidationError,
     });
   };
 

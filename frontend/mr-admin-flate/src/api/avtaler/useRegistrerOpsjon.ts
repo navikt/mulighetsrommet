@@ -1,11 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { OpsjonerService, OpsjonLoggRequest } from "@mr/api-client-v2";
 import { QueryKeys } from "../QueryKeys";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useRegistrerOpsjon() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useApiMutation({
     mutationFn: (body: OpsjonLoggRequest) => OpsjonerService.lagreOpsjon({ body }),
     onSuccess(_, request) {
       return Promise.all([
