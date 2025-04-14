@@ -11,7 +11,7 @@
     "@navikt/aksel-icons": "7.18.0",
     "@navikt/ds-css": "7.18.0",
     "@navikt/ds-react": "7.18.0",
-    "@tanstack/react-query": "5.71.10",
+    "@tanstack/react-query": "5.74.0",
     "classnames": "2.5.1",
     "debounce": "2.2.0",
     "react": "19.0.0",
