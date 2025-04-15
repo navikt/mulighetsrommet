@@ -296,6 +296,7 @@ export default function ManuellUtbetalingForm() {
           <HStack gap="4" align="start">
             <TextField
               label="Fra dato"
+              placeholder="åååå-mm-dd"
               error={errorAt("/periodeStart")}
               size="small"
               onChange={(e) => setPeriodeStart(e.target.value)}
@@ -305,6 +306,7 @@ export default function ManuellUtbetalingForm() {
             <TextField
               label="Til dato"
               size="small"
+              placeholder="åååå-mm-dd"
               onChange={(e) => setPeriodeSlutt(e.target.value)}
               error={errorAt("/periodeSlutt")}
               name="periodeSlutt"
