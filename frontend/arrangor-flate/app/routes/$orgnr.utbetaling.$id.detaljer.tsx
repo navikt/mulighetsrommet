@@ -77,6 +77,8 @@ export default function UtbetalingDetaljerSide() {
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
+  const visTilsagnsListe =
+    utbetaling.status === ArrFlateUtbetalingStatus.UTBETALT && tilsagn.length;
   return (
     <>
       <PageHeader
@@ -112,11 +114,11 @@ export default function UtbetalingDetaljerSide() {
           padding="6"
           borderRadius="medium"
           borderColor="border-subtle"
-          borderWidth="2 1 0 1"
+          borderWidth={visTilsagnsListe ? "2 1 0 1" : "2 1 1 1"}
         >
           <VStack gap="6">
             <UtbetalingStatusList utbetaling={utbetaling} />
-            {utbetaling.status === ArrFlateUtbetalingStatus.UTBETALT && tilsagn.length ? (
+            {visTilsagnsListe ? (
               <Bleed marginInline="6" marginBlock="0 6" asChild>
                 <Accordion>
                   {tilsagn.map((it) => {
