@@ -143,33 +143,33 @@ object UtbetalingValidator {
         request: OpprettManuellUtbetalingRequest,
     ): Either<List<FieldError>, ValidatedManuellUtbetalingRequest> {
         val errors = buildList {
-            if (request.periode.slutt.isBefore(request.periode.start)) {
+            if (request.periodeSlutt.isBefore(request.periodeStart)) {
                 add(
-                    FieldError.ofPointer(
-                        "/arrangorinfo/periode/slutt",
+                    FieldError.of(
+                        OpprettManuellUtbetalingRequest::periodeSlutt,
                         "Periodeslutt må være etter periodestart",
                     ),
                 )
             }
 
             if (request.belop < 1) {
-                add(FieldError.ofPointer("/arrangorinfo/belop", "Beløp må være positivt"))
+                add(FieldError.of(OpprettManuellUtbetalingRequest::belop, "Beløp må være positivt"))
             }
 
             if (request.beskrivelse.length < 10) {
-                add(FieldError.ofPointer("/arrangorinfo/beskrivelse", "Du må beskrive utbetalingen"))
+                add(FieldError.of(OpprettManuellUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse"))
             }
 
             if (request.kontonummer.value.length != 11) {
-                add(FieldError.ofPointer("/arrangorinfo/kontonummer", "Kontonummer må være 11 tegn"))
+                add(FieldError.of(OpprettManuellUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn"))
             }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: ValidatedManuellUtbetalingRequest(
             id = id,
             gjennomforingId = request.gjennomforingId,
-            periodeStart = request.periode.start,
-            periodeSlutt = request.periode.slutt,
+            periodeStart = request.periodeStart,
+            periodeSlutt = request.periodeSlutt,
             belop = request.belop,
             kontonummer = request.kontonummer,
             kidNummer = request.kidNummer,

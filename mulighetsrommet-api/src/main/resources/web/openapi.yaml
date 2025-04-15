@@ -6387,8 +6387,12 @@ components:
         gjennomforingId:
           type: string
           format: UUID
-        periode:
-          $ref: "#/components/schemas/Periode"
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
         beskrivelse:
           type: string
         kontonummer:
@@ -6399,11 +6403,11 @@ components:
           type: string
       required:
         - gjennomforingId
-        - periodestart
-        - periodeslutt
         - beskrivelse
         - kontonummer
         - belop
+        - periodeStart
+        - periodeSlutt
 
     BesluttDelutbetalingRequest:
       oneOf:
