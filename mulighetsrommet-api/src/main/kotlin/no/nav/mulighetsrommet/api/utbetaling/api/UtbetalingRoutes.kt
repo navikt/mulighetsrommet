@@ -269,17 +269,12 @@ data class OpprettDelutbetalingerRequest(
 data class OpprettManuellUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val periode: Periode,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
     val beskrivelse: String,
     val kontonummer: Kontonummer,
     val kidNummer: Kid? = null,
     val belop: Int,
-) {
-    @Serializable
-    data class Periode(
-        @Serializable(with = LocalDateSerializer::class)
-        val start: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val slutt: LocalDate,
-    )
-}
+)

@@ -19,12 +19,12 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { useCreateManuellUtbetaling } from "../../../api/utbetaling/useCreateOpprettManuellUtbetaling";
-import { Separator } from "../../../components/detaljside/Metadata";
-import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/GjennomforingDetaljerMini";
-import { ControlledDateInput } from "../../../components/skjema/ControlledDateInput";
-import { FormGroup } from "../../../components/skjema/FormGroup";
 import { addYear } from "@/utils/Utils";
+import { useOpprettManuellUtbetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
+import { FormGroup } from "@/components/skjema/FormGroup";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { Separator } from "@/components/detaljside/Metadata";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -36,13 +36,8 @@ const MAKS_BEGRUNNELSE_LENGDE = 300;
 
 const Schema = z
   .object({
-    periode: z.object(
-      {
-        start: z.string({ required_error: "Du må velge periodestart" }),
-        slutt: z.string({ required_error: "Du må velge periodelsutt" }),
-      },
-      { required_error: "Du må sette start- og sluttperiode" },
-    ),
+    periodeStart: z.string({ required_error: "Du må velge periodestart" }),
+    periodeSlutt: z.string({ required_error: "Du må velge periodelsutt" }),
     beskrivelse: z
       .string({ required_error: "Du må oppgi en begrunnelse for utbetalingen" })
       .min(MIN_BEGRUNNELSE_LENGDE, {
@@ -61,20 +56,20 @@ const Schema = z
   })
   .refine(
     (data) => {
-      return !!data.periode.start;
+      return !!data.periodeStart;
     },
     {
       message: "Du må sette startdato for perioden",
-      path: ["periode.start"],
+      path: ["periodeStart"],
     },
   )
   .refine(
     (data) => {
-      return !!data.periode.slutt;
+      return !!data.periodeSlutt;
     },
     {
       message: "Du må sette sluttdato for perioden",
-      path: ["periode.slutt"],
+      path: ["periodeSlutt"],
     },
   )
   .refine(
@@ -101,7 +96,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
 
   const { register, formState, handleSubmit, setError, control } = form;
 
-  const mutation = useCreateManuellUtbetaling(utbetalingId.current);
+  const mutation = useOpprettManuellUtbetaling(utbetalingId.current);
 
   function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
@@ -146,7 +141,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                   fromDate={new Date(gjennomforing.startDato)}
                   toDate={addYear(new Date(), 5)}
                   format="iso-string"
-                  {...register("periode.start")}
+                  {...register("periodeStart")}
                   control={control}
                 />
                 <ControlledDateInput
@@ -155,7 +150,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                   fromDate={new Date(gjennomforing.startDato)}
                   toDate={addYear(new Date(), 5)}
                   format="iso-string"
-                  {...register("periode.slutt")}
+                  {...register("periodeSlutt")}
                   control={control}
                 />
               </HStack>
