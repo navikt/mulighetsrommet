@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AuthConfig
+import no.nav.mulighetsrommet.api.navansatt.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavIdent
@@ -21,15 +22,9 @@ import java.util.concurrent.TimeUnit
 
 enum class AuthProvider {
     AZURE_AD_NAV_IDENT,
-    AZURE_AD_TEAM_MULIGHETSROMMET,
     AZURE_AD_DEFAULT_APP,
     AZURE_AD_TILTAKSGJENNOMFORING_APP,
-    AZURE_AD_AVTALER_SKRIV,
-    AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
-    AZURE_AD_TILTAKSADMINISTRASJON_GENERELL,
-    AZURE_AD_SAKSBEHANDLER_OKONOMI,
-    AZURE_AD_BESLUTTER_TILSAGN,
-    AZURE_AD_ATTESTANT_UTBETALING,
+    NAV_ANSATT_WITH_ROLES,
     TOKEN_X_ARRANGOR_FLATE,
 }
 
@@ -57,7 +52,7 @@ fun Route.authenticate(
  * if the claim is not available.
  */
 fun RoutingContext.getNavIdent(): NavIdent {
-    return call.principal<JWTPrincipal>()?.get("NAVident")?.let { NavIdent(it) } ?: throw StatusException(
+    return call.principal<JWTPayloadHolder>()?.get("NAVident")?.let { NavIdent(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "NAVident mangler i JWTPrincipal",
     )
@@ -68,7 +63,7 @@ fun RoutingContext.getNavIdent(): NavIdent {
  * if the claim is not available.
  */
 fun RoutingContext.getNavAnsattAzureId(): UUID {
-    return call.principal<JWTPrincipal>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
+    return call.principal<JWTPayloadHolder>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "NavAnsattAzureId mangler i JWTPrincipal",
     )
@@ -79,14 +74,14 @@ fun RoutingContext.getNavAnsattAzureId(): UUID {
  * if the claim is not available.
  */
 fun RoutingContext.getPid(): NorskIdent {
-    return call.principal<JWTPrincipal>()?.get("pid")?.let { NorskIdent(it) } ?: throw StatusException(
+    return call.principal<JWTPayloadHolder>()?.get("pid")?.let { NorskIdent(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "pid mangler i JWTPrincipal",
     )
 }
 
 /**
- * Utility to implement a JWT [Authentication] provider with its named derived from the [authProvider] paramater.
+ * Utility to implement a JWT [Authentication] provider with its named derived from the [authProvider] parameter.
  */
 private fun AuthenticationConfig.jwt(
     authProvider: AuthProvider,
@@ -98,7 +93,10 @@ fun Application.configureAuthentication(
 ) {
     val azureJwkProvider = JwkProviderBuilder(URI(auth.azure.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
     val tokenxJwkProvider = JwkProviderBuilder(URI(auth.tokenx.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
+
     val altinnRettigheterService: AltinnRettigheterService by inject()
+
+    val navAnsattPrincipalService: NavAnsattPrincipalService by inject()
 
     fun hasApplicationRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
         val roles = credentials.getListClaim("roles", String::class)
@@ -113,144 +111,13 @@ fun Application.configureAuthentication(
     }
 
     install(Authentication) {
-        jwt(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
+        jwt(AuthProvider.NAV_ANSATT_WITH_ROLES) {
             verifier(azureJwkProvider, auth.azure.issuer) {
                 withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasNavAnsattRoles(credentials, Rolle.TEAM_MULIGHETSROMMET)) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
-        jwt(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
-            verifier(azureJwkProvider, auth.azure.issuer) {
-                withAudience(auth.azure.audience)
-            }
-
-            validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasNavAnsattRoles(
-                        credentials,
-                        Rolle.TILTAKADMINISTRASJON_GENERELL,
-                    )
-                ) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
-        jwt(AuthProvider.AZURE_AD_AVTALER_SKRIV) {
-            verifier(azureJwkProvider, auth.azure.issuer) {
-                withAudience(auth.azure.audience)
-            }
-
-            validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasNavAnsattRoles(
-                        credentials,
-                        Rolle.TILTAKADMINISTRASJON_GENERELL,
-                        Rolle.AVTALER_SKRIV,
-                    )
-                ) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
-        jwt(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
-            verifier(azureJwkProvider, auth.azure.issuer) {
-                withAudience(auth.azure.audience)
-            }
-
-            validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasNavAnsattRoles(
-                        credentials,
-                        Rolle.TILTAKADMINISTRASJON_GENERELL,
-                        Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                    )
-                ) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
-        jwt(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
-            verifier(azureJwkProvider, auth.azure.issuer) {
-                withAudience(auth.azure.audience)
-            }
-
-            validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasNavAnsattRoles(
-                        credentials,
-                        Rolle.TILTAKADMINISTRASJON_GENERELL,
-                        Rolle.SAKSBEHANDLER_OKONOMI,
-                    )
-                ) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
-        jwt(AuthProvider.AZURE_AD_BESLUTTER_TILSAGN) {
-            verifier(azureJwkProvider, auth.azure.issuer) {
-                withAudience(auth.azure.audience)
-            }
-
-            validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasNavAnsattRoles(
-                        credentials,
-                        Rolle.TILTAKADMINISTRASJON_GENERELL,
-                        Rolle.BESLUTTER_TILSAGN,
-                    )
-                ) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
-            }
-        }
-
-        jwt(AuthProvider.AZURE_AD_ATTESTANT_UTBETALING) {
-            verifier(azureJwkProvider, auth.azure.issuer) {
-                withAudience(auth.azure.audience)
-            }
-
-            validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
-
-                if (!hasNavAnsattRoles(
-                        credentials,
-                        Rolle.TILTAKADMINISTRASJON_GENERELL,
-                        Rolle.ATTESTANT_UTBETALING,
-                    )
-                ) {
-                    return@validate null
-                }
-
-                JWTPrincipal(credentials.payload)
+                navAnsattPrincipalService.resolveNavAnsattPrincipal(credentials)?.takeIf { it.roller.isNotEmpty() }
             }
         }
 

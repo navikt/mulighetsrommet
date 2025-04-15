@@ -17,6 +17,7 @@ import kotlin.reflect.KProperty1
  */
 typealias StatusResponse<T> = Either<ProblemDetail, T>
 
+@Serializable
 data class ValidationError(
     override val detail: String = "Unknown Validation Error",
     val errors: List<FieldError>,

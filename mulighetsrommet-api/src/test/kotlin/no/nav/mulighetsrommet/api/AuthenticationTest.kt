@@ -10,11 +10,15 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.clients.msgraph.GetMemberGroupsResponse
+import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphGroup
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -38,8 +42,8 @@ class AuthenticationTest : FunSpec({
                 get("AZURE_AD_NAV_IDENT") { call.respond(HttpStatusCode.OK) }
             }
 
-            authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
-                get("AZURE_AD_TEAM_MULIGHETSROMMET") { call.respond(HttpStatusCode.OK) }
+            authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+                get("NAV_ANSATT_WITH_ROLES") { call.respond(HttpStatusCode.OK) }
             }
 
             authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
@@ -89,10 +93,7 @@ class AuthenticationTest : FunSpec({
         }
     }
 
-    test("verify provider AZURE_AD_TEAM_MULIGHETSROMMET") {
-        val wrongRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.KONTAKTPERSON)
-        val correctRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
-
+    test("verify provider NAV_ANSATT_WITH_ROLES") {
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
@@ -103,26 +104,44 @@ class AuthenticationTest : FunSpec({
         val requestWithoutNAVident = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken().serialize())
         }
-        val requestWithoutGroup = { request: HttpRequestBuilder ->
+        val requestWithoutOid = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
         }
+        val userWithoutRoles = UUID.randomUUID().toString()
         val requestWithWrongGroup = { request: HttpRequestBuilder ->
             val claims = mapOf(
                 "NAVident" to "ABC123",
-                "groups" to listOf(wrongRole.adGruppeId),
+                "oid" to userWithoutRoles,
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
+        val userWithRoles = UUID.randomUUID().toString()
         val requestWithCorrectGroup = { request: HttpRequestBuilder ->
             val claims = mapOf(
                 "NAVident" to "ABC123",
-                "groups" to listOf(correctRole.adGruppeId),
+                "oid" to userWithRoles,
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
 
+        val roles = setOf(AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET))
+
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = setOf(correctRole)),
+            auth = createAuthConfig(oauth, roles = roles),
+            engine = createMockEngine {
+                get(".*/users/$userWithoutRoles/transitiveMemberOf/microsoft.graph.group.*".toRegex()) {
+                    respondJson(
+                        GetMemberGroupsResponse(listOf()),
+                    )
+                }
+                get(".*/users/$userWithRoles/transitiveMemberOf/microsoft.graph.group.*".toRegex()) {
+                    respondJson(
+                        GetMemberGroupsResponse(
+                            roles.map { MsGraphGroup(id = it.adGruppeId, displayName = it.rolle.name) },
+                        ),
+                    )
+                }
+            },
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
             forAll(
@@ -130,11 +149,11 @@ class AuthenticationTest : FunSpec({
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutNAVident, HttpStatusCode.Unauthorized),
-                row(requestWithoutGroup, HttpStatusCode.Unauthorized),
+                row(requestWithoutOid, HttpStatusCode.Unauthorized),
                 row(requestWithWrongGroup, HttpStatusCode.Unauthorized),
                 row(requestWithCorrectGroup, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
-                val response = client.get("/AZURE_AD_TEAM_MULIGHETSROMMET") { buildRequest(this) }
+                val response = client.get("/NAV_ANSATT_WITH_ROLES") { buildRequest(this) }
 
                 response.status shouldBe responseStatusCode
             }
