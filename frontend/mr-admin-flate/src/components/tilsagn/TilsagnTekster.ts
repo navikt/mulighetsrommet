@@ -34,6 +34,10 @@ export const tilsagnTekster = {
       label: "Totalbeløp",
     },
   },
+  totrinn: {
+    behandletAv: "Behandlet av",
+    besluttetAv: "Besluttet av",
+  },
   manglerStartdato: "Du må velge en startdato",
   manglerSluttdato: "Du må velge en sluttdato",
   manglerKostnadssted: "Du må velge et kostnadssted",
