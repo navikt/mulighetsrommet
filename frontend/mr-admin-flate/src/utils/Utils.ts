@@ -488,3 +488,10 @@ export function navnEllerIdent(agent: AgentDto): string {
       return "Tiltaksarrangør";
   }
 }
+
+export function navnIdentEllerPlaceholder(agent?: AgentDto): string {
+  if (!agent) {
+    return "-";
+  }
+  return navnEllerIdent(agent);
+}

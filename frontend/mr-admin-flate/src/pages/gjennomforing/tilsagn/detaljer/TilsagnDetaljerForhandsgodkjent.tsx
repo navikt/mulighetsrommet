@@ -4,7 +4,11 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
-import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
+import {
+  formaterPeriodeSlutt,
+  formaterPeriodeStart,
+  navnIdentEllerPlaceholder,
+} from "@/utils/Utils";
 import {
   TilsagnBeregningForhandsgodkjent,
   TilsagnDto,
@@ -15,11 +19,21 @@ import { Heading, VStack } from "@navikt/ds-react";
 
 interface Props {
   tilsagn: TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent };
+  opprettelse: TotrinnskontrollDto;
   annullering?: TotrinnskontrollDto;
   oppgjor?: TotrinnskontrollDto;
 }
 
-export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor }: Props) {
+export function TilsagnDetaljerForhandsgodkjent({
+  tilsagn,
+  opprettelse,
+  annullering,
+  oppgjor,
+}: Props) {
+  const totrinn = annullering || oppgjor || opprettelse;
+  const behandletAv = totrinn?.behandletAv;
+  const besluttetAv = (totrinn?.type === "BESLUTTET" && totrinn.besluttetAv) || undefined;
+
   return (
     <>
       <Heading size="medium" level="3">
@@ -73,6 +87,18 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn, annullering, oppgjor 
               header={tilsagnTekster.kostnadssted.label}
               verdi={`${tilsagn.kostnadssted.enhetsnummer} ${tilsagn.kostnadssted.navn}`}
             />
+          </Bolk>
+          <Bolk>
+            <MetadataHorisontal
+              header={tilsagnTekster.totrinn.behandletAv}
+              verdi={navnIdentEllerPlaceholder(behandletAv)}
+            />
+            {besluttetAv && (
+              <MetadataHorisontal
+                header={tilsagnTekster.totrinn.besluttetAv}
+                verdi={navnIdentEllerPlaceholder(besluttetAv)}
+              />
+            )}
           </Bolk>
         </VStack>
         <VStack>
