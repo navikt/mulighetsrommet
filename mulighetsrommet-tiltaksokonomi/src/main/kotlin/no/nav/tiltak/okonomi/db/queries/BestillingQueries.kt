@@ -1,7 +1,9 @@
 package no.nav.tiltak.okonomi.db.queries
 
+import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
@@ -12,6 +14,7 @@ import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Bestilling
 import org.intellij.lang.annotations.Language
+import java.time.LocalDateTime
 
 class BestillingQueries(private val session: Session) {
 
@@ -114,6 +117,25 @@ class BestillingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setAvstemtTidspunkt(tidspunkt: LocalDateTime, bestillingsnummer: List<String>) {
+        @Language("PostgreSQL")
+        val query = """
+            update bestilling
+            set avstemt_tidspunkt = :tidspunkt
+            where bestillingsnummer = any(:bestillingsnummer)
+        """.trimIndent()
+
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "tidspunkt" to tidspunkt,
+                    "bestillingsnummer" to session.createTextArray(bestillingsnummer),
+                ),
+            ),
+        )
+    }
+
     fun setStatus(bestillingsnummer: String, status: BestillingStatusType) {
         @Language("PostgreSQL")
         val query = """
@@ -146,14 +168,6 @@ class BestillingQueries(private val session: Session) {
 
     fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
         @Language("PostgreSQL")
-        val selectLinje = """
-            select linjenummer, periode, belop
-            from bestilling_linje
-            where bestilling_id = ?
-            order by linjenummer
-        """.trimIndent()
-
-        @Language("PostgreSQL")
         val selectBestilling = """
             select
                 id,
@@ -178,42 +192,81 @@ class BestillingQueries(private val session: Session) {
             where bestillingsnummer = ?
         """.trimIndent()
 
-        return session.single(queryOf(selectBestilling, bestillingsnummer)) { bestilling ->
-            val linjer = session.list(queryOf(selectLinje, bestilling.int("id"))) { linje ->
-                Bestilling.Linje(
-                    linjenummer = linje.int("linjenummer"),
-                    periode = linje.periode("periode"),
-                    belop = linje.int("belop"),
-                )
-            }
+        return session.single(queryOf(selectBestilling, bestillingsnummer)) { it.toBestilling() }
+    }
 
-            val status = BestillingStatusType.valueOf(bestilling.string("status"))
-            Bestilling(
-                tiltakskode = Tiltakskode.valueOf(bestilling.string("tiltakskode")),
-                arrangorHovedenhet = Organisasjonsnummer(bestilling.string("arrangor_hovedenhet")),
-                arrangorUnderenhet = Organisasjonsnummer(bestilling.string("arrangor_underenhet")),
-                kostnadssted = NavEnhetNummer(bestilling.string("kostnadssted")),
-                bestillingsnummer = bestilling.string("bestillingsnummer"),
-                avtalenummer = bestilling.stringOrNull("avtalenummer"),
-                belop = bestilling.int("belop"),
-                periode = bestilling.periode("periode"),
-                status = status,
-                opprettelse = Bestilling.Totrinnskontroll(
-                    behandletAv = OkonomiPart.fromString(bestilling.string("opprettelse_behandlet_av")),
-                    behandletTidspunkt = bestilling.localDateTime("opprettelse_behandlet_tidspunkt"),
-                    besluttetAv = OkonomiPart.fromString(bestilling.string("opprettelse_besluttet_av")),
-                    besluttetTidspunkt = bestilling.localDateTime("opprettelse_besluttet_tidspunkt"),
-                ),
-                annullering = bestilling.stringOrNull("annullering_behandlet_av")?.let {
-                    Bestilling.Totrinnskontroll(
-                        behandletAv = OkonomiPart.fromString(it),
-                        behandletTidspunkt = bestilling.localDateTime("annullering_behandlet_tidspunkt"),
-                        besluttetAv = OkonomiPart.fromString(bestilling.string("annullering_besluttet_av")),
-                        besluttetTidspunkt = bestilling.localDateTime("annullering_besluttet_tidspunkt"),
-                    )
-                },
-                linjer = linjer,
+    fun getNotAvstemt(): List<Bestilling> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                bestillingsnummer,
+                avtalenummer,
+                tiltakskode,
+                arrangor_hovedenhet,
+                arrangor_underenhet,
+                kostnadssted,
+                belop,
+                periode,
+                status,
+                opprettelse_behandlet_av,
+                opprettelse_behandlet_tidspunkt,
+                opprettelse_besluttet_av,
+                opprettelse_besluttet_tidspunkt,
+                annullering_behandlet_av,
+                annullering_behandlet_tidspunkt,
+                annullering_besluttet_av,
+                annullering_besluttet_tidspunkt
+            from bestilling
+            where avstemt_tidspunkt is null
+        """.trimIndent()
+
+        return session.list(queryOf(query)) { it.toBestilling() }
+    }
+
+    private fun Row.toBestilling(): Bestilling {
+        @Language("PostgreSQL")
+        val selectLinje = """
+            select linjenummer, periode, belop
+            from bestilling_linje
+            where bestilling_id = ?
+            order by linjenummer
+        """.trimIndent()
+
+        val linjer = session.list(queryOf(selectLinje, int("id"))) { linje ->
+            Bestilling.Linje(
+                linjenummer = linje.int("linjenummer"),
+                periode = linje.periode("periode"),
+                belop = linje.int("belop"),
             )
         }
+
+        val status = BestillingStatusType.valueOf(string("status"))
+        return Bestilling(
+            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+            arrangorHovedenhet = Organisasjonsnummer(string("arrangor_hovedenhet")),
+            arrangorUnderenhet = Organisasjonsnummer(string("arrangor_underenhet")),
+            kostnadssted = NavEnhetNummer(string("kostnadssted")),
+            bestillingsnummer = string("bestillingsnummer"),
+            avtalenummer = stringOrNull("avtalenummer"),
+            belop = int("belop"),
+            periode = periode("periode"),
+            status = status,
+            opprettelse = Bestilling.Totrinnskontroll(
+                behandletAv = OkonomiPart.fromString(this.string("opprettelse_behandlet_av")),
+                behandletTidspunkt = localDateTime("opprettelse_behandlet_tidspunkt"),
+                besluttetAv = OkonomiPart.fromString(this.string("opprettelse_besluttet_av")),
+                besluttetTidspunkt = localDateTime("opprettelse_besluttet_tidspunkt"),
+            ),
+            annullering = this.stringOrNull("annullering_behandlet_av")?.let {
+                Bestilling.Totrinnskontroll(
+                    behandletAv = OkonomiPart.fromString(it),
+                    behandletTidspunkt = localDateTime("annullering_behandlet_tidspunkt"),
+                    besluttetAv = OkonomiPart.fromString(string("annullering_besluttet_av")),
+                    besluttetTidspunkt = localDateTime("annullering_besluttet_tidspunkt"),
+                )
+            },
+            linjer = linjer,
+        )
     }
 }
