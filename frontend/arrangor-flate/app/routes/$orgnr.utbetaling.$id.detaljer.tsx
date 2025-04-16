@@ -1,5 +1,15 @@
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import {
+  Accordion,
+  Bleed,
+  BodyShort,
+  Box,
+  Button,
+  Heading,
+  HStack,
+  Spacer,
+  VStack,
+} from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrangorflateTilsagn,
@@ -67,6 +77,8 @@ export default function UtbetalingDetaljerSide() {
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
+  const visTilsagnsListe =
+    utbetaling.status === ArrFlateUtbetalingStatus.UTBETALT && tilsagn.length;
   return (
     <>
       <PageHeader
@@ -97,12 +109,39 @@ export default function UtbetalingDetaljerSide() {
         <GenerelleUtbetalingDetaljer utbetaling={utbetaling} />
         <InnsendtUtbetalingDetaljer utbetaling={utbetaling} />
         <BetalingsInformasjon utbetaling={utbetaling} />
-        <Separator />
-        <UtbetalingStatusList utbetaling={utbetaling} />
-        {utbetaling.status !== ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV && tilsagn.length ? (
-          // TODO: spiss mot et tilsagn?
-          <UtbetalingTilsagnDetaljer tilsagn={tilsagn[0]} />
-        ) : null}
+        <Box
+          background="bg-subtle"
+          padding="6"
+          borderRadius="medium"
+          borderColor="border-subtle"
+          borderWidth={visTilsagnsListe ? "2 1 0 1" : "2 1 1 1"}
+        >
+          <VStack gap="6">
+            <UtbetalingStatusList utbetaling={utbetaling} />
+            {visTilsagnsListe ? (
+              <Bleed marginInline="6" marginBlock="0 6" asChild>
+                <Accordion>
+                  {tilsagn.map((it) => {
+                    return (
+                      <Accordion.Item>
+                        <Accordion.Header>
+                          <HStack gap="2" width="100%">
+                            <BodyShort>{it.gjennomforing.navn}</BodyShort>
+                            <Spacer />
+                            <BodyShort>{it.bestillingsnummer}</BodyShort>
+                          </HStack>
+                        </Accordion.Header>
+                        <Accordion.Content>
+                          <UtbetalingTilsagnDetaljer tilsagn={it} />
+                        </Accordion.Content>
+                      </Accordion.Item>
+                    );
+                  })}
+                </Accordion>
+              </Bleed>
+            ) : null}
+          </VStack>
+        </Box>
       </VStack>
     </>
   );
