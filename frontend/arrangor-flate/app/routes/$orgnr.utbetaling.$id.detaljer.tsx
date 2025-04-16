@@ -28,6 +28,7 @@ import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import InnsendtUtbetalingDetaljer from "~/components/utbetaling/InnsendtUtbetalingDetaljer";
 import BetalingsInformasjon from "~/components/utbetaling/BetalingsInformasjon";
 import UtbetalingTilsagnDetaljer from "~/components/utbetaling/UtbetalingTilsagnDetaljer";
+import AccordionStyles from "~/components/Accordion.module.css";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
@@ -124,7 +125,7 @@ export default function UtbetalingDetaljerSide() {
                   {tilsagn.map((it) => {
                     return (
                       <Accordion.Item>
-                        <Accordion.Header>
+                        <Accordion.Header className={AccordionStyles.fullHeader}>
                           <HStack gap="2" width="100%">
                             <BodyShort>{it.gjennomforing.navn}</BodyShort>
                             <Spacer />

@@ -1,0 +1,4 @@
+/** Target <Accordion.Header> last span, to take up remaining space */
+.fullHeader span:last-child {
+    width: 100%;
+}
