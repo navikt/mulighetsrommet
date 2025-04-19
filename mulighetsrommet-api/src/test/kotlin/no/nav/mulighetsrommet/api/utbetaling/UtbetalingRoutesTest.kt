@@ -8,10 +8,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.*
-import no.nav.mulighetsrommet.api.clients.msgraph.GetMemberGroupsResponse
-import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphGroup
+import no.nav.mulighetsrommet.api.clients.msgraph.AdGruppe
+import no.nav.mulighetsrommet.api.clients.msgraph.mockMsGraphGetMemberGroups
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
@@ -23,7 +22,6 @@ import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
@@ -54,6 +52,8 @@ class UtbetalingRoutesTest : FunSpec({
     val saksbehandlerOkonomiRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
     val attestantUtbetalingRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
 
+    val navAnsattOid = UUID.randomUUID()
+
     fun appConfig(
         roller: Set<AdGruppeNavAnsattRolleMapping> = setOf(
             generellRolle,
@@ -67,20 +67,17 @@ class UtbetalingRoutesTest : FunSpec({
             roles = roller,
         ),
         engine = createMockEngine {
-            get(".*/ms-graph/.*".toRegex()) {
-                respondJson(
-                    GetMemberGroupsResponse(
-                        roller.map { MsGraphGroup(id = it.adGruppeId, displayName = it.rolle.name) },
-                    ),
-                )
+            mockMsGraphGetMemberGroups(navAnsattOid) {
+                roller.map { AdGruppe(id = it.adGruppeId, navn = it.rolle.name) }
             }
         },
     )
 
-    val claims = mapOf(
+    val navAnsattClaims = mapOf(
         "NAVident" to "ABC123",
-        "oid" to UUID.randomUUID().toString(),
+        "oid" to navAnsattOid.toString(),
     )
+
     context("opprett utbetaling") {
         test("Skal returnere 400 Bad Request når det er valideringsfeil") {
             withTestApplication(appConfig(setOf(generellRolle, saksbehandlerOkonomiRolle))) {
@@ -92,7 +89,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val id = UUID.randomUUID()
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettManuellUtbetalingRequest(
@@ -123,7 +120,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val id = UUID.randomUUID()
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettManuellUtbetalingRequest(
@@ -152,7 +149,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val id = UUID.randomUUID()
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettManuellUtbetalingRequest(
@@ -182,7 +179,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val id = UtbetalingFixtures.utbetaling1.id
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest)
                 }
@@ -202,7 +199,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val id = UtbetalingFixtures.utbetaling1.id
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,

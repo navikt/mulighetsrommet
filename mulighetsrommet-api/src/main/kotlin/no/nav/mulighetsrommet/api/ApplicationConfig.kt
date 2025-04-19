@@ -28,6 +28,7 @@ import java.time.LocalDate
 import java.util.*
 
 data class AppConfig(
+    val engine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig,
@@ -52,7 +53,6 @@ data class AppConfig(
     val unleash: UnleashService.Config,
     val axsys: AuthenticatedHttpClientConfig,
     val pdl: AuthenticatedHttpClientConfig,
-    val engine: HttpClientEngine = CIO.create(),
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,

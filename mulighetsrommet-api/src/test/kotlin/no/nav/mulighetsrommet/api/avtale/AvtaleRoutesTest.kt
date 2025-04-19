@@ -6,14 +6,13 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.*
-import no.nav.mulighetsrommet.api.clients.msgraph.GetMemberGroupsResponse
-import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphGroup
+import no.nav.mulighetsrommet.api.clients.msgraph.AdGruppe
+import no.nav.mulighetsrommet.api.clients.msgraph.mockMsGraphGetMemberGroups
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -39,24 +38,22 @@ class AvtaleRoutesTest : FunSpec({
     val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.AVTALER_SKRIV)
 
+    val navAnsattOid = UUID.randomUUID()
+
     fun appConfig(
         roller: Set<AdGruppeNavAnsattRolleMapping>,
     ) = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(generellRolle, avtaleSkrivRolle)),
         engine = createMockEngine {
-            get(".*/ms-graph/.*".toRegex()) {
-                respondJson(
-                    GetMemberGroupsResponse(
-                        roller.map { MsGraphGroup(id = it.adGruppeId, displayName = it.rolle.name) },
-                    ),
-                )
+            mockMsGraphGetMemberGroups(navAnsattOid) {
+                roller.map { AdGruppe(id = it.adGruppeId, navn = it.rolle.name) }
             }
         },
     )
 
-    val minimalClaims = mapOf(
+    val navAnsattClaims = mapOf(
         "NAVident" to "ABC123",
-        "oid" to UUID.randomUUID().toString(),
+        "oid" to navAnsattOid.toString(),
     )
 
     context("hent avtaler") {
@@ -70,7 +67,7 @@ class AvtaleRoutesTest : FunSpec({
         test("200 OK når bruker har generell tilgang") {
             withTestApplication(appConfig(setOf(generellRolle))) {
                 val response = client.get("/api/v1/intern/avtaler") {
-                    bearerAuth(oauth.issueToken(claims = minimalClaims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response.status shouldBe HttpStatusCode.OK
             }
@@ -81,7 +78,7 @@ class AvtaleRoutesTest : FunSpec({
         test("403 Forbidden når bruker mangler generell tilgang") {
             withTestApplication(appConfig(setOf(avtaleSkrivRolle))) {
                 val response = client.put("/api/v1/intern/avtaler") {
-                    bearerAuth(oauth.issueToken(claims = minimalClaims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.bodyAsText() shouldBe "Mangler følgende rolle: TILTAKADMINISTRASJON_GENERELL"
@@ -91,7 +88,7 @@ class AvtaleRoutesTest : FunSpec({
         test("403 Forbidden når bruker mangler skrivetilgang") {
             withTestApplication(appConfig(setOf(generellRolle))) {
                 val response = client.put("/api/v1/intern/avtaler") {
-                    bearerAuth(oauth.issueToken(claims = minimalClaims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
             }
@@ -100,7 +97,7 @@ class AvtaleRoutesTest : FunSpec({
         test("400 Bad Request når avtale mangler i request body") {
             withTestApplication(appConfig(setOf(generellRolle, avtaleSkrivRolle))) {
                 val response = client.put("/api/v1/intern/avtaler") {
-                    bearerAuth(oauth.issueToken(claims = minimalClaims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody("{}")
                 }

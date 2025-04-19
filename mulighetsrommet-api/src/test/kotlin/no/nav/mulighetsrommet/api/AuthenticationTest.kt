@@ -10,15 +10,14 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.msgraph.GetMemberGroupsResponse
-import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphGroup
+import no.nav.mulighetsrommet.api.clients.msgraph.AdGruppe
+import no.nav.mulighetsrommet.api.clients.msgraph.mockMsGraphGetMemberGroups
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -107,40 +106,30 @@ class AuthenticationTest : FunSpec({
         val requestWithoutOid = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
         }
-        val userWithoutRoles = UUID.randomUUID().toString()
-        val requestWithWrongGroup = { request: HttpRequestBuilder ->
+        val userWithoutRoles = UUID.randomUUID()
+        val requestWithoutRoles = { request: HttpRequestBuilder ->
             val claims = mapOf(
                 "NAVident" to "ABC123",
-                "oid" to userWithoutRoles,
+                "oid" to userWithoutRoles.toString(),
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
-        val userWithRoles = UUID.randomUUID().toString()
-        val requestWithCorrectGroup = { request: HttpRequestBuilder ->
+        val userWithRoles = UUID.randomUUID()
+        val requestWithRoles = { request: HttpRequestBuilder ->
             val claims = mapOf(
                 "NAVident" to "ABC123",
-                "oid" to userWithRoles,
+                "oid" to userWithRoles.toString(),
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
 
-        val roles = setOf(AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET))
+        val rolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = roles),
+            auth = createAuthConfig(oauth, roles = setOf(rolle)),
             engine = createMockEngine {
-                get(".*/users/$userWithoutRoles/transitiveMemberOf/microsoft.graph.group.*".toRegex()) {
-                    respondJson(
-                        GetMemberGroupsResponse(listOf()),
-                    )
-                }
-                get(".*/users/$userWithRoles/transitiveMemberOf/microsoft.graph.group.*".toRegex()) {
-                    respondJson(
-                        GetMemberGroupsResponse(
-                            roles.map { MsGraphGroup(id = it.adGruppeId, displayName = it.rolle.name) },
-                        ),
-                    )
-                }
+                mockMsGraphGetMemberGroups(userWithoutRoles) { listOf() }
+                mockMsGraphGetMemberGroups(userWithRoles) { listOf(AdGruppe(rolle.adGruppeId, rolle.rolle.name)) }
             },
         )
         withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
@@ -150,8 +139,8 @@ class AuthenticationTest : FunSpec({
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutNAVident, HttpStatusCode.Unauthorized),
                 row(requestWithoutOid, HttpStatusCode.Unauthorized),
-                row(requestWithWrongGroup, HttpStatusCode.Unauthorized),
-                row(requestWithCorrectGroup, HttpStatusCode.OK),
+                row(requestWithoutRoles, HttpStatusCode.Unauthorized),
+                row(requestWithRoles, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
                 val response = client.get("/NAV_ANSATT_WITH_ROLES") { buildRequest(this) }
 

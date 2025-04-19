@@ -103,13 +103,6 @@ fun Application.configureAuthentication(
         return requiredRoles.all { it in roles }
     }
 
-    fun hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: Rolle): Boolean {
-        val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
-        return requiredRoles.all { requiredRole ->
-            auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
-        }
-    }
-
     install(Authentication) {
         jwt(AuthProvider.NAV_ANSATT_WITH_ROLES) {
             verifier(azureJwkProvider, auth.azure.issuer) {
