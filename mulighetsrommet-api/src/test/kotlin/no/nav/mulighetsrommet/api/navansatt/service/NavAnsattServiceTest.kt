@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navansatt
+package no.nav.mulighetsrommet.api.navansatt.service
 
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec

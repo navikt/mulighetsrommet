@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navansatt
+package no.nav.mulighetsrommet.api.navansatt.service
 
 import com.auth0.jwt.interfaces.Payload
 import com.github.benmanes.caffeine.cache.Cache

@@ -4,7 +4,6 @@ import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
-import no.nav.mulighetsrommet.api.navansatt.SanityRedaktor
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -48,6 +47,29 @@ data class SanityTiltaksgjennomforing(
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
     val redaktor: List<SanityRedaktor>? = null,
+)
+
+@Serializable
+data class SanityNavKontaktperson(
+    val _id: String,
+    val _type: String,
+    val navIdent: Slug,
+    val enhet: String,
+    val enhetsnummer: NavEnhetNummer? = null,
+    val telefonnummer: String? = null,
+    val epost: String,
+    val navn: String,
+)
+
+@Serializable
+data class SanityRedaktor(
+    val _id: String,
+    val _type: String,
+    val navIdent: Slug,
+    val enhet: String,
+    val enhetsnummer: NavEnhetNummer? = null,
+    val epost: Slug,
+    val navn: String,
 )
 
 @Serializable

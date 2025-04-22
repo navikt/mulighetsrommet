@@ -1,14 +1,18 @@
-package no.nav.mulighetsrommet.api.plugins
+package no.nav.mulighetsrommet.api.navansatt.ktor
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.util.*
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattPrincipal
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.createRouteScopedPlugin
+import io.ktor.server.auth.AuthenticationChecked
+import io.ktor.server.auth.principal
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RouteSelector
+import io.ktor.server.routing.RouteSelectorEvaluation
+import io.ktor.server.routing.RoutingResolveContext
+import io.ktor.util.AttributeKey
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipal
 
 class NavAnsattAuthorizationPluginConfiguration {
     var roles: List<NavAnsattRolle> = listOf()
@@ -27,14 +31,14 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
             val principal = call.principal<NavAnsattPrincipal>()
 
             if (principal == null) {
-                return@on call.respond(HttpStatusCode.Unauthorized)
+                return@on call.respond(HttpStatusCode.Companion.Unauthorized)
             }
 
             val navAnsattRoles = principal.roller
 
             if (navAnsattRoles.isEmpty()) {
                 return@on call.respond(
-                    HttpStatusCode.Forbidden,
+                    HttpStatusCode.Companion.Forbidden,
                     "Mangler roller minst én av følgende roller: ${requiredRoles.map { it.rolle }.joinToString(", ")}",
                 )
             }
@@ -42,7 +46,7 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
             requiredRoles.forEach { requiredRole ->
                 if (!hasRole(navAnsattRoles, requiredRole)) {
                     return@on call.respond(
-                        HttpStatusCode.Forbidden,
+                        HttpStatusCode.Companion.Forbidden,
                         "Mangler følgende rolle: ${requiredRole.rolle}",
                     )
                 }
@@ -79,7 +83,7 @@ fun Route.authorize(
         .reversed()
         .distinct()
 
-    val combinedRoles = parentRoles + routeRoles.map { NavAnsattRolle.generell(it) }
+    val combinedRoles = parentRoles + routeRoles.map { NavAnsattRolle.Companion.generell(it) }
 
     authorizedRoute.attributes.put(AuthorizedRolesKey, combinedRoles)
 
@@ -93,7 +97,7 @@ fun Route.authorize(
 
 private class NavAnsattAuthorizationRouteSelector(val roles: List<Rolle>) : RouteSelector() {
     override suspend fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
-        return RouteSelectorEvaluation.Transparent
+        return RouteSelectorEvaluation.Companion.Transparent
     }
 
     override fun toString(): String = "(authorize ${roles.joinToString { it.name }})"

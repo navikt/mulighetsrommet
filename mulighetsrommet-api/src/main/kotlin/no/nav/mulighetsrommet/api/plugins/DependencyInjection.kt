@@ -53,9 +53,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattPrincipalService
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService

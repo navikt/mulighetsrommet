@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navansatt
+package no.nav.mulighetsrommet.api.navansatt.service
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
