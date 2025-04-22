@@ -321,6 +321,7 @@ export function TilsagnDetaljer() {
                     {isTilsagnForhandsgodkjent(tilsagn) && (
                       <TilsagnDetaljerForhandsgodkjent
                         tilsagn={tilsagn}
+                        opprettelse={opprettelse}
                         annullering={annullering}
                         oppgjor={tilOppgjor}
                       />
@@ -328,6 +329,7 @@ export function TilsagnDetaljer() {
                     {isTilsagnFri(tilsagn) && (
                       <TilsagnDetaljerFri
                         tilsagn={tilsagn}
+                        opprettelse={opprettelse}
                         annullering={annullering}
                         oppgjor={tilOppgjor}
                       />
