@@ -20,6 +20,7 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagn,
   FieldError,
+  TilsagnType,
   Tilskuddstype,
 } from "api-client";
 import { useMemo, useRef, useState } from "react";
@@ -272,7 +273,7 @@ export default function ManuellUtbetalingForm() {
   const [gjennomforingId, setGjennomforingId] = useState<string | undefined>();
   const [periodeStart, setPeriodeStart] = useState<string | undefined>();
   const [periodeSlutt, setPeriodeSlutt] = useState<string | undefined>();
-
+  const [tilskuddstype, setTilskuddstype] = useState<Tilskuddstype | undefined>();
   const { datepickerProps: periodeStartPickerProps, inputProps: periodeStartInputProps } =
     useDatepicker({
       ...datePickerProps((val?: Date | undefined) => setPeriodeStart(val?.toISOString())),
@@ -298,11 +299,19 @@ export default function ManuellUtbetalingForm() {
     if (gjennomforingId && !isNaN(start.getTime()) && !isNaN(slutt.getTime())) {
       return tilsagn
         .filter((t) => t.gjennomforing.id === gjennomforingId)
+        .filter((t) => {
+          if (tilskuddstype === Tilskuddstype.TILTAK_DRIFTSTILSKUDD) {
+            return [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN].includes(t.type);
+          } else if (tilskuddstype === Tilskuddstype.TILTAK_INVESTERINGER) {
+            return [TilsagnType.INVESTERING].includes(t.type);
+          }
+          return false;
+        })
         .filter((t) => start < new Date(t.periode.slutt) && slutt > new Date(t.periode.start));
     }
 
     return [];
-  }, [gjennomforingId, periodeStart, periodeSlutt, tilsagn]);
+  }, [gjennomforingId, periodeStart, periodeSlutt, tilsagn, tilskuddstype]);
   return (
     <>
       <PageHeader
@@ -343,6 +352,9 @@ export default function ManuellUtbetalingForm() {
             name="tilskuddstype"
             size="small"
             id="tilskuddstype"
+            onChange={(e) => {
+              setTilskuddstype(e.target.value as Tilskuddstype);
+            }}
           >
             <option>- Velg type -</option>
             <option value={Tilskuddstype.TILTAK_INVESTERINGER}>Investering</option>
