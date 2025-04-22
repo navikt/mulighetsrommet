@@ -37,6 +37,9 @@ module "mr_api_datastream" {
         { table = "arrangor" },
         { table = "utdanningsprogram" },
         { table = "utdanning" },
+        { table = "tilsagn" },
+        { table = "delutbetaling" },
+        { table = "utbetaling" },
       ]
     }
   ]
