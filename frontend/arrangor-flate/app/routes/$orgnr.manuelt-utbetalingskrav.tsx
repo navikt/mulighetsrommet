@@ -5,12 +5,14 @@ import {
   Box,
   Button,
   Checkbox,
+  DatePicker,
   ErrorSummary,
   HStack,
   Select,
   Textarea,
   TextField,
   UNSAFE_Combobox,
+  useDatepicker,
   VStack,
 } from "@navikt/ds-react";
 import {
@@ -137,6 +139,18 @@ export const action: ActionFunction = async ({ request }) => {
       tilskuddstype as Tilskuddstype,
     )
   ) {
+    if (!periodeStart) {
+      errors.push({
+        pointer: "/periodeStart",
+        detail: "Du må fylle ut fra dato",
+      });
+    }
+    if (!periodeSlutt) {
+      errors.push({
+        pointer: "/periodeSlutt",
+        detail: "Du må fylle ut til dato",
+      });
+    }
     errors.push({
       pointer: "/tilskuddstype",
       detail: "Du må fylle ut type",
@@ -154,19 +168,6 @@ export const action: ActionFunction = async ({ request }) => {
     errors.push({
       pointer: "/belop",
       detail: "Du må fylle ut beløp",
-    });
-  }
-
-  if (!periodeStart) {
-    errors.push({
-      pointer: "/periodeStart",
-      detail: "Du må fylle ut fra dato",
-    });
-  }
-  if (!periodeSlutt) {
-    errors.push({
-      pointer: "/periodeSlutt",
-      detail: "Du må fylle ut til dato",
     });
   }
 
@@ -231,8 +232,8 @@ export const action: ActionFunction = async ({ request }) => {
         belop: belop,
         gjennomforingId: gjennomforingId!,
         beskrivelse: beskrivelse!,
-        periodeStart: periodeStart!,
-        periodeSlutt: periodeSlutt!,
+        periodeStart: formaterDatoSomYYYYMMDD(periodeStart!),
+        periodeSlutt: formaterDatoSomYYYYMMDD(periodeSlutt!),
         kontonummer: kontonummer!,
         kidNummer: kid || null,
         vedlegg: vedlegg,
@@ -253,6 +254,14 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
+function datePickerProps(onDateChange: (val?: Date | undefined) => void) {
+  return {
+    fromDate: new Date(2025, 1, 1),
+    toDate: new Date(2030, 12, 31),
+    onDateChange: onDateChange,
+  };
+}
+
 export default function ManuellUtbetalingForm() {
   const { kontonummer, gjennomforinger, tilsagn } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
@@ -261,14 +270,28 @@ export default function ManuellUtbetalingForm() {
   const revalidator = useRevalidator();
   const fetcher = useFetcher();
   const [gjennomforingId, setGjennomforingId] = useState<string | undefined>();
-  const [periodeStart, setPeriodeStart] = useState<string>("");
-  const [periodeSlutt, setPeriodeSlutt] = useState<string>("");
+  const [periodeStart, setPeriodeStart] = useState<string | undefined>();
+  const [periodeSlutt, setPeriodeSlutt] = useState<string | undefined>();
+
+  const { datepickerProps: periodeStartPickerProps, inputProps: periodeStartInputProps } =
+    useDatepicker({
+      ...datePickerProps((val?: Date | undefined) => setPeriodeStart(val?.toISOString())),
+    });
+
+  const { datepickerProps: periodeSluttPickerProps, inputProps: periodeSluttInputProps } =
+    useDatepicker({
+      ...datePickerProps((val?: Date | undefined) => setPeriodeSlutt(val?.toISOString())),
+    });
 
   function errorAt(pointer: string): string | undefined {
     return data?.errors?.find((error) => error.pointer === pointer)?.detail;
   }
 
   const relevanteTilsagn = useMemo(() => {
+    if (!periodeStart || !periodeSlutt) {
+      return [];
+    }
+
     const start = new Date(periodeStart);
     const slutt = new Date(periodeSlutt);
 
@@ -280,7 +303,6 @@ export default function ManuellUtbetalingForm() {
 
     return [];
   }, [gjennomforingId, periodeStart, periodeSlutt, tilsagn]);
-
   return (
     <>
       <PageHeader
@@ -294,24 +316,26 @@ export default function ManuellUtbetalingForm() {
         <input type="hidden" name="orgnr" value={orgnr} />
         <VStack gap="4" className="max-w-[50%]">
           <HStack gap="4" align="start">
-            <TextField
-              label="Fra dato"
-              placeholder="åååå-mm-dd"
-              error={errorAt("/periodeStart")}
-              size="small"
-              onChange={(e) => setPeriodeStart(e.target.value)}
-              name="periodeStart"
-              id="periodeStart"
-            />
-            <TextField
-              label="Til dato"
-              size="small"
-              placeholder="åååå-mm-dd"
-              onChange={(e) => setPeriodeSlutt(e.target.value)}
-              error={errorAt("/periodeSlutt")}
-              name="periodeSlutt"
-              id="periodeSlutt"
-            />
+            <DatePicker {...periodeStartPickerProps} dropdownCaption>
+              <DatePicker.Input
+                label="Fra dato"
+                size="small"
+                error={errorAt("/periodeStart")}
+                name="periodeStart"
+                id="periodeStart"
+                {...periodeStartInputProps}
+              />
+            </DatePicker>
+            <DatePicker {...periodeSluttPickerProps} dropdownCaption>
+              <DatePicker.Input
+                label="Til dato"
+                size="small"
+                error={errorAt("/periodeSlutt")}
+                name="periodeSlutt"
+                id="periodeSlutt"
+                {...periodeSluttInputProps}
+              />
+            </DatePicker>
           </HStack>
           <Select
             error={errorAt("/tilskuddstype")}
@@ -430,4 +454,24 @@ export default function ManuellUtbetalingForm() {
       </Form>
     </>
   );
+}
+
+function formaterDatoSomYYYYMMDD(dato: string | Date | null, fallback = ""): string {
+  if (!dato) return fallback;
+
+  let dateObj: Date;
+  if (typeof dato === "string") {
+    const [day, month, year] = dato.split(".").map(Number);
+    dateObj = new Date(year, month - 1, day);
+  } else {
+    dateObj = dato;
+  }
+
+  if (isNaN(dateObj.getTime())) return fallback;
+
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
