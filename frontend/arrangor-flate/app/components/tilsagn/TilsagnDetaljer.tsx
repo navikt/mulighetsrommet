@@ -2,7 +2,7 @@ import { ArrangorflateTilsagn } from "api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
-
+import { tekster } from "~/tekster";
 interface Props {
   tilsagn: ArrangorflateTilsagn;
 }
@@ -12,6 +12,10 @@ export function TilsagnDetaljer({ tilsagn }: Props) {
     {
       key: "Tilsagnsnummer",
       value: tilsagn.bestillingsnummer,
+    },
+    {
+      key: "Tilsagnstype",
+      value: tekster.tilsagn.tilsagntype(tilsagn.type),
     },
     {
       key: "Tilsagnsperiode",
