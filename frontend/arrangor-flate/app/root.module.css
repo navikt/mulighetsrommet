@@ -1,6 +1,6 @@
 body {
   background-color: white;
-  min-height: 100vh;
+  min-height:min-content;
 }
 
 .header {
@@ -21,7 +21,7 @@ body {
 
 @media (min-width: 45rem) {
   .side {
-    margin: 0rem auto;
+    margin: 0 auto 3rem;
     padding: 3rem;
   }
 }
