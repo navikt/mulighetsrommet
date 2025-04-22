@@ -257,7 +257,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 function datePickerProps(onDateChange: (val?: Date | undefined) => void) {
   return {
-    fromDate: new Date(2025, 1, 1),
+    fromDate: new Date(2024, 2, 31),
     toDate: new Date(2030, 12, 31),
     onDateChange: onDateChange,
   };
