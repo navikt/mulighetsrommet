@@ -39,7 +39,7 @@ export default function TilsagnDetaljerPage() {
         title="Detaljer for tilsagn"
         tilbakeLenke={{
           navn: "Tilbake til tilsagnsoversikt",
-          url: internalNavigation(orgnr).root,
+          url: internalNavigation(orgnr).utbetalinger,
         }}
       />
       <TilsagnStatusTag data={tilsagn.status} />

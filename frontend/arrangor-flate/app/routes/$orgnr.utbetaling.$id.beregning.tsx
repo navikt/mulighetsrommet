@@ -110,7 +110,7 @@ export default function UtbetalingBeregning() {
         title="Beregning"
         tilbakeLenke={{
           navn: "Tilbake til utbetalinger",
-          url: internalNavigation(orgnr).root,
+          url: internalNavigation(orgnr).utbetalinger,
         }}
       />
       <HGrid gap="5" columns={1}>

@@ -5,7 +5,7 @@ import {
 } from "api-client";
 import { Button, HStack, Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { Link, useLoaderData } from "react-router";
+import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { PageHeader } from "../components/PageHeader";
@@ -63,12 +63,14 @@ export default function UtbetalingOversikt() {
   return (
     <>
       <HStack justify={"space-between"}>
-        <PageHeader title="Tilgjengelige innsendelser" />
-        <Link to={internalNavigation(orgnr).manueltUtbetalingskrav}>
-          <Button variant="secondary" as="a">
-            Opprett manuelt krav om utbetaling
-          </Button>
-        </Link>
+        <PageHeader title="Tilgjengelige innsendinger" />
+        <Button
+          variant="secondary"
+          as={ReactRouterLink}
+          to={internalNavigation(orgnr).manueltUtbetalingskrav}
+        >
+          Opprett manuelt krav om utbetaling
+        </Button>
       </HStack>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
