@@ -21,9 +21,14 @@ export function Arrangorvelger({ arrangorer }: Props) {
       onChange={(e) => {
         navigate(`${e.target.value}/utbetaling`);
       }}
+      className="w-80"
     >
       {arrangorer.sort(alfabetisk).map((arrangor) => (
-        <option key={arrangor.organisasjonsnummer} value={arrangor.organisasjonsnummer}>
+        <option
+          key={arrangor.organisasjonsnummer}
+          value={arrangor.organisasjonsnummer}
+          title={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
+        >
           {arrangor.navn} - {arrangor.organisasjonsnummer}
         </option>
       ))}

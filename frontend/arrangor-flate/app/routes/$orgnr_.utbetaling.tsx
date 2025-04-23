@@ -1,17 +1,17 @@
+import { Button, Tabs } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetalingKompakt,
   ArrFlateUtbetalingStatus,
 } from "api-client";
-import { Button, HStack, Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
-import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
+import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
+import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
+import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { PageHeader } from "../components/PageHeader";
 import { useTabState } from "../hooks/useTabState";
-import { apiHeaders } from "~/auth/auth.server";
-import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
@@ -62,7 +62,7 @@ export default function UtbetalingOversikt() {
 
   return (
     <>
-      <HStack justify={"space-between"}>
+      <div className="flex justify-between sm:flex-row sm:my-5 sm:p-1">
         <PageHeader title="Tilgjengelige innsendinger" />
         <Button
           variant="secondary"
@@ -71,7 +71,7 @@ export default function UtbetalingOversikt() {
         >
           Opprett manuelt krav om utbetaling
         </Button>
-      </HStack>
+      </div>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
           <Tabs.Tab value="aktive" label="Aktive" />

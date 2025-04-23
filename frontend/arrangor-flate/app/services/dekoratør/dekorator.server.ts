@@ -40,7 +40,8 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
   const decorator = await fetchDecoratorHtml({
     env: miljø === Miljø.ProdGcp ? "prod" : "dev",
     params: {
-      simple: true,
+      simple: false,
+      simpleFooter: true,
       chatbot: false,
       context: "samarbeidspartner",
       breadcrumbs: byggBrødsmulesti(miljø),
