@@ -43,10 +43,5 @@ data class NavAnsatt(
 
     private fun hasRolle(
         requiredRolle: NavAnsattRolle,
-    ): Boolean = when (requiredRolle.generell) {
-        true -> roller.any { it.rolle == requiredRolle.rolle }
-        false -> roller.any {
-            it.rolle == requiredRolle.rolle && (it.generell || it.enheter.containsAll(requiredRolle.enheter))
-        }
-    }
+    ): Boolean = NavAnsattRolleHelper.hasRole(roller, requiredRolle)
 }
