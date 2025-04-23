@@ -44,6 +44,7 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
       simpleFooter: true,
       chatbot: false,
       context: "samarbeidspartner",
+      shareScreen: false,
       breadcrumbs: byggBrødsmulesti(miljø),
     },
   });
