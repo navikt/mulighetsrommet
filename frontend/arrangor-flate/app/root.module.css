@@ -15,7 +15,7 @@ body {
   margin-bottom: 3rem;
   overflow-x: auto;
   flex-grow: 1;
-  width: min(80%, 2500px);
+  width: min(90%, 2500px);
 }
 
 :global(#decorator-header) {

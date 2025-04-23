@@ -210,9 +210,7 @@ function ForhandsgodkjentBeregning({
               </Table.ColumnHeader>
               <Table.ColumnHeader scope="col">Deltakelsesprosent</Table.ColumnHeader>
               <Table.ColumnHeader scope="col">Månedsverk i perioden</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.VEILEDER_NAVN}>
-                Veileder
-              </Table.ColumnHeader>
+
               <Table.HeaderCell scope="col"></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -241,13 +239,18 @@ function ForhandsgodkjentBeregning({
                     )}
                     {person?.navn}
                   </Table.DataCell>
-                  <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
-                  <Table.DataCell>{formaterDato(deltaker.startDato)}</Table.DataCell>
-                  <Table.DataCell>{formaterDato(deltaker.forstePeriodeStartDato)}</Table.DataCell>
-                  <Table.DataCell>{formaterDato(deltaker.sistePeriodeSluttDato)}</Table.DataCell>
-                  <Table.DataCell>{deltaker.sistePeriodeDeltakelsesprosent}</Table.DataCell>
-                  <Table.DataCell>{deltaker.manedsverk}</Table.DataCell>
-                  <Table.DataCell>{deltaker.veileder}</Table.DataCell>
+                  <Table.DataCell align="right">{fodselsdato}</Table.DataCell>
+                  <Table.DataCell align="right">{formaterDato(deltaker.startDato)}</Table.DataCell>
+                  <Table.DataCell align="right">
+                    {formaterDato(deltaker.forstePeriodeStartDato)}
+                  </Table.DataCell>
+                  <Table.DataCell align="right">
+                    {formaterDato(deltaker.sistePeriodeSluttDato)}
+                  </Table.DataCell>
+                  <Table.DataCell align="right">
+                    {deltaker.sistePeriodeDeltakelsesprosent}
+                  </Table.DataCell>
+                  <Table.DataCell align="right">{deltaker.manedsverk}</Table.DataCell>
                 </Table.ExpandableRow>
               );
             })}
