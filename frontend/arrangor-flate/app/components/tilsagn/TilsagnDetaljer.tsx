@@ -1,22 +1,16 @@
-import { ArrangorflateTilsagn } from "api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { ArrangorflateTilsagn } from "api-client";
 import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
-import { tekster } from "~/tekster";
+
 interface Props {
   tilsagn: ArrangorflateTilsagn;
+  ekstraDefinisjoner?: Definition[];
 }
 
-export function TilsagnDetaljer({ tilsagn }: Props) {
+export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
   const tilsagnDetaljer: Definition[] = [
-    {
-      key: "Tilsagnsnummer",
-      value: tilsagn.bestillingsnummer,
-    },
-    {
-      key: "Tilsagnstype",
-      value: tekster.tilsagn.tilsagntype(tilsagn.type),
-    },
+    ...(ekstraDefinisjoner || []),
     {
       key: "Tilsagnsperiode",
       value: formaterPeriode(tilsagn.periode),

@@ -44,6 +44,7 @@ import { formaterDato, isValidationError, problemDetailResponse, useOrgnrFromUrl
 import { getCurrentTab } from "~/utils/currentTab";
 import { FileUploader } from "../components/fileUploader/FileUploader";
 import { internalNavigation } from "../internal-navigation";
+import { tekster } from "../tekster";
 
 const MIN_BESKRIVELSE_LENGTH = 10;
 const MAX_BESKRIVELSE_LENGTH = 500;
@@ -384,7 +385,13 @@ export default function ManuellUtbetalingForm() {
             <VStack gap="2" className="max-h-128 overflow-auto">
               {relevanteTilsagn.map((tilsagn) => (
                 <Box borderColor="border-subtle" padding="2" borderWidth="2" borderRadius="large">
-                  <TilsagnDetaljer tilsagn={tilsagn} />
+                  <TilsagnDetaljer
+                    tilsagn={tilsagn}
+                    ekstraDefinisjoner={[
+                      { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
+                      { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
+                    ]}
+                  />
                 </Box>
               ))}
             </VStack>
