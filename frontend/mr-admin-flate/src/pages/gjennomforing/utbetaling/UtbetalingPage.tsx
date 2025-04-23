@@ -1,6 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Header } from "@/components/detaljside/Header";
-import { MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -177,6 +177,7 @@ export function UtbetalingPage() {
                     </VStack>
                   </HGrid>
                 </VStack>
+                <Separator />
                 {deltakere.length > 0 && (
                   <Accordion>
                     <Accordion.Item>
@@ -187,6 +188,7 @@ export function UtbetalingPage() {
                     </Accordion.Item>
                   </Accordion>
                 )}
+                <Separator />
                 {tilsagn.every(
                   (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
                 ) && (
