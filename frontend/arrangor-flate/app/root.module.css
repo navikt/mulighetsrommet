@@ -12,7 +12,7 @@ body {
 .side {
   display: flex;
   flex-direction: column;
-  max-width: min(80%, 2500px);
+  width: min(80%, 2500px);
   margin-bottom: 3rem;
   overflow-x: auto;
   flex-grow: 1;

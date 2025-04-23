@@ -34,7 +34,7 @@ export default function TilsagnDetaljerPage() {
   const orgnr = useOrgnrFromUrl();
 
   return (
-    <div className="max-w-[50%]">
+    <div className="flex flex-col items-start">
       <PageHeader
         title="Detaljer for tilsagn"
         tilbakeLenke={{
