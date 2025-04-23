@@ -1,6 +1,5 @@
 export const internalNavigation = (orgnr: string) => {
   return {
-    root: `/`,
     utbetalinger: `/${orgnr}/utbetaling`,
     manueltUtbetalingskrav: `/${orgnr}/manuelt-utbetalingskrav`,
     beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
