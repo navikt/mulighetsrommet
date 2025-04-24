@@ -50,7 +50,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
               </div>
             )}
             <div
-              className={`${styles.sidemeny} mt-0 row-start max-w-none px-[3rem] [grid-row-start:initial] [grid-row-end:initial] [grid-column:initial] xl:h-fit xl:row-start-1 xl:row-end-3 xl:col-start-2 xl:col-span-1 xl:max-w-[380px] text-text-default flex flex-col gap-[1rem]`}
+              className={`${styles.sidemeny} mt-0 row-start max-w-none px-[3rem] xl:px-0 [grid-row-start:initial] [grid-row-end:initial] [grid-column:initial] xl:h-fit xl:row-start-1 xl:row-end-3 xl:col-start-2 xl:col-span-1 xl:max-w-[380px] text-text-default flex flex-col gap-[1rem]`}
             >
               {isTiltakGruppe(tiltak) && tiltak.estimertVentetid && (
                 <EstimertVentetid estimertVentetid={tiltak.estimertVentetid} />
