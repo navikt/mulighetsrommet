@@ -1,10 +1,11 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, Table, Tag } from "@navikt/ds-react";
-import React, { ReactNode } from "react";
+import { Alert, Table } from "@navikt/ds-react";
+import React from "react";
 import { formaterDato, formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
 import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "api-client";
+import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
@@ -26,13 +27,15 @@ export function UtbetalingTable({ utbetalinger }: Props) {
         <Table.Row>
           <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
           <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
-          <Table.HeaderCell scope="col" colSpan={3}>
-            Periode
+          <Table.HeaderCell scope="col">Periode</Table.HeaderCell>
+          <Table.HeaderCell scope="col" className="min-w-32">
+            Beløp
           </Table.HeaderCell>
-          <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
           <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
-          <Table.HeaderCell scope="col">Status</Table.HeaderCell>
-          <Table.HeaderCell scope="col"></Table.HeaderCell>
+          <Table.HeaderCell scope="col" className="min-w-44">
+            Status
+          </Table.HeaderCell>
+          <Table.HeaderCell scope="col" className="w-10"></Table.HeaderCell>
           <Table.HeaderCell scope="col"></Table.HeaderCell>
         </Table.Row>
       </Table.Header>
@@ -44,12 +47,13 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 <Table.Row>
                   <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
-                  <Table.DataCell colSpan={3} className="w-80">
-                    {formaterPeriode(periode)}
-                  </Table.DataCell>
-                  <Table.DataCell className="min-w-44">{formaterNOK(belop)}</Table.DataCell>
+                  <Table.DataCell>{formaterPeriode(periode)}</Table.DataCell>
+                  <Table.DataCell>{formaterNOK(belop)}</Table.DataCell>
                   <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
-                  <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
+                  <Table.DataCell>
+                    <UtbetalingStatusTag status={status} />
+                  </Table.DataCell>
+                  <Table.DataCell />
                   <Table.DataCell>
                     <LinkWithTabState
                       aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
@@ -60,7 +64,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                           ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
                         ].includes(status)
                           ? internalNavigation(orgnr).beregning(id)
-                          : internalNavigation(orgnr).kvittering(id)
+                          : internalNavigation(orgnr).detaljer(id)
                       }
                     >
                       Detaljer
@@ -74,17 +78,4 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       </Table.Body>
     </Table>
   );
-}
-
-function statusTilTag(status: ArrFlateUtbetalingStatus): ReactNode {
-  switch (status) {
-    case ArrFlateUtbetalingStatus.UTBETALT:
-      return <Tag variant="success">Utbetalt</Tag>;
-    case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
-      return <Tag variant="warning">Behandles av Nav</Tag>;
-    case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
-      return <Tag variant="alt1">Klar for innsending</Tag>;
-    case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING:
-      return <Tag variant="warning">Venter på endring</Tag>;
-  }
 }

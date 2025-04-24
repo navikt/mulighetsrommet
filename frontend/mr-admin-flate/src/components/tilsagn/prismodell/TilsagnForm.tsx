@@ -3,14 +3,13 @@ import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/prismodell/
 import { VelgKostnadssted } from "@/components/tilsagn/prismodell/VelgKostnadssted";
 import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingDto, ProblemDetail, TilsagnRequest, TilsagnType } from "@mr/api-client-v2";
+import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, TextField } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
-import { isValidationError } from "@/utils/Utils";
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 
 interface Props {
@@ -52,13 +51,11 @@ export function TilsagnForm(props: Props) {
 
     mutation.mutate(request, {
       onSuccess: onSuccess,
-      onError: (error: ProblemDetail) => {
-        if (isValidationError(error)) {
-          error.errors.forEach((error: { pointer: string; detail: string }) => {
-            const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
-            setError(name, { type: "custom", message: error.detail });
-          });
-        }
+      onValidationError: (error: ValidationError) => {
+        error.errors.forEach((error: { pointer: string; detail: string }) => {
+          const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
+          setError(name, { type: "custom", message: error.detail });
+        });
       },
     });
   };
@@ -66,7 +63,7 @@ export function TilsagnForm(props: Props) {
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
-        <div className="border border-border-default rounded p-4 mt-8 mb-2">
+        <div className="border border-border-default rounded p-4 mt-6 mb-6">
           <div className="flex justify-between my-3 flex-col gap-5">
             <Heading size="medium" level="3">
               Tilsagn

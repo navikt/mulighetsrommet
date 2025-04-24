@@ -9,7 +9,6 @@ import {
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
-  ProblemDetail,
   Tiltakskode,
   TiltakstypeDto,
   Toggles,
@@ -32,7 +31,6 @@ import { AvtaleFormDetaljer } from "./AvtaleFormDetaljer";
 import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AvtalePrisOgFakturering } from "@/pages/avtaler/AvtalePrisOgFakturering";
-import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   onClose: () => void;
@@ -115,10 +113,8 @@ export function AvtaleFormContainer({
 
     mutation.mutate(requestBody, {
       onSuccess: handleSuccess,
-      onError: (error: ProblemDetail) => {
-        if (isValidationError(error)) {
-          handleValidationError(error);
-        }
+      onValidationError: (error: ValidationError) => {
+        handleValidationError(error);
       },
     });
   };

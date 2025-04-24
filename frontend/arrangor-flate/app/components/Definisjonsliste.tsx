@@ -1,33 +1,35 @@
-import { Heading } from "@navikt/ds-react";
-import React from "react";
+import { Heading, HeadingProps, HStack, VStack } from "@navikt/ds-react";
+import React, { ReactNode } from "react";
 
 export interface Definition {
   key: string;
-  value: string;
+  value: string | ReactNode;
 }
 
 interface Props {
   title?: string;
   className?: string;
   definitions: Definition[];
+  headingLevel?: HeadingProps["level"];
 }
 
-export function Definisjonsliste({ title, definitions, className }: Props) {
+export function Definisjonsliste({ title, definitions, className, headingLevel }: Props) {
+  const headingSize = headingLevel === "3" ? "small" : "medium";
   return (
-    <div className={className}>
+    <VStack gap="3" className={className}>
       {title && (
-        <Heading className="mb-2" size="medium" level="2">
+        <Heading size={headingSize} level={headingLevel || "2"}>
           {title}
         </Heading>
       )}
-      <dl className="flex flex-col gap-2">
+      <dl className="flex flex-col gap-1.5">
         {definitions.map((definition, index) => (
-          <div className="flex justify-between gap-2" key={index}>
+          <HStack gap="2" justify="space-between" key={index}>
             <dt>{definition.key}:</dt>
             <dd className="font-bold text-right">{definition.value}</dd>
-          </div>
+          </HStack>
         ))}
       </dl>
-    </div>
+    </VStack>
   );
 }

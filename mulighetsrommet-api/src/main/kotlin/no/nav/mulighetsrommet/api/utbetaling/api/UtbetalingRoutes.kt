@@ -14,7 +14,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -26,9 +26,11 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerPerson
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -65,8 +67,8 @@ fun Route.utbetalingRoutes() {
 
                     val opprettelse = queries.totrinnskontroll
                         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-
-                    val requiredRole = NavAnsattRolle.AttestantUtbetaling(
+                    val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
+                        Rolle.ATTESTANT_UTBETALING,
                         setOf(tilsagn.kostnadssted.enhetsnummer),
                     )
                     val besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(opprettelse)
@@ -80,7 +82,7 @@ fun Route.utbetalingRoutes() {
                         tilsagn = tilsagn,
                         opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
                             opprettelse,
-                            ansatt.hasRole(requiredRole),
+                            kanBesluttesAvAnsatt,
                             behandletAvNavn,
                             besluttetAvNavn,
                         ),
@@ -92,9 +94,14 @@ fun Route.utbetalingRoutes() {
                         val deltakereById = queries.deltaker
                             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
                             .associateBy { it.id }
+
+                        val deltakerPersoner =
+                            service.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
+
                         utbetaling.beregning.output.deltakelser.map {
                             val deltaker = deltakereById.getValue(it.deltakelseId)
-                            toDeltakerForKostnadsfordeling(deltaker, it.manedsverk)
+                            val person = deltaker.norskIdent?.let { deltakerPersoner.getValue(deltaker.norskIdent) }
+                            toDeltakerForKostnadsfordeling(deltaker, person, it.manedsverk)
                         }
                     }
 
@@ -138,7 +145,7 @@ fun Route.utbetalingRoutes() {
                 queries.tilsagn.getAll(
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periodeIntersectsWith = utbetaling.periode,
-                    typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
+                    typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 ).map { TilsagnDto.fromTilsagn(it) }
             }
 
@@ -151,12 +158,11 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<OpprettManuellUtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                UtbetalingValidator.validateManuellUtbetalingskrav(request)
+                UtbetalingValidator.validateManuellUtbetalingskrav(utbetalingId, request)
                     .onLeft {
                         return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                     }
-
-                service.opprettManuellUtbetaling(utbetalingId, request, navIdent)
+                    .onRight { service.opprettManuellUtbetaling(it, navIdent) }
 
                 call.respond(request)
             }
@@ -201,12 +207,16 @@ fun Route.utbetalingRoutes() {
 
 private fun toDeltakerForKostnadsfordeling(
     deltaker: Deltaker,
+    person: DeltakerPerson?,
     manedsverk: Double,
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
     id = deltaker.gjennomforingId,
-    fnr = deltaker.norskIdent?.value,
     status = deltaker.status.type,
     manedsverk = manedsverk,
+    navn = person?.navn,
+    geografiskEnhet = person?.geografiskEnhet?.navn,
+    region = person?.region?.navn,
+    foedselsdato = person?.foedselsdato,
 )
 
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {
@@ -231,7 +241,7 @@ sealed class BesluttDelutbetalingRequest(
     @Serializable
     @SerialName("AVVIST")
     data class AvvistDelutbetalingRequest(
-        val aarsaker: List<String>,
+        val aarsaker: List<DelutbetalingReturnertAarsak>,
         val forklaring: String?,
     ) : BesluttDelutbetalingRequest(
         besluttelse = Besluttelse.AVVIST,
@@ -259,17 +269,12 @@ data class OpprettDelutbetalingerRequest(
 data class OpprettManuellUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val periode: Periode,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
     val beskrivelse: String,
     val kontonummer: Kontonummer,
     val kidNummer: Kid? = null,
     val belop: Int,
-) {
-    @Serializable
-    data class Periode(
-        @Serializable(with = LocalDateSerializer::class)
-        val start: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val slutt: LocalDate,
-    )
-}
+)

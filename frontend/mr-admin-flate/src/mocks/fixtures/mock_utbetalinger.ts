@@ -6,6 +6,7 @@ import {
   NavEnhetType,
   TilsagnStatus,
   TilsagnType,
+  Tilskuddstype,
   TotrinnskontrollBesluttetDto,
   TotrinnskontrollTilBeslutningDto,
   UtbetalingDto,
@@ -32,6 +33,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     beskrivelse: "Utbetaling for første halvår 2024",
     innsendtAv: "Z123456",
     journalpostId: "JP123456",
+    tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
@@ -52,6 +54,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     beskrivelse: "Utbetaling for andre halvår 2024",
     innsendtAv: "Arrangør",
     journalpostId: "JP123457",
+    tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
@@ -72,6 +75,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     beskrivelse: "Utbetaling for første kvartal 2025",
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
+    tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
   },
   {
     id: "129e4567-e89b-12d3-a456-426614174002",
@@ -92,6 +96,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     beskrivelse: "Utbetaling for første kvartal 2025",
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
+    tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
   },
   {
     id: "130e4567-e89b-12d3-a456-426614174002",
@@ -112,6 +117,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     beskrivelse: "Utbetaling for første kvartal 2025",
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
+    tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
   },
 ];
 

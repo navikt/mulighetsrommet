@@ -18,6 +18,8 @@ data class ArrFlateUtbetaling(
     val status: ArrFlateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
     val tiltakstype: Utbetaling.Tiltakstype,
     val gjennomforing: Utbetaling.Gjennomforing,
     val arrangor: Utbetaling.Arrangor,

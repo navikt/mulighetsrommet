@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest.Periode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -87,10 +86,8 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(
                         OpprettManuellUtbetalingRequest(
                             gjennomforingId = AFT1.id,
-                            periode = Periode(
-                                start = LocalDate.now().plusDays(5),
-                                slutt = LocalDate.now().plusDays(1),
-                            ),
+                            periodeStart = LocalDate.now().plusDays(5),
+                            periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Kort besk..",
                             kontonummer = Kontonummer(value = "12345678910"),
                             kidNummer = null,
@@ -124,10 +121,8 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(
                         OpprettManuellUtbetalingRequest(
                             gjennomforingId = AFT1.id,
-                            periode = Periode(
-                                start = LocalDate.now(),
-                                slutt = LocalDate.now().plusDays(1),
-                            ),
+                            periodeStart = LocalDate.now(),
+                            periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Bla bla bla bla bla",
                             kontonummer = Kontonummer(value = "12345678910"),
                             kidNummer = null,
@@ -163,10 +158,8 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(
                         OpprettManuellUtbetalingRequest(
                             gjennomforingId = AFT1.id,
-                            periode = Periode(
-                                start = LocalDate.now(),
-                                slutt = LocalDate.now().plusDays(1),
-                            ),
+                            periodeStart = LocalDate.now(),
+                            periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Bla bla bla bla bla",
                             kontonummer = Kontonummer(value = "12345678910"),
                             kidNummer = null,

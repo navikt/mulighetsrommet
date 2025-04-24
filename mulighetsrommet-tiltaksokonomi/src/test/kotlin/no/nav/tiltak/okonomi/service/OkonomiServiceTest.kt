@@ -132,6 +132,26 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
+        test("nuf uten postnummer feiler ikke") {
+            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns BrregHovedenhetDto(
+                organisasjonsnummer = Organisasjonsnummer("920238076"),
+                organisasjonsform = "NUF",
+                navn = "BOREALIS DESTINATION MANAGEMENT NUF",
+                postadresse = null,
+                forretningsadresse = BrregAdresse(
+                    landkode = "DK",
+                    postnummer = null,
+                    poststed = "Mariehamn",
+                    adresse = listOf("Gateveien 1"),
+                ),
+            ).right()
+
+            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+
+            val opprettBestilling = createOpprettBestilling("1")
+            service.opprettBestilling(opprettBestilling).shouldBeRight()
+        }
+
         test("skal opprette bestilling hos oebs og lagrer utgående melding om status for bestilling") {
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = createOkonomiService(oebsClient(oebsRespondOk()))

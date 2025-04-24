@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.Gjeldende14aVedtakDto
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.veilederflate.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException

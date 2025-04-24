@@ -1,17 +1,18 @@
+import { Button, Tabs } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetalingKompakt,
   ArrFlateUtbetalingStatus,
 } from "api-client";
-import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { useLoaderData } from "react-router";
-import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
+import { Link as ReactRouterLink, useLoaderData } from "react-router";
+import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
+import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
+import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { PageHeader } from "../components/PageHeader";
 import { useTabState } from "../hooks/useTabState";
-import { apiHeaders } from "~/auth/auth.server";
-import { problemDetailResponse } from "~/utils";
+import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
   return [
@@ -50,17 +51,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return { utbetalinger, tilsagn };
 }
 
-export default function TilsagnDetaljer() {
+export default function UtbetalingOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const { utbetalinger, tilsagn } = useLoaderData<typeof loader>();
   const historiske: ArrFlateUtbetalingKompakt[] = utbetalinger.filter(
     (k) => k.status === ArrFlateUtbetalingStatus.UTBETALT,
   );
   const aktive = utbetalinger.filter((k) => k.status !== ArrFlateUtbetalingStatus.UTBETALT);
+  const orgnr = useOrgnrFromUrl();
 
   return (
     <>
-      <PageHeader title="Tilgjengelige innsendelser" />
+      <div className="flex justify-between sm:flex-row sm:my-5 sm:p-1">
+        <PageHeader title="Tilgjengelige innsendinger" />
+        <Button
+          variant="secondary"
+          as={ReactRouterLink}
+          to={internalNavigation(orgnr).manueltUtbetalingskrav}
+        >
+          Opprett manuelt krav om utbetaling
+        </Button>
+      </div>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
           <Tabs.Tab value="aktive" label="Aktive" />

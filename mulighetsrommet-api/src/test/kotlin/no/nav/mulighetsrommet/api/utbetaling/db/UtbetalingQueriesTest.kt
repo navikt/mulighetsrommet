@@ -12,10 +12,8 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import java.time.LocalDate
@@ -45,8 +43,10 @@ class UtbetalingQueriesTest : FunSpec({
         kontonummer = Kontonummer("11111111111"),
         kid = Kid("12345"),
         periode = periode,
-        innsender = Utbetaling.Innsender.NavAnsatt(NavIdent("Z123456")),
+        innsender = NavIdent("Z123456"),
         beskrivelse = "En beskrivelse",
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     test("upsert and get utbetaling med fri beregning") {
@@ -82,7 +82,7 @@ class UtbetalingQueriesTest : FunSpec({
                 it.journalpostId shouldBe null
                 it.periode shouldBe periode
                 it.godkjentAvArrangorTidspunkt shouldBe null
-                it.innsender shouldBe Utbetaling.Innsender.NavAnsatt(NavIdent("Z123456"))
+                it.innsender shouldBe NavIdent("Z123456")
                 it.beskrivelse shouldBe "En beskrivelse"
             }
         }
@@ -102,7 +102,7 @@ class UtbetalingQueriesTest : FunSpec({
             queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
             queries.get(utbetaling.id)
-                .shouldNotBeNull().innsender shouldBe Utbetaling.Innsender.ArrangorAnsatt
+                .shouldNotBeNull().innsender shouldBe Arrangor
         }
     }
 
@@ -218,6 +218,8 @@ class UtbetalingQueriesTest : FunSpec({
                     periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                     innsender = null,
                     beskrivelse = null,
+                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                    godkjentAvArrangorTidspunkt = null,
                 )
 
                 assertThrows<SQLException> {

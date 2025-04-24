@@ -8,8 +8,10 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.utils.io.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Query
@@ -20,6 +22,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
@@ -28,6 +31,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.*
 
 class ArrangorflateRoutesTest : FunSpec({
@@ -378,6 +382,46 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
                 """,
             )
+        }
+    }
+
+    test("manuell utbetalingskrav med vedlegg") {
+        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val client = createClient {
+                install(ContentNegotiation) { json() }
+            }
+
+            val response = client.submitFormWithBinaryData(
+                url = "/api/v1/intern/arrangorflate/arrangor/$orgnr/utbetaling",
+                formData = formData {
+                    append("gjennomforingId", GjennomforingFixtures.AFT1.id.toString())
+                    append("beskrivelse", "test beskrivelse")
+                    append("kontonummer", "12345678901")
+                    append("kidNummer", "123456")
+                    append("belop", 1000)
+                    append("periodeStart", "2024-01-01")
+                    append("periodeSlutt", "2024-01-31")
+                    append("tilskuddstype", Tilskuddstype.TILTAK_INVESTERINGER.name)
+
+                    append(
+                        key = "vedlegg",
+                        value = "PDF_CONTENT".toByteArray(),
+                        headers = headersOf(
+                            HttpHeaders.ContentDisposition to listOf(
+                                ContentDisposition.File.withParameter(
+                                    ContentDisposition.Parameters.FileName,
+                                    "test.pdf",
+                                ).toString(),
+                            ),
+                            HttpHeaders.ContentType to listOf(ContentType.Application.Pdf.toString()),
+                        ),
+                    )
+                },
+            ) {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+            }
+
+            response.status shouldBe HttpStatusCode.OK
         }
     }
 })

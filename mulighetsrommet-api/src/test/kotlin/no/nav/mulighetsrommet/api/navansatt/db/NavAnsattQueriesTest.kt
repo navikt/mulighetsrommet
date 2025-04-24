@@ -117,14 +117,14 @@ class NavAnsattQueriesTest : FunSpec({
                 queries.upsert(ansatt1)
 
                 val enRolle = setOf(
-                    NavAnsattRolle.fromRolleAndEnheter(Rolle.KONTAKTPERSON),
+                    NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
                 )
                 queries.setRoller(ansatt1.navIdent, enRolle)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
-                    NavAnsattRolle.fromRolleAndEnheter(Rolle.BESLUTTER_TILSAGN),
-                    NavAnsattRolle.fromRolleAndEnheter(Rolle.ATTESTANT_UTBETALING),
+                    NavAnsattRolle.generell(Rolle.KONTAKTPERSON),
+                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                 )
                 queries.setRoller(ansatt1.navIdent, flereRoller)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
@@ -142,20 +142,20 @@ class NavAnsattQueriesTest : FunSpec({
                 queries.upsert(ansatt1)
 
                 val enRolle = setOf(
-                    NavAnsattRolle.AttestantUtbetaling(enheter = setOf(NavEnhetNummer("1000"))),
+                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("1000"))),
                 )
                 queries.setRoller(ansatt1.navIdent, enRolle)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
-                    NavAnsattRolle.BeslutterTilsagn(enheter = setOf(NavEnhetNummer("1000"))),
-                    NavAnsattRolle.AttestantUtbetaling(enheter = setOf(NavEnhetNummer("2000"))),
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000"))),
+                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("2000"))),
                 )
                 queries.setRoller(ansatt1.navIdent, flereRoller)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
 
                 val ingenRoller = setOf<NavAnsattRolle>(
-                    NavAnsattRolle.BeslutterTilsagn(enheter = setOf()),
+                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf()),
                 )
                 queries.setRoller(ansatt1.navIdent, ingenRoller)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
@@ -166,9 +166,9 @@ class NavAnsattQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 val queries = NavAnsattQueries(session)
 
-                val generell = NavAnsattRolle.TiltakadministrasjonGenerell
+                val generell = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
-                val kontaktperson = NavAnsattRolle.Kontaktperson
+                val kontaktperson = NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
 
                 queries.upsert(ansatt1)
                 queries.setRoller(ansatt1.navIdent, setOf(generell))
@@ -202,15 +202,18 @@ class NavAnsattQueriesTest : FunSpec({
                 val queries = NavAnsattQueries(session)
 
                 val beslutterTilsagnAndeby =
-                    NavAnsattRolle.BeslutterTilsagn(setOf(NavEnhetNummer("1000")))
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000")))
                 val beslutterTilsagnGaseby =
-                    NavAnsattRolle.BeslutterTilsagn(setOf(NavEnhetNummer("2000")))
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("2000")))
                 val beslutterTilsagnUtenKontor =
-                    NavAnsattRolle.BeslutterTilsagn(setOf())
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf())
                 val beslutterTilsagnForBeggeKontor =
-                    NavAnsattRolle.BeslutterTilsagn(setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")))
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.BESLUTTER_TILSAGN,
+                        setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
+                    )
                 val beslutterTilsagnForUkjentKontor =
-                    NavAnsattRolle.BeslutterTilsagn(setOf(NavEnhetNummer("3000")))
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("3000")))
 
                 queries.upsert(ansatt1)
                 queries.setRoller(ansatt1.navIdent, setOf(beslutterTilsagnAndeby))

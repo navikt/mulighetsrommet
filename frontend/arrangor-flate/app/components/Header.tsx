@@ -1,7 +1,7 @@
 import { Link } from "react-router";
-import css from "../root.module.css";
 import { Arrangorvelger } from "./arrangorvelger/Arrangorvelger";
 import { Arrangor } from "api-client";
+import { HStack } from "@navikt/ds-react";
 
 interface Props {
   arrangorer: Arrangor[];
@@ -10,14 +10,12 @@ interface Props {
 export function Header({ arrangorer }: Props) {
   return (
     <header className="bg-blue-100">
-      <div className={css.side + " h-full mt-0 flex flex-row content-center items-center"}>
-        <div className="flex flex-row items-center justify-between w-full ">
-          <Link className="text-gray-900 font-bold text-4xl no-underline" to="/">
-            Utbetaling
-          </Link>
-          <Arrangorvelger arrangorer={arrangorer} />
-        </div>
-      </div>
+      <HStack justify="space-between" padding="12" className="max-w-[2500px] w-[90%] m-auto">
+        <Link className="text-gray-900 font-bold text-4xl no-underline" to="/">
+          Utbetalinger
+        </Link>
+        <Arrangorvelger arrangorer={arrangorer} />
+      </HStack>
     </header>
   );
 }

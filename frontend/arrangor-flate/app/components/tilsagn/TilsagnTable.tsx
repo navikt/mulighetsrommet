@@ -26,13 +26,14 @@ export function TilsagnTable({ tilsagn }: Props) {
         <Table zebraStripes>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>Tiltakstype</Table.HeaderCell>
-              <Table.HeaderCell>Navn</Table.HeaderCell>
-              <Table.HeaderCell>Tilsagnsnummer</Table.HeaderCell>
-              <Table.HeaderCell>Tilsagnstype</Table.HeaderCell>
-              <Table.HeaderCell>Periode</Table.HeaderCell>
-              <Table.HeaderCell>Status</Table.HeaderCell>
-              <Table.HeaderCell></Table.HeaderCell>
+              <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Tilsagnsnummer</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Tilsagnstype</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Periode</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+              <Table.HeaderCell scope="col" className="w-10"></Table.HeaderCell>
+              <Table.HeaderCell scope="col"></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -47,6 +48,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                   <Table.DataCell>
                     <TilsagnStatusTag data={tilsagn.status} />
                   </Table.DataCell>
+                  <Table.DataCell />
                   <Table.DataCell>
                     <LinkWithTabState
                       aria-label={`Detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
@@ -66,7 +68,7 @@ export function TilsagnTable({ tilsagn }: Props) {
   );
 }
 
-function formaterTilsagnType(type: TilsagnType): string {
+export function formaterTilsagnType(type: TilsagnType): string {
   switch (type) {
     case TilsagnType.TILSAGN:
       return "Tilsagn";

@@ -1,10 +1,10 @@
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { isValidationError, validEmail } from "@/utils/Utils";
+import { validEmail } from "@/utils/Utils";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  ProblemDetail,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
@@ -89,13 +89,11 @@ export function ArrangorKontaktpersonForm({
           putMutation.reset();
           onSubmit();
         },
-        onError: (error: ProblemDetail) => {
-          if (isValidationError(error)) {
-            const errors = error.errors.reduce((errors: Record<string, string>, error) => {
-              return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
-            }, {});
-            setState({ ...state, errors });
-          }
+        onValidationError: (error: ValidationError) => {
+          const errors = error.errors.reduce((errors: Record<string, string>, error) => {
+            return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
+          }, {});
+          setState({ ...state, errors });
         },
       },
     );

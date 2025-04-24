@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
+import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
@@ -19,6 +20,10 @@ import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
+
+private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
+private val teamMulighetsrommetAdGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID()
+private val kontaktpersonAdGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toUUID()
 
 val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
@@ -63,17 +68,23 @@ val ApplicationConfigDev = AppConfig(
         ),
         roles = setOf(
             AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
+                adGruppeId = teamMulighetsrommetAdGruppeId,
                 rolle = Rolle.TEAM_MULIGHETSROMMET,
             ),
             AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
+                adGruppeId = teamMulighetsrommetAdGruppeId,
+                rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
+            ),
+
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = tiltaksadministrasjonAdGruppeId,
                 rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
             ),
             AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
-                rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
+                adGruppeId = kontaktpersonAdGruppeId,
+                rolle = Rolle.KONTAKTPERSON,
             ),
+
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "279039a0-39fd-4860-afdd-a1a2ccaa6323".toUUID(),
                 rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
@@ -85,10 +96,6 @@ val ApplicationConfigDev = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "d9f317a1-2444-4fcd-b696-df8dbd6cc942".toUUID(),
                 rolle = Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toUUID(),
-                rolle = Rolle.KONTAKTPERSON,
             ),
 
             AdGruppeNavAnsattRolleMapping(
@@ -143,6 +150,13 @@ val ApplicationConfigDev = AppConfig(
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 kommentar = "0400-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
+        ),
+    ),
+    navAnsattSync = NavAnsattSyncService.Config(
+        ansattGroupsToSync = setOf(
+            teamMulighetsrommetAdGruppeId,
+            tiltaksadministrasjonAdGruppeId,
+            kontaktpersonAdGruppeId,
         ),
     ),
     sanity = SanityClient.Config(
@@ -260,5 +274,8 @@ val ApplicationConfigDev = AppConfig(
     ),
     okonomi = OkonomiConfig(
         minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
+    ),
+    clamav = HttpClientConfig(
+        url = "http://clamav.nais-system",
     ),
 )

@@ -1,14 +1,12 @@
 import { ArrangorflateService, ArrangorflateTilsagn } from "api-client";
-import { LoaderFunction } from "react-router";
-import { useLoaderData } from "react-router";
-import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { LoaderFunction, useLoaderData } from "react-router";
+import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
+import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 import { PageHeader } from "../components/PageHeader";
 import { internalNavigation } from "../internal-navigation";
-import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
-import { apiHeaders } from "~/auth/auth.server";
-import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 import { tekster } from "../tekster";
+import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
@@ -34,25 +32,24 @@ export default function TilsagnDetaljerPage() {
   const orgnr = useOrgnrFromUrl();
 
   return (
-    <div className="max-w-[50%]">
+    <div className="flex flex-col items-start">
       <PageHeader
         title="Detaljer for tilsagn"
         tilbakeLenke={{
           navn: "Tilbake til tilsagnsoversikt",
-          url: internalNavigation(orgnr).root,
+          url: internalNavigation(orgnr).utbetalinger,
         }}
       />
       <TilsagnStatusTag data={tilsagn.status} />
-      <Definisjonsliste
-        className="mt-4"
-        definitions={[
+      <TilsagnDetaljer
+        tilsagn={tilsagn}
+        ekstraDefinisjoner={[
           { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
           { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
           { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
           { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
         ]}
       />
-      <TilsagnDetaljer tilsagn={tilsagn} />
     </div>
   );
 }

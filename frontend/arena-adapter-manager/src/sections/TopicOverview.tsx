@@ -26,7 +26,7 @@ function TopicOverview({ base }: Props) {
 
   const setRunningState = (event: ChangeEvent<HTMLInputElement>) => {
     const changedTopics = [...topics];
-    changedTopics[changedTopics.map((t) => t.topic).indexOf(event.currentTarget.name)].running =
+    changedTopics[changedTopics.map((t) => t.id).indexOf(event.currentTarget.name)].running =
       event.currentTarget.checked;
     setTopics(changedTopics);
   };
@@ -64,7 +64,7 @@ function TopicOverview({ base }: Props) {
                 <Td>
                   <Switch
                     colorScheme="pink"
-                    name={topic.topic}
+                    name={topic.id}
                     defaultChecked={topic.running}
                     onChange={setRunningState}
                     size="lg"

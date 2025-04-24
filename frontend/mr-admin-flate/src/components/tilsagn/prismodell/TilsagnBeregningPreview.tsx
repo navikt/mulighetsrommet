@@ -1,11 +1,10 @@
-import { ProblemDetail, TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client-v2";
+import { TilsagnBeregningInput, TilsagnBeregningOutput, ValidationError } from "@mr/api-client-v2";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Heading, Label } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
-import { isValidationError } from "@/utils/Utils";
 
 interface Props {
   input: TilsagnBeregningInput;
@@ -20,22 +19,23 @@ export function TilsagnBeregningPreview(props: Props) {
 
   const { setError } = useFormContext<DeepPartial<InferredTilsagn>>();
 
-  function handleTilsagnBeregnet(beregning: { data: TilsagnBeregningOutput }) {
+  function onSuccess(beregning: { data: TilsagnBeregningOutput }) {
     setBeregning(beregning.data);
     onTilsagnBeregnet?.(beregning.data);
   }
 
-  function setValidationErrors(error: ProblemDetail) {
-    if (isValidationError(error)) {
-      error.errors.forEach((error: { pointer: string; detail: string }) => {
-        const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
-        setError(name, { type: "custom", message: error.detail });
-      });
-    }
+  function onValidationError(error: ValidationError) {
+    error.errors.forEach((error: { pointer: string; detail: string }) => {
+      const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
+      setError(name, { type: "custom", message: error.detail });
+    });
   }
 
   useEffect(() => {
-    beregnTilsagn(input, { onSuccess: handleTilsagnBeregnet, onError: setValidationErrors });
+    beregnTilsagn(input, {
+      onSuccess,
+      onError: (error) => onValidationError(error as ValidationError),
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [beregnTilsagn, ...extractRelevantDeps(input)]);
 

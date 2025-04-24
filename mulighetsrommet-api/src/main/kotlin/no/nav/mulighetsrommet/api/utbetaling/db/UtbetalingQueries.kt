@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -31,7 +32,9 @@ class UtbetalingQueries(private val session: Session) {
                 periode,
                 prismodell,
                 innsender,
-                beskrivelse
+                tilskuddstype,
+                beskrivelse,
+                godkjent_av_arrangor_tidspunkt
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -41,7 +44,9 @@ class UtbetalingQueries(private val session: Session) {
                 :periode::daterange,
                 :prismodell::prismodell,
                 :innsender,
-                :beskrivelse
+                :tilskuddstype::tilskuddstype,
+                :beskrivelse,
+                :godkjent_av_arrangor_tidspunkt
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 frist_for_godkjenning = excluded.frist_for_godkjenning,
@@ -50,7 +55,9 @@ class UtbetalingQueries(private val session: Session) {
                 periode = excluded.periode,
                 prismodell = excluded.prismodell,
                 innsender = excluded.innsender,
-                beskrivelse = excluded.beskrivelse
+                tilskuddstype = excluded.tilskuddstype,
+                beskrivelse = excluded.beskrivelse,
+                godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt
         """.trimIndent()
 
         val params = mapOf(
@@ -64,8 +71,10 @@ class UtbetalingQueries(private val session: Session) {
                 is UtbetalingBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT.name
                 is UtbetalingBeregningFri -> Prismodell.FRI.name
             },
-            "innsender" to dbo.innsender?.value,
+            "innsender" to dbo.innsender?.textRepr(),
             "beskrivelse" to dbo.beskrivelse,
+            "tilskuddstype" to dbo.tilskuddstype.name,
+            "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
         )
 
         execute(queryOf(utbetalingQuery, params))
@@ -196,7 +205,7 @@ class UtbetalingQueries(private val session: Session) {
         val query = """
             update utbetaling set
                 godkjent_av_arrangor_tidspunkt = :tidspunkt,
-                innsender = 'ARRANGOR_ANSATT'
+                innsender = 'Arrangor'
             where id = :id::uuid
         """.trimIndent()
 
@@ -307,7 +316,7 @@ class UtbetalingQueries(private val session: Session) {
     private fun Row.toUtbetalingDto(): Utbetaling {
         val id = uuid("id")
         val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
-        val innsender = stringOrNull("innsender")?.let { Utbetaling.Innsender.fromString(it) }
+        val innsender = stringOrNull("innsender")?.toAgent()
         return Utbetaling(
             id = id,
             fristForGodkjenning = localDateTime("frist_for_godkjenning"),
@@ -336,6 +345,7 @@ class UtbetalingQueries(private val session: Session) {
             innsender = innsender,
             createdAt = localDateTime("created_at"),
             beskrivelse = stringOrNull("beskrivelse"),
+            tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
         )
     }
 

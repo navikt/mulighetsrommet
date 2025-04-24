@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
+import arrow.core.*
+import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -12,9 +11,15 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.NorgError
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -27,15 +32,19 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.NotFound
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -45,14 +54,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-val AUTOMATISK_RETURNERT_AARSAK: String = "AUTOMATISK_RETURNERT"
-
 class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
+    private val pdlQuery: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
+    private val norg2Client: Norg2Client,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -82,6 +91,85 @@ class UtbetalingService(
                 logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
                 dto
             }
+    }
+
+    private suspend fun getPersoner(deltakerIdenter: List<NorskIdent>): Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytning?>> {
+        val identer = deltakerIdenter
+            .map { ident -> PdlIdent(ident.value) }
+            .toNonEmptySetOrNull()
+            ?: return mapOf()
+
+        return pdlQuery.hentPersonOgGeografiskTilknytningBolk(identer, AccessType.M2M).getOrElse {
+            throw StatusException(
+                status = HttpStatusCode.InternalServerError,
+                detail = "Klarte ikke hente informasjon om personer og geografisk tilknytning",
+            )
+        }
+    }
+
+    private suspend fun hentEnhetForGeografiskTilknytning(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
+        val norgEnhet = when (geografiskTilknytning) {
+            is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(
+                geografiskTilknytning.value,
+            )
+
+            is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(
+                geografiskTilknytning.value,
+            )
+
+            else -> return null
+        }
+
+        return norgEnhet
+            .map { hentNavEnhet(it.enhetNr) }
+            .getOrElse {
+                when (it) {
+                    NorgError.NotFound -> null
+                    NorgError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke navenhet til geografisk tilknytning.",
+                    )
+                }
+            }
+    }
+
+    private fun hentNavEnhet(enhetsNummer: NavEnhetNummer) = db.session {
+        queries.enhet.get(enhetsNummer)
+    }
+
+    suspend fun getDeltakereForKostnadsfordeling(deltakerIdenter: List<NorskIdent>): Map<NorskIdent, DeltakerPerson> {
+        val personer = getPersoner(deltakerIdenter)
+
+        val deltakereForKostnadsfordeling = personer.map { (ident, pair) ->
+            val (person, geografiskTilknytning) = pair
+            val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
+
+            if (gradering == PdlGradering.UGRADERT) {
+                val navEnhet = geografiskTilknytning?.let { hentEnhetForGeografiskTilknytning(it) }
+                val region = navEnhet?.overordnetEnhet?.let { hentNavEnhet(it) }
+
+                DeltakerPerson(
+                    norskIdent = NorskIdent(ident.value),
+                    navn = person.navn.first().let { navn ->
+                        val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
+                        listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
+                    },
+                    foedselsdato = person.foedselsdato.first().foedselsdato,
+                    geografiskEnhet = navEnhet,
+                    region = region,
+                )
+            } else {
+                DeltakerPerson(
+                    norskIdent = NorskIdent(ident.value),
+                    navn = "Adressebeskyttet person",
+                    foedselsdato = null,
+                    geografiskEnhet = null,
+                    region = null,
+                )
+            }
+        }.associateBy { it.norskIdent }
+
+        return deltakereForKostnadsfordeling
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
@@ -161,6 +249,8 @@ class UtbetalingService(
             periode = periode,
             innsender = null,
             beskrivelse = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            godkjentAvArrangorTidspunkt = null,
         )
     }
 
@@ -177,39 +267,44 @@ class UtbetalingService(
         )
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
-        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession)
+        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
         automatiskUtbetaling(utbetalingId)
     }
 
     fun opprettManuellUtbetaling(
-        utbetalingId: UUID,
-        request: OpprettManuellUtbetalingRequest,
-        navIdent: NavIdent,
-    ) {
-        db.transaction {
-            queries.utbetaling.upsert(
-                UtbetalingDbo(
-                    id = utbetalingId,
-                    gjennomforingId = request.gjennomforingId,
-                    fristForGodkjenning = request.periode.slutt.plusMonths(2).atStartOfDay(),
-                    kontonummer = request.kontonummer,
-                    kid = request.kidNummer,
-                    beregning = UtbetalingBeregningFri.beregn(
-                        input = UtbetalingBeregningFri.Input(
-                            belop = request.belop,
-                        ),
+        request: UtbetalingValidator.ValidatedManuellUtbetalingRequest,
+        agent: Agent,
+    ): UUID = db.transaction {
+        queries.utbetaling.upsert(
+            UtbetalingDbo(
+                id = request.id,
+                gjennomforingId = request.gjennomforingId,
+                fristForGodkjenning = request.periodeSlutt.plusMonths(2).atStartOfDay(),
+                kontonummer = request.kontonummer,
+                kid = request.kidNummer,
+                beregning = UtbetalingBeregningFri.beregn(
+                    input = UtbetalingBeregningFri.Input(
+                        belop = request.belop,
                     ),
-                    periode = Periode.fromInclusiveDates(
-                        request.periode.start,
-                        request.periode.slutt,
-                    ),
-                    innsender = Utbetaling.Innsender.NavAnsatt(navIdent),
-                    beskrivelse = request.beskrivelse,
                 ),
-            )
-            val dto = getOrError(utbetalingId)
-            logEndring("Utbetaling sendt inn", dto, navIdent)
-        }
+                periode = Periode.fromInclusiveDates(
+                    request.periodeStart,
+                    request.periodeSlutt,
+                ),
+                innsender = agent,
+                beskrivelse = request.beskrivelse,
+                tilskuddstype = request.tilskuddstype,
+                godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
+                    LocalDateTime.now()
+                } else {
+                    null
+                },
+            ),
+        )
+        val dto = getOrError(request.id)
+        logEndring("Utbetaling sendt inn", dto, agent)
+        journalforUtbetaling.schedule(dto.id, Instant.now(), session as TransactionalSession, request.vedlegg)
+        dto.id
     }
 
     fun opprettDelutbetalinger(
@@ -282,7 +377,7 @@ class UtbetalingService(
 
         val kostnadssted = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
-        if (!ansatt.hasRole(NavAnsattRolle.AttestantUtbetaling(setOf(kostnadssted.enhetsnummer)))) {
+        if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})"))).left()
         }
 
@@ -467,8 +562,8 @@ class UtbetalingService(
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 returnerDelutbetaling(
                     it,
-                    listOf(AUTOMATISK_RETURNERT_AARSAK),
-                    "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling",
+                    listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
+                    null,
                     Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
@@ -489,7 +584,7 @@ class UtbetalingService(
 
     private fun QueryContext.returnerDelutbetaling(
         delutbetaling: Delutbetaling,
-        aarsaker: List<String>,
+        aarsaker: List<DelutbetalingReturnertAarsak>,
         forklaring: String?,
         besluttetAv: Agent,
     ) {
@@ -501,8 +596,8 @@ class UtbetalingService(
             .forEach {
                 setReturnertDelutbetaling(
                     it,
-                    listOf(AUTOMATISK_RETURNERT_AARSAK),
-                    "Automatisk returnert av Nav Tiltaksadministrasjon som følge av at en annen utbetalingslinje ble returnert",
+                    listOf(DelutbetalingReturnertAarsak.PROPAGERT_RETUR),
+                    null,
                     Tiltaksadministrasjon,
                 )
             }
@@ -516,7 +611,7 @@ class UtbetalingService(
 
     private fun QueryContext.setReturnertDelutbetaling(
         delutbetaling: Delutbetaling,
-        aarsaker: List<String>,
+        aarsaker: List<DelutbetalingReturnertAarsak>,
         forklaring: String?,
         besluttetAv: Agent,
     ) {
@@ -526,7 +621,7 @@ class UtbetalingService(
             opprettelse.copy(
                 besluttetAv = besluttetAv,
                 besluttelse = Besluttelse.AVVIST,
-                aarsaker = aarsaker,
+                aarsaker = aarsaker.map { it.name },
                 forklaring = forklaring,
                 besluttetTidspunkt = LocalDateTime.now(),
             ),
@@ -684,4 +779,11 @@ private fun isRelevantForUtbetalingsperide(
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+}
+
+enum class DelutbetalingReturnertAarsak {
+    FEIL_BELOP,
+    FEIL_ANNET,
+    TILSAGN_FEIL_STATUS,
+    PROPAGERT_RETUR,
 }

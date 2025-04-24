@@ -5,7 +5,9 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.util.*
 
 @Serializable
@@ -30,7 +32,11 @@ data class UtbetalingLinje(
 data class DeltakerForKostnadsfordeling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val fnr: String?,
+    val navn: String?,
+    val geografiskEnhet: String?,
+    val region: String?,
+    @Serializable(with = LocalDateSerializer::class)
+    val foedselsdato: LocalDate?,
     val status: DeltakerStatus.Type,
     val manedsverk: Double,
 )

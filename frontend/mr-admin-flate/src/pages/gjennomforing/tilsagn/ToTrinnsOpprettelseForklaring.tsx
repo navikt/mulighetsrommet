@@ -13,9 +13,11 @@ export function ToTrinnsOpprettelsesForklaring({ opprettelse }: Props) {
   return (
     <AarsakerOgForklaring
       heading="Tilsagnet ble returnert"
-      tekst={`${navnEllerIdent(opprettelse.besluttetAv)} returnerte tilsagnet den ${formaterDato(
-        opprettelse.besluttetTidspunkt,
-      )} med følgende årsaker:`}
+      tekster={[
+        `${navnEllerIdent(opprettelse.besluttetAv)} returnerte tilsagnet den ${formaterDato(
+          opprettelse.besluttetTidspunkt,
+        )} med følgende årsaker:`,
+      ]}
       aarsaker={
         opprettelse.aarsaker?.map((aarsak) =>
           tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),

@@ -1,3 +1,4 @@
+import { Heading } from "@navikt/ds-react";
 import { LinkWithTabState } from "./LinkWithTabState";
 
 interface Props {
@@ -11,9 +12,9 @@ interface Props {
 export function PageHeader({ title, tilbakeLenke }: Props) {
   return (
     <div className="flex flex-col relative">
-      <h1 className="mb-2" data-testid="header">
+      <Heading level="1" size="large" className="mb-3" data-testid="header">
         {title}
-      </h1>
+      </Heading>
       {tilbakeLenke ? (
         <LinkWithTabState className="mb-5 inline hover:underline" to={tilbakeLenke.url}>
           {tilbakeLenke.navn}

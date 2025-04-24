@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -28,6 +29,8 @@ object UtbetalingFixtures {
         kid = null,
         innsender = null,
         beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     val utbetaling2 = UtbetalingDbo(
@@ -43,6 +46,8 @@ object UtbetalingFixtures {
         kid = null,
         innsender = null,
         beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     val utbetaling3 = UtbetalingDbo(
@@ -58,6 +63,8 @@ object UtbetalingFixtures {
         kid = null,
         innsender = null,
         beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
     )
 
     val delutbetaling1 = DelutbetalingDbo(

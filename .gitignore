@@ -42,3 +42,5 @@ docker-compose.override.yml
 # For å unngå genererte test-pdf'er
 *.pdf
 
+# Mise-en-place files in subdirectories
+**/mise.toml

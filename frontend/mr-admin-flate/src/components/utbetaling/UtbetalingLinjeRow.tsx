@@ -52,8 +52,10 @@ export function UtbetalingLinjeRow({
   }
 
   useEffect(() => {
-    setOpenRow(skalApneRad);
-  }, [errors, linje.opprettelse, linje.gjorOppTilsagn, skalApneRad]);
+    if (skalApneRad) {
+      setOpenRow(skalApneRad);
+    }
+  }, [skalApneRad]);
 
   useEffect(() => {
     setBelopError(errors.find((e) => e.pointer.includes("belop"))?.detail);

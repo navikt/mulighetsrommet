@@ -414,8 +414,8 @@ export function tilsagnAarsakTilTekst(
       return "Annet";
     case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
-    case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
-      return "Gjennomføring skal avbrytes";
+    case TilsagnTilAnnulleringAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES:
+      return "Tiltaket skal ikke gjennomføres";
     case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
@@ -429,8 +429,10 @@ export function delutbetalingAarsakTilTekst(aarsak: DelutbetalingReturnertAarsak
       return "Feil beløp";
     case DelutbetalingReturnertAarsak.FEIL_ANNET:
       return "Annet";
-    case DelutbetalingReturnertAarsak.AUTOMATISK_RETURNERT:
-      return "Automatisk returnert";
+    case DelutbetalingReturnertAarsak.PROPAGERT_RETUR:
+      return "Automatisk returnert som følge av at en annen utbetalingslinje ble returnert";
+    case DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS:
+      return "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling";
   }
 }
 
@@ -485,4 +487,11 @@ export function navnEllerIdent(agent: AgentDto): string {
     case "ARRANGOR":
       return "Tiltaksarrangør";
   }
+}
+
+export function navnIdentEllerPlaceholder(agent?: AgentDto): string {
+  if (!agent) {
+    return "-";
+  }
+  return navnEllerIdent(agent);
 }
