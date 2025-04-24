@@ -59,7 +59,7 @@ module "mr_api_datastream" {
       special_group = "projectWriters"
     },
     {
-      role           = "roles/bigquery.metadataViewer"
+      role          = "roles/bigquery.metadataViewer"
       user_by_email = "grafana@nais-management-233d.iam.gserviceaccount.com"
     }
   ]
