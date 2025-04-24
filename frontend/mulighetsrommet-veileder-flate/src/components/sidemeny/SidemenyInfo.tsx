@@ -25,7 +25,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
-    <Box padding="5" background="bg-subtle" id="sidemeny">
+    <Box padding="5" background="bg-subtle" id="sidemeny" className="max-w-[360px] xl:max-w-none">
       {tiltaksnummer && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">

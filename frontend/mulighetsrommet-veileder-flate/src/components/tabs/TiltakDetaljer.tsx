@@ -69,7 +69,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
       }}
     >
       <Tabs.List
-        className={`${styles.fane_liste} flex flex-row border-b border-border-subtle gap-1.5 justify-start xl:justify-between`}
+        className={`${styles.fane_liste} flex flex-row border-b border-border-subtle gap-1.5 xl:justify-start justify-between`}
         id="fane_liste"
       >
         {faneoverskrifter.map((fane, index) => (
