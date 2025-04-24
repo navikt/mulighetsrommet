@@ -3,7 +3,6 @@ import { Alert, Button } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
-import styles from "./Oppskrift.module.scss";
 
 interface Props {
   oppskriftId: string;
@@ -48,15 +47,15 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
       <Button variant="tertiary-neutral" onClick={() => setOppskriftId(undefined)}>
         Lukk oppskriften
       </Button>
-      <div className={styles.container}>
-        <aside className={styles.navigering}>
+      <div className="flex bg-white p-4">
+        <aside className="mx-4">
           <nav>
-            <ol>
+            <ol className="m-0 p-0">
               {oppskrift.steg.map((s, index) => {
                 return (
-                  <li key={s.navn}>
+                  <li key={s.navn} className="my-4 mx-0">
                     <button
-                      className={styles.navigasjonsknapp}
+                      className="bg-none border-none underline text-left hover:cursor-pointer"
                       title={`Naviger til steg: ${index + 1}`}
                       aria-label={`Naviger til steg: ${index + 1}`}
                       onClick={() => navigateViaShadowDomToElement(`#steg-${index + 1}`)}
@@ -69,12 +68,15 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
             </ol>
           </nav>
         </aside>
-        <section ref={ref} className={styles.oppskrifter}>
+        <section ref={ref} className="overflow-y-scroll max-h-[50rem]">
           <h3>{oppskrift.navn}</h3>
           <p>{oppskrift.beskrivelse}</p>
           {oppskrift.steg.map((st, index) => {
             return (
-              <div key={st.navn} className={styles.steg}>
+              <div
+                key={st.navn}
+                className="bg-gray-50 p-4 my-4 mx-0 rounded-[0.2rem] [&_img]:w-full"
+              >
                 <h4 id={`steg-${index + 1}`}>{`${index + 1}. ${st.navn}`}</h4>
                 <RedaksjoneltInnhold value={st.innhold} />
               </div>
