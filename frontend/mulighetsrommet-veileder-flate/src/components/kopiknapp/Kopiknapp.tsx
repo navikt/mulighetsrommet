@@ -27,18 +27,14 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
     return () => clearTimeout(timeOutId);
   }, [showTooltip]);
 
+  const svgClasses = "w-[20px] h-auto block";
+
   return (
-    <Tooltip
-      placement="top"
-      content="Kopiert"
-      className={styles.kopiknapp_tooltip}
-      open={showTooltip}
-      role="tooltip"
-    >
+    <Tooltip placement="top" content="Kopiert" open={showTooltip} role="tooltip">
       <Button
         size="xsmall"
         variant="tertiary"
-        className={styles.kopiknapp}
+        className={`${styles.kopiknapp} align-bottom -mt-1 py-0.5 px-0`}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onClick={(e) => {
@@ -46,7 +42,11 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
         }}
         data-testid={dataTestId}
       >
-        {hover ? <FilesFillIcon aria-label="Kopier" /> : <FilesIcon aria-label="Kopier" />}
+        {hover ? (
+          <FilesFillIcon className={svgClasses} aria-label="Kopier" />
+        ) : (
+          <FilesIcon className={svgClasses} aria-label="Kopier" />
+        )}
       </Button>
     </Tooltip>
   );
