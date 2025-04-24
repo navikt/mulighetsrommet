@@ -59,7 +59,6 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
         {data && (
           <CheckboxGroup
-            className={"bg-red-500"}
             legend=""
             hideLegend
             size="small"
