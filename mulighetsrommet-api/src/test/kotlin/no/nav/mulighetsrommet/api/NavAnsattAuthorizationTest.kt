@@ -35,6 +35,7 @@ class NavAnsattAuthorizationTest : FunSpec({
         val claims = mapOf(
             "NAVident" to "ABC123",
             "oid" to oid.toString(),
+            "sid" to UUID.randomUUID().toString(),
         )
         request.bearerAuth(oauth.issueToken(claims = claims).serialize())
     }

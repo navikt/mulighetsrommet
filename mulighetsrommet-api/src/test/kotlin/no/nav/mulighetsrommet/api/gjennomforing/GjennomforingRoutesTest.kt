@@ -60,6 +60,7 @@ class GjennomforingRoutesTest : FunSpec({
     val navAnsattClaims = mapOf(
         "NAVident" to "ABC123",
         "oid" to navAnsattOid.toString(),
+        "sid" to UUID.randomUUID().toString(),
     )
 
     context("les gjennomføringer") {

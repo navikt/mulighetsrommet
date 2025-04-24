@@ -106,11 +106,19 @@ class AuthenticationTest : FunSpec({
         val requestWithoutOid = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
         }
+        val requestWithoutSid = { request: HttpRequestBuilder ->
+            val claims = mapOf(
+                "NAVident" to "ABC123",
+                "oid" to UUID.randomUUID().toString(),
+            )
+            request.bearerAuth(oauth.issueToken(claims = claims).serialize())
+        }
         val userWithoutRoles = UUID.randomUUID()
         val requestWithoutRoles = { request: HttpRequestBuilder ->
             val claims = mapOf(
                 "NAVident" to "ABC123",
                 "oid" to userWithoutRoles.toString(),
+                "sid" to UUID.randomUUID().toString(),
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
@@ -119,6 +127,7 @@ class AuthenticationTest : FunSpec({
             val claims = mapOf(
                 "NAVident" to "ABC123",
                 "oid" to userWithRoles.toString(),
+                "sid" to UUID.randomUUID().toString(),
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
@@ -139,6 +148,7 @@ class AuthenticationTest : FunSpec({
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutNAVident, HttpStatusCode.Unauthorized),
                 row(requestWithoutOid, HttpStatusCode.Unauthorized),
+                row(requestWithoutSid, HttpStatusCode.Unauthorized),
                 row(requestWithoutRoles, HttpStatusCode.Unauthorized),
                 row(requestWithRoles, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->

@@ -76,6 +76,7 @@ class UtbetalingRoutesTest : FunSpec({
     val navAnsattClaims = mapOf(
         "NAVident" to "ABC123",
         "oid" to navAnsattOid.toString(),
+        "sid" to UUID.randomUUID().toString(),
     )
 
     context("opprett utbetaling") {

@@ -11,14 +11,14 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-typealias JwtId = String
+typealias JwtSessionId = String
 
 class NavAnsattPrincipalService(
     private val navAnsattService: NavAnsattService,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val roleCache: Cache<JwtId, Set<NavAnsattRolle>> = Caffeine.newBuilder()
+    private val roleCache: Cache<JwtSessionId, Set<NavAnsattRolle>> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
@@ -35,12 +35,12 @@ class NavAnsattPrincipalService(
             return null
         }
 
-        val jwtId = credentials.payload.id ?: run {
-            log.warn("JWT ID mangler i JWT credentials")
+        val sessionId = credentials["sid"] ?: run {
+            log.warn("'sid' mangler i JWT credentials")
             return null
         }
 
-        val roller = getRoles(jwtId, navAnsattAzureId)
+        val roller = getRoles(sessionId, navAnsattAzureId)
 
         return NavAnsattPrincipal(
             navAnsattAzureId = navAnsattAzureId,
@@ -50,9 +50,9 @@ class NavAnsattPrincipalService(
         )
     }
 
-    suspend fun getRoles(jwtId: JwtId, oid: UUID): Set<NavAnsattRolle> {
-        return roleCache.getIfPresent(jwtId) ?: navAnsattService.getNavAnsattRoles(oid, AccessType.M2M).also {
-            roleCache.put(jwtId, it)
+    suspend fun getRoles(sessionId: JwtSessionId, oid: UUID): Set<NavAnsattRolle> {
+        return roleCache.getIfPresent(sessionId) ?: navAnsattService.getNavAnsattRoles(oid, AccessType.M2M).also {
+            roleCache.put(sessionId, it)
         }
     }
 }
