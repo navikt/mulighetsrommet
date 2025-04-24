@@ -174,7 +174,7 @@ class GjennomforingService(
             GjennomforingStatus.AVSLUTTET,
             GjennomforingStatus.AVBRUTT,
             GjennomforingStatus.AVLYST,
-            -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
+                -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
 
             else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.status}")
         }
@@ -223,6 +223,7 @@ class GjennomforingService(
                 periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
             logEndring(operation, dto, navIdent)
+            gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
             dto
         }
     }
@@ -232,6 +233,7 @@ class GjennomforingService(
 
         val dto = getOrError(id)
         val operation = "Fjernet periode med stengt hos arrangør"
+        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
         logEndring(operation, dto, navIdent)
     }
 
