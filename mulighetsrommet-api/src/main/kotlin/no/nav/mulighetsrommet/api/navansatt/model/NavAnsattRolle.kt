@@ -27,15 +27,3 @@ data class NavAnsattRolle(
         }
     }
 }
-
-object NavAnsattRolleHelper {
-    fun hasRole(
-        roles: Set<NavAnsattRolle>,
-        requiredRole: NavAnsattRolle,
-    ): Boolean = when (requiredRole.generell) {
-        true -> roles.any { it.rolle == requiredRole.rolle }
-        false -> roles.any {
-            it.rolle == requiredRole.rolle && (it.generell || it.enheter.containsAll(requiredRole.enheter))
-        }
-    }
-}

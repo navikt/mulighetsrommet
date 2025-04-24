@@ -4,12 +4,16 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolleHelper
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipal
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.ProblemDetail
 
 class NavAnsattAuthorizationPluginConfiguration {
-    var roles: List<NavAnsattRolle> = listOf()
+    var roles: List<Rolle> = listOf()
 }
 
 val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
@@ -25,26 +29,42 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
             val principal = call.principal<NavAnsattPrincipal>()
 
             if (principal == null) {
-                return@on call.respond(HttpStatusCode.Companion.Unauthorized)
+                return@on call.respond(HttpStatusCode.Unauthorized)
             }
 
-            val navAnsattRoles = principal.roller
-
-            if (navAnsattRoles.isEmpty()) {
+            if (principal.roller.isEmpty()) {
                 return@on call.respond(
-                    HttpStatusCode.Companion.Forbidden,
-                    "Mangler roller minst én av følgende roller: ${requiredRoles.map { it.rolle }.joinToString(", ")}",
+                    HttpStatusCode.Forbidden,
+                    NavAnsattManglerTilgang(principal.navIdent, requiredRoles.first()),
                 )
             }
 
+            val navAnsattRoles = principal.roller.map { it.rolle }
+
             requiredRoles.forEach { requiredRole ->
-                if (!NavAnsattRolleHelper.hasRole(navAnsattRoles, requiredRole)) {
+                if (requiredRole !in navAnsattRoles) {
                     return@on call.respond(
-                        HttpStatusCode.Companion.Forbidden,
-                        "Mangler følgende rolle: ${requiredRole.rolle}",
+                        HttpStatusCode.Forbidden,
+                        NavAnsattManglerTilgang(principal.navIdent, requiredRole),
                     )
                 }
             }
         }
     }
+}
+
+@Serializable
+class NavAnsattManglerTilgang(
+    val navIdent: NavIdent,
+    val missingRole: Rolle,
+    override val title: String = "Mangler tilgang til ressurs",
+) : ProblemDetail() {
+    override val type = "mangler-tilgang"
+    override val status: Int = HttpStatusCode.Forbidden.value
+    override val detail: String =
+        "rollen '$missingRole' er påkrevd for å få tilgang til denne ressursen"
+    override val extensions = mapOf(
+        "missingRole" to Json.encodeToJsonElement(missingRole),
+    )
+    override val instance = navIdent.value
 }

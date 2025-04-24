@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.clients.msgraph.AdGruppe
 import no.nav.mulighetsrommet.api.clients.msgraph.mockMsGraphGetMemberGroups
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -110,11 +111,18 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("403 Forbidden når bruker ikke har generell tilgang") {
             withTestApplication(appConfig(roller = setOf(gjennomforingSkrivRolle))) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
                 val response = client.get("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
+
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.bodyAsText() shouldBe "Mangler følgende rolle: TILTAKADMINISTRASJON_GENERELL"
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
             }
         }
 
@@ -155,23 +163,37 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("403 Forbidden når bruker mangler generell tilgang") {
             withTestApplication(appConfig(roller = setOf(gjennomforingSkrivRolle))) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
                 val response = client.put("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody("""{}""")
                 }
+
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.bodyAsText() shouldBe "Mangler følgende rolle: TILTAKADMINISTRASJON_GENERELL"
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
             }
         }
 
         test("403 Forbidden når bruker ikke har skrivetilgang til gjennomføringer") {
             withTestApplication(appConfig(roller = setOf(generellRolle))) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
                 val response = client.put("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
+
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.bodyAsText() shouldBe "Mangler følgende rolle: TILTAKSGJENNOMFORINGER_SKRIV"
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKSGJENNOMFORINGER_SKRIV
             }
         }
 

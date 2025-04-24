@@ -2,14 +2,17 @@ package no.nav.mulighetsrommet.api.avtale
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.clients.msgraph.AdGruppe
 import no.nav.mulighetsrommet.api.clients.msgraph.mockMsGraphGetMemberGroups
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -77,20 +80,35 @@ class AvtaleRoutesTest : FunSpec({
     context("opprett avtale") {
         test("403 Forbidden når bruker mangler generell tilgang") {
             withTestApplication(appConfig(setOf(avtaleSkrivRolle))) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
                 val response = client.put("/api/v1/intern/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
+
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.bodyAsText() shouldBe "Mangler følgende rolle: TILTAKADMINISTRASJON_GENERELL"
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
             }
         }
 
         test("403 Forbidden når bruker mangler skrivetilgang") {
             withTestApplication(appConfig(setOf(generellRolle))) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
                 val response = client.put("/api/v1/intern/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
+
                 response.status shouldBe HttpStatusCode.Forbidden
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.AVTALER_SKRIV
             }
         }
 

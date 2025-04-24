@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
@@ -15,6 +14,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -105,7 +105,7 @@ class UtbetalingRoutesTest : FunSpec({
                 }
                 response.status shouldBe HttpStatusCode.BadRequest
                 response.body<ValidationError>().errors shouldBe listOf(
-                    FieldError.ofPointer("/arrangorinfo/belop", "Beløp må være positivt"),
+                    FieldError.ofPointer("/belop", "Beløp må være positivt"),
                 )
             }
         }
@@ -135,7 +135,7 @@ class UtbetalingRoutesTest : FunSpec({
                     )
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.bodyAsText() shouldBe "Mangler følgende rolle: SAKSBEHANDLER_OKONOMI"
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.SAKSBEHANDLER_OKONOMI
             }
         }
 
@@ -184,7 +184,7 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest)
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.bodyAsText() shouldBe "Mangler følgende rolle: ATTESTANT_UTBETALING"
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.ATTESTANT_UTBETALING
             }
         }
 
