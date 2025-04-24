@@ -174,7 +174,7 @@ class GjennomforingService(
             GjennomforingStatus.AVSLUTTET,
             GjennomforingStatus.AVBRUTT,
             GjennomforingStatus.AVLYST,
-                -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
+            -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
 
             else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.status}")
         }
