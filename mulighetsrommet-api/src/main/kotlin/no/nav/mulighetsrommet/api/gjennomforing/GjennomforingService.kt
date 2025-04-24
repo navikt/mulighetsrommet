@@ -223,6 +223,7 @@ class GjennomforingService(
                 periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
             logEndring(operation, dto, navIdent)
+            gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
             dto
         }
     }
@@ -232,6 +233,7 @@ class GjennomforingService(
 
         val dto = getOrError(id)
         val operation = "Fjernet periode med stengt hos arrangør"
+        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
         logEndring(operation, dto, navIdent)
     }
 
