@@ -10,7 +10,7 @@ interface Props {
 export function Header({ arrangorer }: Props) {
   return (
     <header className="bg-blue-100">
-      <HStack justify="space-between" padding="12" className="mx-24">
+      <HStack justify="space-between" padding="12" className="max-w-[2500px] w-[90%] m-auto">
         <Link className="text-gray-900 font-bold text-4xl no-underline" to="/">
           Utbetalinger
         </Link>

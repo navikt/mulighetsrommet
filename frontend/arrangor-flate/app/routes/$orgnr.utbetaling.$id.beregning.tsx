@@ -200,16 +200,34 @@ function ForhandsgodkjentBeregning({
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
                 Navn
               </Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Fødselsdato</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Startdato i tiltaket</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_START}>
+              <Table.ColumnHeader align="right" scope="col">
+                Fødselsdato
+              </Table.ColumnHeader>
+              <Table.ColumnHeader align="right" scope="col">
+                Startdato i tiltaket
+              </Table.ColumnHeader>
+              <Table.ColumnHeader
+                align="right"
+                scope="col"
+                sortable
+                sortKey={DeltakerSortKey.PERIODE_START}
+              >
                 Startdato i perioden
               </Table.ColumnHeader>
-              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_SLUTT}>
+              <Table.ColumnHeader
+                align="right"
+                scope="col"
+                sortable
+                sortKey={DeltakerSortKey.PERIODE_SLUTT}
+              >
                 Sluttdato i perioden
               </Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Deltakelsesprosent</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Månedsverk i perioden</Table.ColumnHeader>
+              <Table.ColumnHeader align="right" scope="col">
+                Deltakelsesprosent
+              </Table.ColumnHeader>
+              <Table.ColumnHeader align="right" scope="col">
+                Månedsverk i perioden
+              </Table.ColumnHeader>
 
               <Table.HeaderCell scope="col"></Table.HeaderCell>
             </Table.Row>
