@@ -11,7 +11,7 @@ export function useAdminGjennomforinger(filter: Partial<GjennomforingFilter>) {
   const queryFilter: Pick<GetGjennomforingerData, "query"> = {
     query: {
       search: debouncedSok || undefined,
-      navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
+      navEnheter: filter.navEnheter?.map((n) => n.enhetsnummer).join(",") ?? "",
       tiltakstyper: filter.tiltakstyper,
       statuser: filter.statuser,
       sort: filter.sortering ? filter.sortering.sortString : undefined,

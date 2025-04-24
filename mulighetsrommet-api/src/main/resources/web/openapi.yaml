@@ -438,10 +438,7 @@ paths:
         - in: query
           name: navEnheter
           schema:
-            type: array
-            items:
-              type: string
-          description: 4 digit enhetskode
+            type: string
         - in: query
           name: tiltakstyper
           schema:
@@ -524,10 +521,7 @@ paths:
         - in: query
           name: navEnheter
           schema:
-            type: array
-            items:
-              type: string
-          description: 4 digit enhetskode
+            type: string
         - in: query
           name: tiltakstyper
           schema:

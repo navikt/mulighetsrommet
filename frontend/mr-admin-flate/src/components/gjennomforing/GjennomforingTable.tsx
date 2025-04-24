@@ -37,7 +37,6 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
   const sort = filter.sortering.tableSort;
   const { data, isLoading } = useAdminGjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
-
   async function lastNedFil(filter: GjennomforingFilter) {
     const query = createQueryParamsForExcelDownloadForGjennomforing(filter);
     const { data } = await GjennomforingerService.lastNedGjennomforingerSomExcel(query);
