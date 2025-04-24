@@ -5,8 +5,6 @@ import { filterAccordionAtom, FilterAccordionTypes } from "@/core/atoms";
 import { addOrRemove } from "@/utils/Utils";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 
-import "./CheckboxFilter.module.scss";
-
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionHeader: React.ReactNode;
   accordionNavn: string;
