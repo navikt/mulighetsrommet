@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.navEnhetRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -27,8 +29,10 @@ import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
 import no.nav.mulighetsrommet.utdanning.utdanningRoutes
 
 fun Route.apiRoutes() {
-    authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
-        maamRoutes()
+    authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+        authorize(Rolle.TEAM_MULIGHETSROMMET) {
+            maamRoutes()
+        }
     }
 
     authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
@@ -47,8 +51,10 @@ fun Route.apiRoutes() {
             veilederflateRoutes()
         }
 
-        authenticate(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
-            adminflateRoutes()
+        authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+            authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
+                adminflateRoutes()
+            }
         }
 
         authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {

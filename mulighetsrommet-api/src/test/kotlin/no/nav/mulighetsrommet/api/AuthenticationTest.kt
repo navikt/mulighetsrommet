@@ -6,7 +6,6 @@ import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotliquery.queryOf
@@ -32,30 +31,6 @@ class AuthenticationTest : FunSpec({
         oauth.shutdown()
     }
 
-    fun Application.configureTestAuthentationRoutes() {
-        routing {
-            authenticate(AuthProvider.AZURE_AD_NAV_IDENT) {
-                get("AZURE_AD_NAV_IDENT") { call.respond(HttpStatusCode.OK) }
-            }
-
-            authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
-                get("AZURE_AD_TEAM_MULIGHETSROMMET") { call.respond(HttpStatusCode.OK) }
-            }
-
-            authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
-                get("AZURE_AD_DEFAULT_APP") { call.respond(HttpStatusCode.OK) }
-            }
-
-            authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
-                get("AZURE_AD_TILTAKSGJENNOMFORING_APP") { call.respond(HttpStatusCode.OK) }
-            }
-
-            authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
-                get("TOKEN_X_ARRANGOR_FLATE") { call.respond(HttpStatusCode.OK) }
-            }
-        }
-    }
-
     test("verify provider AZURE_AD_NAV_IDENT") {
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
@@ -74,7 +49,13 @@ class AuthenticationTest : FunSpec({
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
-        withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
+        withTestApplication(config, additionalConfiguration = {
+            routing {
+                authenticate(AuthProvider.AZURE_AD_NAV_IDENT) {
+                    get("AZURE_AD_NAV_IDENT") { call.respond(HttpStatusCode.OK) }
+                }
+            }
+        }) {
             forAll(
                 row(requestWithoutBearerToken, HttpStatusCode.Unauthorized),
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
@@ -89,9 +70,8 @@ class AuthenticationTest : FunSpec({
         }
     }
 
-    test("verify provider AZURE_AD_TEAM_MULIGHETSROMMET") {
-        val wrongRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.KONTAKTPERSON)
-        val correctRole = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
+    test("verify provider NAV_ANSATT_WITH_ROLES") {
+        val rolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
 
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
@@ -103,38 +83,58 @@ class AuthenticationTest : FunSpec({
         val requestWithoutNAVident = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken().serialize())
         }
-        val requestWithoutGroup = { request: HttpRequestBuilder ->
+        val requestWithoutOid = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
         }
-        val requestWithWrongGroup = { request: HttpRequestBuilder ->
+        val requestWithoutSid = { request: HttpRequestBuilder ->
             val claims = mapOf(
-                "NAVident" to "ABC123",
-                "groups" to listOf(wrongRole.adGruppeId),
+                "NAVident" to "B123456",
+                "oid" to UUID.randomUUID().toString(),
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
-        val requestWithCorrectGroup = { request: HttpRequestBuilder ->
+        val userWithoutRoles = UUID.randomUUID()
+        val requestWithoutRoles = { request: HttpRequestBuilder ->
             val claims = mapOf(
-                "NAVident" to "ABC123",
-                "groups" to listOf(correctRole.adGruppeId),
+                "NAVident" to "B123456",
+                "oid" to userWithoutRoles.toString(),
+                "sid" to UUID.randomUUID().toString(),
+                "groups" to listOf<String>(),
+            )
+            request.bearerAuth(oauth.issueToken(claims = claims).serialize())
+        }
+        val userWithRoles = UUID.randomUUID()
+        val requestWithRoles = { request: HttpRequestBuilder ->
+            val claims = mapOf(
+                "NAVident" to "B123456",
+                "oid" to userWithRoles.toString(),
+                "sid" to UUID.randomUUID().toString(),
+                "groups" to listOf(rolle.adGruppeId.toString()),
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
 
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = setOf(correctRole)),
+            auth = createAuthConfig(oauth, roles = setOf(rolle)),
         )
-        withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
+        withTestApplication(config, additionalConfiguration = {
+            routing {
+                authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+                    get("NAV_ANSATT_WITH_ROLES") { call.respond(HttpStatusCode.OK) }
+                }
+            }
+        }) {
             forAll(
                 row(requestWithoutBearerToken, HttpStatusCode.Unauthorized),
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutNAVident, HttpStatusCode.Unauthorized),
-                row(requestWithoutGroup, HttpStatusCode.Unauthorized),
-                row(requestWithWrongGroup, HttpStatusCode.Unauthorized),
-                row(requestWithCorrectGroup, HttpStatusCode.OK),
+                row(requestWithoutOid, HttpStatusCode.Unauthorized),
+                row(requestWithoutSid, HttpStatusCode.Unauthorized),
+                row(requestWithoutRoles, HttpStatusCode.Unauthorized),
+                row(requestWithRoles, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
-                val response = client.get("/AZURE_AD_TEAM_MULIGHETSROMMET") { buildRequest(this) }
+                val response = client.get("/NAV_ANSATT_WITH_ROLES") { buildRequest(this) }
 
                 response.status shouldBe responseStatusCode
             }
@@ -160,7 +160,13 @@ class AuthenticationTest : FunSpec({
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
-        withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
+        withTestApplication(config, additionalConfiguration = {
+            routing {
+                authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
+                    get("AZURE_AD_DEFAULT_APP") { call.respond(HttpStatusCode.OK) }
+                }
+            }
+        }) {
             forAll(
                 row(requestWithoutBearerToken, HttpStatusCode.Unauthorized),
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
@@ -198,7 +204,13 @@ class AuthenticationTest : FunSpec({
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
-        withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
+        withTestApplication(config, additionalConfiguration = {
+            routing {
+                authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
+                    get("AZURE_AD_TILTAKSGJENNOMFORING_APP") { call.respond(HttpStatusCode.OK) }
+                }
+            }
+        }) {
             forAll(
                 row(requestWithoutBearerToken, HttpStatusCode.Unauthorized),
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
@@ -246,7 +258,13 @@ class AuthenticationTest : FunSpec({
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
-        withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
+        withTestApplication(config, additionalConfiguration = {
+            routing {
+                authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
+                    get("TOKEN_X_ARRANGOR_FLATE") { call.respond(HttpStatusCode.OK) }
+                }
+            }
+        }) {
             forAll(
                 row(requestWithoutBearerToken, HttpStatusCode.Unauthorized),
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),

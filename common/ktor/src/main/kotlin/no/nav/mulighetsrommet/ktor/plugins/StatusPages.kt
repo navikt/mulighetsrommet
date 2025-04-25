@@ -30,6 +30,22 @@ fun Application.configureStatusPages() {
     }
 
     install(StatusPages) {
+        status(HttpStatusCode.Unauthorized) { status ->
+            val requestId = MDC.get("correlationId")
+
+            call.respondWithProblemDetail(
+                object : ProblemDetail() {
+                    override val type = "unauthorized"
+                    override val title = "Unauthorized"
+                    override val status = status.value
+                    override val detail =
+                        "Du har ikke tilgang til denne tjenesten. Logg inn på nytt hvis du nylig har fått tilgang."
+                    override val instance = null
+                    override val extensions = mapOf("requestId" to requestId)
+                },
+            )
+        }
+
         exception<IllegalArgumentException> { call, cause ->
             logException(HttpStatusCode.BadRequest, cause, call)
 

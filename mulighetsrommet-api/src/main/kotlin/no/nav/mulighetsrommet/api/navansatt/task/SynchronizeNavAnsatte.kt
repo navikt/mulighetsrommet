@@ -8,7 +8,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import io.ktor.server.plugins.*
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.Instant
 import java.time.LocalDate

@@ -1,7 +1,6 @@
-package no.nav.mulighetsrommet.api.navansatt
+package no.nav.mulighetsrommet.api.navansatt.service
 
 import arrow.core.toNonEmptyListOrNull
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -12,10 +11,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.sanity.Slug
-import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.api.sanity.*
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -214,26 +210,3 @@ class NavAnsattSyncService(
         sanityService.createRedaktorer(redaktorer)
     }
 }
-
-@Serializable
-data class SanityNavKontaktperson(
-    val _id: String,
-    val _type: String,
-    val navIdent: Slug,
-    val enhet: String,
-    val enhetsnummer: NavEnhetNummer? = null,
-    val telefonnummer: String? = null,
-    val epost: String,
-    val navn: String,
-)
-
-@Serializable
-data class SanityRedaktor(
-    val _id: String,
-    val _type: String,
-    val navIdent: Slug,
-    val enhet: String,
-    val enhetsnummer: NavEnhetNummer? = null,
-    val epost: Slug,
-    val navn: String,
-)

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navansatt
+package no.nav.mulighetsrommet.api.navansatt.service
 
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
@@ -59,14 +59,14 @@ class NavAnsattServiceTest : FunSpec({
     val rolleGenerell = NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)
     val rolleMappingGenerell = AdGruppeNavAnsattRolleMapping(
         adGruppeId = UUID.randomUUID(),
-        rolle = TILTAKADMINISTRASJON_GENERELL,
+        rolle = rolleGenerell.rolle,
     )
     val adGruppeGenerell = AdGruppe(id = rolleMappingGenerell.adGruppeId, navn = "Generell")
 
     val rolleKontaktperson = NavAnsattRolle.generell(KONTAKTPERSON)
     val rolleMappingKontaktperson = AdGruppeNavAnsattRolleMapping(
         adGruppeId = UUID.randomUUID(),
-        rolle = KONTAKTPERSON,
+        rolle = rolleKontaktperson.rolle,
     )
     val adGruppeKontaktperson = AdGruppe(id = rolleMappingKontaktperson.adGruppeId, navn = "Kontaktperson")
 
@@ -121,10 +121,7 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             )
 
-            service.getNavAnsattRoles(
-                azureId,
-                AccessType.M2M,
-            ) shouldBe setOf(rolleGenerell)
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(rolleGenerell)
         }
 
         test("should return empty set when the NavAnsatt does not have any of the configured roles") {
@@ -137,12 +134,13 @@ class NavAnsattServiceTest : FunSpec({
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf()
         }
 
-        test("should resolve Nav-enhet from the group name") {
-            val adGruppeBeslutterOslo = AdGruppe(id = UUID.randomUUID(), navn = "0387-CA-TILTAK-beslutter_tilsagn")
+        test("should resolve Nav-enhet from the mapping") {
+            val adGruppeBeslutterOslo = AdGruppe(id = UUID.randomUUID(), navn = "Beslutter Oslo")
 
             val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
                 adGruppeId = adGruppeBeslutterOslo.id,
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0387")),
             )
 
             val service = createNavAnsattService(setOf(rolleBeslutterOslo))
@@ -167,16 +165,18 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val adGruppeBeslutterInnlandet = AdGruppe(id = UUID.randomUUID(), navn = "0400-CA-TILTAK-beslutter_tilsagn")
-            val adGruppeBeslutterOslo = AdGruppe(id = UUID.randomUUID(), navn = "0300-CA-TILTAK-beslutter_tilsagn")
+            val adGruppeBeslutterInnlandet = AdGruppe(id = UUID.randomUUID(), navn = "Beslutter Innlandet")
+            val adGruppeBeslutterOslo = AdGruppe(id = UUID.randomUUID(), navn = "Beslutter Oslo")
 
             val rolleBeslutterInnlandet = AdGruppeNavAnsattRolleMapping(
                 adGruppeId = adGruppeBeslutterInnlandet.id,
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0400")),
             )
             val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
                 adGruppeId = adGruppeBeslutterOslo.id,
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0300")),
             )
 
             val service = createNavAnsattService(setOf(rolleBeslutterInnlandet, rolleBeslutterOslo))
@@ -202,32 +202,13 @@ class NavAnsattServiceTest : FunSpec({
             )
         }
 
-        test("should treat 0000 Nav-enhet as a general role") {
-            val adGruppeBeslutterGenerell = AdGruppe(id = UUID.randomUUID(), navn = "0000-CA-TILTAK-beslutter_tilsagn")
-
-            val rolleBeslutterGenerell = AdGruppeNavAnsattRolleMapping(
-                adGruppeId = adGruppeBeslutterGenerell.id,
-                rolle = Rolle.BESLUTTER_TILSAGN,
-            )
-
-            val service = createNavAnsattService(setOf(rolleBeslutterGenerell))
-
-            val azureId = UUID.randomUUID()
-
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeBeslutterGenerell)
-
-            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
-                NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
-            )
-        }
-
         test("should support multiple roles from the same group") {
             val id = UUID.randomUUID()
 
             val supertilgang = AdGruppe(id = id, navn = "Supertilgang")
             val roles = setOf(
-                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = TILTAKADMINISTRASJON_GENERELL),
-                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = KONTAKTPERSON),
+                AdGruppeNavAnsattRolleMapping(id, TILTAKADMINISTRASJON_GENERELL),
+                AdGruppeNavAnsattRolleMapping(id, KONTAKTPERSON),
             )
 
             coEvery { msGraph.getMemberGroups(ansatt1.azureId, AccessType.M2M) } returns listOf(supertilgang)
@@ -281,30 +262,6 @@ class NavAnsattServiceTest : FunSpec({
                     resolvedAnsatte shouldContainExactlyInAnyOrder expectedAnsatte
                 }
             }
-        }
-
-        test("should support multiple roles from the same group") {
-            val id = UUID.randomUUID()
-
-            val supertilgang = AdGruppe(id = id, navn = "Supertilgang")
-            val roles = setOf(
-                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = TILTAKADMINISTRASJON_GENERELL),
-                AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = KONTAKTPERSON),
-            )
-
-            coEvery { msGraph.getGroupMembers(id) } returns listOf(ansatt1, ansatt2)
-
-            coEvery { msGraph.getMemberGroups(ansatt1.azureId, AccessType.M2M) } returns listOf(supertilgang)
-            coEvery { msGraph.getMemberGroups(ansatt2.azureId, AccessType.M2M) } returns listOf(supertilgang)
-
-            val service = createNavAnsattService(roles)
-
-            val resolvedAnsatte = service.getNavAnsatteInGroups(setOf(id))
-
-            resolvedAnsatte shouldContainExactlyInAnyOrder listOf(
-                ansatt1.toNavAnsatt(setOf(rolleGenerell, rolleKontaktperson)),
-                ansatt2.toNavAnsatt(setOf(rolleGenerell, rolleKontaktperson)),
-            )
         }
     }
 })

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navansatt
+package no.nav.mulighetsrommet.api.navansatt.service
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -19,8 +19,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.util.*
-
-private val NAV_ENHET_GENERELL = NavEnhetNummer("0000")
 
 class NavAnsattService(
     private val roles: Set<AdGruppeNavAnsattRolleMapping>,
@@ -101,28 +99,24 @@ class NavAnsattService(
     }
 
     suspend fun getNavAnsattRoles(azureId: UUID, accessType: AccessType): Set<NavAnsattRolle> {
+        val groups = microsoftGraphClient.getMemberGroups(azureId, accessType).map { it.id }
+        return getNavAnsattRolesFromGroups(groups)
+    }
+
+    fun getNavAnsattRolesFromGroups(groups: List<UUID>): Set<NavAnsattRolle> {
         val rolesDirectory = roles.groupBy { it.adGruppeId }
 
         val roleToEnheter = buildMap {
-            microsoftGraphClient.getMemberGroups(azureId, accessType).forEach { group ->
-                rolesDirectory[group.id]?.forEach { (_, rolle) ->
-                    val enheter = resolveNavEnhetFromRolle(group.navn)
-                    computeIfAbsent(rolle) { mutableSetOf() }.addAll(enheter)
+            groups.forEach { group ->
+                rolesDirectory[group]?.forEach { (_, rolle, enheter) ->
+                    val enheterWithUnderenheter = enheter.flatMap { withUnderenheter(it) }
+                    computeIfAbsent(rolle) { mutableSetOf() }.addAll(enheterWithUnderenheter)
                 }
             }
         }
 
-        /**
-         * EntraId-grupper i Nav har ofte en navnestandard der de begynner med et enhetsnummer, eller 0000 når den er
-         * generell (ikke enhetsspesifikk).
-         *
-         * Vi sier at rollen er generell om 0000 finnes blandt minst én av EntraId-gruppene som tildeler rollen, eller
-         * om ingen av EntraId-gruppene som tildeler rollen definerer et enhetsnummer (og settet med Nav-enheter er
-         * tomt).
-         */
         return roleToEnheter.mapTo(mutableSetOf()) { (rolle, enheter) ->
-            val generell = enheter.isEmpty() || NAV_ENHET_GENERELL in enheter
-            NavAnsattRolle(rolle, generell, enheter.minus(NAV_ENHET_GENERELL))
+            NavAnsattRolle(rolle, enheter.isEmpty(), enheter)
         }
     }
 
@@ -131,19 +125,10 @@ class NavAnsattService(
         return ansatt.toNavAnsatt(roles)
     }
 
-    private fun resolveNavEnhetFromRolle(navn: String): Set<NavEnhetNummer> {
-        val navEnhetRegex = "^(\\d{4})-.+$".toRegex()
-
-        return navEnhetRegex.find(navn)?.groupValues?.get(1)
-            ?.let { NavEnhetNummer(it) }
-            ?.let { enhetsnummer ->
-                db.session {
-                    queries.enhet.getAll(overordnetEnhet = enhetsnummer)
-                        .mapTo(mutableSetOf()) { it.enhetsnummer }
-                        .plus(enhetsnummer)
-                }
-            }
-            ?: setOf()
+    private fun withUnderenheter(enhetsnummer: NavEnhetNummer): Set<NavEnhetNummer> = db.session {
+        queries.enhet.getAll(overordnetEnhet = enhetsnummer)
+            .mapTo(mutableSetOf()) { it.enhetsnummer }
+            .plus(enhetsnummer)
     }
 }
 

@@ -1,14 +1,11 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.row
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
-import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -16,7 +13,10 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
@@ -38,23 +38,102 @@ class GjennomforingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val generellRolle = AdGruppeNavAnsattRolleMapping(
-        UUID.randomUUID(),
-        Rolle.TILTAKADMINISTRASJON_GENERELL,
-    )
-    val gjennomforingerSkriv = AdGruppeNavAnsattRolleMapping(
-        UUID.randomUUID(),
-        Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
+    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
+    val gjennomforingSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+
+    val navAnsattOid = UUID.randomUUID()
+
+    fun appConfig() = createTestApplicationConfig().copy(
+        auth = createAuthConfig(oauth, roles = setOf(generellRolle, gjennomforingSkrivRolle)),
     )
 
-    fun appConfig(
-        engine: HttpClientEngine = CIO.create(),
-    ) = createTestApplicationConfig().copy(
-        auth = createAuthConfig(oauth, roles = setOf(generellRolle, gjennomforingerSkriv)),
-        engine = engine,
+    fun getClaims(roller: Set<AdGruppeNavAnsattRolleMapping>) = mapOf(
+        "NAVident" to "B123456",
+        "oid" to navAnsattOid.toString(),
+        "sid" to UUID.randomUUID().toString(),
+        "groups" to roller.map { it.adGruppeId.toString() },
     )
 
-    context("opprett og les gjennomføring") {
+    context("les gjennomføringer") {
+        val domain = MulighetsrommetTestDomain(
+            navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
+            arrangorer = listOf(),
+            avtaler = listOf(),
+            gjennomforinger = listOf(),
+        )
+
+        beforeAny {
+            domain.initialize(database.db)
+        }
+
+        afterContainer {
+            database.truncateAll()
+        }
+
+        test("401 Unauthorized for uautentisert kall") {
+            withTestApplication(appConfig()) {
+                val response = client.get("/api/v1/intern/gjennomforinger")
+                response.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
+
+        test("401 Unauthorized når token mangler 'oid' claim") {
+            withTestApplication(appConfig()) {
+                val response = client.get("/api/v1/intern/gjennomforinger") {
+                    val claims = mapOf(
+                        "NAVident" to "ABC123",
+                    )
+                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                }
+                response.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
+
+        test("401 Unauthorized når token mangler 'NAVident' claim") {
+            withTestApplication(appConfig()) {
+                val response = client.get("/api/v1/intern/gjennomforinger") {
+                    val claims = mapOf(
+                        "oid" to UUID.randomUUID().toString(),
+                    )
+                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                }
+                response.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
+
+        test("403 Forbidden når bruker ikke har generell tilgang") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val navAnsattClaims = getClaims(setOf(gjennomforingSkrivRolle))
+
+                val response = client.get("/api/v1/intern/gjennomforinger") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
+            }
+        }
+
+        test("200 OK med generell tilgang") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getClaims(setOf(generellRolle))
+
+                val response = client.get("/api/v1/intern/gjennomforinger") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+            }
+        }
+    }
+
+    context("opprett gjennomføring") {
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
@@ -65,15 +144,6 @@ class GjennomforingRoutesTest : FunSpec({
                         NavEnhetFixtures.Oslo.enhetsnummer,
                     ),
                     arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
-                        underenheter = listOf(ArrangorFixtures.underenhet1.id),
-                    ),
-                ),
-                AvtaleFixtures.VTA.copy(
-                    navEnheter = listOf(
-                        NavEnhetFixtures.Sagene.enhetsnummer,
-                        NavEnhetFixtures.Oslo.enhetsnummer,
-                    ),
-                    arrangor = AvtaleFixtures.VTA.arrangor?.copy(
                         underenheter = listOf(ArrangorFixtures.underenhet1.id),
                     ),
                 ),
@@ -88,44 +158,7 @@ class GjennomforingRoutesTest : FunSpec({
             database.truncateAll()
         }
 
-        test("401 Unauthorized for uautentisert kall for PUT av gjennomføring") {
-            withTestApplication(appConfig()) {
-                val response = client.put("/api/v1/intern/gjennomforinger")
-                response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
-        test("401 Unauthorized for uautentisert kall for PUT av gjennomføring når bruker ikke har tilgang til å skrive for gjennomføringer") {
-            withTestApplication(appConfig()) {
-                val response = client.put("/api/v1/intern/gjennomforinger") {
-                    val claims = mapOf(
-                        "NAVident" to "ABC123",
-                        "groups" to emptyList<String>(),
-                    )
-                    bearerAuth(
-                        oauth.issueToken(claims = claims).serialize(),
-                    )
-                }
-                response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
-        test("401 Unauthorized for uautentisert kall for PUT av gjennomføring når bruker har tilgang til å skrive for gjennomføringer, men mangler generell tilgang") {
-            withTestApplication(appConfig()) {
-                val response = client.put("/api/v1/intern/gjennomforinger") {
-                    val claims = mapOf(
-                        "NAVident" to "ABC123",
-                        "groups" to listOf(gjennomforingerSkriv.adGruppeId),
-                    )
-                    bearerAuth(
-                        oauth.issueToken(claims = claims).serialize(),
-                    )
-                }
-                response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
-        test("200 OK for autentisert kall for PUT av gjennomføring når bruker har generell tilgang og til skriv for gjennomføring") {
+        test("403 Forbidden når bruker mangler generell tilgang") {
             withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -133,43 +166,89 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                forAll(
-                    row(AvtaleFixtures.oppfolging, HttpStatusCode.OK),
-                    row(AvtaleFixtures.VTA, HttpStatusCode.BadRequest),
-                ) { avtale, expectedStatus ->
-                    val response = client.put("/api/v1/intern/gjennomforinger") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(
-                            oauth.issueToken(claims = claims).serialize(),
-                        )
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            GjennomforingFixtures.Oppfolging1Request.copy(
-                                avtaleId = avtale.id,
-                                navEnheter = setOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Sagene.enhetsnummer),
-                                tiltakstypeId = avtale.tiltakstypeId,
-                            ),
-                        )
-                    }
-                    response.status shouldBe expectedStatus
+                val navAnsattClaims = getClaims(setOf(gjennomforingSkrivRolle))
+
+                val response = client.put("/api/v1/intern/gjennomforinger") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody("""{}""")
                 }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
             }
         }
 
-        test("200 OK for autentisert kall for GET av gjennomføringer") {
+        test("403 Forbidden når bruker ikke har skrivetilgang til gjennomføringer") {
             withTestApplication(appConfig()) {
-                val response = client.get("/api/v1/intern/gjennomforinger") {
-                    val claims = mapOf(
-                        "NAVident" to "ABC123",
-                        "groups" to listOf(generellRolle.adGruppeId),
-                    )
-                    bearerAuth(
-                        oauth.issueToken(claims = claims).serialize(),
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val navAnsattClaims = getClaims(setOf(generellRolle))
+
+                val response = client.put("/api/v1/intern/gjennomforinger") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKSGJENNOMFORINGER_SKRIV
+            }
+        }
+
+        test("400 Bad Request når gjennomføringen er ugyldig") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val avtale = AvtaleFixtures.VTA
+
+                val response = client.put("/api/v1/intern/gjennomforinger") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        GjennomforingFixtures.Oppfolging1Request.copy(
+                            avtaleId = avtale.id,
+                            navEnheter = setOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                            tiltakstypeId = avtale.tiltakstypeId,
+                        ),
                     )
                 }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldBe listOf(FieldError("/avtaleId", "Avtalen finnes ikke"))
+            }
+        }
+
+        test("200 OK når bruker har skrivetilgang til gjennomføringer") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val avtale = AvtaleFixtures.oppfolging
+
+                val response = client.put("/api/v1/intern/gjennomforinger") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        GjennomforingFixtures.Oppfolging1Request.copy(
+                            avtaleId = avtale.id,
+                            navEnheter = setOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                            tiltakstypeId = avtale.tiltakstypeId,
+                        ),
+                    )
+                }
+
                 response.status shouldBe HttpStatusCode.OK
             }
         }
@@ -210,13 +289,11 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/${domain.gjennomforinger[0].id}/avtale") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(SetAvtaleForGjennomforingRequest(domain.avtaler[1].id))
                     }
@@ -234,13 +311,11 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/${domain.gjennomforinger[1].id}/avtale") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(SetAvtaleForGjennomforingRequest(domain.avtaler[2].id))
                     }
@@ -290,13 +365,11 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/${UUID.randomUUID()}/avbryt") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(AvbrytRequest(aarsak = null))
                     }
@@ -314,13 +387,11 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(AvbrytRequest(aarsak = null))
                     }
@@ -338,13 +409,11 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(AvbrytRequest(aarsak = AvbruttAarsak.Annet("")))
                     }
@@ -362,13 +431,11 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/$avsluttetGjennomforingId/avbryt") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(AvbrytRequest(aarsak = AvbruttAarsak.Feilregistrering))
                     }
@@ -386,12 +453,10 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
+                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+
                 val response = client.put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
-                    val claims = mapOf(
-                        "NAVident" to "ABC123",
-                        "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                    )
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(AvbrytRequest(aarsak = AvbruttAarsak.Feilregistrering))
                 }

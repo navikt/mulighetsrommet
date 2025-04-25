@@ -1,12 +1,9 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.TextContent
-import io.ktor.http.headersOf
-import io.ktor.utils.io.ByteReadChannel
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.utils.io.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
@@ -16,8 +13,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
