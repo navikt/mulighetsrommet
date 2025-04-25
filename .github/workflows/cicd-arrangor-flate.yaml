@@ -114,4 +114,4 @@ jobs:
         env:
           CLUSTER: prod-gcp
           RESOURCE: frontend/arrangor-flate/.nais/nais-prod.yaml
-          VAR: image=${{ needs.ci.outputs.image }}
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
