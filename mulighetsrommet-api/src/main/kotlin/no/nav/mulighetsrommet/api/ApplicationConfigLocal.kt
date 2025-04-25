@@ -31,6 +31,8 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.time.LocalDate
 
+private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
+
 val ApplicationConfigLocal = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp",
@@ -77,38 +79,13 @@ val ApplicationConfigLocal = AppConfig(
             privateJwk = createMockRSAKey("maskinporten"),
         ),
         roles = setOf(
-            AdGruppeNavAnsattRolleMapping(
-                "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
-                Rolle.TEAM_MULIGHETSROMMET,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
-                Rolle.TILTAKADMINISTRASJON_GENERELL,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
-                Rolle.AVTALER_SKRIV,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                "279039a0-39fd-4860-afdd-a1a2ccaa6323".toUUID(),
-                Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(),
-                Rolle.KONTAKTPERSON,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                Rolle.SAKSBEHANDLER_OKONOMI,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                Rolle.BESLUTTER_TILSAGN,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                Rolle.ATTESTANT_UTBETALING,
-            ),
+            AdGruppeNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
+            AdGruppeNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKADMINISTRASJON_GENERELL),
+            AdGruppeNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.AVTALER_SKRIV),
+            AdGruppeNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+            AdGruppeNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.SAKSBEHANDLER_OKONOMI),
+            AdGruppeNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.BESLUTTER_TILSAGN),
+            AdGruppeNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.ATTESTANT_UTBETALING),
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(setOf()),
