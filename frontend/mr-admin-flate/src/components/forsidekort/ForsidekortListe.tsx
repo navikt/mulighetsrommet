@@ -57,15 +57,15 @@ const forsidekortData: ForsideKortProps[] = [
 ];
 
 export function ForsidekortListe() {
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
   );
 
   return (
     <div className="flex flex-wrap gap-8">
       {forsidekortData.map((kort) => {
-        if (kort.navn !== "Oppgaver" || enableOkonomi) {
+        if (kort.navn !== "Oppgaver" || enableTilsagn) {
           return <Forsidekort key={kort.navn} {...kort} />;
         }
       })}

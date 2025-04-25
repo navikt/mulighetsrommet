@@ -11,4 +11,5 @@ data class FeatureToggleContext(
 
 enum class Toggle(val featureName: String) {
     MIGRERING_OKONOMI("mulighetsrommet.tiltakstype.migrering.okonomi"),
+    MIGRERING_TILSAGN("mulighetsrommet.tiltakstype.migrering.tilsagn"),
 }

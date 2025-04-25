@@ -13,8 +13,8 @@ export function ArbeidsbenkPage() {
   const navigate = useNavigate();
 
   const { data: enableArbeidsbenk } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
   );
   const { data: ulesteNotifikasjoner } = useSuspenseQuery({ ...ulesteNotifikasjonerQuery });
   const antallNotifikasjoner = ulesteNotifikasjoner.data.pagination.totalCount;

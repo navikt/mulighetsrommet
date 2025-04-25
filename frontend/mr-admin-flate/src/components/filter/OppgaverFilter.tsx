@@ -1,20 +1,37 @@
 import { oppgaverFilterAccordionAtom, OppgaverFilter as OppgaverFilterProps } from "@/api/atoms";
 import { OPPGAVER_TYPE_STATUS } from "@/utils/filterUtils";
 import { addOrRemove } from "@/utils/Utils";
-import { NavRegion, TiltakstypeDto } from "@mr/api-client-v2";
+import { NavRegion, OppgaveType, Tiltakskode, TiltakstypeDto, Toggles } from "@mr/api-client-v2";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai/index";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 interface Props {
-  filterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
+  oppgaveFilterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
   tiltakstyper: TiltakstypeDto[];
   regioner: NavRegion[];
 }
 
-export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
+export function OppgaverFilter({ oppgaveFilterAtom: filterAtom, tiltakstyper, regioner }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
+
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
+  );
+
+  const oppgaveTyper = enableOkonomi
+    ? OPPGAVER_TYPE_STATUS
+    : OPPGAVER_TYPE_STATUS.filter(
+        (type) =>
+          ![
+            OppgaveType.UTBETALING_RETURNERT,
+            OppgaveType.UTBETALING_TIL_BEHANDLING,
+            OppgaveType.UTBETALING_TIL_GODKJENNING,
+          ].includes(type.value),
+      );
 
   return (
     <div className="bg-white self-start w-80">
@@ -40,7 +57,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
                 }}
                 hideLegend
               >
-                {OPPGAVER_TYPE_STATUS.map(({ label, value }) => (
+                {oppgaveTyper.map(({ label, value }) => (
                   <Checkbox size="small" key={value} value={value}>
                     {label}
                   </Checkbox>

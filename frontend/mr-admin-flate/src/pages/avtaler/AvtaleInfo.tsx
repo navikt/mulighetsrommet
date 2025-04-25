@@ -21,8 +21,8 @@ export function AvtaleInfo() {
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     avtale?.tiltakstype.tiltakskode ? [avtale.tiltakstype.tiltakskode] : [],
   );
 
@@ -37,7 +37,7 @@ export function AvtaleInfo() {
                 value="detaljer"
                 onClick={() => setActiveTab("detaljer")}
               />
-              {enableOkonomi && (
+              {enableTilsagn && (
                 <Tabs.Tab label="Økonomi" value="okonomi" onClick={() => setActiveTab("okonomi")} />
               )}
               <Tabs.Tab
@@ -58,7 +58,7 @@ export function AvtaleInfo() {
               <AvtaleDetaljer avtale={avtale} />
             </InlineErrorBoundary>
           </Tabs.Panel>
-          {enableOkonomi && (
+          {enableTilsagn && (
             <Tabs.Panel value="okonomi">
               <InlineErrorBoundary>
                 <AvtalePrisOgFaktureringDetaljer avtale={avtale} />

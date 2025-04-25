@@ -4860,6 +4860,7 @@ components:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.tiltakstype.migrering.deltaker
         - mulighetsrommet.tiltakstype.migrering.okonomi
+        - mulighetsrommet.tiltakstype.migrering.tilsagn
         - mulighetsrommet.tiltakstype.pamelding-info-komet
         - mulighetsrommet.admin-flate.deltakerliste
 
