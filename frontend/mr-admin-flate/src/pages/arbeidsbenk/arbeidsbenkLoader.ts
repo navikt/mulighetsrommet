@@ -21,8 +21,11 @@ export const arbeidsbenkFeatureToggleQuery = queryOptions({
   queryFn: () =>
     FeatureToggleService.getFeatureToggle({
       query: {
-        feature: Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-        tiltakskoder: [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+        feature: Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+        tiltakskoder: [
+          Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+          Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        ],
       },
     }),
 });

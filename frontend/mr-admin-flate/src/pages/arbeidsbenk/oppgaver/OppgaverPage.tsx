@@ -57,7 +57,7 @@ export function OppgaverPage() {
       <FilterAndTableLayout
         filter={
           <OppgaverFilter
-            filterAtom={oppgaverFilterAtom}
+            oppgaveFilterAtom={oppgaverFilterAtom}
             tiltakstyper={tiltakstyper.data}
             regioner={regioner}
           />

@@ -117,7 +117,7 @@ class AvtaleValidator(
                 }
             }
 
-            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_OKONOMI, tiltakstype.tiltakskode!!)) {
+            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, tiltakstype.tiltakskode!!)) {
                 if (avtale.prismodell == null) {
                     add(FieldError.of(AvtaleDbo::prismodell, "Du må velge en prismodell"))
                 } else if (avtale.avtaletype == Avtaletype.Forhaandsgodkjent && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {

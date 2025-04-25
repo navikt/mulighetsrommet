@@ -69,8 +69,8 @@ export function AvtaleFormContainer({
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
 
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     watchedTiltakstype ? [watchedTiltakstype.tiltakskode] : [],
   );
 
@@ -108,7 +108,7 @@ export function AvtaleFormContainer({
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
       utdanningslop: getUtdanningslop(data),
-      prismodell: enableOkonomi ? data.prismodell : null,
+      prismodell: enableTilsagn ? data.prismodell : null,
     };
 
     mutation.mutate(requestBody, {
@@ -162,7 +162,7 @@ export function AvtaleFormContainer({
                 label="Detaljer"
                 hasError={hasDetaljerErrors}
               />
-              {enableOkonomi && (
+              {enableTilsagn && (
                 <TabWithErrorBorder
                   onClick={() => setActiveTab("okonomi")}
                   value="okonomi"
@@ -195,7 +195,7 @@ export function AvtaleFormContainer({
               />
             </Box>
           </Tabs.Panel>
-          {enableOkonomi && (
+          {enableTilsagn && (
             <Tabs.Panel value="okonomi">
               <InlineErrorBoundary>
                 <Box marginBlock="4">

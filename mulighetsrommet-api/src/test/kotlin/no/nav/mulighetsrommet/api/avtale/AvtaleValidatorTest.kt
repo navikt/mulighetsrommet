@@ -410,7 +410,7 @@ class AvtaleValidatorTest : FunSpec({
         test("kan ikke settes når feature er disabled") {
             val unleash = mockk<UnleashService>()
             every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_OKONOMI, Tiltakskode.OPPFOLGING)
+                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
             } returns false
 
             val validator = createValidator(unleash)
@@ -425,7 +425,7 @@ class AvtaleValidatorTest : FunSpec({
         test("må settes når feature er enabled") {
             val unleash = mockk<UnleashService>()
             every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_OKONOMI, Tiltakskode.OPPFOLGING)
+                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
             } returns true
 
             val validator = createValidator(unleash)
@@ -439,7 +439,7 @@ class AvtaleValidatorTest : FunSpec({
         test("prismodell må stemme overens med avtaletypen") {
             val unleash = mockk<UnleashService>()
             every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_OKONOMI, Tiltakskode.OPPFOLGING)
+                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
             } returns true
 
             val validator = createValidator(unleash)
