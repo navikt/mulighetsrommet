@@ -1,5 +1,5 @@
 import { compareByKey, formaterDato } from "@/utils/Utils";
-import { DeltakerForKostnadsfordeling } from "@mr/api-client-v2";
+import { DeltakerForKostnadsfordeling, GruppetiltakDeltakerStatus } from "@mr/api-client-v2";
 import { SortState, Table, Tag } from "@navikt/ds-react";
 import { useState } from "react";
 
@@ -63,7 +63,9 @@ export function Deltakeroversikt({ deltakere }: Props) {
             Geografisk enhet
           </Table.ColumnHeader>
           <Table.ColumnHeader scope="col">Status</Table.ColumnHeader>
-          <Table.ColumnHeader scope="col">Månedsverk</Table.ColumnHeader>
+          <Table.ColumnHeader scope="col" sortKey="manedsverk" sortable>
+            Månedsverk
+          </Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -78,7 +80,9 @@ export function Deltakeroversikt({ deltakere }: Props) {
               <Table.DataCell>{region ?? "-"}</Table.DataCell>
               <Table.DataCell>{geografiskEnhet ?? "-"}</Table.DataCell>
               <Table.DataCell>
-                <Tag children={capitalizedStatus} variant={"info"}></Tag>
+                {!GruppetiltakDeltakerStatus.DELTAR && (
+                  <Tag children={capitalizedStatus} variant={"info"}></Tag>
+                )}
               </Table.DataCell>
               <Table.DataCell>{manedsverk}</Table.DataCell>
             </Table.Row>
