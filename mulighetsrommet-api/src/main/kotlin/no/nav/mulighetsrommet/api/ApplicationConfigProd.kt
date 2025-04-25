@@ -86,11 +86,6 @@ val ApplicationConfigProd = AppConfig(
                 kommentar = "0000-GA-TILTAK-avtaler_skriv",
             ),
             AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "4e4bfc3e-58c5-4f1c-879b-df1a86016de9".toUUID(),
-                rolle = Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
-                kommentar = "0000-GA-TILTAK-ENDRINGSMELDING",
-            ),
-            AdGruppeNavAnsattRolleMapping(
                 adGruppeId = kontaktpersonAdGruppeId,
                 rolle = Rolle.KONTAKTPERSON,
                 kommentar = "(GRP) mr-nav_kontaktperson",

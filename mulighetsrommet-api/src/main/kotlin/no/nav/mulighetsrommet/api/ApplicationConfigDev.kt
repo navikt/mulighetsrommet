@@ -94,10 +94,6 @@ val ApplicationConfigDev = AppConfig(
                 adGruppeId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
                 rolle = Rolle.AVTALER_SKRIV,
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "d9f317a1-2444-4fcd-b696-df8dbd6cc942".toUUID(),
-                rolle = Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
-            ),
 
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "d776c0f9-9c8a-4299-8d34-aa563925b00b".toUUID(),
