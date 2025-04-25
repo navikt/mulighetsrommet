@@ -179,16 +179,18 @@ export function UtbetalingPage() {
                 </VStack>
                 <Separator />
                 {deltakere.length > 0 && (
-                  <Accordion>
-                    <Accordion.Item>
-                      <Accordion.Header>Deltakeroversikt</Accordion.Header>
-                      <Accordion.Content>
-                        <Deltakeroversikt deltakere={deltakere} />
-                      </Accordion.Content>
-                    </Accordion.Item>
-                  </Accordion>
+                  <>
+                    <Accordion>
+                      <Accordion.Item>
+                        <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
+                        <Accordion.Content>
+                          <Deltakeroversikt deltakere={deltakere} />
+                        </Accordion.Content>
+                      </Accordion.Item>
+                    </Accordion>
+                    <Separator />
+                  </>
                 )}
-                <Separator />
                 {tilsagn.every(
                   (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
                 ) && (
