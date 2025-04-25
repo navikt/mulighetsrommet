@@ -202,6 +202,38 @@ class NavAnsattServiceTest : FunSpec({
             )
         }
 
+        test("should support both generell rolle and rolle for Nav-enhet") {
+            val adGruppeBeslutterGenerell = AdGruppe(id = UUID.randomUUID(), navn = "Beslutter Generell")
+            val adGruppeBeslutterOslo = AdGruppe(id = UUID.randomUUID(), navn = "Beslutter Oslo")
+
+            val rolleBeslutterGenerell = AdGruppeNavAnsattRolleMapping(
+                adGruppeId = adGruppeBeslutterGenerell.id,
+                rolle = Rolle.BESLUTTER_TILSAGN,
+            )
+            val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
+                adGruppeId = adGruppeBeslutterOslo.id,
+                rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0387")),
+            )
+
+            val service = createNavAnsattService(setOf(rolleBeslutterGenerell, rolleBeslutterOslo))
+
+            val azureId = UUID.randomUUID()
+
+            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
+                adGruppeBeslutterGenerell,
+                adGruppeBeslutterOslo,
+            )
+
+            service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
+                NavAnsattRolle(
+                    rolle = Rolle.BESLUTTER_TILSAGN,
+                    generell = true,
+                    enheter = setOf(NavEnhetNummer("0387")),
+                ),
+            )
+        }
+
         test("should support multiple roles from the same group") {
             val id = UUID.randomUUID()
 

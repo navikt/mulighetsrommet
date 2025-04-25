@@ -106,18 +106,14 @@ class NavAnsattService(
     fun getNavAnsattRolesFromGroups(groups: List<UUID>): Set<NavAnsattRolle> {
         val rolesDirectory = roles.groupBy { it.adGruppeId }
 
-        val roleToEnheter = buildMap {
-            groups.forEach { group ->
-                rolesDirectory[group]?.forEach { (_, rolle, enheter) ->
-                    val enheterWithUnderenheter = enheter.flatMap { withUnderenheter(it) }
-                    computeIfAbsent(rolle) { mutableSetOf() }.addAll(enheterWithUnderenheter)
-                }
-            }
-        }
-
-        return roleToEnheter.mapTo(mutableSetOf()) { (rolle, enheter) ->
-            NavAnsattRolle(rolle, enheter.isEmpty(), enheter)
-        }
+        return groups
+            .flatMap { rolesDirectory[it] ?: emptyList() }
+            .groupBy { it.rolle }
+            .map { (rolle, mappings) ->
+                val generell = mappings.any { it.enheter.isEmpty() }
+                val enheter = mappings.flatMap { it.enheter }.flatMapTo(mutableSetOf()) { withUnderenheter(it) }
+                NavAnsattRolle(rolle, generell, enheter)
+            }.toSet()
     }
 
     private suspend fun toNavAnsatt(ansatt: AzureAdNavAnsatt, accessType: AccessType): NavAnsatt {
