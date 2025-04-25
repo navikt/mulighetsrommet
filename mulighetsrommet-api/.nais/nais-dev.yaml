@@ -80,6 +80,20 @@ spec:
           - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
           # 0000-AZ-TILTAK-okonomi_beslutter
           - id: "b00ba197-c90a-4ff9-966e-6c9cf1c882bf"
+          # 0000-CA-Tiltaksadministrasjon_saksbehandler-okonomi
+          - id: "d776c0f9-9c8a-4299-8d34-aa563925b00b"
+          # 0000-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "f2d4a628-c17d-4ae0-b720-0abf9add8c30"
+          # 0300-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "059b2db3-e38d-4482-bf2f-21d4a226aa94"
+          # 0400-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "3e6fe3c5-58e2-466e-9117-adecb4c1ee74"
+          # 0000-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac"
+          # 0300-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "88c9cffb-bb4f-4e9d-9af3-cf66ac11f156"
+          # 0400-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "e79ba9ba-efd9-456b-8567-dadbe65f8b24"
         extra:
           - NAVident
           - azp_name

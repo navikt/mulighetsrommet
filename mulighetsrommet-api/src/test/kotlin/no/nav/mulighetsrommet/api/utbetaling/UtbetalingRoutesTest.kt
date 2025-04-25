@@ -8,8 +8,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
-import no.nav.mulighetsrommet.api.clients.msgraph.AdGruppe
-import no.nav.mulighetsrommet.api.clients.msgraph.mockMsGraphGetMemberGroups
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
@@ -21,7 +19,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
@@ -54,34 +51,23 @@ class UtbetalingRoutesTest : FunSpec({
 
     val navAnsattOid = UUID.randomUUID()
 
-    fun appConfig(
-        roller: Set<AdGruppeNavAnsattRolleMapping> = setOf(
-            generellRolle,
-            saksbehandlerOkonomiRolle,
-            attestantUtbetalingRolle,
-        ),
-    ) = createTestApplicationConfig().copy(
-        database = databaseConfig,
+    fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(
             oauth,
-            roles = roller,
+            roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
         ),
-        engine = createMockEngine {
-            mockMsGraphGetMemberGroups(navAnsattOid) {
-                roller.map { AdGruppe(id = it.adGruppeId, navn = it.rolle.name) }
-            }
-        },
     )
 
-    val navAnsattClaims = mapOf(
-        "NAVident" to "ABC123",
+    fun getClaims(roller: Set<AdGruppeNavAnsattRolleMapping>) = mapOf(
+        "NAVident" to "B123456",
         "oid" to navAnsattOid.toString(),
         "sid" to UUID.randomUUID().toString(),
+        "groups" to roller.map { it.adGruppeId.toString() },
     )
 
     context("opprett utbetaling") {
         test("Skal returnere 400 Bad Request når det er valideringsfeil") {
-            withTestApplication(appConfig(setOf(generellRolle, saksbehandlerOkonomiRolle))) {
+            withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -89,6 +75,8 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UUID.randomUUID()
+                val navAnsattClaims = getClaims(setOf(generellRolle, saksbehandlerOkonomiRolle))
+
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
@@ -112,7 +100,7 @@ class UtbetalingRoutesTest : FunSpec({
         }
 
         test("403 Forbidden uten saksbehandler-tilgang") {
-            withTestApplication(appConfig(setOf(generellRolle, attestantUtbetalingRolle))) {
+            withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -120,6 +108,8 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UUID.randomUUID()
+                val navAnsattClaims = getClaims(setOf(generellRolle, attestantUtbetalingRolle))
+
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
@@ -141,7 +131,7 @@ class UtbetalingRoutesTest : FunSpec({
         }
 
         test("Skal returnere 200 ok med saksbehandler-tilgang") {
-            withTestApplication(appConfig(setOf(generellRolle, saksbehandlerOkonomiRolle))) {
+            withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -149,6 +139,8 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UUID.randomUUID()
+                val navAnsattClaims = getClaims(setOf(generellRolle, saksbehandlerOkonomiRolle))
+
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
@@ -171,7 +163,7 @@ class UtbetalingRoutesTest : FunSpec({
 
     context("beslutt utbetaling") {
         test("403 Forbidden uten attestant-tilgang") {
-            withTestApplication(appConfig(setOf(generellRolle, saksbehandlerOkonomiRolle))) {
+            withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -179,6 +171,8 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UtbetalingFixtures.utbetaling1.id
+                val navAnsattClaims = getClaims(setOf(generellRolle, saksbehandlerOkonomiRolle))
+
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
@@ -191,7 +185,7 @@ class UtbetalingRoutesTest : FunSpec({
 
         // TODO: fiks test - tittel matcher ikke forventet status
         xtest("Skal returnere 200 OK med attestant-tilgang") {
-            withTestApplication(appConfig(setOf(generellRolle, attestantUtbetalingRolle))) {
+            withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -199,6 +193,8 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UtbetalingFixtures.utbetaling1.id
+                val navAnsattClaims = getClaims(setOf(generellRolle, attestantUtbetalingRolle))
+
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)

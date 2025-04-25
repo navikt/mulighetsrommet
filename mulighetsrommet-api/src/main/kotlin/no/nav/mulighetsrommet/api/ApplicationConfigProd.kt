@@ -95,21 +95,6 @@ val ApplicationConfigProd = AppConfig(
                 rolle = Rolle.KONTAKTPERSON,
                 kommentar = "(GRP) mr-nav_kontaktperson",
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = Rolle.SAKSBEHANDLER_OKONOMI,
-                kommentar = "0000-GA-TILTAK-okonomi_beslutter",
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = Rolle.BESLUTTER_TILSAGN,
-                kommentar = "TODO: slett denne",
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "6a1f1984-0fe3-4a0e-ac6e-19225b604a52".toUUID(),
-                rolle = Rolle.ATTESTANT_UTBETALING,
-                kommentar = "TODO: slett denne",
-            ),
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(

@@ -15,14 +15,15 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 
-private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 private val teamMulighetsrommetAdGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID()
+private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 private val kontaktpersonAdGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toUUID()
 
 val ApplicationConfigDev = AppConfig(
@@ -112,11 +113,13 @@ val ApplicationConfigDev = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "059b2db3-e38d-4482-bf2f-21d4a226aa94".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0300")),
                 kommentar = "0300-CA-Tiltaksadministrasjon_beslutter-tilsagn",
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "3e6fe3c5-58e2-466e-9117-adecb4c1ee74".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0400")),
                 kommentar = "0400-CA-Tiltaksadministrasjon_beslutter-tilsagn",
             ),
 
@@ -128,11 +131,13 @@ val ApplicationConfigDev = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "88c9cffb-bb4f-4e9d-9af3-cf66ac11f156".toUUID(),
                 rolle = Rolle.ATTESTANT_UTBETALING,
+                enheter = setOf(NavEnhetNummer("0300")),
                 kommentar = "0300-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "e79ba9ba-efd9-456b-8567-dadbe65f8b24".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0400")),
                 kommentar = "0400-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
         ),

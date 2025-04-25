@@ -8,13 +8,10 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.api.clients.msgraph.AdGruppe
-import no.nav.mulighetsrommet.api.clients.msgraph.mockMsGraphGetMemberGroups
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
-import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -30,12 +27,13 @@ class NavAnsattAuthorizationTest : FunSpec({
     }
 
     fun createRequestWithUserClaims(
-        oid: UUID,
+        roles: List<AdGruppeNavAnsattRolleMapping>,
     ): (HttpRequestBuilder) -> Unit = { request: HttpRequestBuilder ->
         val claims = mapOf(
-            "NAVident" to "ABC123",
-            "oid" to oid.toString(),
+            "NAVident" to "B123456",
+            "oid" to UUID.randomUUID().toString(),
             "sid" to UUID.randomUUID().toString(),
+            "groups" to roles.map { it.adGruppeId.toString() },
         )
         request.bearerAuth(oauth.issueToken(claims = claims).serialize())
     }
@@ -45,17 +43,8 @@ class NavAnsattAuthorizationTest : FunSpec({
     val saksbehandlerOkonomi = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
 
     test("user needs the correct role to access route for authorized role") {
-        val userWithoutRoles = UUID.randomUUID()
-        val userWithWrongRole = UUID.randomUUID()
-        val userWithRequiredRole = UUID.randomUUID()
-
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell)),
-            engine = createMockEngine {
-                mockMsGraphGetMemberGroups(userWithoutRoles) { listOf() }
-                mockMsGraphGetMemberGroups(userWithWrongRole) { listOf(generell.toAdGruppe()) }
-                mockMsGraphGetMemberGroups(userWithRequiredRole) { listOf(teamMulighetsrommet.toAdGruppe()) }
-            },
         )
 
         withTestApplication(config, additionalConfiguration = {
@@ -68,31 +57,19 @@ class NavAnsattAuthorizationTest : FunSpec({
             }
         }) {
             forAll(
-                row(userWithoutRoles, HttpStatusCode.Unauthorized),
-                row(userWithWrongRole, HttpStatusCode.Forbidden),
-                row(userWithRequiredRole, HttpStatusCode.OK),
-            ) { userId, responseStatusCode ->
-                val request = createRequestWithUserClaims(userId)
+                row(listOf(), HttpStatusCode.Unauthorized),
+                row(listOf(generell), HttpStatusCode.Forbidden),
+                row(listOf(teamMulighetsrommet), HttpStatusCode.OK),
+            ) { roles, responseStatusCode ->
+                val request = createRequestWithUserClaims(roles)
                 client.get("/route", request).status shouldBe responseStatusCode
             }
         }
     }
 
     test("user needs all roles to access route with multiple authorized roles") {
-        val userWithoutEnoughRoles = UUID.randomUUID()
-        val userWithRequiredRoles = UUID.randomUUID()
-
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell)),
-            engine = createMockEngine {
-                mockMsGraphGetMemberGroups(userWithoutEnoughRoles) { listOf(teamMulighetsrommet.toAdGruppe()) }
-                mockMsGraphGetMemberGroups(userWithRequiredRoles) {
-                    listOf(
-                        teamMulighetsrommet.toAdGruppe(),
-                        generell.toAdGruppe(),
-                    )
-                }
-            },
         )
 
         withTestApplication(config, additionalConfiguration = {
@@ -105,38 +82,18 @@ class NavAnsattAuthorizationTest : FunSpec({
             }
         }) {
             forAll(
-                row(userWithoutEnoughRoles, HttpStatusCode.Forbidden),
-                row(userWithRequiredRoles, HttpStatusCode.OK),
-            ) { userId, responseStatusCode ->
-                val request = createRequestWithUserClaims(userId)
+                row(listOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
+                row(listOf(teamMulighetsrommet, generell), HttpStatusCode.OK),
+            ) { roles, responseStatusCode ->
+                val request = createRequestWithUserClaims(roles)
                 client.get("/multiple", request).status shouldBe responseStatusCode
             }
         }
     }
 
     test("user needs all roles to access route with nested authorization blocks") {
-        val userWithOneRole = UUID.randomUUID()
-        val userWithTwoRoles = UUID.randomUUID()
-        val userWithAllRoles = UUID.randomUUID()
-
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi)),
-            engine = createMockEngine {
-                mockMsGraphGetMemberGroups(userWithOneRole) { listOf(teamMulighetsrommet.toAdGruppe()) }
-                mockMsGraphGetMemberGroups(userWithTwoRoles) {
-                    listOf(
-                        teamMulighetsrommet.toAdGruppe(),
-                        generell.toAdGruppe(),
-                    )
-                }
-                mockMsGraphGetMemberGroups(userWithAllRoles) {
-                    listOf(
-                        teamMulighetsrommet.toAdGruppe(),
-                        generell.toAdGruppe(),
-                        saksbehandlerOkonomi.toAdGruppe(),
-                    )
-                }
-            },
         )
 
         withTestApplication(config, additionalConfiguration = {
@@ -157,15 +114,13 @@ class NavAnsattAuthorizationTest : FunSpec({
             }
         }) {
             forAll(
-                row(userWithOneRole, HttpStatusCode.Forbidden),
-                row(userWithTwoRoles, HttpStatusCode.Forbidden),
-                row(userWithAllRoles, HttpStatusCode.OK),
-            ) { userId, responseStatusCode ->
-                val request = createRequestWithUserClaims(userId)
+                row(listOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
+                row(listOf(teamMulighetsrommet, generell), HttpStatusCode.Forbidden),
+                row(listOf(teamMulighetsrommet, generell, saksbehandlerOkonomi), HttpStatusCode.OK),
+            ) { roles, responseStatusCode ->
+                val request = createRequestWithUserClaims(roles)
                 client.get("/very/nested/route", request).status shouldBe responseStatusCode
             }
         }
     }
 })
-
-private fun AdGruppeNavAnsattRolleMapping.toAdGruppe(): AdGruppe = AdGruppe(adGruppeId, rolle.name)

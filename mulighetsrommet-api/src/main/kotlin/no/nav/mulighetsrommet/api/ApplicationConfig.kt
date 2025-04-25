@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
@@ -75,6 +76,7 @@ data class AuthConfig(
 data class AdGruppeNavAnsattRolleMapping(
     val adGruppeId: UUID,
     val rolle: Rolle,
+    val enheter: Set<NavEnhetNummer> = setOf(),
     val kommentar: String? = null,
 )
 

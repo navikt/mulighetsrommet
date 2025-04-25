@@ -6,7 +6,6 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.server.auth.jwt.*
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -24,7 +23,7 @@ class NavAnsattPrincipalService(
         .recordStats()
         .build()
 
-    suspend fun resolveNavAnsattPrincipal(credentials: JWTCredential): NavAnsattPrincipal? {
+    fun resolveNavAnsattPrincipal(credentials: JWTCredential): NavAnsattPrincipal? {
         val navAnsattAzureId = credentials["oid"]?.let { UUID.fromString(it) } ?: run {
             log.warn("'oid' mangler i JWT credentials")
             return null
@@ -40,25 +39,26 @@ class NavAnsattPrincipalService(
             return null
         }
 
-        val roller = getRoles(sessionId, navAnsattAzureId)
+        val groups = credentials.getListClaim("groups", UUID::class)
+        val roller = getRoles(sessionId, groups)
 
         return NavAnsattPrincipal(
-            navAnsattAzureId = navAnsattAzureId,
+            navAnsattOid = navAnsattAzureId,
             navIdent = navIdent,
             roller = roller,
             payload = credentials.payload,
         )
     }
 
-    suspend fun getRoles(sessionId: JwtSessionId, oid: UUID): Set<NavAnsattRolle> {
-        return roleCache.getIfPresent(sessionId) ?: navAnsattService.getNavAnsattRoles(oid, AccessType.M2M).also {
+    fun getRoles(sessionId: JwtSessionId, groups: List<UUID>): Set<NavAnsattRolle> {
+        return roleCache.getIfPresent(sessionId) ?: navAnsattService.getNavAnsattRolesFromGroups(groups).also {
             roleCache.put(sessionId, it)
         }
     }
 }
 
 class NavAnsattPrincipal(
-    val navAnsattAzureId: UUID,
+    val navAnsattOid: UUID,
     val navIdent: NavIdent,
     val roller: Set<NavAnsattRolle>,
     payload: Payload,
