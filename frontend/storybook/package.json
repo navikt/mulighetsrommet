@@ -11,7 +11,7 @@
     "@navikt/ds-tailwind": "7.20.0",
     "@tailwindcss/typography": "0.5.16",
     "react": "18.3.1",
-    "react-router": "7.5.1"
+    "react-router": "7.5.2"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "8.6.11",
