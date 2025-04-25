@@ -94,10 +94,6 @@ val ApplicationConfigLocal = AppConfig(
                 Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
             ),
             AdGruppeNavAnsattRolleMapping(
-                "d9f317a1-2444-4fcd-b696-df8dbd6cc942".toUUID(),
-                Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
-            ),
-            AdGruppeNavAnsattRolleMapping(
                 "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(),
                 Rolle.KONTAKTPERSON,
             ),

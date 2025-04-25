@@ -18,7 +18,7 @@ class NavAnsattRolleHelperTest : FunSpec({
 
         test("false when no matching role") {
             val roles = setOf(
-                NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING),
+                NavAnsattRolle.Companion.generell(Rolle.AVTALER_SKRIV),
                 NavAnsattRolle.Companion.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
             )
             val requiredRole = NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
