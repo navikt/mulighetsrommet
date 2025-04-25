@@ -513,11 +513,13 @@ export function TilsagnDetaljer() {
       </ContentBox>
       <WhitePaddedBox>
         <VStack gap="4">
-          <Heading size="medium">Aktive tilsagn</Heading>
+          <Heading size="medium">Andre aktive tilsagn</Heading>
           {aktiveTilsagn.length > 0 ? (
             <TilsagnTabell tilsagn={aktiveTilsagn} />
           ) : (
-            <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
+            <Alert variant="info">
+              Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
+            </Alert>
           )}
         </VStack>
       </WhitePaddedBox>
