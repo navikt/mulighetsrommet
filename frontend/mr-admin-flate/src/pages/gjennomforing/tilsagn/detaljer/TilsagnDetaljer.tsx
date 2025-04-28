@@ -415,6 +415,7 @@ export function TilsagnDetaljer() {
                           { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
                         ]}
                         header="Gjør opp tilsagn med forklaring"
+                        ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
                         buttonLabel="Send til godkjenning"
                         open={tilOppgjorModalOpen}
                         onClose={() => setTilOppgjorModalOpen(false)}

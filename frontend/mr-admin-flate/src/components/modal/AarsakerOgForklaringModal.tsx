@@ -1,9 +1,20 @@
-import { Button, Checkbox, CheckboxGroup, Heading, HGrid, Modal, Textarea } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  Heading,
+  HGrid,
+  Modal,
+  Textarea,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 
 interface Props<T> {
   open: boolean;
   header: string;
+  ingress?: string;
   buttonLabel: string;
   aarsaker: { label: string; value: T }[];
   onClose: () => void;
@@ -18,7 +29,7 @@ interface ValidationErrors {
 const FORKLARING_MAX_LENGTH = 500;
 
 export function AarsakerOgForklaringModal<T>(props: Props<T>) {
-  const { open, onClose, onConfirm, header, buttonLabel, aarsaker } = props;
+  const { open, onClose, onConfirm, header, ingress, buttonLabel, aarsaker } = props;
   const [valgteAarsaker, setValgteAarsaker] = useState<T[]>([]);
   const [forklaring, setForklaring] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState<ValidationErrors | null>(null);
@@ -52,11 +63,14 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
     <Modal width={"medium"} aria-label={header} open={open} onClose={onClose} portal={true}>
       <form>
         <Modal.Header>
-          <Heading size="medium">{header}</Heading>
+          <VStack gap="4">
+            <Heading size="medium">{header}</Heading>
+            <BodyShort>{ingress}</BodyShort>
+          </VStack>
         </Modal.Header>
         <Modal.Body>
-          <div className="bg-surface-hover p-6">
-            <HGrid columns={2} align="start">
+          <div className="bg-surface-hover px-4 pt-6">
+            <HGrid columns={2} gap="6" align="start">
               <CheckboxGroup
                 onChange={(val) => {
                   setErrors(null);
