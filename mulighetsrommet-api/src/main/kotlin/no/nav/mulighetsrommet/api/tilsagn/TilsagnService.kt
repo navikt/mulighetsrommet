@@ -121,7 +121,7 @@ class TilsagnService(
                 queries.tilsagn.upsert(dbo)
                 queries.totrinnskontroll.upsert(totrinnskontroll)
 
-                val dto = getOrError(dbo.id)
+                val dto = queries.tilsagn.getOrError(dbo.id)
 
                 logEndring("Sendt til godkjenning", dto, navIdent)
                 dto
@@ -151,7 +151,7 @@ class TilsagnService(
     }
 
     fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Tilsagn> = db.transaction {
-        val tilsagn = requireNotNull(queries.tilsagn.get(id))
+        val tilsagn = queries.tilsagn.getOrError(id)
 
         val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))
         if (!ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
@@ -220,7 +220,7 @@ class TilsagnService(
 
         storeOpprettBestilling(tilsagn, besluttetOpprettelse)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn godkjent", dto, besluttetAv)
         dto.right()
     }
@@ -251,7 +251,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn returnert", dto, besluttetAv)
         dto.right()
     }
@@ -274,7 +274,7 @@ class TilsagnService(
 
         storeAnnullerBestilling(tilsagn, besluttetAnnullering)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)
         return dto.right()
     }
@@ -302,7 +302,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, besluttetAv)
         return dto.right()
     }
@@ -333,7 +333,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Sendt til oppgjør", dto, agent)
         return dto
     }
@@ -355,7 +355,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn oppgjort", dto, besluttetAv)
         return dto
     }
@@ -383,13 +383,13 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Oppgjør avvist", dto, besluttetAv)
         return dto.right()
     }
 
     fun gjorOppAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
-        var tilsagn = requireNotNull(queryContext.queries.tilsagn.get(id))
+        var tilsagn = queryContext.queries.tilsagn.getOrError(id)
 
         tilsagn = queryContext.setTilOppgjort(tilsagn, Tiltaksadministrasjon, emptyList(), null)
 
@@ -422,7 +422,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Sendt til annullering", dto, behandletAv)
         return dto
     }
@@ -554,10 +554,6 @@ class TilsagnService(
         ) {
             Json.encodeToJsonElement(dto)
         }
-    }
-
-    private fun QueryContext.getOrError(id: UUID): Tilsagn {
-        return requireNotNull(queries.tilsagn.get(id)) { "Tilsagn med id=$id finnes ikke" }
     }
 
     private fun QueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
