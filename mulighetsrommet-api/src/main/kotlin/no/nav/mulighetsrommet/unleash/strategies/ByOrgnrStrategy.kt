@@ -25,7 +25,6 @@ class ByOrgnrStrategy : Strategy {
             }
             .orElse(false)
     }
-
 }
 private fun parseOrgnr(it: String) = it
     .split(",")
