@@ -28,6 +28,7 @@ fun Route.featureTogglesRoute() {
                 sessionId = call.generateSessionId(),
                 remoteAddress = call.request.origin.remoteAddress,
                 tiltakskoder = tiltakskoder,
+                orgnr = emptyList(),
             )
 
             val isEnabled = unleashService.isEnabled(feature, context)
