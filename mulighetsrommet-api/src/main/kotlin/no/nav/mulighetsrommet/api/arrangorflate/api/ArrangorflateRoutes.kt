@@ -99,13 +99,6 @@ fun Route.arrangorflateRoutes() {
             }
 
             post("/utbetaling") {
-                if (!unleashService.isEnabled("arrangorflate.utbetaling.opprett-utbetaling-knapp")) {
-                    throw StatusException(
-                        HttpStatusCode.NotImplemented,
-                        "Funksjonalitet er ikke tilgjengelig",
-                    )
-                }
-
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                 requireTilgangHosArrangor(orgnr)
