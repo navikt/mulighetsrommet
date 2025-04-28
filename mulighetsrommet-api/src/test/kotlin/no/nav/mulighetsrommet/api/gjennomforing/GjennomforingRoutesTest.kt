@@ -41,22 +41,16 @@ class GjennomforingRoutesTest : FunSpec({
     val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val gjennomforingSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
 
-    val navAnsattOid = UUID.randomUUID()
-
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(generellRolle, gjennomforingSkrivRolle)),
     )
 
-    fun getClaims(roller: Set<AdGruppeNavAnsattRolleMapping>) = mapOf(
-        "NAVident" to "B123456",
-        "oid" to navAnsattOid.toString(),
-        "sid" to UUID.randomUUID().toString(),
-        "groups" to roller.map { it.adGruppeId.toString() },
-    )
+    val ansatt = NavAnsattFixture.DonaldDuck
 
     context("les gjennomføringer") {
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
+            ansatte = listOf(ansatt),
             arrangorer = listOf(),
             avtaler = listOf(),
             gjennomforinger = listOf(),
@@ -77,30 +71,6 @@ class GjennomforingRoutesTest : FunSpec({
             }
         }
 
-        test("401 Unauthorized når token mangler 'oid' claim") {
-            withTestApplication(appConfig()) {
-                val response = client.get("/api/v1/intern/gjennomforinger") {
-                    val claims = mapOf(
-                        "NAVident" to "ABC123",
-                    )
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
-                }
-                response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
-        test("401 Unauthorized når token mangler 'NAVident' claim") {
-            withTestApplication(appConfig()) {
-                val response = client.get("/api/v1/intern/gjennomforinger") {
-                    val claims = mapOf(
-                        "oid" to UUID.randomUUID().toString(),
-                    )
-                    bearerAuth(oauth.issueToken(claims = claims).serialize())
-                }
-                response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
         test("403 Forbidden når bruker ikke har generell tilgang") {
             withTestApplication(appConfig()) {
                 val client = createClient {
@@ -109,7 +79,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(gjennomforingSkrivRolle))
 
                 val response = client.get("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -122,7 +92,7 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("200 OK med generell tilgang") {
             withTestApplication(appConfig()) {
-                val navAnsattClaims = getClaims(setOf(generellRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
                 val response = client.get("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -136,6 +106,7 @@ class GjennomforingRoutesTest : FunSpec({
     context("opprett gjennomføring") {
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
+            ansatte = listOf(ansatt),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(
                 AvtaleFixtures.oppfolging.copy(
@@ -166,7 +137,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(gjennomforingSkrivRolle))
 
                 val response = client.put("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -187,7 +158,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
                 val response = client.put("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -206,7 +177,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
                 val avtale = AvtaleFixtures.VTA
 
                 val response = client.put("/api/v1/intern/gjennomforinger") {
@@ -234,7 +205,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
                 val avtale = AvtaleFixtures.oppfolging
 
                 val response = client.put("/api/v1/intern/gjennomforinger") {
@@ -256,6 +227,7 @@ class GjennomforingRoutesTest : FunSpec({
 
     context("endre avtale for gjennomføring") {
         val domain = MulighetsrommetTestDomain(
+            ansatte = listOf(ansatt),
             avtaler = listOf(
                 AvtaleFixtures.oppfolging,
                 AvtaleFixtures.AFT,
@@ -289,7 +261,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/${domain.gjennomforinger[0].id}/avtale") {
@@ -311,7 +283,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/${domain.gjennomforinger[1].id}/avtale") {
@@ -330,6 +302,7 @@ class GjennomforingRoutesTest : FunSpec({
         val aktivGjennomforingId = UUID.randomUUID()
 
         val domain = MulighetsrommetTestDomain(
+            ansatte = listOf(ansatt),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 GjennomforingFixtures.Oppfolging1.copy(
@@ -365,7 +338,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/${UUID.randomUUID()}/avbryt") {
@@ -387,7 +360,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
@@ -409,7 +382,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
@@ -431,7 +404,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
                     .put("/api/v1/intern/gjennomforinger/$avsluttetGjennomforingId/avbryt") {
@@ -453,7 +426,7 @@ class GjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle, gjennomforingSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client.put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())

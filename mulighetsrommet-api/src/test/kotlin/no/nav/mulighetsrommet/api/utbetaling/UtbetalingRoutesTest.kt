@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
@@ -27,7 +28,9 @@ import java.util.*
 class UtbetalingRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
+    val ansatt = NavAnsattFixture.DonaldDuck
     val domain = MulighetsrommetTestDomain(
+        ansatte = listOf(ansatt),
         gjennomforinger = listOf(AFT1),
         tilsagn = listOf(TilsagnFixtures.Tilsagn1),
         utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
@@ -49,20 +52,11 @@ class UtbetalingRoutesTest : FunSpec({
     val saksbehandlerOkonomiRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
     val attestantUtbetalingRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
 
-    val navAnsattOid = UUID.randomUUID()
-
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(
             oauth,
             roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
         ),
-    )
-
-    fun getClaims(roller: Set<AdGruppeNavAnsattRolleMapping>) = mapOf(
-        "NAVident" to "B123456",
-        "oid" to navAnsattOid.toString(),
-        "sid" to UUID.randomUUID().toString(),
-        "groups" to roller.map { it.adGruppeId.toString() },
     )
 
     context("opprett utbetaling") {
@@ -75,7 +69,7 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getClaims(setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -108,7 +102,7 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getClaims(setOf(generellRolle, attestantUtbetalingRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
 
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -139,7 +133,7 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getClaims(setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
                 val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -171,7 +165,7 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UtbetalingFixtures.utbetaling1.id
-                val navAnsattClaims = getClaims(setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -193,7 +187,7 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 val id = UtbetalingFixtures.utbetaling1.id
-                val navAnsattClaims = getClaims(setOf(generellRolle, attestantUtbetalingRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
 
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())

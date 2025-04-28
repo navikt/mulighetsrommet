@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -19,8 +20,10 @@ import java.util.*
 class AvtaleRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
+    val ansatt = NavAnsattFixture.DonaldDuck
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
+        ansatte = listOf(ansatt),
         avtaler = emptyList(),
     )
 
@@ -38,17 +41,8 @@ class AvtaleRoutesTest : FunSpec({
     val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.AVTALER_SKRIV)
 
-    val navAnsattOid = UUID.randomUUID()
-
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(generellRolle, avtaleSkrivRolle)),
-    )
-
-    fun getClaims(roller: Set<AdGruppeNavAnsattRolleMapping>) = mapOf(
-        "NAVident" to "B123456",
-        "oid" to navAnsattOid.toString(),
-        "sid" to UUID.randomUUID().toString(),
-        "groups" to roller.map { it.adGruppeId.toString() },
     )
 
     context("hent avtaler") {
@@ -61,7 +55,7 @@ class AvtaleRoutesTest : FunSpec({
 
         test("200 OK når bruker har generell tilgang") {
             withTestApplication(appConfig()) {
-                val navAnsattClaims = getClaims(setOf(generellRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
                 val response = client.get("/api/v1/intern/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -80,7 +74,7 @@ class AvtaleRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(avtaleSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(avtaleSkrivRolle))
 
                 val response = client.put("/api/v1/intern/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -99,7 +93,7 @@ class AvtaleRoutesTest : FunSpec({
                     }
                 }
 
-                val navAnsattClaims = getClaims(setOf(generellRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
                 val response = client.put("/api/v1/intern/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -112,7 +106,7 @@ class AvtaleRoutesTest : FunSpec({
 
         test("400 Bad Request når avtale mangler i request body") {
             withTestApplication(appConfig()) {
-                val navAnsattClaims = getClaims(setOf(generellRolle, avtaleSkrivRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, avtaleSkrivRolle))
 
                 val response = client.put("/api/v1/intern/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())

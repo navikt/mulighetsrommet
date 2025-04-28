@@ -5,6 +5,7 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
+import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -27,6 +28,7 @@ fun <R> withTestApplication(
 }
 
 fun createTestApplicationConfig() = ApplicationConfigLocal.copy(
+    engine = createMockEngine(),
     database = databaseConfig,
     flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth = null, roles = setOf()),

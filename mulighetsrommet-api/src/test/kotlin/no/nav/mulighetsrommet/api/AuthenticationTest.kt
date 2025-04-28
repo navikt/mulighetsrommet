@@ -9,17 +9,20 @@ import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class AuthenticationTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val oauth = MockOAuth2Server()
 
@@ -71,6 +74,13 @@ class AuthenticationTest : FunSpec({
     }
 
     test("verify provider NAV_ANSATT_WITH_ROLES") {
+        MulighetsrommetTestDomain(
+            ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+            navEnheter = listOf(NavEnhetFixtures.Innlandet),
+            arrangorer = listOf(),
+            avtaler = listOf(),
+        ).initialize(database.db)
+
         val rolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
 
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
@@ -93,26 +103,8 @@ class AuthenticationTest : FunSpec({
             )
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
-        val userWithoutRoles = UUID.randomUUID()
-        val requestWithoutRoles = { request: HttpRequestBuilder ->
-            val claims = mapOf(
-                "NAVident" to "B123456",
-                "oid" to userWithoutRoles.toString(),
-                "sid" to UUID.randomUUID().toString(),
-                "groups" to listOf<String>(),
-            )
-            request.bearerAuth(oauth.issueToken(claims = claims).serialize())
-        }
-        val userWithRoles = UUID.randomUUID()
-        val requestWithRoles = { request: HttpRequestBuilder ->
-            val claims = mapOf(
-                "NAVident" to "B123456",
-                "oid" to userWithRoles.toString(),
-                "sid" to UUID.randomUUID().toString(),
-                "groups" to listOf(rolle.adGruppeId.toString()),
-            )
-            request.bearerAuth(oauth.issueToken(claims = claims).serialize())
-        }
+        val requestWithoutRoles = oauth.createRequestWithAnsattClaims(NavAnsattFixture.MikkeMus, roles = setOf())
+        val requestWithRoles = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles = setOf(rolle))
 
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf(rolle)),
