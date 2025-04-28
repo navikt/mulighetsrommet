@@ -11,7 +11,8 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.utils.io.*
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Query
@@ -30,6 +31,7 @@ import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.*
@@ -390,6 +392,9 @@ class ArrangorflateRoutesTest : FunSpec({
             val client = createClient {
                 install(ContentNegotiation) { json() }
             }
+
+            val unleash = mockk<UnleashService>(relaxed = true)
+            coEvery { unleash.isEnabled(any()) } returns true
 
             val response = client.submitFormWithBinaryData(
                 url = "/api/v1/intern/arrangorflate/arrangor/$orgnr/utbetaling",
