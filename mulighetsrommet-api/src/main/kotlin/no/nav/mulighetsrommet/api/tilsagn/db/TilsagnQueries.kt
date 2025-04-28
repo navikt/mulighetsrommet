@@ -169,6 +169,10 @@ class TilsagnQueries(private val session: Session) {
         return session.single(queryOf(query, mapOf("id" to id))) { it.toTilsagnDto() }
     }
 
+    fun getOrError(id: UUID): Tilsagn {
+        return checkNotNull(get(id)) { "Tilsagn med id $id finnes ikke" }
+    }
+
     fun getAll(
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,

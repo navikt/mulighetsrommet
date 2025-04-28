@@ -60,7 +60,7 @@ fun Route.utbetalingRoutes() {
                     ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
 
                 val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
-                    val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                    val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
                         TilsagnDto.fromTilsagn(it)
                     }
 

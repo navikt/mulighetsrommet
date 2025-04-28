@@ -573,7 +573,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))
             }
-            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_ANNULLERING
+            database.run { queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_ANNULLERING }
         }
     }
 
@@ -589,7 +589,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-            val bestillingsnummer = database.run { queries.tilsagn.get(request.id) }!!.bestilling.bestillingsnummer
+            val bestillingsnummer = database.run { queries.tilsagn.getOrError(request.id).bestilling.bestillingsnummer }
 
             service.tilGjorOppRequest(
                 id = request.id,
@@ -655,7 +655,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))
             }
-            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            database.run { queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_OPPGJOR }
         }
 
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {

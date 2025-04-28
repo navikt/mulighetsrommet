@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -40,6 +41,7 @@ data class Oppgave(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val type: OppgaveType,
+    val enhet: NavEnhetNummer?,
     val title: String,
     val description: String? = null,
     val tiltakstype: OppgaveTiltakstype,
