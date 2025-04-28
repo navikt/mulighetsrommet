@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -138,10 +139,11 @@ fun Route.arrangorflateRoutes() {
                     ?: emptyList()
 
                 val context = FeatureToggleContext(
-                    userId = orgnr.value,
+                    userId = getNavIdent().value,
                     sessionId = call.generateSessionId(),
                     remoteAddress = call.request.origin.remoteAddress,
                     tiltakskoder = tiltakskoder,
+                    orgnr = listOf(orgnr),
                 )
 
                 val isEnabled = unleashService.isEnabled(feature, context)
