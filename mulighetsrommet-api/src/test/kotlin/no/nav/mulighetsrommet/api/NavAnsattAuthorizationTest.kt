@@ -8,34 +8,36 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
 class NavAnsattAuthorizationTest : FunSpec({
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
+
     val oauth = MockOAuth2Server()
+
+    val domain = MulighetsrommetTestDomain(
+        ansatte = listOf(NavAnsattFixture.DonaldDuck),
+        navEnheter = listOf(NavEnhetFixtures.Innlandet),
+        arrangorer = listOf(),
+        avtaler = listOf(),
+    )
 
     beforeSpec {
         oauth.start()
+        domain.initialize(database.db)
     }
 
     afterSpec {
         oauth.shutdown()
-    }
-
-    fun createRequestWithUserClaims(
-        roles: List<AdGruppeNavAnsattRolleMapping>,
-    ): (HttpRequestBuilder) -> Unit = { request: HttpRequestBuilder ->
-        val claims = mapOf(
-            "NAVident" to "B123456",
-            "oid" to UUID.randomUUID().toString(),
-            "sid" to UUID.randomUUID().toString(),
-            "groups" to roles.map { it.adGruppeId.toString() },
-        )
-        request.bearerAuth(oauth.issueToken(claims = claims).serialize())
     }
 
     val teamMulighetsrommet = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
@@ -57,11 +59,11 @@ class NavAnsattAuthorizationTest : FunSpec({
             }
         }) {
             forAll(
-                row(listOf(), HttpStatusCode.Unauthorized),
-                row(listOf(generell), HttpStatusCode.Forbidden),
-                row(listOf(teamMulighetsrommet), HttpStatusCode.OK),
+                row(setOf(), HttpStatusCode.Unauthorized),
+                row(setOf(generell), HttpStatusCode.Forbidden),
+                row(setOf(teamMulighetsrommet), HttpStatusCode.OK),
             ) { roles, responseStatusCode ->
-                val request = createRequestWithUserClaims(roles)
+                val request = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles)
                 client.get("/route", request).status shouldBe responseStatusCode
             }
         }
@@ -82,10 +84,10 @@ class NavAnsattAuthorizationTest : FunSpec({
             }
         }) {
             forAll(
-                row(listOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
-                row(listOf(teamMulighetsrommet, generell), HttpStatusCode.OK),
+                row(setOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
+                row(setOf(teamMulighetsrommet, generell), HttpStatusCode.OK),
             ) { roles, responseStatusCode ->
-                val request = createRequestWithUserClaims(roles)
+                val request = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles)
                 client.get("/multiple", request).status shouldBe responseStatusCode
             }
         }
@@ -114,11 +116,11 @@ class NavAnsattAuthorizationTest : FunSpec({
             }
         }) {
             forAll(
-                row(listOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
-                row(listOf(teamMulighetsrommet, generell), HttpStatusCode.Forbidden),
-                row(listOf(teamMulighetsrommet, generell, saksbehandlerOkonomi), HttpStatusCode.OK),
+                row(setOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
+                row(setOf(teamMulighetsrommet, generell), HttpStatusCode.Forbidden),
+                row(setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi), HttpStatusCode.OK),
             ) { roles, responseStatusCode ->
-                val request = createRequestWithUserClaims(roles)
+                val request = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles)
                 client.get("/very/nested/route", request).status shouldBe responseStatusCode
             }
         }
