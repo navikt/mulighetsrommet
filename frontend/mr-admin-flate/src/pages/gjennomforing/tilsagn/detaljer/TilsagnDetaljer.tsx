@@ -283,8 +283,8 @@ export function TilsagnDetaljer() {
             {tilOppgjor?.type === "TIL_BESLUTNING" && (
               <AarsakerOgForklaring
                 heading="Tilsagnet gjøres opp"
+                ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
                 tekster={[
-                  "Gjenstående beløp gjøres opp uten at det gjøres en utbetaling",
                   `${navnEllerIdent(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
                     tilOppgjor.behandletTidspunkt,
                   )} med følgende årsaker:`,
