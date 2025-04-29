@@ -30,7 +30,7 @@ resource "google_bigquery_dataset" "grafana_views" {
 resource "google_bigquery_dataset_access" "grafana_viewing_datastream" {
   dataset_id = module.mr_api_datastream.dataset_id
   dataset {
-    dataset{
+    dataset {
       project_id = google_bigquery_dataset.grafana_views.project
       dataset_id = google_bigquery_dataset.grafana_views.dataset_id
     }

@@ -15,7 +15,7 @@ variable "mr_api_datastream_secret" {
 }
 
 locals {
-  application_name    = "mulighetsrommet-api"
-  grafana_id          = "${local.application_name}-grafana"
-  grafana_dataset_id  = replace(local.grafana_id, "-", "_")
+  application_name   = "mulighetsrommet-api"
+  grafana_id         = "${local.application_name}-grafana"
+  grafana_dataset_id = replace(local.grafana_id, "-", "_")
 }
