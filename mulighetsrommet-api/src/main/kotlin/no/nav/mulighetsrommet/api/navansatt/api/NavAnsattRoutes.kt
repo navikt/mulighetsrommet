@@ -1,13 +1,12 @@
 package no.nav.mulighetsrommet.api.navansatt.api
 
+import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
-import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
-import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import org.koin.ktor.ext.inject
 
 fun Route.navAnsattRoutes() {
@@ -35,12 +34,11 @@ fun Route.navAnsattRoutes() {
         }
 
         get("/me") {
-            val azureId = getNavAnsattAzureId()
-            val obo = AccessType.OBO(call.getAccessToken())
+            val navIdent = getNavIdent()
 
-            val ansatt = ansattService.getOrSynchronizeNavAnsatt(azureId, obo).let {
-                NavAnsattDto.fromNavAnsatt(it)
-            }
+            val ansatt = ansattService.getNavAnsattByNavIdent(navIdent)
+                ?.let { NavAnsattDto.fromNavAnsatt(it) }
+                ?: return@get call.respond(HttpStatusCode.NotFound, "Fant ikke ansatt med navIdent=$navIdent")
 
             call.respond(ansatt)
         }

@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjenn
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
@@ -28,6 +29,7 @@ import java.time.LocalDate
 import java.util.*
 
 data class AppConfig(
+    val engine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig,
@@ -52,7 +54,6 @@ data class AppConfig(
     val unleash: UnleashService.Config,
     val axsys: AuthenticatedHttpClientConfig,
     val pdl: AuthenticatedHttpClientConfig,
-    val engine: HttpClientEngine = CIO.create(),
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
@@ -75,6 +76,7 @@ data class AuthConfig(
 data class AdGruppeNavAnsattRolleMapping(
     val adGruppeId: UUID,
     val rolle: Rolle,
+    val enheter: Set<NavEnhetNummer> = setOf(),
     val kommentar: String? = null,
 )
 

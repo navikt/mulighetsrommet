@@ -5,8 +5,8 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -15,14 +15,15 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 
-private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 private val teamMulighetsrommetAdGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID()
+private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 private val kontaktpersonAdGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toUUID()
 
 val ApplicationConfigDev = AppConfig(
@@ -93,27 +94,13 @@ val ApplicationConfigDev = AppConfig(
                 adGruppeId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
                 rolle = Rolle.AVTALER_SKRIV,
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "d9f317a1-2444-4fcd-b696-df8dbd6cc942".toUUID(),
-                rolle = Rolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
-            ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = Rolle.SAKSBEHANDLER_OKONOMI,
-                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
-            ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "d776c0f9-9c8a-4299-8d34-aa563925b00b".toUUID(),
                 rolle = Rolle.SAKSBEHANDLER_OKONOMI,
                 kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-okonomi",
             ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = Rolle.BESLUTTER_TILSAGN,
-                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
-            ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "f2d4a628-c17d-4ae0-b720-0abf9add8c30".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
@@ -122,19 +109,16 @@ val ApplicationConfigDev = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "059b2db3-e38d-4482-bf2f-21d4a226aa94".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0300")),
                 kommentar = "0300-CA-Tiltaksadministrasjon_beslutter-tilsagn",
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "3e6fe3c5-58e2-466e-9117-adecb4c1ee74".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0400")),
                 kommentar = "0400-CA-Tiltaksadministrasjon_beslutter-tilsagn",
             ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
-                rolle = Rolle.ATTESTANT_UTBETALING,
-                kommentar = "TODO: Legacy ad-gruppe, skal slettes",
-            ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
                 rolle = Rolle.ATTESTANT_UTBETALING,
@@ -143,11 +127,13 @@ val ApplicationConfigDev = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "88c9cffb-bb4f-4e9d-9af3-cf66ac11f156".toUUID(),
                 rolle = Rolle.ATTESTANT_UTBETALING,
+                enheter = setOf(NavEnhetNummer("0300")),
                 kommentar = "0300-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "e79ba9ba-efd9-456b-8567-dadbe65f8b24".toUUID(),
                 rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0400")),
                 kommentar = "0400-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
         ),

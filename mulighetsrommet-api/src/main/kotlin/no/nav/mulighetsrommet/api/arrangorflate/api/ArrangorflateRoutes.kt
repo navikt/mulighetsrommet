@@ -4,6 +4,7 @@ import arrow.core.getOrElse
 import arrow.core.left
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -25,12 +26,11 @@ import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.unleash.FeatureToggleContext
+import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -42,6 +42,7 @@ fun Route.arrangorflateRoutes() {
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorFlateService by inject()
     val clamAvClient: ClamAvClient by inject()
+    val unleashService: UnleashService by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -125,6 +126,28 @@ fun Route.arrangorflateRoutes() {
                 val tilsagn = arrangorFlateService.getTilsagnByOrgnr(orgnr)
 
                 call.respond(tilsagn)
+            }
+            get("/features") {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
+                requireTilgangHosArrangor(orgnr)
+
+                val feature: String by call.parameters
+                val tiltakskoder = call.parameters.getAll("tiltakskoder")
+                    ?.map { Tiltakskode.valueOf(it) }
+                    ?: emptyList()
+
+                val context = FeatureToggleContext(
+                    userId = "",
+                    sessionId = call.generateSessionId(),
+                    remoteAddress = call.request.origin.remoteAddress,
+                    tiltakskoder = tiltakskoder,
+                    orgnr = listOf(orgnr),
+                )
+
+                val isEnabled = unleashService.isEnabled(feature, context)
+
+                call.respond(isEnabled)
             }
         }
 
@@ -354,3 +377,12 @@ data class ArrangorflateManuellUtbetalingRequest(
     val vedlegg: List<Vedlegg>,
     val tilskuddstype: Tilskuddstype,
 )
+
+private fun ApplicationCall.generateSessionId(): String {
+    val uuid = UUID.randomUUID()
+    val sessionId =
+        java.lang.Long.toHexString(uuid.mostSignificantBits) + java.lang.Long.toHexString(uuid.leastSignificantBits)
+    val cookie = Cookie(name = "UNLEASH_SESSION_ID", value = sessionId, path = "/", maxAge = -1)
+    this.response.cookies.append(cookie)
+    return sessionId
+}

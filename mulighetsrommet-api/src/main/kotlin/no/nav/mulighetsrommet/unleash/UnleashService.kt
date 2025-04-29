@@ -8,6 +8,7 @@ import no.nav.common.client.axsys.AxsysClient
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
+import no.nav.mulighetsrommet.unleash.strategies.ByOrgnrStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy
 
 class UnleashService(config: Config, axsysClient: AxsysClient) {
@@ -35,6 +36,7 @@ class UnleashService(config: Config, axsysClient: AxsysClient) {
             ByEnhetStrategy(axsysClient),
             ByNavIdentStrategy(),
             ByTiltakskodeStrategy(),
+            ByOrgnrStrategy(),
         )
     }
 
@@ -48,6 +50,7 @@ class UnleashService(config: Config, axsysClient: AxsysClient) {
             .sessionId(context.sessionId)
             .remoteAddress(context.remoteAddress)
             .addProperty(ByTiltakskodeStrategy.TILTAKSKODER_PARAM, context.tiltakskoder.joinToString(",") { it.name })
+            .addProperty(ByOrgnrStrategy.VALGT_ORGNR_PARAM, context.orgnr.joinToString(",") { it.value })
             .build()
         return unleash.isEnabled(feature, ctx)
     }

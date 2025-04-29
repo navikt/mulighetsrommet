@@ -25,6 +25,11 @@ export function GjennomforingPage() {
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
 
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
+  );
+
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
     gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
@@ -107,7 +112,7 @@ export function GjennomforingPage() {
             onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}`)}
             aria-controls="panel"
           />
-          {enableOkonomi ? (
+          {enableTilsagn ? (
             <>
               <Tabs.Tab
                 value="tilsagn"
@@ -117,14 +122,16 @@ export function GjennomforingPage() {
                 }
                 aria-controls="panel"
               />
-              <Tabs.Tab
-                value="utbetalinger"
-                label="Utbetalinger"
-                onClick={() =>
-                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
-                }
-                aria-controls="panel"
-              />
+              {enableOkonomi ? (
+                <Tabs.Tab
+                  value="utbetalinger"
+                  label="Utbetalinger"
+                  onClick={() =>
+                    navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
+                  }
+                  aria-controls="panel"
+                />
+              ) : null}
             </>
           ) : null}
           {enableDeltakerliste && gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (

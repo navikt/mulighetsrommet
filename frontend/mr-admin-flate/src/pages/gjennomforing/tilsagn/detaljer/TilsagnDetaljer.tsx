@@ -283,8 +283,8 @@ export function TilsagnDetaljer() {
             {tilOppgjor?.type === "TIL_BESLUTNING" && (
               <AarsakerOgForklaring
                 heading="Tilsagnet gjøres opp"
+                ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
                 tekster={[
-                  "Gjenstående beløp gjøres opp uten at det gjøres en utbetaling",
                   `${navnEllerIdent(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
                     tilOppgjor.behandletTidspunkt,
                   )} med følgende årsaker:`,
@@ -415,6 +415,7 @@ export function TilsagnDetaljer() {
                           { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
                         ]}
                         header="Gjør opp tilsagn med forklaring"
+                        ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
                         buttonLabel="Send til godkjenning"
                         open={tilOppgjorModalOpen}
                         onClose={() => setTilOppgjorModalOpen(false)}
@@ -513,11 +514,13 @@ export function TilsagnDetaljer() {
       </ContentBox>
       <WhitePaddedBox>
         <VStack gap="4">
-          <Heading size="medium">Aktive tilsagn</Heading>
+          <Heading size="medium">Andre aktive tilsagn</Heading>
           {aktiveTilsagn.length > 0 ? (
             <TilsagnTabell tilsagn={aktiveTilsagn} />
           ) : (
-            <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
+            <Alert variant="info">
+              Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
+            </Alert>
           )}
         </VStack>
       </WhitePaddedBox>

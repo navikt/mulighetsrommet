@@ -29,8 +29,8 @@ export function AdministratorHeader() {
   const menylenke = "text-blue-800";
 
   const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
   );
 
   return (

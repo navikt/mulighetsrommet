@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.*
 
-class MicrosoftGraphClientImplTest : FunSpec({
+class MicrosoftGraphClientTest : FunSpec({
 
     fun createClient(engine: MockEngine) = MicrosoftGraphClient(engine, "https://ms-graph.com") { "token" }
 

@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
@@ -223,6 +223,7 @@ class GjennomforingService(
                 periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
             logEndring(operation, dto, navIdent)
+            gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
             dto
         }
     }
@@ -232,6 +233,7 @@ class GjennomforingService(
 
         val dto = getOrError(id)
         val operation = "Fjernet periode med stengt hos arrangør"
+        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
         logEndring(operation, dto, navIdent)
     }
 

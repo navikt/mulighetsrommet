@@ -1,7 +1,8 @@
 import { Link } from "react-router";
 import { Arrangorvelger } from "./arrangorvelger/Arrangorvelger";
 import { Arrangor } from "api-client";
-import { HStack } from "@navikt/ds-react";
+import { Heading, HStack } from "@navikt/ds-react";
+import { HeaderIcon } from "./HeaderIcon";
 
 interface Props {
   arrangorer: Arrangor[];
@@ -9,11 +10,20 @@ interface Props {
 
 export function Header({ arrangorer }: Props) {
   return (
-    <header className="bg-blue-100">
-      <HStack justify="space-between" padding="12" className="max-w-[2500px] w-[90%] m-auto">
-        <Link className="text-gray-900 font-bold text-4xl no-underline" to="/">
-          Utbetalinger
-        </Link>
+    <header className="border-b-4 border-red-100">
+      <HStack justify="space-between" padding="8" className="max-w-[2500px] w-[90%] m-auto">
+        <HStack gap="8">
+          <HeaderIcon />
+          <Heading
+            size="xlarge"
+            textColor="default"
+            as={Link}
+            className="text-text-default no-underline"
+            to="/"
+          >
+            Utbetalinger
+          </Heading>
+        </HStack>
         <Arrangorvelger arrangorer={arrangorer} />
       </HStack>
     </header>

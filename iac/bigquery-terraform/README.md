@@ -128,12 +128,26 @@ terraform state show <resource_name>
 terraform destroy
 ```
 
+### La brukere/service kontoer få tilgang til BigQuery datasett
+
+Eksterne utenfor teamet må gis rollen `roles/bigquery.metadataViewer` for å kunne se datasettet.\
+Dette vil gi de tilgang til metadata, som tabellnavn, hvilke kolonner som finnes og hvilke type data som er tilgjengelig.\
+>***OBS!* Alle med denne rollen vil da også få tilgang til å lese ut data fra `authorized_views`**
+
+
 ### Feilsøking
 
-- **Hvofor feiler `terraform apply` første gang det kjøres?** Første gang `terraform apply` kjøres så kan det være at
-  bigquery views ikke blir opprettet. Dette skjer fordi de er avhengig av at tabellene finnes i dataset'et, men det vil
-  typisk ta litt tid før disse tabellene blir opprettet av datastreamen. Det burde fungere å kjøre `terraform apply` på
-  nytt når tabellene har blitt replikert til BigQuery.
-- **Hvorfor ser jeg ikke oppdatert data i BigQuery?** Standard innstilling for `bigquery_table_freshness` er satt til
-  1t, som betyr at det kan ta like lang tid før endringer i data er tilgjengelig i BigQuery. Dette kan endres i
-  Datastream-innstillingene, men merk at dette også øker kostnadene av tjenesten.
+- **Hvofor feiler `terraform apply` første gang det kjøres?**\
+    Første gang `terraform apply` kjøres så kan det være at
+    bigquery views ikke blir opprettet. Dette skjer fordi de er avhengig av at tabellene finnes i dataset'et, men det vil
+    typisk ta litt tid før disse tabellene blir opprettet av datastreamen. Det burde fungere å kjøre `terraform apply` på
+    nytt når tabellene har blitt replikert til BigQuery.
+- **Hvorfor ser jeg ikke oppdatert data i BigQuery?**\
+    Standard innstilling for `bigquery_table_freshness` er satt til
+    1t, som betyr at det kan ta like lang tid før endringer i data er tilgjengelig i BigQuery. Dette kan endres i
+    Datastream-innstillingene, men merk at dette også øker kostnadene av tjenesten.
+- **Hvorfor ser jeg endringer ved `terraform plan` i GCP som ikke er sjekket inn i kode?**\
+    Kan oppstår når andre applikasjoner har gitt roller til våre ressurser uten at vi vet om det. Vær spesielt obs på dette for prod.\
+    Eks:
+  - *En servicekonto til metabase har dukket opp i access roles for en gitt ressurs.*\
+     I dette tilfellet var grunnen at dataproduktet vårt var delt til Metabase via Datamarkedsplassen.

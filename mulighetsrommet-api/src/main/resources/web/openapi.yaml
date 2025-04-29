@@ -2564,6 +2564,37 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/features:
+    parameters:
+      - in: query
+        name: feature
+        description: Navn på feature toggle
+        required: true
+        schema:
+          $ref: "#/components/schemas/Toggles"
+
+      - in: query
+        name: tiltakskoder
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
+      - $ref: "#/components/parameters/OrgnrParam"
+
+    get:
+      tags:
+        - FeatureToggleArrangor
+      operationId: getFeatureToggleArrangor
+      responses:
+        200:
+          description: Hent verdi for feature toggle
+          content:
+            application/json:
+              schema:
+                type: boolean
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/utdanninger:
     get:
       tags:
@@ -3635,7 +3666,6 @@ components:
         - TEAM_MULIGHETSROMMET
         - KONTAKTPERSON
         - TILTAKADMINISTRASJON_GENERELL
-        - TILTAKADMINISTRASJON_ENDRINGSMELDING
         - TILTAKSGJENNOMFORINGER_SKRIV
         - AVTALER_SKRIV
         - SAKSBEHANDLER_OKONOMI
@@ -4861,8 +4891,10 @@ components:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.tiltakstype.migrering.deltaker
         - mulighetsrommet.tiltakstype.migrering.okonomi
+        - mulighetsrommet.tiltakstype.migrering.tilsagn
         - mulighetsrommet.tiltakstype.pamelding-info-komet
         - mulighetsrommet.admin-flate.deltakerliste
+        - arrangorflate.utbetaling.opprett-utbetaling-knapp
 
     PublisertRequest:
       type: object
@@ -5903,13 +5935,10 @@ components:
           type: string
         region:
           type: string
-        status:
-          $ref: "#/components/schemas/GruppetiltakDeltakerStatus"
         manedsverk:
           type: number
       required:
         - id
-        - status
         - manedsverk
         - navn
 

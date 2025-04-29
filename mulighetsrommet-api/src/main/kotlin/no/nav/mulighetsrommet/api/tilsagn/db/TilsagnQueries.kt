@@ -34,7 +34,9 @@ class TilsagnQueries(private val session: Session) {
                 type,
                 belop_gjenstaende,
                 belop_beregnet,
-                prismodell
+                prismodell,
+                datastream_periode_start,
+                datastream_periode_slutt
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -47,7 +49,9 @@ class TilsagnQueries(private val session: Session) {
                 :type::tilsagn_type,
                 :belop_gjenstaende,
                 :belop_beregnet,
-                :prismodell::prismodell
+                :prismodell::prismodell,
+                :datastream_periode_start,
+                :datastream_periode_slutt
             )
             on conflict (id) do update set
                 gjennomforing_id        = excluded.gjennomforing_id,
@@ -60,7 +64,9 @@ class TilsagnQueries(private val session: Session) {
                 type                    = excluded.type,
                 belop_gjenstaende       = excluded.belop_gjenstaende,
                 belop_beregnet          = excluded.belop_beregnet,
-                prismodell              = excluded.prismodell
+                prismodell              = excluded.prismodell,
+                datastream_periode_start = excluded.datastream_periode_start,
+                datastream_periode_slutt = excluded.datastream_periode_slutt
         """.trimIndent()
 
         val params = mapOf(
@@ -79,6 +85,8 @@ class TilsagnQueries(private val session: Session) {
                 is TilsagnBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT
                 is TilsagnBeregningFri -> Prismodell.FRI
             }.name,
+            "datastream_periode_start" to dbo.periode.start,
+            "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
         )
 
         execute(queryOf(query, params))
@@ -159,6 +167,10 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, mapOf("id" to id))) { it.toTilsagnDto() }
+    }
+
+    fun getOrError(id: UUID): Tilsagn {
+        return checkNotNull(get(id)) { "Tilsagn med id $id finnes ikke" }
     }
 
     fun getAll(

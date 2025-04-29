@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.navansatt.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.navansatt.helper.NavAnsattRolleHelper
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -30,23 +31,14 @@ data class NavAnsatt(
 
     fun hasGenerellRolle(
         rolle: Rolle,
-    ): Boolean = hasRolle(NavAnsattRolle.generell(rolle))
+    ): Boolean = NavAnsattRolleHelper.hasRole(roller, NavAnsattRolle.generell(rolle))
 
     fun hasKontorspesifikkRolle(
         rolle: Rolle,
         enheter: Set<NavEnhetNummer>,
-    ): Boolean = hasRolle(NavAnsattRolle.kontorspesifikk(rolle, enheter))
+    ): Boolean = NavAnsattRolleHelper.hasRole(roller, NavAnsattRolle.kontorspesifikk(rolle, enheter))
 
     fun hasAnyGenerellRolle(requiredRole: Rolle, vararg otherRoles: Rolle): Boolean {
         return setOf(requiredRole, *otherRoles).any { hasGenerellRolle(it) }
-    }
-
-    private fun hasRolle(
-        requiredRolle: NavAnsattRolle,
-    ): Boolean = when (requiredRolle.generell) {
-        true -> roller.any { it.rolle == requiredRolle.rolle }
-        false -> roller.any {
-            it.rolle == requiredRolle.rolle && (it.generell || it.enheter.containsAll(requiredRolle.enheter))
-        }
     }
 }

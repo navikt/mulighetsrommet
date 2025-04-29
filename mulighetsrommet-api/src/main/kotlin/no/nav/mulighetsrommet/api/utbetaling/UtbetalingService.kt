@@ -318,7 +318,7 @@ class UtbetalingService(
             utbetaling,
             request.delutbetalinger.map { req ->
                 val previous = queries.delutbetaling.get(req.id)
-                val tilsagn = requireNotNull(queries.tilsagn.get(req.tilsagnId))
+                val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
                 UtbetalingValidator.OpprettDelutbetaling(
                     id = req.id,
                     gjorOppTilsagn = req.gjorOppTilsagn,
@@ -375,7 +375,7 @@ class UtbetalingService(
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
         }
 
-        val kostnadssted = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).kostnadssted
+        val kostnadssted = queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
         if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
             return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})"))).left()
@@ -558,7 +558,7 @@ class UtbetalingService(
     ) {
         require(delutbetalinger.isNotEmpty())
         delutbetalinger.forEach {
-            val tilsagn = requireNotNull(queries.tilsagn.get(it.tilsagnId))
+            val tilsagn = queries.tilsagn.getOrError(it.tilsagnId)
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 returnerDelutbetaling(
                     it,
