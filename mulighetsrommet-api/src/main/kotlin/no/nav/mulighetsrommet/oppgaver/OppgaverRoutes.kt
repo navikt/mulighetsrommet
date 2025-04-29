@@ -23,7 +23,9 @@ fun Route.oppgaverRoutes() {
             val filter = call.receive<OppgaverFilter>()
 
             val oppgaver = service.oppgaver(
-                filter = filter,
+                oppgavetyper = filter.oppgavetyper,
+                tiltakskoder = filter.tiltakskoder,
+                regioner = filter.regioner,
                 ansatt = ansatt.navIdent,
                 roller = ansatt.roller,
             )
