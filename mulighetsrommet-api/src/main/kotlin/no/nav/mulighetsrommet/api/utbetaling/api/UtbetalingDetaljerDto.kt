@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -37,6 +36,5 @@ data class DeltakerForKostnadsfordeling(
     val region: String?,
     @Serializable(with = LocalDateSerializer::class)
     val foedselsdato: LocalDate?,
-    val status: DeltakerStatus.Type,
     val manedsverk: Double,
 )

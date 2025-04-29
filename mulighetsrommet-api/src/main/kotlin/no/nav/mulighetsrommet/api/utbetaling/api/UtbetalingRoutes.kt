@@ -210,12 +210,11 @@ private fun toDeltakerForKostnadsfordeling(
     manedsverk: Double,
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
     id = deltaker.gjennomforingId,
-    status = deltaker.status.type,
-    manedsverk = manedsverk,
     navn = person?.navn,
     geografiskEnhet = person?.geografiskEnhet?.navn,
     region = person?.region?.navn,
     foedselsdato = person?.foedselsdato,
+    manedsverk = manedsverk,
 )
 
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {
