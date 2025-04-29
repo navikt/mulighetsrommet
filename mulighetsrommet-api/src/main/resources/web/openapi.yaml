@@ -5935,13 +5935,10 @@ components:
           type: string
         region:
           type: string
-        status:
-          $ref: "#/components/schemas/GruppetiltakDeltakerStatus"
         manedsverk:
           type: number
       required:
         - id
-        - status
         - manedsverk
         - navn
 

@@ -1,6 +1,6 @@
 import { compareByKey, formaterDato } from "@/utils/Utils";
-import { DeltakerForKostnadsfordeling, GruppetiltakDeltakerStatus } from "@mr/api-client-v2";
-import { SortState, Table, Tag } from "@navikt/ds-react";
+import { DeltakerForKostnadsfordeling } from "@mr/api-client-v2";
+import { SortState, Table } from "@navikt/ds-react";
 import { useState } from "react";
 
 interface Props {
@@ -34,7 +34,6 @@ export function Deltakeroversikt({ deltakere }: Props) {
       foedselsdato: deltaker.foedselsdato,
       geografiskEnhet: deltaker.geografiskEnhet,
       region: deltaker.region,
-      status: deltaker.status,
       manedsverk: deltaker.manedsverk,
     }))
     .toSorted((a, b) => {
@@ -62,7 +61,6 @@ export function Deltakeroversikt({ deltakere }: Props) {
           <Table.ColumnHeader scope="col" sortKey="geografiskEnhet" sortable>
             Geografisk enhet
           </Table.ColumnHeader>
-          <Table.ColumnHeader scope="col">Status</Table.ColumnHeader>
           <Table.ColumnHeader scope="col" sortKey="manedsverk" sortable>
             Månedsverk
           </Table.ColumnHeader>
@@ -70,8 +68,7 @@ export function Deltakeroversikt({ deltakere }: Props) {
       </Table.Header>
       <Table.Body>
         {sortedData.map((deltaker) => {
-          const { id, navn, foedselsdato, region, geografiskEnhet, status, manedsverk } = deltaker;
-          const capitalizedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+          const { id, navn, foedselsdato, region, geografiskEnhet, manedsverk } = deltaker;
 
           return (
             <Table.Row key={id}>
@@ -79,11 +76,6 @@ export function Deltakeroversikt({ deltakere }: Props) {
               <Table.DataCell>{formaterDato(foedselsdato) ?? "-"}</Table.DataCell>
               <Table.DataCell>{region ?? "-"}</Table.DataCell>
               <Table.DataCell>{geografiskEnhet ?? "-"}</Table.DataCell>
-              <Table.DataCell>
-                {!GruppetiltakDeltakerStatus.DELTAR && (
-                  <Tag children={capitalizedStatus} variant={"info"}></Tag>
-                )}
-              </Table.DataCell>
               <Table.DataCell>{manedsverk}</Table.DataCell>
             </Table.Row>
           );
