@@ -8,13 +8,13 @@ interface Props {
 
 export function Arrangorvelger({ arrangorer }: Props) {
   const navigate = useNavigate();
-  const { currentOrgnr } = useParams();
+  const { orgnr } = useParams();
 
   const alfabetisk = (a: Arrangor, b: Arrangor) => a.navn.localeCompare(b.navn);
 
   return (
     <Select
-      value={currentOrgnr}
+      value={orgnr}
       label="Velg arrangør du vil representere"
       hideLabel
       name="orgnr"
