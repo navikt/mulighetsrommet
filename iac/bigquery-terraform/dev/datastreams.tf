@@ -10,9 +10,9 @@ data "google_secret_manager_secret_version" "mr_api_datastream_secret" {
 module "mr_api_datastream" {
   source                     = "git::https://github.com/navikt/terraform-google-bigquery-datastream.git?ref=v1.0.1"
   gcp_project                = var.gcp_project
-  application_name           = "mulighetsrommet-api"
-  cloud_sql_instance_name    = "mulighetsrommet-api-v1"
-  cloud_sql_instance_db_name = "mulighetsrommet-api-db"
+  application_name           = local.application_name
+  cloud_sql_instance_name    = "${local.application_name}-v1"
+  cloud_sql_instance_db_name = "${local.application_name}-db"
   cloud_sql_instance_db_credentials = jsondecode(
     data.google_secret_manager_secret_version.mr_api_datastream_secret.secret_data
   )
@@ -57,10 +57,6 @@ module "mr_api_datastream" {
     {
       role          = "WRITER"
       special_group = "projectWriters"
-    },
-    {
-      role          = "roles/bigquery.metadataViewer"
-      user_by_email = "grafana@nais-management-233d.iam.gserviceaccount.com"
     }
   ]
 
@@ -71,6 +67,6 @@ module "mr_api_datastream" {
         project_id = var.gcp_project["project"]
         table_id   = "tiltakstype_view"
       }
-    },
+    }
   ]
 }
