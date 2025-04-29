@@ -2,16 +2,17 @@ import {
   Arrangor,
   ArrangorflateTilsagn,
   ArrFlateUtbetaling,
+  ArrFlateUtbetalingKompakt,
+  ArrFlateUtbetalingStatus,
   RelevanteForslag,
   TilsagnStatus,
   TilsagnType,
-  ArrFlateUtbetalingStatus,
-  ArrFlateUtbetalingKompakt,
+  UtbetalingDeltakelse,
 } from "api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 
-const mockDeltakelser = [
+const mockDeltakelser: UtbetalingDeltakelse[] = [
   {
     id: uuid(),
     person: {
@@ -23,6 +24,16 @@ const mockDeltakelser = [
     forstePeriodeStartDato: "2024-06-01",
     sistePeriodeSluttDato: "2024-06-30",
     sistePeriodeDeltakelsesprosent: 30,
+    perioder: [
+      {
+        periode: { start: "2024-06-01", slutt: "2024-06-15" },
+        deltakelsesprosent: 100,
+      },
+      {
+        periode: { start: "2024-06-15", slutt: "2024-07-01" },
+        deltakelsesprosent: 30,
+      },
+    ],
     manedsverk: 0.3,
   },
   {
@@ -35,6 +46,12 @@ const mockDeltakelser = [
     forstePeriodeStartDato: "2024-06-01",
     sistePeriodeSluttDato: "2024-06-30",
     sistePeriodeDeltakelsesprosent: 100,
+    perioder: [
+      {
+        periode: { start: "2024-06-01", slutt: "2024-07-01" },
+        deltakelsesprosent: 100,
+      },
+    ],
     manedsverk: 1,
   },
   {
@@ -47,6 +64,12 @@ const mockDeltakelser = [
     forstePeriodeStartDato: "2024-06-01",
     sistePeriodeSluttDato: "2024-06-30",
     sistePeriodeDeltakelsesprosent: 100,
+    perioder: [
+      {
+        periode: { start: "2024-06-01", slutt: "2024-07-01" },
+        deltakelsesprosent: 100,
+      },
+    ],
     manedsverk: 1,
   },
 ];
@@ -72,7 +95,7 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     belop: 308530,
   },
@@ -95,7 +118,7 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     belop: 85000,
   },
@@ -119,7 +142,7 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     belop: 85000,
   },
@@ -143,7 +166,7 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
 
     belop: 85000,
@@ -174,7 +197,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     beregning: {
       antallManedsverk: 17.5,
@@ -182,6 +205,16 @@ const mockKrav: ArrFlateUtbetaling[] = [
       digest: "ac6b2cdcbfc885e64121cf4e0ebee5dd",
       deltakelser: mockDeltakelser,
       type: "FORHANDSGODKJENT",
+      stengt: [
+        {
+          periode: { start: "2024-05-15", slutt: "2024-06-03" },
+          beskrivelse: "Mai",
+        },
+        {
+          periode: { start: "2024-06-07", slutt: "2024-06-15" },
+          beskrivelse: "Sommerferie",
+        },
+      ],
     },
   },
   {
@@ -207,7 +240,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     beregning: {
       antallManedsverk: 4,
@@ -215,6 +248,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       deltakelser: mockDeltakelser,
       type: "FORHANDSGODKJENT",
+      stengt: [],
     },
   },
   {
@@ -240,7 +274,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     beregning: {
       antallManedsverk: 4,
@@ -248,6 +282,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       deltakelser: mockDeltakelser,
       type: "FORHANDSGODKJENT",
+      stengt: [],
     },
   },
   {
@@ -288,6 +323,12 @@ const mockKrav: ArrFlateUtbetaling[] = [
           forstePeriodeStartDato: "2024-06-01",
           sistePeriodeSluttDato: "2024-06-30",
           sistePeriodeDeltakelsesprosent: 30,
+          perioder: [
+            {
+              periode: { start: "2024-06-01", slutt: "2024-06-30" },
+              deltakelsesprosent: 30,
+            },
+          ],
           manedsverk: 0.3,
         },
         {
@@ -299,6 +340,12 @@ const mockKrav: ArrFlateUtbetaling[] = [
           forstePeriodeStartDato: "2024-06-01",
           sistePeriodeSluttDato: "2024-06-30",
           sistePeriodeDeltakelsesprosent: 100,
+          perioder: [
+            {
+              periode: { start: "2024-06-01", slutt: "2024-06-30" },
+              deltakelsesprosent: 100,
+            },
+          ],
           manedsverk: 1,
         },
       ],
@@ -306,6 +353,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       type: "FORHANDSGODKJENT",
+      stengt: [],
     },
   },
 ];

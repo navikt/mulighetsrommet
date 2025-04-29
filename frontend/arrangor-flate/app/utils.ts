@@ -31,9 +31,9 @@ export function useOrgnrFromUrl() {
   return orgnr;
 }
 
-export function subtractDays(date: Date, numDays: number): Date {
+export function subtractDays(date: Date | string, numDays: number): Date {
   const newDate = new Date(date);
-  newDate.setDate(date.getDate() - numDays);
+  newDate.setDate(newDate.getDate() - numDays);
   return newDate;
 }
 

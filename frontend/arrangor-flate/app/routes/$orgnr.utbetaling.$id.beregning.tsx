@@ -2,11 +2,13 @@ import {
   ArrangorflateService,
   ArrFlateBeregningForhandsgodkjent,
   ArrFlateUtbetaling,
+  Periode,
   RelevanteForslag,
   UtbetalingDeltakelse,
   UtbetalingDeltakelsePerson,
+  UtbetalingStengtPeriode,
 } from "api-client";
-import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
+import { ExclamationmarkTriangleIcon, ParasolBeachIcon, PersonIcon } from "@navikt/aksel-icons";
 import {
   Alert,
   Button,
@@ -16,6 +18,7 @@ import {
   List,
   SortState,
   Table,
+  Timeline,
   Tooltip,
   VStack,
 } from "@navikt/ds-react";
@@ -28,7 +31,13 @@ import { PageHeader } from "~/components/PageHeader";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
-import { formaterDato, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
+import {
+  formaterDato,
+  formaterPeriode,
+  problemDetailResponse,
+  subtractDays,
+  useOrgnrFromUrl,
+} from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { BeregningDetaljer } from "../components/utbetaling/BeregningDetaljer";
 
@@ -97,6 +106,7 @@ export default function UtbetalingBeregning() {
   if (utbetaling.beregning.type === "FORHANDSGODKJENT") {
     beregning = (
       <ForhandsgodkjentBeregning
+        periode={utbetaling.periode}
         beregning={utbetaling.beregning}
         relevanteForslag={relevanteForslag}
         deltakerlisteUrl={deltakerlisteUrl}
@@ -134,10 +144,12 @@ export default function UtbetalingBeregning() {
 }
 
 function ForhandsgodkjentBeregning({
+  periode,
   beregning,
   relevanteForslag,
   deltakerlisteUrl,
 }: {
+  periode: Periode;
   beregning: ArrFlateBeregningForhandsgodkjent;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
@@ -183,6 +195,18 @@ function ForhandsgodkjentBeregning({
           </Link>
           .
         </GuidePanel>
+        {beregning.stengt.length > 0 && (
+          <Alert variant={"info"}>
+            Det er registrert stengt hos arrangør i følgende perioder:
+            <ul>
+              {beregning.stengt.map(({ periode, beskrivelse }) => (
+                <li key={periode.start + periode.slutt}>
+                  {formaterPeriode(periode)}: {beskrivelse}
+                </li>
+              ))}
+            </ul>
+          </Alert>
+        )}
         {deltakereMedRelevanteForslag.length > 0 && (
           <Alert variant="warning">
             Det finnes ubehandlede forslag som påvirker utbetalinger på følgende personer. Disse må
@@ -233,13 +257,19 @@ function ForhandsgodkjentBeregning({
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {sortedData.map((deltaker, index) => {
-              const { id, person } = deltaker;
+            {sortedData.map((deltakelse, index) => {
+              const { id, person } = deltakelse;
               const fodselsdato = getFormattedFodselsdato(person);
               return (
                 <Table.ExpandableRow
                   key={id}
-                  content={null}
+                  content={
+                    <DeltakelseTimeline
+                      utbetalingsperiode={periode}
+                      stengt={beregning.stengt}
+                      deltakelse={deltakelse}
+                    />
+                  }
                   togglePlacement="right"
                   className={
                     hasRelevanteForslag(id)
@@ -258,17 +288,19 @@ function ForhandsgodkjentBeregning({
                     {person?.navn}
                   </Table.DataCell>
                   <Table.DataCell align="right">{fodselsdato}</Table.DataCell>
-                  <Table.DataCell align="right">{formaterDato(deltaker.startDato)}</Table.DataCell>
                   <Table.DataCell align="right">
-                    {formaterDato(deltaker.forstePeriodeStartDato)}
+                    {formaterDato(deltakelse.startDato)}
                   </Table.DataCell>
                   <Table.DataCell align="right">
-                    {formaterDato(deltaker.sistePeriodeSluttDato)}
+                    {formaterDato(deltakelse.forstePeriodeStartDato)}
                   </Table.DataCell>
                   <Table.DataCell align="right">
-                    {deltaker.sistePeriodeDeltakelsesprosent}
+                    {formaterDato(deltakelse.sistePeriodeSluttDato)}
                   </Table.DataCell>
-                  <Table.DataCell align="right">{deltaker.manedsverk}</Table.DataCell>
+                  <Table.DataCell align="right">
+                    {deltakelse.sistePeriodeDeltakelsesprosent}
+                  </Table.DataCell>
+                  <Table.DataCell align="right">{deltakelse.manedsverk}</Table.DataCell>
                 </Table.ExpandableRow>
               );
             })}
@@ -309,4 +341,58 @@ function deltakerOversiktLenke(miljo: Miljø): string {
     return "https://amt.intern.dev.nav.no/deltakeroversikt";
   }
   return "https://nav.no/deltakeroversikt";
+}
+
+interface DeltakelseTimelineProps {
+  utbetalingsperiode: Periode;
+  stengt: UtbetalingStengtPeriode[];
+  deltakelse: UtbetalingDeltakelse;
+}
+
+function DeltakelseTimeline({ utbetalingsperiode, stengt, deltakelse }: DeltakelseTimelineProps) {
+  return (
+    <Timeline
+      startDate={new Date(utbetalingsperiode.start)}
+      endDate={new Date(utbetalingsperiode.slutt)}
+    >
+      <Timeline.Row label="Deltakelse" icon={<PersonIcon aria-hidden />}>
+        {deltakelse.perioder.map(({ periode, deltakelsesprosent }) => {
+          const start = new Date(periode.start);
+          const end = subtractDays(new Date(periode.slutt), 1);
+          const label = `${formaterPeriode(periode)}: Deltakelse på ${deltakelsesprosent}%`;
+          return (
+            <Timeline.Period
+              key={periode.start + periode.slutt}
+              start={start}
+              end={end}
+              status={"success"}
+              icon={<PersonIcon aria-hidden />}
+              statusLabel={label}
+            >
+              {label}
+            </Timeline.Period>
+          );
+        })}
+      </Timeline.Row>
+      <Timeline.Row label="Stengt" icon={<ParasolBeachIcon aria-hidden />}>
+        {stengt.map(({ periode, beskrivelse }) => {
+          const start = new Date(periode.start);
+          const end = subtractDays(new Date(periode.slutt), 1);
+          const label = `${formaterPeriode(periode)}: ${beskrivelse}`;
+          return (
+            <Timeline.Period
+              key={periode.start + periode.slutt}
+              start={start}
+              end={end}
+              status={"info"}
+              icon={<ParasolBeachIcon aria-hidden />}
+              statusLabel={label}
+            >
+              {label}
+            </Timeline.Period>
+          );
+        })}
+      </Timeline.Row>
+    </Timeline>
+  );
 }
