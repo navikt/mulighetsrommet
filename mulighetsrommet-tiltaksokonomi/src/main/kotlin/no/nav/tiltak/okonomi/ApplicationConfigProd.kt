@@ -4,10 +4,10 @@ import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
-val ApplicationConfigDev = AppConfig(
+val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
-        maximumPoolSize = 10,
+        maximumPoolSize = 20,
     ),
     auth = AuthConfig(
         azure = AuthProvider(
@@ -20,8 +20,8 @@ val ApplicationConfigDev = AppConfig(
     ),
     clients = ClientConfig(
         oebsPoAp = AuthenticatedHttpClientConfig(
-            url = "https://oebs-po-ap-api-q1.dev-fss-pub.nais.io",
-            scope = "api://dev-fss.team-oebs.oebs-po-ap-api-q1/.default",
+            url = "https://oebs-po-ap-api.prod-fss-pub.nais.io",
+            scope = "api://prod-fss.team-oebs.oebs-po-ap-api/.default",
         ),
     ),
     kafka = KafkaConfig(
