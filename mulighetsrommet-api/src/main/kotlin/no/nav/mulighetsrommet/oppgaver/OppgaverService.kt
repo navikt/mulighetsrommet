@@ -83,7 +83,7 @@ class OppgaverService(val db: ApiDatabase) {
             .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
             .mapNotNull { toOppgave(it) }
             .mapNotNull { (totrinnskontroll, oppgave) ->
-                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt }
+                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt || oppgave.type == OppgaveType.TILSAGN_RETURNERT }
             }
             .toList()
     }
@@ -101,7 +101,7 @@ class OppgaverService(val db: ApiDatabase) {
             .asSequence()
             .mapNotNull { toOppgave(it) }
             .mapNotNull { (totrinnskontroll, oppgave) ->
-                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt }
+                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt || oppgave.type == OppgaveType.UTBETALING_RETURNERT }
             }
             .toList()
     }

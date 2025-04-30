@@ -83,6 +83,7 @@ class OppgaverServiceTest : FunSpec({
                 ansatt = NavAnsattFixture.DonaldDuck.navIdent,
                 roller = setOf(
                     NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
                     NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
                 ),
             ).shouldBeEmpty()
@@ -175,6 +176,34 @@ class OppgaverServiceTest : FunSpec({
             )
         }
 
+        test("Skal se oppgaver for returnert tilsagn når ansatt selv har sendt tilsagn til godkjenning") {
+            val service = OppgaverService(database.db)
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.AFT),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+            ) {
+                setTilsagnStatus(
+                    TilsagnFixtures.Tilsagn1,
+                    TilsagnStatus.RETURNERT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(TilsagnFixtures.Tilsagn1.id, OppgaveType.TILSAGN_RETURNERT),
+            )
+        }
+
         test("Skal bare se oppgaver for kostnadssteder som overlapper med ansattes roller") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -241,6 +270,7 @@ class OppgaverServiceTest : FunSpec({
                 setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, DelutbetalingStatus.RETURNERT)
             }.initialize(database.db)
 
+            // Skal se utbetaling til godkjenning når ansatt har attestant-rolle
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
@@ -251,6 +281,7 @@ class OppgaverServiceTest : FunSpec({
                 PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
             )
 
+            // Skal se returnert utbetaling når ansatt har saksbehandler-rolle
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
@@ -263,6 +294,30 @@ class OppgaverServiceTest : FunSpec({
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
             )
+
+            // Skal se returnert utbetaling når ansatt selv var den som sendte til godkjenning
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
+            )
+
+            // Skal ikke se returnert utbetaling når ansatt ikke har saksbehandler-rolle
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
+                ),
+            ).shouldBeEmpty()
         }
 
         test("Skal ikke hente oppgaver som ansatt selv har sendt til godkjenning") {
