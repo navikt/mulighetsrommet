@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
@@ -89,6 +90,15 @@ val ApplicationConfigProd = AppConfig(
                 adGruppeId = kontaktpersonAdGruppeId,
                 rolle = Rolle.KONTAKTPERSON,
                 kommentar = "(GRP) mr-nav_kontaktperson",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "a54fd054-4047-46a6-be7c-f1b69f346be8".toUUID(),
+                rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "77b9322c-9ac7-479a-9403-ead8706b6d66".toUUID(),
+                rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0400")),
             ),
         ),
     ),

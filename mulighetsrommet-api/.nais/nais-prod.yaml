@@ -81,6 +81,8 @@ spec:
           - id: "46ba8787-eb24-4f7b-830f-4c5e9256de65"
           # (GRP) mr-nav_kontaktperson
           - id: "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472"
+          - id: "a54fd054-4047-46a6-be7c-f1b69f346be8"
+          - id: "77b9322c-9ac7-479a-9403-ead8706b6d66"
         extra:
           - NAVident
           - azp_name
