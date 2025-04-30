@@ -96,7 +96,7 @@ export const OPPGAVER_TYPE_STATUS: { label: string; value: OppgaveType }[] = [
     value: OppgaveType.UTBETALING_TIL_GODKJENNING,
   },
   {
-    label: "Utbetaling returnert av beslutter",
+    label: "Utbetaling returnert av attestant",
     value: OppgaveType.UTBETALING_RETURNERT,
   },
 ];
