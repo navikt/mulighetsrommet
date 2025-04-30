@@ -63,6 +63,8 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
 
       link.current.click();
       URL.revokeObjectURL(excelUrl);
+      link.current = null;
+      setExcelUrl("");
     }
   }, [excelUrl, link]);
 

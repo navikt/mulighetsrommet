@@ -60,6 +60,8 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
 
       link.current.click();
       URL.revokeObjectURL(excelUrl);
+      link.current = null;
+      setExcelUrl("");
     }
   }, [excelUrl, link]);
 
