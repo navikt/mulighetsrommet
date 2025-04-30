@@ -9,10 +9,10 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 import java.util.*
 
 data class AppConfig(
-    val server: ServerConfig = ServerConfig(),
     val httpClientEngine: HttpClientEngine = CIO.create(),
-    val database: DatabaseConfig,
+    val server: ServerConfig = ServerConfig(),
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
+    val database: DatabaseConfig,
     val auth: AuthConfig,
     val kafka: KafkaConfig,
     val clients: ClientConfig,
