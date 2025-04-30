@@ -50,7 +50,9 @@ export function OppgaveFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTa
         filter.tiltakstyper.map((tiltakstype) => (
           <FilterTag
             key={tiltakstype}
-            label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
+            label={
+              tiltakstyper?.data?.find((t) => tiltakstype === t.tiltakskode)?.navn || tiltakstype
+            }
             onClose={() => {
               setFilter({
                 ...filter,
