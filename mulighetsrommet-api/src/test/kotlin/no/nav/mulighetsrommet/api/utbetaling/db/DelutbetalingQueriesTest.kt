@@ -35,6 +35,7 @@ class DelutbetalingQueriesTest : FunSpec({
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
         status = DelutbetalingStatus.TIL_GODKJENNING,
+        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         belop = 100,
         gjorOppTilsagn = false,
         periode = UtbetalingFixtures.utbetaling1.periode,
@@ -108,7 +109,11 @@ class DelutbetalingQueriesTest : FunSpec({
 
             queries.get(delutbetaling.id).shouldNotBeNull().faktura.status shouldBe FakturaStatusType.SENDT
 
-            queries.setFakturaStatus(delutbetaling.fakturanummer, FakturaStatusType.UTBETALT)
+            queries.setFakturaStatus(
+                delutbetaling.fakturanummer,
+                FakturaStatusType.UTBETALT,
+                fakturaStatusSistOppdatert,
+            )
 
             queries.get(delutbetaling.id).shouldNotBeNull().faktura.status shouldBe FakturaStatusType.UTBETALT
         }

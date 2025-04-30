@@ -1,0 +1,2 @@
+alter table delutbetaling
+add column faktura_status_sist_oppdatert timestamptz;

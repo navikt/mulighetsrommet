@@ -32,7 +32,8 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                faktura_status
+                faktura_status,
+                faktura_status_sist_oppdatert
             ) values (
                 :id::uuid,
                 :tilsagn_id::uuid,
@@ -43,15 +44,17 @@ class DelutbetalingQueries(private val session: Session) {
                 :periode::daterange,
                 :lopenummer,
                 :fakturanummer,
-                :faktura_status
+                :faktura_status,
+                :faktura_status_sist_oppdatert::date
             ) on conflict (utbetaling_id, tilsagn_id) do update set
-                status               = excluded.status,
-                belop                = excluded.belop,
-                gjor_opp_tilsagn      = excluded.gjor_opp_tilsagn,
-                periode              = delutbetaling.periode,
-                lopenummer           = delutbetaling.lopenummer,
-                fakturanummer        = delutbetaling.fakturanummer,
-                faktura_status       = delutbetaling.faktura_status
+                status                  = excluded.status,
+                belop                   = excluded.belop,
+                gjor_opp_tilsagn        = excluded.gjor_opp_tilsagn,
+                periode                 = delutbetaling.periode,
+                lopenummer              = delutbetaling.lopenummer,
+                fakturanummer           = delutbetaling.fakturanummer,
+                faktura_status          = delutbetaling.faktura_status,
+                faktura_status_sist_oppdatert   = excluded.faktura_status_sist_oppdatert
         """.trimIndent()
 
         val params = mapOf(
@@ -59,6 +62,7 @@ class DelutbetalingQueries(private val session: Session) {
             "tilsagn_id" to delutbetaling.tilsagnId,
             "utbetaling_id" to delutbetaling.utbetalingId,
             "status" to delutbetaling.status.name,
+            "faktura_status_sist_oppdatert" to delutbetaling.fakturaStatusSistOppdatert,
             "belop" to delutbetaling.belop,
             "gjor_opp_tilsagn" to delutbetaling.gjorOppTilsagn,
             "periode" to delutbetaling.periode.toDaterange(),
@@ -94,7 +98,8 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                faktura_status
+                faktura_status,
+                faktura_status_sist_oppdatert
             from delutbetaling
             where
                 tilsagn_id = :tilsagn_id
@@ -168,7 +173,8 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                faktura_status
+                faktura_status,
+                faktura_status_sist_oppdatert
             from delutbetaling
             where utbetaling_id = ?
             order by created_at desc
@@ -190,7 +196,8 @@ class DelutbetalingQueries(private val session: Session) {
                 periode,
                 lopenummer,
                 fakturanummer,
-                faktura_status
+                faktura_status,
+                faktura_status_sist_oppdatert
             from delutbetaling
             where id = ?::uuid
         """.trimIndent()
@@ -224,6 +231,7 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.lopenummer,
                 delutbetaling.fakturanummer,
                 delutbetaling.faktura_status,
+                delutbetaling.faktura_status_sist_oppdatert,
                 tilsagn.gjennomforing_id,
                 gjennomforing.navn,
                 tiltakstype.tiltakskode,
@@ -255,13 +263,16 @@ class DelutbetalingQueries(private val session: Session) {
         }
     }
 
-    fun setFakturaStatus(fakturanummer: String, status: FakturaStatusType) {
+    fun setFakturaStatus(fakturanummer: String, status: FakturaStatusType, fakturaStatusSistOppdatert: LocalDateTime?) {
         @Language("PostgreSQL")
         val query = """
-            update delutbetaling set faktura_status = ? where fakturanummer = ?
+            update delutbetaling
+            set faktura_status = ?,
+            faktura_status_sist_oppdatert = ?::instant
+            where fakturanummer = ?
         """.trimIndent()
 
-        session.execute(queryOf(query, status.name, fakturanummer))
+        session.execute(queryOf(query, status.name, fakturaStatusSistOppdatert, fakturanummer))
     }
 }
 
@@ -274,6 +285,7 @@ private fun Row.toDelutbetalingDto() = Delutbetaling(
     periode = periode("periode"),
     lopenummer = int("lopenummer"),
     status = DelutbetalingStatus.valueOf(string("status")),
+    fakturaStatusSistOppdatert = localDateTimeOrNull("faktura_status_sist_oppdatert"),
     faktura = Delutbetaling.Faktura(
         fakturanummer = string("fakturanummer"),
         status = stringOrNull("faktura_status")?.let { FakturaStatusType.valueOf(it) },

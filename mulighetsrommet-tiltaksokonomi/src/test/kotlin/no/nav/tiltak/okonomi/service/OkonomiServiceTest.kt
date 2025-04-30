@@ -302,7 +302,9 @@ class OkonomiServiceTest : FunSpec({
         val bestillingsnummer = "B1"
 
         db.session {
-            val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
+            val bestilling = Bestilling.fromOpprettBestilling(
+                createOpprettBestilling(bestillingsnummer),
+            )
             queries.bestilling.insertBestilling(bestilling)
         }
 
@@ -340,6 +342,7 @@ class OkonomiServiceTest : FunSpec({
                     FakturaStatus(
                         fakturanummer = "B1-F2",
                         status = FakturaStatusType.SENDT,
+                        fakturaStatusSistOppdatert = null, // TODO Hør med Sondre hvordan vi vil teste timestamp når det ikke er vårt system som setter timestamp
                     ),
                 )
             }

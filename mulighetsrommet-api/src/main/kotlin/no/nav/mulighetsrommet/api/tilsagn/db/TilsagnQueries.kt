@@ -29,6 +29,7 @@ class TilsagnQueries(private val session: Session) {
                 lopenummer,
                 bestillingsnummer,
                 bestilling_status,
+                bestilling_status_sist_oppdatert,
                 kostnadssted,
                 status,
                 type,
@@ -44,6 +45,7 @@ class TilsagnQueries(private val session: Session) {
                 :lopenummer,
                 :bestillingsnummer,
                 :bestilling_status,
+                :bestilling_status_sist_oppdatert::timestamp,
                 :kostnadssted,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
@@ -54,19 +56,20 @@ class TilsagnQueries(private val session: Session) {
                 :datastream_periode_slutt
             )
             on conflict (id) do update set
-                gjennomforing_id        = excluded.gjennomforing_id,
-                periode                 = excluded.periode,
-                lopenummer              = excluded.lopenummer,
-                bestillingsnummer       = excluded.bestillingsnummer,
-                bestilling_status       = excluded.bestilling_status,
-                kostnadssted            = excluded.kostnadssted,
-                status                  = excluded.status,
-                type                    = excluded.type,
-                belop_gjenstaende       = excluded.belop_gjenstaende,
-                belop_beregnet          = excluded.belop_beregnet,
-                prismodell              = excluded.prismodell,
-                datastream_periode_start = excluded.datastream_periode_start,
-                datastream_periode_slutt = excluded.datastream_periode_slutt
+                gjennomforing_id                        = excluded.gjennomforing_id,
+                periode                                 = excluded.periode,
+                lopenummer                              = excluded.lopenummer,
+                bestillingsnummer                       = excluded.bestillingsnummer,
+                bestilling_status                       = excluded.bestilling_status,
+                bestilling_status_sist_oppdatert        = excluded.bestilling_status_sist_oppdatert,
+                kostnadssted                            = excluded.kostnadssted,
+                status                                  = excluded.status,
+                type                                    = excluded.type,
+                belop_gjenstaende                       = excluded.belop_gjenstaende,
+                belop_beregnet                          = excluded.belop_beregnet,
+                prismodell                              = excluded.prismodell,
+                datastream_periode_start                = excluded.datastream_periode_start,
+                datastream_periode_slutt                = excluded.datastream_periode_slutt
         """.trimIndent()
 
         val params = mapOf(
@@ -75,6 +78,7 @@ class TilsagnQueries(private val session: Session) {
             "periode" to dbo.periode.toDaterange(),
             "lopenummer" to dbo.lopenummer,
             "status" to TilsagnStatus.TIL_GODKJENNING.name,
+            "statusSistOppdatert" to dbo.bestillingStatusSistOppdatert,
             "bestillingsnummer" to dbo.bestillingsnummer,
             "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted.value,
@@ -221,7 +225,9 @@ class TilsagnQueries(private val session: Session) {
     fun setBestillingStatus(bestillingsnummer: String, status: BestillingStatusType) {
         @Language("PostgreSQL")
         val query = """
-            update tilsagn set bestilling_status = ? where bestillingsnummer = ?
+            update tilsagn
+            set bestilling_status = ?
+             where bestillingsnummer = ?
         """.trimIndent()
 
         session.execute(queryOf(query, status.name, bestillingsnummer))

@@ -231,6 +231,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.body<FakturaStatus>() shouldBe FakturaStatus(
                         fakturanummer = fakturanummer,
                         status = FakturaStatusType.SENDT,
+                        fakturaStatusSistOppdatert = null,
                     )
                 }
             }

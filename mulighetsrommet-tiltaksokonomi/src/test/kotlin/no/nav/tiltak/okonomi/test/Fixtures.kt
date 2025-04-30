@@ -8,6 +8,7 @@ import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 object Fixtures {
 
@@ -56,6 +57,7 @@ object Fixtures {
         belop = 500,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = FakturaStatusType.SENDT,
+        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 0, 0),
         behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
         behandletTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),

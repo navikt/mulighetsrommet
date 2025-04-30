@@ -45,6 +45,7 @@ fun Routing.fakturaRoutes(
                 FakturaStatus(
                     fakturanummer = it.fakturanummer,
                     status = FakturaStatusType.SENDT,
+                    fakturaStatusSistOppdatert = it.fakturaStatusSistOppdatert,
                 )
             }
         }
