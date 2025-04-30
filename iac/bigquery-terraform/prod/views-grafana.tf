@@ -3,6 +3,7 @@ module "grafana_tilsagn_type_antall_view" {
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
   view_id             = "tilsagn_type_antall_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode(
     [
       {
@@ -37,6 +38,7 @@ module "grafana_tilsagn_status_antall_view" {
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
   view_id             = "tilsagn_status_antall_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode(
     [
       {
