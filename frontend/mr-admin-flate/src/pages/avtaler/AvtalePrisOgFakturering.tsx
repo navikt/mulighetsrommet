@@ -27,10 +27,7 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
       <FormGroup>
         <Metadata header={avtaletekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
 
-        <SelectPrismodell
-          readOnly={avtaletype === Avtaletype.FORHAANDSGODKJENT}
-          options={resolvePrismodellOptions(avtaletype)}
-        />
+        <SelectPrismodell options={resolvePrismodellOptions(avtaletype)} />
 
         {prismodell === Prismodell.FORHANDSGODKJENT && (
           <ForhandsgodkjentAvtalePrismodell tiltakstype={tiltakstype.tiltakskode} />
