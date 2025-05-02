@@ -1,14 +1,18 @@
-import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Button, GuidePanel, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  BodyLong,
+  BodyShort,
+  Button,
+  ExpansionCard,
+  Heading,
+  HStack,
+  Link,
+  VStack,
+} from "@navikt/ds-react";
 import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
-import { LoaderFunction, MetaFunction, useLoaderData, useParams } from "react-router";
+import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useParams } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { Definisjonsliste } from "~/components/Definisjonsliste";
-import { PageHeader } from "~/components/PageHeader";
-import { Separator } from "~/components/Separator";
-import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
-import { LinkWithTabState } from "../components/LinkWithTabState";
 import { internalNavigation } from "../internal-navigation";
 import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 
@@ -56,57 +60,65 @@ export const loader: LoaderFunction = async ({
 };
 
 export default function UtbetalingKvittering() {
-  const { utbetaling, tilsagn } = useLoaderData<UtbetalingKvitteringData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
   return (
     <>
-      <PageHeader
-        title="Innsendt krav om utbetaling"
-        tilbakeLenke={{
-          navn: "Tilbake til utbetalinger",
-          url: internalNavigation(orgnr).utbetalinger,
-        }}
-      />
-      <div className="flex justify-end">
-        <a href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
-          <Button variant="tertiary-neutral" size="small">
-            <span className="flex gap-2 items-center">
-              Last ned som PDF <FilePdfIcon fontSize={35} />
-            </span>
-          </Button>
-        </a>
-      </div>
-      <Separator />
-      <GuidePanel className="text-center my-2" poster>
-        Krav om utbetaling er nå sendt inn og vil bli behandlet av Nav
-      </GuidePanel>
-      <VStack gap="5" className="max-w-[50%] mt-5">
-        <UtbetalingDetaljer utbetaling={utbetaling} tilsagn={tilsagn} />
-        <Separator />
-        <Definisjonsliste
-          title="Betalingsinformasjon"
-          definitions={[
-            {
-              key: "Kontonummer",
-              value: formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer),
-            },
-            {
-              key: "KID-nummer",
-              value: utbetaling.betalingsinformasjon.kid!,
-            },
-          ]}
-        />
-        <VStack align={"start"}>
+      <VStack gap="5" className="max-w-[50%] mt-5 mx-auto">
+        <Heading size="large" level="2">
+          Innsendingen er mottatt
+        </Heading>
+        <Alert variant="success">
+          Vi har mottatt ditt krav om utbetaling, og utbetalingen er nå til behandling hos Nav. Vi
+          vil ta kontakt med deg dersom vi trenger mer informasjon.
+        </Alert>
+        <ExpansionCard open aria-label="Kvittering">
+          <ExpansionCard.Header>
+            <ExpansionCard.Title>Kvittering for innsending</ExpansionCard.Title>
+          </ExpansionCard.Header>
+          <ExpansionCard.Content>
+            <VStack gap="2">
+              <BodyShort>Mottatt av Nav: 01.05.2025</BodyShort>
+              {id && (
+                <>
+                  <BodyLong>
+                    Du kan se status for utbetalingen{" "}
+                    <Link as={ReactRouterLink} to={internalNavigation(orgnr).detaljer(id)}>
+                      her
+                    </Link>
+                    .
+                  </BodyLong>
+                  <br />
+                  <BodyShort>Innsending:</BodyShort>
+                  <Link href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
+                    Krav om utbetaling (åpnes i ny fane) <FilePdfIcon title="Pdf" />
+                  </Link>
+                </>
+              )}
+            </VStack>
+          </ExpansionCard.Content>
+        </ExpansionCard>
+        <ExpansionCard open aria-label="Kvittering">
+          <ExpansionCard.Header>
+            <ExpansionCard.Title>Konto for utbetaling</ExpansionCard.Title>
+          </ExpansionCard.Header>
+          <ExpansionCard.Content>
+            <VStack gap="2">
+              <BodyShort weight="semibold">Vi har registrert følgende kontonummer:</BodyShort>
+              <BodyShort>2313.2123.12</BodyShort>
+            </VStack>
+          </ExpansionCard.Content>
+        </ExpansionCard>
+        <HStack gap="4">
           <Button
-            as={LinkWithTabState}
+            as={ReactRouterLink}
             to={internalNavigation(orgnr).utbetalinger}
             variant="secondary"
           >
             Tilbake til utbetalinger
           </Button>
-        </VStack>
+        </HStack>
       </VStack>
     </>
   );
