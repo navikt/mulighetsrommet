@@ -16,7 +16,7 @@ export function ToTrinnsOpprettelsesForklaring({ opprettelse }: Props) {
       tekster={[
         `${navnEllerIdent(opprettelse.besluttetAv)} returnerte tilsagnet den ${formaterDato(
           opprettelse.besluttetTidspunkt,
-        )} med følgende årsaker:`,
+        )}.`,
       ]}
       aarsaker={
         opprettelse.aarsaker?.map((aarsak) =>
