@@ -40,7 +40,7 @@
     "compression": "1.8.0",
     "cross-env": "7.0.3",
     "csp-header": "6.1.0",
-    "express": "4.21.2",
+    "express": "5.1.0",
     "express-prom-bundle": "8.0.0",
     "html-react-parser": "5.2.3",
     "http-proxy-middleware": "3.0.5",
