@@ -16,7 +16,7 @@ export function ReadNotificationButton({ id, read, setError }: Props) {
     const formData = new FormData();
     formData.set("ids[]", id);
     formData.set("statuses[]", status);
-    fetcher.submit(formData, { method: "POST", action: `/arbeidsbenk/notifikasjoner` });
+    fetcher.submit(formData, { method: "POST", action: `/oppgaveoversikt/notifikasjoner` });
   };
 
   if (fetcher.data?.error) {

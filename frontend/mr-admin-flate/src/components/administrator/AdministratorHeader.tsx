@@ -1,9 +1,9 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
   ENDRINGSMELDINGER_URL,
-  LOGOUT_AND_SELECT_ACCOUNT_URL,
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
+  SELECT_ACCOUNT_URL,
 } from "@/constants";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
@@ -89,7 +89,7 @@ export function AdministratorHeader() {
                 onClick={() => oppgaverLinkRef.current?.click()}
                 as="span"
               >
-                <Link ref={oppgaverLinkRef} to="/arbeidsbenk/oppgaver" className={menylenke}>
+                <Link ref={oppgaverLinkRef} to="/oppgaveoversikt/oppgaver" className={menylenke}>
                   Oppgaver
                 </Link>
               </Dropdown.Menu.GroupedList.Item>
@@ -100,7 +100,7 @@ export function AdministratorHeader() {
             >
               <Link
                 ref={notifikasjonerLinkRef}
-                to="/arbeidsbenk/notifikasjoner"
+                to="/oppgaveoversikt/notifikasjoner"
                 className={menylenke}
               >
                 Notifikasjoner
@@ -149,7 +149,7 @@ export function AdministratorHeader() {
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.List>
               <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
-                <a ref={logoutLinkRef} href={LOGOUT_AND_SELECT_ACCOUNT_URL}>
+                <a ref={logoutLinkRef} href={SELECT_ACCOUNT_URL}>
                   Logg ut
                 </a>
               </Dropdown.Menu.List.Item>

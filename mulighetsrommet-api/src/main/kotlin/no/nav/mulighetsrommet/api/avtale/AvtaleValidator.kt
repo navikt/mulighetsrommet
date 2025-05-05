@@ -230,15 +230,6 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.prismodell != currentAvtale.prismodell) {
-                add(
-                    FieldError.of(
-                        detail = "Prismodell kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                        AvtaleDbo::prismodell,
-                    ),
-                )
-            }
-
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
 

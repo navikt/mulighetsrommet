@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -40,6 +42,7 @@ sealed class Beregning {
         override val belop: Int,
         override val digest: String,
         val deltakelser: List<UtbetalingDeltakelse>,
+        val stengt: List<StengtPeriode>,
     ) : Beregning()
 
     @Serializable
@@ -63,6 +66,7 @@ data class UtbetalingDeltakelse(
     @Serializable(with = LocalDateSerializer::class)
     val sistePeriodeSluttDato: LocalDate,
     val sistePeriodeDeltakelsesprosent: Double,
+    val perioder: List<DeltakelsePeriode>,
     val manedsverk: Double,
     val person: Person?,
     val veileder: String?,

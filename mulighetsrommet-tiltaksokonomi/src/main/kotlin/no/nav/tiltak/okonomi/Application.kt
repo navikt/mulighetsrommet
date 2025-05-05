@@ -30,7 +30,7 @@ import no.nav.tiltak.okonomi.service.OkonomiService
 
 fun main() {
     val config = when (NaisEnv.current()) {
-        NaisEnv.ProdGCP -> throw IllegalStateException("Vi er ikke i prod enda")
+        NaisEnv.ProdGCP -> ApplicationConfigProd
         NaisEnv.DevGCP -> ApplicationConfigDev
         NaisEnv.Local -> ApplicationConfigLocal
     }
