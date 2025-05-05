@@ -89,7 +89,7 @@ export function AdministratorHeader() {
                 onClick={() => oppgaverLinkRef.current?.click()}
                 as="span"
               >
-                <Link ref={oppgaverLinkRef} to="/arbeidsbenk/oppgaver" className={menylenke}>
+                <Link ref={oppgaverLinkRef} to="/oppgaveoversikt/oppgaver" className={menylenke}>
                   Oppgaver
                 </Link>
               </Dropdown.Menu.GroupedList.Item>
@@ -100,7 +100,7 @@ export function AdministratorHeader() {
             >
               <Link
                 ref={notifikasjonerLinkRef}
-                to="/arbeidsbenk/notifikasjoner"
+                to="/oppgaveoversikt/notifikasjoner"
                 className={menylenke}
               >
                 Notifikasjoner

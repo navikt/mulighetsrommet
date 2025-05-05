@@ -5,14 +5,14 @@ import { Tabs } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { ArbeidsbenkIkon } from "../../components/ikoner/ArbeidsbenkIkon";
+import { OppgaveoversiktIkon } from "../../components/ikoner/OppgaveoversiktIkon";
 import { ulesteNotifikasjonerQuery } from "./notifikasjoner/notifikasjonerQueries";
 
-export function ArbeidsbenkPage() {
+export function OppgaveoversiktPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const { data: enableArbeidsbenk } = useFeatureToggle(
+  const { data: enableOppgaveoversikt } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
   );
@@ -21,25 +21,25 @@ export function ArbeidsbenkPage() {
 
   return (
     <main>
-      <title>Arbeidsbenk</title>
-      <HeaderBanner heading="Arbeidsbenk" harUndermeny ikon={<ArbeidsbenkIkon />} />
+      <title>Oppgaveoversikt</title>
+      <HeaderBanner heading="Oppgaveoversikt" harUndermeny ikon={<OppgaveoversiktIkon />} />
       <Tabs
         value={pathname.includes("notifikasjoner") ? "notifikasjoner" : "oppgaver"}
         selectionFollowsFocus
       >
         <Tabs.List id="fane_liste">
-          {enableArbeidsbenk && (
+          {enableOppgaveoversikt && (
             <Tabs.Tab
               value="oppgaver"
               label={`Oppgaver`}
-              onClick={() => navigate("/arbeidsbenk/oppgaver")}
+              onClick={() => navigate("/oppgaveoversikt/oppgaver")}
               aria-controls="panel"
             />
           )}
           <Tabs.Tab
             value="notifikasjoner"
             label={`Notifikasjoner ${antallNotifikasjoner ? `(${antallNotifikasjoner})` : ""}`}
-            onClick={() => navigate("/arbeidsbenk/notifikasjoner")}
+            onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
             aria-controls="panel"
             data-testid="notifikasjoner"
           />
