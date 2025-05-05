@@ -111,7 +111,6 @@ class TilsagnService(
                     kostnadssted = request.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
-                    bestillingStatusSistOppdatert = null,
                     beregning = beregning,
                 )
             }

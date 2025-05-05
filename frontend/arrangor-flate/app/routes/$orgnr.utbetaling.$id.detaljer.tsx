@@ -118,7 +118,7 @@ export default function UtbetalingDetaljerSide() {
           borderWidth={visTilsagnsListe ? "2 1 0 1" : "2 1 1 1"}
         >
           <VStack gap="6">
-            <UtbetalingStatusList utbetaling={utbetaling} tilsagn={tilsagn} />
+            <UtbetalingStatusList utbetaling={utbetaling} />
             {visTilsagnsListe ? (
               <Bleed marginInline="6" marginBlock="0 6" asChild>
                 <Accordion>

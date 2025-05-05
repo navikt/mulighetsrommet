@@ -42,7 +42,6 @@ class TilsagnQueriesTest : FunSpec({
         kostnadssted = Gjovik.enhetsnummer,
         bestillingsnummer = "1",
         bestillingStatus = null,
-        bestillingStatusSistOppdatert = null,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
     )
 

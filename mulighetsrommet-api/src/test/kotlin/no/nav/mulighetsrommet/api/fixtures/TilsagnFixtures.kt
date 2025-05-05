@@ -21,7 +21,6 @@ object TilsagnFixtures {
         lopenummer = 1,
         bestillingsnummer = "A-2025/1-1",
         bestillingStatus = null,
-        bestillingStatusSistOppdatert = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1000),
             output = TilsagnBeregningFri.Output(1000),
@@ -37,7 +36,6 @@ object TilsagnFixtures {
         lopenummer = 2,
         bestillingsnummer = "A-2025/1-2",
         bestillingStatus = null,
-        bestillingStatusSistOppdatert = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1500),
             output = TilsagnBeregningFri.Output(1500),
@@ -53,7 +51,6 @@ object TilsagnFixtures {
         lopenummer = 3,
         bestillingsnummer = "A-2025/1-3",
         bestillingStatus = null,
-        bestillingStatusSistOppdatert = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),
@@ -69,7 +66,6 @@ object TilsagnFixtures {
         lopenummer = 4,
         bestillingsnummer = "A-2025/1-4",
         bestillingStatus = null,
-        bestillingStatusSistOppdatert = null,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),
             output = TilsagnBeregningFri.Output(2500),

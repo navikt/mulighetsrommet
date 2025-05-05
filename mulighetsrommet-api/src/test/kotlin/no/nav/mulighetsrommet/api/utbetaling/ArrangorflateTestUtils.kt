@@ -69,7 +69,6 @@ object ArrangorflateTestUtils {
         ),
         type = TilsagnType.TILSAGN,
         bestillingStatus = BestillingStatusType.AKTIV,
-        bestillingStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
     )
 
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(

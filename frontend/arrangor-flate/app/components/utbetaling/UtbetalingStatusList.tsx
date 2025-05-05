@@ -1,16 +1,11 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Accordion, Heading } from "@navikt/ds-react";
-import {
-  ArrangorflateTilsagn,
-  ArrangorUtbetalingLinje,
-  ArrFlateUtbetaling,
-  ArrFlateUtbetalingStatus,
-} from "api-client";
+import { ArrangorUtbetalingLinje, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
 import { Link } from "react-router";
-import { useOrgnrFromUrl } from "../../utils";
+import { formaterDato, useOrgnrFromUrl } from "../../utils";
 import { Definisjonsliste } from "../Definisjonsliste";
-import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
+import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 
 interface Props {
   utbetaling: ArrFlateUtbetaling;
@@ -58,15 +53,17 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje
                 {
                   key: "Tilsagnsnummer",
                   value: (
-                    <Link to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>
-                      {linje.tilsagn.bestillingsnummer}
-                    </Link>
+                    <Link to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>Se tilsagnsdetaljer</Link>
                   ),
                 },
-                { key: "Beløp", value: formaterNOK(linje.belop) },
                 {
                   key: "Status",
                   value: <DelUtbetalingStatusTag status={linje.status} size={"small"} />,
+                },
+                { key: "Beløp", value: formaterNOK(linje.belop) },
+                {
+                  key: "Dato",
+                  value: linje.statusSistOppdatert ? formaterDato(linje.statusSistOppdatert) : "-",
                 },
               ]}
             />
