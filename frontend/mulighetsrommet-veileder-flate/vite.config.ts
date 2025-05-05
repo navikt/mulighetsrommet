@@ -38,7 +38,9 @@ export default defineConfig({
     visualizer({
       filename: "bundle-stats.html",
     }),
-    shadowStyle(),
+    shadowStyle({
+      iife: true, // Isolate CSS to prevent conflicts
+    }),
     tailwindcss(),
   ],
   css: {
