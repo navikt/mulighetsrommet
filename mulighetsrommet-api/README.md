@@ -118,7 +118,7 @@ Følgende steg kan benyttes til å generere opp et token:
            "access_as_application"
          ],
          "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
-         "sid": "0bab029e-e84e-4842-8a27-d153b29782cf",
+         "uti": "0bab029e-e84e-4842-8a27-d153b29782cf",
          "azp_name": "test name",
          "groups": [
            "52bb9196-b071-4cc7-9472-be4942d33c4b"

@@ -7,7 +7,7 @@ import { useFetcher } from "react-router";
 import {
   lesteNotifikasjonerQuery,
   ulesteNotifikasjonerQuery,
-} from "../../pages/arbeidsbenk/notifikasjoner/notifikasjonerQueries";
+} from "../../pages/oppgaveoversikt/notifikasjoner/notifikasjonerQueries";
 import { EmptyState } from "./EmptyState";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
 
@@ -33,7 +33,7 @@ export function Notifikasjonsliste({ lest }: Props) {
         formData.append("ids[]", id);
         formData.append("statuses[]", newStatus);
       });
-      fetcher.submit(formData, { method: "POST", action: `/arbeidsbenk/notifikasjoner` });
+      fetcher.submit(formData, { method: "POST", action: `/oppgaveoversikt/notifikasjoner` });
     }
   }
 

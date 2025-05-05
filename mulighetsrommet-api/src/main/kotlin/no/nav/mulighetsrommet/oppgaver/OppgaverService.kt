@@ -246,7 +246,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
                 type = OppgaveType.UTBETALING_RETURNERT,
                 enhet = null,
                 title = "Utbetaling returnert",
-                description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
+                description = "Utbetaling for $gjennomforingsnavn ble returnert av attestant",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = requireNotNull(opprettelse.besluttetTidspunkt),

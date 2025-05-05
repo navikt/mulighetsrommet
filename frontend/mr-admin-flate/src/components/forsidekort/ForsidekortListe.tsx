@@ -17,10 +17,10 @@ const forsidekortData: ForsideKortProps[] = [
     navn: "Oppgaver",
     ikon: (
       <div className="w-16 h-16 flex items-center justify-center bg-orange-300 rounded-full">
-        <BellDotFillIcon title="Arbeidsbenk" className="text-white w-12 h-12" />
+        <BellDotFillIcon title="Oppgaveoversikt" className="text-white w-12 h-12" />
       </div>
     ),
-    url: "arbeidsbenk/oppgaver",
+    url: "oppgaveoversikt/oppgaver",
     tekst: "Her finner du en oversikt over enhetens oppgaver",
   },
   {

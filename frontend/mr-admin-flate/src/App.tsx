@@ -1,5 +1,5 @@
-import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
-import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
+import { OppgaveoversiktPage } from "@/pages/oppgaveoversikt/OppgaveoversiktPage";
+import { OppgaverPage } from "@/pages/oppgaveoversikt/oppgaver/OppgaverPage";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
@@ -17,8 +17,8 @@ import { AdministratorHeader } from "./components/administrator/AdministratorHea
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
-import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
-import { setLestStatusForNotifikasjonAction } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerAction";
+import { NotifikasjonerPage } from "./pages/oppgaveoversikt/notifikasjoner/NotifikasjonerPage";
+import { setLestStatusForNotifikasjonAction } from "./pages/oppgaveoversikt/notifikasjoner/notifikasjonerAction";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
@@ -282,8 +282,8 @@ const router = (queryClient: QueryClient) => {
             errorElement: <ErrorPage />,
           },
           {
-            path: "arbeidsbenk",
-            element: <ArbeidsbenkPage />,
+            path: "oppgaveoversikt",
+            element: <OppgaveoversiktPage />,
             errorElement: <ErrorPage />,
             children: [
               {

@@ -16,8 +16,8 @@ export const ulesteNotifikasjonerQuery = queryOptions({
     }),
 });
 
-export const arbeidsbenkFeatureToggleQuery = queryOptions({
-  queryKey: ["featureToggle", "arbeidsbenk"],
+export const oppgaveoversiktFeatureToggleQuery = queryOptions({
+  queryKey: ["featureToggle", "oppgaveoversikt"],
   queryFn: () =>
     FeatureToggleService.getFeatureToggle({
       query: {
