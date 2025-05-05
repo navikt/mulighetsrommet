@@ -21,7 +21,10 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -37,6 +40,7 @@ import java.util.*
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val service: UtbetalingService by inject()
+    val totrinnskontrollService: TotrinnskontrollService by inject()
 
     route("/utbetaling/{id}") {
         get {
@@ -51,7 +55,34 @@ fun Route.utbetalingRoutes() {
                 val utbetaling = queries.utbetaling.get(id)
                     ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
 
-                val linjer = service.getDelutbetalingslinjer(utbetaling.id, ansatt)
+                val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                    val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
+                        TilsagnDto.fromTilsagn(it)
+                    }
+
+                    val opprettelse = queries.totrinnskontroll
+                        .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+                    val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
+                        Rolle.ATTESTANT_UTBETALING,
+                        setOf(tilsagn.kostnadssted.enhetsnummer),
+                    )
+                    val besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(opprettelse)
+                    val behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(opprettelse)
+
+                    UtbetalingLinje(
+                        id = delutbetaling.id,
+                        gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
+                        belop = delutbetaling.belop,
+                        status = delutbetaling.status,
+                        tilsagn = tilsagn,
+                        opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
+                            opprettelse,
+                            kanBesluttesAvAnsatt,
+                            behandletAvNavn,
+                            besluttetAvNavn,
+                        ),
+                    )
+                }
 
                 val deltakere = when (utbetaling.beregning) {
                     is UtbetalingBeregningForhandsgodkjent -> {
@@ -175,12 +206,11 @@ private fun toDeltakerForKostnadsfordeling(
     manedsverk: Double,
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
     id = deltaker.gjennomforingId,
-    status = deltaker.status.type,
-    manedsverk = manedsverk,
     navn = person?.navn,
     geografiskEnhet = person?.geografiskEnhet?.navn,
     region = person?.region?.navn,
     foedselsdato = person?.foedselsdato,
+    manedsverk = manedsverk,
 )
 
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {

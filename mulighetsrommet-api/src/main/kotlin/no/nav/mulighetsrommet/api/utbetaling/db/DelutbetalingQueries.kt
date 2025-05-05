@@ -268,7 +268,7 @@ class DelutbetalingQueries(private val session: Session) {
         val query = """
             update delutbetaling
             set faktura_status = ?,
-            faktura_status_sist_oppdatert = ?::instant
+            faktura_status_sist_oppdatert = ?
             where fakturanummer = ?
         """.trimIndent()
 

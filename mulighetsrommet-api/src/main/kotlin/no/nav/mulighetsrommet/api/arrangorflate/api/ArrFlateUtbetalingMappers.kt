@@ -38,6 +38,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                     sistePeriodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
                     sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
                     manedsverk = manedsverk,
+                    perioder = deltakelse.perioder,
                     person = person,
                     // TODO data om veileder hos arrangør
                     veileder = null,
@@ -60,6 +61,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 arrangor = utbetaling.arrangor,
                 periode = utbetaling.periode,
                 beregning = Beregning.Forhandsgodkjent(
+                    stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                     antallManedsverk = antallManedsverk,
                     belop = beregning.output.belop,
                     digest = beregning.getDigest(),

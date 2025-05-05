@@ -5904,7 +5904,7 @@ components:
         beregning:
           $ref: "#/components/schemas/UtbetalingKompaktBeregning"
         godkjentAvArrangorTidspunkt:
-          type: [ string, "null" ]
+          type: [string, "null"]
           format: date-time
         journalpostId:
           type: string
@@ -5936,13 +5936,10 @@ components:
           type: string
         region:
           type: string
-        status:
-          $ref: "#/components/schemas/GruppetiltakDeltakerStatus"
         manedsverk:
           type: number
       required:
         - id
-        - status
         - manedsverk
         - navn
 
@@ -5958,7 +5955,7 @@ components:
           type: string
           format: date-time
         godkjentAvArrangorTidspunkt:
-          type: [ string, "null" ]
+          type: [string, "null"]
           format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
@@ -6000,7 +5997,7 @@ components:
           type: string
           format: date-time
         godkjentAvArrangorTidspunkt:
-          type: [ string, "null" ]
+          type: [string, "null"]
           format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
@@ -6091,6 +6088,8 @@ components:
     ArrFlateBeregningForhandsgodkjent:
       type: object
       properties:
+        type:
+          const: FORHANDSGODKJENT
         belop:
           type: integer
         antallManedsverk:
@@ -6101,14 +6100,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingDeltakelse"
-        type:
-          const: FORHANDSGODKJENT
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStengtPeriode"
       required:
+        - type
         - belop
         - antallManedsverk
         - digest
         - deltakelser
-        - type
+        - stengt
 
     ArrFlateBeregningFri:
       type: object
@@ -6130,6 +6132,17 @@ components:
         - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
 
+    UtbetalingStengtPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        beskrivelse:
+          type: string
+      required:
+        - periode
+        - beskrivelse
+
     UtbetalingDeltakelse:
       type: object
       properties:
@@ -6150,6 +6163,10 @@ components:
           format: date
         sistePeriodeDeltakelsesprosent:
           type: number
+        perioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingDeltakelsePeriode"
         manedsverk:
           type: number
         person:
@@ -6162,8 +6179,20 @@ components:
         - forstePeriodeStartDato
         - sistePeriodeSluttDato
         - sistePeriodeDeltakelsesprosent
+        - perioder
         - manedsverk
         - person
+
+    UtbetalingDeltakelsePeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        deltakelsesprosent:
+          type: number
+      required:
+        - periode
+        - deltakelsesprosent
 
     UtbetalingDeltakelsePerson:
       type: object
@@ -6287,8 +6316,17 @@ components:
           type: integer
         bestillingsnummer:
           type: string
-
-      required: [periode, type, status, gjennomforing, tiltakstype, arrangor, beregning, id, gjenstaendeBelop, bestillingsnummer]
+      required:
+        - periode
+        - type
+        - status
+        - gjennomforing
+        - tiltakstype
+        - arrangor
+        - beregning
+        - id
+        - gjenstaendeBelop
+        - bestillingsnummer
 
     Betalingsinformasjon:
       type: object
@@ -6439,7 +6477,16 @@ components:
           items:
             type: string
             format: binary
-      required: [tilskuddstype, gjennomforingId, periodeStart, periodeSlutt, beskrivelse, kontonummer, kidNummer, belop, vedlegg]
+      required:
+        - tilskuddstype
+        - gjennomforingId
+        - periodeStart
+        - periodeSlutt
+        - beskrivelse
+        - kontonummer
+        - kidNummer
+        - belop
+        - vedlegg
 
     OpprettManuellUtbetalingRequest:
       type: object

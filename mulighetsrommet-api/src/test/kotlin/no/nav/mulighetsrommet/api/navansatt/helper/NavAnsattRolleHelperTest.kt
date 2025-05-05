@@ -11,38 +11,38 @@ class NavAnsattRolleHelperTest : FunSpec({
     context("hasRole") {
         test("false when no roles") {
             val roles = emptySet<NavAnsattRolle>()
-            val requiredRole = NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
+            val requiredRole = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
             NavAnsattRolleHelper.hasRole(roles, requiredRole).shouldBeFalse()
         }
 
         test("false when no matching role") {
             val roles = setOf(
-                NavAnsattRolle.Companion.generell(Rolle.AVTALER_SKRIV),
-                NavAnsattRolle.Companion.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                NavAnsattRolle.generell(Rolle.AVTALER_SKRIV),
+                NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
             )
-            val requiredRole = NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
+            val requiredRole = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
             NavAnsattRolleHelper.hasRole(roles, requiredRole).shouldBeFalse()
         }
 
         test("true for a matching role") {
             val roles = setOf(
-                NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
-                NavAnsattRolle.Companion.generell(Rolle.AVTALER_SKRIV),
+                NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
+                NavAnsattRolle.generell(Rolle.AVTALER_SKRIV),
             )
-            val requiredRole = NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
+            val requiredRole = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
             NavAnsattRolleHelper.hasRole(roles, requiredRole).shouldBeTrue()
         }
 
         test("true when role is generell and required role is kontorspesfikk") {
             val roles = setOf(
-                NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
+                NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
             )
-            val requiredRole = NavAnsattRolle.Companion.kontorspesifikk(
+            val requiredRole = NavAnsattRolle.kontorspesifikk(
                 Rolle.TILTAKADMINISTRASJON_GENERELL,
-                setOf(NavEnhetNummer("1000")),
+                setOf(),
             )
 
             NavAnsattRolleHelper.hasRole(roles, requiredRole).shouldBeTrue()
@@ -50,18 +50,18 @@ class NavAnsattRolleHelperTest : FunSpec({
 
         test("false when role is kontorspesfikk and required role is generell") {
             val roles = setOf(
-                NavAnsattRolle.Companion.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf(NavEnhetNummer("1000"))),
+                NavAnsattRolle.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf(NavEnhetNummer("1000"))),
             )
-            val requiredRole = NavAnsattRolle.Companion.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
+            val requiredRole = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
             NavAnsattRolleHelper.hasRole(roles, requiredRole).shouldBeFalse()
         }
 
         test("false when kontorspesifikk role with empty enheter") {
             val roles = setOf(
-                NavAnsattRolle.Companion.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf()),
+                NavAnsattRolle.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf()),
             )
-            val requiredRole = NavAnsattRolle.Companion.kontorspesifikk(
+            val requiredRole = NavAnsattRolle.kontorspesifikk(
                 Rolle.TILTAKADMINISTRASJON_GENERELL,
                 setOf(),
             )
@@ -71,9 +71,9 @@ class NavAnsattRolleHelperTest : FunSpec({
 
         test("false when no matching kontorspesifikk role") {
             val roles = setOf(
-                NavAnsattRolle.Companion.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf(NavEnhetNummer("1000"))),
+                NavAnsattRolle.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf(NavEnhetNummer("1000"))),
             )
-            val requiredRole = NavAnsattRolle.Companion.kontorspesifikk(
+            val requiredRole = NavAnsattRolle.kontorspesifikk(
                 Rolle.TILTAKADMINISTRASJON_GENERELL,
                 setOf(NavEnhetNummer("2000")),
             )
@@ -83,9 +83,9 @@ class NavAnsattRolleHelperTest : FunSpec({
 
         test("false when partially matching required enheter") {
             val roles = setOf(
-                NavAnsattRolle.Companion.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf(NavEnhetNummer("1000"))),
+                NavAnsattRolle.kontorspesifikk(Rolle.TILTAKADMINISTRASJON_GENERELL, setOf(NavEnhetNummer("1000"))),
             )
-            val requiredRole = NavAnsattRolle.Companion.kontorspesifikk(
+            val requiredRole = NavAnsattRolle.kontorspesifikk(
                 Rolle.TILTAKADMINISTRASJON_GENERELL,
                 setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
             )
@@ -95,12 +95,12 @@ class NavAnsattRolleHelperTest : FunSpec({
 
         test("true when all matching all required enheter") {
             val roles = setOf(
-                NavAnsattRolle.Companion.kontorspesifikk(
+                NavAnsattRolle.kontorspesifikk(
                     Rolle.TILTAKADMINISTRASJON_GENERELL,
                     setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000"), NavEnhetNummer("3000")),
                 ),
             )
-            val requiredRole = NavAnsattRolle.Companion.kontorspesifikk(
+            val requiredRole = NavAnsattRolle.kontorspesifikk(
                 Rolle.TILTAKADMINISTRASJON_GENERELL,
                 setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
             )
@@ -110,12 +110,12 @@ class NavAnsattRolleHelperTest : FunSpec({
 
         test("true when all matching required enheter is empty") {
             val roles = setOf(
-                NavAnsattRolle.Companion.kontorspesifikk(
+                NavAnsattRolle.kontorspesifikk(
                     Rolle.TILTAKADMINISTRASJON_GENERELL,
                     setOf(NavEnhetNummer("1000")),
                 ),
             )
-            val requiredRole = NavAnsattRolle.Companion.kontorspesifikk(
+            val requiredRole = NavAnsattRolle.kontorspesifikk(
                 Rolle.TILTAKADMINISTRASJON_GENERELL,
                 setOf(),
             )

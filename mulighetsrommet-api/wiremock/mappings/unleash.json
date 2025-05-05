@@ -14,11 +14,6 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.admin-flate.arbeidsbenk",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.tiltakstype.migrering.deltaker",
           "enabled": true,
           "strategies": [

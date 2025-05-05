@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.oppgaver
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.shouldBe
@@ -8,6 +10,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
@@ -45,14 +48,13 @@ class OppgaverServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.tilsagnOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
+                regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(
-                    Rolle.SAKSBEHANDLER_OKONOMI,
-                    Rolle.BESLUTTER_TILSAGN,
+                    NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn1.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
@@ -74,19 +76,20 @@ class OppgaverServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.tilsagnOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
+                regioner = setOf(),
                 ansatt = NavAnsattFixture.DonaldDuck.navIdent,
                 roller = setOf(
-                    Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
-                    Rolle.BESLUTTER_TILSAGN,
+                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
                 ),
             ).shouldBeEmpty()
         }
 
-        test("Skal bare returnere oppgaver for tilsagn til godkjenning, annullering og til oppgjør når ansatt har korrekt rolle") {
+        test("Skal bare se oppgaver for tilsagn til godkjenning, annullering og til oppgjør når ansatt har beslutter-rolle") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -105,16 +108,16 @@ class OppgaverServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = OppgaverService(database.db)
-            service.tilsagnOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
+                regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(Rolle.BESLUTTER_TILSAGN),
+                roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
             ).size shouldBe 3
         }
 
-        test("Skal bare returnere oppgaver som er returnert til ansatte med SAKSBEHANDLER_OKONOMI") {
+        test("Skal bare se oppgaver som er returnert når ansatt har saksbehandler-rolle") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -131,25 +134,25 @@ class OppgaverServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = OppgaverService(database.db)
-            service.tilsagnOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
+                regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI),
+                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn3.id, OppgaveType.TILSAGN_RETURNERT),
             )
         }
 
-        test("Skal bare returnere oppgaver for valgt kostnadssted") {
+        test("Skal bare se oppgaver for valgt region") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tilsagn = listOf(
-                    TilsagnFixtures.Tilsagn1,
+                    TilsagnFixtures.Tilsagn1.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer),
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
                     TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
@@ -161,25 +164,54 @@ class OppgaverServiceTest : FunSpec({
 
             val service = OppgaverService(database.db)
 
-            service.tilsagnOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                regioner = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(Rolle.BESLUTTER_TILSAGN),
+                roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
             ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(TilsagnFixtures.Tilsagn1.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
                 PartialOppgave(TilsagnFixtures.Tilsagn2.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
             )
         }
 
-        test("Skal ikke se oppgaver hvis du ikke har korrekte roller") {
+        test("Skal se oppgaver for returnert tilsagn når ansatt selv har sendt tilsagn til godkjenning") {
+            val service = OppgaverService(database.db)
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.AFT),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+            ) {
+                setTilsagnStatus(
+                    TilsagnFixtures.Tilsagn1,
+                    TilsagnStatus.RETURNERT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(TilsagnFixtures.Tilsagn1.id, OppgaveType.TILSAGN_RETURNERT),
+            )
+        }
+
+        test("Skal bare se oppgaver for kostnadssteder som overlapper med ansattes roller") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tilsagn = listOf(
-                    TilsagnFixtures.Tilsagn1,
+                    TilsagnFixtures.Tilsagn1.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer),
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
                     TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
@@ -191,13 +223,20 @@ class OppgaverServiceTest : FunSpec({
 
             val service = OppgaverService(database.db)
 
-            service.tilsagnOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
+                regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = emptySet(),
-            ).shouldBeEmpty()
+                roller = setOf(
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.BESLUTTER_TILSAGN,
+                        setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                    ),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(TilsagnFixtures.Tilsagn2.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
+            )
         }
     }
 
@@ -225,29 +264,60 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.delutbetaling2,
                 ),
             ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
                 setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, DelutbetalingStatus.RETURNERT)
             }.initialize(database.db)
 
-            service.delutbetalingOppgaver(
+            // Skal se utbetaling til godkjenning når ansatt har attestant-rolle
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
+                regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(Rolle.ATTESTANT_UTBETALING),
+                roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
             )
 
-            service.delutbetalingOppgaver(
+            // Skal se returnert utbetaling når ansatt har saksbehandler-rolle
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING),
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
             )
+
+            // Skal se returnert utbetaling når ansatt selv var den som sendte til godkjenning
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
+            )
+
+            // Skal ikke se returnert utbetaling når ansatt ikke har saksbehandler-rolle
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
+                ),
+            ).shouldBeEmpty()
         }
 
         test("Skal ikke hente oppgaver som ansatt selv har sendt til godkjenning") {
@@ -262,6 +332,7 @@ class OppgaverServiceTest : FunSpec({
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
                 delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
             ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     UtbetalingFixtures.delutbetaling1,
                     DelutbetalingStatus.TIL_GODKJENNING,
@@ -269,13 +340,74 @@ class OppgaverServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.delutbetalingOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
+                regioner = setOf(),
                 ansatt = NavAnsattFixture.DonaldDuck.navIdent,
-                roller = setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV, Rolle.ATTESTANT_UTBETALING),
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ),
             ).shouldBeEmpty()
+        }
+
+        test("Skal bare se oppgaver for kostandssteder som overlapper med ansattes roller") {
+            val service = OppgaverService(database.db)
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
+                setDelutbetalingStatus(
+                    UtbetalingFixtures.delutbetaling1,
+                    DelutbetalingStatus.TIL_GODKJENNING,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            forAll(
+                row(
+                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                    listOf(),
+                ),
+                row(
+                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                    listOf(
+                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                    ),
+                ),
+                row(
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.ATTESTANT_UTBETALING,
+                        setOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                    ),
+                    listOf(),
+                ),
+                row(
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.ATTESTANT_UTBETALING,
+                        setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+                    ),
+                    listOf(
+                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                    ),
+                ),
+            ) { rolle, expectedOppgaver ->
+                service.oppgaver(
+                    oppgavetyper = setOf(),
+                    tiltakskoder = setOf(),
+                    regioner = setOf(),
+                    ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                    roller = setOf(rolle),
+                ) shouldMatchAllOppgaver expectedOppgaver
+            }
         }
     }
 
@@ -299,8 +431,7 @@ class OppgaverServiceTest : FunSpec({
                         lopenummer = 1,
                         bestillingsnummer = "A-1",
                     ),
-                    TilsagnFixtures.Tilsagn1.copy(
-                        id = UUID.randomUUID(),
+                    TilsagnFixtures.Tilsagn2.copy(
                         gjennomforingId = VTA1.id,
                         kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                         lopenummer = 2,
@@ -325,6 +456,9 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.delutbetaling1.copy(utbetalingId = UtbetalingFixtures.utbetaling2.id),
                 ),
             ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
+
                 queries.utbetaling.setGodkjentAvArrangor(
                     UtbetalingFixtures.utbetaling1.id,
                     LocalDateTime.now(),
@@ -337,41 +471,48 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.utbetaling3.id,
                     LocalDateTime.now(),
                 )
+
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.GODKJENT)
             }.initialize(database.db)
 
             val service = OppgaverService(database.db)
 
-            service.utbetalingOppgaver(
+            val oppgaver = service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
-                roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI),
-            ) shouldMatchAllOppgaver listOf(
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+            )
+            oppgaver shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
             )
 
-            service.utbetalingOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
-                roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI),
+                regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
             )
 
-            service.utbetalingOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
-                kostnadssteder = setOf(),
-                roller = setOf(Rolle.ATTESTANT_UTBETALING),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
             ).shouldBeEmpty()
 
-            service.utbetalingOppgaver(
+            service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-                kostnadssteder = setOf(),
-                roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
             )
@@ -379,13 +520,13 @@ class OppgaverServiceTest : FunSpec({
     }
 })
 
-data class PartialOppgave(val id: UUID, val type: OppgaveType)
+private data class PartialOppgave(val id: UUID, val type: OppgaveType)
 
-infix fun Collection<Oppgave>.shouldMatchAllOppgaver(expectedOppgaver: List<PartialOppgave>) {
-    this.size shouldBe expectedOppgaver.size
+private infix fun Collection<Oppgave>.shouldMatchAllOppgaver(expectedOppgaver: List<PartialOppgave>) {
     expectedOppgaver.forEach { expected ->
-        this.shouldHaveSingleElement { oppgave ->
+        shouldHaveSingleElement { oppgave ->
             oppgave.id == expected.id && oppgave.type == expected.type
         }
     }
+    this.size shouldBe expectedOppgaver.size
 }

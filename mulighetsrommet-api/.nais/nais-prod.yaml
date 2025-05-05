@@ -56,7 +56,7 @@ spec:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
             users:
-            - name: datastream # Ekstra databasebruker for Datastream
+              - name: datastream # Ekstra databasebruker for Datastream
         diskAutoresize: true
         flags:
           - name: max_connections
@@ -81,6 +81,56 @@ spec:
           - id: "46ba8787-eb24-4f7b-830f-4c5e9256de65"
           # (GRP) mr-nav_kontaktperson
           - id: "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472"
+          # 0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi
+          - id: "a54fd054-4047-46a6-be7c-f1b69f346be8"
+          # 0200-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "8eb13232-5a99-4e03-8f43-059dbd368ece"
+          # 0200-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "7db540e4-f2a7-4942-ab5f-dc54203a088f"
+          # 0300-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "af433bab-7bf6-4ed2-81bc-e9675fb763ef"
+          # 0300-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "fd2a78f7-934d-4abf-95af-a6ee967cbe5d"
+          # 0400-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "edc8a889-ffc2-4813-921b-8eea4fe0fd76"
+          # 0400-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "77b9322c-9ac7-479a-9403-ead8706b6d66"
+          # 0600-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "5d5bc9ae-fe49-43dc-8255-cabac857542b"
+          # 0600-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "28d01506-93e1-4390-9b8c-7885c876fc10"
+          # 0800-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "ba86368e-d776-4909-89e5-acb5b7932428"
+          # 0800-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "43c8bf56-5c32-41f7-8d79-017d83335dc3"
+          # 1000-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "c536c283-1407-4043-967a-d4fbf5b44bbf"
+          # 1000-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "76ba924c-e029-4e69-a571-e3acc35a4d8b"
+          # 1100-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "368e20e4-12d4-4026-b852-275f356301be"
+          # 1100-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "7bda4d14-01f1-49c0-85f9-c75308188331"
+          # 1200-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "1d2b9d34-ead6-428d-96de-6e677a77afb0"
+          # 1200-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "c9e0307d-355a-47ef-8776-132746ebbb15"
+          # 1500-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "b9f39ac5-6b6f-47a4-a23a-2218c46ee18d"
+          # 1500-CA-Tiltaksadministrasjon_beslutter-tilsag
+          - id: "949db0d2-68ff-413f-87ab-39cd49ec305b"
+          # 1800-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "7c11c112-f82c-4a4b-86a0-3769335599af"
+          # 1800-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "f576ab19-837e-4654-a252-e6ca0b62ba03"
+          # 1900-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "37706a74-6b78-4719-9f63-11a2f8bfd37c"
+          # 1900-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "c2f30e37-c74c-4660-a632-37e8e8e80329"
+          # 5700-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "92b61aff-7958-4fec-b0c2-604530f45ed5"
+          # 5700-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "93b27697-0d6d-4f1f-bf63-2f2134bf2cca"
         extra:
           - NAVident
           - azp_name

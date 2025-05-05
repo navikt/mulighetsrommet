@@ -405,6 +405,7 @@ class OkonomiServiceTest : FunSpec({
                     FakturaStatus(
                         fakturanummer = "B2-F1",
                         status = FakturaStatusType.SENDT,
+                        fakturaStatusSistOppdatert = null // TODO Hvordan sette denne i tester når den blir satt i oebs?
                     ),
                 )
             }

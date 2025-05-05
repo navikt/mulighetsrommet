@@ -112,7 +112,7 @@ class DelutbetalingQueriesTest : FunSpec({
             queries.setFakturaStatus(
                 delutbetaling.fakturanummer,
                 FakturaStatusType.UTBETALT,
-                fakturaStatusSistOppdatert,
+                fakturaStatusSistOppdatert = LocalDateTime.now(),
             )
 
             queries.get(delutbetaling.id).shouldNotBeNull().faktura.status shouldBe FakturaStatusType.UTBETALT
