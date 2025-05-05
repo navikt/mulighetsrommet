@@ -46,6 +46,22 @@ fun Application.configureStatusPages() {
             )
         }
 
+        status(HttpStatusCode.NotFound) { status ->
+            val requestId = MDC.get("correlationId")
+
+            call.respondWithProblemDetail(
+                object : ProblemDetail() {
+                    override val type = "notFound"
+                    override val title = "Not found"
+                    override val status = status.value
+                    override val detail =
+                        "Fant ikke ressurs"
+                    override val instance = null
+                    override val extensions = mapOf("requestId" to requestId)
+                },
+            )
+        }
+
         exception<IllegalArgumentException> { call, cause ->
             logException(HttpStatusCode.BadRequest, cause, call)
 
