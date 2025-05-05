@@ -1,9 +1,9 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
   ENDRINGSMELDINGER_URL,
-  LOGOUT_AND_SELECT_ACCOUNT_URL,
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
+  SELECT_ACCOUNT_URL,
 } from "@/constants";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
@@ -149,7 +149,7 @@ export function AdministratorHeader() {
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.List>
               <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
-                <a ref={logoutLinkRef} href={LOGOUT_AND_SELECT_ACCOUNT_URL}>
+                <a ref={logoutLinkRef} href={SELECT_ACCOUNT_URL}>
                   Logg ut
                 </a>
               </Dropdown.Menu.List.Item>
