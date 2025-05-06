@@ -7,7 +7,7 @@ import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { logEvent } from "@/logging/amplitude";
-import { addOrRemove } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import {
   arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
