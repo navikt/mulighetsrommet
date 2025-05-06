@@ -48,7 +48,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
@@ -71,7 +70,6 @@ class UtbetalingServiceTest : FunSpec({
     val norg2Client: Norg2Client = mockk(relaxed = true)
     val pdl:
         HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true)
-    val totrinnskontrollService: TotrinnskontrollService = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
@@ -90,7 +88,6 @@ class UtbetalingServiceTest : FunSpec({
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
         pdlQuery = pdl,
         norg2Client = norg2Client,
-        totrinnskontrollService = totrinnskontrollService,
     )
 
     val fnr1 = NorskIdent("12345678910")

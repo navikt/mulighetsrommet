@@ -18,25 +18,20 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -67,7 +62,6 @@ class UtbetalingService(
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
     private val pdlQuery: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
     private val norg2Client: Norg2Client,
-    private val totrinnskontrollService: TotrinnskontrollService,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -176,37 +170,6 @@ class UtbetalingService(
         }.associateBy { it.norskIdent }
 
         return deltakereForKostnadsfordeling
-    }
-
-    fun getDelutbetalingslinjer(utbetalingId: UUID, ansatt: NavAnsatt): List<UtbetalingLinje> = db.transaction {
-        queries.delutbetaling.getByUtbetalingId(utbetalingId).map { delutbetaling ->
-            val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
-                TilsagnDto.fromTilsagn(it)
-            }
-
-            val opprettelse = queries.totrinnskontroll
-                .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-            val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
-                Rolle.ATTESTANT_UTBETALING,
-                setOf(tilsagn.kostnadssted.enhetsnummer),
-            )
-            val besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(opprettelse)
-            val behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(opprettelse)
-
-            UtbetalingLinje(
-                id = delutbetaling.id,
-                gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
-                belop = delutbetaling.belop,
-                status = delutbetaling.status,
-                tilsagn = tilsagn,
-                opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
-                    opprettelse,
-                    kanBesluttesAvAnsatt,
-                    behandletAvNavn,
-                    besluttetAvNavn,
-                ),
-            )
-        }
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
@@ -534,13 +497,13 @@ class UtbetalingService(
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
             status = DelutbetalingStatus.TIL_GODKJENNING,
-            fakturaStatusSistOppdatert = LocalDateTime.now(),
             periode = periode,
             belop = belop,
             gjorOppTilsagn = gjorOppTilsagn,
             lopenummer = lopenummer,
             fakturanummer = fakturanummer(tilsagn.bestilling.bestillingsnummer, lopenummer),
             fakturaStatus = null,
+            fakturaStatusSistOppdatert = LocalDateTime.now(),
         )
 
         queries.delutbetaling.upsert(dbo)

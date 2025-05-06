@@ -415,7 +415,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single { UnleashService(appConfig.unleash, get()) }
