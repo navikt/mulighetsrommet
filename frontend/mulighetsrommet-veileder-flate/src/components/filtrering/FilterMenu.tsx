@@ -10,9 +10,9 @@ import { useAtom } from "jotai";
 import { FilterToggle } from "./FilterToggle";
 import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
-import { Tiltakstypefilter } from "./Tiltakstypefilter";
+import { TiltakstypeFilter } from "./TiltakstypeFilter";
 
-export function Filtermeny() {
+export function FilterMenu() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const { data: regioner } = useRegioner();
@@ -43,7 +43,7 @@ export function Filtermeny() {
           accordionIsOpenValue="apen-for-pamelding"
         />
         <InnsatsgruppeFilter />
-        <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
+        <TiltakstypeFilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
         <Accordion.Item open={accordionsOpen.includes("brukers-enhet")}>
           <Accordion.Header
             onClick={() => {

@@ -8,7 +8,7 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { Select } from "@navikt/ds-react";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { useRegioner } from "@/api/enhet/useRegioner";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
@@ -44,7 +44,7 @@ export function OppgaverPage() {
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
   const [filter] = useAtom(oppgaverFilterAtom);
   const { data: tiltakstyper } = useTiltakstyper();
-  const { data: regioner } = useRegioner();
+  const { data: regioner } = useNavRegioner();
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 

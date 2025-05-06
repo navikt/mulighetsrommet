@@ -18,7 +18,7 @@ import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
+import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -185,7 +185,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
                       {avtale.sluttDato ? formaterDato(avtale.sluttDato) : "-"}
                     </Table.DataCell>
                     <Table.DataCell>
-                      <AvtalestatusTag avtale={avtale} />
+                      <AvtaleStatusTag avtale={avtale} />
                     </Table.DataCell>
                   </Table.Row>
                 );

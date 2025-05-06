@@ -4,7 +4,7 @@ import { AvtaleFilter } from "@/api/atoms";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { ReactNode } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
-import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
+import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
 
 interface Props {
   filter: Partial<AvtaleFilter>;
@@ -40,7 +40,7 @@ export function AvtaleListe(props: Props) {
             <Table.DataCell>{avtale.avtalenummer}</Table.DataCell>
             <Table.DataCell>
               {" "}
-              <AvtalestatusTag avtale={avtale} />
+              <AvtaleStatusTag avtale={avtale} />
             </Table.DataCell>
           </Table.Row>
         ))}

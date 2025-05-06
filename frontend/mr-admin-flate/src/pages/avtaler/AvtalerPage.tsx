@@ -3,7 +3,7 @@ import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
-import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
+import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
@@ -46,7 +46,7 @@ export function AvtalerPage() {
               />
             }
             tags={
-              <AvtaleFiltertags
+              <AvtaleFilterTags
                 filterAtom={avtaleFilterAtom}
                 filterOpen={filterOpen}
                 setTagsHeight={setTagsHeight}

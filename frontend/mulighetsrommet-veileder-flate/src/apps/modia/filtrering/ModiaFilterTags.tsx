@@ -1,22 +1,26 @@
 import { ApentForPamelding } from "@mr/api-client-v2";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { FilterTag } from "@mr/frontend-common/components/filter/filterTag/FilterTag";
 import { NavEnhetFilterTag } from "@mr/frontend-common/components/filter/filterTag/NavEnhetFilterTag";
 import { FilterTagsContainer } from "@mr/frontend-common/components/filter/filterTag/FilterTagsContainer";
-import { FilterTag } from "@mr/frontend-common/components/filter/filterTag/FilterTag";
 
 interface Props {
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
 
-export function NavFiltertags({ filterOpen, setTagsHeight }: Props) {
+export function ModiaFilterTags({ filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
-      {filter.search && (
-        <FilterTag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
+      {filter.innsatsgruppe && (
+        <FilterTag label={filter.innsatsgruppe.tittel} testId={filter.innsatsgruppe.nokkel} />
       )}
+      <NavEnhetFilterTag
+        navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
+        onClose={() => setFilter({ ...filter, navEnheter: [] })}
+      />
       {filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT && (
         <FilterTag
           label={filter.apentForPamelding === ApentForPamelding.APENT ? "Åpent" : "Stengt"}
@@ -28,18 +32,6 @@ export function NavFiltertags({ filterOpen, setTagsHeight }: Props) {
           }
         />
       )}
-      {filter.innsatsgruppe && (
-        <FilterTag
-          label={filter.innsatsgruppe.tittel}
-          onClose={() => {
-            setFilter({ ...filter, innsatsgruppe: undefined });
-          }}
-        />
-      )}
-      <NavEnhetFilterTag
-        navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
-        onClose={() => setFilter({ ...filter, navEnheter: [] })}
-      />
       {filter.tiltakstyper.map((tiltakstype) => (
         <FilterTag
           key={tiltakstype.id}
@@ -52,6 +44,9 @@ export function NavFiltertags({ filterOpen, setTagsHeight }: Props) {
           }
         />
       ))}
+      {filter.search && (
+        <FilterTag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
+      )}
     </FilterTagsContainer>
   );
 }

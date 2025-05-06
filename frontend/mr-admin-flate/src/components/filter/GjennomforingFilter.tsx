@@ -1,10 +1,10 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import {
-  gjennomforingFilterAccordionAtom,
   GjennomforingFilter as GjennomforingFilterProps,
+  gjennomforingFilterAccordionAtom,
 } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
-import { useRegioner } from "@/api/enhet/useRegioner";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { logEvent } from "@/logging/amplitude";
 import { addOrRemove } from "@/utils/Utils";
@@ -42,7 +42,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
-  const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
+  const { data: regioner } = useNavRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
     ArrangorTil.TILTAKSGJENNOMFORING,
     {
@@ -61,8 +61,6 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
   if (
     !enheter ||
     isLoadingEnheter ||
-    !regioner ||
-    isLoadingRegioner ||
     !arrangorer ||
     isLoadingArrangorer ||
     !tiltakstyper ||

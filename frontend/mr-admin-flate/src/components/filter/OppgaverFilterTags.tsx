@@ -1,7 +1,7 @@
 import { OppgaverFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { addOrRemove } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { OPPGAVER_TYPE_STATUS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 import { useAtom, WritableAtom } from "jotai";

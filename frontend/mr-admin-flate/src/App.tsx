@@ -14,7 +14,7 @@ import { IngenLesetilgang } from "./IngenLesetilgang";
 import { QueryKeys } from "./api/QueryKeys";
 import { lagreFilterAction } from "./api/lagret-filter/lagretFilterAction";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
-import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
+import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
 import { NotifikasjonerPage } from "./pages/oppgaveoversikt/notifikasjoner/NotifikasjonerPage";
@@ -294,12 +294,12 @@ const router = (queryClient: QueryClient) => {
                 children: [
                   {
                     index: true,
-                    element: <Notifikasjonsliste lest={false} />,
+                    element: <NotifikasjonerList lest={false} />,
                     errorElement: <ErrorPage />,
                   },
                   {
                     path: "tidligere",
-                    element: <Notifikasjonsliste lest={true} />,
+                    element: <NotifikasjonerList lest={true} />,
                     errorElement: <ErrorPage />,
                   },
                 ],
@@ -311,12 +311,12 @@ const router = (queryClient: QueryClient) => {
                 children: [
                   {
                     index: true,
-                    element: <Notifikasjonsliste lest={false} />,
+                    element: <NotifikasjonerList lest={false} />,
                     errorElement: <ErrorPage />,
                   },
                   {
                     path: "fullforte",
-                    element: <Notifikasjonsliste lest={true} />,
+                    element: <NotifikasjonerList lest={true} />,
                     errorElement: <ErrorPage />,
                   },
                 ],
