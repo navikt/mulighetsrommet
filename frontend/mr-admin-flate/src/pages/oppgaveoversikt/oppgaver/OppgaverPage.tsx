@@ -48,10 +48,6 @@ export function OppgaverPage() {
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
-  if (!regioner) {
-    return <div>Laster...</div>;
-  }
-
   return (
     <ContentBox>
       <FilterAndTableLayout

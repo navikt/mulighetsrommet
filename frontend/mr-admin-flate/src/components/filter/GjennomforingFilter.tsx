@@ -41,7 +41,8 @@ function loggBrukAvFilter(filter: string, value: any) {
 export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
-  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: enheter } = useNavEnheter();
   const { data: regioner } = useNavRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
     ArrangorTil.TILTAKSGJENNOMFORING,
@@ -49,7 +50,6 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
       pageSize: 10000,
     },
   );
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
   useEffect(() => {
     setFilter({
@@ -58,14 +58,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
     });
   }, [avtale, filter, setFilter]);
 
-  if (
-    !enheter ||
-    isLoadingEnheter ||
-    !arrangorer ||
-    isLoadingArrangorer ||
-    !tiltakstyper ||
-    isLoadingTiltakstyper
-  ) {
+  if (!arrangorer || isLoadingArrangorer) {
     return <FilterSkeleton />;
   }
 

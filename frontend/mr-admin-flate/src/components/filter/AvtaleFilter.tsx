@@ -37,20 +37,13 @@ function loggBrukAvFilter(filter: string, value: any) {
 export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
-  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: enheter } = useNavEnheter();
   const { data: arrangorData, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE, {
     pageSize: 10000,
   });
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
-  if (
-    !enheter ||
-    isLoadingEnheter ||
-    !arrangorData ||
-    isLoadingArrangorer ||
-    !tiltakstyper ||
-    isLoadingTiltakstyper
-  ) {
+  if (!arrangorData || isLoadingArrangorer) {
     return <FilterSkeleton />;
   }
 
