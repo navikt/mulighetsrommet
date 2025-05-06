@@ -27,7 +27,7 @@ export const tilsagnTekster = {
     label: "Antall plasser",
   },
   sats: {
-    label: "Sats per månedsverk",
+    label: "Sats",
   },
   beregning: {
     belop: {
