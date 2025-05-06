@@ -338,13 +338,9 @@ class OkonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "B1-F2"
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    FakturaStatus(
-                        fakturanummer = "B1-F2",
-                        status = FakturaStatusType.SENDT,
-                        fakturaStatusSistOppdatert = null, // TODO Hør med Sondre hvordan vi vil teste timestamp når det ikke er vårt system som setter timestamp
-                    ),
-                )
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+                fakturaStatus.status shouldBe FakturaStatusType.SENDT
+                fakturaStatus.fakturanummer shouldBe "B1-F2"
             }
         }
 
@@ -401,13 +397,9 @@ class OkonomiServiceTest : FunSpec({
             }
 
             db.session { getLatestRecord(topic = "faktura-status") }.should {
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    FakturaStatus(
-                        fakturanummer = "B2-F1",
-                        status = FakturaStatusType.SENDT,
-                        fakturaStatusSistOppdatert = null, // TODO Hvordan sette denne i tester når den blir satt i oebs?
-                    ),
-                )
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+                fakturaStatus.status shouldBe FakturaStatusType.SENDT
+                fakturaStatus.fakturanummer shouldBe "B2-F1"
             }
 
             db.session {
