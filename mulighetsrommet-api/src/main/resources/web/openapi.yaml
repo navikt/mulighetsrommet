@@ -2635,6 +2635,23 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/oppgaver/oppgavetyper:
+    get:
+      tags:
+        - Oppgaver
+      operationId: getOppgavetyper
+      responses:
+        200:
+          description: Relevante oppgavetyper
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OppgaveTypeDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
 components:
   responses:
     ProblemDetail:
@@ -3247,6 +3264,17 @@ components:
       enum:
         - DONE
         - NOT_DONE
+
+    OppgaveTypeDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        type:
+          $ref: "#/components/schemas/OppgaveType"
+      required:
+        - navn
+        - type
 
     OppgaveType:
       type: string
