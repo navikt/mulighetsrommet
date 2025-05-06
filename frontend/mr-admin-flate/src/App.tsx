@@ -31,7 +31,6 @@ import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
-import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
@@ -46,6 +45,7 @@ import { InlineErrorBoundary } from "./ErrorBoundary";
 import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
 import { NewAvtaleFormPage } from "./pages/avtaler/NewAvtaleFormPage";
 import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
+import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -258,7 +258,7 @@ const router = (queryClient: QueryClient) => {
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
-            element: <TilsagnDetaljer />,
+            element: <TilsagnPage />,
             errorElement: <ErrorPage />,
           },
           {

@@ -5100,6 +5100,7 @@ components:
         - RELIGION
         - NASJONALITET
         - ADRESSESPERRE
+        - VERGEMAL
 
     Kurstype:
       type: string

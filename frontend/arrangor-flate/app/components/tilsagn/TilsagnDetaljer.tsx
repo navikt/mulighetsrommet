@@ -22,17 +22,17 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
       ? [
           { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
           { key: "Sats", value: formaterNOK(tilsagn.beregning.input.sats) },
-          { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+          { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
-            key: "Utbetalt så langt",
-            value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.gjenstaendeBelop),
+            key: "Gjenstående beløp",
+            value: formaterNOK(tilsagn.gjenstaendeBelop),
           },
         ]
       : [
-          { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+          { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
-            key: "Utbetalt så langt",
-            value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.gjenstaendeBelop),
+            key: "Gjenstående beløp",
+            value: formaterNOK(tilsagn.gjenstaendeBelop),
           },
         ];
 

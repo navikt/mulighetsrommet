@@ -573,8 +573,8 @@ importers:
         specifier: 3.2.1
         version: 3.2.1(react@19.0.0)
       '@sanity/client':
-        specifier: 6.29.1
-        version: 6.29.1(debug@4.4.0)
+        specifier: 7.0.0
+        version: 7.0.0(debug@4.4.0)
       '@sanity/ui':
         specifier: 2.15.14
         version: 2.15.14(@emotion/is-prop-valid@1.3.0)(react-dom@19.0.0(react@19.0.0))(react-is@18.3.1)(react@19.0.0)(styled-components@6.1.17(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
@@ -11849,15 +11849,15 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@sanity/presentation-comlink@1.0.18(@sanity/client@7.0.0(debug@4.4.0))(@sanity/types@3.87.1(@types/react@19.0.3))':
+  '@sanity/presentation-comlink@1.0.18(@sanity/client@7.0.0)(@sanity/types@3.87.1(@types/react@19.0.3))':
     dependencies:
       '@sanity/client': 7.0.0(debug@4.4.0)
       '@sanity/comlink': 3.0.2
-      '@sanity/visual-editing-types': 1.0.17(@sanity/client@7.0.0(debug@4.4.0))(@sanity/types@3.87.1(@types/react@19.0.3))
+      '@sanity/visual-editing-types': 1.0.17(@sanity/client@7.0.0)(@sanity/types@3.87.1(@types/react@19.0.3))
     transitivePeerDependencies:
       - '@sanity/types'
 
-  '@sanity/preview-url-secret@2.1.10(@sanity/client@7.0.0(debug@4.4.0))':
+  '@sanity/preview-url-secret@2.1.10(@sanity/client@7.0.0)':
     dependencies:
       '@sanity/client': 7.0.0(debug@4.4.0)
       '@sanity/uuid': 3.0.2
@@ -12020,7 +12020,7 @@ snapshots:
       - react-dom
       - react-is
 
-  '@sanity/visual-editing-types@1.0.17(@sanity/client@7.0.0(debug@4.4.0))(@sanity/types@3.87.1(@types/react@19.0.3))':
+  '@sanity/visual-editing-types@1.0.17(@sanity/client@7.0.0)(@sanity/types@3.87.1(@types/react@19.0.3))':
     dependencies:
       '@sanity/client': 7.0.0(debug@4.4.0)
     optionalDependencies:
@@ -17216,8 +17216,8 @@ snapshots:
       '@sanity/message-protocol': 0.9.0
       '@sanity/migrate': 3.87.1(@types/react@19.0.3)
       '@sanity/mutator': 3.87.1(@types/react@19.0.3)
-      '@sanity/presentation-comlink': 1.0.18(@sanity/client@7.0.0(debug@4.4.0))(@sanity/types@3.87.1(@types/react@19.0.3))
-      '@sanity/preview-url-secret': 2.1.10(@sanity/client@7.0.0(debug@4.4.0))
+      '@sanity/presentation-comlink': 1.0.18(@sanity/client@7.0.0)(@sanity/types@3.87.1(@types/react@19.0.3))
+      '@sanity/preview-url-secret': 2.1.10(@sanity/client@7.0.0)
       '@sanity/schema': 3.87.1(@types/react@19.0.3)(debug@4.4.0)
       '@sanity/sdk': 0.0.0-alpha.25(@types/react@19.0.3)(debug@4.4.0)(immer@10.1.1)(react@19.0.0)(use-sync-external-store@1.5.0(react@19.0.0))
       '@sanity/telemetry': 0.8.1(react@19.0.0)
