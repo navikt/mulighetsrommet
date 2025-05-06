@@ -51,18 +51,20 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje
             <Definisjonsliste
               definitions={[
                 {
-                  key: "Tilsagnsnummer",
+                  key: "Tilsagn",
                   value: (
-                    <Link to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>Se tilsagnsdetaljer</Link>
+                    <Link to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>
+                      Se tilsagnsdetaljer for {linje.tilsagn.bestillingsnummer}
+                    </Link>
                   ),
                 },
+                { key: "Beløp", value: formaterNOK(linje.belop) },
                 {
                   key: "Status",
                   value: <DelUtbetalingStatusTag status={linje.status} size={"small"} />,
                 },
-                { key: "Beløp", value: formaterNOK(linje.belop) },
                 {
-                  key: "Dato",
+                  key: "Status endret",
                   value: linje.statusSistOppdatert ? formaterDato(linje.statusSistOppdatert) : "-",
                 },
               ]}

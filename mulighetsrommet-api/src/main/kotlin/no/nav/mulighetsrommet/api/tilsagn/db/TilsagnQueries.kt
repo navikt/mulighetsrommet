@@ -190,7 +190,7 @@ class TilsagnQueries(private val session: Session) {
               and (:arrangor::text is null or arrangor_organisasjonsnummer = :arrangor::text)
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
-            order by lopenummer desc
+            order by created_at desc
         """.trimIndent()
 
         val params = mapOf(
