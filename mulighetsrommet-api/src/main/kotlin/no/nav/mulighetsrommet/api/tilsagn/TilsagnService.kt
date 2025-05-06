@@ -271,6 +271,7 @@ class TilsagnService(
         )
         queries.totrinnskontroll.upsert(besluttetAnnullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
+        queries.tilsagn.setGjenstaendeBelop(tilsagn.id, 0)
 
         storeAnnullerBestilling(tilsagn, besluttetAnnullering)
 
@@ -288,7 +289,7 @@ class TilsagnService(
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
         if (besluttetAv == annullering.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise annullering du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -314,7 +315,7 @@ class TilsagnService(
         forklaring: String?,
     ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
-            "Kan bare annullere godkjente tilsagn"
+            "Kan bare gjøre opp godkjente tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
@@ -354,6 +355,7 @@ class TilsagnService(
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
+        queries.tilsagn.setGjenstaendeBelop(tilsagn.id, 0)
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn oppgjort", dto, besluttetAv)
@@ -369,7 +371,7 @@ class TilsagnService(
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
         if (besluttetAv == oppgjor.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise oppgjør du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(

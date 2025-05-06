@@ -10,7 +10,7 @@ type Props = {
 
 export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, forklaring }: Props) {
   return (
-    <Alert size="small" variant="warning">
+    <Alert size="medium" variant="warning">
       <Heading spacing size="small" level="4">
         {heading}
       </Heading>
