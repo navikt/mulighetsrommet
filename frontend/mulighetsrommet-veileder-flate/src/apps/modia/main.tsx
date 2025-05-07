@@ -36,9 +36,22 @@ customElements.define(APPLICATION_WEB_COMPONENT_NAME, ModiaArbeidsmarkedstiltakW
 const container = document.getElementById(APPLICATION_NAME);
 if (container) {
   const root = createRoot(container);
-  const app = React.createElement(APPLICATION_WEB_COMPONENT_NAME, {
-    "data-fnr": import.meta.env.VITE_DEMO_FNR ?? null,
-    "data-enhet": import.meta.env.VITE_DEMO_ENHET ?? null,
-  });
+
+  const app = fetch("asset-manifest.json")
+    .then((response) => response.text())
+    .then((manifest) => {
+      return React.createElement(APPLICATION_WEB_COMPONENT_NAME, {
+        "data-fnr": import.meta.env.VITE_DEMO_FNR ?? null,
+        "data-enhet": import.meta.env.VITE_DEMO_ENHET ?? null,
+        "data-base-url": "",
+        "data-asset-manifest": manifest,
+      });
+    })
+    .catch((error) => {
+      return React.createElement("div", {
+        children: `Error loading asset manifest: ${error.message}`,
+      });
+    });
+
   root.render(app);
 }

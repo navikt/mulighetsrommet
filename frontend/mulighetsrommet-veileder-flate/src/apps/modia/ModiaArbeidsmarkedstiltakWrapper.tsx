@@ -3,16 +3,20 @@ import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstil
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import createCache from "@emotion/cache";
 import { createRoot, Root } from "react-dom/client";
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
   static ENHET_PROP = "data-enhet";
+  static BASE_URL_PROP = "data-base-url";
+  static ASSET_MANIFEST_PROP = "data-asset-manifest";
 
   private readonly root: HTMLDivElement;
   private reactRoot?: Root;
+  private baseUrl: string | null = null;
+  private assetManifest: string | null = null;
 
   constructor() {
     super();
@@ -23,7 +27,12 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return [ModiaArbeidsmarkedstiltakWrapper.FNR_PROP, ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP];
+    return [
+      ModiaArbeidsmarkedstiltakWrapper.FNR_PROP,
+      ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP,
+      ModiaArbeidsmarkedstiltakWrapper.BASE_URL_PROP,
+      ModiaArbeidsmarkedstiltakWrapper.ASSET_MANIFEST_PROP,
+    ];
   }
 
   /**
@@ -40,15 +49,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: "open" });
     shadowRoot.appendChild(this.root);
 
-    this.loadStyles(shadowRoot)
-      .then(() => {
-        const fnr = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.FNR_PROP) ?? undefined;
-        const enhet = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
-        return this.renderApp(fnr, enhet);
-      })
-      .catch((error) => {
-        this.displayError(error?.message ?? error);
-      });
+    this.tryMountApp();
   }
 
   disconnectedCallback() {
@@ -60,13 +61,60 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       this.updateContextData("fnr", newValue);
     } else if (name === ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP && this.updateContextData) {
       this.updateContextData("enhet", newValue);
+    } else if (name === ModiaArbeidsmarkedstiltakWrapper.BASE_URL_PROP) {
+      this.baseUrl = newValue;
+      this.tryMountApp();
+    } else if (name === ModiaArbeidsmarkedstiltakWrapper.ASSET_MANIFEST_PROP) {
+      this.assetManifest = newValue;
+      this.tryMountApp();
     }
   }
 
-  async loadStyles(shadowRoot: ShadowRoot) {
-    const style = document.createElement("style");
-    style.innerHTML = SHADOW_STYLE;
-    shadowRoot.appendChild(style);
+  tryMountApp() {
+    const baseUrl = this.baseUrl;
+    if (baseUrl === null) {
+      return;
+    }
+
+    const assetManifest = this.assetManifest;
+    if (assetManifest === null) {
+      return;
+    }
+
+    const shadowRoot = this.shadowRoot;
+    if (shadowRoot === null) {
+      return;
+    }
+
+    this.loadStyles(shadowRoot, baseUrl, assetManifest)
+      .then(() => {
+        const fnr = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.FNR_PROP) ?? undefined;
+        const enhet = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
+        return this.renderApp(fnr, enhet);
+      })
+      .catch((error) => {
+        this.displayError(error?.message ?? `Error loading styles: ${error}`);
+      });
+  }
+
+  async loadStyles(
+    shadowRoot: ShadowRoot,
+    baseUrl: string,
+    assetManifest: string,
+  ): Promise<void[]> {
+    const manifest: ViteAssetManifest = JSON.parse(assetManifest);
+
+    const loadedCss = manifest["index.html"].css.map((css) => {
+      return new Promise<void>((resolve) => {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = `${baseUrl}/${css}`;
+        link.onload = () => resolve();
+        shadowRoot.appendChild(link);
+      });
+    });
+
+    return await Promise.all(loadedCss);
   }
 
   renderApp(fnr?: string, enhet?: string) {
@@ -98,4 +146,10 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   displayError(error: string | Error) {
     this.root.innerHTML = `<p>${error}</p>`;
   }
+}
+
+interface ViteAssetManifest {
+  "index.html": {
+    css: string[];
+  };
 }
