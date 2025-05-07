@@ -10,6 +10,12 @@ interface Props {
 export function DelUtbetalingStatusTag({ status, size }: Props): ReactNode {
   const tagSize = size || "medium";
   switch (status) {
+    case DelutbetalingStatus.BEHANDLES_AV_NAV:
+      return (
+        <Tag variant="info" size={tagSize}>
+          Behandles av Nav
+        </Tag>
+      );
     case DelutbetalingStatus.OVERFORT_TIL_UTBETALING:
       return (
         <Tag variant="success" size={tagSize}>
