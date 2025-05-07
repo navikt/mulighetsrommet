@@ -4678,6 +4678,8 @@ components:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/OppgaveTiltakstype"
+        enhet:
+          $ref: "#/components/schemas/OppgaveEnhet"
         link:
           type: object
           properties:
@@ -4700,6 +4702,13 @@ components:
         - link
         - createdAt
         - oppgaveIcon
+
+    OppgaveEnhet:
+      properties:
+        nummer:
+          type: string
+        navn:
+          type: string
 
     OppgaveIcon:
       type: string
