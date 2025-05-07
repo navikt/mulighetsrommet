@@ -20,8 +20,8 @@ type UtbetalingKvitteringData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Kvittering for innsending" },
-    { name: "description", content: "Kvittering for innsending" },
+    { title: "Innsendingskvittering" },
+    { name: "description", content: "Kvittering for mottatt innsending" },
   ];
 };
 
@@ -45,7 +45,7 @@ export const loader: LoaderFunction = async ({
     throw problemDetailResponse(utbetalingError);
   }
   const kontonummer = utbetaling.betalingsinformasjon.kontonummer;
-  const mottattTidspunkt = utbetaling.godkjentAvArrangorTidspunkt ?? new Date().toDateString();
+  const mottattTidspunkt = utbetaling.godkjentAvArrangorTidspunkt ?? new Date().toString();
 
   return { mottattTidspunkt, kontonummer };
 };
@@ -89,7 +89,8 @@ export default function UtbetalingKvittering() {
                   <br />
                   <BodyShort>Innsending:</BodyShort>
                   <Link href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
-                    Innsendingskvittering (åpnes i ny fane) <FilePdfIcon title="Pdf" />
+                    <FilePdfIcon title="Pdf" />
+                    Innsendingskvittering (åpnes i ny fane)
                   </Link>
                 </>
               )}
