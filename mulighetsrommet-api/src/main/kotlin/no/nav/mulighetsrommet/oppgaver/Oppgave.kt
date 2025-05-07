@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -53,9 +52,9 @@ data class Oppgave(
 )
 
 @Serializable
-data class OppgaveEnhet (
+data class OppgaveEnhet(
     val nummer: NavEnhetNummer,
-    val navn: String
+    val navn: String,
 )
 
 @Serializable
