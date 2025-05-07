@@ -33,7 +33,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
           </Link>
         </div>
         <div className="flex justify-end text-small">
-          <div className="text-right">Opprettet {formaterDato(createdAt)}</div>
+          <span>Opprettet {formaterDato(createdAt)}</span>
         </div>
       </div>
     </>
