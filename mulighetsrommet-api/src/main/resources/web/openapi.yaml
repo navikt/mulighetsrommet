@@ -5999,6 +5999,9 @@ components:
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
+        createdAt:
+          type: [ string, "null" ]
+          format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
         gjennomforing:
