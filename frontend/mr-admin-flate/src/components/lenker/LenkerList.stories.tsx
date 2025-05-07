@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Lenkeliste } from "./Lenkeliste";
+import { LenkerList } from "./LenkerList";
 
-const meta: Meta<typeof Lenkeliste> = {
-  component: Lenkeliste,
+const meta: Meta<typeof LenkerList> = {
+  component: LenkerList,
 };
 
-type Story = StoryObj<typeof Lenkeliste>;
+type Story = StoryObj<typeof LenkerList>;
 
-export const LenkelisteStory: Story = {
+export const LenkerListStory: Story = {
   tags: ["autodocs"],
   args: {
     lenker: [

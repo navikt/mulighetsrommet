@@ -1,7 +1,7 @@
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
+import { AvtaleStatusTag } from "@/components/statuselementer/AvtaleStatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
@@ -48,7 +48,7 @@ export function AvtalePage() {
               {avtale.navn ?? "..."}
             </Heading>
           </VStack>
-          <AvtalestatusTag avtale={avtale} showAvbruttAarsak />
+          <AvtaleStatusTag avtale={avtale} showAvbruttAarsak />
         </div>
       </Header>
       <Tabs value={currentTab()}>

@@ -17,14 +17,14 @@ export function Lenker() {
           Legg til lenker
         </Heading>
         <HStack gap="20">
-          <Lenkeskjema />
+          <LenkerSkjema />
         </HStack>
       </VStack>
     </Box>
   );
 }
 
-function Lenkeskjema() {
+function LenkerSkjema() {
   const {
     control,
     register,

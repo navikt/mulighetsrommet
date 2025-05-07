@@ -1,11 +1,11 @@
 import { RegelverkLenke } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 
-interface RegelverksinfoProps {
+interface RegelverkInfoProps {
   regelverkLenker?: RegelverkLenke[];
 }
 
-const Regelverksinfo = ({ regelverkLenker }: RegelverksinfoProps) => {
+const RegelverkInfo = ({ regelverkLenker }: RegelverkInfoProps) => {
   const regelverkLenkeComponent = (regelverkLenke: RegelverkLenke) => {
     return (
       regelverkLenke.regelverkUrl && (
@@ -21,4 +21,4 @@ const Regelverksinfo = ({ regelverkLenker }: RegelverksinfoProps) => {
   return <div>{regelverkLenker && regelverkLenker.map(regelverkLenkeComponent)}</div>;
 };
 
-export default Regelverksinfo;
+export default RegelverkInfo;

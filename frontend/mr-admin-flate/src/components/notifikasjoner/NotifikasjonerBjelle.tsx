@@ -8,7 +8,7 @@ function Notifier() {
   );
 }
 
-export function Notifikasjonsbjelle() {
+export function NotifikasjonerBjelle() {
   const { data: summary, isLoading: isLoadingUlesteNotifikasjoner } = useNotificationSummary();
 
   if (isLoadingUlesteNotifikasjoner || !summary) {
@@ -18,7 +18,7 @@ export function Notifikasjonsbjelle() {
   const harUlesteNotifikasjoner = summary.notDoneCount > 0;
 
   return (
-    <Link to="/arbeidsbenk/notifikasjoner" className="text-white mr-4">
+    <Link to="/oppgaveoversikt/notifikasjoner" className="text-white mr-4">
       <div className="relative flex items-center justify-center">
         {harUlesteNotifikasjoner ? <Notifier /> : null}
         <BellIcon fontSize={24} title="Notifikasjonsbjelle" />

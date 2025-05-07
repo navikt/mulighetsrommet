@@ -1,5 +1,4 @@
-import { capitalizeFirstLetter, joinWithCommaAndOg, tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { TilsagnAvvisningAarsak, TilsagnStatus, TotrinnskontrollDto } from "@mr/api-client-v2";
+import { TilsagnStatus, TotrinnskontrollDto } from "@mr/api-client-v2";
 import { Tag } from "@navikt/ds-react";
 
 interface Props {
@@ -10,7 +9,7 @@ interface Props {
 }
 
 export function TilsagnTag(props: Props) {
-  const { status, annullering, oppgjor, visAarsakerOgForklaring = false } = props;
+  const { status } = props;
 
   const baseTagClasses = "min-w-[140px] text-center whitespace-nowrap";
 
@@ -43,31 +42,17 @@ export function TilsagnTag(props: Props) {
           Til annullering
         </Tag>
       );
-    case TilsagnStatus.ANNULLERT: {
+    case TilsagnStatus.ANNULLERT:
       return (
-        <div className={visAarsakerOgForklaring ? "flex flex-col gap-2 items-start" : ""}>
-          <Tag
-            className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through`}
-            size="small"
-            variant="neutral"
-          >
-            Annullert
-          </Tag>
-          {visAarsakerOgForklaring ? (
-            <VisAarsakerOgForklaring
-              type="Tilsagnet"
-              status="annullert"
-              aarsaker={
-                annullering?.aarsaker?.map((aarsak) =>
-                  tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
-                ) || []
-              }
-              forklaring={annullering?.forklaring}
-            />
-          ) : null}
-        </div>
+        <Tag
+          className={`${baseTagClasses} bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through`}
+          size="small"
+          variant="neutral"
+        >
+          Annullert
+        </Tag>
       );
-    }
+
     case TilsagnStatus.TIL_OPPGJOR:
       return (
         <Tag
@@ -80,43 +65,9 @@ export function TilsagnTag(props: Props) {
       );
     case TilsagnStatus.OPPGJORT:
       return (
-        <div className={visAarsakerOgForklaring ? "flex flex-col gap-2 items-start" : ""}>
-          <Tag size="small" variant="neutral" className={`${baseTagClasses}`}>
-            Oppgjort
-          </Tag>
-          {visAarsakerOgForklaring ? (
-            <VisAarsakerOgForklaring
-              type="Tilsagnet"
-              status="gjort opp"
-              aarsaker={
-                oppgjor?.aarsaker?.map((aarsak) =>
-                  tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
-                ) || []
-              }
-              forklaring={oppgjor?.forklaring}
-            />
-          ) : null}
-        </div>
+        <Tag size="small" variant="neutral" className={`${baseTagClasses}`}>
+          Oppgjort
+        </Tag>
       );
   }
-}
-
-function VisAarsakerOgForklaring({
-  aarsaker,
-  forklaring,
-  type,
-  status,
-}: {
-  aarsaker: string[];
-  forklaring?: string;
-  type: "Tilsagnet";
-  status: "annullert" | "gjort opp";
-}) {
-  return (
-    <p className="prose text-balance">
-      {type} ble {status} med følgende {aarsaker.length > 1 ? "årsaker: " : "årsak: "}
-      <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-      {forklaring ? <> med forklaring: "{forklaring}"</> : null}.
-    </p>
-  );
 }

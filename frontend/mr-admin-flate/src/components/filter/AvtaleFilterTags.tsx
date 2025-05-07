@@ -4,7 +4,8 @@ import { AvtaleFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove, avtaletypeTilTekst } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
+import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 
@@ -15,7 +16,7 @@ interface Props {
   setTagsHeight: (height: number) => void;
 }
 
-export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTagsHeight }: Props) {
+export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   const { data: enheter } = useNavEnheter();

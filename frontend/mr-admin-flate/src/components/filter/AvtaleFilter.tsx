@@ -2,7 +2,7 @@ import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { addOrRemove } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import {
   arrangorOptions,
   AVTALE_STATUS_OPTIONS,
@@ -37,20 +37,13 @@ function loggBrukAvFilter(filter: string, value: any) {
 export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
-  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: enheter } = useNavEnheter();
   const { data: arrangorData, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE, {
     pageSize: 10000,
   });
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
-  if (
-    !enheter ||
-    isLoadingEnheter ||
-    !arrangorData ||
-    isLoadingArrangorer ||
-    !tiltakstyper ||
-    isLoadingTiltakstyper
-  ) {
+  if (!arrangorData || isLoadingArrangorer) {
     return <FilterSkeleton />;
   }
 

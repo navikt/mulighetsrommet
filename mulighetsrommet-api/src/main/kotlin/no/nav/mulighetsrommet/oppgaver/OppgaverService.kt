@@ -57,7 +57,7 @@ class OppgaverService(val db: ApiDatabase) {
         return oppgaver
             .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
             .filter { oppgave ->
-                val requiredRole = NavAnsattRolle.kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet))
+                val requiredRole = NavAnsattRolle.kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet?.nummer))
                 NavAnsattRolleHelper.hasRole(roller, requiredRole)
             }
     }
@@ -156,7 +156,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             opprettelse to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_GODKJENNING,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn til godkjenning",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til godkjenning",
                 tiltakstype = tiltakstype,
@@ -172,7 +174,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             opprettelse to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn returnert",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} ble returnert av beslutter",
                 tiltakstype = tiltakstype,
@@ -187,7 +191,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             annullering to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn til annullering",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til annullering",
                 tiltakstype = tiltakstype,
@@ -202,7 +208,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             tilOppgjor to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_OPPGJOR,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn til oppgjør",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til oppgjør",
                 tiltakstype = tiltakstype,
@@ -229,7 +237,9 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
             opprettelse to Oppgave(
                 id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_TIL_GODKJENNING,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Utbetaling til godkjenning",
                 description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
                 tiltakstype = tiltakstype,
@@ -240,11 +250,14 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
         }
 
         DelutbetalingStatus.RETURNERT -> {
+            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             opprettelse to Oppgave(
                 id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_RETURNERT,
-                enhet = null,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Utbetaling returnert",
                 description = "Utbetaling for $gjennomforingsnavn ble returnert av attestant",
                 tiltakstype = tiltakstype,

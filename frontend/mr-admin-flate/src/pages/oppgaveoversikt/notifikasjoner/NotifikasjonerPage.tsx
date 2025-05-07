@@ -17,13 +17,13 @@ export function NotifikasjonerPage() {
             <Tabs.Tab
               value="nye"
               label={`Nye notifikasjoner ${uleste?.data.pagination.totalCount ? `(${uleste?.data.pagination.totalCount})` : ""}`}
-              onClick={() => navigate("/arbeidsbenk/notifikasjoner")}
+              onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
               aria-controls="panel"
             />
             <Tabs.Tab
               value="tidligere"
               label={`Tidligere notifikasjoner ${leste?.data.pagination.totalCount ? `(${leste?.data.pagination.totalCount})` : ""}`}
-              onClick={() => navigate("/arbeidsbenk/notifikasjoner/tidligere")}
+              onClick={() => navigate("/oppgaveoversikt/notifikasjoner/tidligere")}
               aria-controls="panel"
             />
           </Tabs.List>

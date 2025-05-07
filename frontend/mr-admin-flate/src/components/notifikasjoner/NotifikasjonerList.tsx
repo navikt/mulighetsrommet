@@ -7,15 +7,15 @@ import { useFetcher } from "react-router";
 import {
   lesteNotifikasjonerQuery,
   ulesteNotifikasjonerQuery,
-} from "../../pages/arbeidsbenk/notifikasjoner/notifikasjonerQueries";
+} from "@/pages/oppgaveoversikt/notifikasjoner/notifikasjonerQueries";
 import { EmptyState } from "./EmptyState";
-import { Notifikasjonssrad } from "./Notifikasjonsrad";
+import { NotifikasjonerListItem } from "./NotifikasjonerListItem";
 
 interface Props {
   lest: boolean;
 }
 
-export function Notifikasjonsliste({ lest }: Props) {
+export function NotifikasjonerList({ lest }: Props) {
   const { data: leste } = useQuery(lesteNotifikasjonerQuery);
   const { data: uleste } = useQuery(ulesteNotifikasjonerQuery);
 
@@ -33,7 +33,7 @@ export function Notifikasjonsliste({ lest }: Props) {
         formData.append("ids[]", id);
         formData.append("statuses[]", newStatus);
       });
-      fetcher.submit(formData, { method: "POST", action: `/arbeidsbenk/notifikasjoner` });
+      fetcher.submit(formData, { method: "POST", action: `/oppgaveoversikt/notifikasjoner` });
     }
   }
 
@@ -60,7 +60,7 @@ export function Notifikasjonsliste({ lest }: Props) {
         </HStack>
         <ul className="m-0 mb-4 pl-0 flex flex-col">
           {notifikasjoner?.map((n) => {
-            return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
+            return <NotifikasjonerListItem lest={lest} key={n.id} notifikasjon={n} />;
           })}
         </ul>
       </div>

@@ -10,6 +10,7 @@ import {
   Alert,
   BodyShort,
   Checkbox,
+  Heading,
   HelpText,
   HStack,
   List,
@@ -69,16 +70,24 @@ export function UtbetalingLinjeRow({
       key={linje.id}
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
-        <VStack gap="2">
+        <VStack gap="4">
           {linje.opprettelse?.type === "BESLUTTET" && linje.opprettelse.besluttelse === "AVVIST" ? (
             <VStack>
-              <AarsakerOgForklaring
-                aarsaker={linje.opprettelse.aarsaker.map((aarsak) =>
-                  delutbetalingAarsakTilTekst(aarsak as DelutbetalingReturnertAarsak),
-                )}
-                forklaring={linje.opprettelse.forklaring}
-                heading="Linjen ble returnert på grunn av følgende årsaker:"
-              />
+              {linje.opprettelse.aarsaker.includes(DelutbetalingReturnertAarsak.PROPAGERT_RETUR) ? (
+                <Alert size="medium" variant="warning">
+                  <Heading size="small" level="4">
+                    Automatisk returnert som følge av at en annen utbetalingslinje ble returnert
+                  </Heading>
+                </Alert>
+              ) : (
+                <AarsakerOgForklaring
+                  heading="Linjen ble returnert på grunn av følgende årsaker:"
+                  aarsaker={linje.opprettelse.aarsaker.map((aarsak) =>
+                    delutbetalingAarsakTilTekst(aarsak as DelutbetalingReturnertAarsak),
+                  )}
+                  forklaring={linje.opprettelse.forklaring}
+                />
+              )}
             </VStack>
           ) : null}
           {errors.filter((e) => !e.pointer.includes("belop")).length > 0 && (

@@ -2,14 +2,16 @@ import { Accordion, ToggleGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { ApentForPamelding } from "@mr/api-client-v2";
 import React from "react";
-import { filterAccordionAtom, FilterAccordionTypes } from "../../core/atoms";
-import { addOrRemove } from "../../utils/Utils";
+import { filterAccordionAtom, FilterAccordionTypes } from "@/core/atoms";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import "./FilterToggle.module.scss";
 
 export interface Props {
   accordionHeader: React.ReactNode;
   value: string;
+
   onChange(value: any): void;
+
   venstreTekst: React.ReactNode;
   midtTekst?: React.ReactNode;
   hoyreTekst: React.ReactNode;
@@ -32,6 +34,7 @@ export function FilterToggle({
   accordionIsOpenValue,
 }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
+
   function onToggleChanged(value: string) {
     if (Object.values(ApentForPamelding).includes(value as ApentForPamelding)) {
       onChange(value as ApentForPamelding);

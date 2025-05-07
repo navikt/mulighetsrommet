@@ -503,6 +503,7 @@ class UtbetalingService(
             lopenummer = lopenummer,
             fakturanummer = fakturanummer(tilsagn.bestilling.bestillingsnummer, lopenummer),
             fakturaStatus = null,
+            fakturaStatusSistOppdatert = LocalDateTime.now(),
         )
 
         queries.delutbetaling.upsert(dbo)

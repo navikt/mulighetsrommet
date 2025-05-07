@@ -1,6 +1,7 @@
 /**
- * Script for å populere tabeller med strukturert informasjon om hvilke type innhold en gitt tiltakstype kan forvente å innhold.
- * Brukes blant annet av Komet sin påmeldingsløsning.
+ * Script for å populere tabeller med strukturert
+ *  informasjon om hvilke type innhold en gitt tiltakstype kan forvente å innhold.
+ *  Bruker blant annet av Komet sin påmeldingsløsning
  */
 
 update tiltakstype
@@ -16,25 +17,16 @@ set deltaker_registrering_ledetekst = 'Avklaring skal hjelpe deg med å se hva d
 where tiltakskode = 'AVKLARING';
 
 update tiltakstype
-set deltaker_registrering_ledetekst = 'Du får tett oppfølging og støtte av en veileder. Sammen kartlegger dere hvordan din kompetanse, interesser og ferdigheter påvirker muligheten din til å jobbe.'
+set deltaker_registrering_ledetekst = 'Du får tett oppfølging og støtte av en veileder for å skaffe eller beholde jobb. Sammen ser dere på hvordan din kompetanse, interesser og ferdigheter kan gi deg jobbmuligheter.'
 where tiltakskode = 'OPPFOLGING';
 
 update tiltakstype
 set deltaker_registrering_ledetekst = 'Varig tilrettelagt arbeid er et tilbud for deg som får uføretrygd. Du jobber i en skjermet bedrift med arbeidsoppgaver som er tilpasset deg.'
 where tiltakskode = 'VARIG_TILRETTELAGT_ARBEID_SKJERMET';
 
-update tiltakstype
-set deltaker_registrering_ledetekst = 'Du får oppfølging og støtte til jobbsøkingen. På kurset får du karriereveiledning, hjelp til å orientere deg på arbeidsmarkedet, skrive CV og jobbsøknad og trene på jobbintervju.'
-where tiltakskode = 'DIGITALT_OPPFOLGINGSTILTAK';
-
-update tiltakstype
-set deltaker_registrering_ledetekst = 'Du får oppfølging og støtte til jobbsøkingen. På kurset får du karriereveiledning, hjelp til å orientere deg på arbeidsmarkedet, skrive CV og jobbsøknad og trene på jobbintervju.'
-where tiltakskode = 'JOBBKLUBB';
-
 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
 values ('jobbsoking', 'Støtte til å søke jobber'),
        ('arbeidspraksis', 'Arbeidspraksis'),
-       ('arbeidsutproving', 'Arbeidsutprøving'),
        ('karriereveiledning', 'Karriereveiledning'),
        ('kartlegge-helse', 'Kartlegge hvordan helsen din påvirker muligheten din til å jobbe'),
        ('kartlegge-forventninger', 'Kartlegge dine forventninger til å jobbe'),
@@ -68,7 +60,7 @@ on conflict (innholdskode, tiltakskode) do nothing;
 --- Sett innhold for ARR (ARBEIDSRETTET_REHABILITERING)
 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidsutproving', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+from (values ('arbeidspraksis', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
              ('kartlegge-helse', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
              ('kartlegge-forventninger', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
              ('kartlegge-arbeidsplassen', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
@@ -85,14 +77,15 @@ on conflict (innholdskode, tiltakskode) do nothing;
 --- Sett innhold for Avklaring (AVKLARING)
 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidsutproving', 'AVKLARING'::tiltakskode),
+from (values ('arbeidspraksis', 'AVKLARING'::tiltakskode),
              ('karriereveiledning', 'AVKLARING'::tiltakskode),
              ('kartlegge-helse', 'AVKLARING'::tiltakskode),
              ('kartlegge-forventninger', 'AVKLARING'::tiltakskode),
              ('kartlegge-arbeidsplassen', 'AVKLARING'::tiltakskode),
              ('kartlegge-delta-tiltak', 'AVKLARING'::tiltakskode),
              ('kartlegge-grunnleggende-ferdigheter', 'AVKLARING'::tiltakskode),
-             ('oppfolging-arbeidsplassen', 'AVKLARING'::tiltakskode)) as t(innholdskode, tiltakskode)
+             ('oppfolging-arbeidsplassen', 'AVKLARING'::tiltakskode),
+             ('veiledning-arbeidsgiver', 'AVKLARING'::tiltakskode)) as t(innholdskode, tiltakskode)
 where exists (select 1 from tiltakstype where tiltakskode = 'AVKLARING')
 on conflict (innholdskode, tiltakskode) do nothing;
 
@@ -111,3 +104,6 @@ from (values ('jobbsoking', 'OPPFOLGING'::tiltakskode),
              ('tilpasse-arbeidsoppgaver', 'OPPFOLGING'::tiltakskode)) as t(innholdskode, tiltakskode)
 where exists (select 1 from tiltakstype where tiltakskode = 'OPPFOLGING')
 on conflict (innholdskode, tiltakskode) do nothing;
+
+
+

@@ -17,7 +17,9 @@ import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.oebs.*
+import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
+import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
+import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -306,6 +308,7 @@ class OkonomiService(
                     FakturaStatus(
                         fakturanummer = fakturanummer,
                         status = faktura.status,
+                        fakturaStatusSistOppdatert = faktura.fakturaStatusSistOppdatert,
                     ),
                 ).toByteArray(),
                 null,

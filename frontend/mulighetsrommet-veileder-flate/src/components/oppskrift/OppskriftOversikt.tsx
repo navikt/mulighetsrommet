@@ -2,7 +2,7 @@ import { Alert, Skeleton } from "@navikt/ds-react";
 import { Oppskrift } from "@mr/api-client-v2";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
-import styles from "./Oppskriftsoversikt.module.scss";
+import styles from "./OppskriftOversikt.module.scss";
 import { Suspense } from "react";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   setOppskriftId: (id: string) => void;
 }
 
-export function Oppskriftsoversikt({ tiltakstypeId, setOppskriftId }: Props) {
+export function OppskriftOversikt({ tiltakstypeId, setOppskriftId }: Props) {
   const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
 
   if (!oppskrifter) return null;
