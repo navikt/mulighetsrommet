@@ -9,16 +9,20 @@ export function TilsagnStatusTag({ data }: Props) {
   const aarsaker = data.aarsaker || [];
   switch (data.status) {
     case TilsagnStatus.GODKJENT:
-      return <Tag variant="success">Godkjent</Tag>;
+      return (
+        <Tag variant="success" className="w-max">
+          Godkjent
+        </Tag>
+      );
     case TilsagnStatus.ANNULLERT:
       return (
-        <Tag variant="error" className="line-through bg-white! text-text-danger!">
+        <Tag variant="error" className="line-through bg-white! text-text-danger! w-max">
           Annullert {skalViseHelptext("Tilsagnet er annullert med følgende årsak(er):", aarsaker)}
         </Tag>
       );
     case TilsagnStatus.TIL_ANNULLERING:
       return (
-        <Tag variant="warning" className="bg-white! border-text-danger">
+        <Tag variant="warning" className="bg-white! border-text-danger w-max">
           Til annullering{" "}
           {skalViseHelptext(
             "Tilsagnet er til annullering hos NAV med følgende årsak(er):",
@@ -28,13 +32,17 @@ export function TilsagnStatusTag({ data }: Props) {
       );
     case TilsagnStatus.TIL_OPPGJOR:
       return (
-        <Tag variant="error" className="bg-white!">
+        <Tag variant="error" className="bg-white! w-max">
           Til oppgjør
         </Tag>
       );
 
     case TilsagnStatus.OPPGJORT:
-      return <Tag variant="neutral">Oppgjort</Tag>;
+      return (
+        <Tag variant="neutral" className="w-max">
+          Oppgjort
+        </Tag>
+      );
 
     default:
       return null;
