@@ -3,7 +3,7 @@ import { ArrangorTil } from "@mr/api-client-v2";
 import { GjennomforingFilter } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 
@@ -13,7 +13,7 @@ interface Props {
   setTagsHeight: (height: number) => void;
 }
 
-export function GjennomforingFiltertags({ filterAtom, filterOpen, setTagsHeight }: Props) {
+export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING, {
     pageSize: 10000,

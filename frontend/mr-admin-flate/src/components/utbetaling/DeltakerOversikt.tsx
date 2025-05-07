@@ -10,7 +10,7 @@ interface ScopedSortState extends SortState {
   orderBy: keyof DeltakerForKostnadsfordeling;
 }
 
-export function Deltakeroversikt({ deltakere }: Props) {
+export function DeltakerOversikt({ deltakere }: Props) {
   const [sort, setSort] = useState<ScopedSortState>();
 
   const handleSort = (sortKey: ScopedSortState["orderBy"]) => {

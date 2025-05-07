@@ -7,7 +7,7 @@ interface Props {
   antallValgteTiltakstyper: number;
 }
 
-export function Tiltakstypefilter({ antallValgteTiltakstyper }: Props) {
+export function TiltakstypeFilter({ antallValgteTiltakstyper }: Props) {
   const tiltakstyper = useTiltakstyper();
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   return (

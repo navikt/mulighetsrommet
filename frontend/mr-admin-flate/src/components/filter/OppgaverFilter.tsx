@@ -1,11 +1,11 @@
-import { oppgaverFilterAccordionAtom, OppgaverFilter as OppgaverFilterProps } from "@/api/atoms";
+import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } from "@/api/atoms";
 import { OPPGAVER_TYPE_STATUS } from "@/utils/filterUtils";
-import { addOrRemove } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { NavRegion, OppgaveType, Tiltakskode, TiltakstypeDto, Toggles } from "@mr/api-client-v2";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai/index";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   oppgaveFilterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;

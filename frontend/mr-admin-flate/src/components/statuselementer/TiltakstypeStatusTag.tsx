@@ -5,7 +5,7 @@ interface Props {
   tiltakstype: TiltakstypeDto;
 }
 
-export function TiltakstypestatusTag({ tiltakstype }: Props) {
+export function TiltakstypeStatusTag({ tiltakstype }: Props) {
   const status = tiltakstype.status;
 
   function variantAndName(): { variant: "success" | "neutral"; name: string } {

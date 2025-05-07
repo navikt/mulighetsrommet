@@ -11,7 +11,7 @@ import { MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { useRef } from "react";
 import { Link } from "react-router";
-import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
+import { NotifikasjonerBjelle } from "../notifikasjoner/NotifikasjonerBjelle";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Tiltakskode, Toggles } from "@mr/api-client-v2";
 
@@ -42,7 +42,7 @@ export function AdministratorHeader() {
       </InternalHeader.Title>
       <Spacer />
       <div className="flex justify-end items-center">
-        <Notifikasjonsbjelle />
+        <NotifikasjonerBjelle />
       </div>
       <Dropdown>
         <InternalHeader.Button as={Dropdown.Toggle}>

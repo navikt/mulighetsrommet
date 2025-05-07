@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { AvtalestatusTag } from "./AvtalestatusTag";
+import { AvtaleStatusTag } from "./AvtaleStatusTag";
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 
-const meta: Meta<typeof AvtalestatusTag> = {
-  component: AvtalestatusTag,
+const meta: Meta<typeof AvtaleStatusTag> = {
+  component: AvtaleStatusTag,
 };
 
-type Story = StoryObj<typeof AvtalestatusTag>;
+type Story = StoryObj<typeof AvtaleStatusTag>;
 
-export const AvtalestatusTagStory: Story = {
+export const AvtaleStatusTagStory: Story = {
   tags: ["autodocs"],
   args: {
     avtale: mockAvtaler[0],
