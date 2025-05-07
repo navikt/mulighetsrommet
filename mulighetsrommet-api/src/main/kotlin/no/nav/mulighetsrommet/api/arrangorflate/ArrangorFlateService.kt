@@ -40,6 +40,8 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
     TilsagnStatus.TIL_ANNULLERING,
     TilsagnStatus.ANNULLERT,
+    TilsagnStatus.OPPGJORT,
+    TilsagnStatus.TIL_OPPGJOR,
 )
 
 class ArrangorFlateService(
