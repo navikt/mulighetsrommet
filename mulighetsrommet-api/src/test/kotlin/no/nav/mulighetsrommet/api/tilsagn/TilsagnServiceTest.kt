@@ -293,7 +293,7 @@ class TilsagnServiceTest : FunSpec({
             verify(exactly = 1) { notification.scheduleNotification(allAny(), any()) }
         }
 
-        test("skal ikke sende notifikasjon når oppretter sletter tilsagn") {
+        test("skal ikke sende notifikasjon når behandletAv sletter tilsagn") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
