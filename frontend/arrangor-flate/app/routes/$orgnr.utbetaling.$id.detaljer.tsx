@@ -80,7 +80,9 @@ export default function UtbetalingDetaljerSide() {
 
   const innsendtTidspunkt = utbetaling.godkjentAvArrangorTidspunkt
     ? formaterDato(utbetaling.godkjentAvArrangorTidspunkt)
-    : "-";
+    : utbetaling.createdAt
+      ? formaterDato(utbetaling.createdAt)
+      : "-";
 
   const visTilsagnsListe =
     utbetaling.status === ArrFlateUtbetalingStatus.UTBETALT && tilsagn.length;
