@@ -63,6 +63,23 @@ Deretter kan appen startes mot lokal backend:
 turbo run backend
 ```
 
+### Lokal testing av MODIA-varianten
+
+Denne varianten av applikasjonen blir lastet på en særegen måte i `veilarbpersonflate`.
+Siden `veilarbpersonflate` består av flere microfrontends ønsker vi å enkapsulere styling per app slik at de ikke
+påvirker hverandre.
+Dette gjøres ved at `MODIA`-varianten blir bygget som en Web Component og styling blir lastet inn under en egen Shadow
+DOM.
+Følgende script (miljøvariabler) kan brukes for å kjøre `MODIA`-varianten lokalt:
+
+```sh
+# Build app
+APP=MODIA VITE_DEMO_FNR='12345678910' VITE_DEMO_ENHET='0315' turbo run build
+
+# Serve app
+turbo run preview
+```
+
 ## Testing og linting
 
 Koden lintes og formatteres med `eslint` og `prettier`.
