@@ -9,7 +9,7 @@ interface Props {
 export function BeregningDetaljer({ beregning }: Props) {
   const beregningDetaljer = getDetaljer(beregning);
 
-  return <Definisjonsliste className="mt-4" definitions={beregningDetaljer} />;
+  return <Definisjonsliste definitions={beregningDetaljer} />;
 }
 
 function getDetaljer(beregning: ArrFlateBeregning): Definition[] {

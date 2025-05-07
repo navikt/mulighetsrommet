@@ -16,7 +16,7 @@ export function PageHeader({ title, tilbakeLenke }: Props) {
         {title}
       </Heading>
       {tilbakeLenke ? (
-        <LinkWithTabState className="mb-5 inline hover:underline" to={tilbakeLenke.url}>
+        <LinkWithTabState className="inline hover:underline" to={tilbakeLenke.url}>
           {tilbakeLenke.navn}
         </LinkWithTabState>
       ) : null}
