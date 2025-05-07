@@ -1,3 +1,4 @@
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ArrangorflateService, ArrFlateUtbetaling } from "api-client";
@@ -7,11 +8,10 @@ import { PageHeader } from "~/components/PageHeader";
 import { Separator } from "~/components/Separator";
 import BetalingsInformasjon from "~/components/utbetaling/BetalingsInformasjon";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
-import GenerelleUtbetalingDetaljer from "~/components/utbetaling/GenerelleUtbetalingDetaljer";
-import InnsendtUtbetalingDetaljer from "~/components/utbetaling/InnsendtUtbetalingDetaljer";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
+import { Definisjonsliste } from "../components/Definisjonsliste";
 import { internalNavigation } from "../internal-navigation";
-import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
+import { formaterDato, formaterPeriode, problemDetailResponse, useOrgnrFromUrl } from "../utils";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
@@ -52,6 +52,10 @@ export default function UtbetalingDetaljerSide() {
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
+  const innsendtTidspunkt = utbetaling.godkjentAvArrangorTidspunkt
+    ? formaterDato(utbetaling.godkjentAvArrangorTidspunkt)
+    : "-";
+
   return (
     <>
       <PageHeader
@@ -63,9 +67,21 @@ export default function UtbetalingDetaljerSide() {
       />
 
       <HStack gap="2" justify="space-between">
-        <Heading level="2" size="medium">
-          Innsending
-        </Heading>
+        <VStack gap="2">
+          <Heading level="2" size="medium">
+            Innsending
+          </Heading>
+          <Definisjonsliste
+            className="mb-3"
+            headingLevel="3"
+            definitions={[
+              {
+                key: "Dato innsendt",
+                value: innsendtTidspunkt,
+              },
+            ]}
+          />
+        </VStack>
         <a href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
             <span className="flex gap-2 items-center">
@@ -79,8 +95,17 @@ export default function UtbetalingDetaljerSide() {
       <VStack gap="6" className="max-w-[1250px] mt-5">
         <GenerelleDetaljer utbetaling={utbetaling} utenTittel />
 
-        <GenerelleUtbetalingDetaljer utbetaling={utbetaling} />
-        <InnsendtUtbetalingDetaljer utbetaling={utbetaling} />
+        <Definisjonsliste
+          title={"Utbetaling"}
+          headingLevel="3"
+          definitions={[
+            {
+              key: "Utbetalingsperiode",
+              value: formaterPeriode(utbetaling.periode),
+            },
+            { key: "Beløp til utbetaling", value: formaterNOK(utbetaling.beregning.belop) },
+          ]}
+        />
         <BetalingsInformasjon utbetaling={utbetaling} />
         <Box
           background="bg-subtle"

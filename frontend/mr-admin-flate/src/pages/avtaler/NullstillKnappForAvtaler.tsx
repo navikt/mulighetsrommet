@@ -6,7 +6,7 @@ import { HStack } from "@navikt/ds-react";
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
 import { useFetcher } from "react-router";
-import { filterToActionRequest } from "../../api/lagret-filter/lagretFilterAction";
+import { filterToActionRequest } from "@/api/lagret-filter/lagretFilterAction";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;

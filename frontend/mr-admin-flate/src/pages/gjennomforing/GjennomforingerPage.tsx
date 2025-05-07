@@ -3,7 +3,7 @@ import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
-import { GjennomforingFiltertags } from "@/components/filter/GjennomforingFiltertags";
+import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
@@ -43,7 +43,7 @@ export function GjennomforingerPage() {
             />
           }
           tags={
-            <GjennomforingFiltertags
+            <GjennomforingFilterTags
               filterAtom={gjennomforingfilterAtom}
               filterOpen={filterOpen}
               setTagsHeight={setTagsHeight}

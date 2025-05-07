@@ -8,7 +8,7 @@ interface Props {
   showAvbruttAarsak?: boolean;
 }
 
-export function AvtalestatusTag({ avtale, showAvbruttAarsak = false }: Props) {
+export function AvtaleStatusTag({ avtale, showAvbruttAarsak = false }: Props) {
   const { status } = avtale;
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 

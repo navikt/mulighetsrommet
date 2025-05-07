@@ -3,7 +3,7 @@ import { AvtaleFormContainer } from "@/components/avtaler/AvtaleFormContainer";
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
+import { AvtaleStatusTag } from "@/components/statuselementer/AvtaleStatusTag";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { inneholderUrl } from "@/utils/Utils";
@@ -50,7 +50,7 @@ export function AvtaleFormPage() {
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
         </Heading>
-        {avtale ? <AvtalestatusTag avtale={avtale} showAvbruttAarsak /> : null}
+        {avtale ? <AvtaleStatusTag avtale={avtale} showAvbruttAarsak /> : null}
       </Header>
       <ContentBox>
         <WhitePaddedBox>

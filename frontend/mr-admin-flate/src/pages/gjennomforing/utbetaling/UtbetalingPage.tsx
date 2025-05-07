@@ -30,7 +30,7 @@ import {
 
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
-import { Deltakeroversikt } from "@/components/utbetaling/Deltakeroversikt";
+import { DeltakerOversikt } from "@/components/utbetaling/DeltakerOversikt";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -184,7 +184,7 @@ export function UtbetalingPage() {
                       <Accordion.Item>
                         <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
                         <Accordion.Content>
-                          <Deltakeroversikt deltakere={deltakere} />
+                          <DeltakerOversikt deltakere={deltakere} />
                         </Accordion.Content>
                       </Accordion.Item>
                     </Accordion>

@@ -8,7 +8,7 @@ function Notifier() {
   );
 }
 
-export function Notifikasjonsbjelle() {
+export function NotifikasjonerBjelle() {
   const { data: summary, isLoading: isLoadingUlesteNotifikasjoner } = useNotificationSummary();
 
   if (isLoadingUlesteNotifikasjoner || !summary) {

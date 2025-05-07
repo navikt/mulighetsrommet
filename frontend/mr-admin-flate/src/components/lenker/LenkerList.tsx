@@ -6,7 +6,7 @@ interface Props {
   lenker: Lenke[];
 }
 
-export function Lenkeliste({ lenker }: Props) {
+export function LenkerList({ lenker }: Props) {
   return (
     <List as="ul">
       {lenker.map((lenke, index) => (

@@ -6,13 +6,13 @@ import { RESET } from "jotai/vanilla/utils";
 import {
   Avtalestatus,
   Avtaletype,
+  GjennomforingStatus,
   NavEnhet,
   OppgaveType,
   SorteringArrangorer,
   SorteringAvtaler,
   SorteringGjennomforinger,
   SorteringTiltakstyper,
-  GjennomforingStatus,
 } from "@mr/api-client-v2";
 import { z, ZodType } from "zod";
 
