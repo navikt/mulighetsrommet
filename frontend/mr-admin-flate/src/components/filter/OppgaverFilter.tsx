@@ -1,37 +1,23 @@
 import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } from "@/api/atoms";
-import { OPPGAVER_TYPE_STATUS } from "@/utils/filterUtils";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { NavRegion, OppgaveType, Tiltakskode, TiltakstypeDto, Toggles } from "@mr/api-client-v2";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai/index";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 
 interface Props {
   oppgaveFilterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
-  tiltakstyper: TiltakstypeDto[];
-  regioner: NavRegion[];
 }
 
-export function OppgaverFilter({ oppgaveFilterAtom: filterAtom, tiltakstyper, regioner }: Props) {
+export function OppgaverFilter({ oppgaveFilterAtom: filterAtom }: Props) {
+  const { data: oppgavetyper } = useGetOppgavetyper();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: regioner } = useNavRegioner();
+
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
-
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
-  );
-
-  const oppgaveTyper = enableOkonomi
-    ? OPPGAVER_TYPE_STATUS
-    : OPPGAVER_TYPE_STATUS.filter(
-        (type) =>
-          ![
-            OppgaveType.UTBETALING_RETURNERT,
-            OppgaveType.UTBETALING_TIL_BEHANDLING,
-            OppgaveType.UTBETALING_TIL_GODKJENNING,
-          ].includes(type.value),
-      );
 
   return (
     <div className="bg-white self-start w-80">
@@ -57,9 +43,9 @@ export function OppgaverFilter({ oppgaveFilterAtom: filterAtom, tiltakstyper, re
                 }}
                 hideLegend
               >
-                {oppgaveTyper.map(({ label, value }) => (
-                  <Checkbox size="small" key={value} value={value}>
-                    {label}
+                {oppgavetyper.map(({ navn, type }) => (
+                  <Checkbox size="small" key={type} value={type}>
+                    {navn}
                   </Checkbox>
                 ))}
               </CheckboxGroup>
@@ -123,7 +109,7 @@ export function OppgaverFilter({ oppgaveFilterAtom: filterAtom, tiltakstyper, re
                 }}
                 hideLegend
               >
-                {tiltakstyper.map((t) => {
+                {tiltakstyper.data.map((t) => {
                   return (
                     <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
                       {t.navn}
