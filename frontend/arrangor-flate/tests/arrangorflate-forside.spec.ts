@@ -46,7 +46,7 @@ test("Kan navigere gjennom hele utbetalingen", async ({ page }) => {
     .click();
   await sjekkUU(page);
   await page.getByRole("button", { name: "Bekreft og send inn" }).first().click();
-  await expect(page.getByRole("heading", { name: "Innsendingskvittering" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Innsendingen er mottatt" })).toBeVisible();
 
   await sjekkUU(page);
 });
