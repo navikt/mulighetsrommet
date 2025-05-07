@@ -25,6 +25,7 @@ import {
   useFetcher,
   useLoaderData,
   useRevalidator,
+  Link as ReactRouterLink,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
@@ -32,7 +33,6 @@ import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
 import { isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
 import { KontonummerInput } from "~/components/KontonummerInput";
 
@@ -89,7 +89,6 @@ export const loader: LoaderFunction = async ({
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
 
-  const currentTab = getCurrentTab(request);
   const utbetalingId = getOrThrowError(formData, "utbetalingId").toString();
   const utbetalingDigest = getOrThrowError(formData, "utbetalingDigest").toString();
   const orgnr = getOrThrowError(formData, "orgnr").toString();
@@ -135,9 +134,7 @@ export const action: ActionFunction = async ({ request }) => {
       throw problemDetailResponse(error);
     }
   }
-  return redirect(
-    `${internalNavigation(orgnr).innsendtUtbetaling(utbetalingId)}?forside-tab=${currentTab}`,
-  );
+  return redirect(internalNavigation(orgnr).kvittering(utbetalingId));
 };
 
 export function validateBetalingsinformasjon(kontonummer: string, kid?: string) {
@@ -186,67 +183,68 @@ export default function BekreftUtbetaling() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Oppsummering av utbetaling"
-        tilbakeLenke={{
-          navn: "Tilbake til beregning",
-          url: internalNavigation(orgnr).beregning(utbetaling.id),
-        }}
-      />
-      <VStack className="max-w-[50%]" gap="5">
-        <UtbetalingDetaljer utbetaling={utbetaling} tilsagn={tilsagn} />
-        <Separator />
-        <Heading size="medium">Betalingsinformasjon</Heading>
-        <Form method="post">
-          <KontonummerInput
-            kontonummer={utbetaling.betalingsinformasjon.kontonummer}
-            error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
-            onClick={() => handleHentKontonummer()}
+    <VStack className="max-w-[50%]" gap="5">
+      <PageHeader title="Oppsummering av utbetaling" />
+      <UtbetalingDetaljer utbetaling={utbetaling} tilsagn={tilsagn} />
+      <Separator />
+      <Heading size="medium">Betalingsinformasjon</Heading>
+      <Form method="post">
+        <KontonummerInput
+          kontonummer={utbetaling.betalingsinformasjon.kontonummer}
+          error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
+          onClick={() => handleHentKontonummer()}
+        />
+        <HStack>
+          <TextField
+            className="mt-5"
+            label="KID-nummer for utbetaling (valgfritt)"
+            size="small"
+            name="kid"
+            error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
+            defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
+            maxLength={25}
+            id="kid"
           />
-          <HStack>
-            <TextField
-              className="mt-5"
-              label="KID-nummer for utbetaling (valgfritt)"
-              size="small"
-              name="kid"
-              error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
-              defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
-              maxLength={25}
-              id="kid"
-            />
-          </HStack>
-          <VStack gap="2" justify={"start"} align={"start"}>
-            <Checkbox
-              name="bekreftelse"
-              value="bekreftet"
-              error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
-              id="bekreftelse"
+        </HStack>
+        <VStack gap="2" justify={"start"} align={"start"}>
+          <Checkbox
+            name="bekreftelse"
+            value="bekreftet"
+            error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
+            id="bekreftelse"
+          >
+            Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
+          </Checkbox>
+          <input type="hidden" name="utbetalingId" value={utbetaling.id} />
+          <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
+          <input type="hidden" name="orgnr" value={orgnr} />
+          {data?.errors && data.errors.length > 0 && (
+            <ErrorSummary ref={errorSummaryRef}>
+              {data.errors.map((error: FieldError) => {
+                return (
+                  <ErrorSummary.Item
+                    href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                    key={jsonPointerToFieldPath(error.pointer)}
+                  >
+                    {error.detail}
+                  </ErrorSummary.Item>
+                );
+              })}
+            </ErrorSummary>
+          )}
+          <HStack gap="4">
+            <Button
+              as={ReactRouterLink}
+              type="button"
+              variant="secondary"
+              to={internalNavigation(orgnr).beregning(utbetaling.id)}
             >
-              Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
-            </Checkbox>
-            <input type="hidden" name="utbetalingId" value={utbetaling.id} />
-            <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
-            <input type="hidden" name="orgnr" value={orgnr} />
-            {data?.errors && data.errors.length > 0 && (
-              <ErrorSummary ref={errorSummaryRef}>
-                {data.errors.map((error: FieldError) => {
-                  return (
-                    <ErrorSummary.Item
-                      href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                      key={jsonPointerToFieldPath(error.pointer)}
-                    >
-                      {error.detail}
-                    </ErrorSummary.Item>
-                  );
-                })}
-              </ErrorSummary>
-            )}
-
+              Tilbake
+            </Button>
             <Button type="submit">Bekreft og send inn</Button>
-          </VStack>
-        </Form>
-      </VStack>
-    </>
+          </HStack>
+        </VStack>
+      </Form>
+    </VStack>
   );
 }

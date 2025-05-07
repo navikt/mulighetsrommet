@@ -21,12 +21,12 @@ import {
   Timeline,
   Tooltip,
   VStack,
+  Link,
 } from "@navikt/ds-react";
 import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
-import { Link, useLoaderData } from "react-router";
+import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { LinkWithTabState } from "~/components/LinkWithTabState";
 import { PageHeader } from "~/components/PageHeader";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import { internalNavigation } from "~/internal-navigation";
@@ -115,7 +115,7 @@ export default function UtbetalingBeregning() {
   }
 
   return (
-    <>
+    <VStack gap="4">
       <PageHeader
         title="Beregning"
         tilbakeLenke={{
@@ -126,20 +126,20 @@ export default function UtbetalingBeregning() {
       <HGrid gap="5" columns={1}>
         <GenerelleDetaljer className="max-w-[50%]" utbetaling={utbetaling} />
       </HGrid>
-      <div className="mt-4">{beregning}</div>
-      <VStack align="end">
+      {beregning}
+      <VStack align="end" gap="4">
         <BeregningDetaljer beregning={utbetaling.beregning} />
+        <HStack>
+          <Button
+            as={ReactRouterLink}
+            className="justify-self-end"
+            to={internalNavigation(orgnr).oppsummering(utbetaling.id)}
+          >
+            Neste
+          </Button>
+        </HStack>
       </VStack>
-      <HStack justify="end" className="mt-4">
-        <Button
-          as={LinkWithTabState}
-          className="justify-self-end"
-          to={internalNavigation(orgnr).bekreft(utbetaling.id)}
-        >
-          Neste
-        </Button>
-      </HStack>
-    </>
+    </VStack>
   );
 }
 
@@ -190,7 +190,7 @@ function ForhandsgodkjentBeregning({
         <GuidePanel>
           Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
           endring via{" "}
-          <Link className="underline" to={deltakerlisteUrl}>
+          <Link as={ReactRouterLink} to={deltakerlisteUrl}>
             Deltakeroversikten
           </Link>
           .
