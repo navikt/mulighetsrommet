@@ -38,7 +38,7 @@ function useHentData() {
       periodeStart,
       periodeSlutt,
       belop: belop ? Number(belop) : null,
-      kostnadssted,
+      kostnadssted: kostnadssted ? kostnadssted : null,
     }),
   });
 
