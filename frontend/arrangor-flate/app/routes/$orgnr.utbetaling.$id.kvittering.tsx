@@ -1,30 +1,27 @@
 import { FilePdfIcon } from "@navikt/aksel-icons";
+import { Alert, BodyLong, BodyShort, ExpansionCard, Link, VStack } from "@navikt/ds-react";
+import { ArrangorflateService } from "api-client";
 import {
-  Alert,
-  BodyLong,
-  BodyShort,
-  Button,
-  ExpansionCard,
-  Heading,
-  HStack,
-  Link,
-  VStack,
-} from "@navikt/ds-react";
-import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
-import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useParams } from "react-router";
+  Link as ReactRouterLink,
+  LoaderFunction,
+  MetaFunction,
+  useParams,
+  useLoaderData,
+} from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { internalNavigation } from "../internal-navigation";
-import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
+import { formaterDatoTid, problemDetailResponse, useOrgnrFromUrl } from "../utils";
+import { PageHeader } from "~/components/PageHeader";
 
 type UtbetalingKvitteringData = {
-  utbetaling: ArrFlateUtbetaling;
-  tilsagn: ArrangorflateTilsagn[];
+  mottattTidspunkt: string;
+  kontonummer: string;
 };
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Innsendt utbetaling" },
-    { name: "description", content: "Arrangørflate for innsendt utbetaling" },
+    { title: "Kvittering for innsending" },
+    { name: "description", content: "Kvittering for innsending" },
   ];
 };
 
@@ -37,38 +34,37 @@ export const loader: LoaderFunction = async ({
     throw new Response("Mangler id", { status: 400 });
   }
 
-  const [{ data: utbetaling, error: utbetalingError }, { data: tilsagn, error: tilsagnError }] =
-    await Promise.all([
-      ArrangorflateService.getArrFlateUtbetaling({
-        path: { id },
-        headers: await apiHeaders(request),
-      }),
-      ArrangorflateService.getArrangorflateTilsagnTilUtbetaling({
-        path: { id },
-        headers: await apiHeaders(request),
-      }),
-    ]);
+  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
+    ArrangorflateService.getArrFlateUtbetaling({
+      path: { id },
+      headers: await apiHeaders(request),
+    }),
+  ]);
 
   if (utbetalingError || !utbetaling) {
     throw problemDetailResponse(utbetalingError);
   }
-  if (tilsagnError || !tilsagn) {
-    throw problemDetailResponse(tilsagnError);
-  }
+  const kontonummer = utbetaling.betalingsinformasjon.kontonummer;
+  const mottattTidspunkt = utbetaling.godkjentAvArrangorTidspunkt ?? new Date().toDateString();
 
-  return { utbetaling, tilsagn };
+  return { mottattTidspunkt, kontonummer };
 };
 
 export default function UtbetalingKvittering() {
+  const { mottattTidspunkt, kontonummer } = useLoaderData<UtbetalingKvitteringData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
   return (
     <>
-      <VStack gap="5" className="max-w-[50%] mt-5 mx-auto">
-        <Heading size="large" level="2">
-          Innsendingen er mottatt
-        </Heading>
+      <VStack gap="5" className="max-w-[50%] my-5 mx-auto">
+        <PageHeader
+          title="Innsendingen er mottatt"
+          tilbakeLenke={{
+            navn: "Tilbake til oversikten",
+            url: internalNavigation(orgnr).utbetalinger,
+          }}
+        />
         <Alert variant="success">
           Vi har mottatt ditt krav om utbetaling, og utbetalingen er nå til behandling hos Nav. Vi
           vil ta kontakt med deg dersom vi trenger mer informasjon.
@@ -79,20 +75,21 @@ export default function UtbetalingKvittering() {
           </ExpansionCard.Header>
           <ExpansionCard.Content>
             <VStack gap="2">
-              <BodyShort>Mottatt av Nav: 01.05.2025</BodyShort>
+              <BodyShort>Mottatt av Nav: {formaterDatoTid(mottattTidspunkt)}</BodyShort>
+              <BodyShort>Orgnummer: {orgnr}</BodyShort>
+              <br />
               {id && (
                 <>
                   <BodyLong>
-                    Du kan se status for utbetalingen{" "}
+                    Her kan du se{" "}
                     <Link as={ReactRouterLink} to={internalNavigation(orgnr).detaljer(id)}>
-                      her
+                      status på utbetalingen.
                     </Link>
-                    .
                   </BodyLong>
                   <br />
                   <BodyShort>Innsending:</BodyShort>
                   <Link href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
-                    Krav om utbetaling (åpnes i ny fane) <FilePdfIcon title="Pdf" />
+                    Innsendingskvittering (åpnes i ny fane) <FilePdfIcon title="Pdf" />
                   </Link>
                 </>
               )}
@@ -106,19 +103,10 @@ export default function UtbetalingKvittering() {
           <ExpansionCard.Content>
             <VStack gap="2">
               <BodyShort weight="semibold">Vi har registrert følgende kontonummer:</BodyShort>
-              <BodyShort>2313.2123.12</BodyShort>
+              <BodyShort>{kontonummer}</BodyShort>
             </VStack>
           </ExpansionCard.Content>
         </ExpansionCard>
-        <HStack gap="4">
-          <Button
-            as={ReactRouterLink}
-            to={internalNavigation(orgnr).utbetalinger}
-            variant="secondary"
-          >
-            Tilbake til utbetalinger
-          </Button>
-        </HStack>
       </VStack>
     </>
   );
