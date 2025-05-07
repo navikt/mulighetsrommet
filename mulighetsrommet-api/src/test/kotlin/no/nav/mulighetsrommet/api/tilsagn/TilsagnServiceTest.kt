@@ -11,6 +11,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -38,6 +40,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
@@ -84,7 +87,7 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createTilsagnService(): TilsagnService {
+    fun createTilsagnService(notification: NotificationTask = mockk(relaxed = true)): TilsagnService {
         return TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
@@ -95,6 +98,7 @@ class TilsagnServiceTest : FunSpec({
                 ),
                 bestillingTopic = "topic",
             ),
+            notification = notification,
         )
     }
 
@@ -231,13 +235,14 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("slett tilsagn") {
-        val service = createTilsagnService()
+        val notification: NotificationTask = mockk(relaxed = true)
+        val service = createTilsagnService(notification)
 
         test("kan ikke slette tilsagn når det er til godkjenning") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
-            service.slettTilsagn(request.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+            service.slettTilsagn(request.id, ansatt1) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {
@@ -250,7 +255,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.slettTilsagn(request.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+            service.slettTilsagn(request.id, ansatt1) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
         }
 
         test("kan slette tilsagn når det er returnert") {
@@ -266,9 +271,43 @@ class TilsagnServiceTest : FunSpec({
                 ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
-            service.slettTilsagn(request.id).shouldBeRight()
+            service.slettTilsagn(request.id, ansatt1).shouldBeRight()
 
             service.getAll() shouldHaveSize 0
+        }
+
+        test("skal sende notifikasjon til behandletAv når besluttetAv sletter tilsagn") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                request.id,
+                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+                ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+
+            service.slettTilsagn(request.id, ansatt2).shouldBeRight()
+            verify(exactly = 1) { notification.scheduleNotification(allAny(), any()) }
+        }
+
+        test("skal ikke sende notifikasjon når oppretter sletter tilsagn") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                request.id,
+                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+                ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+
+            service.slettTilsagn(request.id, ansatt1).shouldBeRight()
+            verify(exactly = 0) { notification.scheduleNotification(allAny(), any()) }
         }
     }
 

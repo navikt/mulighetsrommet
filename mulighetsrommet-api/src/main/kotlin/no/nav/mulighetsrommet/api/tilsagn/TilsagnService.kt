@@ -30,13 +30,19 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
+import no.nav.mulighetsrommet.notifications.NotificationTask
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
+    private val notification: NotificationTask,
 ) {
     data class Config(
         val okonomiConfig: OkonomiConfig,
@@ -429,14 +435,35 @@ class TilsagnService(
         return dto
     }
 
-    fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.transaction {
+    fun slettTilsagn(id: UUID, navIdent: NavIdent): StatusResponse<Unit> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
+        val totrinnskontroll = queries.totrinnskontroll.get(entityId = id, type = Totrinnskontroll.Type.OPPRETT)
 
-        queries.tilsagn.delete(id).right()
+        queries.tilsagn.delete(id)
+        if (totrinnskontroll?.besluttetAv == navIdent && totrinnskontroll.behandletAv is NavIdent) {
+            sendNotifikasjonTilOppretter(tilsagn, besluttetAv = navIdent, behandletAv = totrinnskontroll.behandletAv)
+        }
+
+        Unit.right()
+    }
+
+    private fun sendNotifikasjonTilOppretter(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
+        val notice = ScheduledNotification(
+            type = NotificationType.NOTIFICATION,
+            title = """Et tilsagn for ${tilsagn.gjennomforing.navn} er blitt slettet av $besluttetAv.""",
+            description = "Du har blitt varslet fordi tilsagnet ${tilsagn.type} du opprettet for gjennomføringen ${tilsagn.gjennomforing.navn}, under ${tilsagn.kostnadssted.navn}, er blitt slettet.",
+            metadata = NotificationMetadata(
+                linkText = "Gå til gjennomføringen",
+                link = "/gjennomforinger/${tilsagn.gjennomforing.id}",
+            ),
+            targets = nonEmptyListOf(behandletAv),
+            createdAt = Instant.now(),
+        )
+        notification.scheduleNotification(notice)
     }
 
     fun getAll() = db.session {

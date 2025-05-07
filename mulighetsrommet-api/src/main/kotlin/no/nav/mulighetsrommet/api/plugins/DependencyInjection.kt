@@ -434,6 +434,7 @@ private fun services(appConfig: AppConfig) = module {
                 bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
             ),
             get(),
+            notification = get(),
         )
     }
     single { AltinnRettigheterService(get(), get()) }
