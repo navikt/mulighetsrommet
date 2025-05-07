@@ -136,7 +136,7 @@ importers:
         version: 3.8.0
       '@react-router/express':
         specifier: 7.5.3
-        version: 7.5.3(express@4.21.2)(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.3)
+        version: 7.5.3(express@5.1.0)(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.3)
       '@react-router/node':
         specifier: 7.5.3
         version: 7.5.3(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.3)
@@ -159,8 +159,8 @@ importers:
         specifier: 6.1.0
         version: 6.1.0
       express:
-        specifier: 4.21.2
-        version: 4.21.2
+        specifier: 5.1.0
+        version: 5.1.0
       express-prom-bundle:
         specifier: 8.0.0
         version: 8.0.0(prom-client@15.1.3)
@@ -6537,10 +6537,6 @@ packages:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
 
-  mime-db@1.53.0:
-    resolution: {integrity: sha512-oHlN/w+3MQ3rba9rqFr6V/ypF10LSkdwUysQL7GkXoTgIWeV+tcXGA852TBxH+gsh8UWoyhR1hKcoMJTuWflpg==}
-    engines: {node: '>= 0.6'}
-
   mime-db@1.54.0:
     resolution: {integrity: sha512-aU5EJuIN2WDemCcAp2vFBfp/m4EAhWJnUNSSw0ixs7/kXbd6Pg64EmwJkNdFhB8aWt1sH2CTXrLxo/iAGV3oPQ==}
     engines: {node: '>= 0.6'}
@@ -11468,6 +11464,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.3
 
+  '@react-router/express@7.5.3(express@5.1.0)(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.3)':
+    dependencies:
+      '@react-router/node': 7.5.3(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.3)
+      express: 5.1.0
+      react-router: 7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+    optionalDependencies:
+      typescript: 5.8.3
+
   '@react-router/fs-routes@7.5.3(@react-router/dev@7.5.3(@react-router/serve@7.5.3(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.3))(@types/node@22.15.3)(babel-plugin-macros@3.1.0)(jiti@2.4.2)(lightningcss@1.29.2)(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(sass-embedded@1.87.0)(sass@1.79.3)(terser@5.31.6)(typescript@5.8.3)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.29.2)(sass-embedded@1.87.0)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.1))(yaml@2.7.1))(typescript@5.8.3)':
     dependencies:
       '@react-router/dev': 7.5.3(@react-router/serve@7.5.3(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.3))(@types/node@22.15.3)(babel-plugin-macros@3.1.0)(jiti@2.4.2)(lightningcss@1.29.2)(react-router@7.5.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(sass-embedded@1.87.0)(sass@1.79.3)(terser@5.31.6)(typescript@5.8.3)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.29.2)(sass-embedded@1.87.0)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.1))(yaml@2.7.1)
@@ -13616,7 +13620,7 @@ snapshots:
 
   compressible@2.0.18:
     dependencies:
-      mime-db: 1.53.0
+      mime-db: 1.54.0
 
   compression@1.8.0:
     dependencies:
@@ -15925,8 +15929,6 @@ snapshots:
       picomatch: 2.3.1
 
   mime-db@1.52.0: {}
-
-  mime-db@1.53.0: {}
 
   mime-db@1.54.0: {}
 
