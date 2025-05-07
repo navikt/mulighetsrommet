@@ -9,6 +9,7 @@ enum class ArrFlateUtbetalingStatus {
     BEHANDLES_AV_NAV,
     UTBETALT,
     VENTER_PA_ENDRING,
+    OVERFORT_TIL_UTBETALING,
     ;
 
     companion object {
@@ -17,7 +18,9 @@ enum class ArrFlateUtbetalingStatus {
             delutbetalinger: List<Delutbetaling>,
             relevanteForslag: List<RelevanteForslag>,
         ): ArrFlateUtbetalingStatus {
-            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
+            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.OVERFORT_TIL_UTBETALING }) {
+                OVERFORT_TIL_UTBETALING
+            } else if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
                 UTBETALT
             } else if (utbetaling.innsender != null) {
                 BEHANDLES_AV_NAV

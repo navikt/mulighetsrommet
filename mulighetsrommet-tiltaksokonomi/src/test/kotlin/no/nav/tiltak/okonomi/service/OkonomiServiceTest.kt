@@ -302,7 +302,9 @@ class OkonomiServiceTest : FunSpec({
         val bestillingsnummer = "B1"
 
         db.session {
-            val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
+            val bestilling = Bestilling.fromOpprettBestilling(
+                createOpprettBestilling(bestillingsnummer),
+            )
             queries.bestilling.insertBestilling(bestilling)
         }
 
@@ -336,12 +338,9 @@ class OkonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "B1-F2"
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    FakturaStatus(
-                        fakturanummer = "B1-F2",
-                        status = FakturaStatusType.SENDT,
-                    ),
-                )
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+                fakturaStatus.status shouldBe FakturaStatusType.SENDT
+                fakturaStatus.fakturanummer shouldBe "B1-F2"
             }
         }
 
@@ -398,12 +397,9 @@ class OkonomiServiceTest : FunSpec({
             }
 
             db.session { getLatestRecord(topic = "faktura-status") }.should {
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    FakturaStatus(
-                        fakturanummer = "B2-F1",
-                        status = FakturaStatusType.SENDT,
-                    ),
-                )
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+                fakturaStatus.status shouldBe FakturaStatusType.SENDT
+                fakturaStatus.fakturanummer shouldBe "B2-F1"
             }
 
             db.session {

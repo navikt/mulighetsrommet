@@ -5862,6 +5862,7 @@ components:
         - BEHANDLES_AV_NAV
         - UTBETALT
         - VENTER_PA_ENDRING
+        - OVERFORT_TIL_UTBETALING
 
     AdminUtbetalingStatus:
       type: string
@@ -6014,6 +6015,10 @@ components:
           $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
           $ref: "#/components/schemas/Periode"
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorUtbetalingLinje"
       required:
         - id
         - status
@@ -6024,6 +6029,27 @@ components:
         - beregning
         - betalingsinformasjon
         - periode
+
+    ArrangorUtbetalingLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        status:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        statusSistOppdatert:
+          type: string
+          format: datetime
+        belop:
+          type: integer
+      required:
+        - id
+        - tilsagn
+        - status
+        - belop
 
     UtbetalingTiltakstype:
       type: object
@@ -6373,6 +6399,7 @@ components:
         - RETURNERT
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
+        - BEHANDLES_AV_NAV
 
     UtbetalingLinje:
       type: object
