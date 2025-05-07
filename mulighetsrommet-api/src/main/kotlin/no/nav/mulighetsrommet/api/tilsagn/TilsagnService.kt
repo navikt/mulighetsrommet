@@ -445,17 +445,18 @@ class TilsagnService(
 
         queries.tilsagn.delete(id)
         if (totrinnskontroll?.besluttetAv == navIdent && totrinnskontroll.behandletAv is NavIdent) {
-            sendNotifikasjonTilOppretter(tilsagn, besluttetAv = navIdent, behandletAv = totrinnskontroll.behandletAv)
+            sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = totrinnskontroll.behandletAv)
         }
 
         Unit.right()
     }
 
-    private fun sendNotifikasjonTilOppretter(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
+    private fun sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
+        val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
         val notice = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = """Et tilsagn for ${tilsagn.gjennomforing.navn} er blitt slettet av $besluttetAv.""",
-            description = "Du har blitt varslet fordi tilsagnet ${tilsagn.type} du opprettet for gjennomføringen ${tilsagn.gjennomforing.navn}, under ${tilsagn.kostnadssted.navn}, er blitt slettet.",
+            title = """Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet.""",
+            description = """${besluttetAv.value} slettet et $tilsagnDisplayName, for gjennomføringen "${tilsagn.gjennomforing.navn}", under "${tilsagn.kostnadssted.navn}". Kontakt personen om dette er feil.""",
             metadata = NotificationMetadata(
                 linkText = "Gå til gjennomføringen",
                 link = "/gjennomforinger/${tilsagn.gjennomforing.id}",
