@@ -17,10 +17,29 @@ type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
 };
 
+interface TimestampInfo {
+  title: string;
+  value: string;
+}
+
+const getTimestamp = (utbetaling: ArrFlateUtbetaling): TimestampInfo => {
+  if (utbetaling.godkjentAvArrangorTidspunkt) {
+    return {
+      title: "Dato innsendt",
+      value: formaterDato(utbetaling.godkjentAvArrangorTidspunkt),
+    };
+  }
+
+  return {
+    title: "Dato opprettet hos Nav",
+    value: utbetaling.createdAt ? formaterDato(utbetaling.createdAt) : "-",
+  };
+};
+
 export const meta: MetaFunction = () => {
   return [
     { title: "Utbetaling | Detaljer" },
-    { name: "description", content: "Arrangørflate for kvittering av krav om utbetaling" },
+    { name: "description", content: "Arrangørflate for detaljer om en utbetaling" },
   ];
 };
 
@@ -52,11 +71,7 @@ export default function UtbetalingDetaljerSide() {
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
 
-  const innsendtTidspunkt = utbetaling.godkjentAvArrangorTidspunkt
-    ? formaterDato(utbetaling.godkjentAvArrangorTidspunkt)
-    : utbetaling.createdAt
-      ? formaterDato(utbetaling.createdAt)
-      : "-";
+  const innsendtTidspunkt = getTimestamp(utbetaling);
 
   return (
     <>
@@ -78,8 +93,8 @@ export default function UtbetalingDetaljerSide() {
             headingLevel="3"
             definitions={[
               {
-                key: "Dato innsendt",
-                value: innsendtTidspunkt,
+                key: innsendtTidspunkt.title,
+                value: innsendtTidspunkt.value,
               },
             ]}
           />
