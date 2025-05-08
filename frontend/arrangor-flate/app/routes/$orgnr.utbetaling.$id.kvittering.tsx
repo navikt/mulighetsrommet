@@ -9,13 +9,13 @@ import {
   useLoaderData,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { internalNavigation } from "../internal-navigation";
-import { formaterDatoTid, problemDetailResponse, useOrgnrFromUrl } from "../utils";
+import { internalNavigation } from "~/internal-navigation";
+import { formaterDatoTid, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { PageHeader } from "~/components/PageHeader";
 
 type UtbetalingKvitteringData = {
   mottattTidspunkt: string;
-  kontonummer: string;
+  kontonummer: string | null;
 };
 
 export const meta: MetaFunction = () => {

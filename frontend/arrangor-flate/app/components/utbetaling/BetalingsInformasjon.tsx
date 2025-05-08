@@ -7,6 +7,7 @@ interface Props {
 }
 
 export default function BetalingsInformasjon({ utbetaling }: Props) {
+  const { kontonummer, kid } = utbetaling.betalingsinformasjon;
   return (
     <Definisjonsliste
       title="Betalingsinformasjon"
@@ -14,11 +15,11 @@ export default function BetalingsInformasjon({ utbetaling }: Props) {
       definitions={[
         {
           key: "Kontonummer",
-          value: formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer),
+          value: kontonummer ? formaterKontoNummer(kontonummer) : "-",
         },
         {
           key: "KID-nummer",
-          value: utbetaling.betalingsinformasjon.kid || "-",
+          value: kid || "-",
         },
       ]}
     />

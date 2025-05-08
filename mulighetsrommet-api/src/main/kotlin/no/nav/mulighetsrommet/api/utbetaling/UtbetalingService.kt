@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.*
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -260,9 +260,8 @@ class UtbetalingService(
         request: GodkjennUtbetaling,
     ) = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setBetalingsinformasjon(
+        queries.utbetaling.setKid(
             utbetalingId,
-            request.betalingsinformasjon.kontonummer,
             request.betalingsinformasjon.kid,
         )
         val dto = getOrError(utbetalingId)

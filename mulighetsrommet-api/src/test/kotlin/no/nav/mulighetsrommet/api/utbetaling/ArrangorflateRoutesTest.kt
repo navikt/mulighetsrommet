@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.*
@@ -194,10 +193,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 setBody(
                     GodkjennUtbetaling(
                         digest = "d3b07384d113edec49eaa6238ad5ff00",
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                            kontonummer = Kontonummer("12312312312"),
-                            kid = null,
-                        ),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
                     ),
                 )
             }
@@ -237,10 +233,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 setBody(
                     GodkjennUtbetaling(
                         digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                            kontonummer = Kontonummer("12312312312"),
-                            kid = null,
-                        ),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
                     ),
                 )
             }
@@ -268,10 +261,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 setBody(
                     GodkjennUtbetaling(
                         digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                            kontonummer = Kontonummer("12312312312"),
-                            kid = null,
-                        ),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
                     ),
                 )
             }
@@ -283,10 +273,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 setBody(
                     GodkjennUtbetaling(
                         digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                            kontonummer = Kontonummer("12312312312"),
-                            kid = null,
-                        ),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
                     ),
                 )
             }
@@ -317,10 +304,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 setBody(
                     GodkjennUtbetaling(
                         digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                            kontonummer = Kontonummer("12312312312"),
-                            kid = null,
-                        ),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
                     ),
                 )
             }
@@ -356,10 +340,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 setBody(
                     GodkjennUtbetaling(
                         digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                            kontonummer = Kontonummer("12312312312"),
-                            kid = null,
-                        ),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
                     ),
                 )
             }

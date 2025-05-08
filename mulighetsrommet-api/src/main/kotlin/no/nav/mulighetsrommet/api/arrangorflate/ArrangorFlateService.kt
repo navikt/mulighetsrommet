@@ -207,19 +207,18 @@ class ArrangorFlateService(
         }
 
     suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
-        return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(orgnr)
+        return kontoregisterOrganisasjonClient
+            .getKontonummerForOrganisasjon(orgnr)
             .map { it.kontonr }
     }
 
     suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> = db.session {
-        getKontonummer(utbetaling.arrangor.organisasjonsnummer)
-            .onRight {
-                queries.utbetaling.setBetalingsinformasjon(
-                    id = utbetaling.id,
-                    kontonummer = Kontonummer(it),
-                    kid = utbetaling.betalingsinformasjon.kid,
-                )
-            }
+        getKontonummer(utbetaling.arrangor.organisasjonsnummer).onRight {
+            queries.utbetaling.setKontonummer(
+                id = utbetaling.id,
+                kontonummer = Kontonummer(it),
+            )
+        }
     }
 }
 
