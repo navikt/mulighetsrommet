@@ -41,7 +41,7 @@ class NotifyFailedKafkaEvents(
 
             if (failedEvents.isNotEmpty()) {
                 val message = """
-                    Det finnes ${failedEvents.size} rader i tabellen 'failed_events' som har retries >= $retries. Count per topic: $topicCounts
+                    Det finnes ${failedEvents.size} rader i tabellen 'kafka_consumer_record' som har retries >= $retries. Count per topic: $topicCounts
                 """.trimIndent()
                 slackNotifier.sendMessage(message)
             }
