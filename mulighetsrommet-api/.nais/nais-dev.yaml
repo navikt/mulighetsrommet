@@ -10,17 +10,6 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-api.intern.dev.nav.no
-  secureLogs:
-    enabled: true
-  prometheus:
-    enabled: true
-    path: /internal/prometheus
-  readiness:
-    path: /internal/readiness
-    initialDelay: 20
-  liveness:
-    path: /internal/liveness
-    initialDelay: 20
   replicas:
     min: 1
     max: 2
@@ -28,11 +17,17 @@ spec:
       cpu:
         thresholdPercentage: 75
   resources:
-    limits:
-      memory: 1024Mi
     requests:
       cpu: 100m
       memory: 512Mi
+    limits:
+      memory: 1024Mi
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
   observability:
     autoInstrumentation:
       enabled: true
@@ -41,6 +36,13 @@ spec:
       destinations:
         - id: elastic
         - id: loki
+  secureLogs:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  kafka:
+    pool: nav-dev
   gcp:
     buckets:
       - name: mulighetsrommet-api-uploads-dev
@@ -53,15 +55,15 @@ spec:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
             users:
-              - name: datastream # Ekstra databasebruker for Datastream
+              # Ekstra databasebruker for Datastream
+              - name: datastream
         diskAutoresize: true
         flags:
           - name: max_connections
             value: "200"
-          - name: cloudsql.logical_decoding # Settes for å støtte replication slots i databasen
-            value: "on" # flagget som må settes
-  kafka:
-    pool: nav-dev
+          # Settes for å støtte replication slots i databasen
+          - name: cloudsql.logical_decoding
+            value: "on"
   azure:
     application:
       enabled: true
@@ -76,7 +78,7 @@ spec:
           - id: "279039a0-39fd-4860-afdd-a1a2ccaa6323"
           # 0000-AZ-TILTAK-avtaler_skriv
           - id: "48026f54-6259-4c35-a148-bc4257bcaf03"
-          # (GRP) mr-nav_kontaktperson
+          # 0000-CA-Tiltaksadministrasjon_kontaktperson
           - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
           # 0000-AZ-TILTAK-okonomi_beslutter
           - id: "b00ba197-c90a-4ff9-966e-6c9cf1c882bf"
@@ -88,17 +90,27 @@ spec:
           - id: "059b2db3-e38d-4482-bf2f-21d4a226aa94"
           # 0400-CA-Tiltaksadministrasjon_beslutter-tilsagn
           - id: "3e6fe3c5-58e2-466e-9117-adecb4c1ee74"
+          # 5700-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "34902073-90be-4025-9bb0-da6b71b293ff"
           # 0000-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac"
           # 0300-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "88c9cffb-bb4f-4e9d-9af3-cf66ac11f156"
           # 0400-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "e79ba9ba-efd9-456b-8567-dadbe65f8b24"
+          # 5700-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "f57989e2-410e-45dd-9285-32c3bacc94d4"
         extra:
           - NAVident
           - azp_name
   tokenx:
     enabled: true
+  maskinporten:
+    enabled: true
+    scopes:
+      consumes:
+        - name: "altinn:authorization/authorize"
+        - name: "altinn:accessmanagement/authorizedparties.resourceowner"
   accessPolicy:
     inbound:
       rules:
@@ -165,9 +177,3 @@ spec:
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
-  maskinporten:
-    enabled: true
-    scopes:
-      consumes:
-        - name: "altinn:authorization/authorize"
-        - name: "altinn:accessmanagement/authorizedparties.resourceowner"

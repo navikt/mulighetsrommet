@@ -10,17 +10,6 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-tiltakshistorikk.intern.dev.nav.no
-  secureLogs:
-    enabled: true
-  prometheus:
-    enabled: true
-    path: /internal/prometheus
-  readiness:
-    path: /internal/readiness
-    initialDelay: 20
-  liveness:
-    path: /internal/liveness
-    initialDelay: 20
   replicas:
     min: 1
     max: 2
@@ -33,6 +22,12 @@ spec:
       memory: 512Mi
     limits:
       memory: 8192Mi
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
   observability:
     autoInstrumentation:
       enabled: true
@@ -41,6 +36,13 @@ spec:
       destinations:
         - id: elastic
         - id: loki
+  secureLogs:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  kafka:
+    pool: nav-dev
   gcp:
     sqlInstances:
       - name: tiltakshistorikk-v1
@@ -59,11 +61,10 @@ spec:
       allowAllUsers: false
       claims:
         groups:
-          - id: 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
+          # team-mulighetsrommet
+          - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
         extra:
           - azp_name
-  kafka:
-    pool: nav-dev
   accessPolicy:
     inbound:
       rules:

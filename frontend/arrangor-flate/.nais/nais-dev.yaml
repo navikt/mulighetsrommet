@@ -6,24 +6,39 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: {{ image }}
+  image: "{{ image }}"
   port: 3000
-  replicas:
-    min: 1
-  resources:
-    requests:
-      cpu: 50m
   ingresses:
     - https://arrangor-utbetaling.intern.dev.nav.no
+  replicas:
+    min: 1
+    max: 2
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 1024Mi
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 20
+  readiness:
+    path: /internal/isReady
+    initialDelay: 20
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: nodejs
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   prometheus:
     enabled: true
     path: /metrics
-  liveness:
-    initialDelay: 20
-    path: /internal/isAlive
-  readiness:
-    initialDelay: 20
-    path: /internal/isReady
   accessPolicy:
     outbound:
       rules:
@@ -41,11 +56,3 @@ spec:
       autoLoginIgnorePaths:
         - /internal/*
         - /metrics
-  observability:
-    autoInstrumentation:
-      enabled: true
-      runtime: nodejs
-    logging:
-      destinations:
-        - id: elastic
-        - id: loki
