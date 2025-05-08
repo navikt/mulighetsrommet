@@ -1,5 +1,5 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
   name: mr-admin-flate
   namespace: team-mulighetsrommet
@@ -10,42 +10,44 @@ spec:
   port: 8080
   ingresses:
     - https://tiltaksadministrasjon.intern.nav.no
-  liveness:
-    path: /internal/alive
-    initialDelay: 10
-  readiness:
-    path: /internal/ready
-    initialDelay: 10
   replicas:
     min: 2
     max: 3
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+  liveness:
+    path: /internal/alive
+    initialDelay: 10
+  readiness:
+    path: /internal/ready
+    initialDelay: 10
   observability:
     autoInstrumentation:
       enabled: true
       runtime: nodejs
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      cpu: 10m
-      memory: 256Mi
+  gcp:
+    buckets:
+      - name: mr-admin-flate-prod
+        cascadingDelete: false
   azure:
     application:
       enabled: true
-      tenant: nav.no
       allowAllUsers: false
       claims:
-        extra:
-          - NAVident
         groups:
           - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
           - id: 33053061-86da-4d6b-9372-33238fabd25f # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
           - id: 46ba8787-eb24-4f7b-830f-4c5e9256de65 # 0000-GA-TILTAK-avtaler_skriv
           - id: 2cf8d881-c2da-47b5-b409-fa088440a629 # 0000-GA-TILTAK-ANSVARLIG
-
+        extra:
+          - NAVident
     sidecar:
       enabled: true
       autoLogin: true
@@ -53,10 +55,6 @@ spec:
         - /assets/*
         - /asset-manifest.json
         - /mulighetsrommet-api/**
-  gcp:
-    buckets:
-      - name: mr-admin-flate-prod
-        cascadingDelete: false
   accessPolicy:
     outbound:
       rules:

@@ -6,21 +6,10 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: {{image}}
+  image: "{{ image }}"
   port: 8084
   ingresses:
     - https://mulighetsrommet-arena-adapter.intern.nav.no
-  secureLogs:
-    enabled: true
-  prometheus:
-    enabled: true
-    path: /internal/prometheus
-  readiness:
-    path: /internal/readiness
-    initialDelay: 20
-  liveness:
-    path: /internal/liveness
-    initialDelay: 20
   replicas:
     min: 2
     max: 4
@@ -33,6 +22,12 @@ spec:
       memory: 512Mi
     limits:
       memory: 8192Mi
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
   observability:
     autoInstrumentation:
       enabled: true
@@ -41,6 +36,13 @@ spec:
       destinations:
         - id: elastic
         - id: loki
+  secureLogs:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  kafka:
+    pool: nav-prod
   gcp:
     sqlInstances:
       - name: arena-adapter-v1
@@ -54,8 +56,6 @@ spec:
         flags:
           - name: max_connections
             value: "200"
-  kafka:
-    pool: nav-prod
   azure:
     application:
       enabled: true
@@ -77,6 +77,5 @@ spec:
       external:
         - host: amt-arena-ords-proxy.prod-fss-pub.nais.io
         - host: slack.com
-
   envFrom:
     - secret: mulighetsrommet-arena-adapter

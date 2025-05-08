@@ -10,17 +10,6 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-api.intern.dev.nav.no
-  secureLogs:
-    enabled: true
-  prometheus:
-    enabled: true
-    path: /internal/prometheus
-  readiness:
-    path: /internal/readiness
-    initialDelay: 20
-  liveness:
-    path: /internal/liveness
-    initialDelay: 20
   replicas:
     min: 1
     max: 2
@@ -28,11 +17,17 @@ spec:
       cpu:
         thresholdPercentage: 75
   resources:
-    limits:
-      memory: 1024Mi
     requests:
       cpu: 100m
       memory: 512Mi
+    limits:
+      memory: 1024Mi
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
   observability:
     autoInstrumentation:
       enabled: true
@@ -41,6 +36,13 @@ spec:
       destinations:
         - id: elastic
         - id: loki
+  secureLogs:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  kafka:
+    pool: nav-dev
   gcp:
     buckets:
       - name: mulighetsrommet-api-uploads-dev
@@ -60,8 +62,6 @@ spec:
             value: "200"
           - name: cloudsql.logical_decoding # Settes for å støtte replication slots i databasen
             value: "on" # flagget som må settes
-  kafka:
-    pool: nav-dev
   azure:
     application:
       enabled: true
@@ -99,6 +99,12 @@ spec:
           - azp_name
   tokenx:
     enabled: true
+  maskinporten:
+    enabled: true
+    scopes:
+      consumes:
+        - name: "altinn:authorization/authorize"
+        - name: "altinn:accessmanagement/authorizedparties.resourceowner"
   accessPolicy:
     inbound:
       rules:
@@ -165,9 +171,3 @@ spec:
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
-  maskinporten:
-    enabled: true
-    scopes:
-      consumes:
-        - name: "altinn:authorization/authorize"
-        - name: "altinn:accessmanagement/authorizedparties.resourceowner"

@@ -11,28 +11,32 @@ spec:
   ingresses:
     - https://tiltaksadministrasjon.intern.dev.nav.no
     - https://tiltaksadministrasjon.ansatt.dev.nav.no
+  replicas:
+    min: 1
+    max: 2
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
   liveness:
     path: /internal/alive
     initialDelay: 10
   readiness:
     path: /internal/ready
     initialDelay: 10
-  replicas:
-    min: 1
-    max: 1
-    scalingStrategy:
-      cpu:
-        thresholdPercentage: 75
   observability:
     autoInstrumentation:
       enabled: true
       runtime: nodejs
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      cpu: 10m
-      memory: 256Mi
+  gcp:
+    buckets:
+      - name: mr-admin-flate-dev
+        cascadingDelete: false
   azure:
     application:
       enabled: true
@@ -52,10 +56,6 @@ spec:
         - /assets/*
         - /asset-manifest.json
         - /mulighetsrommet-api/**
-  gcp:
-    buckets:
-      - name: mr-admin-flate-dev
-        cascadingDelete: false
   accessPolicy:
     outbound:
       rules:
