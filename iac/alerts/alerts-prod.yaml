@@ -40,7 +40,7 @@ spec:
             namespace: team-mulighetsrommet
             severity: critical
         - alert: Antall restarts
-          expr: sum(increase(kube_pod_container_status_restarts_total[5m])) by (container) > 2
+          expr: sum(increase(kube_pod_container_status_restarts_total{namespace="team-mulighetsrommet"}[5m])) by (container) > 2
           for: 5m
           annotations:
             consequence: Minst én pod er utilgjengelig og nye kodeendringer har sannsynligvis ikke blitt produksjonssatt.
