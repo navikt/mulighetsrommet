@@ -190,12 +190,7 @@ class ArrangorflateRoutesTest : FunSpec({
             val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(
-                    GodkjennUtbetaling(
-                        digest = "d3b07384d113edec49eaa6238ad5ff00",
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
-                    ),
-                )
+                setBody(GodkjennUtbetaling(digest = "d3b07384d113edec49eaa6238ad5ff00", kid = null))
             }
 
             response.status shouldBe HttpStatusCode.BadRequest
@@ -230,12 +225,7 @@ class ArrangorflateRoutesTest : FunSpec({
             val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(
-                    GodkjennUtbetaling(
-                        digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
-                    ),
-                )
+                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
 
@@ -258,24 +248,14 @@ class ArrangorflateRoutesTest : FunSpec({
             var response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(
-                    GodkjennUtbetaling(
-                        digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
-                    ),
-                )
+                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
 
             response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(
-                    GodkjennUtbetaling(
-                        digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
-                    ),
-                )
+                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
             response.status shouldBe HttpStatusCode.BadRequest
         }
@@ -301,12 +281,7 @@ class ArrangorflateRoutesTest : FunSpec({
             val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(
-                    GodkjennUtbetaling(
-                        digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
-                    ),
-                )
+                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
         }
@@ -337,12 +312,7 @@ class ArrangorflateRoutesTest : FunSpec({
             val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(
-                    GodkjennUtbetaling(
-                        digest = utbetaling.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
-                    ),
-                )
+                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
 
             response.status shouldBe HttpStatusCode.BadRequest

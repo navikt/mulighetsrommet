@@ -350,14 +350,9 @@ data class ArrangorflateGjennomforing(
 
 @Serializable
 data class GodkjennUtbetaling(
-    val betalingsinformasjon: Betalingsinformasjon,
     val digest: String,
-) {
-    @Serializable
-    data class Betalingsinformasjon(
-        val kid: Kid?,
-    )
-}
+    val kid: Kid?,
+)
 
 @Serializable
 data class RelevanteForslag(

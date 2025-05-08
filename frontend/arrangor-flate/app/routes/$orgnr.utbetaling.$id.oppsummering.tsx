@@ -124,7 +124,7 @@ export const action: ActionFunction = async ({ params, request }) => {
     path: { id },
     body: {
       digest: utbetalingDigest,
-      betalingsinformasjon: { kid },
+      kid,
     },
     headers: await apiHeaders(request),
   });

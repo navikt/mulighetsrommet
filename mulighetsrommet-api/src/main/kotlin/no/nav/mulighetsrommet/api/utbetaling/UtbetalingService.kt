@@ -260,10 +260,7 @@ class UtbetalingService(
         request: GodkjennUtbetaling,
     ) = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setKid(
-            utbetalingId,
-            request.betalingsinformasjon.kid,
-        )
+        queries.utbetaling.setKid(utbetalingId, request.kid)
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())

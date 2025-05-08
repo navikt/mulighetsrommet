@@ -1217,8 +1217,8 @@ class UtbetalingServiceTest : FunSpec({
 
     context("Automatisk utbetaling") {
         val godkjennUtbetaling = GodkjennUtbetaling(
-            betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(kid = null),
             digest = "digest",
+            kid = null,
         )
 
         val utbetaling1Id = utbetaling1.id

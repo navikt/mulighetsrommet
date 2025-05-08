@@ -5950,7 +5950,7 @@ components:
           type: string
           format: date-time
         betalingsinformasjon:
-          $ref: "#/components/schemas/UtbetalingBetalingsinformasjon"
+          $ref: "#/components/schemas/Betalingsinformasjon"
         beskrivelse:
           type: [string, "null"]
         innsendtAv:
@@ -6049,7 +6049,7 @@ components:
         beregning:
           $ref: "#/components/schemas/ArrFlateBeregning"
         betalingsinformasjon:
-          $ref: "#/components/schemas/UtbetalingBetalingsinformasjon"
+          $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
           $ref: "#/components/schemas/Periode"
         linjer:
@@ -6369,7 +6369,7 @@ components:
         - gjenstaendeBelop
         - bestillingsnummer
 
-    UtbetalingBetalingsinformasjon:
+    Betalingsinformasjon:
       type: object
       properties:
         kontonummer:
@@ -6383,18 +6383,11 @@ components:
       properties:
         digest:
           type: string
-        betalingsinformasjon:
-          $ref: "#/components/schemas/GodkjennUtbetalingBetalingsinformasjon"
-      required:
-        - digest
-        - betalingsinformasjon
-
-    GodkjennUtbetalingBetalingsinformasjon:
-      type: object
-      properties:
         kid:
           type: [string, "null"]
-      required: [kid]
+      required:
+        - digest
+        - kid
 
     RelevanteForslag:
       type: object
