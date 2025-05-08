@@ -11,6 +11,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
@@ -238,6 +239,10 @@ class TilsagnServiceTest : FunSpec({
         val notification: NotificationTask = mockk(relaxed = true)
         val service = createTilsagnService(notification)
 
+        beforeEach {
+            clearAllMocks()
+        }
+
         test("kan ikke slette tilsagn når det er til godkjenning") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -290,7 +295,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(request.id, ansatt2).shouldBeRight()
-            verify(exactly = 1) { notification.scheduleNotification(allAny(), any()) }
+            verify(exactly = 1) { notification.scheduleNotification(any(), any()) }
         }
 
         test("skal ikke sende notifikasjon når behandletAv sletter tilsagn") {
@@ -307,7 +312,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(request.id, ansatt1).shouldBeRight()
-            verify(exactly = 0) { notification.scheduleNotification(allAny(), any()) }
+            verify(exactly = 0) { notification.scheduleNotification(any(), any()) }
         }
     }
 
