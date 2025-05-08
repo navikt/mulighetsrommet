@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
@@ -13,6 +14,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
     status: ArrFlateUtbetalingStatus,
     deltakere: List<Deltaker>,
     personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person>,
+    linjer: List<ArrangorUtbetalingLinje>,
 ): ArrFlateUtbetaling {
     return when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningForhandsgodkjent -> {
@@ -54,6 +56,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 status = status,
                 fristForGodkjenning = utbetaling.fristForGodkjenning,
                 godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+                createdAt = utbetaling.createdAt,
                 tiltakstype = utbetaling.tiltakstype,
                 gjennomforing = utbetaling.gjennomforing,
                 arrangor = utbetaling.arrangor,
@@ -66,6 +69,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                     deltakelser = deltakelser,
                 ),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
+                linjer = linjer,
             )
         }
 
@@ -74,6 +78,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
             status = status,
             fristForGodkjenning = utbetaling.fristForGodkjenning,
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+            createdAt = utbetaling.createdAt,
             tiltakstype = utbetaling.tiltakstype,
             gjennomforing = utbetaling.gjennomforing,
             arrangor = utbetaling.arrangor,
@@ -83,6 +88,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 digest = beregning.getDigest(),
             ),
             betalingsinformasjon = utbetaling.betalingsinformasjon,
+            linjer = linjer,
         )
     }
 }

@@ -2635,6 +2635,23 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/oppgaver/oppgavetyper:
+    get:
+      tags:
+        - Oppgaver
+      operationId: getOppgavetyper
+      responses:
+        200:
+          description: Relevante oppgavetyper
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OppgaveTypeDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
 components:
   responses:
     ProblemDetail:
@@ -3247,6 +3264,17 @@ components:
       enum:
         - DONE
         - NOT_DONE
+
+    OppgaveTypeDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        type:
+          $ref: "#/components/schemas/OppgaveType"
+      required:
+        - navn
+        - type
 
     OppgaveType:
       type: string
@@ -4678,6 +4706,8 @@ components:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/OppgaveTiltakstype"
+        enhet:
+          $ref: "#/components/schemas/OppgaveEnhet"
         link:
           type: object
           properties:
@@ -4700,6 +4730,13 @@ components:
         - link
         - createdAt
         - oppgaveIcon
+
+    OppgaveEnhet:
+      properties:
+        nummer:
+          type: string
+        navn:
+          type: string
 
     OppgaveIcon:
       type: string
@@ -5100,6 +5137,7 @@ components:
         - RELIGION
         - NASJONALITET
         - ADRESSESPERRE
+        - VERGEMAL
 
     Kurstype:
       type: string
@@ -5861,6 +5899,7 @@ components:
         - BEHANDLES_AV_NAV
         - UTBETALT
         - VENTER_PA_ENDRING
+        - OVERFORT_TIL_UTBETALING
 
     AdminUtbetalingStatus:
       type: string
@@ -5998,6 +6037,9 @@ components:
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
+        createdAt:
+          type: [ string, "null" ]
+          format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
         gjennomforing:
@@ -6010,6 +6052,10 @@ components:
           $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
           $ref: "#/components/schemas/Periode"
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorUtbetalingLinje"
       required:
         - id
         - status
@@ -6020,6 +6066,27 @@ components:
         - beregning
         - betalingsinformasjon
         - periode
+
+    ArrangorUtbetalingLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        status:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        statusSistOppdatert:
+          type: string
+          format: datetime
+        belop:
+          type: integer
+      required:
+        - id
+        - tilsagn
+        - status
+        - belop
 
     UtbetalingTiltakstype:
       type: object
@@ -6369,6 +6436,7 @@ components:
         - RETURNERT
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
+        - BEHANDLES_AV_NAV
 
     UtbetalingLinje:
       type: object

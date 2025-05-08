@@ -28,11 +28,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollServi
 import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerPerson
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer

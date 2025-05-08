@@ -94,7 +94,7 @@ test.describe("Utbetalinger detaljer", () => {
     // Verify that the return reason text is visible
     await expect(page.locator("text=Feil beløp")).toBeVisible();
     await expect(
-      page.locator("text=Forklaring: Beløpet er feil, og bør fikses ved å endre antall deltakere"),
+      page.locator("text=Beløpet er feil, og bør fikses ved å endre antall deltakere"),
     ).toBeVisible();
     await sjekkUU(page, "utbetaling-til-utbetaling");
   });

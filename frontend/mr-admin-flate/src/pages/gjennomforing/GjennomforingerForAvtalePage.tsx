@@ -7,7 +7,7 @@ import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
-import { GjennomforingFiltertags } from "@/components/filter/GjennomforingFiltertags";
+import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
@@ -54,7 +54,7 @@ export function GjennomforingerForAvtalePage() {
           />
         }
         tags={
-          <GjennomforingFiltertags
+          <GjennomforingFilterTags
             filterAtom={filterAtomGjennomforinger}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}

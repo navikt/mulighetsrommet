@@ -25,6 +25,7 @@ class FakturaQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
+                status_sist_oppdatert,
                 behandlet_av,
                 behandlet_tidspunkt,
                 besluttet_av,
@@ -38,6 +39,7 @@ class FakturaQueries(private val session: Session) {
                 :belop,
                 :periode::daterange,
                 :status,
+                :status_sist_oppdatert,
                 :behandlet_av,
                 :behandlet_tidspunkt,
                 :besluttet_av,
@@ -54,6 +56,7 @@ class FakturaQueries(private val session: Session) {
             "belop" to faktura.belop,
             "periode" to faktura.periode.toDaterange(),
             "status" to faktura.status.name,
+            "status_sist_oppdatert" to faktura.fakturaStatusSistOppdatert,
             "behandlet_av" to faktura.behandletAv.part,
             "behandlet_tidspunkt" to faktura.behandletTidspunkt,
             "besluttet_av" to faktura.besluttetAv.part,
@@ -82,7 +85,8 @@ class FakturaQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update faktura
-            set status = ?
+            set status = ?,
+            status_sist_oppdatert = now()
             where fakturanummer = ?
         """.trimIndent()
         session.execute(queryOf(query, status.name, fakturanummer))
@@ -128,6 +132,7 @@ class FakturaQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
+                status_sist_oppdatert,
                 behandlet_av,
                 behandlet_tidspunkt,
                 besluttet_av,
@@ -154,6 +159,7 @@ class FakturaQueries(private val session: Session) {
                 belop = faktura.int("belop"),
                 periode = faktura.periode("periode"),
                 status = FakturaStatusType.valueOf(faktura.string("status")),
+                fakturaStatusSistOppdatert = faktura.localDateTimeOrNull("status_sist_oppdatert"),
                 behandletAv = OkonomiPart.fromString(faktura.string("behandlet_av")),
                 behandletTidspunkt = faktura.localDateTime("behandlet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(faktura.string("besluttet_av")),

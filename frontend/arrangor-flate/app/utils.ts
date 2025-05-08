@@ -21,6 +21,20 @@ export function formaterDato(dato: string | Date, fallback = ""): string {
   return result;
 }
 
+export function formaterDatoTid(dato: string | Date): string {
+  if (!dato) return "";
+
+  const result = new Date(dato).toLocaleString("no-NO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return result.replace(",", " kl. ");
+}
+
 export function useOrgnrFromUrl() {
   const { orgnr } = useParams();
 

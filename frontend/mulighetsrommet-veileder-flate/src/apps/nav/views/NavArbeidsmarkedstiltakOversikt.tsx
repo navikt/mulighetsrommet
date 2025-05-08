@@ -1,6 +1,6 @@
-import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
+import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { Filtermeny } from "@/components/filtrering/Filtermeny";
+import { FilterMenu } from "@/components/filtrering/FilterMenu";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
 import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
@@ -47,10 +47,10 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         buttons={null}
         filter={
           <Suspense fallback={<div>loading...</div>}>
-            <Filtermeny />
+            <FilterMenu />
           </Suspense>
         }
-        tags={<NavFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
+        tags={<NavFilterTags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         nullstillFilterButton={
           filterHasChanged && (
             <HStack gap="2">

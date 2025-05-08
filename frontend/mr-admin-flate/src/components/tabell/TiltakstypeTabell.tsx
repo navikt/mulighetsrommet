@@ -6,7 +6,7 @@ import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
+import { TiltakstypeStatusTag } from "../statuselementer/TiltakstypeStatusTag";
 
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
@@ -72,7 +72,7 @@ export function TiltakstypeTabell() {
                 <Table.DataCell aria-label={`Startdato: ${startDato}`}>{startDato}</Table.DataCell>
                 <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>{sluttDato}</Table.DataCell>
                 <Table.DataCell>
-                  <TiltakstypestatusTag tiltakstype={tiltakstype} />
+                  <TiltakstypeStatusTag tiltakstype={tiltakstype} />
                 </Table.DataCell>
               </Table.Row>
             );

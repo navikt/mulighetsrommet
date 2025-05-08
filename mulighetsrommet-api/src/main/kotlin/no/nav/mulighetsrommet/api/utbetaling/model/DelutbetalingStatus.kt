@@ -6,4 +6,5 @@ enum class DelutbetalingStatus {
     RETURNERT,
     UTBETALT,
     OVERFORT_TIL_UTBETALING,
+    BEHANDLES_AV_NAV,
 }

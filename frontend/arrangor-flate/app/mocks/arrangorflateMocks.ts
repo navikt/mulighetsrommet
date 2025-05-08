@@ -124,7 +124,7 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
   },
   {
     id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
-    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -253,7 +253,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   },
   {
     id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
-    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -571,7 +571,7 @@ const arrangorer: Arrangor[] = [
 const mockRelevanteForslag: RelevanteForslag[] = [
   {
     deltakerId: mockDeltakelser[0].id,
-    antallRelevanteForslag: 1,
+    antallRelevanteForslag: 0,
   },
   {
     deltakerId: mockDeltakelser[1].id,

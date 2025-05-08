@@ -1,10 +1,10 @@
 import { OppgaverFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { addOrRemove } from "@/utils/Utils";
-import { OPPGAVER_TYPE_STATUS } from "@/utils/filterUtils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 import { useAtom, WritableAtom } from "jotai";
+import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 
 interface Props {
   filterAtom: WritableAtom<OppgaverFilter, [newValue: OppgaverFilter], void>;
@@ -16,6 +16,7 @@ interface Props {
 export function OppgaveFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
+  const { data: oppgavetyper } = useGetOppgavetyper();
   const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper();
 
@@ -24,7 +25,7 @@ export function OppgaveFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTa
       {filter.type.map((type) => (
         <FilterTag
           key={type}
-          label={OPPGAVER_TYPE_STATUS.find((o) => type === o.value)?.label || type}
+          label={oppgavetyper.find((o) => type === o.type)?.navn || type}
           onClose={() => {
             setFilter({
               ...filter,

@@ -1,6 +1,7 @@
 import { NavEnhet } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useFormContext } from "react-hook-form";
+import { tilsagnTekster } from "../TilsagnTekster";
 
 interface Props {
   kostnadssteder: NavEnhet[] | undefined;
@@ -13,7 +14,7 @@ export function VelgKostnadssted({ kostnadssteder }: Props) {
     <ControlledSokeSelect
       placeholder="Velg kostnadssted"
       size="small"
-      label="Kostnadssted"
+      label={tilsagnTekster.kostnadssted.label}
       {...register("kostnadssted")}
       options={
         kostnadssteder
