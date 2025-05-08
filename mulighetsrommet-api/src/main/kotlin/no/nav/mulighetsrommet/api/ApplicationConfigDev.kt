@@ -84,15 +84,18 @@ val ApplicationConfigDev = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = kontaktpersonAdGruppeId,
                 rolle = Rolle.KONTAKTPERSON,
+                kommentar = "0000-CA-Tiltaksadministrasjon_kontaktperson",
             ),
 
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "279039a0-39fd-4860-afdd-a1a2ccaa6323".toUUID(),
                 rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                kommentar = "0000-CA-Tiltaksadministrasjon_gjennomforing-skriv",
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
                 rolle = Rolle.AVTALER_SKRIV,
+                kommentar = "0000-CA-Tiltaksadministrasjon_avtale-skriv",
             ),
 
             AdGruppeNavAnsattRolleMapping(

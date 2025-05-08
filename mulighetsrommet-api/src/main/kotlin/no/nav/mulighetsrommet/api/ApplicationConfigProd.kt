@@ -89,7 +89,7 @@ val ApplicationConfigProd = AppConfig(
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = kontaktpersonAdGruppeId,
                 rolle = Rolle.KONTAKTPERSON,
-                kommentar = "(GRP) mr-nav_kontaktperson",
+                kommentar = "0000-CA-Tiltaksadministrasjon_kontaktperson",
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "a54fd054-4047-46a6-be7c-f1b69f346be8".toUUID(),
