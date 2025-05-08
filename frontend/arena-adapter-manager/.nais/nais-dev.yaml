@@ -34,7 +34,8 @@ spec:
       enabled: true
       claims:
         groups:
-          - id: 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
+          # team-mulighetsrommet
+          - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
     sidecar:
       enabled: true
       autoLogin: true

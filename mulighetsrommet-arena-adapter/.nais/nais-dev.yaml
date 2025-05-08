@@ -62,7 +62,7 @@ spec:
       claims:
         groups:
           # team-mulighetsrommet
-          - id: 639e2806-4cc2-484c-a72a-51b4308c52a1
+          - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
         extra:
           - azp_name
   accessPolicy:

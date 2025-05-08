@@ -34,7 +34,8 @@ spec:
       enabled: true
       claims:
         groups:
-          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
+          # team-mulighetsrommet
+          - id: "debefa6e-1865-446d-b22b-9579fc735de3"
     sidecar:
       enabled: true
       autoLogin: true
