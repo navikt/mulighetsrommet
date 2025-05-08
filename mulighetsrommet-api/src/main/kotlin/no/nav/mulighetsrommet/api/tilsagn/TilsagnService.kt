@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -43,6 +44,7 @@ class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
     private val notification: NotificationTask,
+    private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
         val okonomiConfig: OkonomiConfig,
@@ -452,11 +454,17 @@ class TilsagnService(
     }
 
     private fun sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(besluttetAv)
+        val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.value
         val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
+
+        val title = """Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet."""
+        val description = """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
+
         val notice = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
-            title = """Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet.""",
-            description = """${besluttetAv.value} slettet et $tilsagnDisplayName, for gjennomføringen "${tilsagn.gjennomforing.navn}", under "${tilsagn.kostnadssted.navn}". Kontakt personen om dette er feil.""",
+            title = title,
+            description = description,
             metadata = NotificationMetadata(
                 linkText = "Gå til gjennomføringen",
                 link = "/gjennomforinger/${tilsagn.gjennomforing.id}",
