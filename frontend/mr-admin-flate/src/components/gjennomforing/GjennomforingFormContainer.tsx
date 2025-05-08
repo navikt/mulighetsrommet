@@ -27,7 +27,7 @@ import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 import { GjennomforingRedaksjoneltInnholdForm } from "./GjennomforingRedaksjoneltInnholdForm";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
-
+import { z } from "zod";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
@@ -58,7 +58,8 @@ export function GjennomforingFormContainer({
   const mutation = useUpsertGjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
-  const form = useForm<InferredGjennomforingSchema>({
+  type FormValues = z.infer<typeof GjennomforingSchema>;
+  const form = useForm<z.input<typeof GjennomforingSchema>, any, FormValues>({
     resolver: zodResolver(GjennomforingSchema),
     defaultValues,
   });

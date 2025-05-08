@@ -31,6 +31,7 @@ import { AvtaleFormDetaljer } from "./AvtaleFormDetaljer";
 import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AvtalePrisOgFakturering } from "@/pages/avtaler/AvtalePrisOgFakturering";
+import { z } from "zod";
 
 interface Props {
   onClose: () => void;
@@ -56,7 +57,8 @@ export function AvtaleFormContainer({
 
   const mutation = useUpsertAvtale();
 
-  const form = useForm<InferredAvtaleSchema>({
+  type FormValues = z.infer<typeof AvtaleSchema>;
+  const form = useForm<z.input<typeof AvtaleSchema>, any, FormValues>({
     resolver: zodResolver(AvtaleSchema),
     defaultValues,
   });
