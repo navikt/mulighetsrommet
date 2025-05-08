@@ -118,6 +118,12 @@ val ApplicationConfigDev = AppConfig(
                 enheter = setOf(NavEnhetNummer("0400")),
                 kommentar = "0400-CA-Tiltaksadministrasjon_beslutter-tilsagn",
             ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "34902073-90be-4025-9bb0-da6b71b293ff".toUUID(),
+                rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("5700")),
+                kommentar = "5700-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+            ),
 
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
@@ -132,9 +138,15 @@ val ApplicationConfigDev = AppConfig(
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "e79ba9ba-efd9-456b-8567-dadbe65f8b24".toUUID(),
-                rolle = Rolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("0400")),
                 kommentar = "0400-CA-Tiltaksadministrasjon_attestant-utbetaling",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "f57989e2-410e-45dd-9285-32c3bacc94d4".toUUID(),
+                rolle = Rolle.ATTESTANT_UTBETALING,
+                enheter = setOf(NavEnhetNummer("5700")),
+                kommentar = "5700-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
         ),
     ),
