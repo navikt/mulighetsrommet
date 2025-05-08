@@ -6038,7 +6038,7 @@ components:
           type: [string, "null"]
           format: date-time
         createdAt:
-          type: [ string, "null" ]
+          type: [string, "null"]
           format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
@@ -6373,7 +6373,7 @@ components:
       type: object
       properties:
         kontonummer:
-          type: string
+          type: [string, "null"]
         kid:
           type: [string, "null"]
       required: [kontonummer, kid]
@@ -6383,11 +6383,11 @@ components:
       properties:
         digest:
           type: string
-        betalingsinformasjon:
-          $ref: "#/components/schemas/Betalingsinformasjon"
+        kid:
+          type: [string, "null"]
       required:
         - digest
-        - betalingsinformasjon
+        - kid
 
     RelevanteForslag:
       type: object

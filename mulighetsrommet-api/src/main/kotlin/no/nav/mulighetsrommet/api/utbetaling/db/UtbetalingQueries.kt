@@ -200,7 +200,7 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) = with(session) {
+    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
@@ -209,27 +209,32 @@ class UtbetalingQueries(private val session: Session) {
             where id = :id::uuid
         """.trimIndent()
 
-        execute(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)))
+        session.execute(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)))
     }
 
-    fun setBetalingsinformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
+    fun setKontonummer(id: UUID, kontonummer: Kontonummer) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling
-            set kontonummer = :kontonummer, kid = :kid
-            where id = :id::uuid
+            set kontonummer = ?
+            where id = ?::uuid
         """.trimIndent()
 
-        val params = mapOf(
-            "id" to id,
-            "kontonummer" to kontonummer.value,
-            "kid" to kid?.value,
-        )
-
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, kontonummer.value, id))
     }
 
-    fun setJournalpostId(id: UUID, journalpostId: String) = with(session) {
+    fun setKid(id: UUID, kid: Kid?) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling
+            set kid = ?
+            where id = ?::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, kid?.value, id))
+    }
+
+    fun setJournalpostId(id: UUID, journalpostId: String) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling
@@ -239,10 +244,10 @@ class UtbetalingQueries(private val session: Session) {
 
         val params = mapOf("id" to id, "journalpost_id" to journalpostId)
 
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
     }
 
-    fun get(id: UUID): Utbetaling? = with(session) {
+    fun get(id: UUID): Utbetaling? {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select *
@@ -250,10 +255,10 @@ class UtbetalingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(utbetalingQuery, id)) { it.toUtbetalingDto() }
+        return session.single(queryOf(utbetalingQuery, id)) { it.toUtbetalingDto() }
     }
 
-    fun getOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<Utbetaling> = with(session) {
+    fun getOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<Utbetaling> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select *
@@ -268,12 +273,12 @@ class UtbetalingQueries(private val session: Session) {
             "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
         )
 
-        return list(queryOf(utbetalingQuery, params)) { it.toUtbetalingDto() }
+        return session.list(queryOf(utbetalingQuery, params)) { it.toUtbetalingDto() }
     }
 
     fun getByArrangorIds(
         organisasjonsnummer: Organisasjonsnummer,
-    ): List<Utbetaling> = with(session) {
+    ): List<Utbetaling> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -282,7 +287,7 @@ class UtbetalingQueries(private val session: Session) {
             order by frist_for_godkjenning desc
         """.trimIndent()
 
-        return list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetalingDto() }
+        return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetalingDto() }
     }
 
     fun getByGjennomforing(gjennomforingId: UUID): List<Utbetaling> = with(session) {
@@ -298,7 +303,7 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetalingDto() }
     }
 
-    fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? = with(session) {
+    fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -308,7 +313,7 @@ class UtbetalingQueries(private val session: Session) {
             limit 1
         """.trimIndent()
 
-        return single(queryOf(query, gjennomforingId)) {
+        return session.single(queryOf(query, gjennomforingId)) {
             it.toUtbetalingDto()
         }
     }

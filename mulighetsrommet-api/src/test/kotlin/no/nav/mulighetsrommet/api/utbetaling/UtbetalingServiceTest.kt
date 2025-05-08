@@ -265,9 +265,8 @@ class UtbetalingServiceTest : FunSpec({
             utbetaling.betalingsinformasjon.kid shouldBe null
 
             database.run {
-                queries.utbetaling.setBetalingsinformasjon(
+                queries.utbetaling.setKid(
                     id = utbetaling.id,
-                    kontonummer = Kontonummer("12345678901"),
                     kid = Kid("12345678901"),
                 )
             }
@@ -1218,11 +1217,8 @@ class UtbetalingServiceTest : FunSpec({
 
     context("Automatisk utbetaling") {
         val godkjennUtbetaling = GodkjennUtbetaling(
-            betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                kontonummer = Kontonummer("12312312312"),
-                kid = null,
-            ),
             digest = "digest",
+            kid = null,
         )
 
         val utbetaling1Id = utbetaling1.id
