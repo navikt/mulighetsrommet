@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
@@ -41,7 +42,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
@@ -88,7 +88,7 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createTilsagnService(notification: NotificationTask = mockk(relaxed = true)): TilsagnService {
+    fun createTilsagnService(navAnsattService: NavAnsattService = mockk(relaxed = true)): TilsagnService {
         return TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
@@ -99,7 +99,7 @@ class TilsagnServiceTest : FunSpec({
                 ),
                 bestillingTopic = "topic",
             ),
-            notification = notification,
+            navAnsattService = navAnsattService,
         )
     }
 
@@ -236,8 +236,8 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("slett tilsagn") {
-        val notification: NotificationTask = mockk(relaxed = true)
-        val service = createTilsagnService(notification)
+        val navAnsattService = mockk<NavAnsattService>(relaxed = true)
+        val service = createTilsagnService(navAnsattService)
 
         beforeEach {
             clearAllMocks()
@@ -295,7 +295,11 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(request.id, ansatt2).shouldBeRight()
-            verify(exactly = 1) { notification.scheduleNotification(any(), any()) }
+            verify(exactly = 1) { navAnsattService.getNavAnsattByNavIdent(ansatt2) }
+
+            database.run {
+                queries.notifications.getAll().size shouldBe 1
+            }
         }
 
         test("skal ikke sende notifikasjon når behandletAv sletter tilsagn") {
@@ -312,7 +316,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(request.id, ansatt1).shouldBeRight()
-            verify(exactly = 0) { notification.scheduleNotification(any(), any()) }
+            verify(exactly = 0) { navAnsattService.getNavAnsattByNavIdent(any()) }
+            database.run {
+                queries.notifications.getAll().size shouldBe 0
+            }
         }
     }
 

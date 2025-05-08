@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
-import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
@@ -43,7 +42,6 @@ import java.util.*
 class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
-    private val notification: NotificationTask,
     private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
@@ -453,12 +451,12 @@ class TilsagnService(
         Unit.right()
     }
 
-    private fun sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
+    private fun sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) = db.transaction {
         val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(besluttetAv)
         val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.value
         val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
 
-        val title = """Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet."""
+        val title = "Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet"
         val description = """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
 
         val notice = ScheduledNotification(
@@ -472,7 +470,7 @@ class TilsagnService(
             targets = nonEmptyListOf(behandletAv),
             createdAt = Instant.now(),
         )
-        notification.scheduleNotification(notice)
+        queries.notifications.insert(notice)
     }
 
     fun getAll() = db.session {

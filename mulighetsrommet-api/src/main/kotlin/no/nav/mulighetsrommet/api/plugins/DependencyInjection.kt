@@ -434,7 +434,6 @@ private fun services(appConfig: AppConfig) = module {
                 bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
             ),
             db = get(),
-            notification = get(),
             navAnsattService = get(),
         )
     }
