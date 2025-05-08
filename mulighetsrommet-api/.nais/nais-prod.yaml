@@ -58,13 +58,15 @@ spec:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
             users:
-              - name: datastream # Ekstra databasebruker for Datastream
+              # Ekstra databasebruker for Datastream
+              - name: datastream
         diskAutoresize: true
         flags:
           - name: max_connections
             value: "200"
-          - name: cloudsql.logical_decoding # Settes for å støtte replication slots i databasen
-            value: "on" # flagget som må settes
+          # Settes for å støtte replication slots i databasen
+          - name: cloudsql.logical_decoding
+            value: "on"
   azure:
     application:
       enabled: true
