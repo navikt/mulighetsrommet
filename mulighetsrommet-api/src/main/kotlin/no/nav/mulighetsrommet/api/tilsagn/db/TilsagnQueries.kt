@@ -79,7 +79,7 @@ class TilsagnQueries(private val session: Session) {
             "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted.value,
             "type" to dbo.type.name,
-            "belop_brukt" to 0,
+            "belop_brukt" to dbo.belopBrukt,
             "belop_beregnet" to dbo.beregning.output.belop,
             "prismodell" to when (dbo.beregning) {
                 is TilsagnBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT

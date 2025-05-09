@@ -54,7 +54,9 @@ data class Tilsagn(
         val status: BestillingStatusType?,
     )
 
-    fun gjenstaendeBelop(): Int {
-        return belopBeregnet - belopBrukt
+    fun gjenstaendeBelop(): Int = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {
+        0
+    } else {
+        belopBeregnet - belopBrukt
     }
 }
