@@ -11,9 +11,9 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
-class MicrosoftGraphClientTest : FunSpec({
+class MsGraphClientTest : FunSpec({
 
-    fun createClient(engine: MockEngine) = MicrosoftGraphClient(engine, "https://ms-graph.com") { "token" }
+    fun createClient(engine: MockEngine) = MsGraphClient(engine, "https://ms-graph.com") { "token" }
 
     test("should get an MsGraph user as a NavAnsatt") {
         val id = UUID.randomUUID()
@@ -37,8 +37,8 @@ class MicrosoftGraphClientTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getNavAnsatt(id, AccessType.M2M) shouldBe AzureAdNavAnsatt(
-            azureId = id,
+        client.getNavAnsatt(id, AccessType.M2M) shouldBe EntraIdNavAnsatt(
+            entraObjectId = id,
             navIdent = NavIdent("DD123456"),
             fornavn = "Donald",
             etternavn = "Duck",

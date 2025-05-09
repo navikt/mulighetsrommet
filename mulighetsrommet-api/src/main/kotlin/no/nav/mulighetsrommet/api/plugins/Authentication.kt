@@ -58,13 +58,13 @@ fun RoutingContext.getNavIdent(): NavIdent {
 }
 
 /**
- * Gets a NavAnsattAzureId from the underlying [JWTPrincipal], or throws a [StatusException]
+ * Gets the EntraId 'oid' claim from the underlying [JWTPrincipal], or throws a [StatusException]
  * if the claim is not available.
  */
-fun RoutingContext.getNavAnsattAzureId(): UUID {
+fun RoutingContext.getNavAnsattEntraObjectId(): UUID {
     return call.principal<JWTPayloadHolder>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
-        "NavAnsattAzureId mangler i JWTPrincipal",
+        "NavAnsattEntraObjectId mangler i JWTPrincipal",
     )
 }
 

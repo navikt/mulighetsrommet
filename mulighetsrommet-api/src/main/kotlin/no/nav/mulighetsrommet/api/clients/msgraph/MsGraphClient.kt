@@ -32,19 +32,19 @@ import java.util.concurrent.TimeUnit
  * - Claim: User.Read.All, Type: Application
  * - Claim: GroupMember.Read.All, Type: Application
  */
-class MicrosoftGraphClient(
+class MsGraphClient(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val ansattDataCache: Cache<UUID, AzureAdNavAnsatt> = Caffeine.newBuilder()
+    private val ansattDataCache: Cache<UUID, EntraIdNavAnsatt> = Caffeine.newBuilder()
         .expireAfterWrite(4, TimeUnit.HOURS)
         .maximumSize(2000)
         .recordStats()
         .build()
 
-    private val ansattDataCacheByNavIdent: Cache<NavIdent, AzureAdNavAnsatt> = Caffeine.newBuilder()
+    private val ansattDataCacheByNavIdent: Cache<NavIdent, EntraIdNavAnsatt> = Caffeine.newBuilder()
         .expireAfterWrite(4, TimeUnit.HOURS)
         .maximumSize(2000)
         .recordStats()
@@ -62,7 +62,7 @@ class MicrosoftGraphClient(
     private val azureAdNavAnsattFields =
         "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone"
 
-    suspend fun getNavAnsatt(navAnsattOid: UUID, accessType: AccessType): AzureAdNavAnsatt {
+    suspend fun getNavAnsatt(navAnsattOid: UUID, accessType: AccessType): EntraIdNavAnsatt {
         return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattOid) {
             val response = client.get("$baseUrl/v1.0/users/$navAnsattOid") {
                 bearerAuth(tokenProvider.exchange(accessType))
@@ -79,7 +79,7 @@ class MicrosoftGraphClient(
         }
     }
 
-    suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): AzureAdNavAnsatt? {
+    suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): EntraIdNavAnsatt? {
         return CacheUtils.tryCacheFirstNullable(ansattDataCacheByNavIdent, navIdent) {
             val response = client.get("$baseUrl/v1.0/users") {
                 bearerAuth(tokenProvider.exchange(accessType))
@@ -101,7 +101,7 @@ class MicrosoftGraphClient(
         }
     }
 
-    suspend fun getNavAnsattSok(nameQuery: String): List<AzureAdNavAnsatt> {
+    suspend fun getNavAnsattSok(nameQuery: String): List<EntraIdNavAnsatt> {
         if (nameQuery.isBlank()) {
             return emptyList()
         }
@@ -139,7 +139,7 @@ class MicrosoftGraphClient(
         return result.value.map { it }
     }
 
-    suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
+    suspend fun getGroupMembers(groupId: UUID): List<EntraIdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             parameter($$"$select", azureAdNavAnsattFields)
@@ -173,7 +173,7 @@ class MicrosoftGraphClient(
      */
     private fun isNavAnsatt(it: MsGraphUserDto) = it.onPremisesSamAccountName != null
 
-    private fun toNavAnsatt(user: MsGraphUserDto): Either<Throwable, AzureAdNavAnsatt> = Either.catch {
+    private fun toNavAnsatt(user: MsGraphUserDto): Either<Throwable, EntraIdNavAnsatt> = Either.catch {
         when {
             user.onPremisesSamAccountName == null -> {
                 throw IllegalArgumentException("NAVident mangler for bruker med id=${user.id}")
@@ -199,8 +199,8 @@ class MicrosoftGraphClient(
                 throw IllegalArgumentException("Epost på ansatt mangler for bruker med id=${user.id}")
             }
 
-            else -> AzureAdNavAnsatt(
-                azureId = user.id,
+            else -> EntraIdNavAnsatt(
+                entraObjectId = user.id,
                 navIdent = NavIdent(user.onPremisesSamAccountName),
                 fornavn = user.givenName,
                 etternavn = user.surname,

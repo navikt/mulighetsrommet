@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
-import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
@@ -33,7 +33,7 @@ fun Route.brukerRoutes() {
         post {
             val request = call.receive<GetBrukerRequest>()
 
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
             val obo = AccessType.OBO(call.getAccessToken())
             call.respond(brukerService.hentBrukerdata(request.norskIdent, obo))
@@ -44,7 +44,7 @@ fun Route.brukerRoutes() {
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())
 
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 
             val tiltakshistorikk = historikkService.hentHistorikk(norskIdent, obo)
 
@@ -73,7 +73,7 @@ fun Route.brukerRoutes() {
             val (norskIdent, tiltakId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
             val obo = AccessType.OBO(call.getAccessToken())
 
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 
             val deltakelser = historikkService.getGruppetiltakDeltakelser(norskIdent, obo)
 

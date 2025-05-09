@@ -70,8 +70,8 @@ class NavAnsattPrincipalService(
     }
 
     private suspend fun syncNavAnsattRoller(oid: UUID, roller: Set<NavAnsattRolle>): Unit = db.session {
-        val ansatt = queries.ansatt.getByAzureId(oid) ?: run {
-            log.info("Fant ikke NavAnsatt for azureId=$oid i databasen, henter fra Entra i stedet")
+        val ansatt = queries.ansatt.getByEntraObjectId(oid) ?: run {
+            log.info("Fant ikke NavAnsatt for oid=$oid i databasen, henter fra Entra i stedet")
             val ansatt = navAnsattService.getNavAnsattFromAzure(oid, AccessType.M2M)
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
             ansatt

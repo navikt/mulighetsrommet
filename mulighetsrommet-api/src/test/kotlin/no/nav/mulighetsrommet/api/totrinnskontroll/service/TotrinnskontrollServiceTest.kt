@@ -22,7 +22,7 @@ class TotrinnskontrollServiceTest : FunSpec({
     )
 
     every { navAnsattService.getNavAnsattByNavIdent(NavIdent("B123456")) } returns NavAnsatt(
-        azureId = UUID.randomUUID(),
+        entraObjectId = UUID.randomUUID(),
         navIdent = NavIdent("B123456"),
         fornavn = "Bertil",
         etternavn = "Bengtson",
