@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -50,14 +49,8 @@ class MicrosoftGraphClientTest : FunSpec({
         )
     }
 
-    test("should check member groups") {
+    test("should get member groups") {
         val id = UUID.randomUUID()
-
-        val checkedGroupIds = listOf(
-            "41008111-0dbf-41a0-86ea-3a47f9b85e7c".toUUID(),
-            "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
-            "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
-        )
 
         val expectedGroupIds = listOf(
             "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
@@ -65,10 +58,7 @@ class MicrosoftGraphClientTest : FunSpec({
         )
 
         val engine = createMockEngine {
-            post("/v1.0/users/$id/checkMemberGroups") {
-                val ids = it.decodeRequestBody<CheckMemberGroupsRequest>().groupIds
-                ids shouldBe checkedGroupIds
-
+            post("/v1.0/users/$id/getMemberGroups") {
                 respondJson(
                     $$"""
                         {
@@ -85,6 +75,6 @@ class MicrosoftGraphClientTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.checkMemberGroups(id, checkedGroupIds, AccessType.M2M) shouldBe expectedGroupIds
+        client.getMemberGroups(id, AccessType.M2M) shouldBe expectedGroupIds
     }
 })

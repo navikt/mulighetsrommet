@@ -12,12 +12,9 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -126,22 +123,18 @@ class MicrosoftGraphClient(
             .mapNotNull { toNavAnsatt(it).getOrNull() }
     }
 
-    suspend fun checkMemberGroups(navAnsattOid: UUID, groupIds: List<UUID>, accessType: AccessType): List<UUID> {
-        if (groupIds.isEmpty()) {
-            return emptyList()
-        }
-
-        val response = client.post("$baseUrl/v1.0/users/$navAnsattOid/checkMemberGroups") {
+    suspend fun getMemberGroups(navAnsattOid: UUID, accessType: AccessType): List<UUID> {
+        val response = client.post("$baseUrl/v1.0/users/$navAnsattOid/getMemberGroups") {
             bearerAuth(tokenProvider.exchange(accessType))
             contentType(ContentType.Application.Json)
-            setBody(CheckMemberGroupsRequest(groupIds))
+            setBody(GetMemberGroupsRequest(securityEnabledOnly = true))
         }
 
         if (!response.status.isSuccess()) {
             logAndThrowError("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid", response)
         }
 
-        val result = response.body<CheckMemberGroupsResponse>()
+        val result = response.body<GetMemberGroupsResponse>()
 
         return result.value.map { it }
     }
@@ -224,25 +217,3 @@ class MicrosoftGraphClient(
         throw RuntimeException(message)
     }
 }
-
-@Serializable
-internal data class AddMemberRequest(
-    @SerialName("@odata.id")
-    val odataId: String,
-)
-
-@Serializable
-internal data class CheckMemberGroupsRequest(
-    val groupIds: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >,
-)
-
-@Serializable
-internal data class CheckMemberGroupsResponse(
-    val value: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >,
-)
