@@ -87,7 +87,7 @@ class NavAnsattServiceTest : FunSpec({
             val azureId = ansatt1.azureId
 
             coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeKontaktperson)
+            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeKontaktperson.id)
 
             service.getNavAnsattFromAzure(azureId, AccessType.M2M) shouldBe ansatt1.toNavAnsatt(setOf())
         }
@@ -99,7 +99,7 @@ class NavAnsattServiceTest : FunSpec({
             val azureId = ansatt1.azureId
 
             coEvery { msGraph.getNavAnsattByNavIdent(navIdent, AccessType.M2M) } returns ansatt1
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeGenerell)
+            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeGenerell.id)
 
             service.getNavAnsattFromAzure(navIdent, AccessType.M2M) shouldBe ansatt1.toNavAnsatt(
                 setOf(rolleGenerell),
@@ -113,12 +113,9 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
-                adGruppeGenerell,
-                AdGruppe(
-                    id = UUID.randomUUID(),
-                    navn = "Tilfeldig AD-gruppe som ikke har en innvirkning på den ansattes roller",
-                ),
+            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(
+                adGruppeGenerell.id,
+                UUID.randomUUID(),
             )
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(rolleGenerell)
@@ -129,7 +126,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeGenerell)
+            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeGenerell.id)
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf()
         }
@@ -147,7 +144,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(adGruppeBeslutterOslo)
+            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeBeslutterOslo.id)
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
                 NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, enheter = setOf(NavEnhetNummer("0387"))),
@@ -183,9 +180,9 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
-                adGruppeBeslutterInnlandet,
-                adGruppeBeslutterOslo,
+            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(
+                adGruppeBeslutterInnlandet.id,
+                adGruppeBeslutterOslo.id,
             )
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
@@ -220,9 +217,9 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
-                adGruppeBeslutterGenerell,
-                adGruppeBeslutterOslo,
+            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(
+                adGruppeBeslutterGenerell.id,
+                adGruppeBeslutterOslo.id,
             )
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
@@ -243,7 +240,7 @@ class NavAnsattServiceTest : FunSpec({
                 AdGruppeNavAnsattRolleMapping(id, KONTAKTPERSON),
             )
 
-            coEvery { msGraph.getMemberGroups(ansatt1.azureId, AccessType.M2M) } returns listOf(supertilgang)
+            coEvery { msGraph.checkMemberGroups(ansatt1.azureId, any(), any()) } returns listOf(supertilgang.id)
 
             val service = createNavAnsattService(roles)
 
@@ -258,10 +255,10 @@ class NavAnsattServiceTest : FunSpec({
         coEvery { msGraph.getGroupMembers(rolleMappingGenerell.adGruppeId) } returns listOf(ansatt1, ansatt2)
         coEvery { msGraph.getGroupMembers(rolleMappingKontaktperson.adGruppeId) } returns listOf(ansatt2)
 
-        coEvery { msGraph.getMemberGroups(ansatt1.azureId, AccessType.M2M) } returns listOf(adGruppeGenerell)
-        coEvery { msGraph.getMemberGroups(ansatt2.azureId, AccessType.M2M) } returns listOf(
-            adGruppeGenerell,
-            adGruppeKontaktperson,
+        coEvery { msGraph.checkMemberGroups(ansatt1.azureId, any(), any()) } returns listOf(adGruppeGenerell.id)
+        coEvery { msGraph.checkMemberGroups(ansatt2.azureId, any(), any()) } returns listOf(
+            adGruppeGenerell.id,
+            adGruppeKontaktperson.id,
         )
 
         test("should resolve all roles from the specified groups") {
