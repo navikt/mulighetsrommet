@@ -46,11 +46,11 @@ fun Route.navAnsattRoutes() {
 }
 
 fun RoutingContext.getNavAnsattFilter(): NavAnsattFilter {
-    val azureIder = call.parameters.getAll("roller")
+    val roller = call.parameters.getAll("roller")
         ?.map { Rolle.valueOf(it) }
         ?: emptyList()
 
-    return NavAnsattFilter(roller = azureIder)
+    return NavAnsattFilter(roller = roller)
 }
 
 data class NavAnsattFilter(

@@ -3655,7 +3655,7 @@ components:
     NavAnsatt:
       type: object
       properties:
-        azureId:
+        entraObjectId:
           type: string
           format: uuid
         navIdent:
@@ -3678,7 +3678,7 @@ components:
           type: [string, "null"]
           format: date
       required:
-        - azureId
+        - entraObjectId
         - navIdent
         - fornavn
         - etternavn
