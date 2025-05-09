@@ -87,7 +87,7 @@ class NavAnsattServiceTest : FunSpec({
             val azureId = ansatt1.azureId
 
             coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
-            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeKontaktperson.id)
+            coEvery { msGraph.getMemberGroups(azureId, any()) } returns listOf(adGruppeKontaktperson.id)
 
             service.getNavAnsattFromAzure(azureId, AccessType.M2M) shouldBe ansatt1.toNavAnsatt(setOf())
         }
@@ -99,7 +99,7 @@ class NavAnsattServiceTest : FunSpec({
             val azureId = ansatt1.azureId
 
             coEvery { msGraph.getNavAnsattByNavIdent(navIdent, AccessType.M2M) } returns ansatt1
-            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeGenerell.id)
+            coEvery { msGraph.getMemberGroups(azureId, any()) } returns listOf(adGruppeGenerell.id)
 
             service.getNavAnsattFromAzure(navIdent, AccessType.M2M) shouldBe ansatt1.toNavAnsatt(
                 setOf(rolleGenerell),
@@ -113,7 +113,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(
+            coEvery { msGraph.getMemberGroups(azureId, any()) } returns listOf(
                 adGruppeGenerell.id,
                 UUID.randomUUID(),
             )
@@ -126,7 +126,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeGenerell.id)
+            coEvery { msGraph.getMemberGroups(azureId, any()) } returns listOf(adGruppeGenerell.id)
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf()
         }
@@ -144,7 +144,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(adGruppeBeslutterOslo.id)
+            coEvery { msGraph.getMemberGroups(azureId, any()) } returns listOf(adGruppeBeslutterOslo.id)
 
             service.getNavAnsattRoles(azureId, AccessType.M2M) shouldBe setOf(
                 NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, enheter = setOf(NavEnhetNummer("0387"))),
@@ -180,7 +180,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(
+            coEvery { msGraph.getMemberGroups(azureId, any()) } returns listOf(
                 adGruppeBeslutterInnlandet.id,
                 adGruppeBeslutterOslo.id,
             )
@@ -217,7 +217,7 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.checkMemberGroups(azureId, any(), any()) } returns listOf(
+            coEvery { msGraph.getMemberGroups(azureId, any()) } returns listOf(
                 adGruppeBeslutterGenerell.id,
                 adGruppeBeslutterOslo.id,
             )
@@ -240,7 +240,7 @@ class NavAnsattServiceTest : FunSpec({
                 AdGruppeNavAnsattRolleMapping(id, KONTAKTPERSON),
             )
 
-            coEvery { msGraph.checkMemberGroups(ansatt1.azureId, any(), any()) } returns listOf(supertilgang.id)
+            coEvery { msGraph.getMemberGroups(ansatt1.azureId, any()) } returns listOf(supertilgang.id)
 
             val service = createNavAnsattService(roles)
 
@@ -255,8 +255,8 @@ class NavAnsattServiceTest : FunSpec({
         coEvery { msGraph.getGroupMembers(rolleMappingGenerell.adGruppeId) } returns listOf(ansatt1, ansatt2)
         coEvery { msGraph.getGroupMembers(rolleMappingKontaktperson.adGruppeId) } returns listOf(ansatt2)
 
-        coEvery { msGraph.checkMemberGroups(ansatt1.azureId, any(), any()) } returns listOf(adGruppeGenerell.id)
-        coEvery { msGraph.checkMemberGroups(ansatt2.azureId, any(), any()) } returns listOf(
+        coEvery { msGraph.getMemberGroups(ansatt1.azureId, any()) } returns listOf(adGruppeGenerell.id)
+        coEvery { msGraph.getMemberGroups(ansatt2.azureId, any()) } returns listOf(
             adGruppeGenerell.id,
             adGruppeKontaktperson.id,
         )

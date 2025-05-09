@@ -99,7 +99,7 @@ class NavAnsattService(
     }
 
     suspend fun getNavAnsattRoles(azureId: UUID, accessType: AccessType): Set<NavAnsattRolle> {
-        val groups = microsoftGraphClient.checkMemberGroups(azureId, roles.map { it.adGruppeId }, accessType)
+        val groups = microsoftGraphClient.getMemberGroups(azureId, accessType)
         return getNavAnsattRolesFromGroups(groups)
     }
 
