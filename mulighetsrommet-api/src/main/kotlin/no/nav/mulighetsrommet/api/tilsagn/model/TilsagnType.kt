@@ -8,6 +8,12 @@ enum class TilsagnType {
     INVESTERING,
     ;
 
+    fun displayName(): String = when (this) {
+        TILSAGN -> "Tilsagn"
+        EKSTRATILSAGN -> "Ekstratilsagn"
+        INVESTERING -> "Tilsagn for investering"
+    }
+
     companion object {
         fun fromTilskuddstype(tilskuddstype: Tilskuddstype): List<TilsagnType> = when (tilskuddstype) {
             Tilskuddstype.TILTAK_DRIFTSTILSKUDD -> listOf(EKSTRATILSAGN, TILSAGN)
