@@ -35,16 +35,16 @@ fun Route.apiRoutes() {
         }
     }
 
-    authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
+    authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
         externalRoutes()
     }
 
-    authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
+    authenticate(AuthProvider.NAIS_APP_ARENA_ADAPTER_ACCESS) {
         arenaAdapterRoutes()
     }
 
     route("/api/v1/intern") {
-        authenticate(AuthProvider.AZURE_AD_NAV_IDENT) {
+        authenticate(AuthProvider.NAV_ANSATT) {
             featureTogglesRoute()
             lagretFilterRoutes()
             navEnhetRoutes()

@@ -149,6 +149,9 @@ spec:
       rules:
         - application: arrangor-flate
         - application: mulighetsrommet-arena-adapter
+          permissions:
+            roles:
+              - arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
         - application: mr-admin-flate
         - application: nav-arbeidsmarkedstiltak
