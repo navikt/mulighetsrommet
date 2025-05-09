@@ -249,7 +249,6 @@ class TilsagnQueries(private val session: Session) {
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
             ),
-            belopBeregnet = int("belop_beregnet"),
             belopBrukt = int("belop_brukt"),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),

@@ -15,7 +15,6 @@ data class Tilsagn(
     val id: UUID,
     val type: TilsagnType,
     val periode: Periode,
-    val belopBeregnet: Int,
     val belopBrukt: Int,
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
@@ -57,6 +56,6 @@ data class Tilsagn(
     fun gjenstaendeBelop(): Int = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {
         0
     } else {
-        belopBeregnet - belopBrukt
+        beregning.output.belop - belopBrukt
     }
 }
