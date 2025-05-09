@@ -181,7 +181,7 @@ class MicrosoftGraphClient(
 
         if (!response.status.isSuccess()) {
             log.error("Klarte ikke legge til medlem i AD-gruppe med id=$groupId: {}", response.bodyAsText())
-            throw RuntimeException("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId")
+            throw RuntimeException("Klarte ikke legge til medlem i AD-gruppe med id=$groupId")
         }
     }
 
