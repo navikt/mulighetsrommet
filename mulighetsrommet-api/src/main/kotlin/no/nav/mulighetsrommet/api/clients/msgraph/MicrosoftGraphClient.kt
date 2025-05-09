@@ -17,6 +17,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -154,6 +155,27 @@ class MicrosoftGraphClient(
         }
     }
 
+    suspend fun checkMemberGroups(navAnsattOid: UUID, groupIds: List<UUID>, accessType: AccessType): List<UUID> {
+        if (groupIds.isEmpty()) {
+            return emptyList()
+        }
+
+        val response = client.post("$baseUrl/v1.0/users/$navAnsattOid/checkMemberGroups") {
+            bearerAuth(tokenProvider.exchange(accessType))
+            contentType(ContentType.Application.Json)
+            setBody(CheckMemberGroupsRequest(groupIds))
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid")
+            throw RuntimeException("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid")
+        }
+
+        val result = response.body<CheckMemberGroupsResponse>()
+
+        return result.value.map { it }
+    }
+
     suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
@@ -234,4 +256,20 @@ class MicrosoftGraphClient(
 internal data class AddMemberRequest(
     @SerialName("@odata.id")
     val odataId: String,
+)
+
+@Serializable
+internal data class CheckMemberGroupsRequest(
+    val groupIds: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
+)
+
+@Serializable
+internal data class CheckMemberGroupsResponse(
+    val value: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
 )
