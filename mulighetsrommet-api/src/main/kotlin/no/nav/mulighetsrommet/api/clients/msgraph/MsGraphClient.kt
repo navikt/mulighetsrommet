@@ -59,14 +59,14 @@ class MsGraphClient(
         }
     }
 
-    private val azureAdNavAnsattFields =
+    private val entraIdNavAnsattFields =
         "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone"
 
     suspend fun getNavAnsatt(navAnsattOid: UUID, accessType: AccessType): EntraIdNavAnsatt {
         return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattOid) {
             val response = client.get("$baseUrl/v1.0/users/$navAnsattOid") {
                 bearerAuth(tokenProvider.exchange(accessType))
-                parameter($$"$select", azureAdNavAnsattFields)
+                parameter($$"$select", entraIdNavAnsattFields)
             }
 
             if (!response.status.isSuccess()) {
@@ -84,7 +84,7 @@ class MsGraphClient(
             val response = client.get("$baseUrl/v1.0/users") {
                 bearerAuth(tokenProvider.exchange(accessType))
                 parameter($$"$search", "\"onPremisesSamAccountName:${navIdent.value}\"")
-                parameter($$"$select", azureAdNavAnsattFields)
+                parameter($$"$select", entraIdNavAnsattFields)
                 header("ConsistencyLevel", "eventual")
             }
 
@@ -109,12 +109,12 @@ class MsGraphClient(
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             parameter($$"$search", "\"displayName:$nameQuery\"")
             parameter($$"$orderBy", "displayName")
-            parameter($$"$select", azureAdNavAnsattFields)
+            parameter($$"$select", entraIdNavAnsattFields)
             header("ConsistencyLevel", "eventual")
         }
 
         if (!response.status.isSuccess()) {
-            logAndThrowError("Feil under user search mot Azure", response)
+            logAndThrowError("Feil under user search mot Entra", response)
         }
 
         return response.body<GetUserSearchResponse>()
@@ -142,7 +142,7 @@ class MsGraphClient(
     suspend fun getGroupMembers(groupId: UUID): List<EntraIdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            parameter($$"$select", azureAdNavAnsattFields)
+            parameter($$"$select", entraIdNavAnsattFields)
             parameter($$"$top", "999")
         }
 

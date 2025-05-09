@@ -34,7 +34,7 @@ class AuthenticationTest : FunSpec({
         oauth.shutdown()
     }
 
-    test("verify provider AZURE_AD_NAV_IDENT") {
+    test("verify provider NAV_ANSATT") {
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
@@ -54,8 +54,8 @@ class AuthenticationTest : FunSpec({
         )
         withTestApplication(config, additionalConfiguration = {
             routing {
-                authenticate(AuthProvider.AZURE_AD_NAV_IDENT) {
-                    get("AZURE_AD_NAV_IDENT") { call.respond(HttpStatusCode.OK) }
+                authenticate(AuthProvider.NAV_ANSATT) {
+                    get("NAV_ANSATT") { call.respond(HttpStatusCode.OK) }
                 }
             }
         }) {
@@ -66,7 +66,7 @@ class AuthenticationTest : FunSpec({
                 row(requestWithoutNAVident, HttpStatusCode.Unauthorized),
                 row(requestWithNAVident, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
-                val response = client.get("/AZURE_AD_NAV_IDENT") { buildRequest(this) }
+                val response = client.get("/NAV_ANSATT") { buildRequest(this) }
 
                 response.status shouldBe responseStatusCode
             }
@@ -133,7 +133,7 @@ class AuthenticationTest : FunSpec({
         }
     }
 
-    test("verify provider AZURE_AD_DEFAULT_APP") {
+    test("verify provider NAIS_APP_ARENA_ADAPTER_ACCESS") {
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
@@ -148,14 +148,18 @@ class AuthenticationTest : FunSpec({
             val claims = mapOf("roles" to listOf(AppRoles.ACCESS_AS_APPLICATION))
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
+        val requestWithClaimsArenaAdapter = { request: HttpRequestBuilder ->
+            val claims = mapOf("roles" to listOf(AppRoles.ACCESS_AS_APPLICATION, AppRoles.ARENA_ADAPTER))
+            request.bearerAuth(oauth.issueToken(claims = claims).serialize())
+        }
 
         val config = createTestApplicationConfig().copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = {
             routing {
-                authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
-                    get("AZURE_AD_DEFAULT_APP") { call.respond(HttpStatusCode.OK) }
+                authenticate(AuthProvider.NAIS_APP_ARENA_ADAPTER_ACCESS) {
+                    get("NAIS_APP_ARENA_ADAPTER_ACCESS") { call.respond(HttpStatusCode.OK) }
                 }
             }
         }) {
@@ -164,16 +168,17 @@ class AuthenticationTest : FunSpec({
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutClaimAccessAsApplication, HttpStatusCode.Unauthorized),
-                row(requestWithClaimAccessAsApplication, HttpStatusCode.OK),
+                row(requestWithClaimAccessAsApplication, HttpStatusCode.Unauthorized),
+                row(requestWithClaimsArenaAdapter, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
-                val response = client.get("/AZURE_AD_DEFAULT_APP") { buildRequest(this) }
+                val response = client.get("/NAIS_APP_ARENA_ADAPTER_ACCESS") { buildRequest(this) }
 
                 response.status shouldBe responseStatusCode
             }
         }
     }
 
-    test("verify provider AZURE_AD_TILTAKSGJENNOMFORING_APP") {
+    test("verify provider NAIS_APP_GJENNOMFORING_ACCESS") {
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
@@ -189,7 +194,7 @@ class AuthenticationTest : FunSpec({
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
         val requestWithClaimsReadTiltaksgjennomforing = { request: HttpRequestBuilder ->
-            val claims = mapOf("roles" to listOf(AppRoles.ACCESS_AS_APPLICATION, AppRoles.READ_TILTAKSGJENNOMFORING))
+            val claims = mapOf("roles" to listOf(AppRoles.ACCESS_AS_APPLICATION, AppRoles.READ_GJENNOMFORING))
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
 
@@ -198,8 +203,8 @@ class AuthenticationTest : FunSpec({
         )
         withTestApplication(config, additionalConfiguration = {
             routing {
-                authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
-                    get("AZURE_AD_TILTAKSGJENNOMFORING_APP") { call.respond(HttpStatusCode.OK) }
+                authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
+                    get("NAIS_APP_GJENNOMFORING_ACCESS") { call.respond(HttpStatusCode.OK) }
                 }
             }
         }) {
@@ -211,7 +216,7 @@ class AuthenticationTest : FunSpec({
                 row(requestWithClaimAccessAsApplication, HttpStatusCode.Unauthorized),
                 row(requestWithClaimsReadTiltaksgjennomforing, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
-                val response = client.get("/AZURE_AD_TILTAKSGJENNOMFORING_APP") { buildRequest(this) }
+                val response = client.get("/NAIS_APP_GJENNOMFORING_ACCESS") { buildRequest(this) }
 
                 response.status shouldBe responseStatusCode
             }
