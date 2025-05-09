@@ -25,14 +25,14 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
           { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
             key: "Gjenstående beløp",
-            value: formaterNOK(tilsagn.gjenstaendeBelop),
+            value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.bruktBelop),
           },
         ]
       : [
           { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
             key: "Gjenstående beløp",
-            value: formaterNOK(tilsagn.gjenstaendeBelop),
+            value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.bruktBelop),
           },
         ];
 

@@ -28,7 +28,7 @@ export default function UtbetalingTilsagnDetaljer({ tilsagn, utenTittel }: Props
         { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
         {
           key: "Gjenstående",
-          value: formaterNOK(tilsagn.gjenstaendeBelop),
+          value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.bruktBelop),
         },
       ]}
     />
