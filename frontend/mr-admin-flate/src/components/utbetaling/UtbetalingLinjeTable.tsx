@@ -11,7 +11,10 @@ export interface Props {
 
 export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
   const utbetalesTotal = linjer.reduce((acc, d) => acc + d.belop, 0);
-  const totalGjenstaendeBelop = linjer.reduce((acc, l) => acc + (l.tilsagn.beregning.output.belop - l.tilsagn.belopBrukt), 0);
+  const totalGjenstaendeBelop = linjer.reduce(
+    (acc, l) => acc + (l.tilsagn.beregning.output.belop - l.tilsagn.belopBrukt),
+    0,
+  );
   const differanse = utbetaling.beregning.belop - utbetalesTotal;
 
   return (

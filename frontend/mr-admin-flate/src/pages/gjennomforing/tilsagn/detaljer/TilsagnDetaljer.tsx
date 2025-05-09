@@ -22,8 +22,7 @@ interface Props {
 }
 
 export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) {
-  const { beregning, bestillingsnummer, status, periode, type, kostnadssted, belopBrukt } =
-    tilsagn;
+  const { beregning, bestillingsnummer, status, periode, type, kostnadssted, belopBrukt } = tilsagn;
 
   const arsaker = oppgjor?.aarsaker || annullering?.aarsaker;
 
