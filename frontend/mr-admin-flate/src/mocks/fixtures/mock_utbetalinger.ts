@@ -132,7 +132,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2024-01-01",
         slutt: "2024-06-30",
       },
-      belopGjenstaende: 10000,
+      belopBrukt: 4000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -173,7 +173,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2024-07-01",
         slutt: "2024-12-31",
       },
-      belopGjenstaende: 10000,
+      belopBrukt: 4000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -221,7 +221,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-01-01",
         slutt: "2025-03-31",
       },
-      belopGjenstaende: 10000,
+      belopBrukt: 4000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -269,7 +269,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-01-01",
         slutt: "2025-06-30",
       },
-      belopGjenstaende: 10000,
+      belopBrukt: 4000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -311,7 +311,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-03-01",
         slutt: "2025-03-31",
       },
-      belopGjenstaende: 10000,
+      belopBrukt: 4000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -360,7 +360,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-06-01",
         slutt: "2025-06-31",
       },
-      belopGjenstaende: 10000,
+      belopBrukt: 4000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",

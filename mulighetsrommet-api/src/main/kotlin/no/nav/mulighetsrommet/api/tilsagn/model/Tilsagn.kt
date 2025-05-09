@@ -15,7 +15,8 @@ data class Tilsagn(
     val id: UUID,
     val type: TilsagnType,
     val periode: Periode,
-    val belopGjenstaende: Int,
+    val belopBeregnet: Int,
+    val belopBrukt: Int,
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
@@ -52,4 +53,8 @@ data class Tilsagn(
         val bestillingsnummer: String,
         val status: BestillingStatusType?,
     )
+
+    fun gjenstaendeBelop(): Int {
+        return belopBeregnet - belopBrukt
+    }
 }

@@ -32,7 +32,7 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted,
                 status,
                 type,
-                belop_gjenstaende,
+                belop_brukt,
                 belop_beregnet,
                 prismodell,
                 datastream_periode_start,
@@ -47,7 +47,7 @@ class TilsagnQueries(private val session: Session) {
                 :kostnadssted,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
-                :belop_gjenstaende,
+                :belop_brukt,
                 :belop_beregnet,
                 :prismodell::prismodell,
                 :datastream_periode_start,
@@ -62,7 +62,7 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted                            = excluded.kostnadssted,
                 status                                  = excluded.status,
                 type                                    = excluded.type,
-                belop_gjenstaende                       = excluded.belop_gjenstaende,
+                belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
                 prismodell                              = excluded.prismodell,
                 datastream_periode_start                = excluded.datastream_periode_start,
@@ -79,7 +79,7 @@ class TilsagnQueries(private val session: Session) {
             "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted.value,
             "type" to dbo.type.name,
-            "belop_gjenstaende" to dbo.beregning.output.belop,
+            "belop_brukt" to 0,
             "belop_beregnet" to dbo.beregning.output.belop,
             "prismodell" to when (dbo.beregning) {
                 is TilsagnBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT
@@ -132,11 +132,11 @@ class TilsagnQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun setGjenstaendeBelop(id: UUID, belop: Int) {
+    fun setBruktBelop(id: UUID, belop: Int) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                belop_gjenstaende = :belop
+                belop_brukt = :belop
             where id = :id::uuid
         """.trimIndent()
 
@@ -249,7 +249,8 @@ class TilsagnQueries(private val session: Session) {
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
             ),
-            belopGjenstaende = int("belop_gjenstaende"),
+            belopBeregnet = int("belop_beregnet"),
+            belopBrukt = int("belop_brukt"),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
             bestilling = Tilsagn.Bestilling(
