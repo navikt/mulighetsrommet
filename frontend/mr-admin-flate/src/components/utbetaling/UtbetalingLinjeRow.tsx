@@ -23,6 +23,7 @@ import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
+import { gjenstaendeBelop } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 
 interface Props {
   readOnly?: boolean;
@@ -123,7 +124,7 @@ export function UtbetalingLinjeRow({
       </Table.DataCell>
       <Table.DataCell className={grayBgClass}>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={grayBgClass}>
-        {formaterNOK(linje.tilsagn.beregning.output.belop - linje.tilsagn.belopBrukt)}
+        {formaterNOK(gjenstaendeBelop(linje.tilsagn))}
       </Table.DataCell>
       <Table.DataCell colSpan={2}>
         <HStack gap="2" align="start">
