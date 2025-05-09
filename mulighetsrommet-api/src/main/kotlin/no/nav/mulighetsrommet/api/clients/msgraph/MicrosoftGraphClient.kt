@@ -17,6 +17,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -52,12 +53,6 @@ class MicrosoftGraphClient(
         .recordStats()
         .build()
 
-    private val navAnsattAdGrupperCache: Cache<UUID, List<AdGruppe>> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
     private val client = httpJsonClient(engine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
@@ -70,16 +65,16 @@ class MicrosoftGraphClient(
     private val azureAdNavAnsattFields =
         "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone"
 
-    suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
-        return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
-            val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
+    suspend fun getNavAnsatt(navAnsattOid: UUID, accessType: AccessType): AzureAdNavAnsatt {
+        return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattOid) {
+            val response = client.get("$baseUrl/v1.0/users/$navAnsattOid") {
                 bearerAuth(tokenProvider.exchange(accessType))
                 parameter("\$select", azureAdNavAnsattFields)
             }
 
             if (!response.status.isSuccess()) {
-                log.error("Klarte ikke finne bruker med id=$navAnsattAzureId")
-                throw RuntimeException("Klarte ikke finne bruker med id=$navAnsattAzureId. Finnes brukeren i AD?")
+                log.error("Klarte ikke finne bruker med id=$navAnsattOid")
+                throw RuntimeException("Klarte ikke finne bruker med id=$navAnsattOid. Finnes brukeren i AD?")
             }
 
             val user = response.body<MsGraphUserDto>()
@@ -117,9 +112,9 @@ class MicrosoftGraphClient(
         }
         val response = client.get("$baseUrl/v1.0/users") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            parameter("\$search", "\"displayName:$nameQuery\"")
-            parameter("\$orderBy", "displayName")
-            parameter("\$select", azureAdNavAnsattFields)
+            parameter($$"$search", "\"displayName:$nameQuery\"")
+            parameter($$"$orderBy", "displayName")
+            parameter($$"$select", azureAdNavAnsattFields)
             header("ConsistencyLevel", "eventual")
         }
 
@@ -134,31 +129,32 @@ class MicrosoftGraphClient(
             .mapNotNull { toNavAnsatt(it).getOrNull() }
     }
 
-    suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
-        return CacheUtils.tryCacheFirstNotNull(navAnsattAdGrupperCache, navAnsattAzureId) {
-            val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
-                bearerAuth(tokenProvider.exchange(accessType))
-                parameter("\$select", "id,displayName")
-            }
-
-            if (!response.status.isSuccess()) {
-                log.error("Klarte ikke hente AD-grupper for bruker id=$navAnsattAzureId")
-                throw RuntimeException("Klarte ikke hente AD-grupper for bruker id=$navAnsattAzureId")
-            }
-
-            val result = response.body<GetMemberGroupsResponse>()
-
-            result.value.map { group ->
-                AdGruppe(id = group.id, navn = group.displayName)
-            }
+    suspend fun checkMemberGroups(navAnsattOid: UUID, groupIds: List<UUID>, accessType: AccessType): List<UUID> {
+        if (groupIds.isEmpty()) {
+            return emptyList()
         }
+
+        val response = client.post("$baseUrl/v1.0/users/$navAnsattOid/checkMemberGroups") {
+            bearerAuth(tokenProvider.exchange(accessType))
+            contentType(ContentType.Application.Json)
+            setBody(CheckMemberGroupsRequest(groupIds))
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid")
+            throw RuntimeException("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid")
+        }
+
+        val result = response.body<CheckMemberGroupsResponse>()
+
+        return result.value.map { it }
     }
 
     suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            parameter("\$select", azureAdNavAnsattFields)
-            parameter("\$top", "999")
+            parameter($$"$select", azureAdNavAnsattFields)
+            parameter($$"$top", "999")
         }
 
         if (!response.status.isSuccess()) {
@@ -174,14 +170,14 @@ class MicrosoftGraphClient(
     }
 
     suspend fun addToGroup(objectId: UUID, groupId: UUID) {
-        val response = client.post("$baseUrl/v1.0/groups/$groupId/members/\$ref") {
+        val response = client.post($$"$$baseUrl/v1.0/groups/$$groupId/members/$ref") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             setBody(AddMemberRequest("https://graph.microsoft.com/v1.0/directoryObjects/$objectId"))
         }
 
         if (!response.status.isSuccess()) {
             log.error("Klarte ikke legge til medlem i AD-gruppe med id=$groupId: {}", response.bodyAsText())
-            throw RuntimeException("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId")
+            throw RuntimeException("Klarte ikke legge til medlem i AD-gruppe med id=$groupId")
         }
     }
 
@@ -231,7 +227,23 @@ class MicrosoftGraphClient(
 }
 
 @Serializable
-data class AddMemberRequest(
+internal data class AddMemberRequest(
     @SerialName("@odata.id")
     val odataId: String,
+)
+
+@Serializable
+internal data class CheckMemberGroupsRequest(
+    val groupIds: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
+)
+
+@Serializable
+internal data class CheckMemberGroupsResponse(
+    val value: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
 )

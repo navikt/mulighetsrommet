@@ -4,10 +4,12 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
 class MicrosoftGraphClientTest : FunSpec({
@@ -48,19 +50,41 @@ class MicrosoftGraphClientTest : FunSpec({
         )
     }
 
-    test("should get member groups as AdGruppe") {
+    test("should check member groups") {
         val id = UUID.randomUUID()
 
-        val group = MsGraphGroup(UUID.randomUUID(), displayName = "TEST")
+        val checkedGroupIds = listOf(
+            "41008111-0dbf-41a0-86ea-3a47f9b85e7c".toUUID(),
+            "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
+            "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
+        )
+
+        val expectedGroupIds = listOf(
+            "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
+            "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
+        )
 
         val engine = createMockEngine {
-            get("/v1.0/users/$id/transitiveMemberOf/microsoft.graph.group") {
-                respondJson(GetMemberGroupsResponse(listOf(group)))
+            post("/v1.0/users/$id/checkMemberGroups") {
+                val ids = it.decodeRequestBody<CheckMemberGroupsRequest>().groupIds
+                ids shouldBe checkedGroupIds
+
+                respondJson(
+                    $$"""
+                        {
+                            "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Collection(Edm.String)",
+                            "value": [
+                                "639e2806-4cc2-484c-a72a-51b4308c52a1",
+                                "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac"
+                            ]
+                        }
+                    """.trimIndent(),
+                )
             }
         }
 
         val client = createClient(engine)
 
-        client.getMemberGroups(id, AccessType.M2M) shouldBe listOf(AdGruppe(group.id, group.displayName))
+        client.checkMemberGroups(id, checkedGroupIds, AccessType.M2M) shouldBe expectedGroupIds
     }
 })

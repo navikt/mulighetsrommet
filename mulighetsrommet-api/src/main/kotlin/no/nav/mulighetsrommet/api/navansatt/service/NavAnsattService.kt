@@ -27,15 +27,15 @@ class NavAnsattService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSynchronizeNavAnsatt(azureId: UUID, accessType: AccessType): NavAnsatt = db.session {
-        queries.ansatt.getByAzureId(azureId) ?: run {
-            logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
+    suspend fun getOrSynchronizeNavAnsatt(navIdent: NavIdent, accessType: AccessType): NavAnsatt = db.session {
+        queries.ansatt.getByNavIdent(navIdent) ?: run {
+            logger.info("Fant ikke NavAnsatt for navIdent=$navIdent i databasen, forsøker Azure AD i stedet")
 
-            val ansatt = getNavAnsattFromAzure(azureId, accessType)
+            val ansatt = getNavAnsattFromAzure(navIdent, accessType)
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
             queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
 
-            checkNotNull(queries.ansatt.getByAzureId(azureId))
+            checkNotNull(queries.ansatt.getByNavIdent(navIdent))
         }
     }
 
@@ -56,7 +56,7 @@ class NavAnsattService(
         val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)
 
-        val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: getNavAnsattFromAzure(navIdent, AccessType.M2M)
+        val ansatt = getOrSynchronizeNavAnsatt(navIdent, AccessType.M2M)
         if (ansatt.hasGenerellRolle(Rolle.KONTAKTPERSON)) {
             return
         }
@@ -99,7 +99,7 @@ class NavAnsattService(
     }
 
     suspend fun getNavAnsattRoles(azureId: UUID, accessType: AccessType): Set<NavAnsattRolle> {
-        val groups = microsoftGraphClient.getMemberGroups(azureId, accessType).map { it.id }
+        val groups = microsoftGraphClient.checkMemberGroups(azureId, roles.map { it.adGruppeId }, accessType)
         return getNavAnsattRolesFromGroups(groups)
     }
 
