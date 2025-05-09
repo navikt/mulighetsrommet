@@ -69,12 +69,11 @@ class MicrosoftGraphClient(
         return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattOid) {
             val response = client.get("$baseUrl/v1.0/users/$navAnsattOid") {
                 bearerAuth(tokenProvider.exchange(accessType))
-                parameter("\$select", azureAdNavAnsattFields)
+                parameter($$"$select", azureAdNavAnsattFields)
             }
 
             if (!response.status.isSuccess()) {
-                log.error("Klarte ikke finne bruker med id=$navAnsattOid")
-                throw RuntimeException("Klarte ikke finne bruker med id=$navAnsattOid. Finnes brukeren i AD?")
+                logAndThrowError("Klarte ikke finne bruker med id=$navAnsattOid", response)
             }
 
             val user = response.body<MsGraphUserDto>()
@@ -87,14 +86,13 @@ class MicrosoftGraphClient(
         return CacheUtils.tryCacheFirstNullable(ansattDataCacheByNavIdent, navIdent) {
             val response = client.get("$baseUrl/v1.0/users") {
                 bearerAuth(tokenProvider.exchange(accessType))
-                parameter("\$search", "\"onPremisesSamAccountName:${navIdent.value}\"")
-                parameter("\$select", azureAdNavAnsattFields)
+                parameter($$"$search", "\"onPremisesSamAccountName:${navIdent.value}\"")
+                parameter($$"$select", azureAdNavAnsattFields)
                 header("ConsistencyLevel", "eventual")
             }
 
             if (!response.status.isSuccess()) {
-                log.error("Feil ved søk på bruker med navIdent=$navIdent {}", response.bodyAsText())
-                throw RuntimeException("Feil ved søk på bruker med navIdent=$navIdent")
+                logAndThrowError("Feil ved søk på bruker med navIdent=$navIdent", response)
             }
 
             response.body<GetUserSearchResponse>()
@@ -119,8 +117,7 @@ class MicrosoftGraphClient(
         }
 
         if (!response.status.isSuccess()) {
-            log.error("Feil under user search mot Azure {}", response.bodyAsText())
-            throw RuntimeException("Feil under user search mot Azure")
+            logAndThrowError("Feil under user search mot Azure", response)
         }
 
         return response.body<GetUserSearchResponse>()
@@ -141,8 +138,7 @@ class MicrosoftGraphClient(
         }
 
         if (!response.status.isSuccess()) {
-            log.error("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid")
-            throw RuntimeException("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid")
+            logAndThrowError("Klarte ikke sjekke gruppemedlemskap for bruker id=$navAnsattOid", response)
         }
 
         val result = response.body<CheckMemberGroupsResponse>()
@@ -158,8 +154,7 @@ class MicrosoftGraphClient(
         }
 
         if (!response.status.isSuccess()) {
-            log.error("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId: {}", response.bodyAsText())
-            throw RuntimeException("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId")
+            logAndThrowError("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId", response)
         }
 
         val result = response.body<GetGroupMembersResponse>()
@@ -176,8 +171,7 @@ class MicrosoftGraphClient(
         }
 
         if (!response.status.isSuccess()) {
-            log.error("Klarte ikke legge til medlem i AD-gruppe med id=$groupId: {}", response.bodyAsText())
-            throw RuntimeException("Klarte ikke legge til medlem i AD-gruppe med id=$groupId")
+            logAndThrowError("Klarte ikke legge til medlem i AD-gruppe med id=$groupId", response)
         }
     }
 
@@ -223,6 +217,11 @@ class MicrosoftGraphClient(
                 epost = user.mail,
             )
         }
+    }
+
+    private suspend fun logAndThrowError(message: String, response: HttpResponse): Nothing {
+        log.error("Message=$message Status=${response.status} Body=${response.bodyAsText()}")
+        throw RuntimeException(message)
     }
 }
 
