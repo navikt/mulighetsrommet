@@ -53,12 +53,6 @@ class MicrosoftGraphClient(
         .recordStats()
         .build()
 
-    private val navAnsattAdGrupperCache: Cache<UUID, List<AdGruppe>> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
     private val client = httpJsonClient(engine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
@@ -133,26 +127,6 @@ class MicrosoftGraphClient(
             .value
             // Her returneres mye rart (f. eks ikke personer) så vi filtrerer vekk de som mangler required felter
             .mapNotNull { toNavAnsatt(it).getOrNull() }
-    }
-
-    suspend fun getMemberGroups(navAnsattOid: UUID, accessType: AccessType): List<AdGruppe> {
-        return CacheUtils.tryCacheFirstNotNull(navAnsattAdGrupperCache, navAnsattOid) {
-            val response = client.get("$baseUrl/v1.0/users/$navAnsattOid/transitiveMemberOf/microsoft.graph.group") {
-                bearerAuth(tokenProvider.exchange(accessType))
-                parameter($$"$select", "id,displayName")
-            }
-
-            if (!response.status.isSuccess()) {
-                log.error("Klarte ikke hente AD-grupper for bruker id=$navAnsattOid")
-                throw RuntimeException("Klarte ikke hente AD-grupper for bruker id=$navAnsattOid")
-            }
-
-            val result = response.body<GetMemberGroupsResponse>()
-
-            result.value.map { group ->
-                AdGruppe(id = group.id, navn = group.displayName)
-            }
-        }
     }
 
     suspend fun checkMemberGroups(navAnsattOid: UUID, groupIds: List<UUID>, accessType: AccessType): List<UUID> {

@@ -50,22 +50,6 @@ class MicrosoftGraphClientTest : FunSpec({
         )
     }
 
-    test("should get member groups as AdGruppe") {
-        val id = UUID.randomUUID()
-
-        val group = MsGraphGroup(UUID.randomUUID(), displayName = "TEST")
-
-        val engine = createMockEngine {
-            get("/v1.0/users/$id/transitiveMemberOf/microsoft.graph.group") {
-                respondJson(GetMemberGroupsResponse(listOf(group)))
-            }
-        }
-
-        val client = createClient(engine)
-
-        client.getMemberGroups(id, AccessType.M2M) shouldBe listOf(AdGruppe(group.id, group.displayName))
-    }
-
     test("should check member groups") {
         val id = UUID.randomUUID()
 
