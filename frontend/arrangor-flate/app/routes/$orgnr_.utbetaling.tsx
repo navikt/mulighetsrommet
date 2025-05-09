@@ -19,7 +19,7 @@ import { tekster } from "../tekster";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Krav om utbetalinger" },
+    { title: "Oversikt" },
     { name: "description", content: "Arrangørflate for krav om utbetalinger" },
   ];
 };

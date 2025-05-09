@@ -17,28 +17,28 @@ const sjekkUU = async (page: Page) => {
 
 test("Kan navigere til forsiden", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Krav om utbetalinger");
-  await expect(page.getByRole("heading", { name: "Tilgjengelige innsendinger" })).toBeVisible();
+  await expect(page).toHaveTitle("Oversikt");
+  await expect(page.getByRole("heading", { name: "Oversikt over innsendinger" })).toBeVisible();
 
   await sjekkUU(page);
 });
 
 test("Kan navigere gjennom hele utbetalingen", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Krav om utbetalinger");
-  await expect(page.getByRole("heading", { name: "Tilgjengelige innsendinger" })).toBeVisible();
+  await expect(page).toHaveTitle("Oversikt");
+  await expect(page.getByRole("heading", { name: "Oversikt over innsendinger" })).toBeVisible();
   await sjekkUU(page);
   await page.getByRole("link", { name: "Detaljer" }).first().click();
 
   await expect(page.getByRole("heading", { name: "Beregning" })).toBeVisible();
   await expect(
     page.getByText(
-      "Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om endring via Deltakeroversikten.",
+      "Hvis noen av opplysningene om deltakerne ikke stemmer må dere sende forslag til Nav om endring via Deltakeroversikten. Opplysninger om deltakerne må være riktig oppdatert før dere sender inn kravet.",
     ),
   ).toBeVisible();
   await sjekkUU(page);
   await page.getByRole("button", { name: "Neste" }).first().click();
-  await expect(page.getByRole("heading", { name: "Oppsummering av utbetaling" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Oppsummering av innsending" })).toBeVisible();
   await page
     .getByRole("checkbox", {
       name: "Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold",
