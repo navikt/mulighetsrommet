@@ -12,6 +12,7 @@ import {
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
+import { gjenstaendeBelop } from "../tilsagnUtils";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -22,7 +23,7 @@ interface Props {
 }
 
 export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) {
-  const { beregning, bestillingsnummer, status, periode, type, kostnadssted, belopBrukt } = tilsagn;
+  const { beregning, bestillingsnummer, status, periode, type, kostnadssted } = tilsagn;
 
   const arsaker = oppgjor?.aarsaker || annullering?.aarsaker;
 
@@ -103,7 +104,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           />
           <MetadataHorisontal
             header={tilsagnTekster.belopGjenstaende.label}
-            verdi={formaterNOK(beregning.output.belop - belopBrukt)}
+            verdi={formaterNOK(gjenstaendeBelop(tilsagn))}
           />
         </VStack>
       </HStack>

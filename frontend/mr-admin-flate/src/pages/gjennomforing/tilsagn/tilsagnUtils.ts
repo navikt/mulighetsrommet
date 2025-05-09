@@ -20,3 +20,10 @@ export function isTilsagnFri(
 
 export const navnIdentEllerPlaceholder = (agent?: AgentDto) =>
   agent ? navnEllerIdent(agent) : "-";
+
+export const gjenstaendeBelop = (tilsagn: TilsagnDto) => {
+  if (tilsagn.status === 'OPPGJORT' || tilsagn.status === 'ANNULLERT') {
+    return 0
+  }
+  return tilsagn.beregning.output.belop - tilsagn.belopBrukt
+}

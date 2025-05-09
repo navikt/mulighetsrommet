@@ -3,6 +3,7 @@ import { Definisjonsliste } from "../Definisjonsliste";
 import { ArrangorflateTilsagn } from "api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterTilsagnType } from "../tilsagn/TilsagnTable";
+import { gjenstaendeBelop } from "~/utils/tilsagn";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
@@ -28,7 +29,7 @@ export default function UtbetalingTilsagnDetaljer({ tilsagn, utenTittel }: Props
         { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
         {
           key: "Gjenstående",
-          value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.bruktBelop),
+          value: formaterNOK(gjenstaendeBelop(tilsagn)),
         },
       ]}
     />
