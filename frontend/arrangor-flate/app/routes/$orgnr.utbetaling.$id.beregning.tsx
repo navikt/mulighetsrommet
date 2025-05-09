@@ -1,3 +1,18 @@
+import { ExclamationmarkTriangleIcon, ParasolBeachIcon, PersonIcon } from "@navikt/aksel-icons";
+import {
+  Alert,
+  Button,
+  GuidePanel,
+  HGrid,
+  HStack,
+  Link,
+  List,
+  SortState,
+  Table,
+  Timeline,
+  Tooltip,
+  VStack,
+} from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateBeregningForhandsgodkjent,
@@ -8,27 +23,11 @@ import {
   UtbetalingDeltakelsePerson,
   UtbetalingStengtPeriode,
 } from "api-client";
-import { ExclamationmarkTriangleIcon, ParasolBeachIcon, PersonIcon } from "@navikt/aksel-icons";
-import {
-  Alert,
-  Button,
-  GuidePanel,
-  HGrid,
-  HStack,
-  List,
-  SortState,
-  Table,
-  Timeline,
-  Tooltip,
-  VStack,
-  Link,
-} from "@navikt/ds-react";
 import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
-import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
 import {
@@ -39,8 +38,9 @@ import {
   useOrgnrFromUrl,
 } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
-import { BeregningDetaljer } from "../components/utbetaling/BeregningDetaljer";
-
+import { Definisjonsliste } from "../components/Definisjonsliste";
+import { tekster } from "../tekster";
+import { getBeregningDetaljer } from "../utils/beregning";
 export const meta: MetaFunction = () => {
   return [
     { title: "Beregning" },
@@ -119,17 +119,31 @@ export default function UtbetalingBeregning() {
       <PageHeader
         title="Beregning"
         tilbakeLenke={{
-          navn: "Tilbake til utbetalinger",
+          navn: tekster.bokmal.tilbakeTilOversikt,
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
       <HGrid gap="5" columns={1}>
-        <GenerelleDetaljer className="max-w-[50%]" utbetaling={utbetaling} />
+        <Definisjonsliste
+          definitions={[
+            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+            { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
+          ]}
+        />
       </HGrid>
       {beregning}
       <VStack align="end" gap="4">
-        <BeregningDetaljer beregning={utbetaling.beregning} />
-        <HStack>
+        <Definisjonsliste definitions={getBeregningDetaljer(utbetaling.beregning)} />
+        <HStack gap="4">
+          <Button
+            as={ReactRouterLink}
+            type="button"
+            variant="secondary"
+            to={internalNavigation(orgnr).utbetalinger}
+          >
+            Tilbake
+          </Button>
           <Button
             as={ReactRouterLink}
             className="justify-self-end"
@@ -188,16 +202,17 @@ function ForhandsgodkjentBeregning({
     <>
       <HGrid gap="5" columns={1}>
         <GuidePanel>
-          Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
-          endring via{" "}
+          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
           <Link as={ReactRouterLink} to={deltakerlisteUrl}>
             Deltakeroversikten
           </Link>
           .
+          <br />
+          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}
         </GuidePanel>
         {beregning.stengt.length > 0 && (
           <Alert variant={"info"}>
-            Det er registrert stengt hos arrangør i følgende perioder:
+            {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
             <ul>
               {beregning.stengt.map(({ periode, beskrivelse }) => (
                 <li key={periode.start + periode.slutt}>
@@ -209,8 +224,7 @@ function ForhandsgodkjentBeregning({
         )}
         {deltakereMedRelevanteForslag.length > 0 && (
           <Alert variant="warning">
-            Det finnes ubehandlede forslag som påvirker utbetalinger på følgende personer. Disse må
-            først godkjennes av Nav-veileder før utbetalingen oppdaterer seg.
+            {tekster.bokmal.utbetaling.beregning.ubehandledeDeltakerforslag}
             <List>
               {deltakereMedRelevanteForslag.map((deltaker) => (
                 <List.Item key={deltaker.id}>{deltaker.person?.navn}</List.Item>
@@ -250,7 +264,7 @@ function ForhandsgodkjentBeregning({
                 Deltakelsesprosent
               </Table.ColumnHeader>
               <Table.ColumnHeader align="right" scope="col">
-                Månedsverk i perioden
+                Månedsverk
               </Table.ColumnHeader>
 
               <Table.HeaderCell scope="col"></Table.HeaderCell>

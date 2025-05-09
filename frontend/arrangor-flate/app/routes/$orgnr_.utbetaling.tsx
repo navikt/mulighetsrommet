@@ -15,6 +15,7 @@ import { PageHeader } from "../components/PageHeader";
 import { useTabState } from "../hooks/useTabState";
 import { internalNavigation } from "../internal-navigation";
 import { toggleIsEnabled } from "../services/featureToggle/featureToggleService";
+import { tekster } from "../tekster";
 
 export const meta: MetaFunction = () => {
   return [
@@ -71,22 +72,25 @@ export default function UtbetalingOversikt() {
   return (
     <>
       <div className="flex justify-between sm:flex-row sm:my-5 sm:p-1">
-        <PageHeader title="Tilgjengelige innsendinger" />
+        <PageHeader title={tekster.bokmal.utbetaling.headingTitle} />
         {opprettManuellUtbetalingToggle && (
           <Button
             variant="secondary"
             as={ReactRouterLink}
             to={internalNavigation(orgnr).manueltUtbetalingskrav}
           >
-            Opprett manuelt krav om utbetaling
+            {tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
           </Button>
         )}
       </div>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
-          <Tabs.Tab value="aktive" label="Aktive" />
-          <Tabs.Tab value="historiske" label="Historiske" />
-          <Tabs.Tab value="tilsagnsoversikt" label="Tilsagnsoversikt" />
+          <Tabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
+          <Tabs.Tab value="historiske" label={tekster.bokmal.utbetaling.oversiktFaner.historiske} />
+          <Tabs.Tab
+            value="tilsagnsoversikt"
+            label={tekster.bokmal.utbetaling.oversiktFaner.tilsagnsoversikt}
+          />
         </Tabs.List>
         <Tabs.Panel value="aktive" className="w-full">
           <UtbetalingTable utbetalinger={aktive} />
