@@ -45,7 +45,7 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje
   return (
     <Accordion>
       {linjer.map((linje) => (
-        <Accordion.Item key={linje.id} defaultOpen={linjer.length > 1 && linjer.length < 5}>
+        <Accordion.Item key={linje.id} defaultOpen={linjer.length >= 1 && linjer.length <= 5}>
           <Accordion.Header>Tilsagn {linje.tilsagn.bestillingsnummer} </Accordion.Header>
           <Accordion.Content>
             <Definisjonsliste
