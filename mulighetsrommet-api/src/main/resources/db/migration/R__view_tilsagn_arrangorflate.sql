@@ -5,7 +5,7 @@ drop view if exists tilsagn_arrangorflate_view;
 create view tilsagn_arrangorflate_view as
 select tilsagn.id,
        tilsagn.type,
-       tilsagn.belop_gjenstaende,
+       (tilsagn.belop_beregnet - tilsagn.belop_brukt) as belop_gjenstaende,
        tilsagn.periode,
        tilsagn.status,
        tilsagn.prismodell,

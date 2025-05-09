@@ -389,10 +389,10 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 150000,
+        belop: 150_000,
       },
     },
-    gjenstaendeBelop: 100000,
+    bruktBelop: 50_000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Halden",
@@ -432,7 +432,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         belop: 50000,
       },
     },
-    gjenstaendeBelop: 50000,
+    bruktBelop: 0,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Sarpsborg",
@@ -471,7 +471,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         belop: 30000,
       },
     },
-    gjenstaendeBelop: 0,
+    bruktBelop: 30000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Råde",
@@ -510,7 +510,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         belop: 20000,
       },
     },
-    gjenstaendeBelop: 20000,
+    bruktBelop: 0,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Våler",
@@ -549,7 +549,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         belop: 10000,
       },
     },
-    gjenstaendeBelop: 0,
+    bruktBelop: 10000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Indre Østfold",

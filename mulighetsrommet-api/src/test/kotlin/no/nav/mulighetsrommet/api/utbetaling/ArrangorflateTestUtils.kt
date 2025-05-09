@@ -68,6 +68,7 @@ object ArrangorflateTestUtils {
             output = TilsagnBeregningFri.Output(1000),
         ),
         type = TilsagnType.TILSAGN,
+        belopBrukt = 0,
         bestillingStatus = BestillingStatusType.AKTIV,
     )
 

@@ -15,7 +15,7 @@ data class ArrangorflateTilsagnDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val gjennomforing: Gjennomforing,
-    val gjenstaendeBelop: Int,
+    val bruktBelop: Int,
     val tiltakstype: Tiltakstype,
     val type: TilsagnType,
     val periode: Periode,

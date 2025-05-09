@@ -8,7 +8,7 @@ import {
 
 export const mockTilsagn: TilsagnDto[] = [
   {
-    belopGjenstaende: 10000,
+    belopBrukt: 4000,
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
@@ -31,7 +31,7 @@ export const mockTilsagn: TilsagnDto[] = [
     bestillingsnummer: "A-2024/123",
   },
   {
-    belopGjenstaende: 10000,
+    belopBrukt: 4000,
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
@@ -54,7 +54,7 @@ export const mockTilsagn: TilsagnDto[] = [
     bestillingsnummer: "A-2024/123",
   },
   {
-    belopGjenstaende: 10000,
+    belopBrukt: 4000,
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
@@ -84,7 +84,7 @@ export const mockTilsagn: TilsagnDto[] = [
       output: { type: "FRI", belop: 14000 },
     },
     id: "c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
-    belopGjenstaende: 10000,
+    belopBrukt: 4000,
     kostnadssted: {
       enhetsnummer: "0300",
       navn: "Nav Oslo",
@@ -101,7 +101,7 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     type: TilsagnType.TILSAGN,
-    belopGjenstaende: 10000,
+    belopBrukt: 4000,
     beregning: {
       type: "FRI",
       input: { type: "FRI", belop: 14000 },

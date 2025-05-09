@@ -448,7 +448,7 @@ class UtbetalingService(
             return false
         }
         val tilsagn = relevanteTilsagn[0]
-        if (tilsagn.belopGjenstaende < utbetaling.beregning.output.belop) {
+        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.belop) {
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
@@ -565,7 +565,7 @@ class UtbetalingService(
                 )
                 return@godkjennUtbetaling
             }
-            queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - it.belop)
+            queries.tilsagn.setBruktBelop(tilsagn.id, tilsagn.belopBrukt + it.belop)
             if (it.gjorOppTilsagn) {
                 tilsagnService.gjorOppAutomatisk(it.tilsagnId, this)
             }

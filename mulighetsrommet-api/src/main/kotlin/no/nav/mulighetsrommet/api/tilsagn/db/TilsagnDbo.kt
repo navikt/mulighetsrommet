@@ -16,5 +16,6 @@ data class TilsagnDbo(
     val lopenummer: Int,
     val bestillingsnummer: String,
     val bestillingStatus: BestillingStatusType?,
+    val belopBrukt: Int,
     val beregning: TilsagnBeregning,
 )

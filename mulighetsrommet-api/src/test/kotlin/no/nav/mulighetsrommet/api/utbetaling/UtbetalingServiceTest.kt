@@ -1263,7 +1263,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
-                    it.belopGjenstaende shouldBe 0
+                    it.belopBrukt shouldBe it.beregning.output.belop
                 }
                 Json.decodeFromString<OkonomiBestillingMelding>(
                     queries.kafkaProducerRecord.getRecords(50).first().value.decodeToString(),
