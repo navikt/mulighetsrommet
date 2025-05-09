@@ -29,7 +29,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
       utbetaling.linjer.length > 0 ? (
         <>
           <Heading size="small" level="3">
-            Tilsagnsdetaljer
+            Tilsagn som er brukt til utbetaling
           </Heading>
           <Accordion>
             <UtbetalingTilsagndetaljer linjer={utbetaling.linjer} />
@@ -45,7 +45,7 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje
   return (
     <Accordion>
       {linjer.map((linje) => (
-        <Accordion.Item key={linje.id} defaultOpen={linjer.length === 1}>
+        <Accordion.Item key={linje.id} defaultOpen={linjer.length > 1 && linjer.length < 5}>
           <Accordion.Header>Tilsagn {linje.tilsagn.bestillingsnummer} </Accordion.Header>
           <Accordion.Content>
             <Definisjonsliste
@@ -53,12 +53,10 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje
                 {
                   key: "Tilsagn",
                   value: (
-                    <Link to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>
-                      Se tilsagnsdetaljer for {linje.tilsagn.bestillingsnummer}
-                    </Link>
+                    <Link to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>Se tilsagnsdetaljer</Link>
                   ),
                 },
-                { key: "Beløp", value: formaterNOK(linje.belop) },
+                { key: "Beløp til utbetaling", value: formaterNOK(linje.belop) },
                 {
                   key: "Status",
                   value: <DelUtbetalingStatusTag status={linje.status} size={"small"} />,

@@ -1,5 +1,7 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
+  Alert,
+  Box,
   Button,
   Checkbox,
   ErrorSummary,
@@ -18,9 +20,9 @@ import { useEffect, useRef } from "react";
 import {
   ActionFunction,
   Form,
-  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
+  Link as ReactRouterLink,
   redirect,
   useActionData,
   useFetcher,
@@ -28,13 +30,22 @@ import {
   useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
+import { KontonummerInput } from "~/components/KontonummerInput";
 import { PageHeader } from "~/components/PageHeader";
-import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
+import { Separator } from "~/components/Separator";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
-import { isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { Separator } from "~/components/Separator";
-import { KontonummerInput } from "~/components/KontonummerInput";
+import {
+  formaterDato,
+  formaterPeriode,
+  isValidationError,
+  problemDetailResponse,
+  useOrgnrFromUrl,
+} from "~/utils";
+import { Definisjonsliste } from "../components/Definisjonsliste";
+import { TilsagnDetaljer } from "../components/tilsagn/TilsagnDetaljer";
+import { tekster } from "../tekster";
+import { getBeregningDetaljer } from "../utils/beregning";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -180,10 +191,58 @@ export default function BekreftUtbetaling() {
 
   return (
     <VStack className="max-w-[50%]" gap="5">
-      <PageHeader title="Oppsummering av utbetaling" />
-      <UtbetalingDetaljer utbetaling={utbetaling} tilsagn={tilsagn} />
+      <PageHeader
+        title="Oppsummering av innsending"
+        tilbakeLenke={{
+          navn: tekster.bokmal.utbetaling.tilbakeTilBeregning,
+          url: internalNavigation(orgnr).beregning(utbetaling.id),
+        }}
+      />
+      <Definisjonsliste
+        definitions={[
+          { key: "Frist for innsending", value: formaterDato(utbetaling.fristForGodkjenning) },
+        ]}
+      />
+      <Definisjonsliste
+        definitions={[
+          { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+          { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+        ]}
+      />
       <Separator />
-      <Heading size="medium">Betalingsinformasjon</Heading>
+      <Heading size="small" level="2">
+        Tilsagnsdetaljer
+      </Heading>
+      {tilsagn.length === 0 && (
+        <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
+      )}
+      {tilsagn.map((t) => (
+        <Box
+          padding="2"
+          key={t.id}
+          borderWidth="1"
+          borderColor="border-subtle"
+          borderRadius="medium"
+        >
+          <TilsagnDetaljer tilsagn={t} />
+        </Box>
+      ))}
+      <Separator />
+      <Definisjonsliste
+        title={"Utbetaling"}
+        headingLevel="3"
+        definitions={[
+          {
+            key: "Utbetalingsperiode",
+            value: formaterPeriode(utbetaling.periode),
+          },
+          ...getBeregningDetaljer(utbetaling.beregning),
+        ]}
+      />
+      <Separator />
+      <Heading size="small" level="2">
+        Betalingsinformasjon
+      </Heading>
       <Form method="post">
         <KontonummerInput
           kontonummer={utbetaling.betalingsinformasjon.kontonummer ?? undefined}
@@ -209,7 +268,7 @@ export default function BekreftUtbetaling() {
             error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
             id="bekreftelse"
           >
-            Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
+            {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
           </Checkbox>
           <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
           <input type="hidden" name="orgnr" value={orgnr} />

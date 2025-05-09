@@ -1,4 +1,4 @@
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ArrangorflateService, ArrFlateUtbetaling } from "api-client";
@@ -6,12 +6,12 @@ import { LoaderFunction, MetaFunction, useLoaderData, useParams } from "react-ro
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
 import { Separator } from "~/components/Separator";
-import BetalingsInformasjon from "~/components/utbetaling/BetalingsInformasjon";
-import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { internalNavigation } from "../internal-navigation";
+import { tekster } from "../tekster";
 import { formaterDato, formaterPeriode, problemDetailResponse, useOrgnrFromUrl } from "../utils";
+import { getBeregningDetaljer } from "../utils/beregning";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
@@ -78,12 +78,12 @@ export default function UtbetalingDetaljerSide() {
       <PageHeader
         title="Detaljer"
         tilbakeLenke={{
-          navn: "Tilbake til utbetalinger",
+          navn: tekster.bokmal.tilbakeTilOversikt,
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
 
-      <HStack gap="2" justify="space-between">
+      <HStack gap="2" className="max-w-[1250px] mt-5" justify="space-between">
         <VStack gap="2">
           <Heading level="2" size="medium">
             Innsending
@@ -110,7 +110,12 @@ export default function UtbetalingDetaljerSide() {
       <Separator />
 
       <VStack gap="6" className="max-w-[1250px] mt-5">
-        <GenerelleDetaljer utbetaling={utbetaling} utenTittel />
+        <Definisjonsliste
+          definitions={[
+            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+          ]}
+        />
 
         <Definisjonsliste
           title={"Utbetaling"}
@@ -120,10 +125,25 @@ export default function UtbetalingDetaljerSide() {
               key: "Utbetalingsperiode",
               value: formaterPeriode(utbetaling.periode),
             },
-            { key: "Beløp til utbetaling", value: formaterNOK(utbetaling.beregning.belop) },
+            ...getBeregningDetaljer(utbetaling.beregning),
           ]}
         />
-        <BetalingsInformasjon utbetaling={utbetaling} />
+        <Definisjonsliste
+          title="Betalingsinformasjon"
+          headingLevel="3"
+          definitions={[
+            {
+              key: "Kontonummer",
+              value: utbetaling.betalingsinformasjon.kontonummer
+                ? formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer)
+                : "-",
+            },
+            {
+              key: "KID-nummer",
+              value: utbetaling.betalingsinformasjon.kid || "-",
+            },
+          ]}
+        />
         <Box
           background="bg-subtle"
           padding="6"
