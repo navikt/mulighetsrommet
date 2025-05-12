@@ -4,3 +4,5 @@ alter table kafka_consumer_record
 
 alter table kafka_producer_record
     alter created_at type timestamptz using created_at at time zone 'UTC';
+
+drop table failed_events;
