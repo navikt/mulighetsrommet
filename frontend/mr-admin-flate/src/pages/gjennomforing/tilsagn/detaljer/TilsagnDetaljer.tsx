@@ -12,7 +12,6 @@ import {
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { gjenstaendeBelop } from "../tilsagnUtils";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -104,7 +103,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           />
           <MetadataHorisontal
             header={tilsagnTekster.belopGjenstaende.label}
-            verdi={formaterNOK(gjenstaendeBelop(tilsagn))}
+            verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
         </VStack>
       </HStack>

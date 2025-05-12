@@ -2,7 +2,6 @@ import { UtbetalingDto, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BodyShort, CopyButton, HStack, Table } from "@navikt/ds-react";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
-import { gjenstaendeBelop } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -12,7 +11,7 @@ export interface Props {
 
 export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
   const utbetalesTotal = linjer.reduce((acc, d) => acc + d.belop, 0);
-  const totalGjenstaendeBelop = linjer.reduce((acc, l) => acc + gjenstaendeBelop(l.tilsagn), 0);
+  const totalGjenstaendeBelop = linjer.reduce((acc, l) => acc + l.tilsagn.belopGjenstaende, 0);
   const differanse = utbetaling.beregning.belop - utbetalesTotal;
 
   return (
