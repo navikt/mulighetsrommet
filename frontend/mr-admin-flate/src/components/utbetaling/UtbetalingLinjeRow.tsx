@@ -123,7 +123,7 @@ export function UtbetalingLinjeRow({
       </Table.DataCell>
       <Table.DataCell className={grayBgClass}>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={grayBgClass}>
-        {formaterNOK((linje.tilsagn.belopGjenstaende))}
+        {formaterNOK(linje.tilsagn.belopGjenstaende)}
       </Table.DataCell>
       <Table.DataCell colSpan={2}>
         <HStack gap="2" align="start">

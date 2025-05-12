@@ -132,7 +132,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2024-01-01",
         slutt: "2024-06-30",
       },
-      
+
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -273,7 +273,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-01-01",
         slutt: "2025-06-30",
       },
-      
+
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
