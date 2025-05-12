@@ -64,7 +64,6 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
-import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -475,11 +474,6 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val notifyFailedKafkaEvents = NotifyFailedKafkaEvents(
-            config.notifyFailedKafkaEvents,
-            get(),
-            get(),
-        )
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
         val generateValidationReport: GenerateValidationReport by inject()
@@ -512,7 +506,6 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeUtdanninger.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
-                notifyFailedKafkaEvents.task,
                 updateApentForPamelding.task,
                 generateUtbetaling.task,
             )
