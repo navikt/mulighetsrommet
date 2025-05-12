@@ -109,3 +109,31 @@ spec:
           labels:
             namespace: team-mulighetsrommet
             severity: warning
+
+    - name: Kafka
+      rules:
+        - alert: "Stale Kafka consumer records detected"
+          expr: sum by (app) (kafka_consumer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
+          for: 5m
+          annotations:
+            consequence: "Indikerer antall kafka-meldinger som står fast i kafka_consumer_record tabellen, som kan føre til manglende data eller forsinkelser i prosessering."
+            action: "Sjekk database og applikasjonslogger for å identifisere meldingene og vurder om vurder om de skal kjøres på nytt eller fjernes. Det kan være feil i applikasjonens konfigurering som forårsaker dette."
+            summary: |
+              Det er {{ $value }} uprosesserte meldinger i kafka_consumer_record tabellen for app {{ $labels.app }}.
+              Disse meldingene kan trenge manuell behandling for å sikre korrekt prosessering.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: warning
+
+        - alert: "Stale Kafka producer records detected"
+          expr: sum by (app) (kafka_producer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
+          for: 5m
+          annotations:
+            consequence: "Indikerer antall meldinger som står fast i kafka_producer_record tabellen, som fører til at meldinger ikke har blitt levert på kafka-topic."
+            action: "Sjekk database og applikasjonslogger for å identifisere meldingene og vurder om det er feil i applikasjonens konfigurasjon som forårsaker dette."
+            summary: |
+              Det er {{ $value }} uprosesserte meldinger i kafka_producer_record tabellen for app {{ $labels.app }}.
+              Disse meldingene kan trenge manuell behandling for å sikre korrekt leveranse.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: warning
