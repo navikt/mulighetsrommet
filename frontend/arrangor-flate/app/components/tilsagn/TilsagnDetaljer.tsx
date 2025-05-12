@@ -2,7 +2,6 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateTilsagn } from "api-client";
 import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
-import { gjenstaendeBelop } from "~/utils/tilsagn";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
@@ -26,14 +25,14 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
           { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
             key: "Gjenstående beløp",
-            value: formaterNOK(gjenstaendeBelop(tilsagn)),
+            value: formaterNOK(tilsagn.gjenstaendeBelop),
           },
         ]
       : [
           { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
             key: "Gjenstående beløp",
-            value: formaterNOK(gjenstaendeBelop(tilsagn)),
+            value: formaterNOK(tilsagn.gjenstaendeBelop),
           },
         ];
 

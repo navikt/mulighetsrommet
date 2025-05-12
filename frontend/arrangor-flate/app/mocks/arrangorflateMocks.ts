@@ -393,6 +393,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
     },
     bruktBelop: 50_000,
+    gjenstaendeBelop: 100_000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Halden",
@@ -429,10 +430,11 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 50000,
+        belop: 50_000,
       },
     },
     bruktBelop: 0,
+    gjenstaendeBelop: 50_000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Sarpsborg",
@@ -468,10 +470,11 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 30000,
+        belop: 30_000,
       },
     },
-    bruktBelop: 30000,
+    bruktBelop: 30_000,
+    gjenstaendeBelop: 0,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Råde",
@@ -507,10 +510,11 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 20000,
+        belop: 20_000,
       },
     },
     bruktBelop: 0,
+    gjenstaendeBelop: 20_000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Våler",
@@ -546,10 +550,11 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 10000,
+        belop: 10_000,
       },
     },
-    bruktBelop: 10000,
+    bruktBelop: 10_000,
+    gjenstaendeBelop: 0,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Indre Østfold",
