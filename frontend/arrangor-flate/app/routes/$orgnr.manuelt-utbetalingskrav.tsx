@@ -311,9 +311,9 @@ export default function ManuellUtbetalingForm() {
   return (
     <VStack gap="4">
       <PageHeader
-        title="Manuell innsending"
+        title={tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
         tilbakeLenke={{
-          navn: "Tilbake til utbetalinger",
+          navn: tekster.bokmal.tilbakeTilOversikt,
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
@@ -384,7 +384,10 @@ export default function ManuellUtbetalingForm() {
                     tilsagn={tilsagn}
                     ekstraDefinisjoner={[
                       { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
-                      { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
+                      {
+                        key: "Tilsagnstype",
+                        value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type),
+                      },
                     ]}
                   />
                 </Box>

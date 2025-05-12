@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogError
-import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
@@ -30,7 +30,7 @@ fun Route.delMedBrukerRoutes() {
             val request = call.receive<DelTiltakMedBrukerRequest>()
             val navIdent = getNavIdent()
 
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.fnr)
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.fnr)
 
             val obo = AccessType.OBO(call.getAccessToken())
 
@@ -81,7 +81,7 @@ fun Route.delMedBrukerRoutes() {
         post("status") {
             val request = call.receive<GetDelMedBrukerRequest>()
 
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
             val deltMedBruker = delMedBrukerService.getDeltMedBruker(request.norskIdent, request.tiltakId)
                 ?: return@post call.respond(HttpStatusCode.NoContent)
@@ -92,7 +92,7 @@ fun Route.delMedBrukerRoutes() {
         post("alle") {
             val request = call.receive<GetAlleDeltMedBrukerRequest>()
 
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
             call.respond(delMedBrukerService.getAlleDistinkteTiltakDeltMedBruker(request.norskIdent))
         }
@@ -100,7 +100,7 @@ fun Route.delMedBrukerRoutes() {
         post("historikk") {
             val request = call.receive<GetAlleDeltMedBrukerRequest>()
 
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
+            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
             call.respond(delMedBrukerService.getDelMedBrukerHistorikk(request.norskIdent))
         }

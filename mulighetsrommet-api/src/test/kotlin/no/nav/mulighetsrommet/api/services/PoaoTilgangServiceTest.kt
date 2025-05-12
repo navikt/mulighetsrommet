@@ -16,8 +16,8 @@ import java.util.*
 
 class PoaoTilgangServiceTest : FunSpec(
     {
-        val navAnsattAzureId1 = UUID.randomUUID()
-        val navAnsattAzureId2 = UUID.randomUUID()
+        val navAnsattOid1 = UUID.randomUUID()
+        val navAnsattOid2 = UUID.randomUUID()
 
         context("verifyAccessToBrukerForVeileder") {
             test("should throw StatusException when decision is DENY") {
@@ -33,7 +33,7 @@ class PoaoTilgangServiceTest : FunSpec(
                 every {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId1,
+                            navAnsattOid1,
                             TilgangType.LESE,
                             "12345678910",
                         ),
@@ -43,13 +43,13 @@ class PoaoTilgangServiceTest : FunSpec(
                 val service = PoaoTilgangService(client)
 
                 shouldThrow<StatusException> {
-                    service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
+                    service.verifyAccessToUserFromVeileder(navAnsattOid1, NorskIdent("12345678910"))
                 }
 
                 verify(exactly = 1) {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId1,
+                            navAnsattOid1,
                             TilgangType.LESE,
                             "12345678910",
                         ),
@@ -67,7 +67,7 @@ class PoaoTilgangServiceTest : FunSpec(
                 every {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId1,
+                            navAnsattOid1,
                             TilgangType.LESE,
                             "12345678910",
                         ),
@@ -76,12 +76,12 @@ class PoaoTilgangServiceTest : FunSpec(
 
                 val service = PoaoTilgangService(client)
 
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattOid1, NorskIdent("12345678910"))
 
                 verify(exactly = 1) {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId1,
+                            navAnsattOid1,
                             TilgangType.LESE,
                             "12345678910",
                         ),
@@ -99,7 +99,7 @@ class PoaoTilgangServiceTest : FunSpec(
                 every {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId1,
+                            navAnsattOid1,
                             TilgangType.LESE,
                             "12345678910",
                         ),
@@ -108,7 +108,7 @@ class PoaoTilgangServiceTest : FunSpec(
                 every {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId2,
+                            navAnsattOid2,
                             TilgangType.LESE,
                             "12345678910",
                         ),
@@ -117,7 +117,7 @@ class PoaoTilgangServiceTest : FunSpec(
                 every {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId2,
+                            navAnsattOid2,
                             TilgangType.LESE,
                             "10987654321",
                         ),
@@ -126,31 +126,31 @@ class PoaoTilgangServiceTest : FunSpec(
 
                 val service = PoaoTilgangService(client)
 
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattOid1, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattOid1, NorskIdent("12345678910"))
 
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, NorskIdent("12345678910"))
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, NorskIdent("12345678910"))
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, NorskIdent("10987654321"))
+                service.verifyAccessToUserFromVeileder(navAnsattOid2, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattOid2, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattOid2, NorskIdent("10987654321"))
 
                 verify(exactly = 1) {
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId1,
+                            navAnsattOid1,
                             TilgangType.LESE,
                             "12345678910",
                         ),
                     )
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId2,
+                            navAnsattOid2,
                             TilgangType.LESE,
                             "12345678910",
                         ),
                     )
                     client.evaluatePolicy(
                         NavAnsattTilgangTilEksternBrukerPolicyInput(
-                            navAnsattAzureId2,
+                            navAnsattOid2,
                             TilgangType.LESE,
                             "10987654321",
                         ),

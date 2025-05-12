@@ -12,7 +12,7 @@ import java.util.*
 @Serializable
 data class NavAnsatt(
     @Serializable(with = UUIDSerializer::class)
-    val azureId: UUID,
+    val entraObjectId: UUID,
     val navIdent: NavIdent,
     val fornavn: String,
     val etternavn: String,

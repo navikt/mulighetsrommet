@@ -39,6 +39,17 @@ spec:
           labels:
             namespace: team-mulighetsrommet
             severity: critical
+        - alert: Antall restarts
+          expr: sum(increase(kube_pod_container_status_restarts_total{namespace="team-mulighetsrommet"}[10m])) by (container) > 5
+          for: 10m
+          annotations:
+            consequence: Minst én pod er utilgjengelig og nye kodeendringer har sannsynligvis ikke blitt produksjonssatt.
+            action: "`kubectl describe pod -l app={{ $labels.container }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.container }} -n {{ $labels.namespace }}` for logger"
+            summary: |
+              '{{ $labels.container }}' har restartet flere ganger. Sjekk loggene for å finne ut hva som er galt.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: danger
 
     - name: Feilrate
       rules:

@@ -48,12 +48,12 @@ class NavAnsattSyncService(
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
-        val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
+        val ansatteEntraObjectIds = ansatteToUpsert.map { it.entraObjectId }
         val ansatteToScheduleForDeletion = queries.ansatt.getAll().filter { ansatt ->
-            ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null
+            ansatt.entraObjectId !in ansatteEntraObjectIds && ansatt.skalSlettesDato == null
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
-            logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
+            logger.info("Oppdaterer NavAnsatt med dato for sletting oid=${ansatt.entraObjectId} dato=$deletionDate")
             val ansattToDelete = NavAnsattDbo.fromNavAnsatt(ansatt).copy(skalSlettesDato = deletionDate)
             queries.ansatt.upsert(ansattToDelete)
             queries.ansatt.setRoller(ansattToDelete.navIdent, setOf())
@@ -61,7 +61,7 @@ class NavAnsattSyncService(
 
         val ansatteToDelete = queries.ansatt.getAll(skalSlettesDatoLte = today)
         ansatteToDelete.forEach { ansatt ->
-            logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
+            logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting oid=${ansatt.entraObjectId} dato=${ansatt.skalSlettesDato}")
             deleteNavAnsatt(ansatt)
         }
     }
@@ -70,7 +70,7 @@ class NavAnsattSyncService(
         val avtaleIds = queries.avtale.getAvtaleIdsByAdministrator(ansatt.navIdent)
         val gjennomforinger = sanityService.getTiltakByNavIdent(ansatt.navIdent)
 
-        queries.ansatt.deleteByAzureId(ansatt.azureId)
+        queries.ansatt.deleteByEntraObjectId(ansatt.entraObjectId)
         sanityService.removeNavIdentFromTiltaksgjennomforinger(ansatt.navIdent)
         sanityService.deleteNavIdent(ansatt.navIdent)
 

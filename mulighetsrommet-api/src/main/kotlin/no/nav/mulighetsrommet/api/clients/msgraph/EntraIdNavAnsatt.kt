@@ -7,9 +7,9 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
-data class AzureAdNavAnsatt(
+data class EntraIdNavAnsatt(
     @Serializable(with = UUIDSerializer::class)
-    val azureId: UUID,
+    val entraObjectId: UUID,
     val navIdent: NavIdent,
     val fornavn: String,
     val etternavn: String,

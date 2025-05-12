@@ -34,17 +34,18 @@ spec:
       memory: 512Mi
   secureLogs:
     enabled: true
-  kafka: # Optional. Required for Aiven
+  kafka:
     pool: nav-dev
-  azure: # Required
+  azure:
     application:
       enabled: true
       tenant: nav.no
       claims:
         groups:
-          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
+          # team-mulighetsrommet
+          - id: "debefa6e-1865-446d-b22b-9579fc735de3"
   env:
-    - name: APP_CONFIG_JSON # Required
+    - name: APP_CONFIG_JSON
       value: >
         {
           "topics": [

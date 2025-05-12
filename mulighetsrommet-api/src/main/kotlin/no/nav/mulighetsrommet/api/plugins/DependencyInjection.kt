@@ -33,7 +33,7 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
+import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
@@ -287,7 +287,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
-        MicrosoftGraphClient(
+        MsGraphClient(
             engine = appConfig.engine,
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.msGraphConfig.scope),

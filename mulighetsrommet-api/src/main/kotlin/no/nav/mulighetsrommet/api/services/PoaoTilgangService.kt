@@ -22,13 +22,13 @@ class PoaoTilgangService(
         .build()
 
     fun verifyAccessToUserFromVeileder(
-        navAnsattAzureId: UUID,
+        navAnsattObjectId: UUID,
         norskIdent: NorskIdent,
     ) {
-        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattAzureId-${norskIdent.value}") {
+        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattObjectId-${norskIdent.value}") {
             client.evaluatePolicy(
                 NavAnsattTilgangTilEksternBrukerPolicyInput(
-                    navAnsattAzureId,
+                    navAnsattObjectId,
                     TilgangType.LESE,
                     norskIdent.value,
                 ),
@@ -41,13 +41,13 @@ class PoaoTilgangService(
         }
     }
 
-    fun verifyAccessToModia(navAnsattAzureId: UUID) {
-        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, navAnsattAzureId.toString()) {
-            client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navAnsattAzureId)).getOrThrow().isPermit
+    fun verifyAccessToModia(navAnsattEntraObjectId: UUID) {
+        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, navAnsattEntraObjectId.toString()) {
+            client.evaluatePolicy(NavAnsattTilgangTilModiaPolicyInput(navAnsattEntraObjectId)).getOrThrow().isPermit
         }
 
         if (!access) {
-            SecureLog.logger.warn("Veileder med navAnsattAzureId $navAnsattAzureId har ikke tilgang til modia")
+            SecureLog.logger.warn("Veileder med EntraObjectId $navAnsattEntraObjectId har ikke tilgang til modia")
             throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til Modia")
         }
     }

@@ -11,28 +11,32 @@ spec:
   ingresses:
     - https://nav-arbeidsmarkedstiltak.intern.nav.no
     - https://nav-arbeidsmarkedstiltak.ansatt.nav.no
+  replicas:
+    min: 2
+    max: 3
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
   liveness:
     path: /internal/alive
     initialDelay: 10
   readiness:
     path: /internal/ready
     initialDelay: 10
-  replicas:
-    min: 2
-    max: 4
-    scalingStrategy:
-      cpu:
-        thresholdPercentage: 75
   observability:
     autoInstrumentation:
       enabled: true
       runtime: nodejs
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      cpu: 10m
-      memory: 256Mi
+  gcp:
+    buckets:
+      - name: arbeidsmarkedstiltak-nav-prod
+        cascadingDelete: false
   azure:
     application:
       enabled: true
@@ -47,10 +51,6 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-api
-  gcp:
-    buckets:
-      - name: arbeidsmarkedstiltak-nav-prod
-        cascadingDelete: false
   env:
     - name: JSON_CONFIG
       value: >

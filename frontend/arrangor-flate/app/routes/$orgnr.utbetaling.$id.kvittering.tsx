@@ -2,20 +2,21 @@ import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Alert, BodyLong, BodyShort, ExpansionCard, Link, VStack } from "@navikt/ds-react";
 import { ArrangorflateService } from "api-client";
 import {
-  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
-  useParams,
+  Link as ReactRouterLink,
   useLoaderData,
+  useParams,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { internalNavigation } from "../internal-navigation";
-import { formaterDatoTid, problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { PageHeader } from "~/components/PageHeader";
+import { internalNavigation } from "~/internal-navigation";
+import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
+import { tekster } from "../tekster";
 
 type UtbetalingKvitteringData = {
   mottattTidspunkt: string;
-  kontonummer: string;
+  kontonummer: string | null;
 };
 
 export const meta: MetaFunction = () => {
@@ -59,38 +60,39 @@ export default function UtbetalingKvittering() {
     <>
       <VStack gap="5" className="max-w-[50%] my-5 mx-auto">
         <PageHeader
-          title="Innsendingen er mottatt"
+          title={tekster.bokmal.utbetaling.kvittering.headingTitle}
           tilbakeLenke={{
-            navn: "Tilbake til oversikten",
+            navn: tekster.bokmal.tilbakeTilOversikt,
             url: internalNavigation(orgnr).utbetalinger,
           }}
         />
-        <Alert variant="success">
-          Vi har mottatt ditt krav om utbetaling, og utbetalingen er nå til behandling hos Nav. Vi
-          vil ta kontakt med deg dersom vi trenger mer informasjon.
-        </Alert>
-        <ExpansionCard open aria-label="Kvittering">
+        <Alert variant="success">{tekster.bokmal.utbetaling.kvittering.successMelding}</Alert>
+        <ExpansionCard defaultOpen aria-label="Kvittering">
           <ExpansionCard.Header>
-            <ExpansionCard.Title>Kvittering for innsending</ExpansionCard.Title>
+            <ExpansionCard.Title>
+              {tekster.bokmal.utbetaling.kvittering.kvitteringTitle}
+            </ExpansionCard.Title>
           </ExpansionCard.Header>
           <ExpansionCard.Content>
             <VStack gap="2">
-              <BodyShort>Mottatt av Nav: {formaterDatoTid(mottattTidspunkt)}</BodyShort>
-              <BodyShort>Orgnummer: {orgnr}</BodyShort>
+              <BodyShort>
+                {tekster.bokmal.utbetaling.kvittering.mottattAv(mottattTidspunkt)}
+              </BodyShort>
+              <BodyShort>{tekster.bokmal.utbetaling.kvittering.orgnr(orgnr)}</BodyShort>
               <br />
               {id && (
                 <>
                   <BodyLong>
-                    Her kan du se{" "}
+                    {tekster.bokmal.utbetaling.kvittering.statusLenkeIntro}{" "}
                     <Link as={ReactRouterLink} to={internalNavigation(orgnr).detaljer(id)}>
-                      status på utbetalingen.
+                      {tekster.bokmal.utbetaling.kvittering.statusLenkeTekst}
                     </Link>
                   </BodyLong>
                   <br />
                   <BodyShort>Innsending:</BodyShort>
                   <Link href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
                     <FilePdfIcon title="Pdf" />
-                    Innsendingskvittering (åpnes i ny fane)
+                    {tekster.bokmal.utbetaling.kvittering.pdfKvitteringLenke}
                   </Link>
                 </>
               )}
@@ -99,11 +101,15 @@ export default function UtbetalingKvittering() {
         </ExpansionCard>
         <ExpansionCard open aria-label="Kvittering">
           <ExpansionCard.Header>
-            <ExpansionCard.Title>Konto for utbetaling</ExpansionCard.Title>
+            <ExpansionCard.Title>
+              {tekster.bokmal.utbetaling.kvittering.kontoTitle}
+            </ExpansionCard.Title>
           </ExpansionCard.Header>
           <ExpansionCard.Content>
             <VStack gap="2">
-              <BodyShort weight="semibold">Vi har registrert følgende kontonummer:</BodyShort>
+              <BodyShort weight="semibold">
+                {tekster.bokmal.utbetaling.kvittering.kontonummerRegistrert}
+              </BodyShort>
               <BodyShort>{kontonummer}</BodyShort>
             </VStack>
           </ExpansionCard.Content>

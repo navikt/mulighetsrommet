@@ -26,7 +26,10 @@ import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
@@ -74,7 +77,7 @@ fun Route.arrangorflateRoutes() {
                     .onLeft {
                         call.respond(
                             HttpStatusCode.InternalServerError,
-                            "Kunne ikke synkronisere kontonummer",
+                            "Klarte ikke hente kontonummer",
                         )
                     }
                     .onRight { call.respond(it) }
@@ -347,15 +350,9 @@ data class ArrangorflateGjennomforing(
 
 @Serializable
 data class GodkjennUtbetaling(
-    val betalingsinformasjon: Betalingsinformasjon,
     val digest: String,
-) {
-    @Serializable
-    data class Betalingsinformasjon(
-        val kontonummer: Kontonummer,
-        val kid: Kid?,
-    )
-}
+    val kid: Kid?,
+)
 
 @Serializable
 data class RelevanteForslag(

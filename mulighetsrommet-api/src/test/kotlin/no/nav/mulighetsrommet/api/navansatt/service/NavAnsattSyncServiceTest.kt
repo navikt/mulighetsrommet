@@ -183,7 +183,7 @@ class NavAnsattSyncServiceTest : FunSpec({
 })
 
 private fun NavAnsattDbo.toNavAnsattDto(roller: Set<NavAnsattRolle>): NavAnsatt = NavAnsatt(
-    azureId = azureId,
+    entraObjectId = entraObjectId,
     navIdent = navIdent,
     fornavn = fornavn,
     etternavn = etternavn,

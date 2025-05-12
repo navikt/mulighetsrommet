@@ -26,11 +26,11 @@ importers:
     dependencies:
       '@hey-api/client-fetch':
         specifier: 0.10.0
-        version: 0.10.0(@hey-api/openapi-ts@0.67.1(typescript@5.8.3))
+        version: 0.10.0(@hey-api/openapi-ts@0.67.3(typescript@5.8.3))
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.67.1
-        version: 0.67.1(typescript@5.8.3)
+        specifier: 0.67.3
+        version: 0.67.3(typescript@5.8.3)
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -106,7 +106,7 @@ importers:
         version: 4.10.1(playwright-core@1.52.0)
       '@hey-api/client-fetch':
         specifier: 0.10.0
-        version: 0.10.0(@hey-api/openapi-ts@0.67.1(typescript@5.8.3))
+        version: 0.10.0(@hey-api/openapi-ts@0.67.3(typescript@5.8.3))
       '@mjackson/file-storage':
         specifier: ^0.6.1
         version: 0.6.1
@@ -117,17 +117,17 @@ importers:
         specifier: workspace:*
         version: link:../frontend-common
       '@navikt/aksel-icons':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-css':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-react':
-        specifier: 7.21.0
-        version: 7.21.0(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 7.21.1
+        version: 7.21.1(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/ds-tailwind':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/nav-dekoratoren-moduler':
         specifier: 3.2.3
         version: 3.2.3(csp-header@6.1.0)(html-react-parser@5.2.3(@types/react@19.0.3)(react@19.0.0))(jsdom@26.1.0)(react@19.0.0)
@@ -202,8 +202,8 @@ importers:
         version: 3.17.0
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.67.1
-        version: 0.67.1(typescript@5.8.3)
+        specifier: 0.67.3
+        version: 0.67.3(typescript@5.8.3)
       '@playwright/test':
         specifier: 1.52.0
         version: 1.52.0
@@ -313,17 +313,17 @@ importers:
   frontend/frontend-common:
     dependencies:
       '@hookform/resolvers':
-        specifier: 4.1.3
-        version: 4.1.3(react-hook-form@7.56.2(react@19.0.0))
+        specifier: 5.0.1
+        version: 5.0.1(react-hook-form@7.56.2(react@19.0.0))
       '@navikt/aksel-icons':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-css':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-react':
-        specifier: 7.21.0
-        version: 7.21.0(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 7.21.1
+        version: 7.21.1(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@tanstack/react-query':
         specifier: 5.75.2
         version: 5.75.2(react@19.0.0)
@@ -374,8 +374,8 @@ importers:
         specifier: 1.17.2
         version: 1.17.2
       '@hookform/resolvers':
-        specifier: 4.1.3
-        version: 4.1.3(react-hook-form@7.56.2(react@19.0.0))
+        specifier: 5.0.1
+        version: 5.0.1(react-hook-form@7.56.2(react@19.0.0))
       '@mr/api-client-v2':
         specifier: workspace:*
         version: link:../api-client-v2
@@ -383,17 +383,17 @@ importers:
         specifier: workspace:*
         version: link:../frontend-common
       '@navikt/aksel-icons':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-css':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-react':
-        specifier: 7.21.0
-        version: 7.21.0(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 7.21.1
+        version: 7.21.1(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/ds-tailwind':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@portabletext/react':
         specifier: 3.2.1
         version: 3.2.1(react@19.0.0)
@@ -567,8 +567,8 @@ importers:
   frontend/mulighetsrommet-cms:
     dependencies:
       '@navikt/aksel-icons':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@portabletext/react':
         specifier: 3.2.1
         version: 3.2.1(react@19.0.0)
@@ -631,17 +631,17 @@ importers:
         specifier: workspace:*
         version: link:../frontend-common
       '@navikt/aksel-icons':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-css':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@navikt/ds-react':
-        specifier: 7.21.0
-        version: 7.21.0(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 7.21.1
+        version: 7.21.1(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/ds-tailwind':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@portabletext/react':
         specifier: 3.2.1
         version: 3.2.1(react@19.0.0)
@@ -758,8 +758,8 @@ importers:
   frontend/storybook:
     dependencies:
       '@navikt/ds-tailwind':
-        specifier: 7.21.0
-        version: 7.21.0
+        specifier: 7.21.1
+        version: 7.21.1
       '@tailwindcss/typography':
         specifier: 0.5.16
         version: 0.5.16(tailwindcss@4.1.5)
@@ -2294,14 +2294,11 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@0.25.4':
-    resolution: {integrity: sha512-lWRQ/UiTvSIBxohn0/2HFHEmnmOVRjl7j6XcRJuLH0ls6f/9AyHMWVzkAJFuwx0n9gaEeCmg9VccCSCJzbEJig==}
+  '@floating-ui/react@0.27.8':
+    resolution: {integrity: sha512-EQJ4Th328y2wyHR3KzOUOoTW2UKjFk53fmyahfwExnFQ8vnsMYqKc+fFPOkeYtj5tcp1DUMiNJ7BFhed7e9ONw==}
     peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-
-  '@floating-ui/utils@0.1.6':
-    resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
@@ -2329,17 +2326,17 @@ packages:
     resolution: {integrity: sha512-bWUV9ICwvU5I3YKVZqWIUXFC2SIXznUi/u+LqurJx6ILiyImfZD5+g/lj3w4EiyXxmjqyaxptzUz/1IgK3vVtw==}
     engines: {node: '>= 16'}
 
-  '@hey-api/openapi-ts@0.67.1':
-    resolution: {integrity: sha512-WXnh/mTl9m4UmeJd19iLLZyd7oTPw+lgnq+xcu3MmEIWYBx6BeLxsy5SFMYxcBPDyg6QtNQUFXBgUIxhGoh5Eg==}
+  '@hey-api/openapi-ts@0.67.3':
+    resolution: {integrity: sha512-hoLis1YOPBw3+JjwjX+lU6mJZ69PekJ7fYY0qFTFmVuCMhlHk7lbU69SnJk/3GqeUGLL6cXS1s0OtvJJD5mZbg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=22.10.0}
     hasBin: true
     peerDependencies:
       typescript: ^5.5.3
 
-  '@hookform/resolvers@4.1.3':
-    resolution: {integrity: sha512-Jsv6UOWYTrEFJ/01ZrnwVXs7KDvP8XIo115i++5PWvNkNvkrsTfGiLS6w+eJ57CYtUtDQalUWovCZDHFJ8u1VQ==}
+  '@hookform/resolvers@5.0.1':
+    resolution: {integrity: sha512-u/+Jp83luQNx9AdyW2fIPGY6Y7NG68eN2ZW8FOJYL+M0i4s49+refdJdOp/A9n9HFQtQs3HIDHQvX3ZET2o7YA==}
     peerDependencies:
-      react-hook-form: ^7.0.0
+      react-hook-form: ^7.55.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2573,26 +2570,23 @@ packages:
     resolution: {integrity: sha512-wK+5pLK5XFmgtH3aQ2YVvA3HohS3xqV/OxuVOdNx9Wpnz7VE/fnC+e1A7ln6LFYeck7gOJ/dsZV6OLplOtAJ2w==}
     engines: {node: '>=18'}
 
-  '@navikt/aksel-icons@7.21.0':
-    resolution: {integrity: sha512-SczkvgMbFQSEX9IAm3mkwVqx29zxyqO94B9m/ekP4vbqKvrttWs+QTlHAKHWHghjZ3KOlqqiQbY8vMdFqhtBRQ==, tarball: https://npm.pkg.github.com/download/@navikt/aksel-icons/7.21.0/9cfc7982634a0f4f6c304ca015e4403057e2f04e}
+  '@navikt/aksel-icons@7.21.1':
+    resolution: {integrity: sha512-KjcwxUhJFKlGwnihj0ZdJSIC4ZxFBmGZVKqM8JO6qpNGCaZcsZdYY2GBhY8yX4juDOg8EDFxNH0Y/fi5EQ9S/A==, tarball: https://npm.pkg.github.com/download/@navikt/aksel-icons/7.21.1/545c686cd6c4517cde034e2ea81fb4ee0accc7bd}
 
-  '@navikt/ds-css@7.21.0':
-    resolution: {integrity: sha512-/6LNK/563gG2vSaN2EqGFdRKVUELF1OX3JREfFWLbiFZbMky/DGiVuwiUNhq8EJeUffp2menoPOAewul5SKs+Q==, tarball: https://npm.pkg.github.com/download/@navikt/ds-css/7.21.0/a83ba7f943f8da6e7aea70c699bd079f3027413c}
+  '@navikt/ds-css@7.21.1':
+    resolution: {integrity: sha512-WdK//7MheR3uveHGBiJHlkOrYFwjOUU/pzNrT8T9Te1UxUHJJm5f/6foCIMMkvR4WCYCa/cvqusE8ouAS36Kqw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-css/7.21.1/09969c230f742cd8af47f793d638be0000676b3d}
 
-  '@navikt/ds-react@7.21.0':
-    resolution: {integrity: sha512-oh/WEZ1bWC9l0ChOQp3w9YfCRAx5YA0/XoPjYebVEbGWTgclsZs8CvKuiIAwf0mRluaFWT3bk8oEyZ6I+S7FDA==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.21.0/5b7ee015384297033e7ee09ee2d204e517f20a31}
+  '@navikt/ds-react@7.21.1':
+    resolution: {integrity: sha512-LE15YmXsWraawObDWfhEfi+3waX46s+poulZ/qJjlKPaWCybpPDgfSEh2uuLMqKo+zm6C5xSjDmM/Srq90dzag==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.21.1/7388b4026118d513474af64cf27257a90f481fec}
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
-  '@navikt/ds-tailwind@7.21.0':
-    resolution: {integrity: sha512-pSrruD18IM6BdCyVbi2MzrOyXV3L2hpWhVAfg5fxzDqbfmw1tHab4aJ/c5QSFaQAnv6JYntB6iYNlcLE1cSwhw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.21.0/fed9c5950db493b9f6f13640d2f89a3b09a9f4a5}
+  '@navikt/ds-tailwind@7.21.1':
+    resolution: {integrity: sha512-NwII7sP5WjOAClSihJPgkXAikOyTLVRDq15bBM4zRuybPtNW8GPCkTRzMQzT55ZycAjgZ+kcnm5VXbQmKNUrsg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.21.1/74a680d8e55ab83791db28bb05940a64d81a2b38}
 
-  '@navikt/ds-tokens@7.21.0':
-    resolution: {integrity: sha512-yG8AYCzwXGgLlXCjo1uvOM28uZeov5Rry5E0RQYXDJ0qgcWHFo7g0EO0AMAUbgzM/UGY5SqsvIfb1IkZloT5Sw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tokens/7.21.0/406f2638550015ec493249f6ca09df67a91e8c7d}
+  '@navikt/ds-tokens@7.21.1':
+    resolution: {integrity: sha512-QUmQr7yXbN5CBoNBLb+Sp16nZEK8exdJgeOQdtpHq+GwWYlm8dm52W2M+HuG3VvDhr/FkBCkvMRphsJ05nwxEw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tokens/7.21.1/ca947d05a69efb44c4b146c8341852352915ec43}
 
   '@navikt/nav-dekoratoren-moduler@3.2.3':
     resolution: {integrity: sha512-DF6XNqS/96GZcSoARP/4I035TyXjk3dkgG4Dz7MtYkfErodc2jmkf8QUgtygXn0txBOZeNAVVCZpDds//EOLkg==, tarball: https://npm.pkg.github.com/download/@navikt/nav-dekoratoren-moduler/3.2.3/27714473e885ec311e1b91b17bb121750d8d9497}
@@ -2602,9 +2596,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.8.0':
     resolution: {integrity: sha512-5CDsv3wop9eIw2YNBCJRr0w6PwwkoTiHzZQXn1+5YZnsksCkHJAFsfKSbRle6zgsD+XRBnc/TPOP0nvNly7NWg==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.8.0/fc6862d934adfbefa382220614af18160688cd1e}
@@ -10793,15 +10784,13 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
-  '@floating-ui/react@0.25.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@floating-ui/react@0.27.8(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@floating-ui/react-dom': 2.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@floating-ui/utils': 0.1.6
+      '@floating-ui/utils': 0.2.9
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       tabbable: 6.2.0
-
-  '@floating-ui/utils@0.1.6': {}
 
   '@floating-ui/utils@0.2.9': {}
 
@@ -10820,9 +10809,9 @@ snapshots:
       ua-parser-js: 1.0.40
       web-vitals: 4.2.4
 
-  '@hey-api/client-fetch@0.10.0(@hey-api/openapi-ts@0.67.1(typescript@5.8.3))':
+  '@hey-api/client-fetch@0.10.0(@hey-api/openapi-ts@0.67.3(typescript@5.8.3))':
     dependencies:
-      '@hey-api/openapi-ts': 0.67.1(typescript@5.8.3)
+      '@hey-api/openapi-ts': 0.67.3(typescript@5.8.3)
 
   '@hey-api/json-schema-ref-parser@1.0.5':
     dependencies:
@@ -10831,7 +10820,7 @@ snapshots:
       js-yaml: 4.1.0
       lodash: 4.17.21
 
-  '@hey-api/openapi-ts@0.67.1(typescript@5.8.3)':
+  '@hey-api/openapi-ts@0.67.3(typescript@5.8.3)':
     dependencies:
       '@hey-api/json-schema-ref-parser': 1.0.5
       c12: 2.0.1
@@ -10841,7 +10830,7 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@hookform/resolvers@4.1.3(react-hook-form@7.56.2(react@19.0.0))':
+  '@hookform/resolvers@5.0.1(react-hook-form@7.56.2(react@19.0.0))':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.56.2(react@19.0.0)
@@ -11097,28 +11086,27 @@ snapshots:
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
 
-  '@navikt/aksel-icons@7.21.0': {}
+  '@navikt/aksel-icons@7.21.1': {}
 
-  '@navikt/ds-css@7.21.0': {}
+  '@navikt/ds-css@7.21.1': {}
 
-  '@navikt/ds-react@7.21.0(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@navikt/ds-react@7.21.1(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@floating-ui/react': 0.25.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@floating-ui/react': 0.27.8(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@floating-ui/react-dom': 2.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@navikt/aksel-icons': 7.21.0
-      '@navikt/ds-tokens': 7.21.0
+      '@navikt/aksel-icons': 7.21.1
+      '@navikt/ds-tokens': 7.21.1
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.6.1(react@19.0.0)
-    optionalDependencies:
-      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
-  '@navikt/ds-tailwind@7.21.0': {}
+  '@navikt/ds-tailwind@7.21.1': {}
 
-  '@navikt/ds-tokens@7.21.0': {}
+  '@navikt/ds-tokens@7.21.1': {}
 
   '@navikt/nav-dekoratoren-moduler@3.2.3(csp-header@6.1.0)(html-react-parser@5.2.3(@types/react@19.0.3)(react@19.0.0))(jsdom@26.1.0)(react@19.0.0)':
     dependencies:
@@ -11126,7 +11114,6 @@ snapshots:
       html-react-parser: 5.2.3(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 26.1.0
-    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@3.8.0':

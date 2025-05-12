@@ -10,37 +10,35 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-arena-adapter-manager.intern.nav.no
+  replicas:
+    min: 1
+    max: 1
+  resources:
+    requests:
+      cpu: 1m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
   liveness:
     path: /internal/alive
     initialDelay: 10
   readiness:
     path: /internal/ready
     initialDelay: 10
-  replicas:
-    min: 1
-    max: 1
-    scalingStrategy:
-      cpu:
-        thresholdPercentage: 75
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      cpu: 1m
-      memory: 256Mi
+  gcp:
+    buckets:
+      - name: mulighetsrommet-arena-adapter-manager-prod
+        cascadingDelete: false
   azure:
     application:
       enabled: true
       claims:
         groups:
-          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
+          # team-mulighetsrommet
+          - id: "debefa6e-1865-446d-b22b-9579fc735de3"
     sidecar:
       enabled: true
       autoLogin: true
-  gcp:
-    buckets:
-      - name: mulighetsrommet-arena-adapter-manager-prod
-        cascadingDelete: false
   accessPolicy:
     outbound:
       rules:

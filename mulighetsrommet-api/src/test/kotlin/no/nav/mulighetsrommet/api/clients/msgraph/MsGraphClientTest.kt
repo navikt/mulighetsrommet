@@ -8,11 +8,12 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
-class MicrosoftGraphClientTest : FunSpec({
+class MsGraphClientTest : FunSpec({
 
-    fun createClient(engine: MockEngine) = MicrosoftGraphClient(engine, "https://ms-graph.com") { "token" }
+    fun createClient(engine: MockEngine) = MsGraphClient(engine, "https://ms-graph.com") { "token" }
 
     test("should get an MsGraph user as a NavAnsatt") {
         val id = UUID.randomUUID()
@@ -36,8 +37,8 @@ class MicrosoftGraphClientTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getNavAnsatt(id, AccessType.M2M) shouldBe AzureAdNavAnsatt(
-            azureId = id,
+        client.getNavAnsatt(id, AccessType.M2M) shouldBe EntraIdNavAnsatt(
+            entraObjectId = id,
             navIdent = NavIdent("DD123456"),
             fornavn = "Donald",
             etternavn = "Duck",
@@ -48,19 +49,32 @@ class MicrosoftGraphClientTest : FunSpec({
         )
     }
 
-    test("should get member groups as AdGruppe") {
+    test("should get member groups") {
         val id = UUID.randomUUID()
 
-        val group = MsGraphGroup(UUID.randomUUID(), displayName = "TEST")
+        val expectedGroupIds = listOf(
+            "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
+            "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
+        )
 
         val engine = createMockEngine {
-            get("/v1.0/users/$id/transitiveMemberOf/microsoft.graph.group") {
-                respondJson(GetMemberGroupsResponse(listOf(group)))
+            post("/v1.0/users/$id/getMemberGroups") {
+                respondJson(
+                    $$"""
+                        {
+                            "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Collection(Edm.String)",
+                            "value": [
+                                "639e2806-4cc2-484c-a72a-51b4308c52a1",
+                                "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac"
+                            ]
+                        }
+                    """.trimIndent(),
+                )
             }
         }
 
         val client = createClient(engine)
 
-        client.getMemberGroups(id, AccessType.M2M) shouldBe listOf(AdGruppe(group.id, group.displayName))
+        client.getMemberGroups(id, AccessType.M2M) shouldBe expectedGroupIds
     }
 })

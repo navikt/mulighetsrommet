@@ -1,5 +1,5 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
   name: mulighetsrommet-cms
   namespace: team-mulighetsrommet
@@ -8,16 +8,10 @@ metadata:
   annotations:
      nais.io/read-only-file-system: "false"
 spec:
-  image: {{image}}
+  image: "{{ image }}"
   port: 8080
   ingresses:
     - https://mulighetsrommet-sanity-studio.intern.nav.no
-  liveness:
-    path: /internal/isalive
-    initialDelay: 10
-  readiness:
-    path: /internal/isready
-    initialDelay: 10
   replicas:
     min: 2
     max: 4
@@ -25,8 +19,14 @@ spec:
       cpu:
         thresholdPercentage: 75
   resources:
-    limits:
-      memory: 512Mi
     requests:
       cpu: 10m
       memory: 256Mi
+    limits:
+      memory: 512Mi
+  liveness:
+    path: /internal/isalive
+    initialDelay: 10
+  readiness:
+    path: /internal/isready
+    initialDelay: 10

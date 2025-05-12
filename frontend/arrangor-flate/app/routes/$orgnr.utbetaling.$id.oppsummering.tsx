@@ -1,5 +1,7 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
+  Alert,
+  Box,
   Button,
   Checkbox,
   ErrorSummary,
@@ -20,21 +22,30 @@ import {
   Form,
   LoaderFunction,
   MetaFunction,
+  Link as ReactRouterLink,
   redirect,
   useActionData,
   useFetcher,
   useLoaderData,
   useRevalidator,
-  Link as ReactRouterLink,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
+import { KontonummerInput } from "~/components/KontonummerInput";
 import { PageHeader } from "~/components/PageHeader";
-import { UtbetalingDetaljer } from "~/components/utbetaling/UtbetalingDetaljer";
+import { Separator } from "~/components/Separator";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
-import { isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { Separator } from "../components/Separator";
-import { KontonummerInput } from "~/components/KontonummerInput";
+import {
+  formaterDato,
+  formaterPeriode,
+  isValidationError,
+  problemDetailResponse,
+  useOrgnrFromUrl,
+} from "~/utils";
+import { Definisjonsliste } from "../components/Definisjonsliste";
+import { TilsagnDetaljer } from "../components/tilsagn/TilsagnDetaljer";
+import { tekster } from "../tekster";
+import { getBeregningDetaljer } from "../utils/beregning";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -86,10 +97,14 @@ export const loader: LoaderFunction = async ({
   };
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ params, request }) => {
+  const { id } = params;
+  if (!id) {
+    throw new Response("Mangler id", { status: 400 });
+  }
+
   const formData = await request.formData();
 
-  const utbetalingId = getOrThrowError(formData, "utbetalingId").toString();
   const utbetalingDigest = getOrThrowError(formData, "utbetalingDigest").toString();
   const orgnr = getOrThrowError(formData, "orgnr").toString();
 
@@ -98,12 +113,12 @@ export const action: ActionFunction = async ({ request }) => {
     "bekreftelse",
     "Du må bekrefte at opplysningene er korrekte",
   );
-  const { error: kontonummerError, data: kontonummer } = getOrError(
+  const { error: kontonummerError } = getOrError(
     formData,
     "kontonummer",
     "Kontonummer eksisterer ikke",
   );
-  const kid = formData.get("kid")?.toString();
+  const kid = formData.get("kid")?.toString() || null;
 
   if (kontonummerError || bekreftelseError) {
     return {
@@ -111,19 +126,16 @@ export const action: ActionFunction = async ({ request }) => {
     };
   }
 
-  const validationErrors = validateBetalingsinformasjon(kontonummer.toString(), kid);
+  const validationErrors = validateKid(kid);
   if (validationErrors) {
     return validationErrors;
   }
 
   const { error } = await ArrangorflateService.godkjennUtbetaling({
-    path: { id: utbetalingId },
+    path: { id },
     body: {
       digest: utbetalingDigest,
-      betalingsinformasjon: {
-        kontonummer: kontonummer.toString(),
-        kid: kid || null,
-      },
+      kid,
     },
     headers: await apiHeaders(request),
   });
@@ -134,19 +146,14 @@ export const action: ActionFunction = async ({ request }) => {
       throw problemDetailResponse(error);
     }
   }
-  return redirect(internalNavigation(orgnr).kvittering(utbetalingId));
+  return redirect(internalNavigation(orgnr).kvittering(id));
 };
 
-export function validateBetalingsinformasjon(kontonummer: string, kid?: string) {
+export function validateKid(kid: string | null) {
   const errors = [];
-  const KONTONUMMER_REGEX = /^\d{11}$/;
   const KID_REGEX = /^\d{2,25}$/;
 
-  if (!KONTONUMMER_REGEX.test(kontonummer)) {
-    errors.push({ pointer: "/kontonummer", detail: "Kontonummer må være 11 siffer" });
-  }
-
-  if (kid && !KID_REGEX.test(kid)) {
+  if (typeof kid === "string" && !KID_REGEX.test(kid)) {
     errors.push({
       pointer: "/kid",
       detail: "KID-nummer kan kun inneholde tall og være maks 25 siffer",
@@ -184,13 +191,61 @@ export default function BekreftUtbetaling() {
 
   return (
     <VStack className="max-w-[50%]" gap="5">
-      <PageHeader title="Oppsummering av utbetaling" />
-      <UtbetalingDetaljer utbetaling={utbetaling} tilsagn={tilsagn} />
+      <PageHeader
+        title="Oppsummering av innsending"
+        tilbakeLenke={{
+          navn: tekster.bokmal.utbetaling.tilbakeTilBeregning,
+          url: internalNavigation(orgnr).beregning(utbetaling.id),
+        }}
+      />
+      <Definisjonsliste
+        definitions={[
+          { key: "Frist for innsending", value: formaterDato(utbetaling.fristForGodkjenning) },
+        ]}
+      />
+      <Definisjonsliste
+        definitions={[
+          { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+          { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+        ]}
+      />
       <Separator />
-      <Heading size="medium">Betalingsinformasjon</Heading>
+      <Heading size="small" level="2">
+        Tilsagnsdetaljer
+      </Heading>
+      {tilsagn.length === 0 && (
+        <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
+      )}
+      {tilsagn.map((t) => (
+        <Box
+          padding="2"
+          key={t.id}
+          borderWidth="1"
+          borderColor="border-subtle"
+          borderRadius="medium"
+        >
+          <TilsagnDetaljer tilsagn={t} />
+        </Box>
+      ))}
+      <Separator />
+      <Definisjonsliste
+        title={"Utbetaling"}
+        headingLevel="3"
+        definitions={[
+          {
+            key: "Utbetalingsperiode",
+            value: formaterPeriode(utbetaling.periode),
+          },
+          ...getBeregningDetaljer(utbetaling.beregning),
+        ]}
+      />
+      <Separator />
+      <Heading size="small" level="2">
+        Betalingsinformasjon
+      </Heading>
       <Form method="post">
         <KontonummerInput
-          kontonummer={utbetaling.betalingsinformasjon.kontonummer}
+          kontonummer={utbetaling.betalingsinformasjon.kontonummer ?? undefined}
           error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
           onClick={() => handleHentKontonummer()}
         />
@@ -213,9 +268,8 @@ export default function BekreftUtbetaling() {
             error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
             id="bekreftelse"
           >
-            Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
+            {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
           </Checkbox>
-          <input type="hidden" name="utbetalingId" value={utbetaling.id} />
           <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
           <input type="hidden" name="orgnr" value={orgnr} />
           {data?.errors && data.errors.length > 0 && (

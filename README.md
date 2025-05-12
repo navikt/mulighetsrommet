@@ -236,7 +236,7 @@ Flate på nav.no for arrangører som skal be om utbetaling
 |                  |                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------|
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/arrangor-flate/README.md> |
-| Url (dev-miljø)  | <https://arrangor-utbetaling.intern.dev.nav.no/>                                          |
+| Url (dev-miljø)  | <https://arrangor-utbetaling.intern.dev.nav.no/>                                        |
 | Url (prod-miljø) | <TBD - Ikke prodsatt per 06.09.2024>                                                    |
 
 ## Overvåking av automatiske jobber
@@ -253,30 +253,21 @@ Botene finner man her:
 
 ### Synkronisere kontaktpersoner til admin-flate
 
-For å legge til eller fjerne kontaktpersoner i admin-flate så går du
-til https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Members/groupId/0fdd133a-f47f-4b95-9a5e-f3a5ec87a472/menuId/
-og logger inn med din nav-bruker.
+Administratorer kan selv legge til kontaktpersoner fra Tiltaksadministrasjon, men hvis kontaktperson ikke allerede
+finnes og gjøres tilgjengelig i Sanity så kan kontaktperson også legges til manuelt av oss.
 
-Velg så Members -> Add members -> Søk opp personen med navn -> Huk av og velg Select.
-Synkronisering av kontaktpersoner kjører en gang i timen, så du må potensielt vente en time før kontaktpersonen blir
-tilgjengelig i admin-flate.
+Detrte gjøres på følgende måte:
 
-**TIPS**: Du kan gå til [MAAM](https://mulighetsrommet-arena-adapter-manager.intern.nav.no/) og velge mr-api (i
+1. Naviger til [Grupper jeg eier](https://myaccount.microsoft.com/groups/groups-i-own) i Entra Id
+2. Finn frem til gruppen for kontaktpersoner i Tiltaksadministrasjon
+3. Trykk på "Medlemmer" -> Trykk "Legg til"
+4. Søk opp personen med navn -> Velg "Medlem" -> Trykk "Legg til"
+
+**TIPS:** Du kan gå til [MAAM](https://mulighetsrommet-arena-adapter-manager.intern.nav.no/) og velge mr-api (i
 toppmenyen) og så kjøre task'en `sync-navansatte`. Da skal kontaktpersoner blir synkronisert i løpet av ett minutt.
 
-****
-MERK: Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse
+**MERK:** Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse
 her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
-
-### Gi tilgang til NAV Tiltaksadministrasjon for utvikler i teamet
-For å legge til en utvikler og gi riktige tilganger til dev-miljø så må utvikleren legges til en rekke AD-grupper. Se lenker under og hvordan man synkroniserer brukeren.
-
-1. Gå til [Team Mulighetsrommet](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Members/groupId/639e2806-4cc2-484c-a72a-51b4308c52a1) og legg til utvikleren
-2. Gå til [Tiltak avtaler skriv](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Overview/groupId/48026f54-6259-4c35-a148-bc4257bcaf03) og legg til utvikleren
-3. Gå til [Tiltak gjennomføringer skriv](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Overview/groupId/279039a0-39fd-4860-afdd-a1a2ccaa6323) og legg til utvikleren
-4. Gå til [Tiltak økonomi beslutter](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Overview/groupId/b00ba197-c90a-4ff9-966e-6c9cf1c882bf) og legg til utvikleren
-5. Gå til https://mulighetsrommet-arena-adapter-manager.intern.dev.nav.no/mr-api (logg inn med trygdeetaten-bruker) og trykk på Sync navansatte. Vent noen minutter og så bør utvikleren ha tilgang
-
 
 # Datadeling på Datamarkedsplassen
 

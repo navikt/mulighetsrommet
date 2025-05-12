@@ -111,10 +111,6 @@ private fun createM2mTokenClient(
     .withTokenEndpointUrl(tokenEndpointUrl)
     .buildMachineToMachineTokenClient()
 
-fun foo() {
-    AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-}
-
 fun createMaskinportenM2mTokenClient(
     clientId: String,
     tokenEndpointUrl: String,

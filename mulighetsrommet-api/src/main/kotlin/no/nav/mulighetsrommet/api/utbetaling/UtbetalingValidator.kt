@@ -290,14 +290,11 @@ object UtbetalingValidator {
         utbetaling: Utbetaling,
         relevanteForslag: List<RelevanteForslag>,
     ): Either<List<FieldError>, GodkjennUtbetaling> {
-        if (utbetaling.innsender != null) {
-            return listOf(
-                FieldError.root(
-                    "Utbetaling allerede godkjent",
-                ),
+        return if (utbetaling.innsender != null) {
+            listOf(
+                FieldError.root("Utbetalingen er allerede godkjent"),
             ).left()
-        }
-        return if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
+        } else if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
             listOf(
                 FieldError.ofPointer(
                     "/info",
@@ -309,6 +306,13 @@ object UtbetalingValidator {
                 FieldError.ofPointer(
                     "/info",
                     "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
+                ),
+            ).left()
+        } else if (utbetaling.betalingsinformasjon.kontonummer == null) {
+            listOf(
+                FieldError.ofPointer(
+                    "/info",
+                    "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.",
                 ),
             ).left()
         } else {

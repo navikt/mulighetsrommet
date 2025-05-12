@@ -20,16 +20,17 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 enum class AuthProvider {
-    AZURE_AD_NAV_IDENT,
-    AZURE_AD_DEFAULT_APP,
-    AZURE_AD_TILTAKSGJENNOMFORING_APP,
+    NAIS_APP_ARENA_ADAPTER_ACCESS,
+    NAIS_APP_GJENNOMFORING_ACCESS,
+    NAV_ANSATT,
     NAV_ANSATT_WITH_ROLES,
     TOKEN_X_ARRANGOR_FLATE,
 }
 
 object AppRoles {
     const val ACCESS_AS_APPLICATION = "access_as_application"
-    const val READ_TILTAKSGJENNOMFORING = "tiltaksgjennomforing-read"
+    const val READ_GJENNOMFORING = "tiltaksgjennomforing-read"
+    const val ARENA_ADAPTER = "arena-adapter"
 }
 
 /**
@@ -58,13 +59,13 @@ fun RoutingContext.getNavIdent(): NavIdent {
 }
 
 /**
- * Gets a NavAnsattAzureId from the underlying [JWTPrincipal], or throws a [StatusException]
+ * Gets the EntraId 'oid' claim from the underlying [JWTPrincipal], or throws a [StatusException]
  * if the claim is not available.
  */
-fun RoutingContext.getNavAnsattAzureId(): UUID {
+fun RoutingContext.getNavAnsattEntraObjectId(): UUID {
     return call.principal<JWTPayloadHolder>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
-        "NavAnsattAzureId mangler i JWTPrincipal",
+        "NavAnsattEntraObjectId mangler i JWTPrincipal",
     )
 }
 
@@ -113,7 +114,7 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AZURE_AD_NAV_IDENT) {
+        jwt(AuthProvider.NAV_ANSATT) {
             verifier(azureJwkProvider, auth.azure.issuer) {
                 withAudience(auth.azure.audience)
             }
@@ -125,13 +126,13 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AZURE_AD_DEFAULT_APP) {
+        jwt(AuthProvider.NAIS_APP_ARENA_ADAPTER_ACCESS) {
             verifier(azureJwkProvider, auth.azure.issuer) {
                 withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
-                if (!hasApplicationRoles(credentials, AppRoles.ACCESS_AS_APPLICATION)) {
+                if (!hasApplicationRoles(credentials, AppRoles.ACCESS_AS_APPLICATION, AppRoles.ARENA_ADAPTER)) {
                     return@validate null
                 }
 
@@ -139,18 +140,13 @@ fun Application.configureAuthentication(
             }
         }
 
-        jwt(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
+        jwt(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
             verifier(azureJwkProvider, auth.azure.issuer) {
                 withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
-                if (!hasApplicationRoles(
-                        credentials,
-                        AppRoles.ACCESS_AS_APPLICATION,
-                        AppRoles.READ_TILTAKSGJENNOMFORING,
-                    )
-                ) {
+                if (!hasApplicationRoles(credentials, AppRoles.ACCESS_AS_APPLICATION, AppRoles.READ_GJENNOMFORING)) {
                     return@validate null
                 }
 

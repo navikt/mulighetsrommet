@@ -12,7 +12,7 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
     override fun storeRecord(record: StoredConsumerRecord): Long {
         @Language("PostgreSQL")
         val query = """
-            insert into failed_events (topic, partition, record_offset, key, value, headers_json, record_timestamp)
+            insert into kafka_consumer_record (topic, partition, record_offset, key, value, headers_json, record_timestamp)
             values (?, ?, ?, ?, ?, ?, ?)
             on conflict (topic, partition, record_offset) do nothing
         """.trimIndent()
@@ -32,7 +32,7 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
     override fun deleteRecords(ids: MutableList<Long>) {
         @Language("PostgreSQL")
         val query = """
-            delete from failed_events where id = any(?)
+            delete from kafka_consumer_record where id = any(?)
         """.trimIndent()
 
         val idArray = db.createArrayOf("int8", ids)
@@ -45,7 +45,7 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
     override fun hasRecordWithKey(topic: String, partition: Int, key: ByteArray): Boolean {
         @Language("PostgreSQL")
         val query = """
-            select id from failed_events where topic = ? and partition = ? and key = ? limit 1
+            select id from kafka_consumer_record where topic = ? and partition = ? and key = ? limit 1
         """.trimIndent()
 
         val queryResult = queryOf(query, topic, partition, key).map { it.int("id") }.asSingle
@@ -56,7 +56,7 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
     override fun getRecords(topic: String, partition: Int, maxRecords: Int): MutableList<StoredConsumerRecord> {
         @Language("PostgreSQL")
         val query = """
-            select * from failed_events where topic = ? and partition = ? order by record_offset limit ?
+            select * from kafka_consumer_record where topic = ? and partition = ? order by record_offset limit ?
         """.trimIndent()
 
         val queryResult = queryOf(query, topic, partition, maxRecords).map { toStoredConsumerRecord(it) }.asList
@@ -67,7 +67,7 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
     fun getAll(): MutableList<StoredConsumerRecord> {
         @Language("PostgreSQL")
         val query = """
-            select * from failed_events order by record_offset
+            select * from kafka_consumer_record order by record_offset
         """.trimIndent()
 
         val queryResult = queryOf(query).map { toStoredConsumerRecord(it) }.asList
@@ -78,7 +78,7 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
     override fun incrementRetries(id: Long) {
         @Language("PostgreSQL")
         val query = """
-            update failed_events set retries = retries + 1, last_retry = current_timestamp where id = ?
+            update kafka_consumer_record set retries = retries + 1, last_retry = current_timestamp where id = ?
         """.trimIndent()
 
         val queryResult = queryOf(query, id).asUpdate
@@ -89,7 +89,7 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
     override fun getTopicPartitions(topics: MutableList<String>): MutableList<TopicPartition> {
         @Language("PostgreSQL")
         val query = """
-            select distinct topic, partition from failed_events where topic = any(?)
+            select distinct topic, partition from kafka_consumer_record where topic = any(?)
         """.trimIndent()
 
         val topicsArray = db.createArrayOf("varchar", topics)

@@ -12,17 +12,6 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-api.intern.nav.no
-  secureLogs:
-    enabled: true
-  prometheus:
-    enabled: true
-    path: /internal/prometheus
-  readiness:
-    path: /internal/readiness
-    initialDelay: 20
-  liveness:
-    path: /internal/liveness
-    initialDelay: 20
   replicas:
     min: 2
     max: 4
@@ -30,11 +19,17 @@ spec:
       cpu:
         thresholdPercentage: 75
   resources:
-    limits:
-      memory: 1024Mi
     requests:
       cpu: 250m
       memory: 512Mi
+    limits:
+      memory: 1024Mi
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
   observability:
     autoInstrumentation:
       enabled: true
@@ -43,6 +38,13 @@ spec:
       destinations:
         - id: elastic
         - id: loki
+  secureLogs:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  kafka:
+    pool: nav-prod
   gcp:
     buckets:
       - name: mulighetsrommet-api-uploads-prod
@@ -56,15 +58,15 @@ spec:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
             users:
-              - name: datastream # Ekstra databasebruker for Datastream
+              # Ekstra databasebruker for Datastream
+              - name: datastream
         diskAutoresize: true
         flags:
           - name: max_connections
             value: "200"
-          - name: cloudsql.logical_decoding # Settes for å støtte replication slots i databasen
-            value: "on" # flagget som må settes
-  kafka:
-    pool: nav-prod
+          # Settes for å støtte replication slots i databasen
+          - name: cloudsql.logical_decoding
+            value: "on"
   azure:
     application:
       enabled: true
@@ -79,7 +81,7 @@ spec:
           - id: "33053061-86da-4d6b-9372-33238fabd25f"
           # 0000-GA-TILTAK-avtaler_skriv
           - id: "46ba8787-eb24-4f7b-830f-4c5e9256de65"
-          # (GRP) mr-nav_kontaktperson
+          # 0000-CA-Tiltaksadministrasjon_kontaktperson
           - id: "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472"
           # 0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi
           - id: "a54fd054-4047-46a6-be7c-f1b69f346be8"
@@ -136,11 +138,20 @@ spec:
           - azp_name
   tokenx:
     enabled: true
+  maskinporten:
+    enabled: true
+    scopes:
+      consumes:
+        - name: "altinn:authorization/authorize"
+        - name: "altinn:accessmanagement/authorizedparties.resourceowner"
   accessPolicy:
     inbound:
       rules:
         - application: arrangor-flate
         - application: mulighetsrommet-arena-adapter
+          permissions:
+            roles:
+              - arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
         - application: mr-admin-flate
         - application: nav-arbeidsmarkedstiltak
@@ -187,17 +198,17 @@ spec:
         - application: clamav
           namespace: nais-system
       external:
-        - host: sokos-kontoregister.dev-fss-pub.nais.io
         - host: slack.com
+        - host: xegcworx.apicdn.sanity.io
+        - host: xegcworx.api.sanity.io
         - host: data.brreg.no
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.prod-fss-pub.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
         - host: api.utdanning.no
-        - host: dokarkiv.prod-fss-pub.nais.io
-        - host: xegcworx.apicdn.sanity.io
-        - host: xegcworx.api.sanity.io
         - host: platform.altinn.no
+        - host: dokarkiv.prod-fss-pub.nais.io
+        - host: sokos-kontoregister.dev-fss-pub.nais.io
         # Sanity IPs https://www.sanity.io/docs/api-cdn#5fa01dfe1285
         - ipv4: 35.241.31.122
         - ipv4: 35.190.70.79
@@ -238,12 +249,6 @@ spec:
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
-  maskinporten:
-    enabled: true
-    scopes:
-      consumes:
-        - name: "altinn:authorization/authorize"
-        - name: "altinn:accessmanagement/authorizedparties.resourceowner"
   env:
     - name: OTEL_JAVAAGENT_EXCLUDE_CLASSES
       value: "no.nav.mulighetsrommet.api.clients.dialog.*,no.nav.mulighetsrommet.api.services.BrukerService"
