@@ -286,6 +286,7 @@ private fun QueryContext.toArrangorflateTilsagn(
             navn = tilsagn.gjennomforing.navn,
         ),
         bruktBelop = tilsagn.belopBrukt,
+        gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
         tiltakstype = ArrangorflateTilsagnDto.Tiltakstype(
             navn = tilsagn.tiltakstype.navn,
         ),

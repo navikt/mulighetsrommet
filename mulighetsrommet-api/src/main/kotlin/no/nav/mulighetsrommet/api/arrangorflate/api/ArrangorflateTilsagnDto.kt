@@ -16,6 +16,7 @@ data class ArrangorflateTilsagnDto(
     val id: UUID,
     val gjennomforing: Gjennomforing,
     val bruktBelop: Int,
+    val gjenstaendeBelop: Int,
     val tiltakstype: Tiltakstype,
     val type: TilsagnType,
     val periode: Periode,
