@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
-import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -252,10 +251,6 @@ val ApplicationConfigDev = AppConfig(
         ),
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(
             cronPattern = "0 0 6 * * *",
-        ),
-        notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
-            maxRetries = 5,
-            cronPattern = "0 */15 * ? * MON-FRI",
         ),
         generateValidationReport = GenerateValidationReport.Config(
             bucketName = "mulighetsrommet-api-uploads-dev",

@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -30,13 +31,18 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
+    private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
         val okonomiConfig: OkonomiConfig,
@@ -428,14 +434,42 @@ class TilsagnService(
         return dto
     }
 
-    fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.transaction {
+    fun slettTilsagn(id: UUID, navIdent: NavIdent): StatusResponse<Unit> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
+        val totrinnskontroll = queries.totrinnskontroll.get(entityId = id, type = Totrinnskontroll.Type.OPPRETT)
 
-        queries.tilsagn.delete(id).right()
+        queries.tilsagn.delete(id)
+        if (totrinnskontroll?.besluttetAv == navIdent && totrinnskontroll.behandletAv is NavIdent) {
+            sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = totrinnskontroll.behandletAv)
+        }
+
+        Unit.right()
+    }
+
+    private fun QueryContext.sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(besluttetAv)
+        val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.value
+        val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
+
+        val title = "Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet"
+        val description = """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
+
+        val notice = ScheduledNotification(
+            type = NotificationType.NOTIFICATION,
+            title = title,
+            description = description,
+            metadata = NotificationMetadata(
+                linkText = "Gå til gjennomføringen",
+                link = "/gjennomforinger/${tilsagn.gjennomforing.id}",
+            ),
+            targets = nonEmptyListOf(behandletAv),
+            createdAt = Instant.now(),
+        )
+        queries.notifications.insert(notice)
     }
 
     fun getAll() = db.session {

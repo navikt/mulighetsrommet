@@ -181,8 +181,8 @@ fun Route.tilsagnRoutes() {
 
             delete("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
-
-                call.respondWithStatusResponse(service.slettTilsagn(id))
+                val navIdent = getNavIdent()
+                call.respondWithStatusResponse(service.slettTilsagn(id, navIdent))
             }
         }
 
