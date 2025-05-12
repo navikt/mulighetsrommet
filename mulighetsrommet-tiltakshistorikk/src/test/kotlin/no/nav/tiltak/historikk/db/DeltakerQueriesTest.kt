@@ -1,4 +1,4 @@
-package no.nav.tiltak.historikk
+package no.nav.tiltak.historikk.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -8,13 +8,13 @@ import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.historikk.db.DeltakerQueries
-import no.nav.tiltak.historikk.db.GruppetiltakQueries
+import no.nav.tiltak.historikk.TestFixtures
+import no.nav.tiltak.historikk.databaseConfig
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class DeltakerRepositoryTest : FunSpec({
+class DeltakerQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val gruppeAmo = TestFixtures.tiltak
