@@ -9,7 +9,7 @@
     "fristForGodkjenning": "2024-03-01",
     "betalingsinformasjon": {
       "kontonummer": "12312312312",
-      "kid": ":)"
+      "kid": ""
     },
     "tiltakstype": {
       "navn": "Arbeidsforberedende trening"
@@ -22,6 +22,7 @@
     {
       "periodeStart": "2024-01-01",
       "periodeSlutt": "2024-06-30",
+      "gjenstaendeBelop": 25000,
       "beregning": {
         "input": {
           "antallPlasser": 20,
