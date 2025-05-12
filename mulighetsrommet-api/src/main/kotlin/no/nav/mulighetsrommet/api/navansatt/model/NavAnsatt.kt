@@ -41,4 +41,6 @@ data class NavAnsatt(
     fun hasAnyGenerellRolle(requiredRole: Rolle, vararg otherRoles: Rolle): Boolean {
         return setOf(requiredRole, *otherRoles).any { hasGenerellRolle(it) }
     }
+
+    fun displayName(): String = "$fornavn $etternavn"
 }

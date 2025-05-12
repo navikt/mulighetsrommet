@@ -429,11 +429,12 @@ private fun services(appConfig: AppConfig) = module {
     single { LagretFilterService(get()) }
     single {
         TilsagnService(
-            TilsagnService.Config(
+            config = TilsagnService.Config(
                 okonomiConfig = appConfig.okonomi,
                 bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
             ),
-            get(),
+            db = get(),
+            navAnsattService = get(),
         )
     }
     single { AltinnRettigheterService(get(), get()) }
