@@ -98,3 +98,31 @@ spec:
           labels:
             namespace: team-mulighetsrommet
             severity: warning
+
+    - name: Kafka
+      rules:
+        - alert: "Stale Kafka consumer records detected"
+          expr: kafka_consumer_records_stale_count > 0
+          for: 1m
+          annotations:
+            consequence: "Indicates records stuck in kafka_consumer_record table, which may lead to missing data or processing delays"
+            action: "Check database and Kafka consumer logs to identify stuck records and determine if they need to be retried or removed"
+            summary: |
+              There are {{ $value }} stale records in the kafka_consumer_record table.
+              These records may need manual intervention to ensure proper processing.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: warning
+
+        - alert: "Stale Kafka producer records detected"
+          expr: kafka_producer_records_stale_count > 0
+          for: 1m
+          annotations:
+            consequence: "Indicates records stuck in kafka_producer_record table, which may lead to message delivery failures"
+            action: "Check database and Kafka producer logs to identify stuck records and determine if they need to be retried or removed"
+            summary: |
+              There are {{ $value }} stale records in the kafka_producer_record table.
+              These records may need manual intervention to ensure proper delivery.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: warning
