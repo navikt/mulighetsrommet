@@ -451,7 +451,7 @@ class TilsagnService(
         Unit.right()
     }
 
-    private fun sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) = db.transaction {
+    private fun QueryContext.sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
         val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(besluttetAv)
         val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.value
         val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
