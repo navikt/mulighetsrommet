@@ -77,7 +77,7 @@ object UtbetalingValidator {
                         ),
                     )
                 }
-                if (req.belop > req.tilsagn.belopGjenstaende) {
+                if (req.belop > req.tilsagn.gjenstaendeBelop()) {
                     add(
                         FieldError.ofPointer(
                             "/$index/belop",

@@ -8,13 +8,14 @@ import {
 
 export const mockTilsagn: TilsagnDto[] = [
   {
-    belopGjenstaende: 10000,
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14000 },
-      output: { type: "FRI", belop: 14000 },
+      input: { type: "FRI", belop: 14_000 },
+      output: { type: "FRI", belop: 14_000 },
     },
+    belopBrukt: 4_000,
+    belopGjenstaende: 10_000,
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -31,13 +32,14 @@ export const mockTilsagn: TilsagnDto[] = [
     bestillingsnummer: "A-2024/123",
   },
   {
-    belopGjenstaende: 10000,
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14000 },
-      output: { type: "FRI", belop: 14000 },
+      input: { type: "FRI", belop: 14_000 },
+      output: { type: "FRI", belop: 14_000 },
     },
+    belopBrukt: 4_000,
+    belopGjenstaende: 10_000,
     id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -54,13 +56,14 @@ export const mockTilsagn: TilsagnDto[] = [
     bestillingsnummer: "A-2024/123",
   },
   {
-    belopGjenstaende: 10000,
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14000 },
-      output: { type: "FRI", belop: 14000 },
+      input: { type: "FRI", belop: 14_000 },
+      output: { type: "FRI", belop: 14_000 },
     },
+    belopBrukt: 4_000,
+    belopGjenstaende: 10_000,
     id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -80,11 +83,12 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14000 },
-      output: { type: "FRI", belop: 14000 },
+      input: { type: "FRI", belop: 14_000 },
+      output: { type: "FRI", belop: 14_000 },
     },
+    belopBrukt: 4_000,
+    belopGjenstaende: 10_000,
     id: "c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
-    belopGjenstaende: 10000,
     kostnadssted: {
       enhetsnummer: "0300",
       navn: "Nav Oslo",
@@ -101,12 +105,13 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     type: TilsagnType.TILSAGN,
-    belopGjenstaende: 10000,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14000 },
-      output: { type: "FRI", belop: 14000 },
+      input: { type: "FRI", belop: 14_000 },
+      output: { type: "FRI", belop: 14_000 },
     },
+    belopBrukt: 4_000,
+    belopGjenstaende: 10_000,
     id: "5950e714-95bc-4d4c-b52e-c75fde749056",
     kostnadssted: {
       enhetsnummer: "0300",

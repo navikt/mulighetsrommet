@@ -5661,6 +5661,8 @@ components:
           $ref: "#/components/schemas/TilsagnType"
         periode:
           $ref: "#/components/schemas/Periode"
+        belopBrukt:
+          type: integer
         belopGjenstaende:
           type: integer
         kostnadssted:
@@ -5675,6 +5677,7 @@ components:
         - id
         - type
         - periode
+        - belopBrukt
         - belopGjenstaende
         - kostnadssted
         - beregning
@@ -6353,6 +6356,8 @@ components:
           required: [id, organisasjonsnummer, navn]
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
+        bruktBelop:
+          type: integer
         gjenstaendeBelop:
           type: integer
         bestillingsnummer:
@@ -6366,6 +6371,7 @@ components:
         - arrangor
         - beregning
         - id
+        - bruktBelop
         - gjenstaendeBelop
         - bestillingsnummer
 

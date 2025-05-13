@@ -117,6 +117,7 @@ class TilsagnService(
                     kostnadssted = request.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
+                    belopBrukt = 0,
                     beregning = beregning,
                 )
             }
@@ -277,7 +278,6 @@ class TilsagnService(
         )
         queries.totrinnskontroll.upsert(besluttetAnnullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
-        queries.tilsagn.setGjenstaendeBelop(tilsagn.id, 0)
 
         storeAnnullerBestilling(tilsagn, besluttetAnnullering)
 
@@ -361,7 +361,6 @@ class TilsagnService(
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
-        queries.tilsagn.setGjenstaendeBelop(tilsagn.id, 0)
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn oppgjort", dto, besluttetAv)

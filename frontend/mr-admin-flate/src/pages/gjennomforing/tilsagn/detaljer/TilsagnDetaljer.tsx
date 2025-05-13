@@ -22,8 +22,7 @@ interface Props {
 }
 
 export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) {
-  const { beregning, bestillingsnummer, status, periode, type, kostnadssted, belopGjenstaende } =
-    tilsagn;
+  const { beregning, bestillingsnummer, status, periode, type, kostnadssted } = tilsagn;
 
   const arsaker = oppgjor?.aarsaker || annullering?.aarsaker;
 
@@ -104,7 +103,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           />
           <MetadataHorisontal
             header={tilsagnTekster.belopGjenstaende.label}
-            verdi={formaterNOK(belopGjenstaende)}
+            verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
         </VStack>
       </HStack>

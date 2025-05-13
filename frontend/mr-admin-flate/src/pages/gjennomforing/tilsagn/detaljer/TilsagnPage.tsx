@@ -196,7 +196,7 @@ export function TilsagnPage() {
               </>
             )}
             {tilsagn.status === TilsagnStatus.GODKJENT &&
-              (tilsagn.belopGjenstaende === tilsagn.beregning.output.belop ? (
+              (tilsagn.belopBrukt === 0 ? (
                 <>
                   <ActionMenu.Item
                     variant="danger"
