@@ -3395,7 +3395,7 @@ components:
           anyOf:
             - type: ["null"]
             - $ref: "#/components/schemas/EstimertVentetid"
-        tilgjengeligForArrangorFraOgMedDato:
+        tilgjengeligForArrangorDato:
           type: [string, "null"]
           format: date
         amoKategorisering:
@@ -3427,7 +3427,7 @@ components:
         - kontaktpersoner
         - publisert
         - deltidsprosent
-        - tilgjengeligForArrangorFraOgMedDato
+        - tilgjengeligForArrangorDato
         - amoKategorisering
         - stengt
 
@@ -3502,7 +3502,7 @@ components:
                   type: number
                 enhet:
                   type: string
-        tilgjengeligForArrangorFraOgMedDato:
+        tilgjengeligForArrangorDato:
           type: [string, "null"]
           format: date
         amoKategorisering:
@@ -3532,7 +3532,7 @@ components:
         - beskrivelse
         - deltidsprosent
         - estimertVentetid
-        - tilgjengeligForArrangorFraOgMedDato
+        - tilgjengeligForArrangorDato
         - amoKategorisering
         - utdanningslop
 

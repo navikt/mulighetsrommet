@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const EditTilgjengeligForArrangorSchema = z.object({
-  tilgjengeligForArrangorFraOgMedDato: z.string({ required_error: "Feltet er påkrevd" }).date(),
+  tilgjengeligForArrangorDato: z.string({ required_error: "Feltet er påkrevd" }).date(),
 });
 
 export type InferredEditTilgjengeligForArrangorSchema = z.infer<
@@ -28,8 +28,8 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const form = useForm<InferredEditTilgjengeligForArrangorSchema>({
     resolver: zodResolver(EditTilgjengeligForArrangorSchema),
     defaultValues: {
-      tilgjengeligForArrangorFraOgMedDato:
-        gjennomforing.tilgjengeligForArrangorFraOgMedDato ?? undefined,
+      tilgjengeligForArrangorDato:
+        gjennomforing.tilgjengeligForArrangorDato ?? undefined,
     },
   });
 
@@ -55,7 +55,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     setTilgjengeligForArrangorMutation.mutate(
       {
         id: gjennomforing.id,
-        dato: values.tilgjengeligForArrangorFraOgMedDato!,
+        dato: values.tilgjengeligForArrangorDato!,
       },
       { onSuccess, onValidationError },
     );
@@ -70,11 +70,11 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
 
   const gjennomforingStartDato = new Date(gjennomforing.startDato);
 
-  const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorFraOgMedDato
-    ? new Date(gjennomforing.tilgjengeligForArrangorFraOgMedDato)
+  const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato
+    ? new Date(gjennomforing.tilgjengeligForArrangorDato)
     : max(subtractDays(gjennomforingStartDato, 14), dagensDato);
 
-  const minTilgjengeligForArrangorFraOgMedDato = max(
+  const mintilgjengeligForArrangorDato = max(
     subtractMonths(gjennomforingStartDato, 2),
     dagensDato,
   );
@@ -109,11 +109,11 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
                 <ControlledDateInput
                   label="Når skal arrangør ha tilgang?"
                   size="small"
-                  fromDate={minTilgjengeligForArrangorFraOgMedDato}
+                  fromDate={mintilgjengeligForArrangorDato}
                   toDate={gjennomforingStartDato}
                   format="iso-string"
                   invalidDatoEtterPeriode="Du må velge en dato som er før oppstartsdato"
-                  {...form.register("tilgjengeligForArrangorFraOgMedDato")}
+                  {...form.register("tilgjengeligForArrangorDato")}
                   control={form.control}
                 />
               </HStack>

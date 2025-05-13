@@ -220,10 +220,10 @@ class GjennomforingValidator(
     private fun validateOrResetTilgjengeligForArrangorDato(
         next: GjennomforingDbo,
     ): GjennomforingDbo {
-        val nextTilgjengeligForArrangorDato = next.tilgjengeligForArrangorFraOgMedDato?.let { date ->
+        val nextTilgjengeligForArrangorDato = next.tilgjengeligForArrangorDato?.let { date ->
             validateTilgjengeligForArrangorDato(date, next.startDato).fold({ null }, { it })
         }
-        return next.copy(tilgjengeligForArrangorFraOgMedDato = nextTilgjengeligForArrangorDato)
+        return next.copy(tilgjengeligForArrangorDato = nextTilgjengeligForArrangorDato)
     }
 
     fun validateTilgjengeligForArrangorDato(
@@ -234,14 +234,14 @@ class GjennomforingValidator(
             if (tilgjengeligForArrangorDato < LocalDate.now()) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                        GjennomforingDbo::tilgjengeligForArrangorDato,
                         "Du må velge en dato som er etter dagens dato",
                     ),
                 )
             } else if (tilgjengeligForArrangorDato < startDato.minusMonths(2)) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                        GjennomforingDbo::tilgjengeligForArrangorDato,
                         "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
                     ),
                 )
@@ -250,7 +250,7 @@ class GjennomforingValidator(
             if (tilgjengeligForArrangorDato > startDato) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                        GjennomforingDbo::tilgjengeligForArrangorDato,
                         "Du må velge en dato som er før gjennomføringens oppstartsdato",
                     ),
                 )

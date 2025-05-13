@@ -12,7 +12,10 @@ alter table deltaker
     alter registrert_dato type date;
 
 alter table gjennomforing
-    alter tilgjengelig_for_arrangor_fra_og_med_dato type date;
+    rename tilgjengelig_for_arrangor_fra_og_med_dato to tilgjengelig_for_arrangor_dato;
+
+alter table gjennomforing
+    alter tilgjengelig_for_arrangor_dato type date;
 
 alter table totrinnskontroll
     alter besluttet_tidspunkt drop default;

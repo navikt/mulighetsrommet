@@ -25,7 +25,7 @@ data class GjennomforingDbo(
     val deltidsprosent: Double,
     val estimertVentetidVerdi: Int?,
     val estimertVentetidEnhet: String?,
-    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
 )

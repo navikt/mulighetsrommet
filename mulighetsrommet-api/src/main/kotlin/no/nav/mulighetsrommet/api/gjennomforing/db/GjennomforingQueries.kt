@@ -50,7 +50,7 @@ class GjennomforingQueries(private val session: Session) {
                 deltidsprosent,
                 estimert_ventetid_verdi,
                 estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_fra_og_med_dato
+                tilgjengelig_for_arrangor_dato
             )
             values (
                 :id::uuid,
@@ -87,7 +87,7 @@ class GjennomforingQueries(private val session: Session) {
                 deltidsprosent                     = excluded.deltidsprosent,
                 estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                 estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_fra_og_med_dato = excluded.tilgjengelig_for_arrangor_fra_og_med_dato
+                tilgjengelig_for_arrangor_dato = excluded.tilgjengelig_for_arrangor_dato
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -423,11 +423,11 @@ class GjennomforingQueries(private val session: Session) {
         return session.update(queryOf(query, apentForPamelding, id))
     }
 
-    fun setTilgjengeligForArrangorFraOgMedDato(id: UUID, date: LocalDate): Int {
+    fun settilgjengeligForArrangorDato(id: UUID, date: LocalDate): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
-            set tilgjengelig_for_arrangor_fra_og_med_dato = ?
+            set tilgjengelig_for_arrangor_dato = ?
             where id = ?::uuid
         """.trimIndent()
 
@@ -553,7 +553,7 @@ class GjennomforingQueries(private val session: Session) {
         "deltidsprosent" to deltidsprosent,
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
-        "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
+        "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
     )
 
     private fun Row.toTiltaksgjennomforingDto(): GjennomforingDto {
@@ -641,7 +641,7 @@ class GjennomforingQueries(private val session: Session) {
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
             ),
-            tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
+            tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
             utdanningslop = utdanningslop,
             stengt = stengt,
