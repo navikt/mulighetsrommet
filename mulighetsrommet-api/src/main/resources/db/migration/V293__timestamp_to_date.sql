@@ -1,4 +1,6 @@
 drop view if exists avtale_admin_dto_view;
+drop view if exists gjennomforing_admin_dto_view;
+drop view if exists utbetaling_dto_view;
 
 alter table avtale
     alter opsjon_maks_varighet type date;
