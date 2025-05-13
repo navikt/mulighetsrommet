@@ -31,7 +31,7 @@ export function PameldingKometApnerSnart({ tiltak }: Props) {
         </Heading>
         <BodyShort>
           Påmelding for gruppe-AMO, gruppe fag- og yrkesopplæring og jobbklubb skal i fremtiden
-          gjøres her i Modia. Ny løsning blir tilgjengelig 3. juni. Les mer på navet her.
+          gjøres her i Modia. Ny løsning blir tilgjengelig 3. juni.
         </BodyShort>
         <BodyShort>
           <Lenke
