@@ -486,8 +486,6 @@ class GjennomforingQueries(private val session: Session) {
         val params = mapOf(
             "gjennomforing_id" to id,
             "periode" to periode.toDaterange(),
-            "periode_start" to periode.start,
-            "periode_slutt" to periode.slutt,
             "beskrivelse" to beskrivelse,
         )
 
