@@ -11,3 +11,6 @@ alter table deltaker
 
 alter table gjennomforing
     alter tilgjengelig_for_arrangor_fra_og_med_dato type date;
+
+alter table totrinnskontroll
+    alter besluttet_tidspunkt drop default;
