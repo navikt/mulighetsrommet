@@ -19,7 +19,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-// @Todo: Look into sealed classes
 @Serializable
 data class AvtaleDto(
     @Serializable(with = UUIDSerializer::class)
