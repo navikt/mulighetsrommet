@@ -30,14 +30,14 @@ export function PameldingKometApnerSnart({ tiltak }: Props) {
           Flere tiltak får ny påmeldingsløsning i Modia
         </Heading>
         <BodyShort>
-          Påmelding for digitalt jobbsøkerkurs og VTA skal i fremtiden gjøres her i Modia. Ny
-          løsning blir tilgjengelig 10. desember.
+          Påmelding for gruppe-AMO, gruppe fag- og yrkesopplæring og jobbklubb skal i fremtiden
+          gjøres her i Modia. Ny løsning blir tilgjengelig 3. juni. Les mer på navet her.
         </BodyShort>
         <BodyShort>
           <Lenke
             target="_blank"
             rel="noreferrer noopener"
-            to="https://navno.sharepoint.com/sites/intranett-produktomrader-og-prosjekter/SitePages/Ny-l%C3%B8sning-for-p%C3%A5melding-til-arbeidsforberedende-trening.aspx"
+            to="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Ny-l%C3%B8sning-for-p%C3%A5melding-til-arbeidsforberedende-trening.aspx"
           >
             Les mer på navet her
           </Lenke>
