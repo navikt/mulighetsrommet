@@ -31,16 +31,18 @@ module "mr_api_datastream" {
       tables = [
         { table = "tiltakstype" },
         { table = "avtale" },
+        { table = "avtale_nav_enhet" },
         { table = "gjennomforing" },
         { table = "gjennomforing_amo_kategorisering" },
         { table = "gjennomforing_amo_kategorisering_sertifisering" },
+        { table = "gjennomforing_nav_enhet"},
         { table = "gjennomforing_utdanningsprogram" },
         { table = "arrangor" },
         { table = "utdanningsprogram" },
         { table = "utdanning" },
         { table = "tilsagn" },
         { table = "delutbetaling" },
-        { table = "utbetaling" },
+        { table = "utbetaling" }
       ]
     }
   ]
