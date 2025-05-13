@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/ms-graph/v1.0/users/[0-9a-z-]+/getMemberGroups"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "value": [
+        "52bb9196-b071-4cc7-9472-be4942d33c4b"
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
