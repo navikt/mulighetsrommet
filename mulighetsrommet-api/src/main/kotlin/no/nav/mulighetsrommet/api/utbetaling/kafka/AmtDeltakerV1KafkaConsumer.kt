@@ -108,7 +108,7 @@ private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell?): 
         gjennomforingId = deltaker.gjennomforingId,
         startDato = deltaker.startDato,
         sluttDato = deltaker.sluttDato,
-        registrertTidspunkt = deltaker.registrertDato,
+        registrertDato = deltaker.registrertDato.toLocalDate(),
         endretTidspunkt = deltaker.endretDato,
         deltakelsesprosent = deltakelsesprosent,
         status = deltaker.status,

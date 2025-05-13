@@ -45,7 +45,7 @@ object ArrangorflateTestUtils {
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = GjennomforingFixtures.AFT1.sluttDato,
-        registrertTidspunkt = GjennomforingFixtures.AFT1.startDato.atStartOfDay(),
+        registrertDato = GjennomforingFixtures.AFT1.startDato,
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),

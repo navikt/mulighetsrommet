@@ -10,7 +10,7 @@ data class DeltakerDbo(
     val gjennomforingId: UUID,
     val startDato: LocalDate?,
     val sluttDato: LocalDate?,
-    val registrertTidspunkt: LocalDateTime,
+    val registrertDato: LocalDate,
     val endretTidspunkt: LocalDateTime,
     val deltakelsesprosent: Double?,
     val status: DeltakerStatus,
