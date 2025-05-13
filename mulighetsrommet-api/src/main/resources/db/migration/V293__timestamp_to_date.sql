@@ -8,3 +8,6 @@ alter table deltaker
 
 alter table deltaker
     alter registrert_dato type date;
+
+alter table gjennomforing
+    alter tilgjengelig_for_arrangor_fra_og_med_dato type date;
