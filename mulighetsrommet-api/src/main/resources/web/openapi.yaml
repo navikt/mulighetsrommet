@@ -5994,7 +5994,7 @@ components:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
-          format: date-time
+          format: date
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6036,7 +6036,7 @@ components:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
-          format: date-time
+          format: date
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time

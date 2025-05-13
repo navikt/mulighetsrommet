@@ -14,3 +14,9 @@ alter table gjennomforing
 
 alter table totrinnskontroll
     alter besluttet_tidspunkt drop default;
+
+alter table utbetaling
+    alter frist_for_godkjenning type date;
+
+update utbetaling
+set frist_for_godkjenning = upper(periode) + make_interval(months := 2) - make_interval(days := 1);

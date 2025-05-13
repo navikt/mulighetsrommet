@@ -324,7 +324,7 @@ class UtbetalingQueries(private val session: Session) {
         val innsender = stringOrNull("innsender")?.toAgent()
         return Utbetaling(
             id = id,
-            fristForGodkjenning = localDateTime("frist_for_godkjenning"),
+            fristForGodkjenning = localDate("frist_for_godkjenning"),
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
