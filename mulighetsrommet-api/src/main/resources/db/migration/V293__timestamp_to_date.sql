@@ -20,3 +20,11 @@ alter table utbetaling
 
 update utbetaling
 set frist_for_godkjenning = upper(periode) + make_interval(months := 2) - make_interval(days := 1);
+
+alter table avtale_opsjon_logg
+    alter registrert_dato drop default;
+
+alter table avtale_opsjon_logg
+    alter registrert_dato type date,
+    alter sluttdato type date,
+    alter forrige_sluttdato type date;

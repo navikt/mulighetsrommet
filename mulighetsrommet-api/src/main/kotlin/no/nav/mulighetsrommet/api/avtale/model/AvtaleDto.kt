@@ -10,13 +10,10 @@ import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.AvtaleStatusSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -93,12 +90,12 @@ data class AvtaleDto(
     data class OpsjonLoggRegistrert(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val aktivertDato: LocalDateTime,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val sluttDato: LocalDateTime?,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val forrigeSluttdato: LocalDateTime?,
+        @Serializable(with = LocalDateSerializer::class)
+        val registrertDato: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val sluttDato: LocalDate?,
+        @Serializable(with = LocalDateSerializer::class)
+        val forrigeSluttdato: LocalDate?,
         val status: OpsjonLoggRequest.OpsjonsLoggStatus,
     )
 }

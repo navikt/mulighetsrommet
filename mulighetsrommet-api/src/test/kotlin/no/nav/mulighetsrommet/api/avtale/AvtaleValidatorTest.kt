@@ -475,6 +475,7 @@ class AvtaleValidatorTest : FunSpec({
                     sluttdato = avtaleDbo.sluttDato?.plusYears(1),
                     forrigeSluttdato = avtaleDbo.sluttDato,
                     status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+                    registretDato = LocalDate.of(2024, 7, 6),
                     registrertAv = NavIdent("M123456"),
                 ),
             )

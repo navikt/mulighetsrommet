@@ -225,6 +225,7 @@ fun Route.avtaleRoutes() {
                     sluttdato = request.nySluttdato,
                     forrigeSluttdato = request.forrigeSluttdato,
                     status = request.status,
+                    registretDato = LocalDate.now(),
                     registrertAv = userId,
                 )
 

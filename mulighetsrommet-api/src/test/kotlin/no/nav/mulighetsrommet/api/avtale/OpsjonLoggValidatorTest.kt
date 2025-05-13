@@ -10,9 +10,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class OpsjonLoggValidatorTest : FunSpec({
@@ -69,6 +67,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             sluttdato = null,
             forrigeSluttdato = null,
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+            registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
         OpsjonLoggValidator.validate(entry, avtaleUtenOpsjonsmodell).shouldBeLeft().shouldContainAll(
@@ -91,6 +90,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             sluttdato = LocalDate.of(2027, 7, 6),
             forrigeSluttdato = LocalDate.of(2026, 7, 6),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+            registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
 
@@ -117,6 +117,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             sluttdato = LocalDate.of(2025, 7, 6),
             forrigeSluttdato = null,
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+            registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
 
@@ -140,7 +141,7 @@ class OpsjonLoggValidatorTest : FunSpec({
                 AvtaleDto.OpsjonLoggRegistrert(
                     id = UUID.randomUUID(),
                     status = OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON,
-                    aktivertDato = LocalDateTime.of(2024, 8, 8, 10, 0, 0),
+                    registrertDato = LocalDate.of(2024, 8, 8),
                     sluttDato = null,
                     forrigeSluttdato = null,
                 ),
@@ -152,6 +153,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             sluttdato = LocalDate.of(2027, 7, 6),
             forrigeSluttdato = LocalDate.of(2026, 7, 6),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+            registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
 
@@ -178,6 +180,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             sluttdato = LocalDate.of(2025, 7, 6),
             forrigeSluttdato = LocalDate.of(2024, 7, 6),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+            registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
 
