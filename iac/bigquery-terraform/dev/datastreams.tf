@@ -35,7 +35,7 @@ module "mr_api_datastream" {
         { table = "gjennomforing" },
         { table = "gjennomforing_amo_kategorisering" },
         { table = "gjennomforing_amo_kategorisering_sertifisering" },
-        { table = "gjennomforing_nav_enhet"},
+        { table = "gjennomforing_nav_enhet" },
         { table = "gjennomforing_utdanningsprogram" },
         { table = "arrangor" },
         { table = "utdanningsprogram" },
