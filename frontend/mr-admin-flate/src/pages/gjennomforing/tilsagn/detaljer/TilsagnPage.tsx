@@ -30,13 +30,12 @@ import {
   TrashFillIcon,
   TrashIcon,
 } from "@navikt/aksel-icons";
-import { ActionMenu, Alert, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
 import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
@@ -94,7 +93,7 @@ export function TilsagnPage() {
   const [slettTilsagnModalOpen, setSlettTilsagnModalOpen] = useState<boolean>(false);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [avvisAnnulleringModalOpen, setAvvisAnnulleringModalOpen] = useState(false);
-  const [avvisGjorOppModalOpen, setAvvisGjorOppModalOpen] = useState(false);
+  const [avvisOppgjorModalOpen, setAvvisOppgjorModalOpen] = useState(false);
   const [error, setError] = useState<FieldError[]>([]);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
@@ -233,15 +232,32 @@ export function TilsagnPage() {
         </Heading>
       </HStack>
       <ContentBox>
-        <WhitePaddedBox>
-          <VStack gap="6">
-            <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
-            {annullering?.type === "TIL_BESLUTNING" && (
+        <VStack gap="6" padding="4" className="bg-white">
+          <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+          <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
+          {annullering?.type === "TIL_BESLUTNING" && (
+            <AarsakerOgForklaring
+              heading="Tilsagnet annulleres"
+              tekster={[
+                `${navnEllerIdent(annullering.behandletAv)} sendte tilsagnet til annullering den ${formaterDato(
+                  annullering.behandletTidspunkt,
+                )}.`,
+              ]}
+              aarsaker={
+                annullering.aarsaker?.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                ) ?? []
+              }
+              forklaring={annullering.forklaring}
+            />
+          )}
+          {annullering?.type === "BESLUTTET" &&
+            annullering.besluttelse === "AVVIST" &&
+            !tilOppgjor && (
               <AarsakerOgForklaring
-                heading="Tilsagnet annulleres"
+                heading="Annullering avvist"
                 tekster={[
-                  `${navnEllerIdent(annullering.behandletAv)} sendte tilsagnet til annullering den ${formaterDato(
+                  `${navnEllerIdent(annullering.besluttetAv)} avviste annullering den ${formaterDato(
                     annullering.behandletTidspunkt,
                   )}.`,
                 ]}
@@ -253,255 +269,226 @@ export function TilsagnPage() {
                 forklaring={annullering.forklaring}
               />
             )}
-            {annullering?.type === "BESLUTTET" &&
-              annullering.besluttelse === "AVVIST" &&
-              !tilOppgjor && (
-                <AarsakerOgForklaring
-                  heading="Annullering returnert"
-                  tekster={[
-                    `${navnEllerIdent(annullering.besluttetAv)} returnerte annullering den ${formaterDato(
-                      annullering.behandletTidspunkt,
-                    )}.`,
-                  ]}
-                  aarsaker={
-                    annullering.aarsaker?.map((aarsak) =>
-                      tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                    ) ?? []
-                  }
-                  forklaring={annullering.forklaring}
-                />
-              )}
-            {tilOppgjor?.type === "TIL_BESLUTNING" && (
-              <AarsakerOgForklaring
-                heading="Tilsagnet gjøres opp"
-                ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
-                tekster={[
-                  `${navnEllerIdent(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
-                    tilOppgjor.behandletTidspunkt,
-                  )}.`,
-                ]}
-                aarsaker={
-                  tilOppgjor.aarsaker?.map((aarsak) =>
-                    tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                  ) ?? []
-                }
-                forklaring={tilOppgjor.forklaring}
-              />
-            )}
-            {tilOppgjor?.type === "BESLUTTET" && tilOppgjor.besluttelse === "AVVIST" && (
-              <AarsakerOgForklaring
-                heading="Oppgjør returnert"
-                tekster={[
-                  `${navnEllerIdent(tilOppgjor.besluttetAv)} returnerte oppgjør den ${formaterDato(
-                    tilOppgjor.behandletTidspunkt,
-                  )}.`,
-                ]}
-                aarsaker={
-                  tilOppgjor.aarsaker?.map((aarsak) =>
-                    tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                  ) ?? []
-                }
-                forklaring={tilOppgjor.forklaring}
-              />
-            )}
-            <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
-              <VStack gap="2">
-                <TilsagnDetaljer
-                  tilsagn={tilsagn}
-                  opprettelse={opprettelse}
-                  annullering={annullering}
-                  oppgjor={tilOppgjor}
-                  meny={handlingsMeny}
-                />
-
-                <div>
-                  <HStack gap="2" justify={"end"}>
-                    {opprettelse.kanBesluttes && (
-                      <HStack gap="2">
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          type="button"
-                          onClick={() => setAvvisModalOpen(true)}
-                        >
-                          Send i retur
-                        </Button>
-                        <Button
-                          size="small"
-                          type="button"
-                          onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                        >
-                          Godkjenn tilsagn
-                        </Button>
-                      </HStack>
-                    )}
-                    {annullering?.kanBesluttes && (
-                      <HStack gap="2">
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          type="button"
-                          onClick={() => setAvvisAnnulleringModalOpen(true)}
-                        >
-                          Avslå annullering
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="danger"
-                          type="button"
-                          onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                        >
-                          Bekreft annullering
-                        </Button>
-                      </HStack>
-                    )}
-                    {tilOppgjor?.kanBesluttes && (
-                      <HStack gap="2">
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          type="button"
-                          onClick={() => setAvvisAnnulleringModalOpen(true)}
-                        >
-                          Avslå oppgjør
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="danger"
-                          type="button"
-                          onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                        >
-                          Bekreft oppgjør
-                        </Button>
-                      </HStack>
-                    )}
-                  </HStack>
-                  <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
-                    aarsaker={tilAnnuleringAarsaker}
-                    header="Annuller tilsagn med forklaring"
-                    buttonLabel="Send til godkjenning"
-                    open={tilAnnulleringModalOpen}
-                    onClose={() => setTilAnnulleringModalOpen(false)}
-                    onConfirm={({ aarsaker, forklaring }) =>
-                      tilAnnullering({ aarsaker, forklaring })
-                    }
-                  />
-                  <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
-                    aarsaker={[
-                      {
-                        value: TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
-                        label: "Arrangør har ikke sendt krav",
-                      },
-                      { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
-                    ]}
-                    header="Gjør opp tilsagn med forklaring"
-                    ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
-                    buttonLabel="Send til godkjenning"
-                    open={tilOppgjorModalOpen}
-                    onClose={() => setTilOppgjorModalOpen(false)}
-                    onConfirm={({ aarsaker, forklaring }) =>
-                      upsertTilOppgjor({ aarsaker, forklaring })
-                    }
-                  />
-                  <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
-                    aarsaker={[
-                      {
-                        value: TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER,
-                        label: "Feil i antall plasser",
-                      },
-                      {
-                        value: TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED,
-                        label: "Feil kostnadssted",
-                      },
-                      { value: TilsagnAvvisningAarsak.FEIL_PERIODE, label: "Feil periode" },
-                      { value: TilsagnAvvisningAarsak.FEIL_BELOP, label: "Feil beløp" },
-                      { value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" },
-                    ]}
-                    header="Send i retur med forklaring"
-                    buttonLabel="Send i retur"
-                    open={avvisModalOpen}
-                    onClose={() => setAvvisModalOpen(false)}
-                    onConfirm={({ aarsaker, forklaring }) => {
-                      besluttTilsagn({
-                        besluttelse: Besluttelse.AVVIST,
-                        aarsaker,
-                        forklaring,
-                      });
-                      setAvvisModalOpen(false);
-                    }}
-                  />
-                  <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
-                    aarsaker={[{ value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" }]}
-                    header="Send i retur med forklaring"
-                    buttonLabel="Send i retur"
-                    open={avvisAnnulleringModalOpen}
-                    onClose={() => setAvvisAnnulleringModalOpen(false)}
-                    onConfirm={({ aarsaker, forklaring }) => {
-                      besluttTilsagn({
-                        besluttelse: Besluttelse.AVVIST,
-                        aarsaker,
-                        forklaring,
-                      });
-                      setAvvisAnnulleringModalOpen(false);
-                    }}
-                  />
-                  <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
-                    aarsaker={[{ value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" }]}
-                    header="Send i retur med forklaring"
-                    buttonLabel="Send i retur"
-                    open={avvisGjorOppModalOpen}
-                    onClose={() => setAvvisGjorOppModalOpen(false)}
-                    onConfirm={({ aarsaker, forklaring }) => {
-                      besluttTilsagn({
-                        besluttelse: Besluttelse.AVVIST,
-                        aarsaker,
-                        forklaring,
-                      });
-                      setAvvisGjorOppModalOpen(false);
-                    }}
-                  />
-                  <VarselModal
-                    headingIconType="warning"
-                    headingText="Slette tilsagnet?"
-                    open={slettTilsagnModalOpen}
-                    handleClose={() => setTilOppgjorModalOpen(false)}
-                    body={
-                      <p>
-                        Er du sikker på at du vil slette tilsagnet?
-                        <br /> Denne operasjonen kan ikke angres
-                      </p>
-                    }
-                    primaryButton={
-                      <Button variant="danger" onClick={slettTilsagn} icon={<TrashFillIcon />}>
-                        Ja, jeg vil slette tilsagnet
-                      </Button>
-                    }
-                    secondaryButton
-                    secondaryButtonHandleAction={() => setTilOppgjorModalOpen(false)}
-                  />
-                </div>
-                {error.find((f) => f.pointer === "/") && (
-                  <Alert className="self-end" variant="error" size="small">
-                    {error.find((f) => f.pointer === "/")!.detail}
-                  </Alert>
-                )}
-              </VStack>
-            </Box>
-          </VStack>
-        </WhitePaddedBox>
-      </ContentBox>
-      <WhitePaddedBox>
-        <VStack>
-          <Heading size="medium">Andre aktive tilsagn</Heading>
-          {aktiveTilsagn.length > 0 ? (
-            <TilsagnTabell tilsagn={aktiveTilsagn} />
-          ) : (
-            <Alert variant="info" className="mt-4">
-              Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
-            </Alert>
+          {tilOppgjor?.type === "TIL_BESLUTNING" && (
+            <AarsakerOgForklaring
+              heading="Tilsagnet gjøres opp"
+              ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
+              tekster={[
+                `${navnEllerIdent(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
+                  tilOppgjor.behandletTidspunkt,
+                )}.`,
+              ]}
+              aarsaker={
+                tilOppgjor.aarsaker?.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                ) ?? []
+              }
+              forklaring={tilOppgjor.forklaring}
+            />
           )}
+          {tilOppgjor?.type === "BESLUTTET" && tilOppgjor.besluttelse === "AVVIST" && (
+            <AarsakerOgForklaring
+              heading="Oppgjør avvist"
+              tekster={[
+                `${navnEllerIdent(tilOppgjor.besluttetAv)} avviste oppgjør den ${formaterDato(
+                  tilOppgjor.behandletTidspunkt,
+                )}.`,
+              ]}
+              aarsaker={
+                tilOppgjor.aarsaker?.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                ) ?? []
+              }
+              forklaring={tilOppgjor.forklaring}
+            />
+          )}
+          <VStack gap="2" padding="4" className="rounded-lg border-gray-300 border-1">
+            <TilsagnDetaljer
+              tilsagn={tilsagn}
+              opprettelse={opprettelse}
+              annullering={annullering}
+              oppgjor={tilOppgjor}
+              meny={handlingsMeny}
+            />
+
+            <HStack gap="2" justify={"end"}>
+              {opprettelse.kanBesluttes && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    type="button"
+                    onClick={() => setAvvisModalOpen(true)}
+                  >
+                    Send i retur
+                  </Button>
+                  <Button
+                    size="small"
+                    type="button"
+                    onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                  >
+                    Godkjenn tilsagn
+                  </Button>
+                </>
+              )}
+              {annullering?.kanBesluttes && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    type="button"
+                    onClick={() => setAvvisAnnulleringModalOpen(true)}
+                  >
+                    Avslå annullering
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="danger"
+                    type="button"
+                    onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                  >
+                    Bekreft annullering
+                  </Button>
+                </>
+              )}
+              {tilOppgjor?.kanBesluttes && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    type="button"
+                    onClick={() => setAvvisOppgjorModalOpen(true)}
+                  >
+                    Avslå oppgjør
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="danger"
+                    type="button"
+                    onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                  >
+                    Bekreft oppgjør
+                  </Button>
+                </>
+              )}
+            </HStack>
+            <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
+              aarsaker={tilAnnuleringAarsaker}
+              header="Annuller tilsagn med forklaring"
+              buttonLabel="Send til godkjenning"
+              open={tilAnnulleringModalOpen}
+              onClose={() => setTilAnnulleringModalOpen(false)}
+              onConfirm={({ aarsaker, forklaring }) => tilAnnullering({ aarsaker, forklaring })}
+            />
+            <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
+              aarsaker={[
+                {
+                  value: TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
+                  label: "Arrangør har ikke sendt krav",
+                },
+                { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
+              ]}
+              header="Gjør opp tilsagn med forklaring"
+              ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
+              buttonLabel="Send til godkjenning"
+              open={tilOppgjorModalOpen}
+              onClose={() => setTilOppgjorModalOpen(false)}
+              onConfirm={({ aarsaker, forklaring }) => upsertTilOppgjor({ aarsaker, forklaring })}
+            />
+            <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
+              aarsaker={[
+                {
+                  value: TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER,
+                  label: "Feil i antall plasser",
+                },
+                {
+                  value: TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED,
+                  label: "Feil kostnadssted",
+                },
+                { value: TilsagnAvvisningAarsak.FEIL_PERIODE, label: "Feil periode" },
+                { value: TilsagnAvvisningAarsak.FEIL_BELOP, label: "Feil beløp" },
+                { value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" },
+              ]}
+              header="Send i retur med forklaring"
+              buttonLabel="Send i retur"
+              open={avvisModalOpen}
+              onClose={() => setAvvisModalOpen(false)}
+              onConfirm={({ aarsaker, forklaring }) => {
+                besluttTilsagn({
+                  besluttelse: Besluttelse.AVVIST,
+                  aarsaker,
+                  forklaring,
+                });
+                setAvvisModalOpen(false);
+              }}
+            />
+            <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
+              aarsaker={[{ value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" }]}
+              header="Avslå annullering med forklaring"
+              buttonLabel="Avslå annullering"
+              open={avvisAnnulleringModalOpen}
+              onClose={() => setAvvisAnnulleringModalOpen(false)}
+              onConfirm={({ aarsaker, forklaring }) => {
+                besluttTilsagn({
+                  besluttelse: Besluttelse.AVVIST,
+                  aarsaker,
+                  forklaring,
+                });
+                setAvvisAnnulleringModalOpen(false);
+              }}
+            />
+            <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
+              aarsaker={[{ value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" }]}
+              header="Avslå oppgjør med forklaring"
+              buttonLabel="Avslå oppgjør"
+              open={avvisOppgjorModalOpen}
+              onClose={() => setAvvisOppgjorModalOpen(false)}
+              onConfirm={({ aarsaker, forklaring }) => {
+                besluttTilsagn({
+                  besluttelse: Besluttelse.AVVIST,
+                  aarsaker,
+                  forklaring,
+                });
+                setAvvisOppgjorModalOpen(false);
+              }}
+            />
+            <VarselModal
+              headingIconType="warning"
+              headingText="Slette tilsagnet?"
+              open={slettTilsagnModalOpen}
+              handleClose={() => setTilOppgjorModalOpen(false)}
+              body={
+                <p>
+                  Er du sikker på at du vil slette tilsagnet?
+                  <br /> Denne operasjonen kan ikke angres
+                </p>
+              }
+              primaryButton={
+                <Button variant="danger" onClick={slettTilsagn} icon={<TrashFillIcon />}>
+                  Ja, jeg vil slette tilsagnet
+                </Button>
+              }
+              secondaryButton
+              secondaryButtonHandleAction={() => setTilOppgjorModalOpen(false)}
+            />
+            {error.find((f) => f.pointer === "/") && (
+              <Alert className="self-end" variant="error" size="small">
+                {error.find((f) => f.pointer === "/")!.detail}
+              </Alert>
+            )}
+          </VStack>
         </VStack>
-      </WhitePaddedBox>
+      </ContentBox>
+      <VStack padding="4" className="bg-white">
+        <Heading size="medium">Andre aktive tilsagn</Heading>
+        {aktiveTilsagn.length > 0 ? (
+          <TilsagnTabell tilsagn={aktiveTilsagn} />
+        ) : (
+          <Alert variant="info" className="mt-4">
+            Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
+          </Alert>
+        )}
+      </VStack>
     </main>
   );
 }

@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.textRepr
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -308,7 +309,27 @@ class TilsagnService(
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(
+            besluttetAv as NavIdent,
+        )
+        val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.textRepr()
+        val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
 
+        queries.notifications.insert(
+            ScheduledNotification(
+                type = NotificationType.NOTIFICATION,
+                title = "Et $tilsagnDisplayName du sendte til annullering er blitt avvist",
+                description = """$beslutterNavn avviste annulleringen av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen
+                    | "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
+                """.trimMargin(),
+                metadata = NotificationMetadata(
+                    linkText = "Gå til tilsagn",
+                    link = "/gjennomforinger/${tilsagn.gjennomforing.id}/tilsagn/${tilsagn.id}",
+                ),
+                createdAt = Instant.now(),
+                targets = nonEmptyListOf(annullering.behandletAv as NavIdent),
+            ),
+        )
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, besluttetAv)
         return dto.right()
@@ -390,6 +411,27 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(
+            besluttetAv as NavIdent,
+        )
+        val beslutterNavn = beslutterAnsatt?.displayName() ?: oppgjor.besluttetAv
+        val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
+
+        queries.notifications.insert(
+            ScheduledNotification(
+                type = NotificationType.NOTIFICATION,
+                title = "Et $tilsagnDisplayName du sendte til oppgjør er blitt avvist",
+                description = """$beslutterNavn avviste oppgjøret av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn}
+                    | for gjennomføringen "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
+                """.trimMargin(),
+                metadata = NotificationMetadata(
+                    linkText = "Gå til tilsagn",
+                    link = "/gjennomforinger/${tilsagn.gjennomforing.id}/tilsagn/${tilsagn.id}",
+                ),
+                createdAt = Instant.now(),
+                targets = nonEmptyListOf(oppgjor.behandletAv as NavIdent),
+            ),
+        )
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Oppgjør avvist", dto, besluttetAv)
         return dto.right()
@@ -450,13 +492,18 @@ class TilsagnService(
         Unit.right()
     }
 
-    private fun QueryContext.sendNotifikasjonSlettetTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent, behandletAv: NavIdent) {
+    private fun QueryContext.sendNotifikasjonSlettetTilsagn(
+        tilsagn: Tilsagn,
+        besluttetAv: NavIdent,
+        behandletAv: NavIdent,
+    ) {
         val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(besluttetAv)
         val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.value
         val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
 
         val title = "Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet"
-        val description = """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
+        val description =
+            """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
 
         val notice = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
