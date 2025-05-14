@@ -70,7 +70,6 @@ data class Periode(
     fun getDurationInDays(): Long {
         return ChronoUnit.DAYS.between(start, slutt)
     }
-
     fun getLastInclusiveDate(): LocalDate {
         return slutt.minusDays(1)
     }
