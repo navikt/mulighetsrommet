@@ -1,0 +1,20 @@
+<div class="block line_bottom">
+    <h4>Utbetaling</h4>
+    <table class="block">
+        <tbody>
+            <tr>
+                <th>Utbetalingsperiode:</th>
+                <td>{{ iso_to_nor_date utbetaling.periode.start }} - {{ iso_to_nor_date utbetaling.periode.slutt }}
+                </td>
+            </tr>
+            <tr>
+                <th>Antall månedsverk:</th>
+                <td>{{ utbetaling.beregning.antallManedsverk }}</td>
+            </tr>
+            <tr>
+                <th>Beløp til utbetaling:</th>
+                <td>{{ currency_no utbetaling.beregning.belop }} kr</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

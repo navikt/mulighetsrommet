@@ -43,7 +43,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                     // TODO data om veileder hos arrangør
                     veileder = null,
                 )
-            }
+            }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
             val antallManedsverk = deltakelser
                 .map { BigDecimal(it.manedsverk) }

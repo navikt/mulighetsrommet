@@ -1,7 +1,16 @@
 {
   "utbetaling": {
-    "periodeStart": "2024-01-01",
-    "periodeSlutt": "2024-01-29",
+    "godkjentAvArrangorTidspunkt": "2025-06-15",
+    "createdAt": "2025-05-13",
+    "arrangor": {
+      "id": "1234567890",
+      "organisasjonsnummer": "1234567890",
+      "navn": "Fretex AS"
+    },
+    "periode": {
+      "start": "2024-01-01",
+      "slutt": "2024-01-29"
+    },
     "beregning": {
       "antallManedsverk": 2.3,
       "belop": "44000"
@@ -20,8 +29,10 @@
   },
   "tilsagn": [
     {
-      "periodeStart": "2024-01-01",
-      "periodeSlutt": "2024-06-30",
+      "periode": {
+        "start": "2024-01-01",
+        "slutt": "2024-06-30"
+      },
       "gjenstaendeBelop": 25000,
       "beregning": {
         "input": {
