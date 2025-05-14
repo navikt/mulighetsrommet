@@ -13,14 +13,14 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 
 class NavAnsattAuthorizationPluginConfiguration {
-    var roles: List<Rolle> = listOf()
+    var requiredRoles: List<Set<Rolle>> = listOf()
 }
 
 val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
     name = "NavAnsattAuthorizationPlugin",
     createConfiguration = ::NavAnsattAuthorizationPluginConfiguration,
 ) {
-    val requiredRoles = pluginConfig.roles
+    val requiredRoles = pluginConfig.requiredRoles
 
     require(requiredRoles.isNotEmpty()) { "Minst én rolle er påkrevd" }
 
@@ -35,17 +35,17 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
             if (principal.roller.isEmpty()) {
                 return@on call.respond(
                     HttpStatusCode.Forbidden,
-                    NavAnsattManglerTilgang(principal.navIdent, requiredRoles.first()),
+                    NavAnsattManglerTilgang(principal.navIdent, requiredRoles.first().first()),
                 )
             }
 
             val navAnsattRoles = principal.roller.map { it.rolle }
 
-            requiredRoles.forEach { requiredRole ->
-                if (requiredRole !in navAnsattRoles) {
+            requiredRoles.forEach { anyOfRoles ->
+                if (anyOfRoles.intersect(navAnsattRoles).isEmpty()) {
                     return@on call.respond(
                         HttpStatusCode.Forbidden,
-                        NavAnsattManglerTilgang(principal.navIdent, requiredRole),
+                        NavAnsattManglerTilgang(principal.navIdent, anyOfRoles.first()),
                     )
                 }
             }

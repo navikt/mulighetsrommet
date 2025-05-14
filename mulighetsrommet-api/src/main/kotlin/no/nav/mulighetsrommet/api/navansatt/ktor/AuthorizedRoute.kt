@@ -6,11 +6,9 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 
 fun Route.authorize(
     requiredRole: Rolle,
-    vararg additionalRoles: Rolle,
     build: Route.() -> Unit,
 ): Route {
-    val routeRoles = listOf(requiredRole, *additionalRoles)
-
+    val routeRoles = listOf(setOf(requiredRole))
     val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(routeRoles))
 
     val parentRoles = generateSequence(authorizedRoute) { it.parent }
@@ -25,19 +23,46 @@ fun Route.authorize(
     authorizedRoute.attributes.put(AuthorizedRolesKey, combinedRoles)
 
     authorizedRoute.install(NavAnsattAuthorizationPlugin) {
-        roles = combinedRoles
+        requiredRoles = combinedRoles
     }
 
     authorizedRoute.build()
     return authorizedRoute
 }
 
-private val AuthorizedRolesKey = AttributeKey<List<Rolle>>("AuthorizedRolesKey")
+fun Route.authorize(
+    anyOf: Set<Rolle> = emptySet(),
+    allOf: Set<Rolle> = emptySet(),
+    build: Route.() -> Unit,
+): Route {
+    val roller = allOf.map { setOf(it) } + setOf(anyOf)
+    val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(roller = roller))
 
-private class NavAnsattAuthorizationRouteSelector(val roles: List<Rolle>) : RouteSelector() {
+    val parentRoles = generateSequence(authorizedRoute) { it.parent }
+        .mapNotNull { it.attributes.getOrNull(AuthorizedRolesKey) }
+        .flatten()
+        .toList()
+        .reversed()
+        .distinct()
+
+    val combinedRoles = parentRoles + roller
+
+    authorizedRoute.attributes.put(AuthorizedRolesKey, combinedRoles)
+
+    authorizedRoute.install(NavAnsattAuthorizationPlugin) {
+        requiredRoles = combinedRoles
+    }
+
+    authorizedRoute.build()
+    return authorizedRoute
+}
+
+private val AuthorizedRolesKey = AttributeKey<List<Set<Rolle>>>("AuthorizedRolesKey")
+
+private class NavAnsattAuthorizationRouteSelector(val roller: List<Set<Rolle>>) : RouteSelector() {
     override suspend fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
         return RouteSelectorEvaluation.Transparent
     }
 
-    override fun toString(): String = "(authorize ${roles.joinToString { it.name }})"
+    override fun toString(): String = "(authorize $roller)"
 }
