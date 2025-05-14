@@ -93,6 +93,20 @@ module "mr_api_datastream" {
       view = {
         dataset_id = "mulighetsrommet_api_datastream"
         project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_nav_enhet_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
         table_id   = "gjennomforing_view"
       }
     },
