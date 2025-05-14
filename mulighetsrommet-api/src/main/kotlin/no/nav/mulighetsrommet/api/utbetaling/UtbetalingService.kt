@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.tilPersonNavn
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -147,14 +148,13 @@ class UtbetalingService(
             if (gradering == PdlGradering.UGRADERT) {
                 val navEnhet = geografiskTilknytning?.let { hentEnhetForGeografiskTilknytning(it) }
                 val region = navEnhet?.overordnetEnhet?.let { hentNavEnhet(it) }
+                val navn = if (person.navn.isNotEmpty()) tilPersonNavn(person.navn) else "Ukjent"
+                val foedselsdato = if (person.foedselsdato.isNotEmpty()) person.foedselsdato.first() else null
 
                 DeltakerPerson(
                     norskIdent = NorskIdent(ident.value),
-                    navn = person.navn.first().let { navn ->
-                        val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
-                        listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
-                    },
-                    foedselsdato = person.foedselsdato.first().foedselsdato,
+                    navn = navn,
+                    foedselsdato = foedselsdato?.foedselsdato,
                     geografiskEnhet = navEnhet,
                     region = region,
                 )
