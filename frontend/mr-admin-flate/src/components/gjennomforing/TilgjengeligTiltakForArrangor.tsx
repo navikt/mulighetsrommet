@@ -28,8 +28,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const form = useForm<InferredEditTilgjengeligForArrangorSchema>({
     resolver: zodResolver(EditTilgjengeligForArrangorSchema),
     defaultValues: {
-      tilgjengeligForArrangorDato:
-        gjennomforing.tilgjengeligForArrangorDato ?? undefined,
+      tilgjengeligForArrangorDato: gjennomforing.tilgjengeligForArrangorDato ?? undefined,
     },
   });
 
@@ -74,10 +73,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     ? new Date(gjennomforing.tilgjengeligForArrangorDato)
     : max(subtractDays(gjennomforingStartDato, 14), dagensDato);
 
-  const mintilgjengeligForArrangorDato = max(
-    subtractMonths(gjennomforingStartDato, 2),
-    dagensDato,
-  );
+  const mintilgjengeligForArrangorDato = max(subtractMonths(gjennomforingStartDato, 2), dagensDato);
 
   if (dagensDato > gjennomforingStartDato) {
     return null;
