@@ -8,12 +8,14 @@ import {
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { MenuGridIcon } from "@navikt/aksel-icons";
-import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
-import { useRef } from "react";
+import { Dropdown, Heading, InternalHeader, Modal, ReadMore, Spacer } from "@navikt/ds-react";
+import { useRef, useState } from "react";
 import { Link } from "react-router";
 import { NotifikasjonerBjelle } from "../notifikasjoner/NotifikasjonerBjelle";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Tiltakskode, Toggles } from "@mr/api-client-v2";
+import { Metadata } from "../detaljside/Metadata";
+import { Bolk } from "../detaljside/Bolk";
 
 export function AdministratorHeader() {
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
@@ -166,6 +168,7 @@ export function AdministratorHeader() {
 
 function Brukernavn() {
   const { data, isLoading } = useHentAnsatt();
+  const [open, setOpen] = useState(false);
 
   if (!data || isLoading) {
     return null;
@@ -173,5 +176,40 @@ function Brukernavn() {
 
   const ansattNavn = [data.fornavn, data.etternavn].join(" ");
 
-  return <InternalHeader.User name={ansattNavn} description={data?.navIdent ?? "..."} />;
+  return (
+    <>
+      <InternalHeader.User
+        onClick={() => setOpen(true)}
+        name={ansattNavn}
+        description={data?.navIdent ?? "..."}
+        className="cursor-pointer"
+      />
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-label="Brukerdata"
+        className="w-1/2"
+        closeOnBackdropClick
+      >
+        <Modal.Header closeButton>
+          <Heading size="medium">Brukerdata</Heading>
+        </Modal.Header>
+        <Modal.Body>
+          <Bolk>
+            <Metadata header="Navn" verdi={ansattNavn} />
+            <Metadata header="Navident" verdi={data.navIdent} />
+            <Metadata header="Epost" verdi={data.epost || "Ikke registrert"} />
+            <Metadata header="Mobil" verdi={data.mobilnummer || "Ikke registrert"} />
+          </Bolk>
+          <ReadMore header="Roller" defaultOpen>
+            <ul>
+              {data.roller.sort().map((rolle) => (
+                <li key={rolle}>{rolle}</li>
+              ))}
+            </ul>
+          </ReadMore>
+        </Modal.Body>
+      </Modal>
+    </>
+  );
 }
