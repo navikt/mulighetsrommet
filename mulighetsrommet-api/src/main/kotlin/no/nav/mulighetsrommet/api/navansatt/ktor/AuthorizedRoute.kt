@@ -35,7 +35,7 @@ fun Route.authorize(
     allOf: Set<Rolle> = emptySet(),
     build: Route.() -> Unit,
 ): Route {
-    val roller = allOf.map { setOf(it) } + setOf(anyOf)
+    val roller = allOf.map { setOf(it) } + setOfNotNull(anyOf.takeIf { it.isNotEmpty() })
     val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(roller = roller))
 
     val parentRoles = generateSequence(authorizedRoute) { it.parent }
