@@ -128,12 +128,22 @@ terraform state show <resource_name>
 terraform destroy
 ```
 
+## Eksponere tabeller via datastream
+Lag migreringer som:
+ - Gir lesetilgang  `datastream` til tabellen
+ - Legger dem til publiseringen `ds_publication`
+```
+grant select on <tabell_navn> to "datastream";
+alter publication "ds_publication" add table <tabell_navn>;
+```
+
+Legg deretter til ønsket tabell under `postgresql_include_schemas` i datastream konfigurasjonen.
+
 ### La brukere/service kontoer få tilgang til BigQuery datasett
 
 Eksterne utenfor teamet må gis rollen `roles/bigquery.metadataViewer` for å kunne se datasettet.\
 Dette vil gi de tilgang til metadata, som tabellnavn, hvilke kolonner som finnes og hvilke type data som er tilgjengelig.\
 >***OBS!* Alle med denne rollen vil da også få tilgang til å lese ut data fra `authorized_views`**
-
 
 ### Feilsøking
 
