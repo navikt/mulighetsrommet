@@ -126,6 +126,24 @@ val ApplicationConfigDev = AppConfig(
                 enheter = setOf(NavEnhetNummer("5700")),
                 kommentar = "5700-CA-Tiltaksadministrasjon_beslutter-tilsagn",
             ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "a2c0ba66-c564-472b-8e39-b8fc74ed7f48".toUUID(),
+                rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("1800")),
+                kommentar = "1800-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "33b600e0-0b88-4097-9052-525f0eb10191".toUUID(),
+                rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0200")),
+                kommentar = "0200-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "202216c0-bd70-4466-a902-f1809d588a79".toUUID(),
+                rolle = Rolle.BESLUTTER_TILSAGN,
+                enheter = setOf(NavEnhetNummer("0600")),
+                kommentar = "0600-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+            ),
 
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
@@ -150,6 +168,25 @@ val ApplicationConfigDev = AppConfig(
                 enheter = setOf(NavEnhetNummer("5700")),
                 kommentar = "5700-CA-Tiltaksadministrasjon_attestant-utbetaling",
             ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "6ecef1a0-cb8e-45d4-afb5-115116d0aab4".toUUID(),
+                rolle = Rolle.ATTESTANT_UTBETALING,
+                enheter = setOf(NavEnhetNummer("1800")),
+                kommentar = "1800-CA-Tiltaksadministrasjon_attestant-utbetaling",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "1edfb41e-8689-4c97-8e65-e3450cb06b43".toUUID(),
+                rolle = Rolle.ATTESTANT_UTBETALING,
+                enheter = setOf(NavEnhetNummer("0200")),
+                kommentar = "0200-CA-Tiltaksadministrasjon_attestant-utbetaling",
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                adGruppeId = "ddb6d18c-cadb-4cbc-b0d2-58ad535ca16c".toUUID(),
+                rolle = Rolle.ATTESTANT_UTBETALING,
+                enheter = setOf(NavEnhetNummer("0600")),
+                kommentar = "0600-CA-Tiltaksadministrasjon_attestant-utbetaling",
+            ),
+
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(
