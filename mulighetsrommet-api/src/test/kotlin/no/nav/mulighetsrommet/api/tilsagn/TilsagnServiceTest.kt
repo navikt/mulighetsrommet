@@ -62,7 +62,7 @@ class TilsagnServiceTest : FunSpec({
         periodeStart = LocalDate.of(2025, 1, 1),
         periodeSlutt = LocalDate.of(2025, 1, 31),
         kostnadssted = Gjovik.enhetsnummer,
-        beregning = TilsagnBeregningFri.Input(belop = 1),
+        beregning = TilsagnBeregningFri.Input(belop = 1, prisbetingelser = null),
     )
 
     beforeEach {

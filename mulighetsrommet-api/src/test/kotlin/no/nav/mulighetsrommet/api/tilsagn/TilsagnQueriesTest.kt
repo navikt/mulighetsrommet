@@ -43,7 +43,7 @@ class TilsagnQueriesTest : FunSpec({
         bestillingsnummer = "1",
         bestillingStatus = null,
         belopBrukt = 0,
-        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123, prisbetingelser = null), TilsagnBeregningFri.Output(123)),
     )
 
     context("CRUD") {
@@ -79,7 +79,7 @@ class TilsagnQueriesTest : FunSpec({
                         slettet = false,
                     )
                     it.beregning shouldBe TilsagnBeregningFri(
-                        TilsagnBeregningFri.Input(123),
+                        TilsagnBeregningFri.Input(123, prisbetingelser = null),
                         TilsagnBeregningFri.Output(123),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
