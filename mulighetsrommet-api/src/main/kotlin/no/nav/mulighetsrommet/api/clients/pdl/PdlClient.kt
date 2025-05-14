@@ -13,6 +13,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.common.client.pdl.Tema
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
@@ -61,7 +62,13 @@ class PdlClient(
             throw Exception("Error fra pdl: $response")
         }
 
-        val graphqlResponse: GraphqlResponse<V> = response.body()
+        val graphqlResponse: GraphqlResponse<V> = try {
+            response.body()
+        } catch (e: Exception) {
+            log.error("Kunne ikke deserialisere GraphqlResponse fra PDL. Se securelogs for mer informasjon.")
+            SecureLog.logger.error("Kunne ikke deserialisere GraphqlResponse fra PDL.", e)
+            return PdlError.Error.left()
+        }
 
         return if (graphqlResponse.errors.isNotEmpty()) {
             if (graphqlResponse.errors.any { error -> error.extensions?.code == PdlErrorCode.NOT_FOUND }) {

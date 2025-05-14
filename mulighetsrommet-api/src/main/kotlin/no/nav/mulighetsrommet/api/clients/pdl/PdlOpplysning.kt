@@ -60,23 +60,3 @@ sealed class GeografiskTilknytning {
     data class GtUtland(val value: String?) : GeografiskTilknytning()
     data object GtUdefinert : GeografiskTilknytning()
 }
-
-fun toGeografiskTilknytning(pdlGeografiskTilknytning: PdlGeografiskTilknytning?): GeografiskTilknytning {
-    return when (pdlGeografiskTilknytning?.gtType) {
-        TypeGeografiskTilknytning.BYDEL -> {
-            GeografiskTilknytning.GtBydel(requireNotNull(pdlGeografiskTilknytning.gtBydel))
-        }
-
-        TypeGeografiskTilknytning.KOMMUNE -> {
-            GeografiskTilknytning.GtKommune(requireNotNull(pdlGeografiskTilknytning.gtKommune))
-        }
-
-        TypeGeografiskTilknytning.UTLAND -> {
-            GeografiskTilknytning.GtUtland(pdlGeografiskTilknytning.gtLand)
-        }
-
-        TypeGeografiskTilknytning.UDEFINERT, null -> {
-            GeografiskTilknytning.GtUdefinert
-        }
-    }
-}
