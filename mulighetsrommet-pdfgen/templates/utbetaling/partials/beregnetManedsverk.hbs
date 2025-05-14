@@ -1,0 +1,23 @@
+<div class="block">
+    <h4>Beregnet månedsverk</h4>
+    {{#if utbetaling.beregning.deltakelser.length}}
+    <table class="deltaker-liste">
+        <thead>
+            <tr>
+                <th>Navn</th>
+                <th class="text-align-right">Fødselsdato</th>
+                <th class="text-align-right">Mandsverk</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each utbetaling.beregning.deltakelser}}
+            <tr>
+                <td>{{person.navn}}</td>
+                <td class="text-align-right">{{iso_to_nor_date person.fodselsdato}}</td>
+                <td class="text-align-right">{{manedsverk}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{/if}}
+</div>
