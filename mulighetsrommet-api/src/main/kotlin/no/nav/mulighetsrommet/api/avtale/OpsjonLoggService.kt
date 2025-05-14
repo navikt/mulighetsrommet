@@ -27,12 +27,7 @@ class OpsjonLoggService(
                 queries.avtale.oppdaterSluttdato(entry.avtaleId, entry.sluttdato)
             }
             queries.opsjoner.insert(entry)
-            loggEndring(
-                entry.registrertAv,
-                getEndringsmeldingstekst(entry),
-                entry.avtaleId,
-                entry,
-            )
+            loggEndring(entry.registrertAv, getEndringsmeldingstekst(entry), entry.avtaleId)
         }
     }
 
@@ -46,7 +41,7 @@ class OpsjonLoggService(
         }
 
         queries.opsjoner.delete(opsjonLoggEntryId)
-        loggEndring(slettesAv, "Opsjon slettet", avtaleId, opsjoner.first())
+        loggEndring(slettesAv, "Opsjon slettet", avtaleId)
     }
 
     private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleDto): LocalDate? {
@@ -64,8 +59,8 @@ class OpsjonLoggService(
         endretAv: NavIdent,
         operation: String,
         avtaleId: UUID,
-        opsjon: OpsjonLoggEntry,
     ) {
+        val avtale = queries.avtale.get(avtaleId)
         queries.endringshistorikk.logEndring(
             documentClass = DocumentClass.AVTALE,
             operation = operation,
@@ -73,7 +68,7 @@ class OpsjonLoggService(
             documentId = avtaleId,
             LocalDateTime.now(),
         ) {
-            Json.encodeToJsonElement(opsjon)
+            Json.encodeToJsonElement(avtale)
         }
     }
 

@@ -99,7 +99,7 @@ export function defaultGjennomforingData(
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,
     estimertVentetid: gjennomforing?.estimertVentetid ?? null,
-    tilgjengeligForArrangorFraOgMedDato: gjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
+    tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
     amoKategorisering: gjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
     utdanningslop: gjennomforing?.utdanningslop
       ? toUtdanningslopDbo(gjennomforing.utdanningslop)

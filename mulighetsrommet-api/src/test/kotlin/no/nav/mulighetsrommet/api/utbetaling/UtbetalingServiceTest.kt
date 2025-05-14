@@ -68,8 +68,7 @@ class UtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
     val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
     val norg2Client: Norg2Client = mockk(relaxed = true)
-    val pdl:
-        HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true)
+    val pdl: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
@@ -225,7 +224,7 @@ class UtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.fristForGodkjenning shouldBe LocalDateTime.of(2025, 4, 1, 0, 0, 0)
+            utbetaling.fristForGodkjenning shouldBe LocalDate.of(2025, 3, 31)
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),

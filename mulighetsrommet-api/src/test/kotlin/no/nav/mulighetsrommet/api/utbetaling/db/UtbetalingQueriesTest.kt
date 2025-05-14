@@ -38,7 +38,7 @@ class UtbetalingQueriesTest : FunSpec({
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         beregning = beregning,
         kontonummer = Kontonummer("11111111111"),
         kid = Kid("12345"),
@@ -59,7 +59,7 @@ class UtbetalingQueriesTest : FunSpec({
 
             queries.get(utbetaling.id).shouldNotBeNull().should {
                 it.id shouldBe utbetaling.id
-                it.fristForGodkjenning shouldBe LocalDate.of(2024, 10, 1).atStartOfDay()
+                it.fristForGodkjenning shouldBe LocalDate.of(2024, 10, 1)
                 it.tiltakstype shouldBe Utbetaling.Tiltakstype(
                     navn = TiltakstypeFixtures.AFT.navn,
                     tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
@@ -133,7 +133,12 @@ class UtbetalingQueriesTest : FunSpec({
                     input = UtbetalingBeregningForhandsgodkjent.Input(
                         sats = 20_205,
                         periode = periode,
-                        stengt = setOf(StengtPeriode(Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)), "Ferie")),
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
+                                "Ferie",
+                            ),
+                        ),
                         deltakelser = setOf(
                             DeltakelsePerioder(
                                 deltakelseId = deltakelse1Id,
@@ -200,7 +205,7 @@ class UtbetalingQueriesTest : FunSpec({
                 val utbetalingForhandsgodkjent = UtbetalingDbo(
                     id = UUID.randomUUID(),
                     gjennomforingId = AFT1.id,
-                    fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+                    fristForGodkjenning = LocalDate.of(2024, 10, 1),
                     beregning = UtbetalingBeregningForhandsgodkjent(
                         input = UtbetalingBeregningForhandsgodkjent.Input(
                             periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),

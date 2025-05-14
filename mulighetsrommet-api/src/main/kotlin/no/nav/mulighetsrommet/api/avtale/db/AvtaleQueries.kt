@@ -560,7 +560,7 @@ class AvtaleQueries(private val session: Session) {
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
             opsjonsmodellData = opsjonsmodellData,
-            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
+            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.registrertDato },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
             prismodell = stringOrNull("prismodell")?.let { Prismodell.valueOf(it) },

@@ -383,7 +383,7 @@ data class GjennomforingRequest(
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
 ) {
@@ -413,7 +413,7 @@ data class GjennomforingRequest(
         deltidsprosent = deltidsprosent,
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
-        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+        tilgjengeligForArrangorDato = tilgjengeligForArrangorDato,
         amoKategorisering = amoKategorisering,
         utdanningslop = utdanningslop,
     )

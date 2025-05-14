@@ -120,7 +120,7 @@ export function GjennomforingFormContainer({
       faneinnhold: data.faneinnhold ?? null,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
-      tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
+      tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
       amoKategorisering: data.amoKategorisering ?? null,
       utdanningslop:
         avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
@@ -129,10 +129,10 @@ export function GjennomforingFormContainer({
     };
 
     if (
-      data.tilgjengeligForArrangorFraOgMedDato &&
-      data.startOgSluttDato.startDato !== data.tilgjengeligForArrangorFraOgMedDato
+      data.tilgjengeligForArrangorDato &&
+      data.startOgSluttDato.startDato !== data.tilgjengeligForArrangorDato
     ) {
-      loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorFraOgMedDato);
+      loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorDato);
     }
 
     mutation.mutate(body, {

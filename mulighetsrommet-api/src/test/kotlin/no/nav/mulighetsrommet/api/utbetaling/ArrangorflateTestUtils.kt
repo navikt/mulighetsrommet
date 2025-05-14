@@ -45,7 +45,7 @@ object ArrangorflateTestUtils {
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = GjennomforingFixtures.AFT1.sluttDato,
-        registrertTidspunkt = GjennomforingFixtures.AFT1.startDato.atStartOfDay(),
+        registrertDato = GjennomforingFixtures.AFT1.startDato,
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),
@@ -75,7 +75,7 @@ object ArrangorflateTestUtils {
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        fristForGodkjenning = LocalDateTime.now(),
+        fristForGodkjenning = LocalDate.of(2024, 9, 1),
         beregning = UtbetalingBeregningForhandsgodkjent(
             input = UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
@@ -115,7 +115,7 @@ object ArrangorflateTestUtils {
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        fristForGodkjenning = LocalDateTime.now(),
+        fristForGodkjenning = LocalDate.of(2024, 9, 1),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(
                 belop = 5000,

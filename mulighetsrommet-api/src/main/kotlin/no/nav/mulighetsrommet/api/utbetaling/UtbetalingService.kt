@@ -201,8 +201,6 @@ class UtbetalingService(
         gjennomforingId: UUID,
         periode: Periode,
     ): UtbetalingDbo = db.session {
-        val frist = periode.slutt.plusMonths(2)
-
         val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
 
         val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
@@ -241,7 +239,7 @@ class UtbetalingService(
 
         return UtbetalingDbo(
             id = utbetalingId,
-            fristForGodkjenning = frist.atStartOfDay(),
+            fristForGodkjenning = getFristForGodkjenning(periode.getLastInclusiveDate()),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
             kontonummer = kontonummer,
@@ -275,7 +273,7 @@ class UtbetalingService(
             UtbetalingDbo(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
-                fristForGodkjenning = request.periodeSlutt.plusMonths(2).atStartOfDay(),
+                fristForGodkjenning = getFristForGodkjenning(request.periodeSlutt),
                 kontonummer = request.kontonummer,
                 kid = request.kidNummer,
                 beregning = UtbetalingBeregningFri.beregn(
@@ -777,6 +775,8 @@ private fun isRelevantForUtbetalingsperide(
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
+
+private fun getFristForGodkjenning(lastUtbetalingPeriodeDate: LocalDate): LocalDate = lastUtbetalingPeriodeDate.plusMonths(2)
 
 enum class DelutbetalingReturnertAarsak {
     FEIL_BELOP,

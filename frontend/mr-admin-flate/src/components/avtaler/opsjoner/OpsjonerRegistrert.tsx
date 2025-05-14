@@ -60,7 +60,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
           {logg.map((log) => {
             return (
               <Table.Row key={log.id}>
-                <Table.DataCell>{formaterDato(log.aktivertDato)}</Table.DataCell>
+                <Table.DataCell>{formaterDato(log.registrertDato)}</Table.DataCell>
                 <Table.DataCell>{formaterStatus(log)}</Table.DataCell>
                 <Table.DataCell>
                   {kanSletteOpsjon(log) && !readOnly ? (
