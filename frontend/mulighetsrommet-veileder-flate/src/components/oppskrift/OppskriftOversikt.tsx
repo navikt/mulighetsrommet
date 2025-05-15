@@ -2,7 +2,6 @@ import { Alert, Skeleton } from "@navikt/ds-react";
 import { Oppskrift } from "@mr/api-client-v2";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
-import styles from "./OppskriftOversikt.module.scss";
 import { Suspense } from "react";
 
 interface Props {

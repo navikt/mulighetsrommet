@@ -7,11 +7,6 @@ import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 
-//import dsStyles from "@navikt/ds-css/dist/index.css?inline";
-import tailwindStyles from "./tailwind.css?inline";
-import tailwindConfigStyles from "./tailwindConfig.css?inline";
-import globalStyles from "../../globals.css?inline";
-
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
   static ENHET_PROP = "data-enhet";

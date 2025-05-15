@@ -5,8 +5,6 @@ import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
 import { initAmplitudeModia } from "@/logging/amplitude";
 import "../../index.css";
-// Load vite manifest file
-import manifest from "../../../dist/asset-manifest.json";
 
 if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
