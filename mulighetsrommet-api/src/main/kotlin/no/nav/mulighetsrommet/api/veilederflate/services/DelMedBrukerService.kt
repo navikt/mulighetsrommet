@@ -49,7 +49,7 @@ class DelMedBrukerService(
             throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
         }
 
-        if(dbo.veilederTilhorerFylke == null) {
+        if (dbo.veilederTilhorerFylke == null) {
             log.warn("Veileder tilhører ikke noe fylke")
             throw BadRequestException("Veileder tilhører ikke noe fylke - Lagrer ikke deling med bruker")
         }
@@ -221,7 +221,7 @@ private fun DelMedBrukerDbo.toParameters() = mapOf(
     "updated_by" to navident,
     "tiltakstype_navn" to tiltakstypeNavn,
     "veileder_tilhorer_fylke" to veilederTilhorerFylke?.value,
-    "veileder_tilhorer_enhet" to veilederTilhorerEnhet.value
+    "veileder_tilhorer_enhet" to veilederTilhorerEnhet.value,
 )
 
 private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
