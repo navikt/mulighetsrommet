@@ -4,13 +4,12 @@ import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
+import { Separator } from "@/utils/Separator";
 import { erPreview } from "@/utils/Utils";
 import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
 import { BodyShort, Button, Checkbox, Heading, HelpText, HStack, Modal } from "@navikt/ds-react";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import { Actions, State } from "./DelemodalActions";
-import { Separator } from "@/utils/Separator";
-import { useModiaContext } from "../hooks/useModiaContext";
 
 interface DelemodalProps {
   veiledernavn?: string;
@@ -19,6 +18,8 @@ interface DelemodalProps {
   harDeltMedBruker?: DelMedBruker;
   dispatch: (action: Actions) => void;
   state: State;
+  veilederEnhet: string;
+  veilederFylke?: string | null;
 }
 
 function overskrift(tiltak: VeilederflateTiltak): string {
@@ -32,9 +33,10 @@ export function Delemodal({
   harDeltMedBruker,
   dispatch,
   state,
+  veilederEnhet,
+  veilederFylke,
 }: DelemodalProps) {
   const { logEvent } = useLogEvent();
-  const { enhet, overordnetEnhet } = useModiaContext();
   const mutation = useDelTiltakMedBruker({
     onSuccess: (response) => {
       dispatch({ type: "Sendt ok", payload: response.dialogId });
@@ -89,8 +91,8 @@ export function Delemodal({
       gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
       sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
       tiltakstypeNavn: tiltak.tiltakstype.navn,
-      veilederTilhorerFylke: overordnetEnhet || null,
-      veilederTilhorerEnhet: enhet,
+      veilederTilhorerFylke: veilederFylke || null,
+      veilederTilhorerEnhet: veilederEnhet || null,
     });
   };
 
