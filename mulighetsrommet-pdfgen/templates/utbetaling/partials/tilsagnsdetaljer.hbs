@@ -1,0 +1,29 @@
+<div class="block line_bottom">
+    <h4>Tilsagnsdetaljer</h4>
+    {{#each tilsagn }}
+    <table class="block tilsagn-table">
+        <tbody>
+            <tr>
+                <th>Tilsagnsperiode:</th>
+                <td>{{ iso_to_nor_date periode.start }} - {{ iso_to_nor_date periode.slutt }}</td>
+            </tr>
+            <tr>
+                <th>Antall plasser:</th>
+                <td>{{ beregning.input.antallPlasser }} </td>
+            </tr>
+            <tr>
+                <th>Sats:</th>
+                <td>{{ beregning.input.sats }}</td>
+            </tr>
+            <tr>
+                <th>Totalt beløp:</th>
+                <td>{{ currency_no beregning.output.belop }} kr </td>
+            </tr>
+            <tr>
+                <th>Gjenstående beløp:</th>
+                <td>{{ currency_no gjenstaendeBelop }} kr </td>
+            </tr>
+        </tbody>
+    </table>
+    {{/each}}
+</div>

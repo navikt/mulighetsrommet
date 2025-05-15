@@ -1,5 +1,5 @@
-import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
-import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
+import { OppgaveoversiktPage } from "@/pages/oppgaveoversikt/OppgaveoversiktPage";
+import { OppgaverPage } from "@/pages/oppgaveoversikt/oppgaver/OppgaverPage";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
@@ -14,11 +14,11 @@ import { IngenLesetilgang } from "./IngenLesetilgang";
 import { QueryKeys } from "./api/QueryKeys";
 import { lagreFilterAction } from "./api/lagret-filter/lagretFilterAction";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
-import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
+import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
-import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
-import { setLestStatusForNotifikasjonAction } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerAction";
+import { NotifikasjonerPage } from "./pages/oppgaveoversikt/notifikasjoner/NotifikasjonerPage";
+import { setLestStatusForNotifikasjonAction } from "./pages/oppgaveoversikt/notifikasjoner/notifikasjonerAction";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
@@ -31,7 +31,6 @@ import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
-import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
@@ -46,6 +45,7 @@ import { InlineErrorBoundary } from "./ErrorBoundary";
 import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
 import { NewAvtaleFormPage } from "./pages/avtaler/NewAvtaleFormPage";
 import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
+import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -258,7 +258,7 @@ const router = (queryClient: QueryClient) => {
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
-            element: <TilsagnDetaljer />,
+            element: <TilsagnPage />,
             errorElement: <ErrorPage />,
           },
           {
@@ -282,8 +282,8 @@ const router = (queryClient: QueryClient) => {
             errorElement: <ErrorPage />,
           },
           {
-            path: "arbeidsbenk",
-            element: <ArbeidsbenkPage />,
+            path: "oppgaveoversikt",
+            element: <OppgaveoversiktPage />,
             errorElement: <ErrorPage />,
             children: [
               {
@@ -294,12 +294,12 @@ const router = (queryClient: QueryClient) => {
                 children: [
                   {
                     index: true,
-                    element: <Notifikasjonsliste lest={false} />,
+                    element: <NotifikasjonerList lest={false} />,
                     errorElement: <ErrorPage />,
                   },
                   {
                     path: "tidligere",
-                    element: <Notifikasjonsliste lest={true} />,
+                    element: <NotifikasjonerList lest={true} />,
                     errorElement: <ErrorPage />,
                   },
                 ],
@@ -311,12 +311,12 @@ const router = (queryClient: QueryClient) => {
                 children: [
                   {
                     index: true,
-                    element: <Notifikasjonsliste lest={false} />,
+                    element: <NotifikasjonerList lest={false} />,
                     errorElement: <ErrorPage />,
                   },
                   {
                     path: "fullforte",
-                    element: <Notifikasjonsliste lest={true} />,
+                    element: <NotifikasjonerList lest={true} />,
                     errorElement: <ErrorPage />,
                   },
                 ],

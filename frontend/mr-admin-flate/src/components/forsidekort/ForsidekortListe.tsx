@@ -17,10 +17,10 @@ const forsidekortData: ForsideKortProps[] = [
     navn: "Oppgaver",
     ikon: (
       <div className="w-16 h-16 flex items-center justify-center bg-orange-300 rounded-full">
-        <BellDotFillIcon title="Arbeidsbenk" className="text-white w-12 h-12" />
+        <BellDotFillIcon title="Oppgaveoversikt" className="text-white w-12 h-12" />
       </div>
     ),
-    url: "arbeidsbenk/oppgaver",
+    url: "oppgaveoversikt/oppgaver",
     tekst: "Her finner du en oversikt over enhetens oppgaver",
   },
   {
@@ -57,15 +57,15 @@ const forsidekortData: ForsideKortProps[] = [
 ];
 
 export function ForsidekortListe() {
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
   );
 
   return (
     <div className="flex flex-wrap gap-8">
       {forsidekortData.map((kort) => {
-        if (kort.navn !== "Oppgaver" || enableOkonomi) {
+        if (kort.navn !== "Oppgaver" || enableTilsagn) {
           return <Forsidekort key={kort.navn} {...kort} />;
         }
       })}

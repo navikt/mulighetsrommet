@@ -14,9 +14,8 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.plugins.AuthProvider
-import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -29,11 +28,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollServi
 import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerPerson
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -61,7 +56,7 @@ fun Route.utbetalingRoutes() {
                     ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
 
                 val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
-                    val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                    val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
                         TilsagnDto.fromTilsagn(it)
                     }
 
@@ -152,7 +147,7 @@ fun Route.utbetalingRoutes() {
             call.respond(tilsagn)
         }
 
-        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
+        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             post("/opprett-utbetaling") {
                 val utbetalingId = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<OpprettManuellUtbetalingRequest>()
@@ -170,7 +165,7 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/delutbetalinger") {
-        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
+        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             put {
                 val request = call.receive<OpprettDelutbetalingerRequest>()
                 val navIdent = getNavIdent()
@@ -180,7 +175,7 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authenticate(AuthProvider.AZURE_AD_ATTESTANT_UTBETALING) {
+        authorize(Rolle.ATTESTANT_UTBETALING) {
             post("/{id}/beslutt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<BesluttDelutbetalingRequest>()
@@ -211,12 +206,11 @@ private fun toDeltakerForKostnadsfordeling(
     manedsverk: Double,
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
     id = deltaker.gjennomforingId,
-    status = deltaker.status.type,
-    manedsverk = manedsverk,
     navn = person?.navn,
     geografiskEnhet = person?.geografiskEnhet?.navn,
     region = person?.region?.navn,
     foedselsdato = person?.foedselsdato,
+    manedsverk = manedsverk,
 )
 
 private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {

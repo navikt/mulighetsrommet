@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll.Type
@@ -22,7 +22,7 @@ class TotrinnskontrollServiceTest : FunSpec({
     )
 
     every { navAnsattService.getNavAnsattByNavIdent(NavIdent("B123456")) } returns NavAnsatt(
-        azureId = UUID.randomUUID(),
+        entraObjectId = UUID.randomUUID(),
         navIdent = NavIdent("B123456"),
         fornavn = "Bertil",
         etternavn = "Bengtson",

@@ -1,31 +1,41 @@
-import { Alert, BodyShort, Heading, List } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading, HStack, List } from "@navikt/ds-react";
 
-export function AarsakerOgForklaring({
-  heading,
-  tekster,
-  aarsaker,
-  forklaring,
-}: {
+type Props = {
   heading: string;
+  ingress?: string;
   tekster?: string[];
   aarsaker: string[];
   forklaring?: string;
-}) {
+};
+
+export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, forklaring }: Props) {
   return (
-    <Alert size="small" variant="warning">
+    <Alert size="medium" variant="warning">
       <Heading spacing size="small" level="4">
         {heading}
       </Heading>
-      {tekster && tekster.map((tekst, index) => <BodyShort key={index}>{tekst}</BodyShort>)}
-      <List>
+      {ingress && <BodyShort className="mb-4">{ingress}</BodyShort>}
+      {tekster &&
+        tekster.map((tekst, index) => (
+          <BodyShort key={index} className="mb-4">
+            {tekst}
+          </BodyShort>
+        ))}
+      <Heading level="5" size="xsmall">
+        Årsaker:
+      </Heading>
+      <List as="ul" size="small">
         {aarsaker.map((aarsak) => (
           <List.Item key={aarsak}>{aarsak}</List.Item>
         ))}
       </List>
       {forklaring && (
-        <BodyShort>
-          <b>Forklaring:</b> {forklaring}
-        </BodyShort>
+        <HStack gap="2">
+          <Heading level="5" size="xsmall">
+            Forklaring:
+          </Heading>
+          <BodyShort>{forklaring}</BodyShort>
+        </HStack>
       )}
     </Alert>
   );

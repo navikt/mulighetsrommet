@@ -9,7 +9,7 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
-import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
@@ -79,7 +79,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         }
 
         get("/gjennomforinger") {
-            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToModia(getNavAnsattEntraObjectId())
 
             val filter = getArbeidsmarkedstiltakFilter()
 
@@ -97,7 +97,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         }
 
         get("/gjennomforinger/{id}") {
-            poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
+            poaoTilgangService.verifyAccessToModia(getNavAnsattEntraObjectId())
 
             val id: UUID by call.parameters
 
@@ -155,7 +155,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             }
         }
 
-        authenticate(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
+        authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
             route("/preview") {
                 get("/gjennomforinger") {
                     val filter = getArbeidsmarkedstiltakFilter()

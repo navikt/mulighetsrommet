@@ -243,3 +243,61 @@ group by tiltakstype.navn, gjennomforing.opphav
 order by tiltakstype.navn
 EOF
 }
+
+module "mr_api_gjennomforing_nav_enhet_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_id             = "gjennomforing_nav_enhet_view"
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_id"
+        type        = "STRING"
+        description = "ID til gjennomføringen."
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "enhetsnummer"
+        type        = "STRING"
+        description = "Enhetsnummeret til gjennomføringen."
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  gjennomforing_id,
+  enhetsnummer,
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing_nav_enhet`
+EOF
+}
+
+module "mr_api_avtale_nav_enhet_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_id             = "avtale_nav_enhet_view"
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "avtale_id"
+        type        = "STRING"
+        description = "ID til avtalen."
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "enhetsnummer"
+        type        = "STRING"
+        description = "Enhetsnummeret til avtalen."
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  avtale_id,
+  enhetsnummer,
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_avtale_nav_enhet`
+EOF
+}

@@ -27,12 +27,16 @@ export const tilsagnTekster = {
     label: "Antall plasser",
   },
   sats: {
-    label: "Sats per plass per måned",
+    label: "Sats",
   },
   beregning: {
     belop: {
       label: "Totalbeløp",
     },
+  },
+  totrinn: {
+    behandletAv: "Behandlet av",
+    besluttetAv: "Besluttet av",
   },
   manglerStartdato: "Du må velge en startdato",
   manglerSluttdato: "Du må velge en sluttdato",

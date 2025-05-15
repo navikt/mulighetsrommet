@@ -41,8 +41,10 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
     env: miljø === Miljø.ProdGcp ? "prod" : "dev",
     params: {
       simple: false,
+      simpleFooter: true,
       chatbot: false,
       context: "samarbeidspartner",
+      shareScreen: false,
       breadcrumbs: byggBrødsmulesti(miljø),
     },
   });

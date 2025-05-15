@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -30,13 +31,19 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.textRepr
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
+    private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
         val okonomiConfig: OkonomiConfig,
@@ -111,6 +118,7 @@ class TilsagnService(
                     kostnadssted = request.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
+                    belopBrukt = 0,
                     beregning = beregning,
                 )
             }
@@ -121,7 +129,7 @@ class TilsagnService(
                 queries.tilsagn.upsert(dbo)
                 queries.totrinnskontroll.upsert(totrinnskontroll)
 
-                val dto = getOrError(dbo.id)
+                val dto = queries.tilsagn.getOrError(dbo.id)
 
                 logEndring("Sendt til godkjenning", dto, navIdent)
                 dto
@@ -151,7 +159,7 @@ class TilsagnService(
     }
 
     fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Tilsagn> = db.transaction {
-        val tilsagn = requireNotNull(queries.tilsagn.get(id))
+        val tilsagn = queries.tilsagn.getOrError(id)
 
         val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))
         if (!ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
@@ -220,7 +228,7 @@ class TilsagnService(
 
         storeOpprettBestilling(tilsagn, besluttetOpprettelse)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn godkjent", dto, besluttetAv)
         dto.right()
     }
@@ -251,7 +259,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn returnert", dto, besluttetAv)
         dto.right()
     }
@@ -274,7 +282,7 @@ class TilsagnService(
 
         storeAnnullerBestilling(tilsagn, besluttetAnnullering)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)
         return dto.right()
     }
@@ -288,7 +296,7 @@ class TilsagnService(
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
         if (besluttetAv == annullering.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise annullering du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -301,8 +309,28 @@ class TilsagnService(
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(
+            besluttetAv as NavIdent,
+        )
+        val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.textRepr()
+        val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
 
-        val dto = getOrError(tilsagn.id)
+        queries.notifications.insert(
+            ScheduledNotification(
+                type = NotificationType.NOTIFICATION,
+                title = "Et $tilsagnDisplayName du sendte til annullering er blitt avvist",
+                description = """$beslutterNavn avviste annulleringen av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen
+                    | "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
+                """.trimMargin(),
+                metadata = NotificationMetadata(
+                    linkText = "Gå til tilsagn",
+                    link = "/gjennomforinger/${tilsagn.gjennomforing.id}/tilsagn/${tilsagn.id}",
+                ),
+                createdAt = Instant.now(),
+                targets = nonEmptyListOf(annullering.behandletAv as NavIdent),
+            ),
+        )
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, besluttetAv)
         return dto.right()
     }
@@ -314,7 +342,7 @@ class TilsagnService(
         forklaring: String?,
     ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
-            "Kan bare annullere godkjente tilsagn"
+            "Kan bare gjøre opp godkjente tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
@@ -333,7 +361,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Sendt til oppgjør", dto, agent)
         return dto
     }
@@ -355,7 +383,7 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn oppgjort", dto, besluttetAv)
         return dto
     }
@@ -369,7 +397,7 @@ class TilsagnService(
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
         if (besluttetAv == oppgjor.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
+            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise oppgjør du selv har opprettet"))).left()
         }
 
         queries.totrinnskontroll.upsert(
@@ -383,13 +411,34 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        val dto = getOrError(tilsagn.id)
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(
+            besluttetAv as NavIdent,
+        )
+        val beslutterNavn = beslutterAnsatt?.displayName() ?: oppgjor.besluttetAv
+        val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
+
+        queries.notifications.insert(
+            ScheduledNotification(
+                type = NotificationType.NOTIFICATION,
+                title = "Et $tilsagnDisplayName du sendte til oppgjør er blitt avvist",
+                description = """$beslutterNavn avviste oppgjøret av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn}
+                    | for gjennomføringen "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
+                """.trimMargin(),
+                metadata = NotificationMetadata(
+                    linkText = "Gå til tilsagn",
+                    link = "/gjennomforinger/${tilsagn.gjennomforing.id}/tilsagn/${tilsagn.id}",
+                ),
+                createdAt = Instant.now(),
+                targets = nonEmptyListOf(oppgjor.behandletAv as NavIdent),
+            ),
+        )
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Oppgjør avvist", dto, besluttetAv)
         return dto.right()
     }
 
     fun gjorOppAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
-        var tilsagn = requireNotNull(queryContext.queries.tilsagn.get(id))
+        var tilsagn = queryContext.queries.tilsagn.getOrError(id)
 
         tilsagn = queryContext.setTilOppgjort(tilsagn, Tiltaksadministrasjon, emptyList(), null)
 
@@ -422,19 +471,52 @@ class TilsagnService(
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
 
-        val dto = getOrError(tilsagn.id)
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Sendt til annullering", dto, behandletAv)
         return dto
     }
 
-    fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.transaction {
+    fun slettTilsagn(id: UUID, navIdent: NavIdent): StatusResponse<Unit> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
+        val totrinnskontroll = queries.totrinnskontroll.get(entityId = id, type = Totrinnskontroll.Type.OPPRETT)
 
-        queries.tilsagn.delete(id).right()
+        queries.tilsagn.delete(id)
+        if (totrinnskontroll?.besluttetAv == navIdent && totrinnskontroll.behandletAv is NavIdent) {
+            sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = totrinnskontroll.behandletAv)
+        }
+
+        Unit.right()
+    }
+
+    private fun QueryContext.sendNotifikasjonSlettetTilsagn(
+        tilsagn: Tilsagn,
+        besluttetAv: NavIdent,
+        behandletAv: NavIdent,
+    ) {
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(besluttetAv)
+        val beslutterNavn = beslutterAnsatt?.displayName() ?: besluttetAv.value
+        val tilsagnDisplayName = tilsagn.type.displayName().lowercase()
+
+        val title = "Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet"
+        val description =
+            """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
+
+        val notice = ScheduledNotification(
+            type = NotificationType.NOTIFICATION,
+            title = title,
+            description = description,
+            metadata = NotificationMetadata(
+                linkText = "Gå til gjennomføringen",
+                link = "/gjennomforinger/${tilsagn.gjennomforing.id}",
+            ),
+            targets = nonEmptyListOf(behandletAv),
+            createdAt = Instant.now(),
+        )
+        queries.notifications.insert(notice)
     }
 
     fun getAll() = db.session {
@@ -554,10 +636,6 @@ class TilsagnService(
         ) {
             Json.encodeToJsonElement(dto)
         }
-    }
-
-    private fun QueryContext.getOrError(id: UUID): Tilsagn {
-        return requireNotNull(queries.tilsagn.get(id)) { "Tilsagn med id=$id finnes ikke" }
     }
 
     private fun QueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {

@@ -49,7 +49,7 @@ data class GjennomforingDto(
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
@@ -109,7 +109,7 @@ data class GjennomforingDto(
         status = status.status,
         virksomhetsnummer = arrangor.organisasjonsnummer.value,
         oppstart = oppstart,
-        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorDato,
         apentForPamelding = apentForPamelding,
         antallPlasser = antallPlasser,
     )
@@ -125,7 +125,8 @@ data class GjennomforingDto(
         antallPlasser = antallPlasser,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },
-        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer }.toSet(),
+        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer }
+            .toSet(),
         oppstart = oppstart,
         kontaktpersoner = kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(
@@ -140,7 +141,7 @@ data class GjennomforingDto(
         deltidsprosent = deltidsprosent,
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
-        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+        tilgjengeligForArrangorDato = tilgjengeligForArrangorDato,
         amoKategorisering = amoKategorisering,
         utdanningslop = utdanningslop?.toDbo(),
     )

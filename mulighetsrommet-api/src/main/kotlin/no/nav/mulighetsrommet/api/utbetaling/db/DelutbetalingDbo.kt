@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.FakturaStatusType
+import java.time.LocalDateTime
 import java.util.*
 
 data class DelutbetalingDbo(
@@ -16,4 +17,5 @@ data class DelutbetalingDbo(
     val lopenummer: Int,
     val fakturanummer: String,
     val fakturaStatus: FakturaStatusType?,
+    val fakturaStatusSistOppdatert: LocalDateTime,
 )

@@ -1,6 +1,8 @@
 body {
   background-color: white;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -10,19 +12,26 @@ body {
 .side {
   display: flex;
   flex-direction: column;
-  max-width: min(80%, 2500px);
-  margin-bottom: 3rem;
+  margin: 1rem;
   overflow-x: auto;
+  flex-grow: 1;
+  width: min(90%, 2500px);
 }
 
 :global(#decorator-header) {
   background: white;
 }
 
-@media (min-width: 45rem) {
+@media (min-width: 1024px) {
   .side {
-    margin: 0rem auto;
-    padding: 3rem;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+}
+
+@media (min-width: 1440px) {
+  .side {
+    max-width: 1920px;
   }
 }
 

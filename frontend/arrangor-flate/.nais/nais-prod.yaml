@@ -1,0 +1,58 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: arrangor-flate
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: "{{ image }}"
+  port: 3000
+  ingresses:
+    - https://arrangor-utbetaling.nav.no
+  replicas:
+    min: 2
+    max: 4
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 1024Mi
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 20
+  readiness:
+    path: /internal/isReady
+    initialDelay: 20
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: nodejs
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
+  prometheus:
+    enabled: true
+    path: /metrics
+  accessPolicy:
+    outbound:
+      rules:
+        - application: nav-dekoratoren
+          namespace: personbruker
+        - application: mulighetsrommet-api
+  tokenx:
+    enabled: true
+  idporten:
+    enabled: true
+    sidecar:
+      enabled: true
+      level: Level4
+      autoLogin: true
+      autoLoginIgnorePaths:
+        - /internal/*
+        - /metrics

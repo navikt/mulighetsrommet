@@ -1,6 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Header } from "@/components/detaljside/Header";
-import { MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -30,7 +30,7 @@ import {
 
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
-import { Deltakeroversikt } from "@/components/utbetaling/Deltakeroversikt";
+import { DeltakerOversikt } from "@/components/utbetaling/DeltakerOversikt";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -177,15 +177,19 @@ export function UtbetalingPage() {
                     </VStack>
                   </HGrid>
                 </VStack>
+                <Separator />
                 {deltakere.length > 0 && (
-                  <Accordion>
-                    <Accordion.Item>
-                      <Accordion.Header>Deltakeroversikt</Accordion.Header>
-                      <Accordion.Content>
-                        <Deltakeroversikt deltakere={deltakere} />
-                      </Accordion.Content>
-                    </Accordion.Item>
-                  </Accordion>
+                  <>
+                    <Accordion>
+                      <Accordion.Item>
+                        <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
+                        <Accordion.Content>
+                          <DeltakerOversikt deltakere={deltakere} />
+                        </Accordion.Content>
+                      </Accordion.Item>
+                    </Accordion>
+                    <Separator />
+                  </>
                 )}
                 {tilsagn.every(
                   (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),

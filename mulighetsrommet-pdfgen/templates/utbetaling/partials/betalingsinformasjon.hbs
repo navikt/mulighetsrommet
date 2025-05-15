@@ -1,0 +1,16 @@
+<div class="block">
+    <h4>Betalingsinformasjon</h4>
+    <table class="block">
+        <tbody>
+            <tr>
+                <th>Kontonummer:</th>
+                <td>{{ utbetaling.betalingsinformasjon.kontonummer }}</td>
+            </tr>
+            <tr>
+                <th>KID-nummer:</th>
+                <td>{{#if utbetaling.betalingsinformasjon.kid}}{{ utbetaling.betalingsinformasjon.kid }}{{else}}Ikke
+                    oppgitt{{/if}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

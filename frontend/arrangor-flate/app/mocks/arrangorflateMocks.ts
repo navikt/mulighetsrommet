@@ -2,16 +2,17 @@ import {
   Arrangor,
   ArrangorflateTilsagn,
   ArrFlateUtbetaling,
+  ArrFlateUtbetalingKompakt,
+  ArrFlateUtbetalingStatus,
   RelevanteForslag,
   TilsagnStatus,
   TilsagnType,
-  ArrFlateUtbetalingStatus,
-  ArrFlateUtbetalingKompakt,
+  UtbetalingDeltakelse,
 } from "api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 
-const mockDeltakelser = [
+const mockDeltakelser: UtbetalingDeltakelse[] = [
   {
     id: uuid(),
     person: {
@@ -23,6 +24,16 @@ const mockDeltakelser = [
     forstePeriodeStartDato: "2024-06-01",
     sistePeriodeSluttDato: "2024-06-30",
     sistePeriodeDeltakelsesprosent: 30,
+    perioder: [
+      {
+        periode: { start: "2024-06-01", slutt: "2024-06-15" },
+        deltakelsesprosent: 100,
+      },
+      {
+        periode: { start: "2024-06-15", slutt: "2024-07-01" },
+        deltakelsesprosent: 30,
+      },
+    ],
     manedsverk: 0.3,
   },
   {
@@ -35,6 +46,12 @@ const mockDeltakelser = [
     forstePeriodeStartDato: "2024-06-01",
     sistePeriodeSluttDato: "2024-06-30",
     sistePeriodeDeltakelsesprosent: 100,
+    perioder: [
+      {
+        periode: { start: "2024-06-01", slutt: "2024-07-01" },
+        deltakelsesprosent: 100,
+      },
+    ],
     manedsverk: 1,
   },
   {
@@ -47,6 +64,12 @@ const mockDeltakelser = [
     forstePeriodeStartDato: "2024-06-01",
     sistePeriodeSluttDato: "2024-06-30",
     sistePeriodeDeltakelsesprosent: 100,
+    perioder: [
+      {
+        periode: { start: "2024-06-01", slutt: "2024-07-01" },
+        deltakelsesprosent: 100,
+      },
+    ],
     manedsverk: 1,
   },
 ];
@@ -55,7 +78,7 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
   {
     id: "da28997b-c2ba-4f5c-b733-94eb57e57d19",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -72,14 +95,14 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     belop: 308530,
   },
   {
     id: "80a49868-0d06-4243-bc39-7ac33fbada88",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -95,14 +118,14 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     belop: 85000,
   },
   {
     id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
-    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -119,14 +142,14 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     belop: 85000,
   },
   {
     id: "87b4425b-8be0-4938-94bc-2ba1ae7beb0e",
     status: ArrFlateUtbetalingStatus.UTBETALT,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -143,7 +166,7 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
 
     belop: 85000,
@@ -154,7 +177,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "da28997b-c2ba-4f5c-b733-94eb57e57d19",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -174,7 +197,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     beregning: {
       antallManedsverk: 17.5,
@@ -182,12 +205,22 @@ const mockKrav: ArrFlateUtbetaling[] = [
       digest: "ac6b2cdcbfc885e64121cf4e0ebee5dd",
       deltakelser: mockDeltakelser,
       type: "FORHANDSGODKJENT",
+      stengt: [
+        {
+          periode: { start: "2024-05-15", slutt: "2024-06-03" },
+          beskrivelse: "Mai",
+        },
+        {
+          periode: { start: "2024-06-07", slutt: "2024-06-15" },
+          beskrivelse: "Sommerferie",
+        },
+      ],
     },
   },
   {
     id: "80a49868-0d06-4243-bc39-7ac33fbada88",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -207,7 +240,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     beregning: {
       antallManedsverk: 4,
@@ -215,12 +248,13 @@ const mockKrav: ArrFlateUtbetaling[] = [
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       deltakelser: mockDeltakelser,
       type: "FORHANDSGODKJENT",
+      stengt: [],
     },
   },
   {
     id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
-    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -240,7 +274,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     periode: {
       start: "2024-06-01",
-      slutt: "2024-06-30",
+      slutt: "2024-07-01",
     },
     beregning: {
       antallManedsverk: 4,
@@ -248,12 +282,13 @@ const mockKrav: ArrFlateUtbetaling[] = [
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       deltakelser: mockDeltakelser,
       type: "FORHANDSGODKJENT",
+      stengt: [],
     },
   },
   {
     id: "87b4425b-8be0-4938-94bc-2ba1ae7beb0e",
     status: ArrFlateUtbetalingStatus.UTBETALT,
-    fristForGodkjenning: "2024-08-01T00:00:00",
+    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -288,6 +323,12 @@ const mockKrav: ArrFlateUtbetaling[] = [
           forstePeriodeStartDato: "2024-06-01",
           sistePeriodeSluttDato: "2024-06-30",
           sistePeriodeDeltakelsesprosent: 30,
+          perioder: [
+            {
+              periode: { start: "2024-06-01", slutt: "2024-06-30" },
+              deltakelsesprosent: 30,
+            },
+          ],
           manedsverk: 0.3,
         },
         {
@@ -299,6 +340,12 @@ const mockKrav: ArrFlateUtbetaling[] = [
           forstePeriodeStartDato: "2024-06-01",
           sistePeriodeSluttDato: "2024-06-30",
           sistePeriodeDeltakelsesprosent: 100,
+          perioder: [
+            {
+              periode: { start: "2024-06-01", slutt: "2024-06-30" },
+              deltakelsesprosent: 100,
+            },
+          ],
           manedsverk: 1,
         },
       ],
@@ -306,6 +353,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       type: "FORHANDSGODKJENT",
+      stengt: [],
     },
   },
 ];
@@ -341,10 +389,11 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 150000,
+        belop: 150_000,
       },
     },
-    gjenstaendeBelop: 100000,
+    bruktBelop: 50_000,
+    gjenstaendeBelop: 100_000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Halden",
@@ -381,10 +430,11 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 50000,
+        belop: 50_000,
       },
     },
-    gjenstaendeBelop: 50000,
+    bruktBelop: 0,
+    gjenstaendeBelop: 50_000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Sarpsborg",
@@ -420,9 +470,10 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 30000,
+        belop: 30_000,
       },
     },
+    bruktBelop: 30_000,
     gjenstaendeBelop: 0,
     gjennomforing: {
       id: uuid(),
@@ -459,10 +510,11 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 20000,
+        belop: 20_000,
       },
     },
-    gjenstaendeBelop: 20000,
+    bruktBelop: 0,
+    gjenstaendeBelop: 20_000,
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Våler",
@@ -498,9 +550,10 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       },
       output: {
         type: "FORHANDSGODKJENT",
-        belop: 10000,
+        belop: 10_000,
       },
     },
+    bruktBelop: 10_000,
     gjenstaendeBelop: 0,
     gjennomforing: {
       id: uuid(),
@@ -523,7 +576,7 @@ const arrangorer: Arrangor[] = [
 const mockRelevanteForslag: RelevanteForslag[] = [
   {
     deltakerId: mockDeltakelser[0].id,
-    antallRelevanteForslag: 1,
+    antallRelevanteForslag: 0,
   },
   {
     deltakerId: mockDeltakelser[1].id,

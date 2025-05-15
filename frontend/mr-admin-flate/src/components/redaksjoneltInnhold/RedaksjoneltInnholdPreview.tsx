@@ -5,7 +5,7 @@ import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import React from "react";
 import { Laster } from "../laster/Laster";
-import { Lenkeliste } from "../lenker/Lenkeliste";
+import { LenkerList } from "../lenker/LenkerList";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 
@@ -108,7 +108,7 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         {someValuesExists([faneinnhold?.lenker]) ? (
           <div className="prose">
             <Heading size="medium">Lenker</Heading>
-            <Lenkeliste lenker={faneinnhold?.lenker || []} />
+            <LenkerList lenker={faneinnhold?.lenker || []} />
           </div>
         ) : null}
 

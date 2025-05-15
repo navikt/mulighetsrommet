@@ -132,7 +132,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2024-01-01",
         slutt: "2024-06-30",
       },
-      belopGjenstaende: 10000,
+
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -142,9 +142,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14000 },
-        output: { type: "FRI", belop: 14000 },
+        input: { type: "FRI", belop: 14_000 },
+        output: { type: "FRI", belop: 14_000 },
       },
+      belopBrukt: 4_000,
+      belopGjenstaende: 10_000,
       status: TilsagnStatus.TIL_GODKJENNING,
       bestillingsnummer: "A-2024/123",
     },
@@ -173,7 +175,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2024-07-01",
         slutt: "2024-12-31",
       },
-      belopGjenstaende: 10000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -183,9 +184,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14000 },
-        output: { type: "FRI", belop: 14000 },
+        input: { type: "FRI", belop: 14_000 },
+        output: { type: "FRI", belop: 14_000 },
       },
+      belopBrukt: 4_000,
+      belopGjenstaende: 10_000,
       status: TilsagnStatus.TIL_ANNULLERING,
       bestillingsnummer: "A-2024/123",
     },
@@ -221,7 +224,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-01-01",
         slutt: "2025-03-31",
       },
-      belopGjenstaende: 10000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -231,9 +233,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14000 },
-        output: { type: "FRI", belop: 14000 },
+        input: { type: "FRI", belop: 14_000 },
+        output: { type: "FRI", belop: 14_000 },
       },
+      belopBrukt: 4_000,
+      belopGjenstaende: 10_000,
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",
     },
@@ -269,7 +273,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-01-01",
         slutt: "2025-06-30",
       },
-      belopGjenstaende: 10000,
+
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -279,9 +283,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14000 },
-        output: { type: "FRI", belop: 14000 },
+        input: { type: "FRI", belop: 14_000 },
+        output: { type: "FRI", belop: 14_000 },
       },
+      belopBrukt: 4_000,
+      belopGjenstaende: 10_000,
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",
     },
@@ -311,7 +317,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-03-01",
         slutt: "2025-03-31",
       },
-      belopGjenstaende: 10000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -321,9 +326,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14000 },
-        output: { type: "FRI", belop: 14000 },
+        input: { type: "FRI", belop: 14_000 },
+        output: { type: "FRI", belop: 14_000 },
       },
+      belopBrukt: 4_000,
+      belopGjenstaende: 10_000,
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",
     },
@@ -360,7 +367,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2025-06-01",
         slutt: "2025-06-31",
       },
-      belopGjenstaende: 10000,
+      belopBrukt: 4_000,
+      belopGjenstaende: 10_000,
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
@@ -370,8 +378,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14000 },
-        output: { type: "FRI", belop: 14000 },
+        input: { type: "FRI", belop: 14_000 },
+        output: { type: "FRI", belop: 14_000 },
       },
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",

@@ -4,10 +4,10 @@ import {
   TilsagnBeregningInput,
   TilsagnBeregningOutput,
 } from "@mr/api-client-v2";
-import { useApiMutation } from "@/hooks/useApiMutation";
+import { useMutation } from "@tanstack/react-query";
 
 export function useBeregnTilsagn() {
-  return useApiMutation<{ data: TilsagnBeregningOutput }, ProblemDetail, TilsagnBeregningInput>({
+  return useMutation<{ data: TilsagnBeregningOutput }, ProblemDetail, TilsagnBeregningInput>({
     mutationFn: (body: TilsagnBeregningInput) =>
       BeregnTilsagnService.beregnTilsagn({
         body,

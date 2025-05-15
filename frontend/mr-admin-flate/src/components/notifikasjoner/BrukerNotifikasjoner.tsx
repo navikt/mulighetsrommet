@@ -16,7 +16,7 @@ export function BrukerNotifikasjoner() {
         Hei {bruker?.fornavn}
       </Heading>
       <Notifikasjon
-        href="/arbeidsbenk/notifikasjoner"
+        href="/oppgaveoversikt/notifikasjoner"
         tittel="Notifikasjoner"
         melding="Du har nye notifikasjoner"
       />

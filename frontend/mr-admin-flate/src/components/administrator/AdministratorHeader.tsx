@@ -1,19 +1,21 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
   ENDRINGSMELDINGER_URL,
-  LOGOUT_AND_SELECT_ACCOUNT_URL,
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
+  SELECT_ACCOUNT_URL,
 } from "@/constants";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { MenuGridIcon } from "@navikt/aksel-icons";
-import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
-import { useRef } from "react";
+import { Dropdown, Heading, InternalHeader, Modal, ReadMore, Spacer } from "@navikt/ds-react";
+import { useRef, useState } from "react";
 import { Link } from "react-router";
-import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
+import { NotifikasjonerBjelle } from "../notifikasjoner/NotifikasjonerBjelle";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Tiltakskode, Toggles } from "@mr/api-client-v2";
+import { Metadata } from "../detaljside/Metadata";
+import { Bolk } from "../detaljside/Bolk";
 
 export function AdministratorHeader() {
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
@@ -29,8 +31,8 @@ export function AdministratorHeader() {
   const menylenke = "text-blue-800";
 
   const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
   );
 
   return (
@@ -42,7 +44,7 @@ export function AdministratorHeader() {
       </InternalHeader.Title>
       <Spacer />
       <div className="flex justify-end items-center">
-        <Notifikasjonsbjelle />
+        <NotifikasjonerBjelle />
       </div>
       <Dropdown>
         <InternalHeader.Button as={Dropdown.Toggle}>
@@ -89,7 +91,7 @@ export function AdministratorHeader() {
                 onClick={() => oppgaverLinkRef.current?.click()}
                 as="span"
               >
-                <Link ref={oppgaverLinkRef} to="/arbeidsbenk/oppgaver" className={menylenke}>
+                <Link ref={oppgaverLinkRef} to="/oppgaveoversikt/oppgaver" className={menylenke}>
                   Oppgaver
                 </Link>
               </Dropdown.Menu.GroupedList.Item>
@@ -100,7 +102,7 @@ export function AdministratorHeader() {
             >
               <Link
                 ref={notifikasjonerLinkRef}
-                to="/arbeidsbenk/notifikasjoner"
+                to="/oppgaveoversikt/notifikasjoner"
                 className={menylenke}
               >
                 Notifikasjoner
@@ -149,7 +151,7 @@ export function AdministratorHeader() {
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.List>
               <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
-                <a ref={logoutLinkRef} href={LOGOUT_AND_SELECT_ACCOUNT_URL}>
+                <a ref={logoutLinkRef} href={SELECT_ACCOUNT_URL}>
                   Logg ut
                 </a>
               </Dropdown.Menu.List.Item>
@@ -166,6 +168,7 @@ export function AdministratorHeader() {
 
 function Brukernavn() {
   const { data, isLoading } = useHentAnsatt();
+  const [open, setOpen] = useState(false);
 
   if (!data || isLoading) {
     return null;
@@ -173,5 +176,40 @@ function Brukernavn() {
 
   const ansattNavn = [data.fornavn, data.etternavn].join(" ");
 
-  return <InternalHeader.User name={ansattNavn} description={data?.navIdent ?? "..."} />;
+  return (
+    <>
+      <InternalHeader.User
+        onClick={() => setOpen(true)}
+        name={ansattNavn}
+        description={data?.navIdent ?? "..."}
+        className="cursor-pointer"
+      />
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-label="Brukerdata"
+        className="w-1/2"
+        closeOnBackdropClick
+      >
+        <Modal.Header closeButton>
+          <Heading size="medium">Brukerdata</Heading>
+        </Modal.Header>
+        <Modal.Body>
+          <Bolk>
+            <Metadata header="Navn" verdi={ansattNavn} />
+            <Metadata header="Navident" verdi={data.navIdent} />
+            <Metadata header="Epost" verdi={data.epost || "Ikke registrert"} />
+            <Metadata header="Mobil" verdi={data.mobilnummer || "Ikke registrert"} />
+          </Bolk>
+          <ReadMore header="Roller" defaultOpen>
+            <ul>
+              {data.roller.sort().map((rolle) => (
+                <li key={rolle}>{rolle}</li>
+              ))}
+            </ul>
+          </ReadMore>
+        </Modal.Body>
+      </Modal>
+    </>
+  );
 }

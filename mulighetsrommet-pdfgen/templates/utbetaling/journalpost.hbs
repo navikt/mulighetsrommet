@@ -1,163 +1,27 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8" />
     <title>Utbetaling</title>
-    <meta name="subject" content="Dokumentemne"/>
-    <meta name="author" content="pdfgen"/>
-    <meta name="description" content="Refusjonskrav"/>
-    <style>
-        * {
-            font-family: "Source Sans Pro" !important;
-        }
-        .line_bottom {
-            border-bottom: 1px #CCC solid;
-        }
-        .block {
-            width: 100%;
-            margin-top: 0;
-        }
-        table {
-            font-size: 12px;
-        }
-        table th {
-            font-weight: normal;
-        }
-        table td {
-            width: 75%;
-        }
-        .tilsagn-table {
-            border: 1px solid #D1D4D8;
-            padding: 8px;
-            margin-bottom: 20px;
-        }
-        .deltaker-liste th {
-            font-weight: bold;
-        }
-        .text-align-right {
-            text-align: right;
-        }
-        .deltaker-liste {
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        .deltaker-liste th,
-        .deltaker-liste td {
-            width: auto;
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
+    <meta name="subject" content="Dokumentemne" />
+    <meta name="author" content="pdfgen" />
+    <meta name="description" content="Refusjonskrav" />
+    {{> utbetaling/partials/styles}}
 </head>
+
 <body>
-<div class="text-align-right">Innsendt dato: {{ iso_to_nor_date (now_date) }}</div>
-<h2>Refusjonskrav - {{ utbetaling.arrangor.navn }} - {{ utbetaling.gjennomforing.navn }}</h2>
-<div class="block line_bottom">
-    <table class="block">
-        <tbody>
-        <tr>
-            <th>Refusjonskravperiode:</th>
-            <td>{{ iso_to_nor_date utbetaling.beregning.periodeStart }} - {{ iso_to_nor_date utbetaling.beregning.periodeSlutt }}</td>
-        </tr>
-        <tr>
-            <th>Frist for godkjenning:</th>
-            <td>{{ iso_to_nor_date utbetaling.fristForGodkjenning }}</td>
-        </tr>
-        <tr>
-            <th>Tiltaksnavn:</th>
-            <td>{{ utbetaling.gjennomforing.navn }}</td>
-        </tr>
-        <tr>
-            <th>Tiltakstype:</th>
-            <td>{{ utbetaling.tiltakstype.navn }}</td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-<div class="block">
-    <h4>Tilsagnsdetaljer</h4>
-    {{#each tilsagn }}
-    <table class="block tilsagn-table">
-        <tbody>
-        <tr>
-            <th>Tilsagnsperiode:</th>
-            <td>{{ iso_to_nor_date periodeStart }} - {{ iso_to_nor_date periodeSlutt }}</td>
-        </tr>
-        <tr>
-            <th>Antall plasser:</th>
-            <td>{{ beregning.antallPlasser }}  </td>
-        </tr>
-        <tr>
-            <th>Sats:</th>
-            <td>{{ currency_no beregning.sats }} kr </td>
-        </tr>
-        <tr>
-            <th>Beløp:</th>
-            <td>{{ currency_no beregning.belop }} kr </td>
-        </tr>
-        </tbody>
-    </table>
-    {{/each}}
-</div>
-<div class="block line_bottom">
-    <h4>Deltakerliste</h4>
-    <table class="block deltaker-liste">
-        <thead>
-            <tr>
-                <th>Navn</th>
-                <th>Fødsels-<br/>dato</th>
-                <th>Startdato i tiltaket</th>
-                <th>Startdato i perioden</th>
-                <th>Sluttdato i perioden</th>
-                <th>Deltakelses-<br/>prosent</th>
-                <th>Månedsverk</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#each utbetaling.beregning.deltakelser }}
-            <tr>
-                <td>{{ person.navn }}</td>
-                <td>{{ iso_to_nor_date person.fodselsdato }}</td>
-                <td>{{ iso_to_nor_date startDato }}</td>
-                <td>{{ iso_to_nor_date forstePeriodeStartDato }}</td>
-                <td>{{ iso_to_nor_date sistePeriodeSluttDato }}</td>
-                <td>{{ currency_no sistePeriodeDeltakelsesprosent }}</td>
-                <td>{{ formatComma manedsverk }}</td>
-            </tr>
-        {{/each}}
-        </tbody>
-    </table>
-</div>
-<div class="block line_bottom">
-    <h4>Refusjonskrav</h4>
-    <table class="block">
-        <tbody>
-        <tr>
-            <th>Antall månedsverk:</th>
-            <td>{{ formatComma utbetaling.beregning.antallManedsverk }}</td>
-        </tr>
-        <tr>
-            <th>Total utbetaling:</th>
-            <td>{{ currency_no utbetaling.beregning.belop }} kr</td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-<div class="block">
-    <h4>Betalingsinformasjon</h4>
-    <table class="block">
-        <tbody>
-        <tr>
-            <th>Kontonummer:</th>
-            <td>{{ utbetaling.betalingsinformasjon.kontonummer }}</td>
-        </tr>
-        <tr>
-            <th>KID-nummer:</th>
-            <td>{{ utbetaling.betalingsinformasjon.kid }}</td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    {{> utbetaling/partials/navlogo}}
+    <h1>Innsendt krav om utbetaling</h1>
+    {{> utbetaling/partials/felles_innsendingsdetaljer}}
+    {{#eq utbetaling.beregning.type "FORHANDSGODKJENT"}}
+    {{> utbetaling/partials/stengtHosArrangor}}
+    {{/eq}}
+    {{#eq utbetaling.beregning.type "FORHANDSGODKJENT"}}
+    {{> utbetaling/partials/deltakerperioder}}
+    {{> utbetaling/partials/beregnetManedsverk}}
+    {{/eq}}
+
 </body>
+
 </html>

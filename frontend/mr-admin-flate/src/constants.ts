@@ -25,6 +25,10 @@ export const SANITY_STUDIO_URL = isProduction
 
 export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4665";
 
-export const LOGOUT_AND_SELECT_ACCOUNT_URL = isProduction
-  ? "https://tiltaksadministrasjon.intern.nav.no/oauth2/login?prompt=select_account" // Ja, det skal være login, og ikke logout
-  : "https://tiltaksadministrasjon.intern.dev.nav.no/oauth2/login?prompt=select_account"; // Ja, det skal være login, og ikke logout;
+/**
+ * Peker bruker til innlogging via Microsoft/Entra SSO med "select_account" prompt.
+ * Dette lar oss bytte mellom kontoer, evt. gjøre en reautentisering av allerede innlogget bruker.
+ */
+export const SELECT_ACCOUNT_URL = isProduction
+  ? "https://tiltaksadministrasjon.intern.nav.no/oauth2/login?prompt=select_account"
+  : "https://tiltaksadministrasjon.intern.dev.nav.no/oauth2/login?prompt=select_account";

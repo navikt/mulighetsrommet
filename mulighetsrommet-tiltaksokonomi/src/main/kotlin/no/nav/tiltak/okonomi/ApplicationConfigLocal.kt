@@ -45,13 +45,13 @@ val mockClientEngine = createMockEngine {
 }
 
 val ApplicationConfigLocal = AppConfig(
-    server = ServerConfig(port = 8074),
     httpClientEngine = mockClientEngine,
+    server = ServerConfig(port = 8074),
+    flyway = FlywayMigrationManager.MigrationConfig(),
     database = DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-tiltaksokonomi?user=valp&password=valp",
         maximumPoolSize = 10,
     ),
-    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = "http://localhost:8081/azure",

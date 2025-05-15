@@ -1,41 +1,995 @@
 {
   "utbetaling": {
+    "arrangor": {
+      "id": "1234567890",
+      "organisasjonsnummer": "1234567890",
+      "navn": "Fretex AS"
+    },
+    "periode": {
+      "start": "2024-01-01",
+      "slutt": "2024-01-29"
+    },
+    "godkjentAvArrangorTidspunkt": "2025-06-15",
+    "createdAt": "2025-05-13",
     "beregning": {
-      "periodeStart": "2024-01-01",
-      "periodeSlutt": "2024-01-31",
       "antallManedsverk": 2.3,
       "belop": "44000",
+      "type": "FORHANDSGODKJENT",
       "deltakelser": [
         {
+          "id": "45",
           "person": {
-            "navn": "Donald Duck",
-            "fodselsdato": "1934-06-09"
+            "navn": "Adrian Haugen",
+            "fodselsdato": "1991-08-30"
           },
           "startDato": "2024-01-01",
-          "sluttDato": "2024-01-31",
           "forstePeriodeStartDato": "2024-01-01",
-          "sistePeriodeSluttDato": "2024-01-31",
+          "sistePeriodeSluttDato": "2024-01-29",
           "sistePeriodeDeltakelsesprosent": 100,
-          "manedsverk": 1
+          "manedsverk": 1.0,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 100
+            }
+          ]
         },
         {
+          "id": "20",
           "person": {
-            "navn": "Dolly Hermine Magda Cruella Duck",
-            "fodselsdato": "1937-01-09"
+            "navn": "Alexander Lund",
+            "fodselsdato": "1990-02-28"
           },
           "startDato": "2024-01-01",
-          "sluttDato": "2024-01-31",
           "forstePeriodeStartDato": "2024-01-01",
-          "sistePeriodeSluttDato": "2024-01-31",
-          "sistePeriodeDeltakelsesprosent": 49,
-          "manedsverk": 1
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 100,
+          "manedsverk": 1.0,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 100
+            }
+          ]
+        },
+        {
+          "id": "38",
+          "person": {
+            "navn": "Amalie Nilsen",
+            "fodselsdato": "1994-02-07"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 85,
+          "manedsverk": 0.85,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 85
+            }
+          ]
+        },
+        {
+          "id": "15",
+          "person": {
+            "navn": "Anders Bakke",
+            "fodselsdato": "1991-05-17"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 100,
+          "manedsverk": 1.0,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 100
+            }
+          ]
+        },
+        {
+          "id": "43",
+          "person": {
+            "navn": "Benjamin Johansen",
+            "fodselsdato": "1989-01-15"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 50,
+          "manedsverk": 0.5,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 50
+            }
+          ]
+        },
+        {
+          "id": "19",
+          "person": {
+            "navn": "Daniel Foss",
+            "fodselsdato": "1990-07-22"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 60,
+          "manedsverk": 0.6,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 60
+            }
+          ]
+        },
+        {
+          "id": "33",
+          "person": {
+            "navn": "Elias Svendsen",
+            "fodselsdato": "1990-01-03"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 50,
+          "manedsverk": 0.5,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 50
+            }
+          ]
+        },
+        {
+          "id": "41",
+          "person": {
+            "navn": "Emil Lund",
+            "fodselsdato": "1990-03-28"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 70,
+          "manedsverk": 0.7,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 70
+            }
+          ]
+        },
+        {
+          "id": "22",
+          "person": {
+            "navn": "Emilie Nilsen",
+            "fodselsdato": "1994-01-07"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 80,
+          "manedsverk": 0.8,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 80
+            }
+          ]
+        },
+        {
+          "id": "7",
+          "person": {
+            "navn": "Erik Nilsen",
+            "fodselsdato": "1987-11-30"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 60,
+          "manedsverk": 0.6,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 60
+            }
+          ]
+        },
+        {
+          "id": "39",
+          "person": {
+            "navn": "Filip Hansen",
+            "fodselsdato": "1991-09-25"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 65,
+          "manedsverk": 0.65,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 65
+            }
+          ]
+        },
+        {
+          "id": "36",
+          "person": {
+            "navn": "Frida Berg",
+            "fodselsdato": "1993-12-30"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 55,
+          "manedsverk": 0.55,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 55
+            }
+          ]
+        },
+        {
+          "id": "17",
+          "person": {
+            "navn": "Henrik Svendsen",
+            "fodselsdato": "1989-03-08"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 75,
+          "manedsverk": 0.75,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 75
+            }
+          ]
+        },
+        {
+          "id": "8",
+          "person": {
+            "navn": "Ingrid Larsen",
+            "fodselsdato": "1991-04-18"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 40,
+          "manedsverk": 0.4,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 40
+            }
+          ]
+        },
+        {
+          "id": "28",
+          "person": {
+            "navn": "Isabella Solberg",
+            "fodselsdato": "1994-03-22"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 85,
+          "manedsverk": 0.85,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 85
+            }
+          ]
+        },
+        {
+          "id": "37",
+          "person": {
+            "navn": "Jakob Olsen",
+            "fodselsdato": "1988-08-19"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 75,
+          "manedsverk": 0.75,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 75
+            }
+          ]
+        },
+        {
+          "id": "50",
+          "person": {
+            "navn": "Jonas Holm",
+            "fodselsdato": "1990-02-03"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 65,
+          "manedsverk": 0.65,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 65
+            }
+          ]
+        },
+        {
+          "id": "11",
+          "person": {
+            "navn": "Jonas Kristiansen",
+            "fodselsdato": "1993-02-28"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 85,
+          "manedsverk": 0.85,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 85
+            }
+          ]
+        },
+        {
+          "id": "18",
+          "person": {
+            "navn": "Julie Holm",
+            "fodselsdato": "1993-09-14"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 85,
+          "manedsverk": 0.85,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 85
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "person": {
+            "navn": "Kari Hansen",
+            "fodselsdato": "1985-05-15"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 50,
+          "manedsverk": 0.5,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 50
+            }
+          ]
+        },
+        {
+          "id": "23",
+          "person": {
+            "navn": "Kristian Hansen",
+            "fodselsdato": "1991-08-25"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 50,
+          "manedsverk": 0.5,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 50
+            }
+          ]
+        },
+        {
+          "id": "5",
+          "person": {
+            "navn": "Lars Berg",
+            "fodselsdato": "1992-03-15"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 100,
+          "manedsverk": 1.0,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 100
+            }
+          ]
+        },
+        {
+          "id": "29",
+          "person": {
+            "navn": "Lucas Berg",
+            "fodselsdato": "1991-07-30"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 65,
+          "manedsverk": 0.65,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 65
+            }
+          ]
+        },
+        {
+          "id": "21",
+          "person": {
+            "navn": "Linnea Berg",
+            "fodselsdato": "1992-12-30"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 90,
+          "manedsverk": 0.9,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 90
+            }
+          ]
+        },
+        {
+          "id": "13",
+          "person": {
+            "navn": "Magnus Haugen",
+            "fodselsdato": "1988-12-03"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 95,
+          "manedsverk": 0.95,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 95
+            }
+          ]
+        },
+        {
+          "id": "47",
+          "person": {
+            "navn": "Mathias Dahl",
+            "fodselsdato": "1988-06-17"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 75,
+          "manedsverk": 0.75,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 75
+            }
+          ]
+        },
+        {
+          "id": "21",
+          "person": {
+            "navn": "Martin Olsen",
+            "fodselsdato": "1988-04-19"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 70,
+          "manedsverk": 0.7,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 70
+            }
+          ]
+        },
+        {
+          "id": "16",
+          "person": {
+            "navn": "Mia Dahl",
+            "fodselsdato": "1994-11-25"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 45,
+          "manedsverk": 0.45,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 45
+            }
+          ]
+        },
+        {
+          "id": "49",
+          "person": {
+            "navn": "Mia Foss",
+            "fodselsdato": "1992-07-14"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 90,
+          "manedsverk": 0.9,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 90
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "person": {
+            "navn": "Maria Johansen",
+            "fodselsdato": "1988-08-08"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 25,
+          "manedsverk": 0.25,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 25
+            }
+          ]
+        },
+        {
+          "id": "14",
+          "person": {
+            "navn": "Nora Solberg",
+            "fodselsdato": "1990-10-15"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 55,
+          "manedsverk": 0.55,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 55
+            }
+          ]
+        },
+        {
+          "id": "30",
+          "person": {
+            "navn": "Nora Haugen",
+            "fodselsdato": "1993-11-08"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 90,
+          "manedsverk": 0.9,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 90
+            }
+          ]
+        },
+        {
+          "id": "35",
+          "person": {
+            "navn": "Noah Foss",
+            "fodselsdato": "1991-04-20"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 100,
+          "manedsverk": 1.0,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 100
+            }
+          ]
+        },
+        {
+          "id": "1",
+          "person": {
+            "navn": "Ola Nordmann",
+            "fodselsdato": "1990-01-01"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 100,
+          "manedsverk": 1.0,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-10"
+              },
+              "deltakelsesprosent": 100
+            },
+            {
+              "periode": {
+                "start": "2024-01-11",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 50
+            }
+          ]
+        },
+        {
+          "id": "31",
+          "person": {
+            "navn": "Oliver Moe",
+            "fodselsdato": "1988-05-17"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 70,
+          "manedsverk": 0.7,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 70
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "person": {
+            "navn": "Per Olsen",
+            "fodselsdato": "1995-12-24"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 75,
+          "manedsverk": 0.75,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 75
+            }
+          ]
+        },
+        {
+          "id": "27",
+          "person": {
+            "navn": "Sara Moe",
+            "fodselsdato": "1992-08-20"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 65,
+          "manedsverk": 0.65,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 65
+            }
+          ]
+        },
+        {
+          "id": "40",
+          "person": {
+            "navn": "Sara Andersen",
+            "fodselsdato": "1993-05-13"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 90,
+          "manedsverk": 0.9,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 90
+            }
+          ]
+        },
+        {
+          "id": "32",
+          "person": {
+            "navn": "Sofia Dahl",
+            "fodselsdato": "1994-09-25"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 80,
+          "manedsverk": 0.8,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 80
+            }
+          ]
+        },
+        {
+          "id": "6",
+          "person": {
+            "navn": "Sofie Andersen",
+            "fodselsdato": "1993-07-22"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 80,
+          "manedsverk": 0.8,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 80
+            }
+          ]
+        },
+        {
+          "id": "24",
+          "person": {
+            "navn": "Sofie Andersen",
+            "fodselsdato": "1993-06-13"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 95,
+          "manedsverk": 0.95,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 95
+            }
+          ]
+        },
+        {
+          "id": "46",
+          "person": {
+            "navn": "Sofie Moe",
+            "fodselsdato": "1993-12-08"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 55,
+          "manedsverk": 0.55,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 55
+            }
+          ]
+        },
+        {
+          "id": "9",
+          "person": {
+            "navn": "Thomas Jensen",
+            "fodselsdato": "1989-09-05"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 90,
+          "manedsverk": 0.9,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 90
+            }
+          ]
+        },
+        {
+          "id": "42",
+          "person": {
+            "navn": "Victoria Solberg",
+            "fodselsdato": "1994-04-22"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 95,
+          "manedsverk": 0.95,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 95
+            }
+          ]
+        },
+        {
+          "id": "26",
+          "person": {
+            "navn": "William Johansen",
+            "fodselsdato": "1989-12-15"
+          },
+          "startDato": "2024-01-01",
+          "forstePeriodeStartDato": "2024-01-01",
+          "sistePeriodeSluttDato": "2024-01-29",
+          "sistePeriodeDeltakelsesprosent": 75,
+          "manedsverk": 0.75,
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 75
+            }
+          ]
+        }
+      ],
+      "stengt": [
+        {
+          "periode": {
+            "start": "2025-04-17",
+            "slutt": "2025-04-21"
+          },
+          "beskrivelse": "Påskeferie"
+        },
+        {
+          "periode": {
+            "start": "2025-07-10",
+            "slutt": "2025-07-31"
+          },
+          "beskrivelse": "Sommerferie"
         }
       ]
     },
     "fristForGodkjenning": "2024-03-01",
     "betalingsinformasjon": {
       "kontonummer": "12312312312",
-      "kid": ":)"
+      "kid": ""
     },
     "tiltakstype": {
       "navn": "Arbeidsforberedende trening"
@@ -46,12 +1000,19 @@
   },
   "tilsagn": [
     {
-      "periodeStart": "2024-01-01",
-      "periodeSlutt": "2024-06-30",
+      "periode": {
+        "start": "2024-01-01",
+        "slutt": "2024-06-30"
+      },
+      "gjenstaendeBelop": 25000,
       "beregning": {
-        "antallPlasser": 20,
-        "sats": "22000",
-        "belop": "2200000"
+        "input": {
+          "antallPlasser": 20,
+          "sats": "22000"
+        },
+        "output": {
+          "belop": "2200000"
+        }
       }
     }
   ]

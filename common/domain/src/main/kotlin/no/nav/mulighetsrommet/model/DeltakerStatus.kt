@@ -41,5 +41,7 @@ data class DeltakerStatus(
         SYK("Syk"),
         TRENGER_ANNEN_STOTTE("Trenger annen støtte"),
         UTDANNING("Utdanning"),
+        KRAV_IKKE_OPPFYLT("Krav for deltakelse er ikke oppfylt"),
+        KURS_FULLT("Kurset er fullt"),
     }
 }

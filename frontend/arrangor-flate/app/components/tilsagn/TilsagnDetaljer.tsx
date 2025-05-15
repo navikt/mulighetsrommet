@@ -1,18 +1,16 @@
-import { ArrangorflateTilsagn } from "api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { ArrangorflateTilsagn } from "api-client";
 import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
+  ekstraDefinisjoner?: Definition[];
 }
 
-export function TilsagnDetaljer({ tilsagn }: Props) {
+export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
   const tilsagnDetaljer: Definition[] = [
-    {
-      key: "Tilsagnsnummer",
-      value: tilsagn.bestillingsnummer,
-    },
+    ...(ekstraDefinisjoner || []),
     {
       key: "Tilsagnsperiode",
       value: formaterPeriode(tilsagn.periode),
@@ -24,17 +22,17 @@ export function TilsagnDetaljer({ tilsagn }: Props) {
       ? [
           { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
           { key: "Sats", value: formaterNOK(tilsagn.beregning.input.sats) },
-          { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+          { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
-            key: "Utbetalt så langt",
-            value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.gjenstaendeBelop),
+            key: "Gjenstående beløp",
+            value: formaterNOK(tilsagn.gjenstaendeBelop),
           },
         ]
       : [
-          { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+          { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           {
-            key: "Utbetalt så langt",
-            value: formaterNOK(tilsagn.beregning.output.belop - tilsagn.gjenstaendeBelop),
+            key: "Gjenstående beløp",
+            value: formaterNOK(tilsagn.gjenstaendeBelop),
           },
         ];
 

@@ -10,17 +10,6 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-tiltaksokonomi.intern.nav.no
-  secureLogs:
-    enabled: true
-  prometheus:
-    enabled: true
-    path: /internal/prometheus
-  readiness:
-    path: /internal/readiness
-    initialDelay: 20
-  liveness:
-    path: /internal/liveness
-    initialDelay: 20
   replicas:
     min: 2
     max: 4
@@ -33,6 +22,12 @@ spec:
       memory: 512Mi
     limits:
       memory: 8192Mi
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
   observability:
     autoInstrumentation:
       enabled: true
@@ -41,32 +36,41 @@ spec:
       destinations:
         - id: elastic
         - id: loki
+  secureLogs:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  kafka:
+    pool: nav-prod
   gcp:
     sqlInstances:
       - name: tiltaksokonomi-v1
         type: POSTGRES_17
         tier: db-custom-1-3840
         diskAutoresize: true
-        pointInTimeRecovery: false
+        pointInTimeRecovery: true
         databases:
           - name: tiltaksokonomi
             envVarPrefix: DB
+        flags:
+          - name: max_connections
+            value: "200"
   azure:
     application:
       enabled: true
       allowAllUsers: false
       claims:
         groups:
-          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
+          # team-mulighetsrommet
+          - id: "debefa6e-1865-446d-b22b-9579fc735de3"
         extra:
           - azp_name
-  kafka:
-    pool: nav-prod
   accessPolicy:
     inbound:
       rules:
         - application: mulighetsrommet-arena-adapter-manager
-        - application: oebs-po-ap-api-q1
+        - application: oebs-po-ap-api
           namespace: team-oebs
           cluster: prod-fss
           permissions:
@@ -75,3 +79,4 @@ spec:
     outbound:
       external:
         - host: data.brreg.no
+        - host: oebs-po-ap-api.prod-fss-pub.nais.io

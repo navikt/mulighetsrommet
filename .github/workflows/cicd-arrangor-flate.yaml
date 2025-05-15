@@ -82,8 +82,6 @@ jobs:
         id: docker-build-push
         with:
           team: team-mulighetsrommet
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           docker_context: ./frontend/arrangor-flate
           image_suffix: arrangor-flate
       - uses: nais/deploy/actions/deploy@v2
@@ -92,16 +90,28 @@ jobs:
           RESOURCE: frontend/arrangor-flate/.nais/nais-dev.yaml
           VAR: image=${{ steps.docker-build-push.outputs.image }}
 
-  # TODO Skru på deploy til prod når alt er klart for arrangørflate
-  # deploy-til-prod:
-  #     name: Deploy til prod-gcp
-  #     needs: [ci, deploy-til-dev]
-  #     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #         - uses: actions/checkout@v4
-  #         - uses: nais/deploy/actions/deploy@v2
-  #           env:
-  #               CLUSTER: prod-gcp
-  #               RESOURCE: frontend/arrangor-flate/.nais/nais-prod.yaml
-  #               VAR: image=${{ needs.ci.outputs.image }}
+  deploy-til-prod:
+    name: Deploy til prod-gcp
+    needs: [ci, deploy-til-dev]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Bygg applikasjon
+        run: npx turbo run pack --filter=@mr/arrangor-flate
+      - name: Push docker image to GAR
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: team-mulighetsrommet
+          docker_context: ./frontend/arrangor-flate
+          image_suffix: arrangor-flate
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: frontend/arrangor-flate/.nais/nais-prod.yaml
+          VAR: image=${{ steps.docker-build-push.outputs.image }}

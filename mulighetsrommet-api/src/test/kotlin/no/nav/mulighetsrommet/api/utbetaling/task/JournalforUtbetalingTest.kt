@@ -42,7 +42,7 @@ class JournalforUtbetalingTest : FunSpec({
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        fristForGodkjenning = LocalDateTime.now(),
+        fristForGodkjenning = LocalDate.of(2024, 9, 1),
         beregning = UtbetalingBeregningForhandsgodkjent(
             input = UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),

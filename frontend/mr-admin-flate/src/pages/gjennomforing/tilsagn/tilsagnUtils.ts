@@ -1,4 +1,6 @@
+import { navnEllerIdent } from "@/utils/Utils";
 import {
+  AgentDto,
   TilsagnBeregningForhandsgodkjent,
   TilsagnBeregningFri,
   TilsagnDto,
@@ -15,3 +17,6 @@ export function isTilsagnFri(
 ): tilsagn is TilsagnDto & { beregning: TilsagnBeregningFri } {
   return tilsagn.beregning.type === "FRI";
 }
+
+export const navnIdentEllerPlaceholder = (agent?: AgentDto) =>
+  agent ? navnEllerIdent(agent) : "-";

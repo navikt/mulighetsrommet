@@ -61,7 +61,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${formaterDatoSomYYYYMMDD(subtractDays(utbetaling.periode.slutt, 1))}` +
-        `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
+        `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
     );
   }
 

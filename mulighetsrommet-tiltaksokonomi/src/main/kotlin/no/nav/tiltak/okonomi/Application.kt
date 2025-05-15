@@ -16,8 +16,10 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
+import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
@@ -30,7 +32,7 @@ import no.nav.tiltak.okonomi.service.OkonomiService
 
 fun main() {
     val config = when (NaisEnv.current()) {
-        NaisEnv.ProdGCP -> throw IllegalStateException("Vi er ikke i prod enda")
+        NaisEnv.ProdGCP -> ApplicationConfigProd
         NaisEnv.DevGCP -> ApplicationConfigDev
         NaisEnv.Local -> ApplicationConfigLocal
     }
@@ -47,6 +49,11 @@ fun Application.configure(config: AppConfig) {
     val db = Database(config.database)
 
     FlywayMigrationManager(config.flyway).migrate(db)
+
+    KafkaMetrics(db)
+        .withCountStaleConsumerRecords(minutesSinceCreatedAt = 5)
+        .withCountStaleProducerRecords(minutesSinceCreatedAt = 1)
+        .register(Metrikker.appMicrometerRegistry)
 
     configureAuthentication(config.auth)
     configureSerialization()

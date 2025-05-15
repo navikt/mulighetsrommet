@@ -94,7 +94,7 @@ test.describe("Utbetalinger detaljer", () => {
     // Verify that the return reason text is visible
     await expect(page.locator("text=Feil beløp")).toBeVisible();
     await expect(
-      page.locator("text=Forklaring: Beløpet er feil, og bør fikses ved å endre antall deltakere"),
+      page.locator("text=Beløpet er feil, og bør fikses ved å endre antall deltakere"),
     ).toBeVisible();
     await sjekkUU(page, "utbetaling-til-utbetaling");
   });
@@ -133,9 +133,9 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify that the user sees who has behandlet and attestert the utbetaling
     await expect(page.locator("dt", { hasText: "Behandlet av" })).toBeVisible();
-    await expect(page.locator("dd", { hasText: "Bertil Bengtson" })).toBeVisible();
+    await expect(page.locator("table dd", { hasText: "Bertil Bengtson" })).toBeVisible();
     await expect(page.locator("dt", { hasText: "Attestert av" })).toBeVisible();
-    await expect(page.locator("dd", { hasText: "Per Haraldsen" })).toBeVisible();
+    await expect(page.locator("table dd", { hasText: "Per Haraldsen" })).toBeVisible();
 
     await sjekkUU(page, "utbetaling-til-utbetaling");
   });
@@ -167,9 +167,9 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify that the user sees who has behandlet and attestert the utbetaling
     await expect(page.locator("dt", { hasText: "Behandlet av" })).toBeVisible();
-    await expect(page.locator("dd", { hasText: "Bertil Bengtson" })).toBeVisible();
+    await expect(page.locator("table dd", { hasText: "Bertil Bengtson" })).toBeVisible();
     await expect(page.locator("dt", { hasText: "Attestert av" })).toBeVisible();
-    await expect(page.locator("dd", { hasText: "Per Haraldsen" })).toBeVisible();
+    await expect(page.locator("table dd", { hasText: "Per Haraldsen" })).toBeVisible();
 
     await sjekkUU(page, "utbetaling-til-utbetaling");
   });

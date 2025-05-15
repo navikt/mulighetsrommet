@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.totrinnskontroll.service
 
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 

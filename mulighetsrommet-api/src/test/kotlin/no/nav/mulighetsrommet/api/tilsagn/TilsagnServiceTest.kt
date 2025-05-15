@@ -11,6 +11,9 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.clearAllMocks
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -21,6 +24,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
@@ -84,7 +88,7 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createTilsagnService(): TilsagnService {
+    fun createTilsagnService(navAnsattService: NavAnsattService = mockk(relaxed = true)): TilsagnService {
         return TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
@@ -95,6 +99,7 @@ class TilsagnServiceTest : FunSpec({
                 ),
                 bestillingTopic = "topic",
             ),
+            navAnsattService = navAnsattService,
         )
     }
 
@@ -231,13 +236,18 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("slett tilsagn") {
-        val service = createTilsagnService()
+        val navAnsattService = mockk<NavAnsattService>(relaxed = true)
+        val service = createTilsagnService(navAnsattService)
+
+        beforeEach {
+            clearAllMocks()
+        }
 
         test("kan ikke slette tilsagn når det er til godkjenning") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
-            service.slettTilsagn(request.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+            service.slettTilsagn(request.id, ansatt1) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {
@@ -250,7 +260,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.slettTilsagn(request.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+            service.slettTilsagn(request.id, ansatt1) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
         }
 
         test("kan slette tilsagn når det er returnert") {
@@ -266,9 +276,50 @@ class TilsagnServiceTest : FunSpec({
                 ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
-            service.slettTilsagn(request.id).shouldBeRight()
+            service.slettTilsagn(request.id, ansatt1).shouldBeRight()
 
             service.getAll() shouldHaveSize 0
+        }
+
+        test("skal sende notifikasjon til behandletAv når besluttetAv sletter tilsagn") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                request.id,
+                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+                ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+
+            service.slettTilsagn(request.id, ansatt2).shouldBeRight()
+            verify(exactly = 1) { navAnsattService.getNavAnsattByNavIdent(ansatt2) }
+
+            database.run {
+                queries.notifications.getAll().size shouldBe 1
+            }
+        }
+
+        test("skal ikke sende notifikasjon når behandletAv sletter tilsagn") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                request.id,
+                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+                ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+
+            service.slettTilsagn(request.id, ansatt1).shouldBeRight()
+            verify(exactly = 0) { navAnsattService.getNavAnsattByNavIdent(any()) }
+            database.run {
+                queries.notifications.getAll().size shouldBe 0
+            }
         }
     }
 
@@ -573,7 +624,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))
             }
-            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_ANNULLERING
+            database.run { queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_ANNULLERING }
         }
     }
 
@@ -589,7 +640,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-            val bestillingsnummer = database.run { queries.tilsagn.get(request.id) }!!.bestilling.bestillingsnummer
+            val bestillingsnummer = database.run { queries.tilsagn.getOrError(request.id).bestilling.bestillingsnummer }
 
             service.tilGjorOppRequest(
                 id = request.id,
@@ -655,7 +706,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))
             }
-            checkNotNull(database.run { queries.tilsagn.get(request.id) }).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            database.run { queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_OPPGJOR }
         }
 
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {

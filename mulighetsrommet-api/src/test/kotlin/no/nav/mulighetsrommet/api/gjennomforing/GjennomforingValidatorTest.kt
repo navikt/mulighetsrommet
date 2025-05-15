@@ -186,21 +186,21 @@ class GjennomforingValidatorTest : FunSpec({
         database.run { queries.gjennomforing.upsert(dbo) }
 
         val beforeAllowedDato = startDato.minusMonths(3)
-        createValidator().validate(gjennomforing.copy(tilgjengeligForArrangorFraOgMedDato = beforeAllowedDato), null)
+        createValidator().validate(gjennomforing.copy(tilgjengeligForArrangorDato = beforeAllowedDato), null)
             .shouldBeRight().should {
-                it.tilgjengeligForArrangorFraOgMedDato.shouldBeNull()
+                it.tilgjengeligForArrangorDato.shouldBeNull()
             }
 
         val afterStartDato = startDato.plusDays(1)
-        createValidator().validate(dbo.copy(tilgjengeligForArrangorFraOgMedDato = afterStartDato), null)
+        createValidator().validate(dbo.copy(tilgjengeligForArrangorDato = afterStartDato), null)
             .shouldBeRight().should {
-                it.tilgjengeligForArrangorFraOgMedDato.shouldBeNull()
+                it.tilgjengeligForArrangorDato.shouldBeNull()
             }
 
         val beforeStartDato = startDato.minusDays(1)
-        createValidator().validate(dbo.copy(tilgjengeligForArrangorFraOgMedDato = beforeStartDato), null)
+        createValidator().validate(dbo.copy(tilgjengeligForArrangorDato = beforeStartDato), null)
             .shouldBeRight().should {
-                it.tilgjengeligForArrangorFraOgMedDato shouldBe beforeStartDato
+                it.tilgjengeligForArrangorDato shouldBe beforeStartDato
             }
     }
 

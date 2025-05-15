@@ -13,10 +13,9 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.plugins.AuthProvider
-import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -150,7 +149,7 @@ fun Route.tilsagnRoutes() {
             call.respondWithStatusResponse(result)
         }
 
-        authenticate(AuthProvider.AZURE_AD_SAKSBEHANDLER_OKONOMI) {
+        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             put {
                 val request = call.receive<TilsagnRequest>()
                 val navIdent = getNavIdent()
@@ -182,12 +181,12 @@ fun Route.tilsagnRoutes() {
 
             delete("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
-
-                call.respondWithStatusResponse(service.slettTilsagn(id))
+                val navIdent = getNavIdent()
+                call.respondWithStatusResponse(service.slettTilsagn(id, navIdent))
             }
         }
 
-        authenticate(AuthProvider.AZURE_AD_BESLUTTER_TILSAGN) {
+        authorize(Rolle.BESLUTTER_TILSAGN) {
             post("/{id}/beslutt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<BesluttTilsagnRequest>()

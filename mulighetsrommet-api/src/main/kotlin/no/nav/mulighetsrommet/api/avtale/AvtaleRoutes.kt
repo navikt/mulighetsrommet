@@ -8,9 +8,9 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
-import no.nav.mulighetsrommet.api.plugins.AuthProvider
-import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -122,7 +122,7 @@ fun Route.avtaleRoutes() {
     }
 
     route("avtaler") {
-        authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV) {
+        authorize(Rolle.AVTALER_SKRIV) {
             put {
                 val navIdent = getNavIdent()
                 val request = call.receive<AvtaleRequest>()
@@ -216,7 +216,7 @@ fun Route.avtaleRoutes() {
     }
 
     route("opsjoner") {
-        authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV) {
+        authorize(Rolle.AVTALER_SKRIV) {
             post {
                 val request = call.receive<OpsjonLoggRequest>()
                 val userId = getNavIdent()
@@ -225,6 +225,7 @@ fun Route.avtaleRoutes() {
                     sluttdato = request.nySluttdato,
                     forrigeSluttdato = request.forrigeSluttdato,
                     status = request.status,
+                    registretDato = LocalDate.now(),
                     registrertAv = userId,
                 )
 

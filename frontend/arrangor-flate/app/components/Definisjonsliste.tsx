@@ -24,7 +24,7 @@ export function Definisjonsliste({ title, definitions, className, headingLevel }
       )}
       <dl className="flex flex-col gap-1.5">
         {definitions.map((definition, index) => (
-          <HStack gap="2" justify="space-between" key={index}>
+          <HStack gap="2" key={index}>
             <dt>{definition.key}:</dt>
             <dd className="font-bold text-right">{definition.value}</dd>
           </HStack>

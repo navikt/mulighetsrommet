@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
-import arrow.core.nonEmptyListOf
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -68,8 +67,7 @@ class UtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
     val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
     val norg2Client: Norg2Client = mockk(relaxed = true)
-    val pdl:
-        HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true)
+    val pdl: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
@@ -92,6 +90,7 @@ class UtbetalingServiceTest : FunSpec({
 
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
+    val fnr3 = NorskIdent("01567712300")
 
     coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
         KontonummerResponse(
@@ -118,13 +117,13 @@ class UtbetalingServiceTest : FunSpec({
                 mapOf(
                     PdlIdent("12345678910") to Pair(
                         HentPersonBolkResponse.Person(
-                            navn = nonEmptyListOf(
+                            navn = listOf(
                                 PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                             ),
                             adressebeskyttelse = listOf(
                                 HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
                             ),
-                            foedselsdato = nonEmptyListOf(
+                            foedselsdato = listOf(
                                 HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
                             ),
                         ),
@@ -134,13 +133,13 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                     PdlIdent("99887766554") to Pair(
                         HentPersonBolkResponse.Person(
-                            navn = nonEmptyListOf(
+                            navn = listOf(
                                 PdlNavn(fornavn = "Kari", etternavn = "Normann"),
                             ),
                             adressebeskyttelse = listOf(
                                 HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
                             ),
-                            foedselsdato = nonEmptyListOf(
+                            foedselsdato = listOf(
                                 HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
                             ),
                         ),
@@ -150,7 +149,29 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                 ),
             )
-
+            coEvery {
+                pdl.hentPersonOgGeografiskTilknytningBolk(
+                    setOf(PdlIdent(fnr3.value)),
+                    any(),
+                )
+            } returns Either.Right(
+                mapOf(
+                    PdlIdent("01567712300") to Pair(
+                        HentPersonBolkResponse.Person(
+                            navn = emptyList(),
+                            adressebeskyttelse = listOf(
+                                HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
+                            ),
+                            foedselsdato = listOf(
+                                HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
+                            ),
+                        ),
+                        GeografiskTilknytning.GtBydel(
+                            value = "030102",
+                        ),
+                    ),
+                ),
+            )
             coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
                 enhetId = 1,
                 navn = "Nav Gjovik",
@@ -170,7 +191,7 @@ class UtbetalingServiceTest : FunSpec({
                     foedselsdato = null,
                     navn = "Normann, Ola",
                     geografiskEnhet = NavEnhetFixtures.Gjovik,
-                    region = NavEnhetFixtures.Innlandet,
+                    region = Innlandet,
 
                 ),
                 fnr2 to DeltakerPerson(
@@ -179,6 +200,22 @@ class UtbetalingServiceTest : FunSpec({
                     navn = "Adressebeskyttet person",
                     geografiskEnhet = null,
                     region = null,
+
+                ),
+            )
+        }
+
+        test("Håndterer deltakere som mangler navn fra PDL") {
+            val service = createUtbetalingService()
+            MulighetsrommetTestDomain().initialize(database.db)
+
+            service.getDeltakereForKostnadsfordeling(listOf(fnr3)) shouldBe mapOf(
+                fnr3 to DeltakerPerson(
+                    norskIdent = fnr3,
+                    foedselsdato = null,
+                    navn = "Ukjent",
+                    geografiskEnhet = NavEnhetFixtures.Gjovik,
+                    region = Innlandet,
 
                 ),
             )
@@ -225,7 +262,7 @@ class UtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.fristForGodkjenning shouldBe LocalDateTime.of(2025, 4, 1, 0, 0, 0)
+            utbetaling.fristForGodkjenning shouldBe LocalDate.of(2025, 3, 31)
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -265,9 +302,8 @@ class UtbetalingServiceTest : FunSpec({
             utbetaling.betalingsinformasjon.kid shouldBe null
 
             database.run {
-                queries.utbetaling.setBetalingsinformasjon(
+                queries.utbetaling.setKid(
                     id = utbetaling.id,
-                    kontonummer = Kontonummer("12345678901"),
                     kid = Kid("12345678901"),
                 )
             }
@@ -1218,11 +1254,8 @@ class UtbetalingServiceTest : FunSpec({
 
     context("Automatisk utbetaling") {
         val godkjennUtbetaling = GodkjennUtbetaling(
-            betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                kontonummer = Kontonummer("12312312312"),
-                kid = null,
-            ),
             digest = "digest",
+            kid = null,
         )
 
         val utbetaling1Id = utbetaling1.id
@@ -1267,7 +1300,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
-                    it.belopGjenstaende shouldBe 0
+                    it.belopBrukt shouldBe it.beregning.output.belop
                 }
                 Json.decodeFromString<OkonomiBestillingMelding>(
                     queries.kafkaProducerRecord.getRecords(50).first().value.decodeToString(),

@@ -35,6 +35,9 @@ export function NavArbeidsmarkedstiltak() {
 }
 
 function AppHeaderMeny() {
+  const href = window.location.pathname.startsWith("/nav")
+    ? `${window.location.origin}/nav/om`
+    : `${window.location.origin}/arbeidsmarkedstiltak/om`;
   return (
     <>
       <Spacer />
@@ -44,7 +47,7 @@ function AppHeaderMeny() {
         </InternalHeader.Button>
         <Dropdown.Menu>
           <Dropdown.Menu.GroupedList>
-            <Dropdown.Menu.GroupedList.Item as="a" href={window.location.origin + "/nav/om"}>
+            <Dropdown.Menu.GroupedList.Item as="a" href={href}>
               Om løsningen
             </Dropdown.Menu.GroupedList.Item>
           </Dropdown.Menu.GroupedList>

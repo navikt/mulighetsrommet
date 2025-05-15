@@ -215,18 +215,6 @@ export function formaterNavEnheter(
   return `${forsteEnhet?.navn} ${navEnheter.length > 0 ? `+ ${navEnheter.length}` : ""}`;
 }
 
-export function addOrRemove<T>(array: T[], item: T): T[] {
-  const exists = array.includes(item);
-
-  if (exists) {
-    return array.filter((c) => {
-      return c !== item;
-    });
-  } else {
-    return [...array, item];
-  }
-}
-
 export function createQueryParamsForExcelDownloadForAvtale(
   filter: AvtaleFilter,
 ): Pick<LastNedAvtalerSomExcelData, "query"> {
@@ -487,4 +475,11 @@ export function navnEllerIdent(agent: AgentDto): string {
     case "ARRANGOR":
       return "Tiltaksarrangør";
   }
+}
+
+export function navnIdentEllerPlaceholder(agent?: AgentDto): string {
+  if (!agent) {
+    return "-";
+  }
+  return navnEllerIdent(agent);
 }

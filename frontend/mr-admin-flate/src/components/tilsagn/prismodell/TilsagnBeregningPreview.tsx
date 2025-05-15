@@ -32,7 +32,10 @@ export function TilsagnBeregningPreview(props: Props) {
   }
 
   useEffect(() => {
-    beregnTilsagn(input, { onSuccess, onValidationError });
+    beregnTilsagn(input, {
+      onSuccess,
+      onError: (error) => onValidationError(error as ValidationError),
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [beregnTilsagn, ...extractRelevantDeps(input)]);
 

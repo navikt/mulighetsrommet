@@ -23,8 +23,8 @@ class ReplicateOkonomiFakturaStatus(
     override suspend fun consume(key: String, message: JsonElement): Unit = db.session {
         logger.info("Konsumerer statusmelding fakturanummer=$key")
 
-        val (fakturanummer, status) = JsonIgnoreUnknownKeys.decodeFromJsonElement<FakturaStatus>(message)
+        val (fakturanummer, status, fakturaStatusSistOppdatert) = JsonIgnoreUnknownKeys.decodeFromJsonElement<FakturaStatus>(message)
 
-        queries.delutbetaling.setFakturaStatus(fakturanummer, status)
+        queries.delutbetaling.setFakturaStatus(fakturanummer, status, fakturaStatusSistOppdatert)
     }
 }

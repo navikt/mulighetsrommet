@@ -1,18 +1,21 @@
-import { oppgaverFilterAccordionAtom, OppgaverFilter as OppgaverFilterProps } from "@/api/atoms";
-import { OPPGAVER_TYPE_STATUS } from "@/utils/filterUtils";
-import { addOrRemove } from "@/utils/Utils";
-import { NavRegion, TiltakstypeDto } from "@mr/api-client-v2";
+import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } from "@/api/atoms";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai/index";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 
 interface Props {
-  filterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
-  tiltakstyper: TiltakstypeDto[];
-  regioner: NavRegion[];
+  oppgaveFilterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
 }
 
-export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
+export function OppgaverFilter({ oppgaveFilterAtom: filterAtom }: Props) {
+  const { data: oppgavetyper } = useGetOppgavetyper();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: regioner } = useNavRegioner();
+
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
@@ -40,9 +43,9 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
                 }}
                 hideLegend
               >
-                {OPPGAVER_TYPE_STATUS.map(({ label, value }) => (
-                  <Checkbox size="small" key={value} value={value}>
-                    {label}
+                {oppgavetyper.map(({ navn, type }) => (
+                  <Checkbox size="small" key={type} value={type}>
+                    {navn}
                   </Checkbox>
                 ))}
               </CheckboxGroup>
@@ -106,7 +109,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
                 }}
                 hideLegend
               >
-                {tiltakstyper.map((t) => {
+                {tiltakstyper.data.map((t) => {
                   return (
                     <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
                       {t.navn}

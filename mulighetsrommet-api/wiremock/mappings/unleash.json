@@ -14,11 +14,6 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.admin-flate.arbeidsbenk",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.tiltakstype.migrering.deltaker",
           "enabled": true,
           "strategies": [
@@ -43,6 +38,18 @@
           ]
         },
         {
+          "name": "mulighetsrommet.tiltakstype.migrering.tilsagn",
+          "enabled": true,
+          "strategies": [
+            {
+              "name": "by-tiltakskode",
+              "parameters": {
+                "tiltakskoder": "AVKLARING,OPPFOLGING,DIGITALT_OPPFOLGINGSTILTAK,ARBEIDSFORBEREDENDE_TRENING,ARBEIDSRETTET_REHABILITERING,VARIG_TILRETTELAGT_ARBEID_SKJERMET"
+              }
+            }
+          ]
+        },
+        {
           "name": "mulighetsrommet.tiltakstype.pamelding-info-komet",
           "enabled": true,
           "strategies": [
@@ -53,6 +60,11 @@
               }
             }
           ]
+        },
+        {
+          "name": "arrangorflate.utbetaling.opprett-utbetaling-knapp",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },

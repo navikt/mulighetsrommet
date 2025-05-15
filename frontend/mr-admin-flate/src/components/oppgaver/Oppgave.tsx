@@ -1,7 +1,7 @@
 import { formaterDato } from "@/utils/Utils";
-import { type Oppgave, OppgaveIcon, OppgaveType } from "@mr/api-client-v2";
+import { type Oppgave, OppgaveEnhet, OppgaveIcon, OppgaveType } from "@mr/api-client-v2";
 import { BankNoteIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import { Heading } from "@navikt/ds-react";
+import { Heading, HStack, Tag } from "@navikt/ds-react";
 import { Link } from "react-router";
 
 interface OppgaveProps {
@@ -16,7 +16,10 @@ export function Oppgave({ oppgave }: OppgaveProps) {
       <div className="bg-white p-4" data-testid="oppgaver">
         <div className="flex justify-between items-center">
           <span>{oppgave.tiltakstype.navn}</span>
-          <OppgaveStatus status={oppgave.type} icon={icon(oppgaveIcon)} />
+          <HStack gap="2">
+            <OppgaveEnhetTag enhet={oppgave.enhet} />
+            <OppgaveStatus status={oppgave.type} icon={icon(oppgaveIcon)} />
+          </HStack>
         </div>
         <div>
           <div className="flex justify-between mt-4">
@@ -93,4 +96,14 @@ function OppgaveStatus({ status, icon }: { status: OppgaveType; icon: React.Reac
       {icon} {label}
     </div>
   );
+}
+
+interface OppgaveEnhetTagProps {
+  enhet?: OppgaveEnhet;
+}
+function OppgaveEnhetTag({ enhet }: OppgaveEnhetTagProps) {
+  if (!enhet) {
+    return null;
+  }
+  return <Tag variant="neutral-moderate">{enhet.navn}</Tag>;
 }

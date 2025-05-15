@@ -27,13 +27,19 @@ export function UtbetalingTable({ utbetalinger }: Props) {
         <Table.Row>
           <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
           <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
-          <Table.HeaderCell scope="col" colSpan={3}>
+          <Table.HeaderCell align="right" scope="col">
             Periode
           </Table.HeaderCell>
-          <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
-          <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
-          <Table.HeaderCell scope="col">Status</Table.HeaderCell>
-          <Table.HeaderCell scope="col"></Table.HeaderCell>
+          <Table.HeaderCell align="right" scope="col" className="min-w-32">
+            Beløp
+          </Table.HeaderCell>
+          <Table.HeaderCell align="right" scope="col">
+            Frist for godkjenning
+          </Table.HeaderCell>
+          <Table.HeaderCell scope="col" className="min-w-44">
+            Status
+          </Table.HeaderCell>
+          <Table.HeaderCell scope="col" className="w-10"></Table.HeaderCell>
           <Table.HeaderCell scope="col"></Table.HeaderCell>
         </Table.Row>
       </Table.Header>
@@ -45,14 +51,13 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 <Table.Row>
                   <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
-                  <Table.DataCell colSpan={3} className="w-80">
-                    {formaterPeriode(periode)}
-                  </Table.DataCell>
-                  <Table.DataCell className="min-w-44">{formaterNOK(belop)}</Table.DataCell>
-                  <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
+                  <Table.DataCell align="right">{formaterPeriode(periode)}</Table.DataCell>
+                  <Table.DataCell align="right">{formaterNOK(belop)}</Table.DataCell>
+                  <Table.DataCell align="right">{formaterDato(fristForGodkjenning)}</Table.DataCell>
                   <Table.DataCell>
                     <UtbetalingStatusTag status={status} />
                   </Table.DataCell>
+                  <Table.DataCell />
                   <Table.DataCell>
                     <LinkWithTabState
                       aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
