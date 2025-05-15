@@ -19,9 +19,10 @@ import { Link } from "react-router";
 
 interface Props {
   avtale: AvtaleDto;
+  okonomiTabEnabled?: boolean;
 }
 
-export function AvtaleDetaljer({ avtale }: Props) {
+export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
   const {
     navn,
     avtalenummer,
@@ -115,7 +116,7 @@ export function AvtaleDetaljer({ avtale }: Props) {
 
         <VStack gap="5">
           <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
-            {erAnskaffetTiltak(tiltakstype.tiltakskode) && (
+            {okonomiTabEnabled === false && erAnskaffetTiltak(tiltakstype.tiltakskode) && (
               <Metadata
                 header={avtaletekster.prisOgBetalingLabel}
                 verdi={avtale.prisbetingelser ?? "-"}
