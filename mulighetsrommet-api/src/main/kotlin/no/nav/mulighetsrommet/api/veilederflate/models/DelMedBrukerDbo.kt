@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -23,4 +24,7 @@ data class DelMedBrukerDbo(
     val updatedAt: LocalDateTime? = null,
     val createdBy: String? = null,
     val updatedBy: String? = null,
+    val tiltakstypeNavn: String,
+    val veilederTilhorerFylke: NavEnhetNummer?,
+    val veilederTilhorerEnhet: NavEnhetNummer,
 )

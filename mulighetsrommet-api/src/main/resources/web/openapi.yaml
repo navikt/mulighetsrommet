@@ -3743,6 +3743,12 @@ components:
         sanityId:
           type: [string, "null"]
           format: uuid
+        tiltakstypeNavn:
+            type: string
+        veilederTilhorerFylke:
+            type: [string, "null"]
+        veilederTilhorerEnhet:
+            type: [string, "null"]
       required:
         - fnr
         - overskrift
@@ -3750,6 +3756,9 @@ components:
         - venterPaaSvarFraBruker
         - gjennomforingId
         - sanityId
+        - tiltakstypeNavn
+        - veilederTilhorerFylke
+        - veilederTilhorerEnhet
 
     DelTiltakMedBrukerResponse:
       type: object

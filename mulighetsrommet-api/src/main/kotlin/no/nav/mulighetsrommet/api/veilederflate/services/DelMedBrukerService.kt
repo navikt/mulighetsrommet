@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -48,6 +49,11 @@ class DelMedBrukerService(
             throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
         }
 
+        if(dbo.veilederTilhorerFylke == null) {
+            log.warn("Veileder tilhører ikke noe fylke")
+            throw BadRequestException("Veileder tilhører ikke noe fylke - Lagrer ikke deling med bruker")
+        }
+
         @Language("PostgreSQL")
         val query = """
             insert into del_med_bruker(
@@ -57,7 +63,10 @@ class DelMedBrukerService(
                 dialogid,
                 created_by,
                 updated_by,
-                gjennomforing_id
+                gjennomforing_id,
+                tiltakstype_navn,
+                veileder_tilhorer_fylke,
+                veileder_tilhorer_enhet
             )
             values (
                 :norsk_ident,
@@ -66,7 +75,10 @@ class DelMedBrukerService(
                 :dialogid,
                 :created_by,
                 :updated_by,
-                :gjennomforing_id::uuid
+                :gjennomforing_id::uuid,
+                :tiltakstype_navn,
+                :veileder_tilhorer_fylke,
+                :veileder_tilhorer_enhet
             )
             returning *
         """.trimIndent()
@@ -207,6 +219,9 @@ private fun DelMedBrukerDbo.toParameters() = mapOf(
     "dialogid" to dialogId,
     "created_by" to navident,
     "updated_by" to navident,
+    "tiltakstype_navn" to tiltakstypeNavn,
+    "veileder_tilhorer_fylke" to veilederTilhorerFylke?.value,
+    "veileder_tilhorer_enhet" to veilederTilhorerEnhet.value
 )
 
 private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
@@ -220,6 +235,9 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
     updatedAt = localDateTime("updated_at"),
     createdBy = string("created_by"),
     updatedBy = string("updated_by"),
+    tiltakstypeNavn = string("tiltakstype_navn"),
+    veilederTilhorerFylke = stringOrNull("veileder_tilhorer_fylke")?.let { NavEnhetNummer(it) },
+    veilederTilhorerEnhet = string("veileder_tilhorer_enhet").let { NavEnhetNummer(it) },
 )
 
 @Serializable

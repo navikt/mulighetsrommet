@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -51,6 +52,9 @@ fun Route.delMedBrukerRoutes() {
                         dialogId = dialogResponse.id,
                         sanityId = request.sanityId,
                         gjennomforingId = request.gjennomforingId,
+                        tiltakstypeNavn = request.tiltakstypeNavn,
+                        veilederTilhorerFylke = request.veilederTilhorerFylke,
+                        veilederTilhorerEnhet = request.veilederTilhorerEnhet,
                     )
                     delMedBrukerService.lagreDelMedBruker(dbo)
 
@@ -117,6 +121,9 @@ data class DelTiltakMedBrukerRequest(
     val gjennomforingId: UUID?,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
+    val tiltakstypeNavn: String,
+    val veilederTilhorerFylke: NavEnhetNummer?,
+    val veilederTilhorerEnhet: NavEnhetNummer,
 )
 
 @Serializable
