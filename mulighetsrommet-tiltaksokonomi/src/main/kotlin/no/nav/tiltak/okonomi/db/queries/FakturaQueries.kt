@@ -2,15 +2,19 @@ package no.nav.tiltak.okonomi.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.avstemming.FakturaCsvData
 import no.nav.tiltak.okonomi.model.Faktura
 import org.intellij.lang.annotations.Language
+import java.time.LocalDateTime
 
 class FakturaQueries(private val session: Session) {
 
@@ -88,6 +92,24 @@ class FakturaQueries(private val session: Session) {
         session.execute(queryOf(query, status.name, fakturanummer))
     }
 
+    fun setAvstemtTidspunkt(tidspunkt: LocalDateTime, fakturanummer: List<String>) {
+        @Language("PostgreSQL")
+        val query = """
+            update faktura
+            set avstemt_tidspunkt = :tidspunkt
+            where fakturanummer = any(:fakturanummer)
+        """.trimIndent()
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "tidspunkt" to tidspunkt,
+                    "fakturanummer" to session.createTextArray(fakturanummer),
+                ),
+            ),
+        )
+    }
+
     fun setFeilmelding(
         fakturanummer: String,
         feilKode: String?,
@@ -106,6 +128,31 @@ class FakturaQueries(private val session: Session) {
             "feil_melding" to feilMelding,
         )
         session.execute(queryOf(query, params))
+    }
+
+    fun getNotAvstemt(): List<FakturaCsvData> {
+        @Language("PostgreSQL")
+        val selectFaktura = """
+            select
+                faktura.fakturanummer,
+                faktura.belop,
+                faktura.besluttet_tidspunkt,
+                bestilling.arrangor_hovedenhet,
+                bestilling.arrangor_underenhet
+            from faktura
+                inner join bestilling on bestilling.bestillingsnummer = faktura.bestillingsnummer
+            where faktura.avstemt_tidspunkt is null
+        """.trimIndent()
+
+        return session.list(queryOf(selectFaktura)) {
+            FakturaCsvData(
+                fakturanummer = it.string("fakturanummer"),
+                belop = it.int("belop"),
+                besluttetTidspunkt = it.localDateTime("besluttet_tidspunkt"),
+                arrangorHovedenhet = Organisasjonsnummer(it.string("arrangor_hovedenhet")),
+                arrangorUnderenhet = Organisasjonsnummer(it.string("arrangor_underenhet")),
+            )
+        }
     }
 
     fun getByFakturanummer(fakturanummer: String): Faktura? {
