@@ -13,7 +13,7 @@ interface Props {
   tiltakstype?: EmbeddedTiltakstype;
 }
 
-export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
+export function AvtalePrisOgFakturering({ tiltakstype, }: Props) {
   const { watch } = useFormContext<InferredAvtaleSchema>();
 
   if (!tiltakstype) {
@@ -61,7 +61,7 @@ function SelectPrismodell(props: SelectPrismodellProps) {
     if (props.options.length === 1) {
       setValue(fieldName, props.options[0].value as Prismodell);
     }
-  }, [setValue, props.options]);
+  }, [setValue, props.options[0].value]);
 
   return (
     <Select
@@ -151,11 +151,14 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
   );
 }
 
-function FriAvtalePrismodell() {
+interface FriAvtalePrismodellProps {}
+
+function FriAvtalePrismodell(_: FriAvtalePrismodellProps) {
   const {
     register,
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
+
   return (
     <Textarea
       size="small"
