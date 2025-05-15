@@ -200,7 +200,7 @@ class OebsRoutesTest : FunSpec({
                     OebsFakturaKvittering(
                         fakturaNummer = faktura.fakturanummer,
                         opprettelsesTidspunkt = LocalDateTime.now(),
-                        oebsStatus = "Avvist",
+                        statusOebs = "Avvist",
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
@@ -214,7 +214,7 @@ class OebsRoutesTest : FunSpec({
                     OebsFakturaKvittering(
                         fakturaNummer = faktura.fakturanummer,
                         opprettelsesTidspunkt = LocalDateTime.now(),
-                        oebsStatus = "Godkjent",
+                        statusOebs = "Godkjent",
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
