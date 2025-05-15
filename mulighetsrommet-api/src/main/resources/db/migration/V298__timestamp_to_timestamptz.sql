@@ -3,3 +3,6 @@ alter table altinn_person_rettighet
 
 alter table totrinnskontroll
     alter behandlet_tidspunkt drop default;
+
+alter table nav_ansatt
+    alter skal_slettes_dato type date;
