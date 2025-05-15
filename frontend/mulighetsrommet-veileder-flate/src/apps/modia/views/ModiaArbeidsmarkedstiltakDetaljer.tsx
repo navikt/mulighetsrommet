@@ -185,6 +185,7 @@ const whiteListOpprettAvtaleKnapp: TiltakskodeArena[] = [
   TiltakskodeArena.MENTOR,
   TiltakskodeArena.INKLUTILS,
   TiltakskodeArena.TILSJOBB,
+  TiltakskodeArena.VATIAROR,
 ];
 
 function resolveName(ansatt: NavVeileder) {
