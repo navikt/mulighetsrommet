@@ -19,7 +19,7 @@ interface DelemodalProps {
   dispatch: (action: Actions) => void;
   state: State;
   veilederEnhet: string;
-  veilederFylke?: string;
+  veilederFylke?: string | null;
 }
 
 function overskrift(tiltak: VeilederflateTiltak): string {

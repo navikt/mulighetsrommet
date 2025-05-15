@@ -129,7 +129,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 tiltak={tiltak}
                 bruker={brukerdata}
                 veilederEnhet={enhet}
-                veilederFylke={fylke}
+                veilederFylke={overordnetEnhet}
               />
             ) : null}
 

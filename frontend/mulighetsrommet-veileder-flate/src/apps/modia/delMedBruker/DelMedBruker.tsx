@@ -16,7 +16,7 @@ interface Props {
   tiltak: VeilederflateTiltak;
   delMedBrukerInfo?: DelMedBrukerInfo;
   veilederEnhet: string;
-  veilederFylke?: string;
+  veilederFylke?: string | null;
 }
 
 export function DelMedBruker({
