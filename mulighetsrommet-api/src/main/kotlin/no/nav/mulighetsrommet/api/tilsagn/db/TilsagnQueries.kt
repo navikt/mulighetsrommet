@@ -231,9 +231,8 @@ class TilsagnQueries(private val session: Session) {
                 inner join gjennomforing g on t.gjennomforing_id = g.id
                 inner join avtale a on g.avtale_id = a.id
                 where t.id = :id::uuid
-            on conflict (tilsagn_id) do update
-                set tilsagn_id = EXCLUDED.tilsagn_id,
-                    prisbetingelser = EXCLUDED.prisbetingelser;
+            on conflict (tilsagn_id) do update set
+                prisbetingelser = EXCLUDED.prisbetingelser;
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id)))

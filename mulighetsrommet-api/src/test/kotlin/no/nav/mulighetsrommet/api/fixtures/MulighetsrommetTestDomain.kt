@@ -34,6 +34,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.GruppeFagOgYrkesopplaering,
         TiltakstypeFixtures.GruppeAmo,
         TiltakstypeFixtures.DigitalOppfolging,
+        TiltakstypeFixtures.ArbeidsrettetRehabilitering,
     ),
     val avtaler: List<AvtaleDbo> = listOf(
         AvtaleFixtures.oppfolging,
