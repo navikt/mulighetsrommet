@@ -15,9 +15,18 @@ interface Props {
   bruker: Bruker;
   tiltak: VeilederflateTiltak;
   delMedBrukerInfo?: DelMedBrukerInfo;
+  veilederEnhet: string;
+  veilederFylke?: string;
 }
 
-export function DelMedBruker({ veiledernavn, bruker, tiltak, delMedBrukerInfo }: Props) {
+export function DelMedBruker({
+  veiledernavn,
+  bruker,
+  tiltak,
+  delMedBrukerInfo,
+  veilederEnhet,
+  veilederFylke,
+}: Props) {
   const { logEvent } = useLogEvent();
   const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
 
@@ -59,6 +68,8 @@ export function DelMedBruker({ veiledernavn, bruker, tiltak, delMedBrukerInfo }:
             dispatch={dispatch}
             state={state}
             bruker={bruker}
+            veilederEnhet={veilederEnhet}
+            veilederFylke={veilederFylke}
           />
         </>
       )}
