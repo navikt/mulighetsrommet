@@ -4002,6 +4002,12 @@ components:
           type: string
         updatedBy:
           type: string
+        tiltakstypeNavn:
+          type: [string, "null"]
+        veilederTilhorerFylke:
+          type: [string, "null"]
+        veilederTilhorerEnhet:
+          type: [string, "null"]
       required:
         - norskIdent
         - navident
