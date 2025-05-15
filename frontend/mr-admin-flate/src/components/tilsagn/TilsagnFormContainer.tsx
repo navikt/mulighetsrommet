@@ -42,6 +42,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     case Prismodell.FRI:
       return (
         <TilsagnFormFri
+          prisbetingelser={avtale.prisbetingelser}
           defaultValues={{
             ...defaults,
             beregning: { ...defaults.beregning, type: "FRI" },

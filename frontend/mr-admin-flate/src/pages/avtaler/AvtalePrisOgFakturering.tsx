@@ -13,7 +13,7 @@ interface Props {
   tiltakstype?: EmbeddedTiltakstype;
 }
 
-export function AvtalePrisOgFakturering({ tiltakstype, }: Props) {
+export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
   const { watch } = useFormContext<InferredAvtaleSchema>();
 
   if (!tiltakstype) {
@@ -151,9 +151,7 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
   );
 }
 
-interface FriAvtalePrismodellProps {}
-
-function FriAvtalePrismodell(_: FriAvtalePrismodellProps) {
+function FriAvtalePrismodell() {
   const {
     register,
     formState: { errors },
