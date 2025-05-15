@@ -4,6 +4,7 @@ resource "google_bigquery_dataset" "grafana_views" {
   description = "Public views for grafana"
   project     = var.gcp_project["project"]
   location    = var.gcp_project["region"]
+  depends_on  = [module.mr_api_datastream.dataset_id]
 
   access {
     role          = "OWNER"
@@ -29,6 +30,7 @@ resource "google_bigquery_dataset" "grafana_views" {
 # Authorize views in grafana dataset access to datastream dataset
 resource "google_bigquery_dataset_access" "grafana_viewing_datastream" {
   dataset_id = module.mr_api_datastream.dataset_id
+  depends_on = [module.mr_api_datastream.dataset_id]
   dataset {
     dataset {
       project_id = google_bigquery_dataset.grafana_views.project
