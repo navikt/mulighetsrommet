@@ -221,7 +221,7 @@ private fun DelMedBrukerDbo.toParameters() = mapOf(
     "updated_by" to navident,
     "tiltakstype_navn" to tiltakstypeNavn,
     "veileder_tilhorer_fylke" to veilederTilhorerFylke?.value,
-    "veileder_tilhorer_enhet" to veilederTilhorerEnhet.value,
+    "veileder_tilhorer_enhet" to veilederTilhorerEnhet?.value,
 )
 
 private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
@@ -235,9 +235,9 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
     updatedAt = localDateTime("updated_at"),
     createdBy = string("created_by"),
     updatedBy = string("updated_by"),
-    tiltakstypeNavn = string("tiltakstype_navn"),
+    tiltakstypeNavn = stringOrNull("tiltakstype_navn"),
     veilederTilhorerFylke = stringOrNull("veileder_tilhorer_fylke")?.let { NavEnhetNummer(it) },
-    veilederTilhorerEnhet = string("veileder_tilhorer_enhet").let { NavEnhetNummer(it) },
+    veilederTilhorerEnhet = stringOrNull("veileder_tilhorer_enhet")?.let { NavEnhetNummer(it) },
 )
 
 @Serializable
