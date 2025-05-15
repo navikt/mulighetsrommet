@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import java.time.LocalDate
@@ -44,6 +45,9 @@ class DelMedBrukerServiceTest : FunSpec({
             navident = "nav123",
             sanityId = sanityId,
             dialogId = "1234",
+            tiltakstypeNavn = "Avklaring",
+            veilederTilhorerFylke = NavEnhetNummer("0300"),
+            veilederTilhorerEnhet = NavEnhetNummer("0301"),
         )
 
         test("lagrer og henter siste deling for tiltak") {
@@ -86,6 +90,9 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1234",
+                tiltakstypeNavn = "Avklaring",
+                veilederTilhorerFylke = NavEnhetNummer("0300"),
+                veilederTilhorerEnhet = NavEnhetNummer("0301"),
             )
 
             service.lagreDelMedBruker(request)
@@ -164,6 +171,9 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1234",
+                tiltakstypeNavn = "Oppfølging",
+                veilederTilhorerFylke = NavEnhetNummer("0300"),
+                veilederTilhorerEnhet = NavEnhetNummer("0301"),
             )
 
             val request2 = DelMedBrukerDbo(
@@ -173,6 +183,9 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityId = sanityGjennomforingIdForEnkeltplass,
                 gjennomforingId = null,
                 dialogId = "1235",
+                tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
+                veilederTilhorerFylke = NavEnhetNummer("0300"),
+                veilederTilhorerEnhet = NavEnhetNummer("0301"),
             )
 
             val request3 = DelMedBrukerDbo(
@@ -182,6 +195,9 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityId = sanityGjennomforingIdForArbeidstrening,
                 gjennomforingId = null,
                 dialogId = "1235",
+                tiltakstypeNavn = "Arbeidstrening",
+                veilederTilhorerFylke = NavEnhetNummer("0300"),
+                veilederTilhorerEnhet = NavEnhetNummer("0301"),
             )
 
             service.lagreDelMedBruker(request1)
