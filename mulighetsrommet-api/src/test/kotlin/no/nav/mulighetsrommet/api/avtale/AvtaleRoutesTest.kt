@@ -81,7 +81,7 @@ class AvtaleRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL)
             }
         }
 
@@ -100,7 +100,7 @@ class AvtaleRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.AVTALER_SKRIV
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.AVTALER_SKRIV)
             }
         }
 

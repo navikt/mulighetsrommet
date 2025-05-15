@@ -8,17 +8,18 @@ fun Route.authorize(
     requiredRole: Rolle,
     build: Route.() -> Unit,
 ): Route {
-    val routeRoles = listOf(setOf(requiredRole))
-    val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(routeRoles))
+    val routeRoles = listOf(AnyRoles(setOf(requiredRole)))
+    val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(RequiredRoles(routeRoles)))
 
     val parentRoles = generateSequence(authorizedRoute) { it.parent }
         .mapNotNull { it.attributes.getOrNull(AuthorizedRolesKey) }
+        .map { it.roles }
         .flatten()
         .toList()
         .reversed()
         .distinct()
 
-    val combinedRoles = parentRoles + routeRoles.map { it }
+    val combinedRoles = RequiredRoles(parentRoles + routeRoles)
 
     authorizedRoute.attributes.put(AuthorizedRolesKey, combinedRoles)
 
@@ -35,17 +36,21 @@ fun Route.authorize(
     allOf: Set<Rolle> = emptySet(),
     build: Route.() -> Unit,
 ): Route {
-    val roller = allOf.map { setOf(it) } + setOfNotNull(anyOf.takeIf { it.isNotEmpty() })
-    val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(roller = roller))
+    val roller = buildList {
+        allOf.forEach { add(AnyRoles(setOf(it))) }
+        if (anyOf.isNotEmpty()) add(AnyRoles(anyOf))
+    }
+    val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(roller = RequiredRoles(roller)))
 
     val parentRoles = generateSequence(authorizedRoute) { it.parent }
         .mapNotNull { it.attributes.getOrNull(AuthorizedRolesKey) }
+        .map { it.roles }
         .flatten()
         .toList()
         .reversed()
         .distinct()
 
-    val combinedRoles = parentRoles + roller
+    val combinedRoles = RequiredRoles(parentRoles + roller)
 
     authorizedRoute.attributes.put(AuthorizedRolesKey, combinedRoles)
 
@@ -57,9 +62,9 @@ fun Route.authorize(
     return authorizedRoute
 }
 
-private val AuthorizedRolesKey = AttributeKey<List<Set<Rolle>>>("AuthorizedRolesKey")
+private val AuthorizedRolesKey = AttributeKey<RequiredRoles>("AuthorizedRolesKey")
 
-private class NavAnsattAuthorizationRouteSelector(val roller: List<Set<Rolle>>) : RouteSelector() {
+private class NavAnsattAuthorizationRouteSelector(val roller: RequiredRoles) : RouteSelector() {
     override suspend fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
         return RouteSelectorEvaluation.Transparent
     }

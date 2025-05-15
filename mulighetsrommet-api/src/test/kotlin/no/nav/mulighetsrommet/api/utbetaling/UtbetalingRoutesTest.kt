@@ -120,7 +120,7 @@ class UtbetalingRoutesTest : FunSpec({
                     )
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.SAKSBEHANDLER_OKONOMI
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.SAKSBEHANDLER_OKONOMI)
             }
         }
 
@@ -173,7 +173,7 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest)
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.ATTESTANT_UTBETALING
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
             }
         }
 
