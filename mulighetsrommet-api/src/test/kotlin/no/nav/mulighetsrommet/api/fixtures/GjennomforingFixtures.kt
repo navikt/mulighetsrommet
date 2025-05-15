@@ -276,7 +276,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.ArbeidsrettetRehabilitering.id,
+        avtaleId = AvtaleFixtures.ARR.id,
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
