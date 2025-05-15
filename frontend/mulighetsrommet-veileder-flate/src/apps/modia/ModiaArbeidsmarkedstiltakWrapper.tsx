@@ -75,13 +75,6 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     }
   }
 
-<<<<<<< HEAD
-  async loadStyles(shadowRoot: ShadowRoot) {
-    const manifest = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
-    const style = document.createElement("style");
-    style.innerHTML = tailwindStyles + tailwindConfigStyles + globalStyles + SHADOW_STYLE;
-    shadowRoot.appendChild(style);
-=======
   tryMountApp() {
     const baseUrl = this.baseUrl;
     if (baseUrl === null) {
@@ -127,7 +120,6 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     });
 
     return await Promise.all(loadedCss);
->>>>>>> main
   }
 
   renderApp(fnr?: string, enhet?: string) {
