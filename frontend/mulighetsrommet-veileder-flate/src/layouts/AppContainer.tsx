@@ -10,7 +10,7 @@ interface Props {
 
 export function AppContainer({ children, header }: Props) {
   return (
-    <div className={` bg-bg-subtle min-h-dvh`}>
+    <div className={`bg-bg-subtle min-h-dvh`}>
       {header}
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <React.Suspense fallback={<TiltakLoader />}>

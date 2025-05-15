@@ -4,7 +4,8 @@ import { ApentForPamelding } from "@mr/api-client-v2";
 import React from "react";
 import { filterAccordionAtom, FilterAccordionTypes } from "../../core/atoms";
 import { addOrRemove } from "../../utils/Utils";
-import "./FilterToggle.module.scss";
+// Direct styling with Tailwind instead of SCSS modules
+import "./FilterToggle.module.scss"; // Keep this for global styles
 
 export interface Props {
   accordionHeader: React.ReactNode;

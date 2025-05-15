@@ -39,11 +39,19 @@ export default defineConfig({
       filename: "bundle-stats.html",
     }),
     shadowStyle({
-      iife: true, // Isolate CSS to prevent conflicts
+      transformOutput: (output) => {
+        console.log("Transforming output:", output);
+        //const replaced = output.replaceAll(`\\`, "\\");
+        return output;
+      },
     }),
     tailwindcss(),
   ],
   css: {
+    /* modules: {
+      // Force to use standard CSS Modules behavior
+      scopeBehaviour: "global",
+    }*/
     preprocessorOptions: {
       scss: {
         api: "modern-compiler",
