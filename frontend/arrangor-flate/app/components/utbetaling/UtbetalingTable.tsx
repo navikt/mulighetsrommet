@@ -27,15 +27,11 @@ export function UtbetalingTable({ utbetalinger }: Props) {
         <Table.Row>
           <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
           <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
-          <Table.HeaderCell align="right" scope="col">
-            Periode
-          </Table.HeaderCell>
+          <Table.HeaderCell scope="col">Periode</Table.HeaderCell>
           <Table.HeaderCell align="right" scope="col" className="min-w-32">
             Beløp
           </Table.HeaderCell>
-          <Table.HeaderCell align="right" scope="col">
-            Frist for godkjenning
-          </Table.HeaderCell>
+          <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
           <Table.HeaderCell scope="col" className="min-w-44">
             Status
           </Table.HeaderCell>
@@ -51,9 +47,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 <Table.Row>
                   <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
-                  <Table.DataCell align="right">{formaterPeriode(periode)}</Table.DataCell>
+                  <Table.DataCell>{formaterPeriode(periode)}</Table.DataCell>
                   <Table.DataCell align="right">{formaterNOK(belop)}</Table.DataCell>
-                  <Table.DataCell align="right">{formaterDato(fristForGodkjenning)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                   <Table.DataCell>
                     <UtbetalingStatusTag status={status} />
                   </Table.DataCell>

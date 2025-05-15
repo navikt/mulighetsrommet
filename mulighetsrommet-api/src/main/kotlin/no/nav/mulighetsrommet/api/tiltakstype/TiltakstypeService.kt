@@ -73,12 +73,6 @@ class TiltakstypeService(
         }
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto {
-        return CacheUtils.tryCacheFirstNotNull(cacheByGjennomforingId, gjennomforingId) {
-            db.session { queries.tiltakstype.getByGjennomforingId(gjennomforingId) }
-        }
-    }
-
     fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, tiltakskode.name) {
             db.session { queries.tiltakstype.getByTiltakskode(tiltakskode) }
