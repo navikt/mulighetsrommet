@@ -41,7 +41,13 @@ interface Props {
   okonomiTabEnabled?: boolean;
 }
 
-export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale, okonomiTabEnabled }: Props) {
+export function AvtaleFormDetaljer({
+  tiltakstyper,
+  ansatt,
+  enheter,
+  avtale,
+  okonomiTabEnabled,
+}: Props) {
   const { data: administratorer } = useAvtaleAdministratorer();
 
   const {

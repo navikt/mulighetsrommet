@@ -28,9 +28,9 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
             verdi={prismodell ? avtaletekster.prismodell.beskrivelse(prismodell) : null}
           />
           <Metadata
-                header={avtaletekster.prisOgBetalingLabel}
-                verdi={avtale.prisbetingelser ?? "-"}
-              />
+            header={avtaletekster.prisOgBetalingLabel}
+            verdi={avtale.prisbetingelser ?? "-"}
+          />
         </Bolk>
 
         {prismodell === Prismodell.FORHANDSGODKJENT && (
