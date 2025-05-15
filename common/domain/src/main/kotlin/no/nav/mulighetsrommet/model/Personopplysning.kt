@@ -46,6 +46,11 @@ enum class Personopplysning(private val tittel: String, private val hjelpetekst:
     ),
     NASJONALITET("Nasjonalitet/landbakgrunn", null, 22),
     ADRESSESPERRE("Adressesperre (kode 6/7)", null, 23),
+    VERGEMAL(
+        "Opplysninger om vergemål",
+        "Opplysninger om vergemål gjelder kun for VTA og er ikke relevant for andre tiltakstyper.",
+        24,
+    ),
     ;
 
     fun toPersonopplysningData() = PersonopplysningData(

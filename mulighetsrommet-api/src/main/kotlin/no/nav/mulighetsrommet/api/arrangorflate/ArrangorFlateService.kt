@@ -12,16 +12,16 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerR
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.tilPersonNavn
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.FakturaStatusType
 import java.util.*
 
 private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
@@ -40,6 +41,8 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
     TilsagnStatus.TIL_ANNULLERING,
     TilsagnStatus.ANNULLERT,
+    TilsagnStatus.OPPGJORT,
+    TilsagnStatus.TIL_OPPGJOR,
 )
 
 class ArrangorFlateService(
@@ -105,11 +108,31 @@ class ArrangorFlateService(
         }
         val personerByNorskIdent = if (deltakere.isNotEmpty()) getPersoner(deltakere) else emptyMap()
 
+        val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+            val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                TilsagnDto.fromTilsagn(it)
+            }
+
+            ArrangorUtbetalingLinje(
+                id = delutbetaling.id,
+                belop = delutbetaling.belop,
+                status = when (delutbetaling.faktura.status) {
+                    FakturaStatusType.UTBETALT -> DelutbetalingStatus.UTBETALT
+                    FakturaStatusType.SENDT -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+                    FakturaStatusType.FEILET -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+                    null -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+                },
+                statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
+                tilsagn = tilsagn,
+            )
+        }
+
         return mapUtbetalingToArrFlateUtbetaling(
             utbetaling = utbetaling,
             status = status,
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
+            linjer = linjer,
         )
     }
 
@@ -150,15 +173,12 @@ class ArrangorFlateService(
         val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
         return when (gradering) {
             PdlGradering.UGRADERT -> {
-                val navn = person.navn.first().let { navn ->
-                    val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
-                    listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
-                }
-                val foedselsdato = person.foedselsdato.first()
+                val navn = if (person.navn.isNotEmpty()) tilPersonNavn(person.navn) else "Ukjent"
+                val foedselsdato = if (person.foedselsdato.isNotEmpty()) person.foedselsdato.first() else null
                 UtbetalingDeltakelse.Person(
                     navn = navn,
-                    fodselsaar = foedselsdato.foedselsaar,
-                    fodselsdato = foedselsdato.foedselsdato,
+                    fodselsaar = foedselsdato?.foedselsaar,
+                    fodselsdato = foedselsdato?.foedselsdato,
                 )
             }
 
@@ -185,19 +205,18 @@ class ArrangorFlateService(
         }
 
     suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
-        return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(orgnr)
+        return kontoregisterOrganisasjonClient
+            .getKontonummerForOrganisasjon(orgnr)
             .map { it.kontonr }
     }
 
     suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> = db.session {
-        getKontonummer(utbetaling.arrangor.organisasjonsnummer)
-            .onRight {
-                queries.utbetaling.setBetalingsinformasjon(
-                    id = utbetaling.id,
-                    kontonummer = Kontonummer(it),
-                    kid = utbetaling.betalingsinformasjon.kid,
-                )
-            }
+        getKontonummer(utbetaling.arrangor.organisasjonsnummer).onRight {
+            queries.utbetaling.setKontonummer(
+                id = utbetaling.id,
+                kontonummer = Kontonummer(it),
+            )
+        }
     }
 }
 
@@ -264,7 +283,8 @@ private fun QueryContext.toArrangorflateTilsagn(
             id = tilsagn.gjennomforing.id,
             navn = tilsagn.gjennomforing.navn,
         ),
-        gjenstaendeBelop = tilsagn.belopGjenstaende,
+        bruktBelop = tilsagn.belopBrukt,
+        gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
         tiltakstype = ArrangorflateTilsagnDto.Tiltakstype(
             navn = tilsagn.tiltakstype.navn,
         ),

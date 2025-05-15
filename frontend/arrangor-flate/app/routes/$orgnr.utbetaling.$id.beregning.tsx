@@ -1,37 +1,46 @@
-import {
-  ArrangorflateService,
-  ArrFlateBeregningForhandsgodkjent,
-  ArrFlateUtbetaling,
-  RelevanteForslag,
-  UtbetalingDeltakelse,
-  UtbetalingDeltakelsePerson,
-} from "api-client";
-import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
+import { ExclamationmarkTriangleIcon, ParasolBeachIcon, PersonIcon } from "@navikt/aksel-icons";
 import {
   Alert,
   Button,
   GuidePanel,
   HGrid,
   HStack,
+  Link,
   List,
   SortState,
   Table,
+  Timeline,
   Tooltip,
   VStack,
 } from "@navikt/ds-react";
+import {
+  ArrangorflateService,
+  ArrFlateBeregningForhandsgodkjent,
+  ArrFlateUtbetaling,
+  Periode,
+  RelevanteForslag,
+  UtbetalingDeltakelse,
+  UtbetalingDeltakelsePerson,
+  UtbetalingStengtPeriode,
+} from "api-client";
 import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
-import { Link, useLoaderData } from "react-router";
+import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { LinkWithTabState } from "~/components/LinkWithTabState";
 import { PageHeader } from "~/components/PageHeader";
-import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
-import { formaterDato, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
+import {
+  formaterDato,
+  formaterPeriode,
+  problemDetailResponse,
+  subtractDays,
+  useOrgnrFromUrl,
+} from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
-import { BeregningDetaljer } from "../components/utbetaling/BeregningDetaljer";
-
+import { Definisjonsliste } from "../components/Definisjonsliste";
+import { tekster } from "../tekster";
+import { getBeregningDetaljer } from "../utils/beregning";
 export const meta: MetaFunction = () => {
   return [
     { title: "Beregning" },
@@ -97,6 +106,7 @@ export default function UtbetalingBeregning() {
   if (utbetaling.beregning.type === "FORHANDSGODKJENT") {
     beregning = (
       <ForhandsgodkjentBeregning
+        periode={utbetaling.periode}
         beregning={utbetaling.beregning}
         relevanteForslag={relevanteForslag}
         deltakerlisteUrl={deltakerlisteUrl}
@@ -105,39 +115,55 @@ export default function UtbetalingBeregning() {
   }
 
   return (
-    <>
+    <VStack gap="4">
       <PageHeader
         title="Beregning"
         tilbakeLenke={{
-          navn: "Tilbake til utbetalinger",
+          navn: tekster.bokmal.tilbakeTilOversikt,
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
       <HGrid gap="5" columns={1}>
-        <GenerelleDetaljer className="max-w-[50%]" utbetaling={utbetaling} />
+        <Definisjonsliste
+          definitions={[
+            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+            { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
+          ]}
+        />
       </HGrid>
-      <div className="mt-4">{beregning}</div>
-      <VStack align="end">
-        <BeregningDetaljer beregning={utbetaling.beregning} />
+      {beregning}
+      <VStack align="end" gap="4">
+        <Definisjonsliste definitions={getBeregningDetaljer(utbetaling.beregning)} />
+        <HStack gap="4">
+          <Button
+            as={ReactRouterLink}
+            type="button"
+            variant="secondary"
+            to={internalNavigation(orgnr).utbetalinger}
+          >
+            Tilbake
+          </Button>
+          <Button
+            as={ReactRouterLink}
+            className="justify-self-end"
+            to={internalNavigation(orgnr).oppsummering(utbetaling.id)}
+          >
+            Neste
+          </Button>
+        </HStack>
       </VStack>
-      <HStack justify="end" className="mt-4">
-        <Button
-          as={LinkWithTabState}
-          className="justify-self-end"
-          to={internalNavigation(orgnr).bekreft(utbetaling.id)}
-        >
-          Neste
-        </Button>
-      </HStack>
-    </>
+    </VStack>
   );
 }
 
 function ForhandsgodkjentBeregning({
+  periode,
   beregning,
   relevanteForslag,
   deltakerlisteUrl,
 }: {
+  periode: Periode;
   beregning: ArrFlateBeregningForhandsgodkjent;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
@@ -176,17 +202,29 @@ function ForhandsgodkjentBeregning({
     <>
       <HGrid gap="5" columns={1}>
         <GuidePanel>
-          Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
-          endring via{" "}
-          <Link className="underline" to={deltakerlisteUrl}>
+          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
+          <Link as={ReactRouterLink} to={deltakerlisteUrl}>
             Deltakeroversikten
           </Link>
           .
+          <br />
+          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}
         </GuidePanel>
+        {beregning.stengt.length > 0 && (
+          <Alert variant={"info"}>
+            {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+            <ul>
+              {beregning.stengt.map(({ periode, beskrivelse }) => (
+                <li key={periode.start + periode.slutt}>
+                  {formaterPeriode(periode)}: {beskrivelse}
+                </li>
+              ))}
+            </ul>
+          </Alert>
+        )}
         {deltakereMedRelevanteForslag.length > 0 && (
           <Alert variant="warning">
-            Det finnes ubehandlede forslag som påvirker utbetalinger på følgende personer. Disse må
-            først godkjennes av Nav-veileder før utbetalingen oppdaterer seg.
+            {tekster.bokmal.utbetaling.beregning.ubehandledeDeltakerforslag}
             <List>
               {deltakereMedRelevanteForslag.map((deltaker) => (
                 <List.Item key={deltaker.id}>{deltaker.person?.navn}</List.Item>
@@ -200,46 +238,38 @@ function ForhandsgodkjentBeregning({
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
                 Navn
               </Table.ColumnHeader>
-              <Table.ColumnHeader align="right" scope="col">
-                Fødselsdato
-              </Table.ColumnHeader>
-              <Table.ColumnHeader align="right" scope="col">
-                Startdato i tiltaket
-              </Table.ColumnHeader>
-              <Table.ColumnHeader
-                align="right"
-                scope="col"
-                sortable
-                sortKey={DeltakerSortKey.PERIODE_START}
-              >
+              <Table.ColumnHeader scope="col">Fødselsdato</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Startdato i tiltaket</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_START}>
                 Startdato i perioden
               </Table.ColumnHeader>
-              <Table.ColumnHeader
-                align="right"
-                scope="col"
-                sortable
-                sortKey={DeltakerSortKey.PERIODE_SLUTT}
-              >
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_SLUTT}>
                 Sluttdato i perioden
               </Table.ColumnHeader>
               <Table.ColumnHeader align="right" scope="col">
                 Deltakelsesprosent
               </Table.ColumnHeader>
               <Table.ColumnHeader align="right" scope="col">
-                Månedsverk i perioden
+                Månedsverk
               </Table.ColumnHeader>
 
               <Table.HeaderCell scope="col"></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {sortedData.map((deltaker, index) => {
-              const { id, person } = deltaker;
+            {sortedData.map((deltakelse, index) => {
+              const { id, person } = deltakelse;
               const fodselsdato = getFormattedFodselsdato(person);
               return (
                 <Table.ExpandableRow
                   key={id}
-                  content={null}
+                  content={
+                    <DeltakelseTimeline
+                      utbetalingsperiode={periode}
+                      stengt={beregning.stengt}
+                      deltakelse={deltakelse}
+                    />
+                  }
                   togglePlacement="right"
                   className={
                     hasRelevanteForslag(id)
@@ -257,18 +287,14 @@ function ForhandsgodkjentBeregning({
                     )}
                     {person?.navn}
                   </Table.DataCell>
-                  <Table.DataCell align="right">{fodselsdato}</Table.DataCell>
-                  <Table.DataCell align="right">{formaterDato(deltaker.startDato)}</Table.DataCell>
+                  <Table.DataCell>{fodselsdato}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltakelse.startDato)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltakelse.forstePeriodeStartDato)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltakelse.sistePeriodeSluttDato)}</Table.DataCell>
                   <Table.DataCell align="right">
-                    {formaterDato(deltaker.forstePeriodeStartDato)}
+                    {deltakelse.sistePeriodeDeltakelsesprosent}
                   </Table.DataCell>
-                  <Table.DataCell align="right">
-                    {formaterDato(deltaker.sistePeriodeSluttDato)}
-                  </Table.DataCell>
-                  <Table.DataCell align="right">
-                    {deltaker.sistePeriodeDeltakelsesprosent}
-                  </Table.DataCell>
-                  <Table.DataCell align="right">{deltaker.manedsverk}</Table.DataCell>
+                  <Table.DataCell align="right">{deltakelse.manedsverk}</Table.DataCell>
                 </Table.ExpandableRow>
               );
             })}
@@ -309,4 +335,58 @@ function deltakerOversiktLenke(miljo: Miljø): string {
     return "https://amt.intern.dev.nav.no/deltakeroversikt";
   }
   return "https://nav.no/deltakeroversikt";
+}
+
+interface DeltakelseTimelineProps {
+  utbetalingsperiode: Periode;
+  stengt: UtbetalingStengtPeriode[];
+  deltakelse: UtbetalingDeltakelse;
+}
+
+function DeltakelseTimeline({ utbetalingsperiode, stengt, deltakelse }: DeltakelseTimelineProps) {
+  return (
+    <Timeline
+      startDate={new Date(utbetalingsperiode.start)}
+      endDate={new Date(utbetalingsperiode.slutt)}
+    >
+      <Timeline.Row label="Deltakelse" icon={<PersonIcon aria-hidden />}>
+        {deltakelse.perioder.map(({ periode, deltakelsesprosent }) => {
+          const start = new Date(periode.start);
+          const end = subtractDays(new Date(periode.slutt), 1);
+          const label = `${formaterPeriode(periode)}: Deltakelse på ${deltakelsesprosent}%`;
+          return (
+            <Timeline.Period
+              key={periode.start + periode.slutt}
+              start={start}
+              end={end}
+              status={"success"}
+              icon={<PersonIcon aria-hidden />}
+              statusLabel={label}
+            >
+              {label}
+            </Timeline.Period>
+          );
+        })}
+      </Timeline.Row>
+      <Timeline.Row label="Stengt" icon={<ParasolBeachIcon aria-hidden />}>
+        {stengt.map(({ periode, beskrivelse }) => {
+          const start = new Date(periode.start);
+          const end = subtractDays(new Date(periode.slutt), 1);
+          const label = `${formaterPeriode(periode)}: ${beskrivelse}`;
+          return (
+            <Timeline.Period
+              key={periode.start + periode.slutt}
+              start={start}
+              end={end}
+              status={"info"}
+              icon={<ParasolBeachIcon aria-hidden />}
+              statusLabel={label}
+            >
+              {label}
+            </Timeline.Period>
+          );
+        })}
+      </Timeline.Row>
+    </Timeline>
+  );
 }

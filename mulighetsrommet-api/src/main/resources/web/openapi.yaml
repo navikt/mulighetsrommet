@@ -2635,6 +2635,23 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/oppgaver/oppgavetyper:
+    get:
+      tags:
+        - Oppgaver
+      operationId: getOppgavetyper
+      responses:
+        200:
+          description: Relevante oppgavetyper
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OppgaveTypeDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
 components:
   responses:
     ProblemDetail:
@@ -3248,6 +3265,17 @@ components:
         - DONE
         - NOT_DONE
 
+    OppgaveTypeDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        type:
+          $ref: "#/components/schemas/OppgaveType"
+      required:
+        - navn
+        - type
+
     OppgaveType:
       type: string
       enum:
@@ -3367,7 +3395,7 @@ components:
           anyOf:
             - type: ["null"]
             - $ref: "#/components/schemas/EstimertVentetid"
-        tilgjengeligForArrangorFraOgMedDato:
+        tilgjengeligForArrangorDato:
           type: [string, "null"]
           format: date
         amoKategorisering:
@@ -3399,7 +3427,7 @@ components:
         - kontaktpersoner
         - publisert
         - deltidsprosent
-        - tilgjengeligForArrangorFraOgMedDato
+        - tilgjengeligForArrangorDato
         - amoKategorisering
         - stengt
 
@@ -3474,7 +3502,7 @@ components:
                   type: number
                 enhet:
                   type: string
-        tilgjengeligForArrangorFraOgMedDato:
+        tilgjengeligForArrangorDato:
           type: [string, "null"]
           format: date
         amoKategorisering:
@@ -3504,7 +3532,7 @@ components:
         - beskrivelse
         - deltidsprosent
         - estimertVentetid
-        - tilgjengeligForArrangorFraOgMedDato
+        - tilgjengeligForArrangorDato
         - amoKategorisering
         - utdanningslop
 
@@ -3627,7 +3655,7 @@ components:
     NavAnsatt:
       type: object
       properties:
-        azureId:
+        entraObjectId:
           type: string
           format: uuid
         navIdent:
@@ -3650,7 +3678,7 @@ components:
           type: [string, "null"]
           format: date
       required:
-        - azureId
+        - entraObjectId
         - navIdent
         - fornavn
         - etternavn
@@ -3715,6 +3743,12 @@ components:
         sanityId:
           type: [string, "null"]
           format: uuid
+        tiltakstypeNavn:
+            type: string
+        veilederTilhorerFylke:
+            type: [string, "null"]
+        veilederTilhorerEnhet:
+            type: [string, "null"]
       required:
         - fnr
         - overskrift
@@ -3722,6 +3756,9 @@ components:
         - venterPaaSvarFraBruker
         - gjennomforingId
         - sanityId
+        - tiltakstypeNavn
+        - veilederTilhorerFylke
+        - veilederTilhorerEnhet
 
     DelTiltakMedBrukerResponse:
       type: object
@@ -3965,6 +4002,12 @@ components:
           type: string
         updatedBy:
           type: string
+        tiltakstypeNavn:
+          type: [string, "null"]
+        veilederTilhorerFylke:
+          type: [string, "null"]
+        veilederTilhorerEnhet:
+          type: [string, "null"]
       required:
         - norskIdent
         - navident
@@ -4678,6 +4721,8 @@ components:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/OppgaveTiltakstype"
+        enhet:
+          $ref: "#/components/schemas/OppgaveEnhet"
         link:
           type: object
           properties:
@@ -4700,6 +4745,13 @@ components:
         - link
         - createdAt
         - oppgaveIcon
+
+    OppgaveEnhet:
+      properties:
+        nummer:
+          type: string
+        navn:
+          type: string
 
     OppgaveIcon:
       type: string
@@ -5100,6 +5152,7 @@ components:
         - RELIGION
         - NASJONALITET
         - ADRESSESPERRE
+        - VERGEMAL
 
     Kurstype:
       type: string
@@ -5403,7 +5456,7 @@ components:
         id:
           type: string
           format: uuid
-        aktivertDato:
+        registrertDato:
           type: string
           format: date
         sluttDato:
@@ -5416,7 +5469,7 @@ components:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
         - id
-        - aktivertDato
+        - registrertDato
         - sluttDato
         - forrigeSluttdato
         - status
@@ -5623,6 +5676,8 @@ components:
           $ref: "#/components/schemas/TilsagnType"
         periode:
           $ref: "#/components/schemas/Periode"
+        belopBrukt:
+          type: integer
         belopGjenstaende:
           type: integer
         kostnadssted:
@@ -5637,6 +5692,7 @@ components:
         - id
         - type
         - periode
+        - belopBrukt
         - belopGjenstaende
         - kostnadssted
         - beregning
@@ -5861,6 +5917,7 @@ components:
         - BEHANDLES_AV_NAV
         - UTBETALT
         - VENTER_PA_ENDRING
+        - OVERFORT_TIL_UTBETALING
 
     AdminUtbetalingStatus:
       type: string
@@ -5903,7 +5960,7 @@ components:
         beregning:
           $ref: "#/components/schemas/UtbetalingKompaktBeregning"
         godkjentAvArrangorTidspunkt:
-          type: [ string, "null" ]
+          type: [string, "null"]
           format: date-time
         journalpostId:
           type: string
@@ -5952,9 +6009,9 @@ components:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
-          format: date-time
+          format: date
         godkjentAvArrangorTidspunkt:
-          type: [ string, "null" ]
+          type: [string, "null"]
           format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
@@ -5994,9 +6051,12 @@ components:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
-          format: date-time
+          format: date
         godkjentAvArrangorTidspunkt:
-          type: [ string, "null" ]
+          type: [string, "null"]
+          format: date-time
+        createdAt:
+          type: [string, "null"]
           format: date-time
         tiltakstype:
           $ref: "#/components/schemas/UtbetalingTiltakstype"
@@ -6010,6 +6070,10 @@ components:
           $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
           $ref: "#/components/schemas/Periode"
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorUtbetalingLinje"
       required:
         - id
         - status
@@ -6020,6 +6084,27 @@ components:
         - beregning
         - betalingsinformasjon
         - periode
+
+    ArrangorUtbetalingLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        status:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        statusSistOppdatert:
+          type: string
+          format: datetime
+        belop:
+          type: integer
+      required:
+        - id
+        - tilsagn
+        - status
+        - belop
 
     UtbetalingTiltakstype:
       type: object
@@ -6062,6 +6147,8 @@ components:
     ArrFlateBeregningForhandsgodkjent:
       type: object
       properties:
+        type:
+          const: FORHANDSGODKJENT
         belop:
           type: integer
         antallManedsverk:
@@ -6072,14 +6159,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingDeltakelse"
-        type:
-          const: FORHANDSGODKJENT
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStengtPeriode"
       required:
+        - type
         - belop
         - antallManedsverk
         - digest
         - deltakelser
-        - type
+        - stengt
 
     ArrFlateBeregningFri:
       type: object
@@ -6101,6 +6191,17 @@ components:
         - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
 
+    UtbetalingStengtPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        beskrivelse:
+          type: string
+      required:
+        - periode
+        - beskrivelse
+
     UtbetalingDeltakelse:
       type: object
       properties:
@@ -6121,6 +6222,10 @@ components:
           format: date
         sistePeriodeDeltakelsesprosent:
           type: number
+        perioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingDeltakelsePeriode"
         manedsverk:
           type: number
         person:
@@ -6133,8 +6238,20 @@ components:
         - forstePeriodeStartDato
         - sistePeriodeSluttDato
         - sistePeriodeDeltakelsesprosent
+        - perioder
         - manedsverk
         - person
+
+    UtbetalingDeltakelsePeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        deltakelsesprosent:
+          type: number
+      required:
+        - periode
+        - deltakelsesprosent
 
     UtbetalingDeltakelsePerson:
       type: object
@@ -6254,17 +6371,30 @@ components:
           required: [id, organisasjonsnummer, navn]
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
+        bruktBelop:
+          type: integer
         gjenstaendeBelop:
           type: integer
         bestillingsnummer:
           type: string
-      required: [periode, type, status, gjennomforing, tiltakstype, arrangor, beregning, id, gjenstaendeBelop, bestillingsnummer]
+      required:
+        - periode
+        - type
+        - status
+        - gjennomforing
+        - tiltakstype
+        - arrangor
+        - beregning
+        - id
+        - bruktBelop
+        - gjenstaendeBelop
+        - bestillingsnummer
 
     Betalingsinformasjon:
       type: object
       properties:
         kontonummer:
-          type: string
+          type: [string, "null"]
         kid:
           type: [string, "null"]
       required: [kontonummer, kid]
@@ -6274,11 +6404,11 @@ components:
       properties:
         digest:
           type: string
-        betalingsinformasjon:
-          $ref: "#/components/schemas/Betalingsinformasjon"
+        kid:
+          type: [string, "null"]
       required:
         - digest
-        - betalingsinformasjon
+        - kid
 
     RelevanteForslag:
       type: object
@@ -6327,6 +6457,7 @@ components:
         - RETURNERT
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
+        - BEHANDLES_AV_NAV
 
     UtbetalingLinje:
       type: object
@@ -6408,7 +6539,16 @@ components:
           items:
             type: string
             format: binary
-      required: [tilskuddstype, gjennomforingId, periodeStart, periodeSlutt, beskrivelse, kontonummer, kidNummer, belop, vedlegg]
+      required:
+        - tilskuddstype
+        - gjennomforingId
+        - periodeStart
+        - periodeSlutt
+        - beskrivelse
+        - kontonummer
+        - kidNummer
+        - belop
+        - vedlegg
 
     OpprettManuellUtbetalingRequest:
       type: object

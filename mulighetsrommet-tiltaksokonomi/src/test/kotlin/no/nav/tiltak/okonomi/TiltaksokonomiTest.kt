@@ -228,10 +228,9 @@ class TiltaksokonomiTest : FunSpec({
                     bearerAuth(oauth.issueToken().serialize())
                 }.also {
                     it.status shouldBe HttpStatusCode.OK
-                    it.body<FakturaStatus>() shouldBe FakturaStatus(
-                        fakturanummer = fakturanummer,
-                        status = FakturaStatusType.SENDT,
-                    )
+                    val fakturastatus = it.body<FakturaStatus>()
+                    fakturastatus.fakturanummer shouldBe fakturanummer
+                    fakturastatus.status shouldBe FakturaStatusType.SENDT
                 }
             }
         }

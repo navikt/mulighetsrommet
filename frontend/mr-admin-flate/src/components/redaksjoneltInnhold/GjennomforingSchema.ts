@@ -88,7 +88,7 @@ export const GjennomforingSchema = z
         }),
       })
       .nullable(),
-    tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
+    tilgjengeligForArrangorDato: z.string().nullable().optional(),
     amoKategorisering: AmoKategoriseringSchema.nullish(),
     utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
   })

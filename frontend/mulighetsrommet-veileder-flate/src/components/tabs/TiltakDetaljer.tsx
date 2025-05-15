@@ -1,6 +1,6 @@
 import { Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@mr/api-client-v2";
-import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
+import { OppskriftOversikt } from "../oppskrift/OppskriftOversikt";
 import { TiltakDetaljerFane } from "./TiltakDetaljerFane";
 import styles from "./TiltakDetaljer.module.scss";
 import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";
@@ -110,7 +110,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
               <RedaksjoneltInnhold value={tiltak.faneinnhold.oppskrift} />
             ) : null}
             {oppskrifterEnabled && (
-              <Oppskriftsoversikt
+              <OppskriftOversikt
                 tiltakstypeId={tiltakstype.sanityId}
                 setOppskriftId={setOppskriftId}
               />

@@ -7,8 +7,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
-import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
+import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
@@ -21,13 +21,13 @@ import org.koin.ktor.ext.inject
 
 fun Route.veilederRoutes() {
     val db: ApiDatabase by inject()
-    val microsoftGraphClient: MicrosoftGraphClient by inject()
+    val microsoftGraphClient: MsGraphClient by inject()
 
     get("/veileder/me") {
-        val azureId = getNavAnsattAzureId()
+        val oid = getNavAnsattEntraObjectId()
         val obo = AccessType.OBO(call.getAccessToken())
 
-        val ansatt = microsoftGraphClient.getNavAnsatt(azureId, obo)
+        val ansatt = microsoftGraphClient.getNavAnsatt(oid, obo)
         val veileder = NavVeilederDto(
             navIdent = ansatt.navIdent,
             fornavn = ansatt.fornavn,

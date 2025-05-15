@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.notifications
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session

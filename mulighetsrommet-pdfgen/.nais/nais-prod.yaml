@@ -16,6 +16,12 @@ spec:
     scalingStrategy:
       cpu:
         thresholdPercentage: 80
+  resources:
+    requests:
+      cpu: 200m
+      memory: 1024Mi
+    limits:
+      memory: 1024Mi
   liveness:
     path: /internal/is_alive
   readiness:
@@ -23,15 +29,6 @@ spec:
   startup:
     path: /internal/is_alive
     initialDelay: 10
-  prometheus:
-    enabled: true
-    path: /internal/prometheus
-  resources:
-    limits:
-      memory: 1024Mi
-    requests:
-      cpu: 200m
-      memory: 1024Mi
   observability:
     autoInstrumentation:
       enabled: true
@@ -40,6 +37,9 @@ spec:
       destinations:
         - id: loki
         - id: elastic
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
   accessPolicy:
     inbound:
       rules:

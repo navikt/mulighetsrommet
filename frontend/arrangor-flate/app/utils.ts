@@ -21,6 +21,20 @@ export function formaterDato(dato: string | Date, fallback = ""): string {
   return result;
 }
 
+export function formaterDatoTid(dato: string | Date): string {
+  if (!dato) return "";
+
+  const result = new Date(dato).toLocaleString("no-NO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return result.replace(",", " kl. ");
+}
+
 export function useOrgnrFromUrl() {
   const { orgnr } = useParams();
 
@@ -31,9 +45,9 @@ export function useOrgnrFromUrl() {
   return orgnr;
 }
 
-export function subtractDays(date: Date, numDays: number): Date {
+export function subtractDays(date: Date | string, numDays: number): Date {
   const newDate = new Date(date);
-  newDate.setDate(date.getDate() - numDays);
+  newDate.setDate(newDate.getDate() - numDays);
   return newDate;
 }
 

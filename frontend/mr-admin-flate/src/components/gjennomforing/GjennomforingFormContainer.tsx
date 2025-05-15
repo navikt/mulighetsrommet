@@ -27,7 +27,7 @@ import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 import { GjennomforingRedaksjoneltInnholdForm } from "./GjennomforingRedaksjoneltInnholdForm";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
-
+import { z } from "zod";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
@@ -58,7 +58,8 @@ export function GjennomforingFormContainer({
   const mutation = useUpsertGjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
-  const form = useForm<InferredGjennomforingSchema>({
+  type FormValues = z.infer<typeof GjennomforingSchema>;
+  const form = useForm<z.input<typeof GjennomforingSchema>, any, FormValues>({
     resolver: zodResolver(GjennomforingSchema),
     defaultValues,
   });
@@ -119,7 +120,7 @@ export function GjennomforingFormContainer({
       faneinnhold: data.faneinnhold ?? null,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
-      tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
+      tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
       amoKategorisering: data.amoKategorisering ?? null,
       utdanningslop:
         avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
@@ -128,10 +129,10 @@ export function GjennomforingFormContainer({
     };
 
     if (
-      data.tilgjengeligForArrangorFraOgMedDato &&
-      data.startOgSluttDato.startDato !== data.tilgjengeligForArrangorFraOgMedDato
+      data.tilgjengeligForArrangorDato &&
+      data.startOgSluttDato.startDato !== data.tilgjengeligForArrangorDato
     ) {
-      loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorFraOgMedDato);
+      loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorDato);
     }
 
     mutation.mutate(body, {

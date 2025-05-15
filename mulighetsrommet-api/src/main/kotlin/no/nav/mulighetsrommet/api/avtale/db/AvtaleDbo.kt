@@ -12,7 +12,6 @@ data class AvtaleDbo(
     val tiltakstypeId: UUID,
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
-    // @todo: Make nullable
     val arrangor: Arrangor?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,

@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.pdl
 
 import arrow.core.Either
-import arrow.core.NonEmptyList
 import arrow.core.NonEmptySet
-import arrow.core.serialization.NonEmptyListSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.pdl.*
@@ -75,11 +73,9 @@ data class HentPersonBolkResponse(
 ) {
     @Serializable
     data class Person(
-        @Serializable(with = NonEmptyListSerializer::class)
-        val navn: NonEmptyList<PdlNavn>,
+        val navn: List<PdlNavn>,
         val adressebeskyttelse: List<Adressebeskyttelse>,
-        @Serializable(with = NonEmptyListSerializer::class)
-        val foedselsdato: NonEmptyList<Foedselsdato>,
+        val foedselsdato: List<Foedselsdato>,
     )
 
     @Serializable

@@ -1,7 +1,7 @@
 import { Lenke } from "@mr/api-client-v2";
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
 import { GuidePanel, Heading, List } from "@navikt/ds-react";
-import { DokumentIkon } from "../../ikoner/DokumentIkon";
+import { DokumentIkon } from "@/ikoner/DokumentIkon";
 
 interface Props {
   lenker?: Lenke[];

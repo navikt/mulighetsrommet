@@ -19,7 +19,7 @@ object UtbetalingFixtures {
     val utbetaling1 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(1000),
@@ -36,7 +36,7 @@ object UtbetalingFixtures {
     val utbetaling2 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(500),
@@ -53,7 +53,7 @@ object UtbetalingFixtures {
     val utbetaling3 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.VTA1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(500),
@@ -72,6 +72,7 @@ object UtbetalingFixtures {
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_GODKJENNING,
+        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         belop = 200,
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -85,6 +86,7 @@ object UtbetalingFixtures {
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_GODKJENNING,
+        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         belop = 150,
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -107,7 +109,7 @@ fun QueryContext.setDelutbetalingStatus(
     queries.delutbetaling.setStatus(dto.id, status)
 
     when (status) {
-        DelutbetalingStatus.TIL_GODKJENNING -> {
+        DelutbetalingStatus.TIL_GODKJENNING, DelutbetalingStatus.BEHANDLES_AV_NAV -> {
             setTilGodkjenning(dto.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
         }
 

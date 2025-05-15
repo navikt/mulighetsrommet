@@ -181,9 +181,9 @@ class GjennomforingQueriesTest : FunSpec({
                 val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
-                queries.setTilgjengeligForArrangorFraOgMedDato(Oppfolging1.id, LocalDate.now())
+                queries.settilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.tilgjengeligForArrangorFraOgMedDato shouldBe LocalDate.now()
+                    it.tilgjengeligForArrangorDato shouldBe LocalDate.now()
                 }
             }
         }

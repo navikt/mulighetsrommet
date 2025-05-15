@@ -1,7 +1,7 @@
 import { Header } from "@/components/detaljside/Header";
 import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { TiltakstypestatusTag } from "@/components/statuselementer/TiltakstypestatusTag";
+import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
@@ -41,7 +41,7 @@ export function DetaljerTiltakstypePage() {
         <Heading size="large" level="2">
           {tiltakstype?.navn ?? "..."}
         </Heading>
-        <TiltakstypestatusTag tiltakstype={tiltakstype} />
+        <TiltakstypeStatusTag tiltakstype={tiltakstype} />
       </Header>
 
       <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"}>

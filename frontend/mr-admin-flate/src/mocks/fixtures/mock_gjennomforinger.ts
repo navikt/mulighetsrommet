@@ -102,7 +102,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
         },
       ],
     },
-    tilgjengeligForArrangorFraOgMedDato: null,
+    tilgjengeligForArrangorDato: null,
     amoKategorisering: null,
     stengt: [],
   },
@@ -138,7 +138,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     apentForPamelding: true,
     kontaktpersoner: [],
     publisert: false,
-    tilgjengeligForArrangorFraOgMedDato: null,
+    tilgjengeligForArrangorDato: null,
     amoKategorisering: null,
     stengt: [],
   },
@@ -171,7 +171,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     antallPlasser: 10,
     kontaktpersoner: [],
     publisert: false,
-    tilgjengeligForArrangorFraOgMedDato: null,
+    tilgjengeligForArrangorDato: null,
     amoKategorisering: {
       kurstype: Kurstype.BRANSJE_OG_YRKESRETTET,
       bransje: Bransje.ANDRE_BRANSJER,
@@ -206,7 +206,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     kontaktpersoner: [],
     publisert: false,
 
-    tilgjengeligForArrangorFraOgMedDato: null,
+    tilgjengeligForArrangorDato: null,
     amoKategorisering: null,
     stengt: [],
   },
@@ -249,7 +249,7 @@ for (let i = 0; i < x; i++) {
     kontaktpersoner: [],
     publisert: false,
 
-    tilgjengeligForArrangorFraOgMedDato: null,
+    tilgjengeligForArrangorDato: null,
     amoKategorisering: null,
     stengt: [],
   });

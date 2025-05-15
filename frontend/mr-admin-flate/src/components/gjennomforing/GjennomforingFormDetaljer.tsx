@@ -93,7 +93,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
 
   useEffect(() => {
     if (watchStartDato && new Date(watchStartDato) < new Date()) {
-      setValue("tilgjengeligForArrangorFraOgMedDato", null);
+      setValue("tilgjengeligForArrangorDato", null);
     }
   }, [setValue, watchStartDato]);
 

@@ -1,7 +1,7 @@
 import { NavAnsatt, Rolle, GjennomforingKontaktperson } from "@mr/api-client-v2";
 
 const bertil: NavAnsatt = {
-  azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",
+  entraObjectId: "8c133e5e-fd93-4226-8567-41d699a3efee",
   navIdent: "B123456",
   fornavn: "Bertil",
   etternavn: "Bengtson",
@@ -24,7 +24,7 @@ const bertil: NavAnsatt = {
 };
 
 const pelle: NavAnsatt = {
-  azureId: "db0d3a34-1071-42f5-aeec-38d37055271d",
+  entraObjectId: "db0d3a34-1071-42f5-aeec-38d37055271d",
   fornavn: "Pelle",
   etternavn: "Pilotbruker",
   navIdent: "P987655",
@@ -39,7 +39,7 @@ const pelle: NavAnsatt = {
 };
 
 const perRichard: NavAnsatt = {
-  azureId: "uu3d3a34-1071-42f5-aeec-38d37055271d",
+  entraObjectId: "uu3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "per.richard.olsen@nav.no",
   mobilnummer: "90567894",
   navIdent: "O123456",
@@ -54,7 +54,7 @@ const perRichard: NavAnsatt = {
 };
 
 const nikoline: NavAnsatt = {
-  azureId: "zz3d3a34-1071-42f5-aeec-38d37055271d",
+  entraObjectId: "zz3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "nikoline.madsen@nav.no",
   mobilnummer: "90764321",
   navIdent: "M654378",
@@ -69,7 +69,7 @@ const nikoline: NavAnsatt = {
 };
 
 const petrus: NavAnsatt = {
-  azureId: "ab3d3a34-1071-42f5-aeec-38d37055271d",
+  entraObjectId: "ab3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "petrus.pilsen@nav.no",
   mobilnummer: "78654323",
   navIdent: "M887654",

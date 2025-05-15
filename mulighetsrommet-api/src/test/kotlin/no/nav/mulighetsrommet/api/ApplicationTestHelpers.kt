@@ -19,8 +19,8 @@ fun getAnsattClaims(
 ): Map<String, Any> {
     return mapOf(
         "NAVident" to ansatt.navIdent.value,
-        "oid" to ansatt.azureId,
-        "sid" to UUID.randomUUID().toString(),
+        "oid" to ansatt.entraObjectId,
+        "uti" to UUID.randomUUID().toString(),
         "groups" to roles.map { it.adGruppeId.toString() },
     )
 }

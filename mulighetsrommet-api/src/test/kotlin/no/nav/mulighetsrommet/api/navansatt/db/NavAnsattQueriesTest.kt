@@ -46,7 +46,7 @@ class NavAnsattQueriesTest : FunSpec({
 
         fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo, roller: Set<NavAnsattRolle>) = ansatt.run {
             NavAnsatt(
-                azureId = azureId,
+                entraObjectId = entraObjectId,
                 navIdent = navIdent,
                 fornavn = fornavn,
                 etternavn = etternavn,
@@ -62,7 +62,7 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         val ansatt1 = NavAnsattDbo(
-            azureId = UUID.randomUUID(),
+            entraObjectId = UUID.randomUUID(),
             navIdent = NavIdent("D1"),
             fornavn = "Donald",
             etternavn = "Duck",
@@ -73,7 +73,7 @@ class NavAnsattQueriesTest : FunSpec({
         )
 
         val ansatt2 = NavAnsattDbo(
-            azureId = UUID.randomUUID(),
+            entraObjectId = UUID.randomUUID(),
             navIdent = NavIdent("D2"),
             fornavn = "Dolly",
             etternavn = "Duck",
@@ -84,7 +84,7 @@ class NavAnsattQueriesTest : FunSpec({
         )
 
         val ansatt3 = NavAnsattDbo(
-            azureId = UUID.randomUUID(),
+            entraObjectId = UUID.randomUUID(),
             navIdent = NavIdent("D3"),
             fornavn = "Ole",
             etternavn = "Duck",
@@ -100,12 +100,12 @@ class NavAnsattQueriesTest : FunSpec({
 
                 queries.upsert(ansatt1)
 
-                queries.getByAzureId(ansatt1.azureId) shouldBe toDto(ansatt1, enhet1, setOf())
+                queries.getByEntraObjectId(ansatt1.entraObjectId) shouldBe toDto(ansatt1, enhet1, setOf())
                 queries.getByNavIdent(ansatt1.navIdent) shouldBe toDto(ansatt1, enhet1, setOf())
 
-                queries.deleteByAzureId(ansatt1.azureId)
+                queries.deleteByEntraObjectId(ansatt1.entraObjectId)
 
-                queries.getByAzureId(ansatt1.azureId) shouldBe null
+                queries.getByEntraObjectId(ansatt1.entraObjectId) shouldBe null
                 queries.getByNavIdent(ansatt1.navIdent) shouldBe null
             }
         }

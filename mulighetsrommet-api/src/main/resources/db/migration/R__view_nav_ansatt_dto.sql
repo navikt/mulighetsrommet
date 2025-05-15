@@ -6,7 +6,7 @@ create view view_nav_ansatt_dto as
 select nav_ansatt.nav_ident,
        nav_ansatt.fornavn,
        nav_ansatt.etternavn,
-       nav_ansatt.azure_id,
+       nav_ansatt.entra_object_id,
        nav_ansatt.mobilnummer,
        nav_ansatt.epost,
        nav_ansatt.skal_slettes_dato,

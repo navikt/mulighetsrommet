@@ -10,6 +10,12 @@ interface Props {
 export function UtbetalingStatusTag({ status, size }: Props): ReactNode {
   const tagSize = size || "medium";
   switch (status) {
+    case ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
+      return (
+        <Tag variant="success" size={tagSize}>
+          Overført til utbetaling
+        </Tag>
+      );
     case ArrFlateUtbetalingStatus.UTBETALT:
       return (
         <Tag variant="success" size={tagSize}>

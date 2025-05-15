@@ -6,43 +6,47 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2025.02.26_12.03-c5311b1ad8dd
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2025.05.05_06.50-1fe97d204c27
   port: 8080
   ingresses:
     - https://tiltaksadministrasjon.intern.dev.nav.no
     - https://tiltaksadministrasjon.ansatt.dev.nav.no
+  replicas:
+    min: 1
+    max: 2
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
   liveness:
     path: /internal/alive
     initialDelay: 10
   readiness:
     path: /internal/ready
     initialDelay: 10
-  replicas:
-    min: 1
-    max: 1
-    scalingStrategy:
-      cpu:
-        thresholdPercentage: 75
   observability:
     autoInstrumentation:
       enabled: true
       runtime: nodejs
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      cpu: 10m
-      memory: 256Mi
+  gcp:
+    buckets:
+      - name: mr-admin-flate-dev
+        cascadingDelete: false
   azure:
     application:
       enabled: true
       allowAllUsers: false
       claims:
         groups:
-          - id: 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
-          - id: 279039a0-39fd-4860-afdd-a1a2ccaa6323 # 0000-AZ-TILTAK-tiltaksgjennomforinger_skriv
-          - id: 48026f54-6259-4c35-a148-bc4257bcaf03 # 0000-ZA-TILTAK-avtaler_skriv
-          - id: 52bb9196-b071-4cc7-9472-be4942d33c4b # 0000-GA-TILTAK-ANSVARLIG
+          # team-mulighetsrommet
+          - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
+          # 0000-GA-TILTAK-ANSVARLIG
+          - id: "52bb9196-b071-4cc7-9472-be4942d33c4b"
         extra:
           - NAVident
     sidecar:
@@ -52,10 +56,6 @@ spec:
         - /assets/*
         - /asset-manifest.json
         - /mulighetsrommet-api/**
-  gcp:
-    buckets:
-      - name: mr-admin-flate-dev
-        cascadingDelete: false
   accessPolicy:
     outbound:
       rules:

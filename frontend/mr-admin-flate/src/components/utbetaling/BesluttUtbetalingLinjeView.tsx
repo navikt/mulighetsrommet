@@ -12,7 +12,7 @@ import {
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Heading, HStack, Modal, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
@@ -27,8 +27,8 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [error, setError] = useState<FieldError[]>([]);
-  const godkjennDelutbetalingModalRef = useRef<HTMLDialogElement | null>(null);
   const besluttMutation = useBesluttDelutbetaling();
+
   function beslutt(id: string, body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(
       { id, body },
@@ -41,10 +41,6 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
         },
       },
     );
-  }
-
-  function visBekreftGodkjennModal() {
-    godkjennDelutbetalingModalRef?.current?.showModal();
   }
 
   return (
@@ -70,7 +66,10 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                       size="small"
                       type="button"
                       onClick={() => {
-                        visBekreftGodkjennModal();
+                        const modal = document.getElementById(
+                          `godkjenn-modal-${linje.id}`,
+                        ) as HTMLDialogElement;
+                        modal?.showModal();
                       }}
                     >
                       Godkjenn
@@ -102,10 +101,18 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                       }}
                     />
                     <GodkjennDelutbetalingModal
-                      ref={godkjennDelutbetalingModalRef}
-                      handleClose={() => godkjennDelutbetalingModalRef?.current?.close()}
+                      id={`godkjenn-modal-${linje.id}`}
+                      handleClose={() => {
+                        const modal = document.getElementById(
+                          `godkjenn-modal-${linje.id}`,
+                        ) as HTMLDialogElement;
+                        modal?.close();
+                      }}
                       onConfirm={() => {
-                        godkjennDelutbetalingModalRef?.current?.close();
+                        const modal = document.getElementById(
+                          `godkjenn-modal-${linje.id}`,
+                        ) as HTMLDialogElement;
+                        modal?.close();
                         beslutt(linje.id, {
                           besluttelse: Besluttelse.GODKJENT,
                         });
@@ -129,12 +136,12 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
 }
 
 function GodkjennDelutbetalingModal({
-  ref,
+  id,
   handleClose,
   onConfirm,
   linje,
 }: {
-  ref: React.RefObject<HTMLDialogElement | null>;
+  id: string;
   handleClose: () => void;
   onConfirm: () => void;
   linje: UtbetalingLinje;
@@ -142,7 +149,7 @@ function GodkjennDelutbetalingModal({
   return (
     <Modal
       className="text-left"
-      ref={ref}
+      id={id}
       onClose={handleClose}
       header={{
         heading: "Attestere utbetaling",

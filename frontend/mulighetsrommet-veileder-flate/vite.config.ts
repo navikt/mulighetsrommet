@@ -3,7 +3,6 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import react from "@vitejs/plugin-react";
-import { shadowStyle } from "vite-plugin-shadow-style";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -37,13 +36,6 @@ export default defineConfig({
     react(),
     visualizer({
       filename: "bundle-stats.html",
-    }),
-    shadowStyle({
-      transformOutput: (output) => {
-        console.log("Transforming output:", output);
-        //const replaced = output.replaceAll(`\\`, "\\");
-        return output;
-      },
     }),
     tailwindcss(),
   ],

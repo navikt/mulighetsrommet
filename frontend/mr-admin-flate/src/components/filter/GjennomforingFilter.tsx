@@ -1,13 +1,13 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import {
-  gjennomforingFilterAccordionAtom,
   GjennomforingFilter as GjennomforingFilterProps,
+  gjennomforingFilterAccordionAtom,
 } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
-import { useRegioner } from "@/api/enhet/useRegioner";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { logEvent } from "@/logging/amplitude";
-import { addOrRemove } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import {
   arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
@@ -41,15 +41,15 @@ function loggBrukAvFilter(filter: string, value: any) {
 export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
-  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
-  const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: enheter } = useNavEnheter();
+  const { data: regioner } = useNavRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
     ArrangorTil.TILTAKSGJENNOMFORING,
     {
       pageSize: 10000,
     },
   );
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
   useEffect(() => {
     setFilter({
@@ -58,16 +58,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
     });
   }, [avtale, filter, setFilter]);
 
-  if (
-    !enheter ||
-    isLoadingEnheter ||
-    !regioner ||
-    isLoadingRegioner ||
-    !arrangorer ||
-    isLoadingArrangorer ||
-    !tiltakstyper ||
-    isLoadingTiltakstyper
-  ) {
+  if (!arrangorer || isLoadingArrangorer) {
     return <FilterSkeleton />;
   }
 

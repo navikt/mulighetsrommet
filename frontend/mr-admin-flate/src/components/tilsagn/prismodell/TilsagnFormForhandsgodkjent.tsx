@@ -7,6 +7,7 @@ import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { addDays, formaterDatoSomYYYYMMDD } from "@/utils/Utils";
+import { tilsagnTekster } from "../TilsagnTekster";
 
 type ForhandsgodkjentTilsagn = InferredTilsagn & { beregning: TilsagnBeregningForhandsgodkjent };
 
@@ -63,7 +64,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
       <TextField
         size="small"
         type="number"
-        label="Antall plasser"
+        label={tilsagnTekster.antallPlasser.label}
         style={{ width: "180px" }}
         error={errors.beregning?.antallPlasser?.message}
         {...register("beregning.antallPlasser", { valueAsNumber: true })}
@@ -71,7 +72,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
       <TextField
         size="small"
         type="number"
-        label="Sats (NOK)"
+        label={tilsagnTekster.sats.label}
         style={{ width: "180px" }}
         readOnly={true}
         error={errors.beregning?.sats?.message}

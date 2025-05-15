@@ -16,50 +16,55 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OppgaverService(val db: ApiDatabase) {
-    fun oppgaver(filter: OppgaverFilter, ansatt: NavIdent, roller: Set<NavAnsattRolle>): List<Oppgave> {
-        val kostnadssteder = getNavEnheterForRegioner(filter.regioner)
+    fun oppgaver(
+        oppgavetyper: Set<OppgaveType>,
+        tiltakskoder: Set<Tiltakskode>,
+        regioner: Set<NavEnhetNummer>,
+        ansatt: NavIdent,
+        roller: Set<NavAnsattRolle>,
+    ): List<Oppgave> {
+        val kostnadssteder = getNavEnheterForRegioner(regioner)
 
-        return buildList {
-            if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { it in OppgaveType.TilsagnOppgaver }) {
+        val oppgaver = buildList {
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it in OppgaveType.TilsagnOppgaver }) {
                 addAll(
                     tilsagnOppgaver(
-                        tiltakskoder = filter.tiltakskoder,
-                        oppgavetyper = filter.oppgavetyper,
+                        tiltakskoder = tiltakskoder,
                         kostnadssteder = kostnadssteder,
-                        roller = roller,
                         ansatt = ansatt,
                     ),
                 )
             }
-            if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { it in OppgaveType.DelutbetalingOppgaver }) {
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it in OppgaveType.DelutbetalingOppgaver }) {
                 addAll(
                     delutbetalingOppgaver(
-                        tiltakskoder = filter.tiltakskoder,
-                        oppgavetyper = filter.oppgavetyper,
+                        tiltakskoder = tiltakskoder,
                         kostnadssteder = kostnadssteder,
                         ansatt = ansatt,
-                        roller = roller,
                     ),
                 )
             }
-            if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { it in OppgaveType.UtbetalingOppgaver }) {
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it in OppgaveType.UtbetalingOppgaver }) {
                 addAll(
                     utbetalingOppgaver(
-                        tiltakskoder = filter.tiltakskoder,
-                        oppgavetyper = filter.oppgavetyper,
+                        tiltakskoder = tiltakskoder,
                         kostnadssteder = kostnadssteder,
-                        roller = roller,
                     ),
                 )
             }
         }
+
+        return oppgaver
+            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+            .filter { oppgave ->
+                val requiredRole = NavAnsattRolle.kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet?.nummer))
+                NavAnsattRolleHelper.hasRole(roller, requiredRole)
+            }
     }
 
-    fun tilsagnOppgaver(
-        oppgavetyper: Set<OppgaveType>,
+    private fun tilsagnOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
-        roller: Set<NavAnsattRolle>,
         ansatt: NavIdent,
     ): List<Oppgave> = db.session {
         queries.tilsagn
@@ -78,22 +83,15 @@ class OppgaverService(val db: ApiDatabase) {
             .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
             .mapNotNull { toOppgave(it) }
             .mapNotNull { (totrinnskontroll, oppgave) ->
-                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt }
-            }
-            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
-            .filter { oppgave ->
-                val requiredRole = NavAnsattRolle.kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet))
-                NavAnsattRolleHelper.hasRole(roller, requiredRole)
+                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt || oppgave.type == OppgaveType.TILSAGN_RETURNERT }
             }
             .toList()
     }
 
-    fun delutbetalingOppgaver(
-        oppgavetyper: Set<OppgaveType>,
+    private fun delutbetalingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavIdent,
-        roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
         queries.delutbetaling
             .getOppgaveData(
@@ -103,21 +101,14 @@ class OppgaverService(val db: ApiDatabase) {
             .asSequence()
             .mapNotNull { toOppgave(it) }
             .mapNotNull { (totrinnskontroll, oppgave) ->
-                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt }
-            }
-            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
-            .filter { oppgave ->
-                val requiredRole = NavAnsattRolle.kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet))
-                NavAnsattRolleHelper.hasRole(roller, requiredRole)
+                oppgave.takeIf { totrinnskontroll.behandletAv != ansatt || oppgave.type == OppgaveType.UTBETALING_RETURNERT }
             }
             .toList()
     }
 
-    fun utbetalingOppgaver(
-        oppgavetyper: Set<OppgaveType>,
+    private fun utbetalingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
-        roller: Set<NavAnsattRolle>,
     ): List<Oppgave> = db.session {
         queries.utbetaling
             .getOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
@@ -126,11 +117,6 @@ class OppgaverService(val db: ApiDatabase) {
             .filter { utbetaling -> queries.delutbetaling.getByUtbetalingId(utbetaling.id).isEmpty() }
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
             .map { toOppgave(it) }
-            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
-            .filter { oppgave ->
-                val requiredRole = NavAnsattRolle.kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet))
-                NavAnsattRolleHelper.hasRole(roller, requiredRole)
-            }
             .toList()
     }
 
@@ -148,7 +134,7 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun getNavEnheterForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> = db.session {
         regioner.flatMapTo(mutableSetOf()) { region ->
-            queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer }
+            queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer } + region
         }
     }
 }
@@ -170,7 +156,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             opprettelse to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_GODKJENNING,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn til godkjenning",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til godkjenning",
                 tiltakstype = tiltakstype,
@@ -186,7 +174,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             opprettelse to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn returnert",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} ble returnert av beslutter",
                 tiltakstype = tiltakstype,
@@ -201,7 +191,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             annullering to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn til annullering",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til annullering",
                 tiltakstype = tiltakstype,
@@ -216,7 +208,9 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             tilOppgjor to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_OPPGJOR,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Tilsagn til oppgjør",
                 description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til oppgjør",
                 tiltakstype = tiltakstype,
@@ -243,7 +237,9 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
             opprettelse to Oppgave(
                 id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_TIL_GODKJENNING,
-                enhet = tilsagn.kostnadssted.enhetsnummer,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Utbetaling til godkjenning",
                 description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
                 tiltakstype = tiltakstype,
@@ -254,13 +250,16 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
         }
 
         DelutbetalingStatus.RETURNERT -> {
+            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             opprettelse to Oppgave(
                 id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_RETURNERT,
-                enhet = null,
+                enhet = tilsagn.kostnadssted.let {
+                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
+                },
                 title = "Utbetaling returnert",
-                description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
+                description = "Utbetaling for $gjennomforingsnavn ble returnert av attestant",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = requireNotNull(opprettelse.besluttetTidspunkt),

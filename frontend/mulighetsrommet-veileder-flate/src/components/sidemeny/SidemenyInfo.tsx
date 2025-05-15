@@ -6,7 +6,7 @@ import {
 } from "@mr/api-client-v2";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
-import Regelverksinfo from "./Regelverksinfo";
+import RegelverkInfo from "./RegelverkInfo";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
@@ -81,7 +81,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
             Regelverk og rutiner
           </BodyShort>
           <div className="space-y-4 last:mb-0">
-            <Regelverksinfo
+            <RegelverkInfo
               regelverkLenker={[
                 ...tiltakstype.regelverkLenker,
                 {

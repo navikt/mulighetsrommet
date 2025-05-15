@@ -33,7 +33,7 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
+import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
@@ -64,7 +64,6 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
-import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -287,7 +286,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
-        MicrosoftGraphClient(
+        MsGraphClient(
             engine = appConfig.engine,
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.msGraphConfig.scope),
@@ -429,11 +428,12 @@ private fun services(appConfig: AppConfig) = module {
     single { LagretFilterService(get()) }
     single {
         TilsagnService(
-            TilsagnService.Config(
+            config = TilsagnService.Config(
                 okonomiConfig = appConfig.okonomi,
                 bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
             ),
-            get(),
+            db = get(),
+            navAnsattService = get(),
         )
     }
     single { AltinnRettigheterService(get(), get()) }
@@ -474,11 +474,6 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val notifyFailedKafkaEvents = NotifyFailedKafkaEvents(
-            config.notifyFailedKafkaEvents,
-            get(),
-            get(),
-        )
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
         val generateValidationReport: GenerateValidationReport by inject()
@@ -511,7 +506,6 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeUtdanninger.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
-                notifyFailedKafkaEvents.task,
                 updateApentForPamelding.task,
                 generateUtbetaling.task,
             )

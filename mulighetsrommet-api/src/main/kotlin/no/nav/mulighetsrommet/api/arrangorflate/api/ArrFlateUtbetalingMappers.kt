@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
@@ -13,6 +14,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
     status: ArrFlateUtbetalingStatus,
     deltakere: List<Deltaker>,
     personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person>,
+    linjer: List<ArrangorUtbetalingLinje>,
 ): ArrFlateUtbetaling {
     return when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningForhandsgodkjent -> {
@@ -36,11 +38,12 @@ fun mapUtbetalingToArrFlateUtbetaling(
                     sistePeriodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
                     sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
                     manedsverk = manedsverk,
+                    perioder = deltakelse.perioder,
                     person = person,
                     // TODO data om veileder hos arrangør
                     veileder = null,
                 )
-            }
+            }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
             val antallManedsverk = deltakelser
                 .map { BigDecimal(it.manedsverk) }
@@ -53,17 +56,20 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 status = status,
                 fristForGodkjenning = utbetaling.fristForGodkjenning,
                 godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+                createdAt = utbetaling.createdAt,
                 tiltakstype = utbetaling.tiltakstype,
                 gjennomforing = utbetaling.gjennomforing,
                 arrangor = utbetaling.arrangor,
                 periode = utbetaling.periode,
                 beregning = Beregning.Forhandsgodkjent(
+                    stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                     antallManedsverk = antallManedsverk,
                     belop = beregning.output.belop,
                     digest = beregning.getDigest(),
                     deltakelser = deltakelser,
                 ),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
+                linjer = linjer,
             )
         }
 
@@ -72,6 +78,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
             status = status,
             fristForGodkjenning = utbetaling.fristForGodkjenning,
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+            createdAt = utbetaling.createdAt,
             tiltakstype = utbetaling.tiltakstype,
             gjennomforing = utbetaling.gjennomforing,
             arrangor = utbetaling.arrangor,
@@ -81,6 +88,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 digest = beregning.getDigest(),
             ),
             betalingsinformasjon = utbetaling.betalingsinformasjon,
+            linjer = linjer,
         )
     }
 }

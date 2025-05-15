@@ -18,11 +18,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.clamav.ScanResult
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
@@ -49,7 +45,7 @@ object ArrangorflateTestUtils {
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = GjennomforingFixtures.AFT1.sluttDato,
-        registrertTidspunkt = GjennomforingFixtures.AFT1.startDato.atStartOfDay(),
+        registrertDato = GjennomforingFixtures.AFT1.startDato,
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),
@@ -72,13 +68,14 @@ object ArrangorflateTestUtils {
             output = TilsagnBeregningFri.Output(1000),
         ),
         type = TilsagnType.TILSAGN,
+        belopBrukt = 0,
         bestillingStatus = BestillingStatusType.AKTIV,
     )
 
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        fristForGodkjenning = LocalDateTime.now(),
+        fristForGodkjenning = LocalDate.of(2024, 9, 1),
         beregning = UtbetalingBeregningForhandsgodkjent(
             input = UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
@@ -118,7 +115,7 @@ object ArrangorflateTestUtils {
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        fristForGodkjenning = LocalDateTime.now(),
+        fristForGodkjenning = LocalDate.of(2024, 9, 1),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(
                 belop = 5000,

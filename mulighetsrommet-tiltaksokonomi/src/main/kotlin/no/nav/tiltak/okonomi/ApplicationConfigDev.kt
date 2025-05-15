@@ -1,18 +1,14 @@
 package no.nav.tiltak.okonomi
 
-import io.ktor.client.engine.cio.*
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
 val ApplicationConfigDev = AppConfig(
-    httpClientEngine = CIO.create(),
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
     ),
-    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),

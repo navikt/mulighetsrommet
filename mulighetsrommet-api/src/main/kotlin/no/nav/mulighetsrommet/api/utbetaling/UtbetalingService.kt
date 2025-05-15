@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.*
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.tilPersonNavn
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -147,14 +148,13 @@ class UtbetalingService(
             if (gradering == PdlGradering.UGRADERT) {
                 val navEnhet = geografiskTilknytning?.let { hentEnhetForGeografiskTilknytning(it) }
                 val region = navEnhet?.overordnetEnhet?.let { hentNavEnhet(it) }
+                val navn = if (person.navn.isNotEmpty()) tilPersonNavn(person.navn) else "Ukjent"
+                val foedselsdato = if (person.foedselsdato.isNotEmpty()) person.foedselsdato.first() else null
 
                 DeltakerPerson(
                     norskIdent = NorskIdent(ident.value),
-                    navn = person.navn.first().let { navn ->
-                        val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
-                        listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
-                    },
-                    foedselsdato = person.foedselsdato.first().foedselsdato,
+                    navn = navn,
+                    foedselsdato = foedselsdato?.foedselsdato,
                     geografiskEnhet = navEnhet,
                     region = region,
                 )
@@ -201,8 +201,6 @@ class UtbetalingService(
         gjennomforingId: UUID,
         periode: Periode,
     ): UtbetalingDbo = db.session {
-        val frist = periode.slutt.plusMonths(2)
-
         val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
 
         val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
@@ -241,7 +239,7 @@ class UtbetalingService(
 
         return UtbetalingDbo(
             id = utbetalingId,
-            fristForGodkjenning = frist.atStartOfDay(),
+            fristForGodkjenning = getFristForGodkjenning(periode.getLastInclusiveDate()),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
             kontonummer = kontonummer,
@@ -260,11 +258,7 @@ class UtbetalingService(
         request: GodkjennUtbetaling,
     ) = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setBetalingsinformasjon(
-            utbetalingId,
-            request.betalingsinformasjon.kontonummer,
-            request.betalingsinformasjon.kid,
-        )
+        queries.utbetaling.setKid(utbetalingId, request.kid)
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
@@ -279,7 +273,7 @@ class UtbetalingService(
             UtbetalingDbo(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
-                fristForGodkjenning = request.periodeSlutt.plusMonths(2).atStartOfDay(),
+                fristForGodkjenning = getFristForGodkjenning(request.periodeSlutt),
                 kontonummer = request.kontonummer,
                 kid = request.kidNummer,
                 beregning = UtbetalingBeregningFri.beregn(
@@ -452,7 +446,7 @@ class UtbetalingService(
             return false
         }
         val tilsagn = relevanteTilsagn[0]
-        if (tilsagn.belopGjenstaende < utbetaling.beregning.output.belop) {
+        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.belop) {
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
@@ -503,6 +497,7 @@ class UtbetalingService(
             lopenummer = lopenummer,
             fakturanummer = fakturanummer(tilsagn.bestilling.bestillingsnummer, lopenummer),
             fakturaStatus = null,
+            fakturaStatusSistOppdatert = LocalDateTime.now(),
         )
 
         queries.delutbetaling.upsert(dbo)
@@ -568,7 +563,7 @@ class UtbetalingService(
                 )
                 return@godkjennUtbetaling
             }
-            queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - it.belop)
+            queries.tilsagn.setBruktBelop(tilsagn.id, tilsagn.belopBrukt + it.belop)
             if (it.gjorOppTilsagn) {
                 tilsagnService.gjorOppAutomatisk(it.tilsagnId, this)
             }
@@ -780,6 +775,8 @@ private fun isRelevantForUtbetalingsperide(
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
+
+private fun getFristForGodkjenning(lastUtbetalingPeriodeDate: LocalDate): LocalDate = lastUtbetalingPeriodeDate.plusMonths(2)
 
 enum class DelutbetalingReturnertAarsak {
     FEIL_BELOP,

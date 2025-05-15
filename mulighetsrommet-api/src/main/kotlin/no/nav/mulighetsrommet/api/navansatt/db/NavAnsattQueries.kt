@@ -22,13 +22,13 @@ class NavAnsattQueries(private val session: Session) {
     fun upsert(ansatt: NavAnsattDbo) {
         @Language("PostgreSQL")
         val query = """
-            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, skal_slettes_dato)
-            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :azure_id::uuid, :mobilnummer, :epost, :skal_slettes_dato)
+            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, entra_object_id, mobilnummer, epost, skal_slettes_dato)
+            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :entra_object_id::uuid, :mobilnummer, :epost, :skal_slettes_dato)
             on conflict (nav_ident)
                 do update set fornavn           = excluded.fornavn,
                               etternavn         = excluded.etternavn,
                               hovedenhet        = excluded.hovedenhet,
-                              azure_id          = excluded.azure_id,
+                              entra_object_id   = excluded.entra_object_id,
                               mobilnummer       = excluded.mobilnummer,
                               epost             = excluded.epost,
                               skal_slettes_dato = excluded.skal_slettes_dato
@@ -38,7 +38,7 @@ class NavAnsattQueries(private val session: Session) {
             "fornavn" to ansatt.fornavn,
             "etternavn" to ansatt.etternavn,
             "hovedenhet" to ansatt.hovedenhet.value,
-            "azure_id" to ansatt.azureId,
+            "entra_object_id" to ansatt.entraObjectId,
             "mobilnummer" to ansatt.mobilnummer,
             "epost" to ansatt.epost,
             "skal_slettes_dato" to ansatt.skalSlettesDato,
@@ -146,25 +146,25 @@ class NavAnsattQueries(private val session: Session) {
         return single(queryOf(query, navIdent.value)) { it.toNavAnsattDto() }
     }
 
-    fun getByAzureId(azureId: UUID): NavAnsatt? = with(session) {
+    fun getByEntraObjectId(objectId: UUID): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
             from view_nav_ansatt_dto
-            where azure_id = ?::uuid
+            where entra_object_id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, azureId)) { it.toNavAnsattDto() }
+        return single(queryOf(query, objectId)) { it.toNavAnsattDto() }
     }
 
-    fun deleteByAzureId(azureId: UUID): Int = with(session) {
+    fun deleteByEntraObjectId(objectId: UUID): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from nav_ansatt
-            where azure_id = ?::uuid
+            where entra_object_id = ?::uuid
         """.trimIndent()
 
-        return update(queryOf(query, azureId))
+        return update(queryOf(query, objectId))
     }
 
     fun getNavAnsattDbo(navIdent: NavIdent): NavAnsattDbo? = with(session) {
@@ -191,7 +191,7 @@ private fun Row.toNavAnsattDto(): NavAnsatt {
             enhetsnummer = NavEnhetNummer(string("hovedenhet_enhetsnummer")),
             navn = string("hovedenhet_navn"),
         ),
-        azureId = uuid("azure_id"),
+        entraObjectId = uuid("entra_object_id"),
         mobilnummer = stringOrNull("mobilnummer"),
         epost = string("epost"),
         roller = roller,
@@ -204,7 +204,7 @@ private fun Row.toNavAnsattDbo(): NavAnsattDbo = NavAnsattDbo(
     fornavn = string("fornavn"),
     etternavn = string("etternavn"),
     hovedenhet = NavEnhetNummer(string("hovedenhet")),
-    azureId = uuid("azure_id"),
+    entraObjectId = uuid("entra_object_id"),
     mobilnummer = stringOrNull("mobilnummer"),
     epost = string("epost"),
     skalSlettesDato = localDateOrNull("skal_slettes_dato"),

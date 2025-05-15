@@ -77,7 +77,7 @@ from avtale
                             where avtale_nav_enhet.avtale_id = avtale.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object('id', avtale_opsjon_logg.id,
-                                                              'aktivertDato', avtale_opsjon_logg.registrert_dato,
+                                                              'registrertDato', avtale_opsjon_logg.registrert_dato,
                                                               'sluttDato', avtale_opsjon_logg.sluttdato,
                                                               'status', avtale_opsjon_logg.status,
                                                               'forrigeSluttdato', avtale_opsjon_logg.forrige_sluttdato

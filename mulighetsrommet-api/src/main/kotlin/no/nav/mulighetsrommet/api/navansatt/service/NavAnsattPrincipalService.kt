@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-typealias JwtSessionId = String
+typealias JwtId = String
 
 class NavAnsattPrincipalService(
     private val navAnsattService: NavAnsattService,
@@ -21,7 +21,7 @@ class NavAnsattPrincipalService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val roleCache: Cache<JwtSessionId, Set<NavAnsattRolle>> = Caffeine.newBuilder()
+    private val roleCache: Cache<JwtId, Set<NavAnsattRolle>> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
@@ -38,13 +38,13 @@ class NavAnsattPrincipalService(
             return null
         }
 
-        val sessionId = credentials["sid"] ?: run {
-            log.warn("'sid' mangler i JWT credentials")
+        val tokenId = credentials["uti"]?.takeIf { it.isNotEmpty() } ?: run {
+            log.warn("'uti' mangler i JWT credentials")
             return null
         }
 
         val groups = credentials.getListClaim("groups", UUID::class)
-        val roller = getRoles(sessionId, oid, groups)
+        val roller = getRoles(tokenId, oid, groups)
 
         return NavAnsattPrincipal(
             navAnsattObjectId = oid,
@@ -55,23 +55,23 @@ class NavAnsattPrincipalService(
     }
 
     private suspend fun getRoles(
-        sessionId: JwtSessionId,
+        tokenId: JwtId,
         oid: UUID,
         groups: List<UUID>,
     ): Set<NavAnsattRolle> {
-        roleCache.getIfPresent(sessionId)?.also { return it }
+        roleCache.getIfPresent(tokenId)?.also { return it }
 
         val roller = navAnsattService.getNavAnsattRolesFromGroups(groups)
         syncNavAnsattRoller(oid, roller)
 
-        roleCache.put(sessionId, roller)
+        roleCache.put(tokenId, roller)
 
         return roller
     }
 
     private suspend fun syncNavAnsattRoller(oid: UUID, roller: Set<NavAnsattRolle>): Unit = db.session {
-        val ansatt = queries.ansatt.getByAzureId(oid) ?: run {
-            log.info("Fant ikke NavAnsatt for azureId=$oid i databasen, henter fra Entra i stedet")
+        val ansatt = queries.ansatt.getByEntraObjectId(oid) ?: run {
+            log.info("Fant ikke NavAnsatt for oid=$oid i databasen, henter fra Entra i stedet")
             val ansatt = navAnsattService.getNavAnsattFromAzure(oid, AccessType.M2M)
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
             ansatt

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.navansatt.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
+import no.nav.mulighetsrommet.api.clients.msgraph.EntraIdNavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -12,7 +12,7 @@ import java.util.*
 @Serializable
 data class NavAnsattDto(
     @Serializable(with = UUIDSerializer::class)
-    val azureId: UUID,
+    val entraObjectId: UUID,
     val navIdent: NavIdent,
     val fornavn: String,
     val etternavn: String,
@@ -29,7 +29,7 @@ data class NavAnsattDto(
 
     companion object {
         fun fromNavAnsatt(ansatt: NavAnsatt): NavAnsattDto = NavAnsattDto(
-            azureId = ansatt.azureId,
+            entraObjectId = ansatt.entraObjectId,
             navIdent = ansatt.navIdent,
             fornavn = ansatt.fornavn,
             etternavn = ansatt.etternavn,
@@ -42,8 +42,8 @@ data class NavAnsattDto(
             roller = ansatt.roller.map { it.rolle }.toSet(),
         )
 
-        fun fromAzureAdNavAnsatt(dto: AzureAdNavAnsatt): NavAnsattDto = NavAnsattDto(
-            azureId = dto.azureId,
+        fun fromAzureAdNavAnsatt(dto: EntraIdNavAnsatt): NavAnsattDto = NavAnsattDto(
+            entraObjectId = dto.entraObjectId,
             navIdent = dto.navIdent,
             fornavn = dto.fornavn,
             etternavn = dto.etternavn,

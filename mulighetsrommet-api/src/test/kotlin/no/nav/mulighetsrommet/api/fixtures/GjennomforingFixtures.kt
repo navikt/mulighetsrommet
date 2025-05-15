@@ -30,7 +30,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -55,7 +55,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -78,7 +78,7 @@ object GjennomforingFixtures {
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
         deltidsprosent = 100.0,
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         estimertVentetid = EstimertVentetid(
             verdi = 3,
             enhet = "dag",
@@ -107,7 +107,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -132,7 +132,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -157,7 +157,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -182,7 +182,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -207,7 +207,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -232,7 +232,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -257,7 +257,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )
@@ -282,7 +282,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorFraOgMedDato = null,
+        tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
     )

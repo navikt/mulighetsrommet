@@ -25,7 +25,7 @@ object DeltakerFixtures {
         startDato = startDato,
         sluttDato = sluttDato,
         gjennomforingId = gjennomforingId,
-        registrertTidspunkt = LocalDateTime.now(),
+        registrertDato = LocalDate.now(),
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = deltakelsesprosent,
         deltakelsesmengder = deltakelsesmengder,

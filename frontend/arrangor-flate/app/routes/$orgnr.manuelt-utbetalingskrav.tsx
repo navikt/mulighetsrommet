@@ -41,7 +41,6 @@ import { PageHeader } from "~/components/PageHeader";
 import { Separator } from "~/components/Separator";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { formaterDato, isValidationError, problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { getCurrentTab } from "~/utils/currentTab";
 import { FileUploader } from "../components/fileUploader/FileUploader";
 import { internalNavigation } from "../internal-navigation";
 import { tekster } from "../tekster";
@@ -119,8 +118,6 @@ export const action: ActionFunction = async ({ request }) => {
     },
     uploadHandler,
   );
-
-  const currentTab = getCurrentTab(request);
 
   const orgnr = formData.get("orgnr")?.toString();
   const bekreftelse = formData.get("bekreftelse")?.toString();
@@ -250,9 +247,7 @@ export const action: ActionFunction = async ({ request }) => {
       throw problemDetailResponse(error);
     }
   } else {
-    return redirect(
-      `${internalNavigation(orgnr!).innsendtUtbetaling(utbetalingId)}?forside-tab=${currentTab}`,
-    );
+    return redirect(`${internalNavigation(orgnr!).kvittering(utbetalingId)}`);
   }
 };
 
@@ -314,11 +309,11 @@ export default function ManuellUtbetalingForm() {
     return [];
   }, [gjennomforingId, periodeStart, periodeSlutt, tilsagn, tilskuddstype]);
   return (
-    <>
+    <VStack gap="4">
       <PageHeader
-        title="Manuell innsending"
+        title={tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
         tilbakeLenke={{
-          navn: "Tilbake til utbetalinger",
+          navn: tekster.bokmal.tilbakeTilOversikt,
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
@@ -389,7 +384,10 @@ export default function ManuellUtbetalingForm() {
                     tilsagn={tilsagn}
                     ekstraDefinisjoner={[
                       { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
-                      { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
+                      {
+                        key: "Tilsagnstype",
+                        value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type),
+                      },
                     ]}
                   />
                 </Box>
@@ -471,7 +469,7 @@ export default function ManuellUtbetalingForm() {
           </VStack>
         </VStack>
       </Form>
-    </>
+    </VStack>
   );
 }
 

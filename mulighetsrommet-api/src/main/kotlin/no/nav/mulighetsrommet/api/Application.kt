@@ -14,8 +14,10 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
+import no.nav.mulighetsrommet.metrics.Metrikker
 import org.koin.ktor.ext.inject
 
 fun main() {
@@ -46,6 +48,11 @@ fun Application.configure(config: AppConfig) {
     configureStatusPages()
 
     FlywayMigrationManager(config.flyway).migrate(db)
+
+    KafkaMetrics(db)
+        .withCountStaleConsumerRecords(minutesSinceCreatedAt = 5)
+        .withCountStaleProducerRecords(minutesSinceCreatedAt = 1)
+        .register(Metrikker.appMicrometerRegistry)
 
     routing {
         apiRoutes()

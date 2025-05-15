@@ -2,7 +2,7 @@ import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React from "react";
 import { filterAccordionAtom, FilterAccordionTypes } from "@/core/atoms";
-import { addOrRemove } from "@/utils/Utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {

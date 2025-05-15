@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -294,11 +293,6 @@ val ApplicationConfigLocal = AppConfig(
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(
             disabled = true,
             cronPattern = "0 */1 * * * *",
-        ),
-        notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
-            disabled = true,
-            maxRetries = 5,
-            cronPattern = "0 */15 * ? * MON-FRI",
         ),
         updateApentForPamelding = UpdateApentForPamelding.Config(
             disabled = true,

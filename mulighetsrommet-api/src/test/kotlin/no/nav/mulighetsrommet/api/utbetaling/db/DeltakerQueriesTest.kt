@@ -23,20 +23,20 @@ class DeltakerQueriesTest : FunSpec({
         gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.Oppfolging2),
     )
 
-    val registrertTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+    val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
 
     val deltaker1 = DeltakerDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
         startDato = null,
         sluttDato = null,
-        registrertTidspunkt = registrertTidspunkt,
-        endretTidspunkt = registrertTidspunkt,
+        registrertDato = opprettetTidspunkt.toLocalDate(),
+        endretTidspunkt = opprettetTidspunkt,
         deltakelsesprosent = 100.0,
         status = DeltakerStatus(
             DeltakerStatus.Type.VENTER_PA_OPPSTART,
             aarsak = null,
-            opprettetDato = registrertTidspunkt,
+            opprettetDato = opprettetTidspunkt,
         ),
         deltakelsesmengder = emptyList(),
     )
@@ -85,7 +85,7 @@ class DeltakerQueriesTest : FunSpec({
                         DeltakerDbo.Deltakelsesmengde(
                             gyldigFra = LocalDate.of(2023, 3, 1),
                             deltakelsesprosent = 100.0,
-                            opprettetTidspunkt = registrertTidspunkt,
+                            opprettetTidspunkt = opprettetTidspunkt,
                         ),
                     ),
                 ),
@@ -100,12 +100,12 @@ class DeltakerQueriesTest : FunSpec({
                         DeltakerDbo.Deltakelsesmengde(
                             gyldigFra = LocalDate.of(2023, 3, 10),
                             deltakelsesprosent = 100.0,
-                            opprettetTidspunkt = registrertTidspunkt,
+                            opprettetTidspunkt = opprettetTidspunkt,
                         ),
                         DeltakerDbo.Deltakelsesmengde(
                             gyldigFra = LocalDate.of(2023, 3, 5),
                             deltakelsesprosent = 100.0,
-                            opprettetTidspunkt = registrertTidspunkt,
+                            opprettetTidspunkt = opprettetTidspunkt,
                         ),
                     ),
                 ),
@@ -143,7 +143,7 @@ fun DeltakerDbo.toDto() = Deltaker(
     norskIdent = null,
     startDato = startDato,
     sluttDato = startDato,
-    registrertTidspunkt = registrertTidspunkt,
+    registrertDato = registrertDato,
     endretTidspunkt = endretTidspunkt,
     deltakelsesprosent = deltakelsesprosent,
     status = status,

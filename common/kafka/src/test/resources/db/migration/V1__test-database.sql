@@ -7,31 +7,30 @@ create table shedlock
     primary key (name)
 );
 
-
-create table failed_events
+create table kafka_consumer_record
 (
-    id               serial  not null primary key,
+    id               bigint generated always as identity,
     topic            text    not null,
     partition        integer not null,
     record_offset    bigint  not null,
     retries          integer not null default 0,
-    last_retry       timestamp,
+    last_retry       timestamptz,
     key              bytea,
     value            bytea,
     headers_json     text,
     record_timestamp bigint,
-    created_at       timestamp        default current_timestamp not null,
+    created_at       timestamptz      default current_timestamp not null,
     unique (topic, partition, record_offset)
 );
 
 create table kafka_producer_record
 (
     id           bigint generated always as identity,
-    topic        text                                not null,
+    topic        text                                  not null,
     key          bytea,
     value        bytea,
     headers_json text,
-    created_at   timestamp default current_timestamp not null
+    created_at   timestamptz default current_timestamp not null
 );
 
 create type topic_type as enum ('CONSUMER', 'PRODUCER');

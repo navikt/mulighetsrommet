@@ -7,6 +7,7 @@ import { PageHeader } from "../components/PageHeader";
 import { internalNavigation } from "../internal-navigation";
 import { tekster } from "../tekster";
 import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
+import { VStack } from "@navikt/ds-react";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
@@ -32,11 +33,11 @@ export default function TilsagnDetaljerPage() {
   const orgnr = useOrgnrFromUrl();
 
   return (
-    <div className="flex flex-col items-start">
+    <VStack gap="4">
       <PageHeader
-        title="Detaljer for tilsagn"
+        title={tekster.bokmal.tilsagn.detaljer.headingTitle}
         tilbakeLenke={{
-          navn: "Tilbake til tilsagnsoversikt",
+          navn: tekster.bokmal.tilsagn.detaljer.tilbakeLenke,
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
@@ -47,9 +48,9 @@ export default function TilsagnDetaljerPage() {
           { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
           { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
           { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
-          { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
+          { key: "Tilsagnstype", value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type) },
         ]}
       />
-    </div>
+    </VStack>
   );
 }

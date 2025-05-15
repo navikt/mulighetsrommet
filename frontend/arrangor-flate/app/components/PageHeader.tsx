@@ -11,12 +11,12 @@ interface Props {
 
 export function PageHeader({ title, tilbakeLenke }: Props) {
   return (
-    <div className="flex flex-col relative">
+    <div className="flex flex-col relative gap-1">
       <Heading level="1" size="large" className="mb-3" data-testid="header">
         {title}
       </Heading>
       {tilbakeLenke ? (
-        <LinkWithTabState className="mb-5 inline hover:underline" to={tilbakeLenke.url}>
+        <LinkWithTabState className="inline hover:underline" to={tilbakeLenke.url}>
           {tilbakeLenke.navn}
         </LinkWithTabState>
       ) : null}

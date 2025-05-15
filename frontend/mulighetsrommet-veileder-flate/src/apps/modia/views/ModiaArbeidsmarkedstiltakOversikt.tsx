@@ -1,9 +1,9 @@
 import { useModiaArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
-import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
+import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
 import { useAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useAlleTiltakDeltMedBruker";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { Filtermeny } from "@/components/filtrering/Filtermeny";
+import { FilterMenu } from "@/components/filtrering/FilterMenu";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
@@ -48,8 +48,8 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
             <OversiktenJoyride />
           </>
         }
-        filter={<Filtermeny />}
-        tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
+        filter={<FilterMenu />}
+        tags={<ModiaFilterTags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
           <ArbeidsmarkedstiltakList
             tiltak={tiltak}

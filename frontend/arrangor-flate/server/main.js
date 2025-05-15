@@ -60,7 +60,7 @@ const morganStream = {
 app.use(morgan("combined", { stream: morganStream }));
 
 // handle SSR requests
-app.all("*", remixHandler);
+app.all("*splat", remixHandler);
 
 app.listen(port, () => {
   const env = process.env.NODE_ENV || "development";
