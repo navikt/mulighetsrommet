@@ -145,9 +145,8 @@ fun Route.tilsagnRoutes() {
         }
 
         post("/beregn") {
-            val request = call.receive<TilsagnBeregningInput>()
-
-            val result = service.beregnTilsagn(request)
+            val request = call.receive<TilsagnBeregningFriInputRequest>()
+            val result = service.beregnTilsagn(request.toTilsagnBeregningFriInput())
                 .map { it.output }
                 .mapLeft { ValidationError(errors = it) }
 

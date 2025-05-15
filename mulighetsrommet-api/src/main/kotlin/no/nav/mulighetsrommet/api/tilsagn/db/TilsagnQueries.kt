@@ -100,7 +100,6 @@ class TilsagnQueries(private val session: Session) {
             }
 
             is TilsagnBeregningFri -> {
-                upsertTilsagnBeregningFri(dbo.id, dbo.beregning)
             }
         }
     }
@@ -129,31 +128,6 @@ class TilsagnQueries(private val session: Session) {
             "tilsagn_id" to id,
             "sats" to beregning.input.sats,
             "antall_plasser" to beregning.input.antallPlasser,
-        )
-
-        execute(queryOf(query, params))
-    }
-
-    private fun TransactionalSession.upsertTilsagnBeregningFri(
-        id: UUID,
-        beregning: TilsagnBeregningFri,
-    ) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into tilsagn_fri_prisbetingelser (
-                tilsagn_id,
-                prisbetingelser
-            ) values (
-                :tilsagn_id::uuid,
-                :prisbetingelser
-            )
-            on conflict (tilsagn_id) do update set
-                prisbetingelser = excluded.prisbetingelser
-        """.trimIndent()
-
-        val params = mapOf(
-            "tilsagn_id" to id,
-            "prisbetingelser" to beregning.input.prisbetingelser,
         )
 
         execute(queryOf(query, params))
@@ -247,6 +221,22 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
+    }
+
+    fun upsertPrisbetingelser(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into tilsagn_fri_prisbetingelser (tilsagn_id, prisbetingelser)
+            select t.id as tilsagn_id, a.prisbetingelser from tilsagn t
+                inner join gjennomforing g on t.gjennomforing_id = g.id
+                inner join avtale a on g.avtale_id = a.id
+                where t.id = :id::uuid
+            on conflict (tilsagn_id) do update
+                set tilsagn_id = EXCLUDED.tilsagn_id,
+                    prisbetingelser = EXCLUDED.prisbetingelser;
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id)))
     }
 
     fun setBestillingStatus(bestillingsnummer: String, status: BestillingStatusType) {
