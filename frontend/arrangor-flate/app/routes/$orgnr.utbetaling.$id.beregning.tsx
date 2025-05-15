@@ -238,26 +238,12 @@ function ForhandsgodkjentBeregning({
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
                 Navn
               </Table.ColumnHeader>
-              <Table.ColumnHeader align="right" scope="col">
-                Fødselsdato
-              </Table.ColumnHeader>
-              <Table.ColumnHeader align="right" scope="col">
-                Startdato i tiltaket
-              </Table.ColumnHeader>
-              <Table.ColumnHeader
-                align="right"
-                scope="col"
-                sortable
-                sortKey={DeltakerSortKey.PERIODE_START}
-              >
+              <Table.ColumnHeader scope="col">Fødselsdato</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Startdato i tiltaket</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_START}>
                 Startdato i perioden
               </Table.ColumnHeader>
-              <Table.ColumnHeader
-                align="right"
-                scope="col"
-                sortable
-                sortKey={DeltakerSortKey.PERIODE_SLUTT}
-              >
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_SLUTT}>
                 Sluttdato i perioden
               </Table.ColumnHeader>
               <Table.ColumnHeader align="right" scope="col">
@@ -301,16 +287,10 @@ function ForhandsgodkjentBeregning({
                     )}
                     {person?.navn}
                   </Table.DataCell>
-                  <Table.DataCell align="right">{fodselsdato}</Table.DataCell>
-                  <Table.DataCell align="right">
-                    {formaterDato(deltakelse.startDato)}
-                  </Table.DataCell>
-                  <Table.DataCell align="right">
-                    {formaterDato(deltakelse.forstePeriodeStartDato)}
-                  </Table.DataCell>
-                  <Table.DataCell align="right">
-                    {formaterDato(deltakelse.sistePeriodeSluttDato)}
-                  </Table.DataCell>
+                  <Table.DataCell>{fodselsdato}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltakelse.startDato)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltakelse.forstePeriodeStartDato)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltakelse.sistePeriodeSluttDato)}</Table.DataCell>
                   <Table.DataCell align="right">
                     {deltakelse.sistePeriodeDeltakelsesprosent}
                   </Table.DataCell>
