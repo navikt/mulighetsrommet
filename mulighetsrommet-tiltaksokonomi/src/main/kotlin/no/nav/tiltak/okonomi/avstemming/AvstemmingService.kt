@@ -42,44 +42,34 @@ class AvstemmingService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    fun avstem(alternativFtpPort: Int? = null) {
-        log.info("Avstemming starter...")
+    fun dailyAvstemming(alternativePort: Int? = null) {
+        log.info("Daglig avstemming starter...")
         val fakturaer = db.session { queries.faktura.getNotAvstemt() }
         val bestillinger = db.session { queries.bestilling.getNotAvstemt() }
 
-        log.info("Fant {} bestillinger som kan avstemmes", bestillinger.size)
-        log.info("Fant {} fakturaer som kan avstemmes", fakturaer.size)
+        val rader = bestillinger.map { it.toDailyCSVRad() } + fakturaer.map { it.toDailyCSVRad() }
 
-        val rader = bestillinger.map { it.toCSVRad() } + fakturaer.map { it.toCSVRad() }
-        val content = rader.joinToString(separator = "\n").toByteArray()
-        val now = LocalDateTime.now()
-
-        try {
-            if (rader.isNotEmpty()) {
-                db.transaction {
-                    queries.faktura.setAvstemtTidspunkt(now, fakturaer.map { it.fakturanummer })
-                    queries.bestilling.setAvstemtTidspunkt(now, bestillinger.map { it.bestillingsnummer })
-
-                    val tidspunkt = LocalDateTime.now()
-                    sftpClient.put(content, filename(tidspunkt), alternativFtpPort)
-
-                    log.info("Ferdig avstemt {} tilsagn og refusjoner", rader.size)
-                }
-            }
-        } catch (ex: Exception) {
-            log.error("Feilet til AdraMatch FTP Server: ", ex)
+        if (rader.isEmpty()) {
+            log.info("Ingen nye bestillinger eller fakturaer trenger avstemming")
         }
-    }
 
-    companion object {
-        // TODO: Bli enig med oebs om et filnavn og mappe det skal laster opp på
-        fun filename(tidspunkt: LocalDateTime) = "${tidspunkt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}_A_tiltak_avstemming_dag.csv"
+        val now = LocalDateTime.now()
+        db.transaction {
+            queries.faktura.setAvstemtTidspunkt(now, fakturaer.map { it.fakturanummer })
+            queries.bestilling.setAvstemtTidspunkt(now, bestillinger.map { it.bestillingsnummer })
+
+            sftpClient.put(
+                content = rader.joinToString(separator = "\n").toByteArray(),
+                // TODO: Bli enig med oebs om filnavn
+                filename = "${now.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}_A_tiltak_avstemming_dag.csv",
+                alternativePort = alternativePort,
+            )
+        }
+        log.info("Ferdig avstemt {} bestillinger og {} fakturaer", bestillinger.size, fakturaer.size)
     }
 }
 
-fun Bestilling.toCSVRad(): String {
-    require(this.belop > 0) { "Beløp i avstemming var ikke større enn 0" }
-
+fun Bestilling.toDailyCSVRad(): String {
     val data = mutableListOf<String>()
     data.add("Bestilling")
     data.add(bestillingsnummer)
@@ -92,7 +82,7 @@ fun Bestilling.toCSVRad(): String {
     return data.joinToString(";")
 }
 
-fun FakturaCsvData.toCSVRad(): String {
+fun FakturaCsvData.toDailyCSVRad(): String {
     require(belop > 0) { "Beløp i avstemming var ikke større enn 0" }
 
     val data = mutableListOf<String>()

@@ -1,5 +1,6 @@
 package no.nav.tiltak.okonomi
 
+import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -20,8 +21,16 @@ import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.slack.SlackNotifier
+import no.nav.mulighetsrommet.slack.SlackNotifierImpl
+import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
+import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.configureApi
+import no.nav.tiltak.okonomi.avstemming.AvstemmingService
+import no.nav.tiltak.okonomi.avstemming.SftpClient
+import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
@@ -88,9 +97,37 @@ fun Application.configure(config: AppConfig) {
 
     configureApi(kafka, okonomiDb, okonomi)
 
+    val sftpClient = SftpClient(properties = config.avstemming.sftpProperties)
+    val avstemmingService = AvstemmingService(db = okonomiDb, sftpClient)
+    val dailyAvstemming = DailyAvstemming(config = config.avstemming.dailyTask, avstemmingService)
+    val slackNotifier = SlackNotifierImpl(config.slack.token, config.slack.channel, config.slack.enable)
+
+    configureDbScheduler(
+        okonomiDb,
+        dailyAvstemming,
+        slackNotifier,
+    )
+
     monitor.subscribe(ApplicationStopped) {
         db.close()
     }
+}
+
+private fun Application.configureDbScheduler(
+    db: OkonomiDatabase,
+    dailyAvstemming: DailyAvstemming,
+    slackNotifier: SlackNotifier,
+) {
+    Scheduler
+        .create(db.getDatasource())
+        .addSchedulerListener(SlackNotifierSchedulerListener(slackNotifier))
+        .addSchedulerListener(OpenTelemetrySchedulerListener())
+        .startTasks(
+            dailyAvstemming.task,
+        )
+        .serializer(DbSchedulerKotlinSerializer())
+        .registerShutdownHook()
+        .build()
 }
 
 private fun Application.configureKafka(
