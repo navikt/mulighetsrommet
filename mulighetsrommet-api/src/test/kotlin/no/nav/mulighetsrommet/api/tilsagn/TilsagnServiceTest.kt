@@ -94,6 +94,7 @@ class TilsagnServiceTest : FunSpec({
                 okonomiConfig = OkonomiConfig(
                     minimumTilsagnPeriodeStart = mapOf(
                         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to minimumTilsagnPeriodeStart,
+                        Tiltakskode.ARBEIDSRETTET_REHABILITERING to GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato,
                     ),
                 ),
                 bestillingTopic = "topic",
@@ -413,6 +414,43 @@ class TilsagnServiceTest : FunSpec({
                     it.kostnadssted shouldBe request.kostnadssted
                     it.periode shouldBe Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
                 }
+        }
+
+        test("godkjent tilsagn fri prismodell oppdaterer prisbetingelser fra avtalen") {
+            val beregningInput = TilsagnBeregningFri.Input(belop = 1000, prisbetingelser = null)
+            val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+            service.upsert(
+                request.copy(
+                    gjennomforingId = gjennomforing.id,
+                    periodeStart = gjennomforing.startDato,
+                    periodeSlutt = gjennomforing.sluttDato!!,
+                    beregning = beregningInput,
+                ),
+                ansatt1,
+            )
+                .shouldBeRight().should {
+                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                    it.beregning.input shouldBe (beregningInput.copy(prisbetingelser = AvtaleFixtures.ARR.prisbetingelser))
+                }
+
+            val oppdatertPrisbetingelser = AvtaleFixtures.ARR.prisbetingelser + " - oppdatert"
+            database.run {
+                queries.avtale.upsert(AvtaleFixtures.ARR.copy(prisbetingelser = oppdatertPrisbetingelser))
+                queries.avtale.get(AvtaleFixtures.ARR.id).shouldNotBeNull().should {
+                    it.prisbetingelser shouldBe oppdatertPrisbetingelser
+                }
+            }
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            database.run {
+                queries.tilsagn.get(request.id).shouldNotBeNull().should {
+                    it.beregning.input shouldBe beregningInput.copy(prisbetingelser = oppdatertPrisbetingelser)
+                }
+            }
         }
 
         test("totrinnskontroll blir oppdatert i forbindelse med opprettelse av tilsagn") {

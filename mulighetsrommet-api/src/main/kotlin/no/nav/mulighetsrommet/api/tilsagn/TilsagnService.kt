@@ -123,7 +123,10 @@ class TilsagnService(
             .map { dbo ->
                 queries.tilsagn.upsert(dbo)
                 queries.totrinnskontroll.upsert(totrinnskontroll)
-                queries.tilsagn.upsertPrisbetingelser(dbo.id)
+
+                if (dbo.beregning is TilsagnBeregningFri) {
+                    queries.tilsagn.upsertPrisbetingelser(dbo.id)
+                }
 
                 val dto = queries.tilsagn.getOrError(dbo.id)
 
