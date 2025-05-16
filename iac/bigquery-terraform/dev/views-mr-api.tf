@@ -323,24 +323,30 @@ module "mr_api_del_med_bruker_view" {
       },
       {
         mode        = "NULLABLE"
-        name        = "veileder_tilhorer_fylke"
+        name        = "delt_fra_fylke"
         type        = "STRING"
         description = "Enhetsnummer for fylket til veileder som har delt med bruker"
       },
       {
         mode        = "NULLABLE"
-        name        = "veileder_tilhorer_enhet"
+        name        = "delt_fra_enhet"
         type        = "STRING"
         description = "Enhetsnummet for nav-kontoret til veileder som har delt med bruker"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "created_at"
+        type        = "TIMESTAMP"
+        description = "Når tiltaket ble delt med bruker"
       },
     ]
   )
   view_query = <<EOF
 SELECT
-  id, 
+  id,
   tiltakstype_navn,
-  veileder_tilhorer_fylke,
-  veileder_tilhorer_enhet,
+  delt_fra_fylke,
+  delt_fra_enhet,
   created_at
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker`
 EOF
