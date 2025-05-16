@@ -312,7 +312,7 @@ module "mr_api_del_med_bruker_view" {
       {
         mode        = "NULLABLE"
         name        = "id"
-        type        = "STRING"
+        type        = "INTEGER"
         description = "ID til Del med bruker-raden."
       },
       {
