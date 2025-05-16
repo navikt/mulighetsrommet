@@ -53,8 +53,8 @@ fun Route.delMedBrukerRoutes() {
                         sanityId = request.sanityId,
                         gjennomforingId = request.gjennomforingId,
                         tiltakstypeNavn = request.tiltakstypeNavn,
-                        veilederTilhorerFylke = request.veilederTilhorerFylke,
-                        veilederTilhorerEnhet = request.veilederTilhorerEnhet,
+                        deltFraFylke = request.veilederTilhorerFylke,
+                        deltFraEnhet = request.veilederTilhorerEnhet,
                     )
                     delMedBrukerService.lagreDelMedBruker(dbo)
 
