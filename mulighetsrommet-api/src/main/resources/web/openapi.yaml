@@ -3745,9 +3745,9 @@ components:
           format: uuid
         tiltakstypeNavn:
             type: string
-        veilederTilhorerFylke:
+        deltFraFylke:
             type: [string, "null"]
-        veilederTilhorerEnhet:
+        deltFraEnhet:
             type: [string, "null"]
       required:
         - fnr
@@ -3757,8 +3757,8 @@ components:
         - gjennomforingId
         - sanityId
         - tiltakstypeNavn
-        - veilederTilhorerFylke
-        - veilederTilhorerEnhet
+        - deltFraFylke
+        - deltFraEnhet
 
     DelTiltakMedBrukerResponse:
       type: object
@@ -4004,9 +4004,9 @@ components:
           type: string
         tiltakstypeNavn:
           type: [string, "null"]
-        veilederTilhorerFylke:
+        deltFraFylke:
           type: [string, "null"]
-        veilederTilhorerEnhet:
+        deltFraEnhet:
           type: [string, "null"]
       required:
         - norskIdent
