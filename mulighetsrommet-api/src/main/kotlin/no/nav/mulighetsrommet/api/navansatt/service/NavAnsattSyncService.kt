@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.sanity.*
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
-import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -114,7 +113,6 @@ class NavAnsattSyncService(
             .toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
-            type = NotificationType.TASK,
             title = """Avtalen "${avtale.navn}" mangler administrator.""",
             description = "Du har blitt varslet fordi din Nav-hovedenhet er i samme fylke som forrige administrators Nav-hovedenhet. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
             metadata = NotificationMetadata(
@@ -152,7 +150,6 @@ class NavAnsattSyncService(
             .toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
-            type = NotificationType.TASK,
             title = """Kontaktperson eller redaktør for tiltak: "${tiltak.tiltaksgjennomforingNavn}" ble fjernet i Sanity""",
             description = "Du har blitt varslet fordi din Nav-hovedenhet er i samme fylke som den slettede kontaktpersons/redaktørs Nav-hovedenhet. Gå til tiltaksgjennomføringen i Sanity og sjekk at kontaktpersonene og redaktørene for tiltaket er korrekt.",
             metadata = NotificationMetadata(

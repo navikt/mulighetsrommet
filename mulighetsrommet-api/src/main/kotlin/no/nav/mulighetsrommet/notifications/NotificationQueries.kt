@@ -14,9 +14,8 @@ class NotificationQueries(private val session: Session) {
     fun insert(notification: ScheduledNotification) {
         @Language("PostgreSQL")
         val insertNotification = """
-            insert into notification (id, type, title, description, created_at, metadata)
-            values (:id::uuid, :type::notification_type, :title, :description, :created_at, :metadata::jsonb)
-            returning id, type, title, description, created_at, metadata::jsonb
+            insert into notification (id, title, description, created_at, metadata)
+            values (:id::uuid, :title, :description, :created_at, :metadata::jsonb)
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -28,7 +27,6 @@ class NotificationQueries(private val session: Session) {
 
         val notificationParams = mapOf(
             "id" to notification.id,
-            "type" to notification.type.name,
             "title" to notification.title,
             "description" to notification.description,
             "created_at" to notification.createdAt,
@@ -49,15 +47,9 @@ class NotificationQueries(private val session: Session) {
     fun setNotificationDoneAt(id: UUID, userId: NavIdent, doneAt: LocalDateTime?): Int {
         @Language("PostgreSQL")
         val query = """
-            with matched_notification as (select *
-                                          from notification n
-                                               join user_notification un on n.id = un.notification_id
-                                              and notification_id = :notification_id
-                                              and user_id = :user_id)
-            update user_notification un
+            update user_notification
             set done_at = :done_at
-            from matched_notification mn
-            where un.notification_id = mn.id and (un.user_id = :user_id or mn.type = 'TASK')
+            where notification_id = :notification_id and user_id = :user_id
         """.trimIndent()
 
         val params = mapOf("notification_id" to id, "user_id" to userId.value, "done_at" to doneAt)
@@ -68,7 +60,7 @@ class NotificationQueries(private val session: Session) {
     fun get(id: UUID): UserNotification {
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
+            select n.id, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
             from notification n
                      left join user_notification un on n.id = un.notification_id
             where id = ?::uuid
@@ -82,7 +74,7 @@ class NotificationQueries(private val session: Session) {
     fun getAll(): List<UserNotification> {
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
+            select n.id, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
             from notification n
                      left join user_notification un on n.id = un.notification_id
             order by created_at desc
@@ -97,7 +89,7 @@ class NotificationQueries(private val session: Session) {
     ): List<UserNotification> {
         @Language("PostgreSQL")
         val query = """
-            select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
+            select n.id, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
             from notification n
                      left join user_notification un on n.id = un.notification_id
             where (:user_id::text is null or un.user_id = :user_id)
@@ -141,7 +133,6 @@ class NotificationQueries(private val session: Session) {
 
 private fun Row.toUserNotification() = UserNotification(
     id = uuid("id"),
-    type = NotificationType.valueOf(string("type")),
     title = string("title"),
     description = stringOrNull("description"),
     user = NavIdent(string("user_id")),

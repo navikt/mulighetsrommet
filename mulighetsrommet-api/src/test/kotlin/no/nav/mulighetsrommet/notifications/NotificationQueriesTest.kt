@@ -33,14 +33,12 @@ class NotificationQueriesTest : FunSpec({
 
     val notification1 = ScheduledNotification(
         id = UUID.randomUUID(),
-        type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for flere brukere",
         createdAt = now,
         targets = nonEmptyListOf(user1, user2),
     )
     val notification2 = ScheduledNotification(
         id = UUID.randomUUID(),
-        type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for spesifikk bruker",
         createdAt = now,
         targets = nonEmptyListOf(user1),
@@ -49,7 +47,6 @@ class NotificationQueriesTest : FunSpec({
     fun ScheduledNotification.asUserNotification(userId: NavIdent, doneAt: LocalDateTime? = null) = run {
         UserNotification(
             id = id,
-            type = type,
             title = title,
             description = description,
             user = userId,
@@ -119,26 +116,6 @@ class NotificationQueriesTest : FunSpec({
                 notification1.asUserNotification(user2),
                 notification2.asUserNotification(user1),
                 notification1.asUserNotification(user1, doneAtTime),
-            )
-        }
-    }
-
-    test("should set done_at for all users when the notification type is TASK") {
-        database.runAndRollback { session ->
-            domain.setup(session)
-
-            val notifications = NotificationQueries(session)
-
-            val task = notification1.copy(type = NotificationType.TASK)
-            notifications.insert(task)
-            notifications.insert(notification2)
-
-            notifications.setNotificationDoneAt(task.id, user1, doneAtTime)
-
-            notifications.getUserNotifications() shouldContainExactlyInAnyOrder listOf(
-                notification2.asUserNotification(user1),
-                task.asUserNotification(user1, doneAtTime),
-                task.asUserNotification(user2, doneAtTime),
             )
         }
     }

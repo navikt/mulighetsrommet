@@ -27,13 +27,8 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.textRepr
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
-import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
 import java.time.Instant
@@ -317,7 +312,6 @@ class TilsagnService(
 
         queries.notifications.insert(
             ScheduledNotification(
-                type = NotificationType.NOTIFICATION,
                 title = "Et $tilsagnDisplayName du sendte til annullering er blitt avvist",
                 description = """$beslutterNavn avviste annulleringen av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen
                     | "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
@@ -419,7 +413,6 @@ class TilsagnService(
 
         queries.notifications.insert(
             ScheduledNotification(
-                type = NotificationType.NOTIFICATION,
                 title = "Et $tilsagnDisplayName du sendte til oppgjør er blitt avvist",
                 description = """$beslutterNavn avviste oppgjøret av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn}
                     | for gjennomføringen "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
@@ -506,7 +499,6 @@ class TilsagnService(
             """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
 
         val notice = ScheduledNotification(
-            type = NotificationType.NOTIFICATION,
             title = title,
             description = description,
             metadata = NotificationMetadata(

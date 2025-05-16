@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.notifications.NotificationTask
-import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
 import java.util.*
@@ -175,7 +174,7 @@ class NavAnsattSyncServiceTest : FunSpec({
 
         verify(exactly = 1) {
             val expectedNotification: ScheduledNotification = match {
-                it.type == NotificationType.TASK && it.targets.containsAll(listOf(ansatt2.navIdent))
+                it.targets.containsAll(listOf(ansatt2.navIdent))
             }
             notificationTask.scheduleNotification(expectedNotification, any())
         }
