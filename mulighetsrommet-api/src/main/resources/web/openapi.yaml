@@ -3743,6 +3743,12 @@ components:
         sanityId:
           type: [string, "null"]
           format: uuid
+        tiltakstypeNavn:
+            type: string
+        deltFraFylke:
+            type: [string, "null"]
+        deltFraEnhet:
+            type: [string, "null"]
       required:
         - fnr
         - overskrift
@@ -3750,6 +3756,9 @@ components:
         - venterPaaSvarFraBruker
         - gjennomforingId
         - sanityId
+        - tiltakstypeNavn
+        - deltFraFylke
+        - deltFraEnhet
 
     DelTiltakMedBrukerResponse:
       type: object
@@ -3993,6 +4002,12 @@ components:
           type: string
         updatedBy:
           type: string
+        tiltakstypeNavn:
+          type: [string, "null"]
+        deltFraFylke:
+          type: [string, "null"]
+        deltFraEnhet:
+          type: [string, "null"]
       required:
         - norskIdent
         - navident

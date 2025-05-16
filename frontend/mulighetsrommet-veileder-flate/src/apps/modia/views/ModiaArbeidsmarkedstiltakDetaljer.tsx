@@ -47,6 +47,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useTiltakIdFraUrl();
   const { data: delMedBrukerInfo } = useDelMedBrukerStatus(fnr, id);
+  const { enhet, overordnetEnhet } = useModiaContext();
 
   const { data: veilederdata } = useVeilederdata();
   const { data: brukerdata } = useBrukerdata();
@@ -127,6 +128,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 veiledernavn={resolveName(veilederdata)}
                 tiltak={tiltak}
                 bruker={brukerdata}
+                veilederEnhet={enhet}
+                veilederFylke={overordnetEnhet}
               />
             ) : null}
 
@@ -182,6 +185,7 @@ const whiteListOpprettAvtaleKnapp: TiltakskodeArena[] = [
   TiltakskodeArena.MENTOR,
   TiltakskodeArena.INKLUTILS,
   TiltakskodeArena.TILSJOBB,
+  TiltakskodeArena.VATIAROR,
 ];
 
 function resolveName(ansatt: NavVeileder) {

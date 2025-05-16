@@ -15,7 +15,7 @@ enum class AuthProvider {
 
 object AppRoles {
     const val ACCESS_AS_APPLICATION = "access_as_application"
-    const val OEBS_API = "oebs_api"
+    const val OEBS_API = "oebs-api"
 }
 
 /**

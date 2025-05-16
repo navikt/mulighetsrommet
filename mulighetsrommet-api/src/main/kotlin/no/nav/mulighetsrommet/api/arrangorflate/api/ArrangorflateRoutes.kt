@@ -14,6 +14,7 @@ import io.ktor.server.util.*
 import io.ktor.utils.io.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -21,6 +22,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -55,14 +57,28 @@ fun Route.arrangorflateRoutes() {
         ?.find { it == organisasjonsnummer }
         ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
 
+    suspend fun resolveArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto {
+        return arrangorService.getArrangorOrSyncFromBrreg(organisasjonsnummer)
+            .getOrElse {
+                when (it) {
+                    BrregError.NotFound -> throw StatusException(
+                        HttpStatusCode.BadRequest,
+                        "Fant ikke arrangør $organisasjonsnummer i Brreg",
+                    )
+
+                    BrregError.BadRequest, BrregError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Feil oppsto ved henting av arrangør $organisasjonsnummer fra Brreg",
+                    )
+                }
+            }
+    }
+
     route("/arrangorflate") {
         get("/tilgang-arrangor") {
             val arrangorer = arrangorTilganger()
-                ?.map {
-                    arrangorService.getArrangorOrSyncFromBrreg(it).getOrElse {
-                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
-                    }
-                } ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
+                ?.map { resolveArrangor(it) }
+                ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
 
             call.respond(arrangorer)
         }
