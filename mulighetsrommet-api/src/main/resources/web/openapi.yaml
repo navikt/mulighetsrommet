@@ -5859,6 +5859,7 @@ components:
       required:
         - type
         - belop
+        - prisbetingelser
 
     TilsagnBeregningFriOutput:
       type: object

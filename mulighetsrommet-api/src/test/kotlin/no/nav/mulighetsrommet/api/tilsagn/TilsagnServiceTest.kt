@@ -193,6 +193,23 @@ class TilsagnServiceTest : FunSpec({
             }
         }
 
+        test("oppdaterer prismodell fra avtale for tilsagn med fri prismodell") {
+            val beregningInput = TilsagnBeregningFri.Input(belop = 1000, prisbetingelser = "Dette kommer ikke med")
+            val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+            service.upsert(
+                request.copy(
+                    gjennomforingId = gjennomforing.id,
+                    periodeStart = gjennomforing.startDato,
+                    periodeSlutt = gjennomforing.sluttDato!!,
+                    beregning = beregningInput,
+                ),
+                ansatt1,
+            ).shouldBeRight().should {
+                it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                it.beregning.input shouldBe beregningInput.copy(prisbetingelser = AvtaleFixtures.ARR.prisbetingelser)
+            }
+        }
+
         test("genererer løpenummer og bestillingsnummer") {
             val domain2 = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
