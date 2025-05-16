@@ -61,13 +61,15 @@ class AvstemmingService(
             sftpClient.put(
                 content = rader.joinToString(separator = "\n").toByteArray(),
                 // TODO: Bli enig med oebs om filnavn
-                filename = "${now.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}_A_tiltak_avstemming_dag.csv",
+                filename = dailyAvstemmingFilename(now),
                 alternativePort = alternativePort,
             )
         }
         log.info("Ferdig avstemt {} bestillinger og {} fakturaer", bestillinger.size, fakturaer.size)
     }
 }
+
+fun dailyAvstemmingFilename(tidspunkt: LocalDateTime) = "${tidspunkt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}_A_tiltak_avstemming_dag.csv"
 
 fun Bestilling.toDailyCSVRad(): String {
     val data = mutableListOf<String>()

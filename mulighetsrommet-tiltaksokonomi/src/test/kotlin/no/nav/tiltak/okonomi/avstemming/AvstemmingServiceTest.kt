@@ -85,13 +85,13 @@ class AvstemmingServiceTest : FunSpec({
             server.createDirectory(sftpClient.properties.directory)
 
             val tidspunkt = LocalDateTime.now()
-            avstemmingService.avstem(server.port)
+            avstemmingService.dailyAvstemming(server.port)
 
-            val fileContent = server.getFileContent("${sftpClient.properties.directory}/${AvstemmingService.filename(tidspunkt)}", UTF_8)
+            val fileContent = server.getFileContent("${sftpClient.properties.directory}/${dailyAvstemmingFilename(tidspunkt)}", UTF_8)
             fileContent.isEmpty() shouldBe false
             fileContent.lines().size shouldBe 2
-            fileContent.lines() shouldContain bestilling.toCSVRad()
-            fileContent.lines() shouldContain fakturaCsvData.toCSVRad()
+            fileContent.lines() shouldContain bestilling.toDailyCSVRad()
+            fileContent.lines() shouldContain fakturaCsvData.toDailyCSVRad()
         }
         db.session { queries.faktura.getNotAvstemt() }.size shouldBe 0
         db.session { queries.bestilling.getNotAvstemt() }.size shouldBe 0
