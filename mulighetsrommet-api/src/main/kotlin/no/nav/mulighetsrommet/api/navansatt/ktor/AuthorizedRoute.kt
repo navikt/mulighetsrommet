@@ -5,39 +5,14 @@ import io.ktor.util.*
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 
 fun Route.authorize(
-    requiredRole: Rolle,
-    build: Route.() -> Unit,
-): Route {
-    val routeRoles = listOf(AnyRoles(setOf(requiredRole)))
-    val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(RequiredRoles(routeRoles)))
-
-    val parentRoles = generateSequence(authorizedRoute) { it.parent }
-        .mapNotNull { it.attributes.getOrNull(AuthorizedRolesKey) }
-        .map { it.roles }
-        .flatten()
-        .toList()
-        .reversed()
-        .distinct()
-
-    val combinedRoles = RequiredRoles(parentRoles + routeRoles)
-
-    authorizedRoute.attributes.put(AuthorizedRolesKey, combinedRoles)
-
-    authorizedRoute.install(NavAnsattAuthorizationPlugin) {
-        requiredRoles = combinedRoles
-    }
-
-    authorizedRoute.build()
-    return authorizedRoute
-}
-
-fun Route.authorize(
+    requiredRole: Rolle? = null,
     anyOf: Set<Rolle> = emptySet(),
     allOf: Set<Rolle> = emptySet(),
     build: Route.() -> Unit,
 ): Route {
     val roller = buildList {
         allOf.forEach { add(AnyRoles(setOf(it))) }
+        if (requiredRole != null) add(AnyRoles(setOf(requiredRole)))
         if (anyOf.isNotEmpty()) add(AnyRoles(anyOf))
     }
     val authorizedRoute = createChild(NavAnsattAuthorizationRouteSelector(roller = RequiredRoles(roller)))
