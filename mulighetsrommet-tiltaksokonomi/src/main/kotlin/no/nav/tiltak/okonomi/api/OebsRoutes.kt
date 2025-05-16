@@ -66,12 +66,12 @@ data class OebsBestillingKvittering(
     val bestillingsNummer: String,
     @Serializable(with = OebsLocalDateTimeSerializer::class)
     val opprettelsesTidspunkt: LocalDateTime,
-    val oebsStatus: String? = null,
+    val statusOebs: String? = null,
     val feilMelding: String? = null,
     val feilKode: String? = null,
     val annullert: String? = null,
 ) {
-    fun isSuccess(): Boolean = oebsStatus != "Avvist" && feilKode == null && feilMelding == null
+    fun isSuccess(): Boolean = statusOebs != "Avvist" && feilKode == null && feilMelding == null
     fun isAnnulleringKvittering(): Boolean = annullert != null
 }
 
@@ -80,9 +80,9 @@ data class OebsFakturaKvittering(
     val fakturaNummer: String,
     @Serializable(with = OebsLocalDateTimeSerializer::class)
     val opprettelsesTidspunkt: LocalDateTime,
-    val oebsStatus: String? = null,
+    val statusOebs: String? = null,
     val feilMelding: String? = null,
     val feilKode: String? = null,
 ) {
-    fun isSuccess(): Boolean = oebsStatus != "Avvist" && feilKode == null && feilMelding == null
+    fun isSuccess(): Boolean = statusOebs != "Avvist" && feilKode == null && feilMelding == null
 }
