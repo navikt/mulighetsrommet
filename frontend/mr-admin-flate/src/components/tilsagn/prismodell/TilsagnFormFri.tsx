@@ -70,6 +70,7 @@ function BeregningOutputPreview() {
       input={{
         type: "FRI",
         belop: values.beregning?.belop,
+        prisbetingelser: null,
       }}
     />
   );

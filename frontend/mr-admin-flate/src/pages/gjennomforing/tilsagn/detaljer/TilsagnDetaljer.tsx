@@ -76,6 +76,12 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
                 verdi={formaterNOK(beregning.input.sats)}
               />
             )}
+            {beregning.type === "FRI" && (
+              <MetadataHorisontal
+                header={tilsagnTekster.beregning.prisbetingelser.label}
+                verdi={beregning.input.prisbetingelser || '-'}
+              />
+            )}
           </VStack>
         </HStack>
         <VStack gap="6" justify="start" className=" lg:border-l-1 border-gray-300 lg:px-4">

@@ -142,7 +142,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: { type: "FRI", belop: 14_000, prisbetingelser: null },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -184,7 +184,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: { type: "FRI", belop: 14_000, prisbetingelser: null },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -233,7 +233,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: { type: "FRI", belop: 14_000, prisbetingelser: null },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -283,7 +283,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: { type: "FRI", belop: 14_000, prisbetingelser: null },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -326,7 +326,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: { type: "FRI", belop: 14_000, prisbetingelser: null },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -378,7 +378,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: { type: "FRI", belop: 14_000, prisbetingelser: null },
         output: { type: "FRI", belop: 14_000 },
       },
       status: TilsagnStatus.GODKJENT,

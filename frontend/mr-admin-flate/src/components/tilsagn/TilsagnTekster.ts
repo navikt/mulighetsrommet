@@ -33,6 +33,9 @@ export const tilsagnTekster = {
     belop: {
       label: "Totalbeløp",
     },
+    prisbetingelser: {
+      label: "Pris- og betalingsbetingelser"
+    }
   },
   totrinn: {
     behandletAv: "Behandlet av",
