@@ -31,7 +31,6 @@ import {
   TrashIcon,
 } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
@@ -39,23 +38,24 @@ import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsa
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: tilsagnDetaljer } = useApiSuspenseQuery(tilsagnQuery(tilsagnId));
   const { data: ansatt } = useHentAnsatt();
-  const { data: historikk } = useSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
-  const { data: aktiveTilsagn } = useSuspenseQuery({
+  const { data: historikk } = useApiSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
+  const { data: aktiveTilsagn } = useApiSuspenseQuery({
     ...aktiveTilsagnQuery(gjennomforingId),
   });
   return {
     ansatt,
     gjennomforing,
     historikk,
-    ...tilsagnDetaljer.data,
-    aktiveTilsagn: aktiveTilsagn?.data.filter((x) => x.id !== tilsagnDetaljer.data.tilsagn.id),
+    ...tilsagnDetaljer,
+    aktiveTilsagn: aktiveTilsagn?.filter((x) => x.id !== tilsagnDetaljer.tilsagn.id),
   };
 }
 
@@ -168,7 +168,7 @@ export function TilsagnPage() {
   const handlingsMeny = (
     <HStack gap="2" justify={"end"}>
       <EndringshistorikkPopover>
-        <ViewEndringshistorikk historikk={historikk.data} />
+        <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
       {visHandlingerMeny ? (
         <ActionMenu>

@@ -10,7 +10,6 @@ import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
-import { IngenLesetilgang } from "./IngenLesetilgang";
 import { QueryKeys } from "./api/QueryKeys";
 import { lagreFilterAction } from "./api/lagret-filter/lagretFilterAction";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
@@ -65,10 +64,6 @@ export function App() {
   const { data: ansatt } = useApiQuery(ansattQuery);
   if (!ansatt) {
     return null;
-  }
-
-  if (!ansatt.roller.includes(Rolle.TILTAKADMINISTRASJON_GENERELL)) {
-    return <IngenLesetilgang />;
   }
 
   if (

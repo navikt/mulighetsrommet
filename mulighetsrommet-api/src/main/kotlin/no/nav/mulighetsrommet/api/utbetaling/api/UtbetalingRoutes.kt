@@ -43,76 +43,77 @@ fun Route.utbetalingRoutes() {
     val totrinnskontrollService: TotrinnskontrollService by inject()
 
     route("/utbetaling/{id}") {
-        get {
-            val id = call.parameters.getOrFail<UUID>("id")
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING, Rolle.BESLUTTER_TILSAGN)) {
+            get {
+                val id = call.parameters.getOrFail<UUID>("id")
 
-            val navIdent = getNavIdent()
+                val navIdent = getNavIdent()
 
-            val utbetaling = db.session {
-                val ansatt = queries.ansatt.getByNavIdent(navIdent)
-                    ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
+                val utbetaling = db.session {
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                        ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
 
-                val utbetaling = queries.utbetaling.get(id)
-                    ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
+                    val utbetaling = queries.utbetaling.get(id)
+                        ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
 
-                val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
-                    val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
-                        TilsagnDto.fromTilsagn(it)
-                    }
-
-                    val opprettelse = queries.totrinnskontroll
-                        .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-                    val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
-                        Rolle.ATTESTANT_UTBETALING,
-                        setOf(tilsagn.kostnadssted.enhetsnummer),
-                    )
-                    val besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(opprettelse)
-                    val behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(opprettelse)
-
-                    UtbetalingLinje(
-                        id = delutbetaling.id,
-                        gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
-                        belop = delutbetaling.belop,
-                        status = delutbetaling.status,
-                        tilsagn = tilsagn,
-                        opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
-                            opprettelse,
-                            kanBesluttesAvAnsatt,
-                            behandletAvNavn,
-                            besluttetAvNavn,
-                        ),
-                    )
-                }
-
-                val deltakere = when (utbetaling.beregning) {
-                    is UtbetalingBeregningForhandsgodkjent -> {
-                        val deltakereById = queries.deltaker
-                            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                            .associateBy { it.id }
-
-                        val deltakerPersoner =
-                            service.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
-
-                        utbetaling.beregning.output.deltakelser.map {
-                            val deltaker = deltakereById.getValue(it.deltakelseId)
-                            val person = deltaker.norskIdent?.let { deltakerPersoner.getValue(deltaker.norskIdent) }
-                            toDeltakerForKostnadsfordeling(deltaker, person, it.manedsverk)
+                    val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
+                            TilsagnDto.fromTilsagn(it)
                         }
+
+                        val opprettelse = queries.totrinnskontroll
+                            .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+                        val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
+                            Rolle.ATTESTANT_UTBETALING,
+                            setOf(tilsagn.kostnadssted.enhetsnummer),
+                        )
+                        val besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(opprettelse)
+                        val behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(opprettelse)
+
+                        UtbetalingLinje(
+                            id = delutbetaling.id,
+                            gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
+                            belop = delutbetaling.belop,
+                            status = delutbetaling.status,
+                            tilsagn = tilsagn,
+                            opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
+                                opprettelse,
+                                kanBesluttesAvAnsatt,
+                                behandletAvNavn,
+                                besluttetAvNavn,
+                            ),
+                        )
                     }
 
-                    is UtbetalingBeregningFri -> emptyList()
+                    val deltakere = when (utbetaling.beregning) {
+                        is UtbetalingBeregningForhandsgodkjent -> {
+                            val deltakereById = queries.deltaker
+                                .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                                .associateBy { it.id }
+
+                            val deltakerPersoner =
+                                service.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
+
+                            utbetaling.beregning.output.deltakelser.map {
+                                val deltaker = deltakereById.getValue(it.deltakelseId)
+                                val person = deltaker.norskIdent?.let { deltakerPersoner.getValue(deltaker.norskIdent) }
+                                toDeltakerForKostnadsfordeling(deltaker, person, it.manedsverk)
+                            }
+                        }
+
+                        is UtbetalingBeregningFri -> emptyList()
+                    }
+
+                    UtbetalingDetaljerDto(
+                        utbetaling = toUtbetalingDto(utbetaling),
+                        deltakere = deltakere,
+                        linjer = linjer,
+                    )
                 }
 
-                UtbetalingDetaljerDto(
-                    utbetaling = toUtbetalingDto(utbetaling),
-                    deltakere = deltakere,
-                    linjer = linjer,
-                )
+                call.respond(utbetaling)
             }
-
-            call.respond(utbetaling)
         }
-
         get("/delutbetalinger") {
             val id = call.parameters.getOrFail<UUID>("id")
 

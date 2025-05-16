@@ -86,7 +86,7 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL)
             }
         }
 
@@ -146,7 +146,7 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKADMINISTRASJON_GENERELL
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL)
             }
         }
 
@@ -165,7 +165,7 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.TILTAKSGJENNOMFORINGER_SKRIV
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
             }
         }
 

@@ -59,38 +59,39 @@ fun Route.tilsagnRoutes() {
         }
 
         route("/{id}") {
-            get {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val navIdent = getNavIdent()
+            authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING, Rolle.BESLUTTER_TILSAGN)) {
+                get {
+                    val id = call.parameters.getOrFail<UUID>("id")
+                    val navIdent = getNavIdent()
 
-                val result = db.session {
-                    val tilsagn = queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                    val result = db.session {
+                        val tilsagn = queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
-                        ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
+                        val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                            ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
-                    val kostnadssted = tilsagn.kostnadssted.enhetsnummer
+                        val kostnadssted = tilsagn.kostnadssted.enhetsnummer
 
-                    val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
-                        getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
+                        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
+                            getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
+                        }
+                        val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
+                            getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
+                        }
+                        val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
+                            getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
+                        }
+                        TilsagnDetaljerDto(
+                            tilsagn = TilsagnDto.fromTilsagn(tilsagn),
+                            opprettelse = opprettelse,
+                            annullering = annullering,
+                            tilOppgjor = tilOppgjor,
+                        )
                     }
-                    val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
-                        getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
-                    }
-                    val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
-                        getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
-                    }
-                    TilsagnDetaljerDto(
-                        tilsagn = TilsagnDto.fromTilsagn(tilsagn),
-                        opprettelse = opprettelse,
-                        annullering = annullering,
-                        tilOppgjor = tilOppgjor,
-                    )
+
+                    call.respond(result)
                 }
-
-                call.respond(result)
             }
-
             get("/historikk") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val historikk = service.getEndringshistorikk(id)
