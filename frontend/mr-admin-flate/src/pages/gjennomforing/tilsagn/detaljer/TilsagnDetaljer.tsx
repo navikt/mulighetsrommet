@@ -79,7 +79,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             {beregning.type === "FRI" && (
               <MetadataHorisontal
                 header={tilsagnTekster.beregning.prisbetingelser.label}
-                verdi={beregning.input.prisbetingelser || '-'}
+                verdi={beregning.input.prisbetingelser || "-"}
               />
             )}
           </VStack>
