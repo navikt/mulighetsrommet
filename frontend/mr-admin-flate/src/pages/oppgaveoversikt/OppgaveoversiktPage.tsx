@@ -4,8 +4,8 @@ import { Tiltakskode, Toggles } from "@mr/api-client-v2";
 import { Tabs } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Outlet, useLocation, useNavigate } from "react-router";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { OppgaveoversiktIkon } from "../../components/ikoner/OppgaveoversiktIkon";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { OppgaveoversiktIkon } from "@/components/ikoner/OppgaveoversiktIkon";
 import { ulesteNotifikasjonerQuery } from "./notifikasjoner/notifikasjonerQueries";
 
 export function OppgaveoversiktPage() {

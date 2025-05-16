@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -275,7 +274,6 @@ class GjennomforingService(
             ?: return
 
         val notification = ScheduledNotification(
-            type = NotificationType.NOTIFICATION,
             title = "Du har blitt satt som administrator på gjennomføringen \"${dbo.navn}\"",
             targets = administratorsToNotify,
             createdAt = Instant.now(),

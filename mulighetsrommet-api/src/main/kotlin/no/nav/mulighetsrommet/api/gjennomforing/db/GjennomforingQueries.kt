@@ -13,15 +13,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.*
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
-import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
@@ -290,13 +287,13 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun getUpdatedAt(id: UUID): LocalDateTime? {
+    fun getUpdatedAt(id: UUID): LocalDateTime {
         @Language("PostgreSQL")
         val query = """
             select updated_at from gjennomforing where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.localDateTimeOrNull("updated_at") }
+        return session.requireSingle(queryOf(query, id)) { it.localDateTime("updated_at") }
     }
 
     fun getAll(

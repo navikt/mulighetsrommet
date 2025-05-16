@@ -1,16 +1,16 @@
 import { NotificationsService, NotificationStatus } from "@mr/api-client-v2";
-import { QueryKeys } from "../../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export const lesteNotifikasjonerQuery = {
-  queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.DONE),
+  queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.READ),
   queryFn: () =>
-    NotificationsService.getNotifications({ query: { status: NotificationStatus.DONE } }),
+    NotificationsService.getNotifications({ query: { status: NotificationStatus.READ } }),
 };
 
 export const ulesteNotifikasjonerQuery = {
-  queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.NOT_DONE),
+  queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.UNREAD),
   queryFn: () =>
     NotificationsService.getNotifications({
-      query: { status: NotificationStatus.NOT_DONE },
+      query: { status: NotificationStatus.UNREAD },
     }),
 };

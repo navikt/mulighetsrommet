@@ -1,7 +1,7 @@
-import { NotificationType, UserNotification } from "@mr/api-client-v2";
+import { UserNotification } from "@mr/api-client-v2";
 import { Alert, BodyLong, BodyShort, Heading, Link, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { formaterDatoTid } from "@/utils/Utils";
 import { ReadNotificationButton } from "./ReadNotificationButton";
 
@@ -11,7 +11,7 @@ interface NotifikasjonerListItemProps {
 }
 
 export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerListItemProps) {
-  const { title, description, createdAt, type, metadata } = notifikasjon;
+  const { title, description, createdAt, metadata } = notifikasjon;
 
   const [error, setError] = useState("");
 
@@ -26,7 +26,11 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
       )}
     >
       <div className="flex flex-col gap-2 max-w-[75ch]">
-        <BodyShort>{tag(type)}</BodyShort>
+        <BodyShort>
+          <Tag size="xsmall" variant="warning">
+            Notifikasjon
+          </Tag>
+        </BodyShort>
         <Heading
           level="2"
           size="small"
@@ -55,21 +59,4 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
       </VStack>
     </li>
   );
-}
-
-function tag(type: NotificationType): ReactNode {
-  switch (type) {
-    case NotificationType.NOTIFICATION:
-      return (
-        <Tag size="xsmall" variant="warning">
-          Notifikasjon
-        </Tag>
-      );
-    case NotificationType.TASK:
-      return (
-        <Tag size="xsmall" variant="info">
-          Oppgave
-        </Tag>
-      );
-  }
 }

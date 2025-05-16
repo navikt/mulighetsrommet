@@ -16,16 +16,12 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
-import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.*
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
-import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.sql.Array
@@ -420,6 +416,15 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         return list(queryOf(query, navIdent.value)) { it.uuid("avtale_id") }
+    }
+
+    fun getUpdatedAt(id: UUID): LocalDateTime {
+        @Language("PostgreSQL")
+        val query = """
+            select updated_at from avtale where id = ?
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) { it.localDateTime("updated_at") }
     }
 
     fun oppdaterSluttdato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {

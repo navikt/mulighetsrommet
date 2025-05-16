@@ -1,7 +1,7 @@
 import { NotificationsService, NotificationStatus } from "@mr/api-client-v2";
 import { QueryClient } from "@tanstack/react-query";
 import { ActionFunctionArgs } from "react-router";
-import { QueryKeys } from "../../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export const setLestStatusForNotifikasjonAction =
   (queryClient: QueryClient) =>
@@ -20,7 +20,7 @@ export const setLestStatusForNotifikasjonAction =
 
     const notifikasjoner = ids.map((id, index) => {
       const status = statuses[index];
-      if (status !== NotificationStatus.DONE && status !== NotificationStatus.NOT_DONE) {
+      if (status !== NotificationStatus.READ && status !== NotificationStatus.UNREAD) {
         throw Error("Ugyldig status for notifikasjon");
       }
       return { id: String(id), status: status as NotificationStatus };

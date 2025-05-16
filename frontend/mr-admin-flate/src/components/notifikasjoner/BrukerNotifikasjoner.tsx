@@ -6,7 +6,7 @@ import { Notifikasjon } from "./Notifikasjon";
 export function BrukerNotifikasjoner() {
   const { data: bruker } = useHentAnsatt();
   const { data: notificationSummary } = useNotificationSummary();
-  const antallUlesteNotifikasjoner = notificationSummary?.notDoneCount || -1;
+  const antallUlesteNotifikasjoner = notificationSummary?.unreadCount || -1;
 
   if (antallUlesteNotifikasjoner <= 0) return null;
 

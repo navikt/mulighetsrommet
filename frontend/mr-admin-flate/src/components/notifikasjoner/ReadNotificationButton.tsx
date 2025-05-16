@@ -24,11 +24,11 @@ export function ReadNotificationButton({ id, read, setError }: Props) {
   }
 
   return read ? (
-    <Button variant="secondary" onClick={() => setStatus(NotificationStatus.NOT_DONE)} size="small">
+    <Button variant="secondary" onClick={() => setStatus(NotificationStatus.UNREAD)} size="small">
       Marker som ulest
     </Button>
   ) : (
-    <Button variant="secondary" onClick={() => setStatus(NotificationStatus.DONE)} size="small">
+    <Button variant="secondary" onClick={() => setStatus(NotificationStatus.READ)} size="small">
       Marker som lest
     </Button>
   );

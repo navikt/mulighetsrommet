@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.helper.NavAnsattRolleHelper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -10,10 +12,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 
 class OppgaverService(val db: ApiDatabase) {
     fun oppgaver(
@@ -23,14 +22,14 @@ class OppgaverService(val db: ApiDatabase) {
         ansatt: NavIdent,
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> {
-        val kostnadssteder = getNavEnheterForRegioner(regioner)
+        val navEnheterForRegioner = getNavEnheterForRegioner(regioner)
 
         val oppgaver = buildList {
             if (oppgavetyper.isEmpty() || oppgavetyper.any { it in OppgaveType.TilsagnOppgaver }) {
                 addAll(
                     tilsagnOppgaver(
                         tiltakskoder = tiltakskoder,
-                        kostnadssteder = kostnadssteder,
+                        kostnadssteder = navEnheterForRegioner,
                         ansatt = ansatt,
                     ),
                 )
@@ -39,7 +38,7 @@ class OppgaverService(val db: ApiDatabase) {
                 addAll(
                     delutbetalingOppgaver(
                         tiltakskoder = tiltakskoder,
-                        kostnadssteder = kostnadssteder,
+                        kostnadssteder = navEnheterForRegioner,
                         ansatt = ansatt,
                     ),
                 )
@@ -48,7 +47,23 @@ class OppgaverService(val db: ApiDatabase) {
                 addAll(
                     utbetalingOppgaver(
                         tiltakskoder = tiltakskoder,
-                        kostnadssteder = kostnadssteder,
+                        kostnadssteder = navEnheterForRegioner,
+                    ),
+                )
+            }
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it in OppgaveType.AvtaleOppgaver }) {
+                addAll(
+                    avtaleOppgaver(
+                        tiltakskoder = tiltakskoder,
+                        regioner = regioner,
+                    ),
+                )
+            }
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it in OppgaveType.GjennomforingOppgaver }) {
+                addAll(
+                    gjennomforingOppgaver(
+                        tiltakskoder = tiltakskoder,
+                        navEnheter = navEnheterForRegioner,
                     ),
                 )
             }
@@ -57,7 +72,8 @@ class OppgaverService(val db: ApiDatabase) {
         return oppgaver
             .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
             .filter { oppgave ->
-                val requiredRole = NavAnsattRolle.kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet?.nummer))
+                val requiredRole = NavAnsattRolle
+                    .kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet?.nummer))
                 NavAnsattRolleHelper.hasRole(roller, requiredRole)
             }
     }
@@ -118,6 +134,38 @@ class OppgaverService(val db: ApiDatabase) {
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
             .map { toOppgave(it) }
             .toList()
+    }
+
+    private fun avtaleOppgaver(
+        tiltakskoder: Set<Tiltakskode>,
+        regioner: Set<NavEnhetNummer>,
+    ): List<Oppgave> = db.session {
+        val tiltakstypeIds = queries.tiltakstype.getAll().filter { it.tiltakskode in tiltakskoder }.map { it.id }
+
+        queries.avtale
+            .getAll(
+                tiltakstypeIder = tiltakstypeIds,
+                navRegioner = regioner.toList(),
+                statuser = listOf(AvtaleStatus.Enum.UTKAST, AvtaleStatus.Enum.AKTIV),
+            )
+            .items
+            .flatMap { toOppgaver(it) }
+    }
+
+    private fun gjennomforingOppgaver(
+        tiltakskoder: Set<Tiltakskode>,
+        navEnheter: Set<NavEnhetNummer>,
+    ): List<Oppgave> = db.session {
+        val tiltakstypeIds = queries.tiltakstype.getAll().filter { it.tiltakskode in tiltakskoder }.map { it.id }
+
+        queries.gjennomforing
+            .getAll(
+                tiltakstypeIder = tiltakstypeIds,
+                navEnheter = navEnheter.toList(),
+                statuser = listOf(GjennomforingStatus.GJENNOMFORES),
+            )
+            .items
+            .flatMap { toOppgaver(it) }
     }
 
     private fun QueryContext.byKostnadssted(
@@ -288,3 +336,63 @@ private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
     createdAt = utbetaling.createdAt,
     oppgaveIcon = OppgaveIcon.UTBETALING,
 )
+
+private fun QueryContext.toOppgaver(avtale: AvtaleDto): List<Oppgave> = buildList {
+    if (avtale.administratorer.isEmpty()) {
+        val updatedAt = queries.avtale.getUpdatedAt(avtale.id)
+        add(
+            Oppgave(
+                id = avtale.id,
+                type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
+                title = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
+                enhet = avtale.kontorstruktur.firstOrNull()?.region?.let {
+                    OppgaveEnhet(
+                        nummer = it.enhetsnummer,
+                        navn = it.navn,
+                    )
+                },
+                description = """Avtalen "${avtale.navn}" mangler administrator. Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
+                tiltakstype = OppgaveTiltakstype(
+                    tiltakskode = avtale.tiltakstype.tiltakskode,
+                    navn = avtale.tiltakstype.navn,
+                ),
+                link = OppgaveLink(
+                    linkText = "Se avtale",
+                    link = "/avtaler/${avtale.id}",
+                ),
+                createdAt = updatedAt,
+                oppgaveIcon = OppgaveIcon.AVTALE,
+            ),
+        )
+    }
+}
+
+private fun QueryContext.toOppgaver(gjennomforing: GjennomforingDto): List<Oppgave> = buildList {
+    if (gjennomforing.administratorer.isEmpty()) {
+        val updatedAt = queries.gjennomforing.getUpdatedAt(gjennomforing.id)
+        add(
+            Oppgave(
+                id = gjennomforing.id,
+                type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
+                title = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
+                enhet = gjennomforing.kontorstruktur.firstOrNull()?.region?.let {
+                    OppgaveEnhet(
+                        nummer = it.enhetsnummer,
+                        navn = it.navn,
+                    )
+                },
+                description = """Avtalen "${gjennomforing.navn}" mangler administrator. Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
+                tiltakstype = OppgaveTiltakstype(
+                    tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+                    navn = gjennomforing.tiltakstype.navn,
+                ),
+                link = OppgaveLink(
+                    linkText = "Se avtale",
+                    link = "//${gjennomforing.id}",
+                ),
+                createdAt = updatedAt,
+                oppgaveIcon = OppgaveIcon.AVTALE,
+            ),
+        )
+    }
+}
