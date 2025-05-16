@@ -349,6 +349,7 @@ SELECT
   delt_fra_enhet,
   created_at
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker`
+WHERE delt_fra_fylke IS NOT NULL
 EOF
 }
 
