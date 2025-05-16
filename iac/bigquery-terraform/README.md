@@ -132,9 +132,18 @@ terraform destroy
 Lag migreringer som:
  - Gir lesetilgang  `datastream` til tabellen
  - Legger dem til publiseringen `ds_publication`
-```
-grant select on <tabell_navn> to "datastream";
-alter publication "ds_publication" add table <tabell_navn>;
+
+```postgresql
+do
+$$
+    begin
+        if exists (select 1 from pg_roles where rolname = 'datastream')
+        then
+            grant select on <tabell_navn> to "datastream";
+            alter publication "ds_publication" add table <tabell_navn>;
+        end if;
+    end
+$$;
 ```
 
 Legg deretter til ønsket tabell under `postgresql_include_schemas` i datastream konfigurasjonen.
@@ -147,7 +156,7 @@ Dette vil gi de tilgang til metadata, som tabellnavn, hvilke kolonner som finnes
 
 ### Feilsøking
 
-- **Hvofor feiler `terraform apply` første gang det kjøres?**\
+- **Hvorfor feiler `terraform apply` første gang det kjøres?**\
     Første gang `terraform apply` kjøres så kan det være at
     bigquery views ikke blir opprettet. Dette skjer fordi de er avhengig av at tabellene finnes i dataset'et, men det vil
     typisk ta litt tid før disse tabellene blir opprettet av datastreamen. Det burde fungere å kjøre `terraform apply` på
