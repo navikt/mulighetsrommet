@@ -32,6 +32,7 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
         required_error: "Beløp mangler",
       })
       .positive({ message: "Beløp må være positivt" }),
+    prisbetingelser: z.string().nullable(),
   }),
 ]);
 

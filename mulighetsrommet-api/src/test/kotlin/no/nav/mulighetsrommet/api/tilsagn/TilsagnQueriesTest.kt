@@ -6,11 +6,13 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -29,13 +31,13 @@ class TilsagnQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        avtaler = listOf(AvtaleFixtures.AFT),
-        gjennomforinger = listOf(AFT1),
+        avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
+        gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.ArbeidsrettetRehabilitering),
     )
 
     val tilsagn = TilsagnDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = AFT1.id,
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
         lopenummer = 1,
@@ -43,7 +45,7 @@ class TilsagnQueriesTest : FunSpec({
         bestillingsnummer = "1",
         bestillingStatus = null,
         belopBrukt = 0,
-        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123, prisbetingelser = "Dette skal ikke med"), TilsagnBeregningFri.Output(123)),
     )
 
     context("CRUD") {
@@ -62,8 +64,8 @@ class TilsagnQueriesTest : FunSpec({
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
                     it.gjennomforing shouldBe Tilsagn.Gjennomforing(
-                        id = AFT1.id,
-                        navn = AFT1.navn,
+                        id = GjennomforingFixtures.AFT1.id,
+                        navn = GjennomforingFixtures.AFT1.navn,
                     )
                     it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
                     it.kostnadssted shouldBe Gjovik
@@ -79,7 +81,7 @@ class TilsagnQueriesTest : FunSpec({
                         slettet = false,
                     )
                     it.beregning shouldBe TilsagnBeregningFri(
-                        TilsagnBeregningFri.Input(123),
+                        TilsagnBeregningFri.Input(123, prisbetingelser = null),
                         TilsagnBeregningFri.Output(123),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
@@ -114,12 +116,68 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
+        test("upsert fri beregning - ingen prisbetingelser") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                val beregning = TilsagnBeregningFri(
+                    input = TilsagnBeregningFri.Input(
+                        prisbetingelser = "Prisbetingelser skal ikke settes ved tilsagn upsert",
+                        belop = 1000,
+                    ),
+                    output = TilsagnBeregningFri.Output(1000),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning, gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id))
+                queries.get(tilsagn.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregning.copy(input = TilsagnBeregningFri.Input(prisbetingelser = AvtaleFixtures.ARR.prisbetingelser, belop = 1000))
+                }
+            }
+        }
+
+        test("get godkjent tilsagn - fri beregning - lagrede prisbetingelser") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+                val avtaleQueries = AvtaleQueries(session)
+
+                val avtale = AvtaleFixtures.ARR
+                val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+                val beregning = TilsagnBeregningFri(
+                    input = TilsagnBeregningFri.Input(
+                        prisbetingelser = "Prisbetingelser skal ikke settes ved tilsagn upsert",
+                        belop = 1000,
+                    ),
+                    output = TilsagnBeregningFri.Output(1000),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning, gjennomforingId = gjennomforing.id))
+
+                // Tilsagn TIL_GODKJENNING viser avtalens prisbetingelser
+                queries.get(tilsagn.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregning.copy(input = TilsagnBeregningFri.Input(prisbetingelser = avtale.prisbetingelser, belop = 1000))
+                }
+
+                // Simuler: Prisbetingelser lagres fra avtalen ved godkjenning
+                queries.upsertPrisbetingelser(tilsagn.id)
+                queries.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+
+                // Oppdater avtalens prisbetingelser
+                avtaleQueries.upsert(avtale.copy(prisbetingelser = avtale.prisbetingelser + " oppdatert"))
+                val oppdatertAvtale = avtaleQueries.get(avtale.id).shouldNotBeNull()
+                val godkjentTilsagn = queries.get(tilsagn.id).shouldNotBeNull()
+
+                (godkjentTilsagn.beregning.input as TilsagnBeregningFri.Input).prisbetingelser shouldNotBe oppdatertAvtale.prisbetingelser
+            }
+        }
+
         test("løpenummer er unikt per gjennomføring") {
-            val aft2 = AFT1.copy(id = UUID.randomUUID())
+            val aft2 = GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID())
 
             val domain2 = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1, aft2),
+                gjennomforinger = listOf(GjennomforingFixtures.AFT1, aft2),
             )
 
             database.runAndRollback { session ->
@@ -132,7 +190,7 @@ class TilsagnQueriesTest : FunSpec({
                         id = UUID.randomUUID(),
                         lopenummer = 1,
                         bestillingsnummer = "1",
-                        gjennomforingId = AFT1.id,
+                        gjennomforingId = GjennomforingFixtures.AFT1.id,
                     ),
                 )
 
@@ -151,7 +209,7 @@ class TilsagnQueriesTest : FunSpec({
                             id = UUID.randomUUID(),
                             lopenummer = 1,
                             bestillingsnummer = "3",
-                            gjennomforingId = AFT1.id,
+                            gjennomforingId = GjennomforingFixtures.AFT1.id,
                         ),
                     )
                 }.shouldBeLeft().shouldBeTypeOf<IntegrityConstraintViolation.UniqueViolation>()
@@ -195,7 +253,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
                 queries.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
 
-                queries.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
+                queries.getAll(gjennomforingId = GjennomforingFixtures.AFT1.id).shouldHaveSize(1)
                 queries.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
 
                 queries.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)

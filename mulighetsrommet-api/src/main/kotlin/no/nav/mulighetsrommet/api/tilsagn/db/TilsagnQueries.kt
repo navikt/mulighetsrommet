@@ -99,7 +99,8 @@ class TilsagnQueries(private val session: Session) {
                 upsertTilsagnBeregningForhandsgodkjent(dbo.id, dbo.beregning)
             }
 
-            is TilsagnBeregningFri -> {}
+            is TilsagnBeregningFri -> {
+            }
         }
     }
 
@@ -222,6 +223,21 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
+    fun upsertPrisbetingelser(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into tilsagn_fri_prisbetingelser (tilsagn_id, prisbetingelser)
+            select t.id as tilsagn_id, a.prisbetingelser from tilsagn t
+                inner join gjennomforing g on t.gjennomforing_id = g.id
+                inner join avtale a on g.avtale_id = a.id
+                where t.id = :id::uuid
+            on conflict (tilsagn_id) do update set
+                prisbetingelser = EXCLUDED.prisbetingelser;
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id)))
+    }
+
     fun setBestillingStatus(bestillingsnummer: String, status: BestillingStatusType) {
         @Language("PostgreSQL")
         val query = """
@@ -235,8 +251,9 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
+        val status = TilsagnStatus.valueOf(string("status"))
 
-        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
+        val beregning = getBeregning(id, status, Prismodell.valueOf(string("prismodell")))
 
         return Tilsagn(
             id = uuid("id"),
@@ -270,14 +287,14 @@ class TilsagnQueries(private val session: Session) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = beregning,
-            status = TilsagnStatus.valueOf(string("status")),
+            status = status,
         )
     }
 
-    private fun getBeregning(id: UUID, prismodell: Prismodell): TilsagnBeregning {
+    private fun getBeregning(id: UUID, status: TilsagnStatus, prismodell: Prismodell): TilsagnBeregning {
         return when (prismodell) {
             Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
-            Prismodell.FRI -> getBeregningFri(id)
+            Prismodell.FRI -> getBeregningFri(id, status)
         }
     }
 
@@ -303,17 +320,41 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningFri(id: UUID): TilsagnBeregningFri {
+    private fun getBeregningFri(id: UUID, tilsagnStatus: TilsagnStatus): TilsagnBeregningFri {
         @Language("PostgreSQL")
-        val query = """
-            select belop_beregnet
-            from tilsagn
-            where id = ?::uuid
+        val avtaleBasedquery = """
+            select
+                t.belop_beregnet, a.prisbetingelser
+            from tilsagn t
+                inner join gjennomforing g
+                    on t.gjennomforing_id = g.id
+                inner join avtale a
+                    on g.avtale_id = a.id
+            where
+                t.id = ?::uuid
         """.trimIndent()
+
+        @Language("PostgreSQL")
+        val tilsagnBasedQuery = """
+            select
+                t.belop_beregnet, tfp.prisbetingelser
+            from tilsagn t
+                left join tilsagn_fri_prisbetingelser tfp
+                    on tfp.tilsagn_id = t.id
+            where
+                t.id = ?::uuid
+        """.trimIndent()
+
+        val query = if (tilsagnStatus in listOf(TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT)) {
+            avtaleBasedquery
+        } else {
+            tilsagnBasedQuery
+        }
 
         return session.requireSingle(queryOf(query, id)) {
             TilsagnBeregningFri(
                 input = TilsagnBeregningFri.Input(
+                    prisbetingelser = it.stringOrNull("prisbetingelser"),
                     belop = it.int("belop_beregnet"),
                 ),
                 output = TilsagnBeregningFri.Output(

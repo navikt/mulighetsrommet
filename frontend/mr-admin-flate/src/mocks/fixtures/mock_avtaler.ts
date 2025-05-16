@@ -1,4 +1,4 @@
-import { AvtaleDto, Avtaletype, Opphav, OpsjonsmodellKey } from "@mr/api-client-v2";
+import { AvtaleDto, Avtaletype, Opphav, OpsjonsmodellKey, Prismodell } from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
@@ -74,7 +74,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: null,
+    prismodell: Prismodell.FRI,
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -229,7 +229,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: null,
+    prismodell: Prismodell.FRI,
   },
 ];
 

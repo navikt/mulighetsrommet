@@ -5,13 +5,14 @@ import {
   TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
+import { mockAvtaler } from "./mock_avtaler";
 
 export const mockTilsagn: TilsagnDto[] = [
   {
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000 },
+      input: { type: "FRI", belop: 14_000, prisbetingelser: mockAvtaler[0].prisbetingelser },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -35,7 +36,7 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000 },
+      input: { type: "FRI", belop: 14_000, prisbetingelser: null },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -59,7 +60,7 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000 },
+      input: { type: "FRI", belop: 14_000, prisbetingelser: "10 000,- + 4 000,-" },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -83,7 +84,7 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000 },
+      input: { type: "FRI", belop: 14_000, prisbetingelser: null },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -107,7 +108,7 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000 },
+      input: { type: "FRI", belop: 14_000, prisbetingelser: null },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,

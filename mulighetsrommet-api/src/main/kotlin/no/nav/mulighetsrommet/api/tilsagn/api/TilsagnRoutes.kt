@@ -123,8 +123,12 @@ fun Route.tilsagnRoutes() {
                     resolveTilsagnDefaults(service.config.okonomiConfig, prismodell, gjennomforing, sisteTilsagn)
                 }
 
-                TilsagnType.EKSTRATILSAGN ->
-                    resolveEkstraTilsagnDefaults(gjennomforing, request)
+                TilsagnType.EKSTRATILSAGN -> {
+                    val prisbetingelser = gjennomforing.avtaleId
+                        ?.let { db.session { queries.avtale.get(it)?.prisbetingelser } }
+
+                    resolveEkstraTilsagnDefaults(request, gjennomforing, prisbetingelser)
+                }
 
                 TilsagnType.INVESTERING -> TilsagnDefaults(
                     id = null,
@@ -142,7 +146,6 @@ fun Route.tilsagnRoutes() {
 
         post("/beregn") {
             val request = call.receive<TilsagnBeregningInput>()
-
             val result = service.beregnTilsagn(request)
                 .map { it.output }
                 .mapLeft { ValidationError(errors = it) }
@@ -370,8 +373,9 @@ private fun resolveTilsagnDefaults(
 }
 
 private fun resolveEkstraTilsagnDefaults(
-    gjennomforing: GjennomforingDto,
     request: TilsagnDefaultsRequest,
+    gjennomforing: GjennomforingDto,
+    prisbetingelser: String?,
 ): TilsagnDefaults {
     return if (request.prismodell == Prismodell.FRI && request.belop != null) {
         TilsagnDefaults(
@@ -381,7 +385,7 @@ private fun resolveEkstraTilsagnDefaults(
             periodeStart = request.periodeStart,
             periodeSlutt = request.periodeSlutt,
             kostnadssted = request.kostnadssted,
-            beregning = TilsagnBeregningFri.Input(belop = request.belop),
+            beregning = TilsagnBeregningFri.Input(prisbetingelser = prisbetingelser, belop = request.belop),
         )
     } else {
         TilsagnDefaults(

@@ -18,8 +18,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
@@ -57,12 +56,12 @@ class TilsagnServiceTest : FunSpec({
 
     val request = TilsagnRequest(
         id = UUID.randomUUID(),
-        gjennomforingId = AFT1.id,
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
         periodeStart = LocalDate.of(2025, 1, 1),
         periodeSlutt = LocalDate.of(2025, 1, 31),
         kostnadssted = Gjovik.enhetsnummer,
-        beregning = TilsagnBeregningFri.Input(belop = 1),
+        beregning = TilsagnBeregningFri.Input(belop = 1, prisbetingelser = null),
     )
 
     beforeEach {
@@ -70,8 +69,8 @@ class TilsagnServiceTest : FunSpec({
             navEnheter = listOf(NavEnhetFixtures.Innlandet, Gjovik, Lillehammer),
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-            avtaler = listOf(AvtaleFixtures.AFT),
-            gjennomforinger = listOf(AFT1),
+            avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
+            gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.ArbeidsrettetRehabilitering),
         ) {
             queries.ansatt.setRoller(
                 ansatt1,
@@ -95,6 +94,7 @@ class TilsagnServiceTest : FunSpec({
                 okonomiConfig = OkonomiConfig(
                     minimumTilsagnPeriodeStart = mapOf(
                         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to minimumTilsagnPeriodeStart,
+                        Tiltakskode.ARBEIDSRETTET_REHABILITERING to GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato,
                     ),
                 ),
                 bestillingTopic = "topic",
@@ -124,11 +124,11 @@ class TilsagnServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.VTA),
-                gjennomforinger = listOf(VTA1),
+                gjennomforinger = listOf(GjennomforingFixtures.VTA1),
             ).initialize(database.db)
 
             val invalidRequest = request.copy(
-                gjennomforingId = VTA1.id,
+                gjennomforingId = GjennomforingFixtures.VTA1.id,
             )
 
             service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
@@ -140,7 +140,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("tilsagnet kan ikke slutte etter gjennomføringen") {
-            val gjennomforing = AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.AFT1.copy(
                 startDato = LocalDate.of(2025, 1, 1),
                 sluttDato = LocalDate.of(2025, 2, 1),
             )
@@ -193,10 +193,27 @@ class TilsagnServiceTest : FunSpec({
             }
         }
 
+        test("oppdaterer prismodell fra avtale for tilsagn med fri prismodell") {
+            val beregningInput = TilsagnBeregningFri.Input(belop = 1000, prisbetingelser = "Dette kommer ikke med")
+            val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+            service.upsert(
+                request.copy(
+                    gjennomforingId = gjennomforing.id,
+                    periodeStart = gjennomforing.startDato,
+                    periodeSlutt = gjennomforing.sluttDato!!,
+                    beregning = beregningInput,
+                ),
+                ansatt1,
+            ).shouldBeRight().should {
+                it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                it.beregning.input shouldBe beregningInput.copy(prisbetingelser = AvtaleFixtures.ARR.prisbetingelser)
+            }
+        }
+
         test("genererer løpenummer og bestillingsnummer") {
             val domain2 = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1, AFT1.copy(id = UUID.randomUUID())),
+                gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID())),
             ).initialize(database.db)
 
             val tilsagn2 = UUID.randomUUID()
@@ -416,6 +433,43 @@ class TilsagnServiceTest : FunSpec({
                 }
         }
 
+        test("godkjent tilsagn fri prismodell oppdaterer prisbetingelser fra avtalen") {
+            val beregningInput = TilsagnBeregningFri.Input(belop = 1000, prisbetingelser = null)
+            val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+            service.upsert(
+                request.copy(
+                    gjennomforingId = gjennomforing.id,
+                    periodeStart = gjennomforing.startDato,
+                    periodeSlutt = gjennomforing.sluttDato!!,
+                    beregning = beregningInput,
+                ),
+                ansatt1,
+            )
+                .shouldBeRight().should {
+                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                    it.beregning.input shouldBe (beregningInput.copy(prisbetingelser = AvtaleFixtures.ARR.prisbetingelser))
+                }
+
+            val oppdatertPrisbetingelser = AvtaleFixtures.ARR.prisbetingelser + " - oppdatert"
+            database.run {
+                queries.avtale.upsert(AvtaleFixtures.ARR.copy(prisbetingelser = oppdatertPrisbetingelser))
+                queries.avtale.get(AvtaleFixtures.ARR.id).shouldNotBeNull().should {
+                    it.prisbetingelser shouldBe oppdatertPrisbetingelser
+                }
+            }
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            database.run {
+                queries.tilsagn.get(request.id).shouldNotBeNull().should {
+                    it.beregning.input shouldBe beregningInput.copy(prisbetingelser = oppdatertPrisbetingelser)
+                }
+            }
+        }
+
         test("totrinnskontroll blir oppdatert i forbindelse med opprettelse av tilsagn") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -474,7 +528,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("løpenummer beholdes når tilsagn blir returnert") {
-            val aft1 = database.run { queries.gjennomforing.get(AFT1.id).shouldNotBeNull() }
+            val aft1 = database.run { queries.gjennomforing.get(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
 
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING

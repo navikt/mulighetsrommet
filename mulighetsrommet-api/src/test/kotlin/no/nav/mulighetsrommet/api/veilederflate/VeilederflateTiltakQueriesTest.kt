@@ -241,7 +241,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
-            avtaler = listOf(AvtaleFixtures.ArbeidsrettetRehabilitering),
+            avtaler = listOf(AvtaleFixtures.ARR),
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
@@ -282,7 +282,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
-            avtaler = listOf(AvtaleFixtures.ArbeidsrettetRehabilitering),
+            avtaler = listOf(AvtaleFixtures.ARR),
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))

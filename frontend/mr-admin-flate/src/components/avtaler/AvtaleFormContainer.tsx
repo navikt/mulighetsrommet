@@ -194,6 +194,7 @@ export function AvtaleFormContainer({
                 tiltakstyper={props.tiltakstyper}
                 ansatt={ansatt}
                 enheter={props.enheter}
+                okonomiTabEnabled={enableTilsagn}
               />
             </Box>
           </Tabs.Panel>
