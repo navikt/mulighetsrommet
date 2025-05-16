@@ -251,8 +251,9 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
+        val status = TilsagnStatus.valueOf(string("status"))
 
-        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
+        val beregning = getBeregning(id, status, Prismodell.valueOf(string("prismodell")))
 
         return Tilsagn(
             id = uuid("id"),
@@ -286,14 +287,14 @@ class TilsagnQueries(private val session: Session) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = beregning,
-            status = TilsagnStatus.valueOf(string("status")),
+            status = status,
         )
     }
 
-    private fun getBeregning(id: UUID, prismodell: Prismodell): TilsagnBeregning {
+    private fun getBeregning(id: UUID, status: TilsagnStatus, prismodell: Prismodell): TilsagnBeregning {
         return when (prismodell) {
             Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
-            Prismodell.FRI -> getBeregningFri(id)
+            Prismodell.FRI -> getBeregningFri(id, status)
         }
     }
 
@@ -319,14 +320,36 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningFri(id: UUID): TilsagnBeregningFri {
+    private fun getBeregningFri(id: UUID, tilsagnStatus: TilsagnStatus): TilsagnBeregningFri {
         @Language("PostgreSQL")
-        val query = """
-            select t.belop_beregnet, tfp.prisbetingelser
+        val avtaleBasedquery = """
+            select
+                t.belop_beregnet, a.prisbetingelser
             from tilsagn t
-            left join tilsagn_fri_prisbetingelser tfp on tfp.tilsagn_id = t.id
-            where id = ?::uuid
+                inner join gjennomforing g
+                    on t.gjennomforing_id = g.id
+                inner join avtale a
+                    on g.avtale_id = a.id
+            where
+                t.id = ?::uuid
         """.trimIndent()
+
+        @Language("PostgreSQL")
+        val tilsagnBasedQuery = """
+            select
+                t.belop_beregnet, tfp.prisbetingelser
+            from tilsagn t
+                left join tilsagn_fri_prisbetingelser tfp
+                    on tfp.tilsagn_id = t.id
+            where
+                t.id = ?::uuid
+        """.trimIndent()
+
+        val query = if (tilsagnStatus in listOf(TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT)) {
+            avtaleBasedquery
+        } else {
+            tilsagnBasedQuery
+        }
 
         return session.requireSingle(queryOf(query, id)) {
             TilsagnBeregningFri(
