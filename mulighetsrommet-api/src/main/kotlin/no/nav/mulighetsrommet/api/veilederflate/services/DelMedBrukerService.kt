@@ -49,7 +49,7 @@ class DelMedBrukerService(
             throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
         }
 
-        if (dbo.veilederTilhorerFylke == null) {
+        if (dbo.deltFraFylke == null) {
             log.warn("Veileder tilhører ikke noe fylke")
             throw BadRequestException("Veileder tilhører ikke noe fylke - Lagrer ikke deling med bruker")
         }
@@ -65,8 +65,8 @@ class DelMedBrukerService(
                 updated_by,
                 gjennomforing_id,
                 tiltakstype_navn,
-                veileder_tilhorer_fylke,
-                veileder_tilhorer_enhet
+                delt_fra_fylke,
+                delt_fra_enhet
             )
             values (
                 :norsk_ident,
@@ -77,8 +77,8 @@ class DelMedBrukerService(
                 :updated_by,
                 :gjennomforing_id::uuid,
                 :tiltakstype_navn,
-                :veileder_tilhorer_fylke,
-                :veileder_tilhorer_enhet
+                :delt_fra_fylke,
+                :delt_fra_enhet
             )
             returning *
         """.trimIndent()
@@ -220,8 +220,8 @@ private fun DelMedBrukerDbo.toParameters() = mapOf(
     "created_by" to navident,
     "updated_by" to navident,
     "tiltakstype_navn" to tiltakstypeNavn,
-    "veileder_tilhorer_fylke" to veilederTilhorerFylke?.value,
-    "veileder_tilhorer_enhet" to veilederTilhorerEnhet?.value,
+    "delt_fra_fylke" to deltFraFylke?.value,
+    "delt_fra_enhet" to deltFraEnhet?.value,
 )
 
 private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
@@ -236,8 +236,8 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
     createdBy = string("created_by"),
     updatedBy = string("updated_by"),
     tiltakstypeNavn = stringOrNull("tiltakstype_navn"),
-    veilederTilhorerFylke = stringOrNull("veileder_tilhorer_fylke")?.let { NavEnhetNummer(it) },
-    veilederTilhorerEnhet = stringOrNull("veileder_tilhorer_enhet")?.let { NavEnhetNummer(it) },
+    deltFraFylke = stringOrNull("delt_fra_fylke")?.let { NavEnhetNummer(it) },
+    deltFraEnhet = stringOrNull("delt_fra_enhet")?.let { NavEnhetNummer(it) },
 )
 
 @Serializable

@@ -25,6 +25,6 @@ data class DelMedBrukerDbo(
     val createdBy: String? = null,
     val updatedBy: String? = null,
     val tiltakstypeNavn: String?,
-    val veilederTilhorerFylke: NavEnhetNummer?,
-    val veilederTilhorerEnhet: NavEnhetNummer?,
+    val deltFraFylke: NavEnhetNummer?,
+    val deltFraEnhet: NavEnhetNummer?,
 )
