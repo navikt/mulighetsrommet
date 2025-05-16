@@ -53,8 +53,8 @@ fun Route.delMedBrukerRoutes() {
                         sanityId = request.sanityId,
                         gjennomforingId = request.gjennomforingId,
                         tiltakstypeNavn = request.tiltakstypeNavn,
-                        deltFraFylke = request.veilederTilhorerFylke,
-                        deltFraEnhet = request.veilederTilhorerEnhet,
+                        deltFraFylke = request.deltFraFylke,
+                        deltFraEnhet = request.deltFraEnhet,
                     )
                     delMedBrukerService.lagreDelMedBruker(dbo)
 
@@ -122,8 +122,8 @@ data class DelTiltakMedBrukerRequest(
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
     val tiltakstypeNavn: String,
-    val veilederTilhorerFylke: NavEnhetNummer?,
-    val veilederTilhorerEnhet: NavEnhetNummer,
+    val deltFraFylke: NavEnhetNummer?,
+    val deltFraEnhet: NavEnhetNummer,
 )
 
 @Serializable

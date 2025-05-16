@@ -91,8 +91,8 @@ export function Delemodal({
       gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
       sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
       tiltakstypeNavn: tiltak.tiltakstype.navn,
-      veilederTilhorerFylke: veilederFylke || null,
-      veilederTilhorerEnhet: veilederEnhet || null,
+      deltFraFylke: veilederFylke || null,
+      deltFraEnhet: veilederEnhet || null,
     });
   };
 
