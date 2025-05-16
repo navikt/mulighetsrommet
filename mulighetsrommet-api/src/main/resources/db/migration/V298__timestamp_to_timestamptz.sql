@@ -8,3 +8,9 @@ alter table totrinnskontroll
 
 alter table nav_ansatt
     alter skal_slettes_dato type date;
+
+alter table utbetaling
+    alter godkjent_av_arrangor_tidspunkt type timestamptz using godkjent_av_arrangor_tidspunkt at time zone 'Europe/Oslo';
+
+alter table delutbetaling
+    alter sendt_til_okonomi_tidspunkt type timestamptz using sendt_til_okonomi_tidspunkt at time zone 'Europe/Oslo';
