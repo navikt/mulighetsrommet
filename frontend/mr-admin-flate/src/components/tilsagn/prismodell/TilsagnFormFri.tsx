@@ -42,11 +42,11 @@ function BeregningInputSkjema({ prisbetingelser }: BeregningInputSkjemaProps) {
       {prisbetingelser && (
         <div className="pb-3">
           <TextField
-          size="small"
-          value={prisbetingelser}
-          label={avtaletekster.prisOgBetalingLabel}
-          readOnly
-        />
+            size="small"
+            value={prisbetingelser}
+            label={avtaletekster.prisOgBetalingLabel}
+            readOnly
+          />
         </div>
       )}
       <TextField
