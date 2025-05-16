@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -273,18 +272,6 @@ class GjennomforingValidatorTest : FunSpec({
         createValidator().validate(gruppeFagYrke, null).shouldBeLeft(
             listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
         )
-    }
-
-    // TODO: fiks test
-    xtest("utdanningsløp må være valgt fra avtalen når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-        val gruppeFagYrke = GjennomforingFixtures.GruppeFagYrke1.copy(
-            utdanningslop = UtdanningslopDbo(
-                utdanningsprogram = UUID.randomUUID(),
-                utdanninger = listOf(UUID.randomUUID()),
-            ),
-        )
-
-        createValidator().validate(gruppeFagYrke, null).shouldBeRight()
     }
 
     test("arrangøren må være aktiv i Brreg") {
