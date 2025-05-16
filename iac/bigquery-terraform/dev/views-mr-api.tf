@@ -301,3 +301,47 @@ SELECT
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_avtale_nav_enhet`
 EOF
 }
+
+module "mr_api_del_med_bruker_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_id             = "del_med_bruker_view"
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "id"
+        type        = "STRING"
+        description = "ID til Del med bruker-raden."
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tiltakstype_navn"
+        type        = "STRING"
+        description = "Lesbart navn for tiltakstypen koblet til tiltaket som er delt med bruker"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "veileder_tilhorer_fylke"
+        type        = "STRING"
+        description = "Enhetsnummer for fylket til veileder som har delt med bruker"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "veileder_tilhorer_enhet"
+        type        = "STRING"
+        description = "Enhetsnummet for nav-kontoret til veileder som har delt med bruker"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  id, 
+  tiltakstype_navn,
+  veileder_tilhorer_fylke,
+  veileder_tilhorer_enhet,
+  created_at
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker`
+EOF
+}

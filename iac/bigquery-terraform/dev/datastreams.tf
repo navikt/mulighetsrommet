@@ -42,7 +42,8 @@ module "mr_api_datastream" {
         { table = "utdanning" },
         { table = "tilsagn" },
         { table = "delutbetaling" },
-        { table = "utbetaling" }
+        { table = "utbetaling" },
+        { table = "del_med_bruker", columns = ["id", "tiltakstype_navn", "veileder_tilhorer_fylke", "veileder_tilhorer_enhet", "created_at"] }
       ]
     }
   ]
