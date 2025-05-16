@@ -293,17 +293,7 @@ export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
 );
 
 const oppgaverFilterSchema = z.object({
-  type: z
-    .enum([
-      OppgaveType.TILSAGN_TIL_GODKJENNING,
-      OppgaveType.TILSAGN_TIL_ANNULLERING,
-      OppgaveType.TILSAGN_TIL_OPPGJOR,
-      OppgaveType.TILSAGN_RETURNERT,
-      OppgaveType.UTBETALING_RETURNERT,
-      OppgaveType.UTBETALING_TIL_BEHANDLING,
-      OppgaveType.UTBETALING_TIL_GODKJENNING,
-    ])
-    .array(),
+  type: z.nativeEnum(OppgaveType).array(),
   tiltakstyper: z.array(z.string()),
   regioner: z.array(z.string()),
 });

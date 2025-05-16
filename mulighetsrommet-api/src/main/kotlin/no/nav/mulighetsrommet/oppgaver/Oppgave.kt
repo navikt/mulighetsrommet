@@ -38,6 +38,8 @@ data class OppgaveTiltakstype(
 enum class OppgaveIcon {
     TILSAGN,
     UTBETALING,
+    AVTALE,
+    GJENNOMFORING,
 }
 
 @Serializable

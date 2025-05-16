@@ -31,6 +31,14 @@ enum class OppgaveType(val navn: String, val rolle: Rolle) {
         navn = "Utbetaling returnert av attestant",
         rolle = Rolle.SAKSBEHANDLER_OKONOMI,
     ),
+    AVTALE_MANGLER_ADMINISTRATOR(
+        navn = "Avtale mangler administrator",
+        rolle = Rolle.AVTALER_SKRIV,
+    ),
+    GJENNOMFORING_MANGLER_ADMINISTRATOR(
+        navn = "Gjennomføring mangler administrator",
+        rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
+    ),
     ;
 
     companion object {
@@ -46,6 +54,12 @@ enum class OppgaveType(val navn: String, val rolle: Rolle) {
         )
         val UtbetalingOppgaver = listOf(
             UTBETALING_TIL_BEHANDLING,
+        )
+        val AvtaleOppgaver = listOf(
+            AVTALE_MANGLER_ADMINISTRATOR,
+        )
+        val GjennomforingOppgaver = listOf(
+            GJENNOMFORING_MANGLER_ADMINISTRATOR,
         )
     }
 }
