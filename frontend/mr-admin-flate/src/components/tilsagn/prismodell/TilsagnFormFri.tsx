@@ -1,7 +1,7 @@
 import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { TextField } from "@navikt/ds-react";
+import { Textarea, TextField } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -41,7 +41,7 @@ function BeregningInputSkjema({ prisbetingelser }: BeregningInputSkjemaProps) {
     <>
       {prisbetingelser && (
         <div className="pb-3">
-          <TextField
+          <Textarea
             size="small"
             value={prisbetingelser}
             label={avtaletekster.prisOgBetalingLabel}
