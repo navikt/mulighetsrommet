@@ -6,7 +6,6 @@ import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
 import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
-import { data } from "react-router";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
