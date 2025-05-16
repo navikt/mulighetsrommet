@@ -57,11 +57,14 @@ function SelectPrismodell(props: SelectPrismodellProps) {
     setValue,
   } = useFormContext<InferredAvtaleSchema>();
 
+  const preselectPrismodell: false | Prismodell =
+    props.options.length === 1 && (props.options[0].value as Prismodell);
+
   useEffect(() => {
-    if (props.options.length === 1) {
-      setValue(fieldName, props.options[0].value as Prismodell);
+    if (preselectPrismodell) {
+      setValue(fieldName, preselectPrismodell);
     }
-  }, [setValue, props.options[0].value]);
+  }, [setValue, preselectPrismodell]);
 
   return (
     <Select
@@ -69,7 +72,7 @@ function SelectPrismodell(props: SelectPrismodellProps) {
       size="small"
       error={errors.prismodell?.message}
       readOnly={props.readOnly}
-      {...register("prismodell")}
+      {...register(fieldName)}
     >
       {props.options.map((option) => (
         <option key={option.value} value={option.value}>
