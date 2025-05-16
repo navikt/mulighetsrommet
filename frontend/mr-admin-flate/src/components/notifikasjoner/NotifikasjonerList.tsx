@@ -27,7 +27,7 @@ export function NotifikasjonerList({ lest }: Props) {
 
   function toggleMarkertSomlestUlest() {
     if (notifikasjoner) {
-      const newStatus = lest ? NotificationStatus.NOT_DONE : NotificationStatus.DONE;
+      const newStatus = lest ? NotificationStatus.UNREAD : NotificationStatus.READ;
       const formData = new FormData();
       notifikasjoner.forEach(({ id }) => {
         formData.append("ids[]", id);

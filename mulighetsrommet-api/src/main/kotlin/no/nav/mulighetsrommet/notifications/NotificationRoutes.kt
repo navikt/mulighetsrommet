@@ -44,11 +44,11 @@ fun Route.notificationRoutes() {
 
             db.transaction {
                 notifikasjoner.forEach {
-                    val doneAt = when (it.status) {
-                        NotificationStatus.DONE -> LocalDateTime.now()
-                        NotificationStatus.NOT_DONE -> null
+                    val readAt = when (it.status) {
+                        NotificationStatus.READ -> LocalDateTime.now()
+                        NotificationStatus.UNREAD -> null
                     }
-                    queries.notifications.setNotificationDoneAt(it.id, userId, doneAt)
+                    queries.notifications.setNotificationReadAt(it.id, userId, readAt)
                 }
             }
 

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.Oppgave
 import no.nav.mulighetsrommet.oppgaver.OppgaveType
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

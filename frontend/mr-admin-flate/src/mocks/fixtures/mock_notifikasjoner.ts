@@ -18,7 +18,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
         "Beskrivelse med en ganske lang tekst fordi vi har så komplekse prosesser så det viktig at det blir gitt nøyaktig beskjed om hva som skal til for å løse denne vanskelige problemstillingen.",
       user: "B123456",
       createdAt: "2023-01-26T13:51:50.417-07:00",
-      doneAt: "2023-01-26T13:51:50.417-07:00",
+      readAt: "2023-01-26T13:51:50.417-07:00",
       metadata: {
         link: `/avtaler/${mockAvtale?.id}`,
         linkText: "Gå til tiltaksgjennomføring",
@@ -30,7 +30,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
       description: "Beskrivelsen her er ikke så lang som den forrige, men sånn er det av og til.",
       user: "B123456",
       createdAt: "2023-01-26T13:51:50.417-07:00",
-      doneAt: "2023-01-26T13:51:50.417-07:00",
+      readAt: "2023-01-26T13:51:50.417-07:00",
     },
   ],
 };

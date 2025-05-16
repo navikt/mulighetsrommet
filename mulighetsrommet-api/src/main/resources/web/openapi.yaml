@@ -3262,8 +3262,8 @@ components:
     NotificationStatus:
       type: string
       enum:
-        - DONE
-        - NOT_DONE
+        - READ
+        - UNREAD
 
     OppgaveTypeDto:
       type: object
@@ -4672,7 +4672,7 @@ components:
         createdAt:
           type: string
           format: date-time
-        doneAt:
+        readAt:
           type: string
           format: date-time
         metadata:
@@ -4690,15 +4690,15 @@ components:
         - description
         - user
         - createdAt
-        - doneAt
+        - readAt
 
     UserNotificationSummary:
       type: object
       properties:
-        notDoneCount:
+        unreadCount:
           type: integer
       required:
-        - notDoneCount
+        - unreadCount
 
     Oppgave:
       type: object

@@ -12,8 +12,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 enum class NotificationStatus {
-    DONE,
-    NOT_DONE,
+    READ,
+    UNREAD,
 }
 
 /**
@@ -45,13 +45,13 @@ data class UserNotification(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val doneAt: LocalDateTime?,
+    val readAt: LocalDateTime?,
     val metadata: NotificationMetadata? = null,
 )
 
 @Serializable
 data class UserNotificationSummary(
-    val notDoneCount: Int,
+    val unreadCount: Int,
 )
 
 @Serializable
