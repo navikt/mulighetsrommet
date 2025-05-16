@@ -40,7 +40,6 @@ class SisteTiltaksgjennomforingerV1KafkaConsumer(
         requireNotNull(gjennomforing)
 
         val endretTidspunkt = queries.gjennomforing.getUpdatedAt(id)
-        requireNotNull(endretTidspunkt)
 
         val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(
             gjennomforing,
