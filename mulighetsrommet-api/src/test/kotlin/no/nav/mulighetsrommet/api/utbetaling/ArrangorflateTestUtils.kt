@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFriLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
@@ -64,7 +65,10 @@ object ArrangorflateTestUtils {
         bestillingsnummer = "A-2025/1-1",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(1000, prisbetingelser = null),
+            input = TilsagnBeregningFri.Input(
+                linjer = listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = 1000, antall = 1)),
+                prisbetingelser = null,
+            ),
             output = TilsagnBeregningFri.Output(1000),
         ),
         type = TilsagnType.TILSAGN,

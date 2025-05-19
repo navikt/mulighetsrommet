@@ -44,6 +44,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFriLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -1276,7 +1277,7 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(1000, prisbetingelser = null),
+                            input = TilsagnBeregningFri.Input(linjer = listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = 1500, antall = 1)), prisbetingelser = null),
                             output = TilsagnBeregningFri.Output(1000),
                         ),
                     ),
@@ -1378,7 +1379,7 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(belop = 1, prisbetingelser = null),
+                            input = TilsagnBeregningFri.Input(linjer = listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = 1500, antall = 1)), prisbetingelser = null),
                             output = TilsagnBeregningFri.Output(belop = 1),
                         ),
                     ),

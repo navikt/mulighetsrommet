@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFriLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -23,7 +24,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(1000, prisbetingelser = null),
+            input = TilsagnBeregningFri.Input(listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "1000", belop = 1000, antall = 1)), prisbetingelser = null),
             output = TilsagnBeregningFri.Output(1000),
         ),
     )
@@ -39,7 +40,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(1500, prisbetingelser = null),
+            input = TilsagnBeregningFri.Input(listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "1500", belop = 1500, antall = 1)), prisbetingelser = null),
             output = TilsagnBeregningFri.Output(1500),
         ),
     )
@@ -55,7 +56,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(2500, prisbetingelser = null),
+            input = TilsagnBeregningFri.Input(listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "1250", belop = 1250, antall = 2)), prisbetingelser = null),
             output = TilsagnBeregningFri.Output(2500),
         ),
     )
@@ -71,7 +72,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(2500, prisbetingelser = null),
+            input = TilsagnBeregningFri.Input(listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = 1250, antall = 2)), prisbetingelser = null),
             output = TilsagnBeregningFri.Output(2500),
         ),
     )

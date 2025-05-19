@@ -360,7 +360,7 @@ private fun resolveTilsagnDefaults(
 
             val lastDayOfMonth = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
             val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
-            val beregning = TilsagnBeregningFri.Input(belop = 0, prisbetingelser = avtale.prisbetingelser)
+            val beregning = TilsagnBeregningFri.Input(linjer = emptyList(), prisbetingelser = avtale.prisbetingelser)
 
             TilsagnDefaults(
                 id = null,
@@ -388,7 +388,12 @@ private fun resolveEkstraTilsagnDefaults(
             periodeStart = request.periodeStart,
             periodeSlutt = request.periodeSlutt,
             kostnadssted = request.kostnadssted,
-            beregning = TilsagnBeregningFri.Input(prisbetingelser = prisbetingelser, belop = request.belop),
+            beregning = TilsagnBeregningFri.Input(
+                prisbetingelser = prisbetingelser,
+                linjer = listOf(
+                    TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = request.belop, antall = 1),
+                ),
+            ), // @TODO Fiks ekstra tilsagn
         )
     } else {
         TilsagnDefaults(

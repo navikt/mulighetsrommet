@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFriLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -61,7 +62,10 @@ class TilsagnServiceTest : FunSpec({
         periodeStart = LocalDate.of(2025, 1, 1),
         periodeSlutt = LocalDate.of(2025, 1, 31),
         kostnadssted = Gjovik.enhetsnummer,
-        beregning = TilsagnBeregningFri.Input(belop = 1, prisbetingelser = null),
+        beregning = TilsagnBeregningFri.Input(
+            linjer = listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = 1500, antall = 1)),
+            prisbetingelser = null,
+        ),
     )
 
     beforeEach {
@@ -195,7 +199,10 @@ class TilsagnServiceTest : FunSpec({
 
         test("oppdaterer prismodell for tilsagn med fri prismodell") {
             val nyePrisbetingelser = "Helt ferske prisbetingelser"
-            val beregningInput = TilsagnBeregningFri.Input(belop = 1000, prisbetingelser = nyePrisbetingelser)
+            val beregningInput = TilsagnBeregningFri.Input(
+                linjer = listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "1500", belop = 1500, antall = 1)),
+                prisbetingelser = nyePrisbetingelser,
+            )
             val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
             service.upsert(
                 request.copy(
