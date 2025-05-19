@@ -37,7 +37,7 @@ export function TilsagnBeregningPreview(props: Props) {
       onError: (error) => onValidationError(error as ValidationError),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [beregnTilsagn, ...extractRelevantDeps(input)]);
+  }, [beregnTilsagn, input]);
 
   return (
     <>

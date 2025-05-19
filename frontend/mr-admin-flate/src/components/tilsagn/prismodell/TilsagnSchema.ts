@@ -3,7 +3,7 @@ import { TilsagnType } from "@mr/api-client-v2";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 const TilsagnBeregningFriInputLinje = z.object({
-  id: z.string().readonly(),
+  id: z.string(),
   beskrivelse: z.string(),
   belop: z
     .number({

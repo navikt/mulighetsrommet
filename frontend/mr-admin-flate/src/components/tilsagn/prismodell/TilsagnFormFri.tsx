@@ -56,7 +56,7 @@ function BeregningInputLinjerSkjema() {
     formState: { errors },
     control,
   } = useFormContext<FriTilsagn>();
-  const { fields, append, remove } = useFieldArray({ control, name: "beregning.input.linjer" });
+  const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
   const linjer = fields.map((item, index) => (
     <HStack gap="4" key={item.id}>
       <Textarea
@@ -90,6 +90,7 @@ function BeregningInputLinjerSkjema() {
         />
       </div>
       <div>
+        <TextField label="Linje-id" hideLabel hidden {...register(`beregning.input.linjer.${index}.id`)} defaultValue={item.id} />
         <Button
           className="mt-7"
           size="small"
