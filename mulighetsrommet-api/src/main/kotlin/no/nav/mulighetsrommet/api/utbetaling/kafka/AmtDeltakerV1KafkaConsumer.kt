@@ -34,8 +34,6 @@ class AmtDeltakerV1KafkaConsumer(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
-        logger.info("Konsumerer deltaker med id=$key")
-
         val deltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
 
         when {

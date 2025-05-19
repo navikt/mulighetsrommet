@@ -868,28 +868,6 @@ paths:
       operationId: getTiltakstyper
       parameters:
         - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for tiltakstyper
-        - in: query
-          name: tiltakstypestatuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/TiltakstypeStatus"
-          description: Statuser for tiltakstyper
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-        - in: query
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringTiltakstyper"
@@ -899,7 +877,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltakstype"
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakstypeDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2880,19 +2860,6 @@ components:
         - totalCount
         - totalPages
         - pageSize
-
-    PaginertTiltakstype:
-      type: object
-      required:
-        - pagination
-        - data
-      properties:
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltakstypeDto"
 
     PaginertGjennomforing:
       type: object

@@ -1,8 +1,8 @@
 import {
   Innsatsgruppe,
-  PaginertTiltakstype,
   Tiltakskode,
   TiltakskodeArena,
+  TiltakstypeDto,
   TiltakstypeStatus,
   VeilederflateTiltakstype,
 } from "@mr/api-client-v2";
@@ -100,14 +100,7 @@ export const mockTiltakstyper = {
   },
 };
 
-export const paginertMockTiltakstyper: PaginertTiltakstype = {
-  pagination: {
-    totalCount: Object.values(mockTiltakstyper).length,
-    pageSize: 50,
-    totalPages: 1,
-  },
-  data: Object.values(mockTiltakstyper),
-};
+export const paginertMockTiltakstyper: TiltakstypeDto[] = Object.values(mockTiltakstyper);
 
 export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
   beskrivelse:

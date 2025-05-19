@@ -188,10 +188,10 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   selectDeselectAll(
                     checked,
                     "tiltakstyper",
-                    tiltakstyper.data.map((t) => t.id),
+                    tiltakstyper.map((t) => t.id),
                   );
                 }}
-                items={tiltakstypeOptions(tiltakstyper.data)}
+                items={tiltakstypeOptions(tiltakstyper)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {
                   setFilter({
@@ -202,7 +202,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   });
                   loggBrukAvFilter(
                     "tiltakstyper",
-                    tiltakstyper.data.find((t) => t.id === tiltakstype)?.navn,
+                    tiltakstyper.find((t) => t.id === tiltakstype)?.navn,
                   );
                 }}
               />

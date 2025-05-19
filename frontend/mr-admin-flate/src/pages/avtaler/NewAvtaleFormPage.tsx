@@ -7,9 +7,9 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Heading } from "@navikt/ds-react";
 import { useLocation, useNavigate } from "react-router";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 
 export function NewAvtaleFormPage() {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export function NewAvtaleFormPage() {
             onSuccess={async (id) => {
               navigate(`/avtaler/${id}`);
             }}
-            tiltakstyper={tiltakstyper.data}
+            tiltakstyper={tiltakstyper}
             ansatt={ansatt}
             enheter={enheter}
             defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale)}

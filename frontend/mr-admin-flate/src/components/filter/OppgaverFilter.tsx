@@ -109,7 +109,7 @@ export function OppgaverFilter({ oppgaveFilterAtom: filterAtom }: Props) {
                 }}
                 hideLegend
               >
-                {tiltakstyper.data.map((t) => {
+                {tiltakstyper.map((t) => {
                   return (
                     <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
                       {t.navn}
