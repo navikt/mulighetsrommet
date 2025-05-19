@@ -247,7 +247,6 @@ data class TilsagnDefaults(
     val beregning: TilsagnBeregningInput?,
 )
 
-// TODO: benytt TilsagnDefaults (modell med bare nullable) i begge tilfeller og valider at feltene ikke er null i stedet. Da kan vi gjøre all validering i backend!
 @Serializable
 data class TilsagnRequest(
     @Serializable(with = UUIDSerializer::class)
