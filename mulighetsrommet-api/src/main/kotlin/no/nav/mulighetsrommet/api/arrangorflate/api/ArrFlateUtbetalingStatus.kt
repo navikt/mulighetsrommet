@@ -30,5 +30,15 @@ enum class ArrFlateUtbetalingStatus {
                 KLAR_FOR_GODKJENNING
             }
         }
+
+        fun toReadableName(status: ArrFlateUtbetalingStatus): String {
+            return when (status) {
+                KLAR_FOR_GODKJENNING -> "Klar for godkjenning"
+                BEHANDLES_AV_NAV -> "Behandles av NAV"
+                UTBETALT -> "Utbetalt"
+                VENTER_PA_ENDRING -> "Venter på endring"
+                OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
+            }
+        }
     }
 }

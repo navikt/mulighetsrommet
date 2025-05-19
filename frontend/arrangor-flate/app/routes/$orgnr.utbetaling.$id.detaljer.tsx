@@ -1,7 +1,7 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
-import { ArrangorflateService, ArrFlateUtbetaling } from "api-client";
+import { ArrangorflateService, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData, useParams } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
@@ -99,13 +99,15 @@ export default function UtbetalingDetaljerSide() {
             ]}
           />
         </VStack>
-        <a href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
-          <Button variant="tertiary-neutral" size="small">
-            <span className="flex gap-2 items-center">
-              Last ned som PDF <FilePdfIcon fontSize={35} />
-            </span>
-          </Button>
-        </a>
+        {utbetaling.status === ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING ? (
+          <a href={`/${orgnr}/utbetaling/${id}/utbetalingsdetaljer/lastned`} target="_blank">
+            <Button variant="tertiary-neutral" size="small">
+              <span className="flex gap-2 items-center">
+                Last ned som PDF <FilePdfIcon fontSize={35} />
+              </span>
+            </Button>
+          </a>
+        ) : null}
       </HStack>
       <Separator />
 

@@ -1,5 +1,6 @@
 {
   "utbetaling": {
+    "status": "Overført til utbetaling",
     "godkjentAvArrangorTidspunkt": "2025-06-15",
     "createdAt": "2025-05-13",
     "arrangor": {
@@ -25,7 +26,39 @@
     },
     "gjennomforing": {
       "navn": "Arbeidsforberedende gjennomføring"
-    }
+    },
+    "linjer": [
+      {
+        "belop": 15000,
+        "id": "linje-1",
+        "status": "Overført til utbetaling",
+        "statusSistOppdatert": "2024-01-15",
+        "tilsagn": {
+          "id": "tilsagn-1",
+          "bestillingsnummer": "A-2024/001"
+        }
+      },
+      {
+        "id": "linje-2",
+        "belop": 20000,
+        "status": "Overført til utbetaling",
+        "statusSistOppdatert": "2024-01-20",
+        "tilsagn": {
+          "id": "tilsagn-2",
+          "bestillingsnummer": "A-2024/002"
+        }
+      },
+      {
+        "id": "linje-3",
+        "belop": 9000,
+        "status": "Overført til utbetaling",
+        "statusSistOppdatert": "2024-01-25",
+        "tilsagn": {
+          "id": "tilsagn-3",
+          "bestillingsnummer": "A-2024/003"
+        }
+      }
+    ]
   },
   "tilsagn": [
     {

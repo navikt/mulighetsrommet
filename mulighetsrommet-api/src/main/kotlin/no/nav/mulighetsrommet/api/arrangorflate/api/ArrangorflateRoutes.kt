@@ -17,11 +17,15 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.pdfgen.UtbetalingPdfDto
+import no.nav.mulighetsrommet.api.pdfgen.UtbetalingsdetaljerPdf
+import no.nav.mulighetsrommet.api.pdfgen.UtbetalingslinjerPdfDto
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -215,19 +219,39 @@ fun Route.arrangorflateRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
 
-            get("/kvittering") {
+            get("/utbetalingsdetaljer") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val utbetaling = arrangorFlateService.getUtbetaling(id)
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
-                    gjennomforingId = utbetaling.gjennomforing.id,
-                    periode = utbetaling.periode,
+                val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
+                val pdfContent = pdfClient.getUtbetalingKvittering(
+                    UtbetalingsdetaljerPdf(
+                        utbetaling = UtbetalingPdfDto(
+                            status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
+                            periode = arrflateUtbetaling.periode,
+                            arrangor = arrflateUtbetaling.arrangor,
+                            godkjentArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
+                            createdAt = arrflateUtbetaling.createdAt,
+                            fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
+                            gjennomforing = arrflateUtbetaling.gjennomforing,
+                            tiltakstype = arrflateUtbetaling.tiltakstype,
+                            beregning = arrflateUtbetaling.beregning,
+                            betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
+                            linjer = arrflateUtbetaling.linjer.map {
+                                UtbetalingslinjerPdfDto(
+                                    id = it.id,
+                                    tilsagn = it.tilsagn,
+                                    status = toReadableName(it.status),
+                                    belop = it.belop,
+                                    statusSistOppdatert = it.statusSistOppdatert,
+                                )
+                            },
+                        ),
+                    ),
                 )
-                val utbetalingAft = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-                val pdfContent = pdfClient.getUtbetalingKvittering(utbetalingAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",

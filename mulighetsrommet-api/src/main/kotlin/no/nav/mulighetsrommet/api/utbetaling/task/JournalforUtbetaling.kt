@@ -7,11 +7,13 @@ import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.pdfgen.UtbetalingPdfDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -64,12 +66,22 @@ class JournalforUtbetaling(
         val fagsakId = gjennomforing.tiltaksnummer ?: gjennomforing.lopenummer
 
         val pdf = run {
-            val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
-                gjennomforingId = utbetaling.gjennomforing.id,
-                periode = utbetaling.periode,
+            val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
+            pdf.utbetalingJournalpost(
+                utbetaling = UtbetalingPdfDto(
+                    status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
+                    periode = utbetaling.periode,
+                    arrangor = utbetaling.arrangor,
+                    godkjentArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+                    createdAt = utbetaling.createdAt,
+                    fristForGodkjenning = utbetaling.fristForGodkjenning,
+                    gjennomforing = arrflateUtbetaling.gjennomforing,
+                    tiltakstype = arrflateUtbetaling.tiltakstype,
+                    beregning = arrflateUtbetaling.beregning,
+                    betalingsinformasjon = utbetaling.betalingsinformasjon,
+                    linjer = emptyList(),
+                ),
             )
-            val utbetalingAft = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-            pdf.utbetalingJournalpost(utbetalingAft, tilsagn)
         }
 
         val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId, vedlegg)
