@@ -85,6 +85,12 @@ class AltinnRettigheterQueries(private val session: Session) {
             )
         }
     }
+
+    fun deleteAll() {
+        @Language("PostgreSQL")
+        val query = "delete from altinn_person_rettighet"
+        session.execute(queryOf(query))
+    }
 }
 
 fun Session.createArrayOfAltinnRessurs(

@@ -9,10 +9,13 @@ import java.time.Duration
 import java.time.LocalDateTime
 
 class AltinnRettigheterService(
+    private val config: Config = Config(Duration.ofHours(1)),
     private val db: ApiDatabase,
     private val altinnClient: AltinnClient,
 ) {
-    private val rolleExpiryDuration = Duration.ofHours(1)
+    data class Config(
+        val rettighetExpiryDuration: Duration,
+    )
 
     suspend fun getRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> = db.session {
         val bedriftRettigheter = queries.altinnRettigheter.getRettigheter(norskIdent)
@@ -35,7 +38,7 @@ class AltinnRettigheterService(
         queries.altinnRettigheter.upsertRettigheter(
             norskIdent = norskIdent,
             bedriftRettigheter = rettigheter,
-            expiry = LocalDateTime.now().plusSeconds(rolleExpiryDuration.seconds),
+            expiry = LocalDateTime.now().plusSeconds(config.rettighetExpiryDuration.seconds),
         )
 
         return rettigheter
