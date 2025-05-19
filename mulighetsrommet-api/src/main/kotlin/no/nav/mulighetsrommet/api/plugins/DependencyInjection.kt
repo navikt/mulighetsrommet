@@ -436,7 +436,7 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
-    single { AltinnRettigheterService(get(), get()) }
+    single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
     single { ArrangorFlateService(get(), get(), get()) }
     single { TotrinnskontrollService(get()) }

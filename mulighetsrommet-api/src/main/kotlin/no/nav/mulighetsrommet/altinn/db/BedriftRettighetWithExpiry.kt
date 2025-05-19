@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.altinn.db
 
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
-import java.time.LocalDateTime
+import java.time.Instant
 
-data class RettighetDbo(
+data class BedriftRettighetWithExpiry(
     val rettighet: AltinnRessurs,
-    val expiry: LocalDateTime,
+    val expiry: Instant,
 )
