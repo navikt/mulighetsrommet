@@ -8,13 +8,13 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
-import java.time.LocalDateTime
+import java.time.Instant
 
 class AltinnRettigheterQueries(private val session: Session) {
     fun upsertRettigheter(
         norskIdent: NorskIdent,
         bedriftRettigheter: List<BedriftRettigheter>,
-        expiry: LocalDateTime,
+        expiry: Instant,
     ) {
         @Language("PostgreSQL")
         val upsertRolle = """
@@ -75,7 +75,7 @@ class AltinnRettigheterQueries(private val session: Session) {
         val rettigheterForOrgnummer = session.list(queryOf(query, norskIdent.value)) {
             Organisasjonsnummer(it.string("organisasjonsnummer")) to BedriftRettighetWithExpiry(
                 rettighet = AltinnRessurs.valueOf(it.string("rettighet")),
-                expiry = it.localDateTime("expiry"),
+                expiry = it.instant("expiry"),
             )
         }
         return rettigheterForOrgnummer.groupBy({ it.first }, { it.second }).map {
