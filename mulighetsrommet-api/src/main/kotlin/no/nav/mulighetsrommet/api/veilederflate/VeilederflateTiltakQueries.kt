@@ -91,6 +91,7 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
     return VeilederflateTiltakGruppe(
         id = uuid("id"),
         tiltakstype = VeilederflateTiltakstype(
+            id = uuid("tiltakstype_id"),
             sanityId = uuid("tiltakstype_sanity_id").toString(),
             navn = string("tiltakstype_navn"),
             tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },

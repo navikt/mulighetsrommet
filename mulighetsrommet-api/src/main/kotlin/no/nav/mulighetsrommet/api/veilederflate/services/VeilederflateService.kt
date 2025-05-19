@@ -40,6 +40,7 @@ class VeilederflateService(
             .map {
                 val tiltakstype = tiltakstypeService.getBySanityId(UUID.fromString(it._id))
                 VeilederflateTiltakstype(
+                    id = tiltakstype.id,
                     sanityId = it._id,
                     navn = it.tiltakstypeNavn,
                     beskrivelse = it.beskrivelse,
@@ -155,7 +156,22 @@ class VeilederflateService(
     private fun toVeilederTiltaksgjennomforing(
         gjennomforing: SanityTiltaksgjennomforing,
     ): VeilederflateTiltak {
-        val tiltakstypeAdminDto = tiltakstypeService.getBySanityId(UUID.fromString(gjennomforing.tiltakstype._id))
+        val tiltakstypeDto = tiltakstypeService.getBySanityId(UUID.fromString(gjennomforing.tiltakstype._id))
+        val tiltakstype = gjennomforing.tiltakstype.run {
+            VeilederflateTiltakstype(
+                id = tiltakstypeDto.id,
+                sanityId = _id,
+                navn = tiltakstypeNavn,
+                beskrivelse = beskrivelse,
+                innsatsgrupper = innsatsgrupper,
+                regelverkLenker = regelverkLenker,
+                faneinnhold = faneinnhold,
+                delingMedBruker = delingMedBruker,
+                arenakode = tiltakstypeDto.arenaKode,
+                tiltakskode = tiltakstypeDto.tiltakskode,
+                kanKombineresMed = kanKombineresMed,
+            )
+        }
 
         val tiltaksansvarlige = gjennomforing.kontaktpersoner
             ?.mapNotNull { it.navKontaktperson }
@@ -186,22 +202,6 @@ class VeilederflateService(
             )
         }
 
-        val arenakode = tiltakstypeAdminDto.arenaKode
-        val tiltakstype = gjennomforing.tiltakstype.run {
-            VeilederflateTiltakstype(
-                sanityId = _id,
-                navn = tiltakstypeNavn,
-                beskrivelse = beskrivelse,
-                innsatsgrupper = innsatsgrupper,
-                regelverkLenker = regelverkLenker,
-                faneinnhold = faneinnhold,
-                delingMedBruker = delingMedBruker,
-                arenakode = arenakode,
-                tiltakskode = tiltakstypeAdminDto.tiltakskode,
-                kanKombineresMed = kanKombineresMed,
-            )
-        }
-
         val navn = gjennomforing.tiltaksgjennomforingNavn ?: ""
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
@@ -213,7 +213,7 @@ class VeilederflateService(
         val stedForGjennomforing = gjennomforing.stedForGjennomforing
 
         return when {
-            Tiltakskoder.isEgenRegiTiltak(arenakode) -> {
+            Tiltakskoder.isEgenRegiTiltak(tiltakstypeDto.arenaKode) -> {
                 VeilederflateTiltakEgenRegi(
                     tiltaksnummer = tiltaksnummer,
                     beskrivelse = beskrivelse,
