@@ -1,9 +1,9 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
 import {
-  ArrangorHovedenhet,
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
+  AvtaleArrangorHovedenhet,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useRef } from "react";
@@ -16,7 +16,7 @@ import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
-  arrangor: ArrangorHovedenhet;
+  arrangor: AvtaleArrangorHovedenhet;
   readOnly: boolean;
 }
 
@@ -111,7 +111,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
   );
 }
 
-function getArrangorOptions(arrangor: ArrangorHovedenhet) {
+function getArrangorOptions(arrangor: AvtaleArrangorHovedenhet) {
   return arrangor.underenheter
     .sort((a, b) => a.navn.localeCompare(b.navn))
     .map((arrangor) => {
