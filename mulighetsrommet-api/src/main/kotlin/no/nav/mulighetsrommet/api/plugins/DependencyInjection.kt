@@ -101,7 +101,6 @@ import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
-import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
@@ -340,10 +339,10 @@ private fun services(appConfig: AppConfig) = module {
         AltinnClient(
             baseUrl = appConfig.altinn.url,
             clientEngine = appConfig.engine,
-            tokenProvider = maskinportenTokenProvider?.withScope(
+            tokenProvider = maskinportenTokenProvider.withScope(
                 scope = appConfig.altinn.scope,
                 targetAudience = appConfig.altinn.url,
-            ) ?: M2MTokenProvider { "dummy" }, // TODO: Remove when prod
+            ),
         )
     }
     single {

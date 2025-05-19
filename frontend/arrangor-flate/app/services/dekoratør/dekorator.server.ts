@@ -45,7 +45,7 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
       chatbot: false,
       context: "samarbeidspartner",
       shareScreen: false,
-      breadcrumbs: byggBrødsmulesti(miljø),
+      breadcrumbs: [],
     },
   });
 
@@ -55,18 +55,4 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
     footer: decorator.DECORATOR_FOOTER,
     scripts: decorator.DECORATOR_SCRIPTS,
   };
-};
-
-// TODO Bygg korrekt brødsmulesti
-export const byggBrødsmulesti = (miljø: Miljø) => {
-  if (miljø === Miljø.ProdGcp) {
-    return [];
-  } else {
-    return [
-      // {
-      //   title: "Min side – arbeidsgiver",
-      //   url: "https://arrangor-utbetaling.intern.dev.nav.no/",
-      // },
-    ];
-  }
 };
