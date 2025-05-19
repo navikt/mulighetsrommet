@@ -6,9 +6,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -45,7 +43,7 @@ class TilsagnQueriesTest : FunSpec({
         bestillingsnummer = "1",
         bestillingStatus = null,
         belopBrukt = 0,
-        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123, prisbetingelser = "Dette skal ikke med"), TilsagnBeregningFri.Output(123)),
+        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123, prisbetingelser = "Prisbetingelser fra avtale"), TilsagnBeregningFri.Output(123)),
     )
 
     context("CRUD") {
@@ -81,7 +79,7 @@ class TilsagnQueriesTest : FunSpec({
                         slettet = false,
                     )
                     it.beregning shouldBe TilsagnBeregningFri(
-                        TilsagnBeregningFri.Input(123, prisbetingelser = null),
+                        TilsagnBeregningFri.Input(123, prisbetingelser = "Prisbetingelser fra avtale"),
                         TilsagnBeregningFri.Output(123),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
@@ -116,7 +114,7 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
-        test("upsert fri beregning - ingen prisbetingelser") {
+        test("upsert fri beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -124,51 +122,15 @@ class TilsagnQueriesTest : FunSpec({
 
                 val beregning = TilsagnBeregningFri(
                     input = TilsagnBeregningFri.Input(
-                        prisbetingelser = "Prisbetingelser skal ikke settes ved tilsagn upsert",
+                        prisbetingelser = AvtaleFixtures.ARR.prisbetingelser,
                         belop = 1000,
                     ),
                     output = TilsagnBeregningFri.Output(1000),
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning, gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id))
                 queries.get(tilsagn.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning.copy(input = TilsagnBeregningFri.Input(prisbetingelser = AvtaleFixtures.ARR.prisbetingelser, belop = 1000))
+                    it.beregning shouldBe beregning
                 }
-            }
-        }
-
-        test("get godkjent tilsagn - fri beregning - lagrede prisbetingelser") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = TilsagnQueries(session)
-                val avtaleQueries = AvtaleQueries(session)
-
-                val avtale = AvtaleFixtures.ARR
-                val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
-                val beregning = TilsagnBeregningFri(
-                    input = TilsagnBeregningFri.Input(
-                        prisbetingelser = "Prisbetingelser skal ikke settes ved tilsagn upsert",
-                        belop = 1000,
-                    ),
-                    output = TilsagnBeregningFri.Output(1000),
-                )
-                queries.upsert(tilsagn.copy(beregning = beregning, gjennomforingId = gjennomforing.id))
-
-                // Tilsagn TIL_GODKJENNING viser avtalens prisbetingelser
-                queries.get(tilsagn.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning.copy(input = TilsagnBeregningFri.Input(prisbetingelser = avtale.prisbetingelser, belop = 1000))
-                }
-
-                // Simuler: Prisbetingelser lagres fra avtalen ved godkjenning
-                queries.upsertPrisbetingelser(tilsagn.id)
-                queries.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
-
-                // Oppdater avtalens prisbetingelser
-                avtaleQueries.upsert(avtale.copy(prisbetingelser = avtale.prisbetingelser + " oppdatert"))
-                val oppdatertAvtale = avtaleQueries.get(avtale.id).shouldNotBeNull()
-                val godkjentTilsagn = queries.get(tilsagn.id).shouldNotBeNull()
-
-                (godkjentTilsagn.beregning.input as TilsagnBeregningFri.Input).prisbetingelser shouldNotBe oppdatertAvtale.prisbetingelser
             }
         }
 

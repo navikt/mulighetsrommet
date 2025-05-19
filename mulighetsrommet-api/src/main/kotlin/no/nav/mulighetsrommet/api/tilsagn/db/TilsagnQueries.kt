@@ -100,6 +100,7 @@ class TilsagnQueries(private val session: Session) {
             }
 
             is TilsagnBeregningFri -> {
+                upsertTilsagnBeregningFri(dbo.id, dbo.beregning)
             }
         }
     }
@@ -131,6 +132,26 @@ class TilsagnQueries(private val session: Session) {
         )
 
         execute(queryOf(query, params))
+    }
+
+    private fun TransactionalSession.upsertTilsagnBeregningFri(
+        id: UUID,
+        beregning: TilsagnBeregningFri,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into tilsagn_fri_prisbetingelser (
+                    tilsagn_id,
+                    prisbetingelser
+                ) values (
+                    :tilsagn_id::uuid,
+                    :prisbetingelser
+                )
+            on conflict (tilsagn_id) do update set
+                prisbetingelser = excluded.prisbetingelser;
+        """.trimIndent()
+
+        execute(queryOf(query, mapOf("tilsagn_id" to id, "prisbetingelser" to beregning.input.prisbetingelser)))
     }
 
     fun setBruktBelop(id: UUID, belop: Int) {
@@ -223,21 +244,6 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
-    fun upsertPrisbetingelser(id: UUID) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into tilsagn_fri_prisbetingelser (tilsagn_id, prisbetingelser)
-            select t.id as tilsagn_id, a.prisbetingelser from tilsagn t
-                inner join gjennomforing g on t.gjennomforing_id = g.id
-                inner join avtale a on g.avtale_id = a.id
-                where t.id = :id::uuid
-            on conflict (tilsagn_id) do update set
-                prisbetingelser = EXCLUDED.prisbetingelser;
-        """.trimIndent()
-
-        session.execute(queryOf(query, mapOf("id" to id)))
-    }
-
     fun setBestillingStatus(bestillingsnummer: String, status: BestillingStatusType) {
         @Language("PostgreSQL")
         val query = """
@@ -251,9 +257,8 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
-        val status = TilsagnStatus.valueOf(string("status"))
 
-        val beregning = getBeregning(id, status, Prismodell.valueOf(string("prismodell")))
+        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
 
         return Tilsagn(
             id = uuid("id"),
@@ -287,14 +292,14 @@ class TilsagnQueries(private val session: Session) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = beregning,
-            status = status,
+            status = TilsagnStatus.valueOf(string("status")),
         )
     }
 
-    private fun getBeregning(id: UUID, status: TilsagnStatus, prismodell: Prismodell): TilsagnBeregning {
+    private fun getBeregning(id: UUID, prismodell: Prismodell): TilsagnBeregning {
         return when (prismodell) {
             Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
-            Prismodell.FRI -> getBeregningFri(id, status)
+            Prismodell.FRI -> getBeregningFri(id)
         }
     }
 
@@ -320,22 +325,9 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningFri(id: UUID, tilsagnStatus: TilsagnStatus): TilsagnBeregningFri {
+    private fun getBeregningFri(id: UUID): TilsagnBeregningFri {
         @Language("PostgreSQL")
-        val avtaleBasedquery = """
-            select
-                t.belop_beregnet, a.prisbetingelser
-            from tilsagn t
-                inner join gjennomforing g
-                    on t.gjennomforing_id = g.id
-                inner join avtale a
-                    on g.avtale_id = a.id
-            where
-                t.id = ?::uuid
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val tilsagnBasedQuery = """
+        val query = """
             select
                 t.belop_beregnet, tfp.prisbetingelser
             from tilsagn t
@@ -344,12 +336,6 @@ class TilsagnQueries(private val session: Session) {
             where
                 t.id = ?::uuid
         """.trimIndent()
-
-        val query = if (tilsagnStatus in listOf(TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT)) {
-            avtaleBasedquery
-        } else {
-            tilsagnBasedQuery
-        }
 
         return session.requireSingle(queryOf(query, id)) {
             TilsagnBeregningFri(

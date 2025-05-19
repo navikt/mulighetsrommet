@@ -14,24 +14,19 @@ interface Props {
   onAvbryt: () => void;
   defaultValues: DeepPartial<FriTilsagn>;
   regioner: string[];
-  prisbetingelser: string | null;
 }
 
 export function TilsagnFormFri(props: Props) {
   return (
     <TilsagnForm
       {...props}
-      beregningInput={<BeregningInputSkjema prisbetingelser={props.prisbetingelser} />}
+      beregningInput={<BeregningInputSkjema />}
       beregningOutput={<BeregningOutputPreview />}
     />
   );
 }
 
-interface BeregningInputSkjemaProps {
-  prisbetingelser: string | null;
-}
-
-function BeregningInputSkjema({ prisbetingelser }: BeregningInputSkjemaProps) {
+function BeregningInputSkjema() {
   const {
     register,
     formState: { errors },
@@ -39,16 +34,16 @@ function BeregningInputSkjema({ prisbetingelser }: BeregningInputSkjemaProps) {
 
   return (
     <>
-      {prisbetingelser && (
-        <div className="pb-3">
-          <Textarea
-            size="small"
-            value={prisbetingelser}
-            label={avtaletekster.prisOgBetalingLabel}
-            readOnly
-          />
-        </div>
-      )}
+      <div className="pb-3">
+        <Textarea
+          size="small"
+          label={avtaletekster.prisOgBetalingLabel}
+          readOnly
+          error={errors.beregning?.prisbetingelser?.message}
+          {...register("beregning.prisbetingelser")}
+        />
+      </div>
+
       <TextField
         size="small"
         type="number"
@@ -70,7 +65,7 @@ function BeregningOutputPreview() {
       input={{
         type: "FRI",
         belop: values.beregning?.belop,
-        prisbetingelser: null,
+        prisbetingelser: values.beregning?.prisbetingelser,
       }}
     />
   );

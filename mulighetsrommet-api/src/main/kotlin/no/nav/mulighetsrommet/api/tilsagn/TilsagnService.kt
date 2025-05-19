@@ -124,10 +124,6 @@ class TilsagnService(
                 queries.tilsagn.upsert(dbo)
                 queries.totrinnskontroll.upsert(totrinnskontroll)
 
-                if (dbo.beregning is TilsagnBeregningFri) {
-                    queries.tilsagn.upsertPrisbetingelser(dbo.id)
-                }
-
                 val dto = queries.tilsagn.getOrError(dbo.id)
 
                 logEndring("Sendt til godkjenning", dto, navIdent)
@@ -225,10 +221,6 @@ class TilsagnService(
         )
         queries.totrinnskontroll.upsert(besluttetOpprettelse)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
-        if (tilsagn.beregning is TilsagnBeregningFri) {
-            // Hentes fra avtalen ved godkjenning
-            queries.tilsagn.upsertPrisbetingelser(tilsagn.id)
-        }
 
         storeOpprettBestilling(tilsagn, besluttetOpprettelse)
 
