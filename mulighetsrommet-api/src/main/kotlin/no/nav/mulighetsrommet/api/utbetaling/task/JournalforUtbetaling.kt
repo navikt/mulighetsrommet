@@ -8,12 +8,13 @@ import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
+import no.nav.mulighetsrommet.api.arrangorflate.api.Beregning
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
-import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.pdfgen.UtbetalingPdfDto
+import no.nav.mulighetsrommet.api.pdfgen.*
+import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -70,16 +71,65 @@ class JournalforUtbetaling(
             pdf.utbetalingJournalpost(
                 utbetaling = UtbetalingPdfDto(
                     status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
-                    periode = utbetaling.periode,
-                    arrangor = utbetaling.arrangor,
-                    godkjentArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-                    createdAt = utbetaling.createdAt,
-                    fristForGodkjenning = utbetaling.fristForGodkjenning,
-                    gjennomforing = arrflateUtbetaling.gjennomforing,
-                    tiltakstype = arrflateUtbetaling.tiltakstype,
-                    beregning = arrflateUtbetaling.beregning,
-                    betalingsinformasjon = utbetaling.betalingsinformasjon,
-                    linjer = emptyList(),
+                    periodeStart = arrflateUtbetaling.periode.start,
+                    periodeSlutt = arrflateUtbetaling.periode.slutt.minusDays(1),
+                    arrangor = ArrangorPdf(
+                        organisasjonsnummer = arrflateUtbetaling.arrangor.organisasjonsnummer.value,
+                        navn = arrflateUtbetaling.arrangor.navn,
+                    ),
+                    godkjentArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
+                    createdAt = arrflateUtbetaling.createdAt,
+                    fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
+                    gjennomforing = GjennomforingPdf(
+                        navn = arrflateUtbetaling.gjennomforing.navn,
+                    ),
+                    tiltakstype = TiltakstypePdf(
+                        navn = arrflateUtbetaling.tiltakstype.navn,
+                    ),
+                    beregning = when (arrflateUtbetaling.beregning) {
+                        is Beregning.Fri -> BeregningPdf(
+                            antallManedsverk = null,
+                            belop = arrflateUtbetaling.beregning.belop,
+                            deltakelser = emptyList(),
+                            stengt = emptyList(),
+                        )
+
+                        is Beregning.Forhandsgodkjent -> BeregningPdf(
+                            antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                            belop = arrflateUtbetaling.beregning.belop,
+                            deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
+                                DeltakerPdf(
+                                    startDato = it.startDato,
+                                    sluttDato = it.sluttDato,
+                                    perioder = it.perioder,
+                                    manedsverk = it.manedsverk,
+                                    person = it.person?.let {
+                                        PersonPdf(
+                                            navn = it.navn,
+                                            fodselsdato = it.fodselsdato,
+                                            fodselsaar = it.fodselsaar,
+                                        )
+                                    },
+                                )
+                            },
+                            stengt = arrflateUtbetaling.beregning.stengt.map {
+                                StengtPeriodePdf(
+                                    periode = it.periode,
+                                    beskrivelse = it.beskrivelse,
+                                )
+                            },
+                        )
+                    },
+                    betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
+                    linjer = arrflateUtbetaling.linjer.map {
+                        UtbetalingslinjerPdfDto(
+                            id = it.id,
+                            tilsagn = it.tilsagn,
+                            status = toReadableName(it.status),
+                            belop = it.belop,
+                            statusSistOppdatert = it.statusSistOppdatert,
+                        )
+                    },
                 ),
             )
         }

@@ -1,81 +1,97 @@
 {
   "utbetaling": {
     "status": "Overført til utbetaling",
-    "godkjentAvArrangorTidspunkt": "2025-06-15",
-    "createdAt": "2025-05-13",
+    "periodeStart": "2024-01-01",
+    "periodeSlutt": "2024-01-29",
     "arrangor": {
-      "id": "1234567890",
       "organisasjonsnummer": "1234567890",
       "navn": "Fretex AS"
     },
-    "periode": {
-      "start": "2024-01-01",
-      "slutt": "2024-01-29"
-    },
-    "beregning": {
-      "antallManedsverk": 2.3,
-      "belop": "44000"
-    },
+    "godkjentArrangorTidspunkt": "2025-06-15T10:00:00",
+    "createdAt": "2025-05-13T10:00:00",
     "fristForGodkjenning": "2024-03-01",
-    "betalingsinformasjon": {
-      "kontonummer": "12312312312",
-      "kid": ""
+    "gjennomforing": {
+      "navn": "Arbeidsforberedende gjennomføring"
     },
     "tiltakstype": {
       "navn": "Arbeidsforberedende trening"
     },
-    "gjennomforing": {
-      "navn": "Arbeidsforberedende gjennomføring"
+    "beregning": {
+      "antallManedsverk": 2.3,
+      "belop": 44000,
+      "deltakelser": [
+        {
+          "startDato": "2024-01-01",
+          "sluttDato": "2024-01-29",
+          "perioder": [
+            {
+              "periode": {
+                "start": "2024-01-01",
+                "slutt": "2024-01-29"
+              },
+              "deltakelsesprosent": 100
+            }
+          ],
+          "manedsverk": 1.0,
+          "person": {
+            "navn": "Ola Nordmann",
+            "fodselsdato": "1990-01-01",
+            "fodselsaar": 1990
+          }
+        }
+      ],
+      "stengt": [
+        {
+          "periode": {
+            "start": "2025-04-17",
+            "slutt": "2025-04-21"
+          },
+          "beskrivelse": "Påskeferie"
+        },
+        {
+          "periode": {
+            "start": "2025-07-10",
+            "slutt": "2025-07-31"
+          },
+          "beskrivelse": "Sommerferie"
+        }
+      ]
+    },
+    "betalingsinformasjon": {
+      "kontonummer": "12312312312",
+      "kid": ""
     },
     "linjer": [
       {
-        "belop": 15000,
-        "id": "linje-1",
-        "status": "Overført til utbetaling",
-        "statusSistOppdatert": "2024-01-15",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
         "tilsagn": {
           "id": "tilsagn-1",
           "bestillingsnummer": "A-2024/001"
-        }
+        },
+        "status": "Overført til utbetaling",
+        "statusSistOppdatert": "2024-01-15T10:00:00",
+        "belop": 15000
       },
       {
-        "id": "linje-2",
-        "belop": 20000,
-        "status": "Overført til utbetaling",
-        "statusSistOppdatert": "2024-01-20",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
         "tilsagn": {
           "id": "tilsagn-2",
           "bestillingsnummer": "A-2024/002"
-        }
+        },
+        "status": "Overført til utbetaling",
+        "statusSistOppdatert": "2024-01-20T10:00:00",
+        "belop": 20000
       },
       {
-        "id": "linje-3",
-        "belop": 9000,
-        "status": "Overført til utbetaling",
-        "statusSistOppdatert": "2024-01-25",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
         "tilsagn": {
           "id": "tilsagn-3",
           "bestillingsnummer": "A-2024/003"
-        }
+        },
+        "status": "Overført til utbetaling",
+        "statusSistOppdatert": "2024-01-25T10:00:00",
+        "belop": 9000
       }
     ]
-  },
-  "tilsagn": [
-    {
-      "periode": {
-        "start": "2024-01-01",
-        "slutt": "2024-06-30"
-      },
-      "gjenstaendeBelop": 25000,
-      "beregning": {
-        "input": {
-          "antallPlasser": 20,
-          "sats": "22000"
-        },
-        "output": {
-          "belop": "2200000"
-        }
-      }
-    }
-  ]
+  }
 }

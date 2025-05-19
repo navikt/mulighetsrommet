@@ -9,8 +9,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangorflate.api.Beregning
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -38,28 +38,10 @@ class PdfGenClient(
             val utbetalingsdetaljerPdf: UtbetalingsdetaljerPdf,
         )
 
-        val updatedUtbetaling = subtractSluttPerioder(utbetalingsdetaljerPdf.utbetaling)
-
         return downloadPdf(
             app = "utbetaling",
             template = "utbetalingsdetaljer",
-            body = PdfData(
-                utbetalingsdetaljerPdf = UtbetalingsdetaljerPdf(
-                    utbetaling = UtbetalingPdfDto(
-                        status = updatedUtbetaling.status,
-                        periode = updatedUtbetaling.periode,
-                        arrangor = updatedUtbetaling.arrangor,
-                        godkjentArrangorTidspunkt = updatedUtbetaling.godkjentArrangorTidspunkt,
-                        createdAt = updatedUtbetaling.createdAt,
-                        fristForGodkjenning = updatedUtbetaling.fristForGodkjenning,
-                        gjennomforing = updatedUtbetaling.gjennomforing,
-                        tiltakstype = updatedUtbetaling.tiltakstype,
-                        beregning = updatedUtbetaling.beregning,
-                        betalingsinformasjon = updatedUtbetaling.betalingsinformasjon,
-                        linjer = updatedUtbetaling.linjer,
-                    ),
-                ),
-            ),
+            body = PdfData(utbetalingsdetaljerPdf),
         )
     }
 
@@ -71,26 +53,10 @@ class PdfGenClient(
             val utbetaling: UtbetalingPdfDto,
         )
 
-        val updatedUtbetaling = subtractSluttPerioder(utbetaling)
-
         return downloadPdf(
             app = "utbetaling",
             template = "journalpost",
-            body = PdfData(
-                utbetaling = UtbetalingPdfDto(
-                    status = updatedUtbetaling.status,
-                    periode = updatedUtbetaling.periode,
-                    arrangor = updatedUtbetaling.arrangor,
-                    godkjentArrangorTidspunkt = updatedUtbetaling.godkjentArrangorTidspunkt,
-                    createdAt = updatedUtbetaling.createdAt,
-                    fristForGodkjenning = updatedUtbetaling.fristForGodkjenning,
-                    gjennomforing = updatedUtbetaling.gjennomforing,
-                    tiltakstype = updatedUtbetaling.tiltakstype,
-                    beregning = updatedUtbetaling.beregning,
-                    betalingsinformasjon = updatedUtbetaling.betalingsinformasjon,
-                    linjer = updatedUtbetaling.linjer,
-                ),
-            ),
+            body = PdfData(utbetaling),
         )
     }
 
@@ -103,35 +69,6 @@ class PdfGenClient(
             }
             .bodyAsBytes()
     }
-
-    private fun subtractSluttPerioder(
-        utbetaling: UtbetalingPdfDto,
-    ): UtbetalingPdfDto {
-        val updatedUtbetaling = utbetaling.copy(
-            periode = utbetaling.periode.copy(slutt = utbetaling.periode.slutt.minusDays(1)),
-            beregning = getBeregningWithSubtractedSluttperiode(utbetaling),
-        )
-
-        return updatedUtbetaling
-    }
-
-    private fun getBeregningWithSubtractedSluttperiode(utbetaling: UtbetalingPdfDto): Beregning = when (utbetaling.beregning) {
-        is Beregning.Forhandsgodkjent -> utbetaling.beregning.copy(
-            deltakelser = utbetaling.beregning.deltakelser.map {
-                it.copy(
-                    perioder = it.perioder.map { p ->
-                        p.copy(
-                            periode = p.periode.copy(
-                                slutt = p.periode.slutt.minusDays(1),
-                            ),
-                        )
-                    },
-                )
-            },
-        )
-
-        else -> utbetaling.beregning
-    }
 }
 
 @Serializable
@@ -142,19 +79,71 @@ data class UtbetalingsdetaljerPdf(
 @Serializable
 data class UtbetalingPdfDto(
     val status: String,
-    val periode: Periode,
-    val arrangor: Utbetaling.Arrangor,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
+    val arrangor: ArrangorPdf,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime?,
     @Serializable(with = LocalDateSerializer::class)
     val fristForGodkjenning: LocalDate,
-    val gjennomforing: Utbetaling.Gjennomforing,
-    val tiltakstype: Utbetaling.Tiltakstype,
-    val beregning: Beregning,
+    val gjennomforing: GjennomforingPdf,
+    val tiltakstype: TiltakstypePdf,
+    val beregning: BeregningPdf,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val linjer: List<UtbetalingslinjerPdfDto>?,
+)
+
+@Serializable
+data class ArrangorPdf(
+    val organisasjonsnummer: String,
+    val navn: String,
+)
+
+@Serializable
+data class GjennomforingPdf(
+    val navn: String,
+)
+
+@Serializable
+data class TiltakstypePdf(
+    val navn: String,
+)
+
+@Serializable
+data class BeregningPdf(
+    val antallManedsverk: Double?,
+    val belop: Int,
+    val deltakelser: List<DeltakerPdf>,
+    val stengt: List<StengtPeriodePdf>,
+)
+
+@Serializable
+data class DeltakerPdf(
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    val perioder: List<DeltakelsePeriode>,
+    val manedsverk: Double,
+    val person: PersonPdf?,
+)
+
+@Serializable
+data class PersonPdf(
+    val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val fodselsdato: LocalDate?,
+    val fodselsaar: Int?,
+)
+
+@Serializable
+data class StengtPeriodePdf(
+    val periode: Periode,
+    val beskrivelse: String,
 )
 
 @Serializable

@@ -16,10 +16,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
-import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.pdfgen.UtbetalingPdfDto
-import no.nav.mulighetsrommet.api.pdfgen.UtbetalingsdetaljerPdf
-import no.nav.mulighetsrommet.api.pdfgen.UtbetalingslinjerPdfDto
+import no.nav.mulighetsrommet.api.pdfgen.*
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -231,14 +228,36 @@ fun Route.arrangorflateRoutes() {
                     UtbetalingsdetaljerPdf(
                         utbetaling = UtbetalingPdfDto(
                             status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
-                            periode = arrflateUtbetaling.periode,
-                            arrangor = arrflateUtbetaling.arrangor,
+                            periodeStart = arrflateUtbetaling.periode.start,
+                            periodeSlutt = arrflateUtbetaling.periode.slutt.minusDays(1),
+                            arrangor = ArrangorPdf(
+                                organisasjonsnummer = arrflateUtbetaling.arrangor.organisasjonsnummer.value,
+                                navn = arrflateUtbetaling.arrangor.navn,
+                            ),
                             godkjentArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
                             createdAt = arrflateUtbetaling.createdAt,
                             fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
-                            gjennomforing = arrflateUtbetaling.gjennomforing,
-                            tiltakstype = arrflateUtbetaling.tiltakstype,
-                            beregning = arrflateUtbetaling.beregning,
+                            gjennomforing = GjennomforingPdf(
+                                navn = arrflateUtbetaling.gjennomforing.navn,
+                            ),
+                            tiltakstype = TiltakstypePdf(
+                                navn = arrflateUtbetaling.tiltakstype.navn,
+                            ),
+                            beregning = when (arrflateUtbetaling.beregning) {
+                                is Beregning.Fri -> BeregningPdf(
+                                    antallManedsverk = null,
+                                    belop = arrflateUtbetaling.beregning.belop,
+                                    deltakelser = emptyList(),
+                                    stengt = emptyList(),
+                                )
+
+                                is Beregning.Forhandsgodkjent -> BeregningPdf(
+                                    antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                                    belop = arrflateUtbetaling.beregning.belop,
+                                    deltakelser = emptyList(),
+                                    stengt = emptyList(),
+                                )
+                            },
                             betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
                             linjer = arrflateUtbetaling.linjer.map {
                                 UtbetalingslinjerPdfDto(
