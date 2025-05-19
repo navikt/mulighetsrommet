@@ -90,7 +90,13 @@ function BeregningInputLinjerSkjema() {
         />
       </div>
       <div>
-        <TextField label="Linje-id" hideLabel hidden {...register(`beregning.input.linjer.${index}.id`)} defaultValue={item.id} />
+        <TextField
+          label="Linje-id"
+          hideLabel
+          hidden
+          {...register(`beregning.input.linjer.${index}.id`)}
+          defaultValue={item.id}
+        />
         <Button
           className="mt-7"
           size="small"

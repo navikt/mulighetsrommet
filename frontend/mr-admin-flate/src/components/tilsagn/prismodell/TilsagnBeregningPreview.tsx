@@ -50,13 +50,13 @@ export function TilsagnBeregningPreview(props: Props) {
   );
 }
 
-function extractRelevantDeps(obj: any): any[] {
-  if (!obj || typeof obj !== "object") return [obj];
+// function extractRelevantDeps(obj: any): any[] {
+//   if (!obj || typeof obj !== "object") return [obj];
 
-  return Object.entries(obj).flatMap(([, value]) => {
-    if (typeof value === "object" && value !== null) {
-      return extractRelevantDeps(value); // Recursively flatten nested objects
-    }
-    return value; // Keep primitive values
-  });
-}
+//   return Object.entries(obj).flatMap(([, value]) => {
+//     if (typeof value === "object" && value !== null) {
+//       return extractRelevantDeps(value); // Recursively flatten nested objects
+//     }
+//     return value; // Keep primitive values
+//   });
+// }
