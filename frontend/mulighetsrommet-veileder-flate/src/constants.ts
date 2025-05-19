@@ -7,7 +7,6 @@ export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/
 export const PORTEN_URL_FOR_TILBAKEMELDING = (tiltaksnummer: string = "", fylke: string = "") =>
   `${PORTEN_URL_CONFIG.prod.baseUrl}?${PORTEN_URL_CONFIG.prod.customField_fylke}=${fylke}&${PORTEN_URL_CONFIG.prod.customField_tiltaksnummer}=${encodeURIComponent(tiltaksnummer)}`;
 
-// TODO Bytt til korrekt prod-url når skjema er opprettet av Ingunn i prod
 const PORTEN_URL_CONFIG = {
   prod: {
     customField_tiltaksnummer: "customfield_30210",
