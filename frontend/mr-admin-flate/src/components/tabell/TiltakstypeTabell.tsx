@@ -3,22 +3,17 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterDato } from "@/utils/Utils";
 import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { Alert, Table } from "@navikt/ds-react";
+import { Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { TiltakstypeStatusTag } from "../statuselementer/TiltakstypeStatusTag";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
 
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
 
-  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: tiltakstyper } = useTiltakstyper(filter);
 
   const sort = filter.sort?.tableSort;
-
-  if (!tiltakstyper || tiltakstyper.data.length === 0) {
-    return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
-  }
-
   const handleSort = (sortKey: string) => {
     const direction = sort?.direction === "ascending" ? "descending" : "ascending";
 
@@ -38,7 +33,7 @@ export function TiltakstypeTabell() {
     <TabellWrapper className="m-0">
       <Table
         sort={sort!}
-        onSortChange={(sortKey) => handleSort(sortKey!)}
+        onSortChange={(sortKey) => handleSort(sortKey)}
         className="bg-white border-separate border-spacing-0 border-t border-gray-200"
       >
         <Table.Header>
@@ -58,11 +53,11 @@ export function TiltakstypeTabell() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltakstyper.data.map((tiltakstype, index) => {
+          {tiltakstyper.map((tiltakstype) => {
             const startDato = formaterDato(tiltakstype.startDato);
             const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
             return (
-              <Table.Row key={index}>
+              <Table.Row key={tiltakstype.id}>
                 <Table.DataCell
                   aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
                   className="underline"
