@@ -1,5 +1,5 @@
 import {
-  DelMedBrukerDbo as DelMedBruker,
+  DelMedBrukerDto,
   DelTiltakMedBrukerResponse,
   GetAlleDeltMedBrukerRequest,
   GetDelMedBrukerRequest,
@@ -34,7 +34,7 @@ export const delMedBrukerHandlers = [
     },
   ),
 
-  http.post<PathParams, GetAlleDeltMedBrukerRequest, DelMedBruker[]>(
+  http.post<PathParams, GetAlleDeltMedBrukerRequest, DelMedBrukerDto[]>(
     "*/api/veilederflate/del-med-bruker/alle",
     () => {
       return HttpResponse.json(mockDeltMedBruker);

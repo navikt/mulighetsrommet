@@ -7,11 +7,7 @@ import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
-import {
-  DelMedBrukerDbo as DelMedBruker,
-  GjennomforingOppstartstype,
-  VeilederflateTiltak,
-} from "@api-client";
+import { DelMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
 import {
   isTiltakEnkeltplass,
   isTiltakGruppe,
@@ -21,7 +17,7 @@ import {
 interface Props {
   tiltak: VeilederflateTiltak;
   index: number;
-  delMedBruker?: DelMedBruker;
+  delMedBruker?: DelMedBrukerDto;
 }
 
 export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Props) {

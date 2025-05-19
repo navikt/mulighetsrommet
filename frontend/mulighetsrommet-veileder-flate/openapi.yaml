@@ -362,7 +362,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DelMedBrukerDbo"
+                $ref: "#/components/schemas/DelMedBrukerDto"
         "204":
           description: Ingen informasjon funnet for tiltaket
           headers: {}
@@ -398,7 +398,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DelMedBrukerDbo"
+                  $ref: "#/components/schemas/DelMedBrukerDto"
         "204":
           description: Ingen informasjon funnet
           headers: {}
@@ -1457,8 +1457,9 @@ components:
           - "null"
           - string
           format: uuid
-        tiltakstypeNavn:
+        tiltakstypeId:
           type: string
+          format: uuid
         deltFraFylke:
           type:
           - "null"
@@ -1473,7 +1474,7 @@ components:
       - overskrift
       - sanityId
       - tekst
-      - tiltakstypeNavn
+      - tiltakstypeId
       - venterPaaSvarFraBruker
     DelTiltakMedBrukerResponse:
       type: object
@@ -1493,16 +1494,15 @@ components:
       required:
       - norskIdent
       - tiltakId
-    DelMedBrukerDbo:
+    DelMedBrukerDto:
       type: object
       properties:
         id:
-          type:
-          - "null"
-          - string
+          type: integer
+          format: int32
         norskIdent:
           type: string
-        navident:
+        navIdent:
           type: string
         sanityId:
           type:
@@ -1517,27 +1517,8 @@ components:
         dialogId:
           type: string
         createdAt:
-          type:
-          - "null"
-          - string
+          type: string
           format: date-time
-        updatedAt:
-          type:
-          - "null"
-          - string
-          format: date-time
-        createdBy:
-          type:
-          - "null"
-          - string
-        updatedBy:
-          type:
-          - "null"
-          - string
-        tiltakstypeNavn:
-          type:
-          - "null"
-          - string
         deltFraFylke:
           type:
           - "null"
@@ -1548,18 +1529,14 @@ components:
           - string
       required:
       - createdAt
-      - createdBy
       - deltFraEnhet
       - deltFraFylke
       - dialogId
       - gjennomforingId
       - id
-      - navident
+      - navIdent
       - norskIdent
       - sanityId
-      - tiltakstypeNavn
-      - updatedAt
-      - updatedBy
     GetAlleDeltMedBrukerRequest:
       type: object
       properties:
@@ -1676,6 +1653,9 @@ components:
     VeilederflateTiltakstype:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         sanityId:
           type: string
         navn:
@@ -1721,6 +1701,7 @@ components:
       - beskrivelse
       - delingMedBruker
       - faneinnhold
+      - id
       - innsatsgrupper
       - kanKombineresMed
       - navn
