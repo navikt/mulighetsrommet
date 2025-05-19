@@ -14,7 +14,7 @@ import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/
 import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { createRef, useEffect, useState } from "react";
-import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";

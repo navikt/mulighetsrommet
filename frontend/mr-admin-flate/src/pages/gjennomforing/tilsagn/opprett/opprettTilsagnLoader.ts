@@ -1,5 +1,5 @@
 import { Prismodell, TilsagnService, TilsagnType } from "@mr/api-client-v2";
-import { QueryKeys } from "../../../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export const tilsagnDefaultsQuery = (params: {
   gjennomforingId?: string;

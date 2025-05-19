@@ -4,7 +4,7 @@ import { SANITY_STUDIO_URL } from "@/constants";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato } from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
+import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 
 export function TiltakstypeInfo() {
   const { data: tiltakstype } = useTiltakstypeById();

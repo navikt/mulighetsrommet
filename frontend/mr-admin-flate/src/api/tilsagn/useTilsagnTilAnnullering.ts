@@ -1,5 +1,5 @@
 import { TilsagnService, TilsagnTilAnnulleringAarsak } from "@mr/api-client-v2";
-import { QueryKeys } from "../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useTilsagnTilAnnullering() {
