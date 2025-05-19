@@ -15,43 +15,66 @@ class AltinnRettigheterQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val norskIdent1 = NorskIdent("12345678901")
-    val rettighet1 = PersonBedriftRettigheterDbo(
-        norskIdent = norskIdent1,
-        bedriftRettigheter = listOf(
-            BedriftRettigheter(
-                organisasjonsnummer = underenhet1.organisasjonsnummer,
-                rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING),
-            ),
-        ),
-        expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
-    )
-
     val norskIdent2 = NorskIdent("42345678903")
-    val rettighet2 = PersonBedriftRettigheterDbo(
-        norskIdent = norskIdent2,
-        bedriftRettigheter = listOf(
-            BedriftRettigheter(
-                organisasjonsnummer = underenhet2.organisasjonsnummer,
-                rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING),
-            ),
-        ),
-        expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
+
+    val rettighetUnderenhet1 = BedriftRettigheter(
+        organisasjonsnummer = underenhet1.organisasjonsnummer,
+        rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING),
+    )
+    val rettighetUnderenhet2 = BedriftRettigheter(
+        organisasjonsnummer = underenhet2.organisasjonsnummer,
+        rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING),
     )
 
-    test("CRUD") {
+    test("upsert and get rettigheter for person") {
         database.runAndRollback {
             val queries = AltinnRettigheterQueries(it)
 
-            queries.upsertRettighet(rettighet1)
-            queries.upsertRettighet(rettighet2)
+            queries.upsertRettigheter(
+                norskIdent = norskIdent1,
+                bedriftRettigheter = listOf(rettighetUnderenhet1),
+                expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
+            )
+            queries.upsertRettigheter(
+                norskIdent = norskIdent2,
+                bedriftRettigheter = listOf(rettighetUnderenhet2),
+                expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
+            )
 
             queries.getRettigheter(norskIdent1) shouldContainExactly listOf(
                 BedriftRettigheterDbo(
                     underenhet1.organisasjonsnummer,
                     listOf(
-                        RettighetDbo(
+                        BedriftRettighetWithExpiry(
                             rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
                             expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
+                        ),
+                    ),
+                ),
+            )
+
+            queries.upsertRettigheter(
+                norskIdent = norskIdent1,
+                bedriftRettigheter = listOf(rettighetUnderenhet1, rettighetUnderenhet2),
+                expiry = LocalDateTime.of(2025, 1, 1, 0, 0),
+            )
+
+            queries.getRettigheter(norskIdent1) shouldContainExactly listOf(
+                BedriftRettigheterDbo(
+                    underenhet1.organisasjonsnummer,
+                    listOf(
+                        BedriftRettighetWithExpiry(
+                            rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
+                            expiry = LocalDateTime.of(2025, 1, 1, 0, 0),
+                        ),
+                    ),
+                ),
+                BedriftRettigheterDbo(
+                    underenhet2.organisasjonsnummer,
+                    listOf(
+                        BedriftRettighetWithExpiry(
+                            rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
+                            expiry = LocalDateTime.of(2025, 1, 1, 0, 0),
                         ),
                     ),
                 ),

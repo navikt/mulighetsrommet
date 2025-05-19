@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.altinn
 
 import no.nav.mulighetsrommet.altinn.db.BedriftRettigheterDbo
-import no.nav.mulighetsrommet.altinn.db.PersonBedriftRettigheterDbo
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -33,12 +32,10 @@ class AltinnRettigheterService(
     private suspend fun QueryContext.syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
         val rettigheter = altinnClient.hentRettigheter(norskIdent)
 
-        queries.altinnRettigheter.upsertRettighet(
-            PersonBedriftRettigheterDbo(
-                norskIdent = norskIdent,
-                bedriftRettigheter = rettigheter,
-                expiry = LocalDateTime.now().plusSeconds(rolleExpiryDuration.seconds),
-            ),
+        queries.altinnRettigheter.upsertRettigheter(
+            norskIdent = norskIdent,
+            bedriftRettigheter = rettigheter,
+            expiry = LocalDateTime.now().plusSeconds(rolleExpiryDuration.seconds),
         )
 
         return rettigheter
