@@ -15,7 +15,7 @@ export function NotifikasjonerBjelle() {
     return null;
   }
 
-  const harUlesteNotifikasjoner = summary.notDoneCount > 0;
+  const harUlesteNotifikasjoner = summary.unreadCount > 0;
 
   return (
     <Link to="/oppgaveoversikt/notifikasjoner" className="text-white mr-4">

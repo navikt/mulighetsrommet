@@ -4,25 +4,19 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.notifications.NotificationTask
-import no.nav.mulighetsrommet.notifications.NotificationType
-import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
 import java.util.*
 
@@ -155,29 +149,6 @@ class NavAnsattSyncServiceTest : FunSpec({
             database.run {
                 queries.ansatt.getAll().shouldBeEmpty()
             }
-        }
-    }
-
-    test("varsler administratorer basert på hovedenhet når avtale ikke lengre har administrator") {
-        MulighetsrommetTestDomain(
-            avtaler = listOf(AvtaleFixtures.AFT.copy(administratorer = listOf(ansatt1.navIdent))),
-        ).initialize(database.db)
-
-        every { notificationTask.scheduleNotification(any(), any()) } returns Unit
-
-        coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
-            ansatt2.copy(roller = setOf(NavAnsattRolle.generell(Rolle.AVTALER_SKRIV))),
-        )
-
-        val today = LocalDate.now()
-        val service = createService(ansattGroupsToSync)
-        service.synchronizeNavAnsatte(today, deletionDate = today)
-
-        verify(exactly = 1) {
-            val expectedNotification: ScheduledNotification = match {
-                it.type == NotificationType.TASK && it.targets.containsAll(listOf(ansatt2.navIdent))
-            }
-            notificationTask.scheduleNotification(expectedNotification, any())
         }
     }
 })

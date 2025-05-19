@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
-import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.intellij.lang.annotations.Language
 import java.time.Instant
@@ -57,7 +56,6 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                 ).joinToString(" ")
 
                 val notification = ScheduledNotification(
-                    type = NotificationType.NOTIFICATION,
                     title = title,
                     targets = administratorer,
                     createdAt = Instant.now(),

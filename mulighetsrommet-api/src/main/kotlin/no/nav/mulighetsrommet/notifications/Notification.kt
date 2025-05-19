@@ -11,14 +11,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
-enum class NotificationType {
-    NOTIFICATION,
-    TASK,
-}
-
 enum class NotificationStatus {
-    DONE,
-    NOT_DONE,
+    READ,
+    UNREAD,
 }
 
 /**
@@ -28,7 +23,6 @@ enum class NotificationStatus {
 data class ScheduledNotification(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID = UUID.randomUUID(),
-    val type: NotificationType,
     val title: String,
     val description: String? = null,
     val metadata: NotificationMetadata? = null,
@@ -45,20 +39,19 @@ data class ScheduledNotification(
 data class UserNotification(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val type: NotificationType,
     val title: String,
     val description: String? = null,
     val user: NavIdent,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val doneAt: LocalDateTime?,
+    val readAt: LocalDateTime?,
     val metadata: NotificationMetadata? = null,
 )
 
 @Serializable
 data class UserNotificationSummary(
-    val notDoneCount: Int,
+    val unreadCount: Int,
 )
 
 @Serializable

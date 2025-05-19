@@ -3,6 +3,7 @@ import { type Oppgave, OppgaveEnhet, OppgaveIcon, OppgaveType } from "@mr/api-cl
 import { BankNoteIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { Heading, HStack, Tag } from "@navikt/ds-react";
 import { Link } from "react-router";
+import { ReactNode } from "react";
 
 interface OppgaveProps {
   oppgave: Oppgave;
@@ -18,7 +19,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
           <span>{oppgave.tiltakstype.navn}</span>
           <HStack gap="2">
             <OppgaveEnhetTag enhet={oppgave.enhet} />
-            <OppgaveStatus status={oppgave.type} icon={icon(oppgaveIcon)} />
+            <OppgaveStatus type={oppgave.type} label={oppgave.title} icon={icon(oppgaveIcon)} />
           </HStack>
         </div>
         <div>
@@ -52,39 +53,26 @@ function icon(icon: OppgaveIcon) {
 const POSITIVE_COLOR = "#FFD799";
 const NEGATIVE_COLOR = "#FFC2C2";
 
-const labels: Record<OppgaveType, { label: string; color: string }> = {
-  TILSAGN_TIL_GODKJENNING: {
-    label: "Tilsagn til godkjenning",
-    color: POSITIVE_COLOR,
-  },
-  TILSAGN_TIL_ANNULLERING: {
-    label: "Tilsagn til annullering",
-    color: NEGATIVE_COLOR,
-  },
-  TILSAGN_TIL_OPPGJOR: {
-    label: "Tilsagn til oppgjør",
-    color: NEGATIVE_COLOR,
-  },
-  TILSAGN_RETURNERT: {
-    label: "Tilsagn returnert",
-    color: NEGATIVE_COLOR,
-  },
-  UTBETALING_TIL_GODKJENNING: {
-    label: "Utbetaling til godkjenning",
-    color: POSITIVE_COLOR,
-  },
-  UTBETALING_RETURNERT: {
-    label: "Utbetaling returnert",
-    color: NEGATIVE_COLOR,
-  },
-  UTBETALING_TIL_BEHANDLING: {
-    label: "Utbetaling til behandling",
-    color: POSITIVE_COLOR,
-  },
+const oppgaveColor: Record<OppgaveType, string> = {
+  TILSAGN_TIL_GODKJENNING: POSITIVE_COLOR,
+  TILSAGN_TIL_ANNULLERING: NEGATIVE_COLOR,
+  TILSAGN_TIL_OPPGJOR: NEGATIVE_COLOR,
+  TILSAGN_RETURNERT: NEGATIVE_COLOR,
+  UTBETALING_TIL_GODKJENNING: POSITIVE_COLOR,
+  UTBETALING_RETURNERT: NEGATIVE_COLOR,
+  UTBETALING_TIL_BEHANDLING: POSITIVE_COLOR,
+  AVTALE_MANGLER_ADMINISTRATOR: NEGATIVE_COLOR,
+  GJENNOMFORING_MANGLER_ADMINISTRATOR: NEGATIVE_COLOR,
 };
 
-function OppgaveStatus({ status, icon }: { status: OppgaveType; icon: React.ReactNode }) {
-  const { label, color } = labels[status];
+interface OppgaveStatusProps {
+  type: OppgaveType;
+  label: string;
+  icon: ReactNode;
+}
+
+function OppgaveStatus({ type, label, icon }: OppgaveStatusProps) {
+  const color = oppgaveColor[type];
 
   return (
     <div
@@ -101,6 +89,7 @@ function OppgaveStatus({ status, icon }: { status: OppgaveType; icon: React.Reac
 interface OppgaveEnhetTagProps {
   enhet?: OppgaveEnhet;
 }
+
 function OppgaveEnhetTag({ enhet }: OppgaveEnhetTagProps) {
   if (!enhet) {
     return null;
