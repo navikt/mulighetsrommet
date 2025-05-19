@@ -3506,6 +3506,9 @@ components:
     VeilederflateTiltakstype:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         sanityId:
           type: string
         navn:
@@ -3534,6 +3537,7 @@ components:
           items:
             type: string
       required:
+        - id
         - sanityId
         - navn
         - kanKombineresMed

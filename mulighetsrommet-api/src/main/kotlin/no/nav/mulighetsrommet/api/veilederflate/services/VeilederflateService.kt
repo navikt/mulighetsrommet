@@ -40,6 +40,7 @@ class VeilederflateService(
             .map {
                 val tiltakstype = tiltakstypeService.getBySanityId(UUID.fromString(it._id))
                 VeilederflateTiltakstype(
+                    id = tiltakstype.id,
                     sanityId = it._id,
                     navn = it.tiltakstypeNavn,
                     beskrivelse = it.beskrivelse,
@@ -189,6 +190,7 @@ class VeilederflateService(
         val arenakode = tiltakstypeAdminDto.arenaKode
         val tiltakstype = gjennomforing.tiltakstype.run {
             VeilederflateTiltakstype(
+                id = tiltakstypeAdminDto.id,
                 sanityId = _id,
                 navn = tiltakstypeNavn,
                 beskrivelse = beskrivelse,

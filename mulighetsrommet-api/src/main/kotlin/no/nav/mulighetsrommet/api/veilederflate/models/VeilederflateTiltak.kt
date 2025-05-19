@@ -132,6 +132,8 @@ data class VeilederflateKontaktinfo(
 
 @Serializable
 data class VeilederflateTiltakstype(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val sanityId: String,
     val navn: String,
     val beskrivelse: String? = null,

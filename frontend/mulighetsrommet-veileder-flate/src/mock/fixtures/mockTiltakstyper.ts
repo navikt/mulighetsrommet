@@ -2,6 +2,7 @@ import { Innsatsgruppe, Tiltakskode, VeilederflateTiltakstype } from "@api-clien
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {
+    id: "02509279-0a0f-4bd6-b506-f40111e4ba14",
     sanityId: "02509279-0a0f-4bd6-b506-f40111e4ba14",
     arenakode: null,
     tiltakskode: null,
@@ -175,6 +176,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     kanKombineresMed: [],
   },
   OpplaringEnkeltplassFagOgYrke: {
+    id: "222a0065-9777-4e09-b2cf-4f48759f86e3",
     sanityId: "222a0065-9777-4e09-b2cf-4f48759f86e3",
     beskrivelse:
       "Opplæringstiltak i form av Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) er opplæring som fører frem mot fag- eller svennebrev, praksisbrev eller kompetansebevis som lærekandidat. \n\nOpplæringen skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
@@ -304,6 +306,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
     ],
+    id: "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822",
     sanityId: "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822",
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ",
@@ -570,6 +573,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   jobbklubb: {
+    id: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     tiltakskode: Tiltakskode.JOBBKLUBB,
     delingMedBruker:
@@ -1339,6 +1343,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       delMedBruker: null,
       lenker: null,
     },
+    id: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
     sanityId: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
     regelverkLenker: [
       {
@@ -1473,6 +1478,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
     ],
+    id: "50878ad5-90d0-496d-a0d0-a53091800760",
     sanityId: "50878ad5-90d0-496d-a0d0-a53091800760",
     kanKombineresMed: [],
     delingMedBruker: null,
@@ -1789,6 +1795,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>  og vil tilpasses dine behov for støtte for å skaffe eller beholde en jobb.\n\nDu kan blant annet få veiledning, råd og bistand til\n- jobbsøking og karriereveiledning\n- tilpasning og tilrettelegging av arbeidet og arbeidssituasjonen\n- praktiske oppgaver knyttet til arbeid\n- opplæring i sosiale og arbeidsrelaterte ferdigheter i arbeidslivet\n\nDu kan lese mer om kurset på www.nav.no/oppfolging",
     navn: "Oppfølging",
+    id: "5ac48c03-1f4c-4d4b-b862-050caca92080",
     sanityId: "5ac48c03-1f4c-4d4b-b862-050caca92080",
     regelverkLenker: [
       {
@@ -1994,6 +2001,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       lenker: null,
     },
     innsatsgrupper: [Innsatsgruppe.JOBBE_DELVIS, Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE],
+    id: "6de22004-9fb8-4c84-9b75-dc8132a78cd2",
     sanityId: "6de22004-9fb8-4c84-9b75-dc8132a78cd2",
     kanKombineresMed: [],
     arenakode: null,
@@ -2071,6 +2079,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     delingMedBruker:
       "Vi har nå et opplæringstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og hensikten med tiltaket er å kvalifisere deg for ledige jobber.\n\nDu kan lese mer om tiltaket på www.nav.no/opplaring",
     navn: "Fag- og yrkesopplæring (gruppe)",
+    id: "7f353dcd-37c2-42f8-bab6-ac2a60669839",
     sanityId: "7f353dcd-37c2-42f8-bab6-ac2a60669839",
     beskrivelse:
       "Opplæringstiltak i form av Gruppe Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
@@ -2141,6 +2150,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     navn: "VTA-O - Varig tilrettelagt arbeid i ordinær virksomhet",
 
+    id: "8d8abebd-3617-494a-a687-d44810e0a7ee",
     sanityId: "8d8abebd-3617-494a-a687-d44810e0a7ee",
     beskrivelse:
       "VTA-O er et tiltak som skal gi brukeren arbeid med oppgaver tilpasset den enkeltes arbeidsevne.",
@@ -2355,6 +2365,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
     ],
+    id: "a97fd87c-d7c1-49af-b3fb-cf5e5c10522a",
     sanityId: "a97fd87c-d7c1-49af-b3fb-cf5e5c10522a",
     delingMedBruker:
       "Hei <Fornavn>,   \n\nVi har et tilbud til personer som har behov for hjelp med å få eller beholde en fast jobb. Det heter <tiltaksnavn>, og er en støtteordning hvor Nav dekker en del av lønnen til en arbeidstaker i en periode.\n\nMålet er å hjelpe flere med å få eller beholde en fast jobb.  \n\nDu blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din fra Nav.  \n\nDu kan lese mer om tilskuddet på https://www.nav.no/midlertidig-lonnstilskudd \n",
@@ -2477,6 +2488,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
     ],
+    id: "ad998fc6-310e-45d4-a056-57732fed87b4",
     sanityId: "ad998fc6-310e-45d4-a056-57732fed87b4",
     regelverkLenker: [
       {
@@ -2515,6 +2527,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
     ],
+    id: "bbb8d042-b30e-4e4a-8cd0-210019b19de3",
     sanityId: "bbb8d042-b30e-4e4a-8cd0-210019b19de3",
     regelverkLenker: [
       {
@@ -2676,6 +2689,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         beskrivelse: null,
       },
     ],
+    id: "d03363e0-7d46-411b-aec4-fb9449e30eb8",
     sanityId: "d03363e0-7d46-411b-aec4-fb9449e30eb8",
     navn: "AFT - Arbeidsforberedende trening",
     faneinnhold: {
@@ -2878,6 +2892,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
     ],
+    id: "e8406a67-fabe-4da6-804c-c77a33aaf67d",
     sanityId: "e8406a67-fabe-4da6-804c-c77a33aaf67d",
     navn: "Arbeidstrening",
     faneinnhold: {
@@ -2983,6 +2998,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   gruppe_amo: {
     arenakode: "GRUPPEAMO",
     tiltakskode: Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    id: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
       "Har du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra Nav. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
@@ -3384,6 +3400,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
     ],
+    id: "f9618e97-4510-49e2-b748-29cae84d9019",
     sanityId: "f9618e97-4510-49e2-b748-29cae84d9019",
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\n[Du kan lese mer om kurset på Nav.no](www.nav.no/avklaring)",
