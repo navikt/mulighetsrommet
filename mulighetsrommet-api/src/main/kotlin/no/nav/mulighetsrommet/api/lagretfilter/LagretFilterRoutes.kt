@@ -8,7 +8,9 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -19,28 +21,47 @@ fun Route.lagretFilterRoutes() {
     route("/lagret-filter") {
         get("mine/{dokumenttype}") {
             val navIdent = getNavIdent()
-            val dokumenttype = call.parameters.getOrFail("dokumenttype")
+            val dokumenttype: String by call.parameters
 
             val filter = lagretFilterService.getLagredeFiltereForBruker(
-                navIdent.value,
-                FilterDokumentType.valueOf(dokumenttype),
+                brukerId = navIdent.value,
+                dokumentType = FilterDokumentType.valueOf(dokumenttype),
             )
 
             call.respond(filter)
         }
 
         post {
+            val navIdent = getNavIdent()
             val request = call.receive<LagretFilterRequest>()
-            lagretFilterService.upsertFilter(request.toLagretFilter(id = request.id, brukerId = getNavIdent()))
-            call.respond(HttpStatusCode.Created)
+
+            lagretFilterService.upsertFilter(brukerId = navIdent.value, request)
+                .onLeft {
+                    call.respondWithProblemDetail(toProblemDetail(it))
+                }
+                .onRight {
+                    call.respond(HttpStatusCode.OK)
+                }
         }
 
         delete("{id}") {
-            val id = call.parameters.getOrFail("id")
-            lagretFilterService.deleteFilter(UUID.fromString(id))
-            call.respond(HttpStatusCode.NoContent)
+            val navIdent = getNavIdent()
+            val id: UUID by call.parameters
+
+            lagretFilterService.deleteFilter(brukerId = navIdent.value, id)
+                .onLeft {
+                    call.respondWithProblemDetail(toProblemDetail(it))
+                }
+                .onRight { filterId ->
+                    val status = if (filterId == null) HttpStatusCode.NoContent else HttpStatusCode.OK
+                    call.respond(status)
+                }
         }
     }
+}
+
+private fun toProblemDetail(error: LagretFilterError): ProblemDetail = when (error) {
+    is LagretFilterError.Forbidden -> Forbidden(error.message)
 }
 
 @Serializable
@@ -51,15 +72,4 @@ data class LagretFilterRequest(
     val type: FilterDokumentType,
     val filter: JsonElement,
     val sortOrder: Int,
-) {
-    fun toLagretFilter(id: UUID?, brukerId: NavIdent): LagretFilterUpsert {
-        return LagretFilterUpsert(
-            id = id,
-            brukerId = brukerId.value,
-            navn = navn,
-            type = type,
-            filter = filter,
-            sortOrder = sortOrder,
-        )
-    }
-}
+)
