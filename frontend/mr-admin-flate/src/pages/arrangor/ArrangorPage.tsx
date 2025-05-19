@@ -13,15 +13,14 @@ export function ArrangorPage() {
   if (!arrangorId) {
     throw Error("Fant ikke arrangorId i route");
   }
-  const { data: arrangor, isLoading } = useArrangorHovedenhet(arrangorId);
-  const [openHovedenhet, setOpenHovedenhet] = useState(true); // TODO Fiks default open for arrangører med underenheter
+
+  const { data: arrangor } = useArrangorHovedenhet(arrangorId);
+  const [openHovedenhet, setOpenHovedenhet] = useState(true);
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Arrangører", lenke: "/arrangorer" },
     { tittel: `${arrangor?.navn}`, lenke: `/arrangorer/${arrangorId}` },
   ];
-
-  if (!arrangor || isLoading) return null;
 
   return (
     <>
