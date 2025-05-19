@@ -464,7 +464,6 @@ class AvtaleQueries(private val session: Session) {
         val avbruttTidspunkt = when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
-            // @todo: What should utkast be?
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
         }
