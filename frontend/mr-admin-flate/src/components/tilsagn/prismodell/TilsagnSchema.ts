@@ -2,6 +2,23 @@ import z from "zod";
 import { TilsagnType } from "@mr/api-client-v2";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
+const TilsagnBeregningFriInputLinje = z.object({
+  id: z.string().readonly(),
+  beskrivelse: z.string(),
+  belop: z
+    .number({
+      invalid_type_error: "Beløp mangler",
+      required_error: "Beløp mangler",
+    })
+    .positive({ message: "Beløp må være positivt" }),
+  antall: z
+    .number({
+      invalid_type_error: "Antall mangler",
+      required_error: "Antall mangler",
+    })
+    .positive({ message: "Antall må være positivt" }),
+});
+
 const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("FORHANDSGODKJENT"),
@@ -26,12 +43,7 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("FRI"),
-    belop: z
-      .number({
-        invalid_type_error: "Beløp mangler",
-        required_error: "Beløp mangler",
-      })
-      .positive({ message: "Beløp må være positivt" }),
+    linjer: z.array(TilsagnBeregningFriInputLinje),
     prisbetingelser: z.string().nullable(),
   }),
 ]);
