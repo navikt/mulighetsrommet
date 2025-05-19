@@ -5852,14 +5852,35 @@ components:
       properties:
         type:
           const: FRI
-        belop:
-          type: integer
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnBeregningFriInputLinje"
         prisbetingelser:
           type: [string, "null"]
       required:
         - type
         - belop
         - prisbetingelser
+        - linjer
+
+    TilsagnBeregningFriInputLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        beskrivelse:
+          type: string
+        belop:
+          type: integer
+        antall:
+          type: integer
+      required:
+        - id
+        - beskrivelse
+        - belop
+        - antall
 
     TilsagnBeregningFriOutput:
       type: object

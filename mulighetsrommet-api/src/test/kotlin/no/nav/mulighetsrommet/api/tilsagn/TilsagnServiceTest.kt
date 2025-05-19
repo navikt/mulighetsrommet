@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFriLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -63,7 +62,14 @@ class TilsagnServiceTest : FunSpec({
         periodeSlutt = LocalDate.of(2025, 1, 31),
         kostnadssted = Gjovik.enhetsnummer,
         beregning = TilsagnBeregningFri.Input(
-            linjer = listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = 1500, antall = 1)),
+            linjer = listOf(
+                TilsagnBeregningFri.InputLinje(
+                    id = UUID.randomUUID(),
+                    beskrivelse = "Beskrivelse",
+                    belop = 1500,
+                    antall = 1,
+                ),
+            ),
             prisbetingelser = null,
         ),
     )
@@ -200,7 +206,14 @@ class TilsagnServiceTest : FunSpec({
         test("oppdaterer prismodell for tilsagn med fri prismodell") {
             val nyePrisbetingelser = "Helt ferske prisbetingelser"
             val beregningInput = TilsagnBeregningFri.Input(
-                linjer = listOf(TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "1500", belop = 1500, antall = 1)),
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "1500",
+                        belop = 1500,
+                        antall = 1,
+                    ),
+                ),
                 prisbetingelser = nyePrisbetingelser,
             )
             val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering

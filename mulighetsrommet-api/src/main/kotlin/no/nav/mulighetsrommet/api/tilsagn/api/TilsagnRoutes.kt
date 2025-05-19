@@ -391,7 +391,12 @@ private fun resolveEkstraTilsagnDefaults(
             beregning = TilsagnBeregningFri.Input(
                 prisbetingelser = prisbetingelser,
                 linjer = listOf(
-                    TilsagnBeregningFriLinje(id = UUID.randomUUID(), beskrivelse = "Beskrivelse", belop = request.belop, antall = 1),
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "Beskrivelse",
+                        belop = request.belop,
+                        antall = 1,
+                    ),
                 ),
             ), // @TODO Fiks ekstra tilsagn
         )

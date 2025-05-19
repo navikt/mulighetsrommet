@@ -15,9 +15,18 @@ data class TilsagnBeregningFri(
     @Serializable
     @SerialName("FRI")
     data class Input(
-        val linjer: List<TilsagnBeregningFriLinje>,
+        val linjer: List<InputLinje>,
         val prisbetingelser: String?,
     ) : TilsagnBeregningInput()
+
+    @Serializable
+    data class InputLinje(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val beskrivelse: String,
+        val belop: Int,
+        val antall: Int,
+    )
 
     @Serializable
     @SerialName("FRI")
@@ -31,12 +40,3 @@ data class TilsagnBeregningFri(
         }
     }
 }
-
-@Serializable
-data class TilsagnBeregningFriLinje(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val beskrivelse: String,
-    val belop: Int,
-    val antall: Int,
-)

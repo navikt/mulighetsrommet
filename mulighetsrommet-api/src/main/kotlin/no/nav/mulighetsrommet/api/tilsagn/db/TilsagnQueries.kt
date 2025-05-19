@@ -164,7 +164,7 @@ class TilsagnQueries(private val session: Session) {
 
     private fun TransactionalSession.upsertTilsagnBeregningFriLinjer(
         tilsagnId: UUID,
-        linjer: List<TilsagnBeregningFriLinje>,
+        linjer: List<TilsagnBeregningFri.InputLinje>,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -390,7 +390,7 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningFriLinjerForTilsagn(tilsagnId: UUID): List<TilsagnBeregningFriLinje> {
+    private fun getBeregningFriLinjerForTilsagn(tilsagnId: UUID): List<TilsagnBeregningFri.InputLinje> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -398,7 +398,7 @@ class TilsagnQueries(private val session: Session) {
             where tilsagn_id = ?::uuid
         """.trimIndent()
         return session.list(queryOf(query, tilsagnId)) {
-            TilsagnBeregningFriLinje(
+            TilsagnBeregningFri.InputLinje(
                 id = it.uuid("id"),
                 beskrivelse = it.string("beskrivelse"),
                 belop = it.int("belop"),
