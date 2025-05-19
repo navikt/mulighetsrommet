@@ -149,7 +149,7 @@ export default function UtbetalingDetaljerSide() {
         <Box
           background="bg-subtle"
           padding="6"
-          borderRadius="medium"
+          borderRadius="2"
           borderColor="border-subtle"
           borderWidth={"2 1 1 1"}
         >

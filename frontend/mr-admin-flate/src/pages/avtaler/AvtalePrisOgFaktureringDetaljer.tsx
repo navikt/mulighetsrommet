@@ -52,7 +52,7 @@ function ForhandsgodkjentAvtalePrismodell({ avtale }: ForhandsgodkjentAvtalePris
         <Box
           padding="4"
           borderColor="border-subtle"
-          borderRadius="large"
+          borderRadius="8"
           borderWidth="1"
           key={sats.periodeStart}
         >

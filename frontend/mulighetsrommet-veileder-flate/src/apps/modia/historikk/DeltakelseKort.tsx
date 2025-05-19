@@ -30,7 +30,7 @@ export function DeltakelseKort({ deltakelse, aktiv }: Props) {
   return (
     <Box
       background="bg-default"
-      borderRadius="medium"
+      borderRadius="2"
       padding="5"
       className={
         isUtkast(deltakelse.status.type)

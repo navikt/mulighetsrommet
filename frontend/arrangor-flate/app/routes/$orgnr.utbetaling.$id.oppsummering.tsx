@@ -217,13 +217,7 @@ export default function BekreftUtbetaling() {
         <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
       )}
       {tilsagn.map((t) => (
-        <Box
-          padding="2"
-          key={t.id}
-          borderWidth="1"
-          borderColor="border-subtle"
-          borderRadius="medium"
-        >
+        <Box padding="2" key={t.id} borderWidth="1" borderColor="border-subtle" borderRadius="2">
           <TilsagnDetaljer tilsagn={t} />
         </Box>
       ))}

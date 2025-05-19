@@ -93,7 +93,7 @@ export function UtbetalingPage() {
           </HStack>
           <VStack gap="4">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
+            <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="8">
               <VStack gap="4" id="kostnadsfordeling">
                 <VStack>
                   <div className="self-end">
