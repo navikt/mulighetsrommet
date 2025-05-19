@@ -83,13 +83,6 @@ export function MrApi() {
                 description:
                   "Starter en initial load av gjennomføringer filtrert basert på input fra skjemaet.",
                 properties: {
-                  opphav: {
-                    title: "Opphav",
-                    description:
-                      "For hvilket opphav skal gjennomføringer relastes på topic? Hvis feltet er tomt vil gjennomføringer relastes uavhengig av opphav.",
-                    type: "string",
-                    enum: ["MR_ADMIN_FLATE", "ARENA"],
-                  },
                   tiltakstyper: {
                     title: "Tiltakstyper",
                     description: "For hvilke tiltakstyper skal gjennomføringer relastes på topic?",

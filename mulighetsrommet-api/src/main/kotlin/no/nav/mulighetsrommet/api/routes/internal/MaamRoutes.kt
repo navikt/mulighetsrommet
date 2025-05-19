@@ -49,10 +49,7 @@ fun Route.maamRoutes() {
                     val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
                     InitialLoadGjennomforinger.Input(ids = ids)
                 } else if (input.tiltakstyper != null) {
-                    InitialLoadGjennomforinger.Input(
-                        tiltakskoder = input.tiltakstyper,
-                        opphav = input.opphav,
-                    )
+                    InitialLoadGjennomforinger.Input(tiltakskoder = input.tiltakstyper)
                 } else {
                     throw BadRequestException("Ugyldig input")
                 }
