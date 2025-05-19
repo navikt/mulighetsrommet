@@ -2,8 +2,8 @@ import { TiltakDeltMedBruker } from "@api-client";
 import { BodyShort, Box, Button, HStack, List, Table, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { Link } from "react-router";
-import { VisningsnavnForTiltak } from "../../../components/oversikt/VisningsnavnForTiltak";
-import { formaterDato } from "../../../utils/Utils";
+import { VisningsnavnForTiltak } from "@/components/oversikt/VisningsnavnForTiltak";
+import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
@@ -111,7 +111,7 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
           navn={tiltak.navn}
         />
       </Table.DataCell>
-      <Table.DataCell title={tiltak.createdAt}>{formaterDato(tiltak.createdAt)}</Table.DataCell>
+      <Table.DataCell>{formaterDato(tiltak.createdAt)}</Table.DataCell>
       <Table.DataCell>
         <VStack align="center" gap="2">
           <Button

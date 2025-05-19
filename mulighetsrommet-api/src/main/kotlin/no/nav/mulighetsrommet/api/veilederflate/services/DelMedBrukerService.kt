@@ -1,27 +1,23 @@
 package no.nav.mulighetsrommet.api.veilederflate.services
 
-import io.ktor.server.plugins.*
-import kotlinx.serialization.Serializable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
+import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDto
+import no.nav.mulighetsrommet.api.veilederflate.models.TiltakDeltMedBruker
 import no.nav.mulighetsrommet.database.createUuidArray
-import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utils.toUUID
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.util.*
 
 class DelMedBrukerService(
@@ -29,88 +25,53 @@ class DelMedBrukerService(
     private val sanityService: SanityService,
     private val tiltakstypeService: TiltakstypeService,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
-    fun lagreDelMedBruker(dbo: DelMedBrukerDbo): DelMedBrukerDbo = db.session {
-        // TODO flytt til routes?
+    fun lagreDelMedBruker(dbo: DelMedBrukerInsertDbo): Unit = db.session {
         SecureLog.logger.info(
-            "Veileder (${dbo.navident}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' " +
-                "med bruker (${dbo.norskIdent.value})",
+            "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
         )
-
-        if (dbo.navident.trim().isEmpty()) {
-            SecureLog.logger.warn(
-                "Veileders NAVident er tomt. Kan ikke lagre info om tiltak.",
-            )
-            throw BadRequestException("Veileders NAVident er ikke 6 tegn")
-        }
-
-        if (dbo.sanityId == null && dbo.gjennomforingId == null) {
-            log.warn("Id til gjennomføringen mangler")
-            throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
-        }
-
-        if (dbo.deltFraFylke == null) {
-            log.warn("Veileder tilhører ikke noe fylke")
-            throw BadRequestException("Veileder tilhører ikke noe fylke - Lagrer ikke deling med bruker")
-        }
 
         @Language("PostgreSQL")
         val query = """
             insert into del_med_bruker(
                 norsk_ident,
-                navident,
+                nav_ident,
                 sanity_id,
-                dialogid,
-                created_by,
-                updated_by,
+                dialog_id,
                 gjennomforing_id,
-                tiltakstype_navn,
                 tiltakstype_id,
                 delt_fra_fylke,
                 delt_fra_enhet
             )
             values (
                 :norsk_ident,
-                :navident,
+                :nav_ident,
                 :sanity_id::uuid,
-                :dialogid,
-                :created_by,
-                :updated_by,
+                :dialog_id,
                 :gjennomforing_id::uuid,
-                :tiltakstype_navn,
-                :tiltakstype_id::uuid,
+                :tiltakstype_id,
                 :delt_fra_fylke,
                 :delt_fra_enhet
             )
-            returning *
         """.trimIndent()
-
-        val tiltakstype = queries.tiltakstype.getAll().singleOrNull {
-            it.status == TiltakstypeStatus.AKTIV && it.navn == dbo.tiltakstypeNavn
-        }
 
         val params = mapOf(
             "norsk_ident" to dbo.norskIdent.value,
-            "navident" to dbo.navident,
+            "nav_ident" to dbo.navIdent.value,
             "sanity_id" to dbo.sanityId,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "dialogid" to dbo.dialogId,
-            "created_by" to dbo.navident,
-            "updated_by" to dbo.navident,
-            "tiltakstype_navn" to dbo.tiltakstypeNavn,
-            "tiltakstype_id" to tiltakstype?.id,
+            "dialog_id" to dbo.dialogId,
+            "tiltakstype_id" to dbo.tiltakstypeId,
             "delt_fra_fylke" to dbo.deltFraFylke?.value,
             "delt_fra_enhet" to dbo.deltFraEnhet?.value,
         )
 
-        session.requireSingle(queryOf(query, params)) { it.toDelMedBruker() }
+        session.execute(queryOf(query, params))
     }
 
-    fun getDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): DelMedBrukerDbo? = db.session {
+    fun getTiltakDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): DelMedBrukerDto? = db.session {
         @Language("PostgreSQL")
         val query = """
-            select *
+            select id, dialog_id, created_at, sanity_id, gjennomforing_id
             from del_med_bruker
             where norsk_ident = :norsk_ident
               and (sanity_id = :id::uuid or gjennomforing_id = :id::uuid)
@@ -123,10 +84,10 @@ class DelMedBrukerService(
         session.single(queryOf(query, params)) { it.toDelMedBruker() }
     }
 
-    fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> = db.session {
+    fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDto> = db.session {
         @Language("PostgreSQL")
         val query = """
-            select distinct on (gjennomforing_id, sanity_id) *
+            select distinct on (gjennomforing_id, sanity_id) id, dialog_id, created_at, sanity_id, gjennomforing_id
             from del_med_bruker
             where norsk_ident = ?
             order by gjennomforing_id, sanity_id, created_at desc;
@@ -135,10 +96,10 @@ class DelMedBrukerService(
         session.list(queryOf(query, fnr.value)) { it.toDelMedBruker() }
     }
 
-    private fun getAlleTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> = db.session {
+    private fun getAlleTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDto> = db.session {
         @Language("PostgreSQL")
         val query = """
-            select *
+            select id, dialog_id, created_at, sanity_id, gjennomforing_id
             from del_med_bruker
             where norsk_ident = ?
             order by gjennomforing_id, sanity_id, created_at desc;
@@ -147,18 +108,16 @@ class DelMedBrukerService(
         session.list(queryOf(query, fnr.value)) { it.toDelMedBruker() }
     }
 
-    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): List<TiltakDeltMedBruker> {
-        // Hent delt med bruker-historikk fra database
+    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): List<TiltakDeltMedBruker> = coroutineScope {
         val alleDeltMedBruker = getAlleTiltakDeltMedBruker(norskIdent)
-        val tiltakFraDb = getTiltakFraDb(alleDeltMedBruker)
-        val tiltakFraSanity = getTiltakFraSanity(alleDeltMedBruker)
 
-        val alleDelteTiltak = (tiltakFraDb + tiltakFraSanity).sortedBy { it.createdAt }
+        val tiltakFraDb = async { getTiltakFraDb(alleDeltMedBruker) }
+        val tiltakFraSanity = async { getTiltakFraSanity(alleDeltMedBruker) }
 
-        return alleDelteTiltak
+        (tiltakFraDb.await() + tiltakFraSanity.await()).sortedBy { it.createdAt }
     }
 
-    private fun getTiltakFraDb(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> = db.session {
+    private fun getTiltakFraDb(deltMedBruker: List<DelMedBrukerDto>): List<TiltakDeltMedBruker> = db.session {
         @Language("PostgreSQL")
         val tiltakFraDbQuery = """
             select
@@ -189,7 +148,7 @@ class DelMedBrukerService(
             val tiltak = tiltakById[id] ?: return@mapNotNull null
             TiltakDeltMedBruker(
                 navn = tiltak.navn,
-                createdAt = deling.createdAt!!,
+                createdAt = deling.createdAt,
                 dialogId = deling.dialogId,
                 tiltakId = id,
                 tiltakstype = TiltakDeltMedBruker.Tiltakstype(
@@ -201,7 +160,7 @@ class DelMedBrukerService(
         }
     }
 
-    private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
+    private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDto>): List<TiltakDeltMedBruker> {
         val delteSanityTiltak = deltMedBruker.mapNotNull { deling -> deling.sanityId }
 
         val tiltakFraSanity = sanityService.getAllTiltak(search = null, CacheUsage.UseCache).filter {
@@ -218,7 +177,7 @@ class DelMedBrukerService(
             deltMedBruker.filter { it.sanityId == tiltak._id.toUUID() }.map {
                 TiltakDeltMedBruker(
                     navn = tiltak.tiltaksgjennomforingNavn ?: "",
-                    createdAt = it.createdAt!!,
+                    createdAt = it.createdAt,
                     dialogId = it.dialogId,
                     tiltakId = tiltak._id.toUUID(),
                     tiltakstype = TiltakDeltMedBruker.Tiltakstype(
@@ -232,39 +191,24 @@ class DelMedBrukerService(
     }
 }
 
-private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
-    id = string("id"),
-    norskIdent = NorskIdent(string("norsk_ident")),
-    navident = string("navident"),
+private fun Row.toDelMedBruker(): DelMedBrukerDto = DelMedBrukerDto(
+    id = int("id"),
+    dialogId = string("dialog_id"),
+    createdAt = localDateTime("created_at"),
     sanityId = uuidOrNull("sanity_id"),
     gjennomforingId = uuidOrNull("gjennomforing_id"),
-    dialogId = string("dialogid"),
-    createdAt = localDateTime("created_at"),
-    updatedAt = localDateTime("updated_at"),
-    createdBy = string("created_by"),
-    updatedBy = string("updated_by"),
-    tiltakstypeNavn = stringOrNull("tiltakstype_navn"),
-    deltFraFylke = stringOrNull("delt_fra_fylke")?.let { NavEnhetNummer(it) },
-    deltFraEnhet = stringOrNull("delt_fra_enhet")?.let { NavEnhetNummer(it) },
 )
 
-@Serializable
-data class TiltakDeltMedBruker(
-    val navn: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
+data class DelMedBrukerInsertDbo(
+    val norskIdent: NorskIdent,
+    val navIdent: NavIdent,
     val dialogId: String,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltakId: UUID,
-    val tiltakstype: Tiltakstype,
-) {
-    @Serializable
-    data class Tiltakstype(
-        val tiltakskode: Tiltakskode?,
-        val arenakode: String?,
-        val navn: String,
-    )
-}
+    val sanityId: UUID?,
+    val gjennomforingId: UUID?,
+    val tiltakstypeId: UUID,
+    val deltFraFylke: NavEnhetNummer?,
+    val deltFraEnhet: NavEnhetNummer?,
+)
 
 data class TiltakFraDb(
     val navn: String,

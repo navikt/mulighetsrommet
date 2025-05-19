@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -12,10 +13,10 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogError
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
+import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDto
+import no.nav.mulighetsrommet.api.veilederflate.models.TiltakDeltMedBruker
+import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerInsertDbo
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
-import no.nav.mulighetsrommet.api.veilederflate.services.TiltakDeltMedBruker
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -60,6 +61,14 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.fnr)
 
+            if (request.sanityId == null && request.gjennomforingId == null) {
+                throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
+            }
+
+            if (request.deltFraFylke == null) {
+                throw BadRequestException("Fylke mangler for deling")
+            }
+
             val obo = AccessType.OBO(call.getAccessToken())
 
             val dialogRequest = request.run {
@@ -73,13 +82,13 @@ fun Route.delMedBrukerRoutes() {
 
             dialogClient.sendMeldingTilDialogen(obo, dialogRequest)
                 .onRight { dialogResponse ->
-                    val dbo = DelMedBrukerDbo(
+                    val dbo = DelMedBrukerInsertDbo(
                         norskIdent = request.fnr,
-                        navident = navIdent.value,
+                        navIdent = navIdent,
                         dialogId = dialogResponse.id,
                         sanityId = request.sanityId,
                         gjennomforingId = request.gjennomforingId,
-                        tiltakstypeNavn = request.tiltakstypeNavn,
+                        tiltakstypeId = request.tiltakstypeId,
                         deltFraFylke = request.deltFraFylke,
                         deltFraEnhet = request.deltFraEnhet,
                     )
@@ -123,7 +132,7 @@ fun Route.delMedBrukerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Tiltak er delt med bruker"
-                    body<DelMedBrukerDbo>()
+                    body<DelMedBrukerDto>()
                 }
                 code(HttpStatusCode.NoContent) {
                     description = "Ingen informasjon funnet for tiltaket"
@@ -138,7 +147,7 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
-            val deltMedBruker = delMedBrukerService.getDeltMedBruker(request.norskIdent, request.tiltakId)
+            val deltMedBruker = delMedBrukerService.getTiltakDeltMedBruker(request.norskIdent, request.tiltakId)
                 ?: return@post call.respond(HttpStatusCode.NoContent)
 
             call.respond(deltMedBruker)
@@ -158,7 +167,7 @@ fun Route.delMedBrukerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Siste informasjon om alle tiltak delt med bruker"
-                    body<List<DelMedBrukerDbo>>()
+                    body<List<DelMedBrukerDto>>()
                 }
                 code(HttpStatusCode.NoContent) {
                     description = "Ingen informasjon funnet"
@@ -220,7 +229,8 @@ data class DelTiltakMedBrukerRequest(
     val gjennomforingId: UUID?,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
-    val tiltakstypeNavn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakstypeId: UUID,
     val deltFraFylke: NavEnhetNummer?,
     val deltFraEnhet: NavEnhetNummer,
 )

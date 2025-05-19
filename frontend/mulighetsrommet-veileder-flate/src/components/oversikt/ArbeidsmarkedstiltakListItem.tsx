@@ -7,11 +7,7 @@ import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
-import {
-  DelMedBrukerDbo as DelMedBruker,
-  GjennomforingOppstartstype,
-  VeilederflateTiltak,
-} from "@api-client";
+import { DelMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
 import {
   isTiltakEnkeltplass,
   isTiltakGruppe,
@@ -21,23 +17,13 @@ import {
 interface Props {
   tiltak: VeilederflateTiltak;
   index: number;
-  delMedBruker?: DelMedBruker;
+  delMedBruker?: DelMedBrukerDto;
 }
 
 export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Props) {
   const pageData = useAtomValue(paginationAtom);
 
-  const datoSidenSistDelt = delMedBruker && formaterDato(new Date(delMedBruker.createdAt!));
   const paginationUrl = `#pagination=${encodeURIComponent(JSON.stringify({ ...pageData }))}`;
-
-  const formatertDeltMedBrukerDato = delMedBruker?.createdAt
-    ? new Date(delMedBruker.createdAt).toLocaleDateString("nb-NO", {
-        weekday: "long",
-        day: "numeric",
-        month: "numeric",
-        year: "numeric",
-      })
-    : "Dato mangler";
 
   const id = isTiltakGruppe(tiltak) ? tiltak.id : tiltak.sanityId;
   const oppstart = utledOppstart(tiltak);
@@ -54,14 +40,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
       data-testid={`gjennomforing_${kebabCase(tiltak.tiltakstype.navn)}`}
     >
       <Lenke className={`text-[#000000]`} to={`../tiltak/${id}${paginationUrl}`}>
-        {datoSidenSistDelt ? (
-          <div className={`bg-surface-action-subtle py-1.5 px-3`}>
-            <BodyShort title={formatertDeltMedBrukerDato} size="small">
-              Delt i dialogen {datoSidenSistDelt}
-            </BodyShort>
-          </div>
-        ) : null}
-
+        {delMedBruker && <TiltakDeltMedBrukerInfo delMedBruker={delMedBruker} />}
         <div
           className={`grid grid-cols-[0_40%_1fr_2%] [grid-template-areas:'status_navn_metadata_ikon'] lg:grid-areas-[status_navn_navn_ikon_metadata_metadata_metadata]  items-start justify-start grid-rows-[auto] lg:items-center min-h-[4rem] gap-8 p-3`}
         >
@@ -115,4 +94,27 @@ function utledOppstart(tiltak: VeilederflateTiltak) {
     case GjennomforingOppstartstype.LOPENDE:
       return "Løpende oppstart";
   }
+}
+
+interface TiltakDeltMedBrukerInfoProps {
+  delMedBruker: DelMedBrukerDto;
+}
+
+function TiltakDeltMedBrukerInfo({ delMedBruker }: TiltakDeltMedBrukerInfoProps) {
+  const date = new Date(delMedBruker.createdAt);
+
+  const formatertDeltMedBrukerDato = date.toLocaleDateString("nb-NO", {
+    weekday: "long",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
+
+  return (
+    <div className={`bg-surface-action-subtle py-1.5 px-3`}>
+      <BodyShort title={formatertDeltMedBrukerDato} size="small">
+        Delt i dialogen {formaterDato(date)}
+      </BodyShort>
+    </div>
+  );
 }
