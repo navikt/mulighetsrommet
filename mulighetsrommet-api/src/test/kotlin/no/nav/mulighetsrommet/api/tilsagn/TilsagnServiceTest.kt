@@ -497,6 +497,24 @@ class TilsagnServiceTest : FunSpec({
                 it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
             }
         }
+
+        test("returnere eget tilsagn") {
+            val aft1 = database.run { queries.gjennomforing.get(AFT1.id).shouldNotBeNull() }
+            service.upsert(request, ansatt1).shouldBeRight().should {
+                it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                it.lopenummer shouldBe 1
+                it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
+            }
+
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt1,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+        }
     }
 
     context("annuller tilsagn") {
@@ -707,6 +725,29 @@ class TilsagnServiceTest : FunSpec({
                 it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))
             }
             database.run { queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_OPPGJOR }
+        }
+
+        test("kan avvise eget oppgjør") {
+            service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt2,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.tilGjorOppRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
+            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt1,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
         }
 
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {
