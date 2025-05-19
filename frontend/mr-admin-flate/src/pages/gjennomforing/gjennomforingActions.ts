@@ -1,7 +1,7 @@
 import { GjennomforingerService } from "@mr/api-client-v2";
 import { QueryClient } from "@tanstack/react-query";
 import { ActionFunctionArgs } from "react-router";
-import { QueryKeys } from "../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export const publiserAction =
   (queryClient: QueryClient) =>
