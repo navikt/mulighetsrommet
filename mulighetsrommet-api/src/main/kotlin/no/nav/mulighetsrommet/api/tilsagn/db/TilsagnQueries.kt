@@ -99,7 +99,9 @@ class TilsagnQueries(private val session: Session) {
                 upsertTilsagnBeregningForhandsgodkjent(dbo.id, dbo.beregning)
             }
 
-            is TilsagnBeregningFri -> {}
+            is TilsagnBeregningFri -> {
+                upsertTilsagnBeregningFri(dbo.id, dbo.beregning)
+            }
         }
     }
 
@@ -130,6 +132,26 @@ class TilsagnQueries(private val session: Session) {
         )
 
         execute(queryOf(query, params))
+    }
+
+    private fun TransactionalSession.upsertTilsagnBeregningFri(
+        id: UUID,
+        beregning: TilsagnBeregningFri,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into tilsagn_fri_prisbetingelser (
+                    tilsagn_id,
+                    prisbetingelser
+                ) values (
+                    :tilsagn_id::uuid,
+                    :prisbetingelser
+                )
+            on conflict (tilsagn_id) do update set
+                prisbetingelser = excluded.prisbetingelser;
+        """.trimIndent()
+
+        execute(queryOf(query, mapOf("tilsagn_id" to id, "prisbetingelser" to beregning.input.prisbetingelser)))
     }
 
     fun setBruktBelop(id: UUID, belop: Int) {
@@ -306,14 +328,19 @@ class TilsagnQueries(private val session: Session) {
     private fun getBeregningFri(id: UUID): TilsagnBeregningFri {
         @Language("PostgreSQL")
         val query = """
-            select belop_beregnet
-            from tilsagn
-            where id = ?::uuid
+            select
+                t.belop_beregnet, tfp.prisbetingelser
+            from tilsagn t
+                left join tilsagn_fri_prisbetingelser tfp
+                    on tfp.tilsagn_id = t.id
+            where
+                t.id = ?::uuid
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) {
             TilsagnBeregningFri(
                 input = TilsagnBeregningFri.Input(
+                    prisbetingelser = it.stringOrNull("prisbetingelser"),
                     belop = it.int("belop_beregnet"),
                 ),
                 output = TilsagnBeregningFri.Output(

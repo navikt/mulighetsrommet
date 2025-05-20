@@ -14,6 +14,7 @@ data class TilsagnBeregningFri(
     @SerialName("FRI")
     data class Input(
         val belop: Int,
+        val prisbetingelser: String?,
     ) : TilsagnBeregningInput()
 
     @Serializable

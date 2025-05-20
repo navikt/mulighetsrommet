@@ -42,7 +42,7 @@ export const avtaletekster = {
         case Prismodell.FORHANDSGODKJENT:
           return "Fast sats per tiltaksplass per måned";
         case Prismodell.FRI:
-          return "Fri prismodell";
+          return "Avtalt prismodell";
       }
     },
     valuta: {

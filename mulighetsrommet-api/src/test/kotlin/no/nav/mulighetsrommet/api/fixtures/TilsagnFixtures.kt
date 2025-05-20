@@ -23,7 +23,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(1000),
+            input = TilsagnBeregningFri.Input(1000, prisbetingelser = null),
             output = TilsagnBeregningFri.Output(1000),
         ),
     )
@@ -39,7 +39,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(1500),
+            input = TilsagnBeregningFri.Input(1500, prisbetingelser = null),
             output = TilsagnBeregningFri.Output(1500),
         ),
     )
@@ -55,7 +55,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(2500),
+            input = TilsagnBeregningFri.Input(2500, prisbetingelser = null),
             output = TilsagnBeregningFri.Output(2500),
         ),
     )
@@ -71,7 +71,7 @@ object TilsagnFixtures {
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(2500),
+            input = TilsagnBeregningFri.Input(2500, prisbetingelser = null),
             output = TilsagnBeregningFri.Output(2500),
         ),
     )

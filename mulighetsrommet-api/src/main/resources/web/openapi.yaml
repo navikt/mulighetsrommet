@@ -5854,9 +5854,12 @@ components:
           const: FRI
         belop:
           type: integer
+        prisbetingelser:
+          type: [string, "null"]
       required:
         - type
         - belop
+        - prisbetingelser
 
     TilsagnBeregningFriOutput:
       type: object

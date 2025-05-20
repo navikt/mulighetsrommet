@@ -10,7 +10,7 @@ import {
   TotrinnskontrollDto,
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
+import { ExpansionCard, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
 interface Props {
@@ -76,6 +76,12 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
                 verdi={formaterNOK(beregning.input.sats)}
               />
             )}
+            {beregning.type === "FRI" && !beregning.input.prisbetingelser && (
+              <MetadataHorisontal
+                header={tilsagnTekster.beregning.prisbetingelser.label}
+                verdi="-"
+              />
+            )}
           </VStack>
         </HStack>
         <VStack gap="6" justify="start" className=" lg:border-l-1 border-gray-300 lg:px-4">
@@ -107,6 +113,50 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           />
         </VStack>
       </HStack>
+      {beregning.type === "FRI" && beregning.input.prisbetingelser && (
+        <PrisbetingelserFriModell
+          tilsagnStatus={tilsagn.status}
+          prisbetingelser={beregning.input.prisbetingelser}
+        />
+      )}
     </>
+  );
+}
+
+interface PrisbetingelserFriModellProps {
+  tilsagnStatus: TilsagnStatus;
+  prisbetingelser: string | null;
+}
+
+function PrisbetingelserFriModell({
+  tilsagnStatus,
+  prisbetingelser,
+}: PrisbetingelserFriModellProps) {
+  const paragraphs = prisbetingelser?.split("\n") || [];
+  const startOpenForStatus = [TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT].includes(
+    tilsagnStatus,
+  );
+  const style = startOpenForStatus ? { backgroundColor: "var(--a-surface-warning-subtle)" } : {};
+
+  return (
+    <div className="mt-8 mb-4">
+      <ExpansionCard
+        size="small"
+        style={style}
+        aria-label={tilsagnTekster.beregning.prisbetingelser.label}
+        defaultOpen={startOpenForStatus}
+      >
+        <ExpansionCard.Header>
+          <ExpansionCard.Title size="small">
+            {tilsagnTekster.beregning.prisbetingelser.label}
+          </ExpansionCard.Title>
+        </ExpansionCard.Header>
+        <ExpansionCard.Content>
+          {paragraphs.map((i) => (
+            <p key={i}>{i}</p>
+          ))}
+        </ExpansionCard.Content>
+      </ExpansionCard>
+    </div>
   );
 }
