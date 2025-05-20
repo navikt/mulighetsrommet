@@ -30,7 +30,7 @@ export function UtbetalingerForGjennomforingContainer() {
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Gjennomføring">
+        <HarSkrivetilgang ressurs="Økonomi">
           <Dropdown>
             <Button size="small" as={Dropdown.Toggle}>
               Handlinger

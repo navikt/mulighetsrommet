@@ -35,7 +35,7 @@ export function TilsagnForGjennomforingContainer() {
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Gjennomføring">
+        <HarSkrivetilgang ressurs="Økonomi">
           <Dropdown>
             <Button size="small" as={Dropdown.Toggle}>
               Handlinger

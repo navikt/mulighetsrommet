@@ -63,6 +63,14 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                 linje?.opprettelse?.kanBesluttes && (
                   <HStack gap="4">
                     <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() => setAvvisModalOpen(true)}
+                    >
+                      Send i retur
+                    </Button>
+                    <Button
                       size="small"
                       type="button"
                       onClick={() => {
@@ -73,14 +81,6 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                       }}
                     >
                       Godkjenn
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      type="button"
-                      onClick={() => setAvvisModalOpen(true)}
-                    >
-                      Send i retur
                     </Button>
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
                       open={avvisModalOpen}
