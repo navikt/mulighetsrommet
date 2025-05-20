@@ -28,7 +28,6 @@ class AltinnClient(
 
     suspend fun hentRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
         log.info("Henter organisasjoner fra Altinn")
-        // TODO: Fiks paginering
         val authorizedParties = hentAuthorizedParties(norskIdent)
         return findAltinnRoller(authorizedParties)
     }
