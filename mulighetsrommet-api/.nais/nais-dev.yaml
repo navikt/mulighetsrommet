@@ -92,6 +92,12 @@ spec:
           - id: "3e6fe3c5-58e2-466e-9117-adecb4c1ee74"
           # 5700-CA-Tiltaksadministrasjon_beslutter-tilsagn
           - id: "34902073-90be-4025-9bb0-da6b71b293ff"
+          # 1800-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "a2c0ba66-c564-472b-8e39-b8fc74ed7f48"
+          # 0200-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "33b600e0-0b88-4097-9052-525f0eb10191"
+          # 0600-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "202216c0-bd70-4466-a902-f1809d588a79"
           # 0000-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac"
           # 0300-CA-Tiltaksadministrasjon_attestant-utbetaling
@@ -100,6 +106,12 @@ spec:
           - id: "e79ba9ba-efd9-456b-8567-dadbe65f8b24"
           # 5700-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "f57989e2-410e-45dd-9285-32c3bacc94d4"
+          # 1800-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "6ecef1a0-cb8e-45d4-afb5-115116d0aab4"
+          # 0200-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "1edfb41e-8689-4c97-8e65-e3450cb06b43"
+          # 0600-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "ddb6d18c-cadb-4cbc-b0d2-58ad535ca16c"
         extra:
           - NAVident
           - azp_name
