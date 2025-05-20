@@ -58,9 +58,9 @@ function valueOfFlattendDeps(obj: any): number {
   if (!obj || typeof obj !== "object") return obj.valueOf();
 
   return Object.entries(obj).reduce((acc, curr) => {
-    const value = curr[1] as any
+    const value = curr[1] as any;
     if (!value) {
-      return acc
+      return acc;
     }
     if (typeof value === "object" && value !== null) {
       return acc + valueOfFlattendDeps(value); // Recursively flatten nested objects
