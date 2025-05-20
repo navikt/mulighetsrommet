@@ -517,7 +517,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("returnere eget tilsagn") {
-            val aft1 = database.run { queries.gjennomforing.get(AFT1.id).shouldNotBeNull() }
+            val aft1 = database.run { queries.gjennomforing.get(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1
