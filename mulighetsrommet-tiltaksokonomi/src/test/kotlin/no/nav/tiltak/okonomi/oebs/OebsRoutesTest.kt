@@ -102,9 +102,11 @@ class OebsRoutesTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     bearerAuth(bearerAuth)
                     setBody(
-                        OebsBestillingKvittering(
-                            bestillingsNummer = bestilling.bestillingsnummer,
-                            opprettelsesTidspunkt = LocalDateTime.now(),
+                        listOf(
+                            OebsBestillingKvittering(
+                                bestillingsNummer = bestilling.bestillingsnummer,
+                                opprettelsesTidspunkt = LocalDateTime.now(),
+                            ),
                         ),
                     )
                 }
@@ -122,10 +124,12 @@ class OebsRoutesTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     bearerAuth(bearerAuth)
                     setBody(
-                        OebsBestillingKvittering(
-                            bestillingsNummer = bestilling.bestillingsnummer,
-                            opprettelsesTidspunkt = LocalDateTime.now(),
-                            annullert = "Y",
+                        listOf(
+                            OebsBestillingKvittering(
+                                bestillingsNummer = bestilling.bestillingsnummer,
+                                opprettelsesTidspunkt = LocalDateTime.now(),
+                                annullert = "Y",
+                            ),
                         ),
                     )
                 }
@@ -143,9 +147,11 @@ class OebsRoutesTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     bearerAuth(bearerAuth)
                     setBody(
-                        OebsFakturaKvittering(
-                            fakturaNummer = faktura.fakturanummer,
-                            opprettelsesTidspunkt = LocalDateTime.now(),
+                        listOf(
+                            OebsFakturaKvittering(
+                                fakturaNummer = faktura.fakturanummer,
+                                opprettelsesTidspunkt = LocalDateTime.now(),
+                            ),
                         ),
                     )
                 }
@@ -164,10 +170,12 @@ class OebsRoutesTest : FunSpec({
                 contentType(ContentType.Application.Json)
                 bearerAuth(bearerAuth)
                 setBody(
-                    OebsBestillingKvittering(
-                        bestillingsNummer = bestilling.bestillingsnummer,
-                        opprettelsesTidspunkt = LocalDateTime.now(),
-                        feilKode = "FEILKODE",
+                    listOf(
+                        OebsBestillingKvittering(
+                            bestillingsNummer = bestilling.bestillingsnummer,
+                            opprettelsesTidspunkt = LocalDateTime.now(),
+                            feilKode = "FEILKODE",
+                        ),
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
@@ -178,9 +186,11 @@ class OebsRoutesTest : FunSpec({
                 contentType(ContentType.Application.Json)
                 bearerAuth(bearerAuth)
                 setBody(
-                    OebsBestillingKvittering(
-                        bestillingsNummer = bestilling.bestillingsnummer,
-                        opprettelsesTidspunkt = LocalDateTime.now(),
+                    listOf(
+                        OebsBestillingKvittering(
+                            bestillingsNummer = bestilling.bestillingsnummer,
+                            opprettelsesTidspunkt = LocalDateTime.now(),
+                        ),
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
@@ -197,10 +207,12 @@ class OebsRoutesTest : FunSpec({
                 contentType(ContentType.Application.Json)
                 bearerAuth(bearerAuth)
                 setBody(
-                    OebsFakturaKvittering(
-                        fakturaNummer = faktura.fakturanummer,
-                        opprettelsesTidspunkt = LocalDateTime.now(),
-                        statusOebs = "Avvist",
+                    listOf(
+                        OebsFakturaKvittering(
+                            fakturaNummer = faktura.fakturanummer,
+                            opprettelsesTidspunkt = LocalDateTime.now(),
+                            statusOebs = "Avvist",
+                        ),
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
@@ -211,10 +223,12 @@ class OebsRoutesTest : FunSpec({
                 contentType(ContentType.Application.Json)
                 bearerAuth(bearerAuth)
                 setBody(
-                    OebsFakturaKvittering(
-                        fakturaNummer = faktura.fakturanummer,
-                        opprettelsesTidspunkt = LocalDateTime.now(),
-                        statusOebs = "Godkjent",
+                    listOf(
+                        OebsFakturaKvittering(
+                            fakturaNummer = faktura.fakturanummer,
+                            opprettelsesTidspunkt = LocalDateTime.now(),
+                            statusOebs = "Godkjent",
+                        ),
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
@@ -253,11 +267,11 @@ class OebsRoutesTest : FunSpec({
                 bearerAuth(bearerAuth)
                 setBody(
                     """
-                        {
+                        [{
                             "bestillingsNummer": "999",
                             "statusOebs": "Godkjent",
                             "opprettelsesTidspunkt": "2023-01-01 09:33:16"
-                        }
+                        }]
                     """.trimIndent(),
                 )
             }
@@ -279,7 +293,7 @@ class OebsRoutesTest : FunSpec({
                 bearerAuth(bearerAuth)
                 setBody(
                     """
-                        {
+                        [{
                             "bestillingsNummer": "${bestilling.bestillingsnummer}",
                             "statusOebs": "Godkjent",
                             "opprettelsesTidspunkt": "2023-01-01 09:33:16",
@@ -287,7 +301,7 @@ class OebsRoutesTest : FunSpec({
                             "bar": {
                                 "baz": true
                             }
-                        }
+                        }]
                     """.trimIndent(),
                 )
             }

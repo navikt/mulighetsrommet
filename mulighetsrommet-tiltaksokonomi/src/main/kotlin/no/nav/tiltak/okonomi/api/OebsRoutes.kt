@@ -31,15 +31,16 @@ fun Routing.oebsRoutes(
         val request = call.receive<String>()
         okonomiService.logKvittering(request)
 
-        val kvittering = JsonIgnoreUnknownKeys.decodeFromString<OebsBestillingKvittering>(request)
+        val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsBestillingKvittering>>(request)
+        kvitteringer.forEach { kvittering ->
+            val bestilling = okonomiService.hentBestilling(kvittering.bestillingsNummer)
+                ?: throw StatusException(
+                    HttpStatusCode.NotFound,
+                    "Fant ikke bestilling med bestillingsNummer: ${kvittering.bestillingsNummer}",
+                )
 
-        val bestilling = okonomiService.hentBestilling(kvittering.bestillingsNummer)
-            ?: throw StatusException(
-                HttpStatusCode.NotFound,
-                "Fant ikke bestilling med bestillingsNummer: ${kvittering.bestillingsNummer}",
-            )
-
-        okonomiService.mottaBestillingKvittering(bestilling, kvittering)
+            okonomiService.mottaBestillingKvittering(bestilling, kvittering)
+        }
 
         call.respond(HttpStatusCode.OK)
     }
@@ -48,15 +49,16 @@ fun Routing.oebsRoutes(
         val request = call.receive<String>()
         okonomiService.logKvittering(request)
 
-        val kvittering = JsonIgnoreUnknownKeys.decodeFromString<OebsFakturaKvittering>(request)
+        val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsFakturaKvittering>>(request)
+        kvitteringer.forEach { kvittering ->
+            val faktura = okonomiService.hentFaktura(kvittering.fakturaNummer)
+                ?: throw StatusException(
+                    HttpStatusCode.NotFound,
+                    "Fant ikke faktura med fakturaNummer: ${kvittering.fakturaNummer}",
+                )
 
-        val faktura = okonomiService.hentFaktura(kvittering.fakturaNummer)
-            ?: throw StatusException(
-                HttpStatusCode.NotFound,
-                "Fant ikke faktura med fakturaNummer: ${kvittering.fakturaNummer}",
-            )
-
-        okonomiService.mottaFakturaKvittering(faktura, kvittering)
+            okonomiService.mottaFakturaKvittering(faktura, kvittering)
+        }
         call.respond(HttpStatusCode.OK)
     }
 }
