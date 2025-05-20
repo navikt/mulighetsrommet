@@ -14,13 +14,9 @@
     {{> utbetaling/partials/navlogo}}
     <h1>Innsendt krav om utbetaling</h1>
     {{> utbetaling/partials/felles_innsendingsdetaljer}}
-    {{#eq utbetaling.beregning.type "FORHANDSGODKJENT"}}
     {{> utbetaling/partials/stengtHosArrangor}}
-    {{/eq}}
-    {{#eq utbetaling.beregning.type "FORHANDSGODKJENT"}}
     {{> utbetaling/partials/deltakerperioder}}
     {{> utbetaling/partials/beregnetManedsverk}}
-    {{/eq}}
 
 </body>
 

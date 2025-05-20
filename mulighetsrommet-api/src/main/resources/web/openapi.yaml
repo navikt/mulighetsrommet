@@ -2509,16 +2509,16 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/arrangorflate/utbetaling/{id}/kvittering:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/utbetalingsdetaljer:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
         - Arrangorflate
-      operationId: getUtbetalingKvittering
+      operationId: getUtbetalingsdetaljerPdf
       responses:
         200:
-          description: Generer PDF kvittering for utbetaling
+          description: Generer PDF utbetalingsdetaljer for utbetaling
           content:
             application/pdf:
               schema:
