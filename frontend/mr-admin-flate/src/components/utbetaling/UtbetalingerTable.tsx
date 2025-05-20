@@ -96,7 +96,12 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
               <Table.DataCell>
                 {status !== AdminUtbetalingStatus.VENTER_PA_ARRANGOR && (
                   <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
-                    Detaljer
+                    {[
+                      AdminUtbetalingStatus.UTBETALT,
+                      AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    ].includes(status)
+                      ? "Detaljer"
+                      : "Behandle"}
                   </Link>
                 )}
               </Table.DataCell>

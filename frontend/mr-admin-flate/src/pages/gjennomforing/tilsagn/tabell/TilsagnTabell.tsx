@@ -1,7 +1,7 @@
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { isTilsagnForhandsgodkjent } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { compareByKey, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
-import { TilsagnDto } from "@mr/api-client-v2";
+import { TilsagnDto, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -116,7 +116,15 @@ export function TilsagnTabell({ tilsagn }: Props) {
                 <TilsagnTag status={tilsagn.status} />
               </Table.DataCell>
               <Table.DataCell>
-                <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${id}`}>Detaljer</Link>
+                <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${id}`}>
+                  {[
+                    TilsagnStatus.ANNULLERT,
+                    TilsagnStatus.GODKJENT,
+                    TilsagnStatus.OPPGJORT,
+                  ].includes(tilsagn.status)
+                    ? "Detaljer"
+                    : "Behandle"}
+                </Link>
               </Table.DataCell>
             </Table.Row>
           );
