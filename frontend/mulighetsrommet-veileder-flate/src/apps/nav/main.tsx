@@ -4,7 +4,6 @@ import { APPLICATION_NAME } from "@/constants";
 import { NavArbeidsmarkedstiltak } from "./NavArbeidsmarkedstiltak";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
-import { initAmplitudeNav } from "@/logging/amplitude";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import "../../index.css";
 import { OmArbeidsmarkedstiltak } from "./OmArbeidsmarkedstiltak";
@@ -19,8 +18,6 @@ if (import.meta.env.VITE_FARO_URL) {
     isolate: true,
   });
 }
-
-initAmplitudeNav();
 
 const container = document.getElementById(APPLICATION_NAME);
 if (container) {

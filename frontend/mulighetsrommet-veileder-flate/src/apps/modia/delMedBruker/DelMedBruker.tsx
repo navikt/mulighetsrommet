@@ -2,7 +2,6 @@ import { Alert, Button } from "@navikt/ds-react";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
-import { useLogEvent } from "@/logging/amplitude";
 import { Bruker, DelMedBruker as DelMedBrukerInfo, VeilederflateTiltak } from "@mr/api-client-v2";
 import { formaterDato } from "@/utils/Utils";
 import {
@@ -27,17 +26,12 @@ export function DelMedBruker({
   veilederEnhet,
   veilederFylke,
 }: Props) {
-  const { logEvent } = useLogEvent();
   const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
 
   const deletekst = utledDelMedBrukerTekst(tiltak, veiledernavn);
   const [state, dispatch] = useDelMedBruker(deletekst);
 
   const handleClickApneModal = () => {
-    logEvent({
-      name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action: "Åpnet delemodal", tiltakstype: tiltak.tiltakstype.navn },
-    });
     dispatch({ type: "Toggle modal", payload: true });
   };
 

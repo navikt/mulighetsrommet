@@ -367,9 +367,6 @@ importers:
 
   frontend/mr-admin-flate:
     dependencies:
-      '@amplitude/analytics-browser':
-        specifier: 2.17.6
-        version: 2.17.6
       '@grafana/faro-web-sdk':
         specifier: 1.18.1
         version: 1.18.1
@@ -612,9 +609,6 @@ importers:
 
   frontend/mulighetsrommet-veileder-flate:
     dependencies:
-      '@amplitude/analytics-browser':
-        specifier: 2.17.6
-        version: 2.17.6
       '@emotion/cache':
         specifier: 11.14.0
         version: 11.14.0
@@ -833,36 +827,6 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
-
-  '@amplitude/analytics-browser@2.17.6':
-    resolution: {integrity: sha512-1Lbm5KNXG/6Zpg1Zr0qAmft562kXWGIXZ1ah12oEf6Wcp2ePxIPlbkKgagOTzeS8hwOlfuKVeBy9oCuOdf8yFw==}
-
-  '@amplitude/analytics-client-common@2.3.20':
-    resolution: {integrity: sha512-yTQytHJetCyn4h7m2A3sWy3cylAgqrgoticH82XBZFVuylB3Ah0esoShsDyRfxcUMIutdSICjh+/VqGFOr/2Ww==}
-
-  '@amplitude/analytics-client-common@2.3.21':
-    resolution: {integrity: sha512-7KfSIr9d+Dnn+jW3UxQS/VlTaWpQz0nxX4LCi006x7YtjFgReFU2dxwB/48ZkfORLBEQokhm7cKilvD+JZveeg==}
-
-  '@amplitude/analytics-connector@1.6.4':
-    resolution: {integrity: sha512-SpIv0IQMNIq6SH3UqFGiaZyGSc7PBZwRdq7lvP0pBxW8i4Ny+8zwI0pV+VMfMHQwWY3wdIbWw5WQphNjpdq1/Q==}
-
-  '@amplitude/analytics-core@2.12.0':
-    resolution: {integrity: sha512-mfA6J2krFionypPHka65fK13eFi058EjSpLk8XgGmGS6Yvw+eidkgHvbouNDKwxBkhQFDH7cY8vOZeIAdkrktw==}
-
-  '@amplitude/analytics-remote-config@0.4.1':
-    resolution: {integrity: sha512-BYl6kQ9qjztrCACsugpxO+foLaQIC0aSEzoXEAb/gwOzInmqkyyI+Ub+aWTBih4xgB/lhWlOcidWHAmNiTJTNw==}
-
-  '@amplitude/analytics-types@2.9.2':
-    resolution: {integrity: sha512-juhTz396dDP/jLJYP9zDOEAZBtJM0JVvP8G10p1OxUDBVwVIprpQL598F9GRQwVFyqV4CEhDmNyAY0HqqU5bhA==}
-
-  '@amplitude/plugin-autocapture-browser@1.2.6':
-    resolution: {integrity: sha512-+WB6DSGrKOxWC0muT/z0bcc5ftzjPY9L1D3CB5nHIHJTHAzxkTuc1+TFRtjc8L5Tdly9h2YADPNo1H8dkWNOkg==}
-
-  '@amplitude/plugin-network-capture-browser@1.1.6':
-    resolution: {integrity: sha512-Ck39vvvizJ7qlBUxkOqq8k4/hrD9yCdvceBpSDfCr9jGzd3R3VisYUHsChOVChHd1fOoLtpoKF+HsgfrXmn17g==}
-
-  '@amplitude/plugin-page-view-tracking-browser@2.3.27':
-    resolution: {integrity: sha512-iJeuCn+jvBymQwV2EEkZhmJg+bitpZulubCxRMI0ihIdh/Nvk1XWhwmSfcgKaxMdk2qpa9CYXD9/pDewI88IDg==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -9015,63 +8979,6 @@ snapshots:
   '@adobe/css-tools@4.4.2': {}
 
   '@alloc/quick-lru@5.2.0': {}
-
-  '@amplitude/analytics-browser@2.17.6':
-    dependencies:
-      '@amplitude/analytics-core': 2.12.0
-      '@amplitude/analytics-remote-config': 0.4.1
-      '@amplitude/plugin-autocapture-browser': 1.2.6
-      '@amplitude/plugin-network-capture-browser': 1.1.6
-      '@amplitude/plugin-page-view-tracking-browser': 2.3.27
-      tslib: 2.8.1
-
-  '@amplitude/analytics-client-common@2.3.20':
-    dependencies:
-      '@amplitude/analytics-connector': 1.6.4
-      '@amplitude/analytics-core': 2.12.0
-      '@amplitude/analytics-types': 2.9.2
-      tslib: 2.8.1
-
-  '@amplitude/analytics-client-common@2.3.21':
-    dependencies:
-      '@amplitude/analytics-connector': 1.6.4
-      '@amplitude/analytics-core': 2.12.0
-      '@amplitude/analytics-types': 2.9.2
-      tslib: 2.8.1
-
-  '@amplitude/analytics-connector@1.6.4': {}
-
-  '@amplitude/analytics-core@2.12.0':
-    dependencies:
-      '@amplitude/analytics-connector': 1.6.4
-      tslib: 2.8.1
-
-  '@amplitude/analytics-remote-config@0.4.1':
-    dependencies:
-      '@amplitude/analytics-client-common': 2.3.20
-      '@amplitude/analytics-core': 2.12.0
-      '@amplitude/analytics-types': 2.9.2
-      tslib: 2.8.1
-
-  '@amplitude/analytics-types@2.9.2': {}
-
-  '@amplitude/plugin-autocapture-browser@1.2.6':
-    dependencies:
-      '@amplitude/analytics-core': 2.12.0
-      rxjs: 7.8.2
-      tslib: 2.8.1
-
-  '@amplitude/plugin-network-capture-browser@1.1.6':
-    dependencies:
-      '@amplitude/analytics-core': 2.12.0
-      rxjs: 7.8.2
-      tslib: 2.8.1
-
-  '@amplitude/plugin-page-view-tracking-browser@2.3.27':
-    dependencies:
-      '@amplitude/analytics-client-common': 2.3.21
-      '@amplitude/analytics-types': 2.9.2
-      tslib: 2.8.1
 
   '@ampproject/remapping@2.3.0':
     dependencies:
