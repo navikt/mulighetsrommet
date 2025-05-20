@@ -408,17 +408,7 @@ private fun resolveEkstraTilsagnDefaults(
             periodeStart = request.periodeStart,
             periodeSlutt = request.periodeSlutt,
             kostnadssted = request.kostnadssted,
-            beregning = TilsagnBeregningFri.Input(
-                prisbetingelser = prisbetingelser,
-                linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(
-                        id = UUID.randomUUID(),
-                        beskrivelse = "",
-                        belop = 0,
-                        antall = 1,
-                    ),
-                ),
-            ),
+            beregning = null,
         )
     }
 }
