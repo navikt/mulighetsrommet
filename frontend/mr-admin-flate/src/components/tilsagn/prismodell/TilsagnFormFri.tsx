@@ -64,7 +64,7 @@ function BeregningInputLinjerSkjema() {
         size="small"
         label="Beskrivelse"
         error={errors.beregning?.input?.linjer?.[index]?.beskrivelse?.message}
-        {...register(`beregning.input.linjer.${index}.beskrivelse`)}
+        {...register(`beregning.linjer.${index}.beskrivelse`)}
         defaultValue={item.beskrivelse}
       />
       <div>
@@ -74,7 +74,7 @@ function BeregningInputLinjerSkjema() {
           label="Beløp"
           style={{ width: "180px" }}
           error={errors.beregning?.input?.linjer?.[index]?.belop?.message}
-          {...register(`beregning.input.linjer.${index}.belop`, { valueAsNumber: true })}
+          {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
           defaultValue={item.belop}
         />
       </div>
@@ -85,7 +85,7 @@ function BeregningInputLinjerSkjema() {
           label="Antall"
           style={{ width: "180px" }}
           error={errors.beregning?.input?.linjer?.[index]?.antall?.message}
-          {...register(`beregning.input.linjer.${index}.antall`, { valueAsNumber: true })}
+          {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
           defaultValue={item.antall}
         />
       </div>
@@ -94,7 +94,7 @@ function BeregningInputLinjerSkjema() {
           label="Linje-id"
           hideLabel
           hidden
-          {...register(`beregning.input.linjer.${index}.id`)}
+          {...register(`beregning.linjer.${index}.id`)}
           defaultValue={item.id}
         />
         <Button
@@ -139,7 +139,7 @@ function BeregningOutputPreview() {
     <TilsagnBeregningPreview
       input={{
         type: "FRI",
-        linjer: values.beregning?.input?.linjer || [],
+        linjer: values.beregning?.linjer || [],
         prisbetingelser: values.beregning?.prisbetingelser,
       }}
     />
