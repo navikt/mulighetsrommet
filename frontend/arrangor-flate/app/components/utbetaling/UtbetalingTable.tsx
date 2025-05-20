@@ -107,20 +107,26 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   </Table.DataCell>
                   <Table.DataCell />
                   <Table.DataCell>
-                    <LinkWithTabState
-                      aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
-                      className="hover:underline font-bold no-underline"
-                      to={
-                        [
-                          ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                          ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
-                        ].includes(status)
-                          ? internalNavigation(orgnr).beregning(id)
-                          : internalNavigation(orgnr).detaljer(id)
-                      }
-                    >
-                      Detaljer
-                    </LinkWithTabState>
+                    {[
+                      ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                      ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
+                    ].includes(status) ? (
+                      <LinkWithTabState
+                        aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
+                        className="hover:underline font-bold no-underline"
+                        to={internalNavigation(orgnr).beregning(id)}
+                      >
+                        Start innsending
+                      </LinkWithTabState>
+                    ) : (
+                      <LinkWithTabState
+                        aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
+                        className="hover:underline font-bold no-underline"
+                        to={internalNavigation(orgnr).detaljer(id)}
+                      >
+                        Detaljer
+                      </LinkWithTabState>
+                    )}
                   </Table.DataCell>
                 </Table.Row>
               </React.Fragment>
