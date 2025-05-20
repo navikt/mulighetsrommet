@@ -75,9 +75,6 @@ data class AvtaleDto(
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
-        // TODO: denne er hardkodet til emptyList() enn så lenge slik at modell matcher [GjennomforingDto.ArrangorUnderenhet] samt modell i openapi.yaml
-        //  satser på å få samlet modellene i neste omgang.
-        val kontaktpersoner: List<ArrangorKontaktperson> = emptyList(),
     )
 
     @Serializable
@@ -98,61 +95,61 @@ data class AvtaleDto(
         val forrigeSluttdato: LocalDate?,
         val status: OpsjonLoggRequest.OpsjonsLoggStatus,
     )
-}
 
-fun AvtaleDto.toDbo(): AvtaleDbo {
-    return AvtaleDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstype.id,
-        avtalenummer = avtalenummer,
-        sakarkivNummer = sakarkivNummer,
-        arrangor = arrangor?.id?.let {
-            AvtaleDbo.Arrangor(
-                hovedenhet = it,
-                underenheter = arrangor.underenheter.map { it.id },
-                kontaktpersoner = arrangor.kontaktpersoner.map { it.id },
-            )
-        },
-        startDato = startDato,
-        sluttDato = sluttDato,
-        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
-        avtaletype = avtaletype,
-        prisbetingelser = prisbetingelser,
-        antallPlasser = antallPlasser,
-        administratorer = administratorer.map { it.navIdent },
-        beskrivelse = null,
-        faneinnhold = null,
-        personopplysninger = personopplysninger,
-        personvernBekreftet = personvernBekreftet,
-        amoKategorisering = amoKategorisering,
-        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
-        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
-        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-        utdanningslop = utdanningslop?.toDbo(),
-        prismodell = prismodell,
-    )
-}
-
-fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
-    return arrangor?.organisasjonsnummer?.value?.let {
-        ArenaAvtaleDbo(
+    fun toDbo(): AvtaleDbo {
+        return AvtaleDbo(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
-            arrangorOrganisasjonsnummer = it,
+            sakarkivNummer = sakarkivNummer,
+            arrangor = arrangor?.id?.let {
+                AvtaleDbo.Arrangor(
+                    hovedenhet = it,
+                    underenheter = arrangor.underenheter.map { it.id },
+                    kontaktpersoner = arrangor.kontaktpersoner.map { it.id },
+                )
+            },
             startDato = startDato,
             sluttDato = sluttDato,
-            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+            navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
             avtaletype = avtaletype,
-            avslutningsstatus = when (status) {
-                is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
-                is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-                is AvtaleStatus.UTKAST -> Avslutningsstatus.IKKE_AVSLUTTET
-            },
             prisbetingelser = prisbetingelser,
+            antallPlasser = antallPlasser,
+            administratorer = administratorer.map { it.navIdent },
+            beskrivelse = null,
+            faneinnhold = null,
+            personopplysninger = personopplysninger,
+            personvernBekreftet = personvernBekreftet,
+            amoKategorisering = amoKategorisering,
+            opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
+            opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+            customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
+            utdanningslop = utdanningslop?.toDbo(),
+            prismodell = prismodell,
         )
+    }
+
+    fun toArenaAvtaleDbo(): ArenaAvtaleDbo? {
+        return arrangor?.organisasjonsnummer?.value?.let {
+            ArenaAvtaleDbo(
+                id = id,
+                navn = navn,
+                tiltakstypeId = tiltakstype.id,
+                avtalenummer = avtalenummer,
+                arrangorOrganisasjonsnummer = it,
+                startDato = startDato,
+                sluttDato = sluttDato,
+                arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+                avtaletype = avtaletype,
+                avslutningsstatus = when (status) {
+                    is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
+                    is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                    is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+                    is AvtaleStatus.UTKAST -> Avslutningsstatus.IKKE_AVSLUTTET
+                },
+                prisbetingelser = prisbetingelser,
+            )
+        }
     }
 }

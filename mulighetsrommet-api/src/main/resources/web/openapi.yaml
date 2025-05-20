@@ -868,28 +868,6 @@ paths:
       operationId: getTiltakstyper
       parameters:
         - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for tiltakstyper
-        - in: query
-          name: tiltakstypestatuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/TiltakstypeStatus"
-          description: Statuser for tiltakstyper
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-        - in: query
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringTiltakstyper"
@@ -899,7 +877,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltakstype"
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakstypeDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2881,19 +2861,6 @@ components:
         - totalPages
         - pageSize
 
-    PaginertTiltakstype:
-      type: object
-      required:
-        - pagination
-        - data
-      properties:
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltakstypeDto"
-
     PaginertGjennomforing:
       type: object
       required:
@@ -3007,7 +2974,7 @@ components:
         sakarkivNummer:
           type: [string, "null"]
         arrangor:
-          $ref: "#/components/schemas/ArrangorHovedenhet"
+          $ref: "#/components/schemas/AvtaleArrangorHovedenhet"
         startDato:
           type: string
           format: date
@@ -3348,7 +3315,7 @@ components:
         tiltaksnummer:
           type: [string, "null"]
         arrangor:
-          $ref: "#/components/schemas/ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingArrangorUnderenhet"
         startDato:
           type: string
           format: date
@@ -3746,11 +3713,11 @@ components:
           type: [string, "null"]
           format: uuid
         tiltakstypeNavn:
-            type: string
+          type: string
         deltFraFylke:
-            type: [string, "null"]
+          type: [string, "null"]
         deltFraEnhet:
-            type: [string, "null"]
+          type: [string, "null"]
       required:
         - fnr
         - overskrift
@@ -4067,7 +4034,7 @@ components:
         - status
         - type
 
-    ArrangorHovedenhet:
+    AvtaleArrangorHovedenhet:
       type: object
       properties:
         id:
@@ -4082,7 +4049,7 @@ components:
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/ArrangorUnderenhet"
+            $ref: "#/components/schemas/AvtaleArrangorUnderenhet"
         kontaktpersoner:
           type: array
           items:
@@ -4095,7 +4062,25 @@ components:
         - underenheter
         - kontaktpersoner
 
-    ArrangorUnderenhet:
+    AvtaleArrangorUnderenhet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        slettet:
+          type: boolean
+      required:
+        - id
+        - organisasjonsnummer
+        - navn
+        - slettet
+
+    GjennomforingArrangorUnderenhet:
       type: object
       properties:
         id:

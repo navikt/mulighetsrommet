@@ -232,10 +232,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
                   selectDeselectAll(
                     checked,
                     "tiltakstyper",
-                    tiltakstyper.data.map((t) => t.id),
+                    tiltakstyper.map((t) => t.id),
                   );
                 }}
-                items={tiltakstypeOptions(tiltakstyper.data)}
+                items={tiltakstypeOptions(tiltakstyper)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {
                   setFilter({
@@ -244,10 +244,7 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
                     lagretFilterIdValgt: undefined,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
-                  loggBrukAvFilter(
-                    "status",
-                    tiltakstyper.data.find((s) => s.id === tiltakstype)?.navn,
-                  );
+                  loggBrukAvFilter("status", tiltakstyper.find((s) => s.id === tiltakstype)?.navn);
                 }}
               />
             </Accordion.Content>

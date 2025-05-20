@@ -25,7 +25,7 @@ data class LagretFilterDto(
 @Serializable
 data class LagretFilterUpsert(
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID? = UUID.randomUUID(),
+    val id: UUID,
     val brukerId: String,
     val navn: String,
     val type: FilterDokumentType,

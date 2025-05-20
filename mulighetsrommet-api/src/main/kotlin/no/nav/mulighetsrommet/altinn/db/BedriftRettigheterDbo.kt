@@ -4,5 +4,5 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 data class BedriftRettigheterDbo(
     val organisasjonsnummer: Organisasjonsnummer,
-    val rettigheter: List<RettighetDbo>,
+    val rettigheter: List<BedriftRettighetWithExpiry>,
 )

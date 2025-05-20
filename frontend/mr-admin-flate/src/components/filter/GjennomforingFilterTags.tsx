@@ -46,7 +46,7 @@ export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight 
       {filter.tiltakstyper.map((tiltakstype) => (
         <FilterTag
           key={tiltakstype}
-          label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
+          label={tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
           onClose={() => {
             setFilter({
               ...filter,
