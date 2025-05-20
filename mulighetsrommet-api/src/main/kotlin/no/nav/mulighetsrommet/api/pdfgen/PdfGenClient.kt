@@ -31,17 +31,17 @@ class PdfGenClient(
     }
 
     suspend fun getUtbetalingKvittering(
-        utbetalingsdetaljerPdf: UtbetalingsdetaljerPdf,
+        utbetaling: UtbetalingPdfDto,
     ): ByteArray {
         @Serializable
         data class PdfData(
-            val utbetalingsdetaljerPdf: UtbetalingsdetaljerPdf,
+            val utbetaling: UtbetalingPdfDto,
         )
 
         return downloadPdf(
             app = "utbetaling",
             template = "utbetalingsdetaljer",
-            body = PdfData(utbetalingsdetaljerPdf),
+            body = PdfData(utbetaling),
         )
     }
 
@@ -71,10 +71,6 @@ class PdfGenClient(
     }
 }
 
-@Serializable
-data class UtbetalingsdetaljerPdf(
-    val utbetaling: UtbetalingPdfDto,
-)
 
 @Serializable
 data class UtbetalingPdfDto(
