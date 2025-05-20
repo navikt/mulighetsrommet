@@ -12,7 +12,11 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000, prisbetingelser: mockAvtaler[0].prisbetingelser },
+      input: {
+        type: "FRI",
+        prisbetingelser: mockAvtaler[0].prisbetingelser,
+        linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
+      },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -36,7 +40,11 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000, prisbetingelser: null },
+      input: {
+        type: "FRI",
+        prisbetingelser: null,
+        linjer: [{ id: "asd", beskrivelse: "Kurspris per dag", belop: 2_000, antall: 7 }],
+      },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -60,7 +68,11 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000, prisbetingelser: "10 000,- + 4 000,-" },
+      input: {
+        type: "FRI",
+        prisbetingelser: "10 000,- + 4 000,-",
+        linjer: [{ id: "asd", beskrivelse: "10 000,- + 4 000,-", belop: 14_000, antall: 1 }],
+      },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -84,7 +96,11 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000, prisbetingelser: null },
+      input: {
+        type: "FRI",
+        prisbetingelser: null,
+        linjer: [{ id: "asd", beskrivelse: "Kurspris per dag", belop: 2_000, antall: 7 }],
+      },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,
@@ -108,7 +124,11 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      input: { type: "FRI", belop: 14_000, prisbetingelser: null },
+      input: {
+        type: "FRI",
+        prisbetingelser: null,
+        linjer: [{ id: "asd", beskrivelse: "Kurspris per dag", belop: 2_000, antall: 7 }],
+      },
       output: { type: "FRI", belop: 14_000 },
     },
     belopBrukt: 4_000,

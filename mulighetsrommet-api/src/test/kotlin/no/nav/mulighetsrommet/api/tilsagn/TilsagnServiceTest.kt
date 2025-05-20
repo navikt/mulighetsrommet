@@ -61,7 +61,17 @@ class TilsagnServiceTest : FunSpec({
         periodeStart = LocalDate.of(2025, 1, 1),
         periodeSlutt = LocalDate.of(2025, 1, 31),
         kostnadssted = Gjovik.enhetsnummer,
-        beregning = TilsagnBeregningFri.Input(belop = 1, prisbetingelser = null),
+        beregning = TilsagnBeregningFri.Input(
+            linjer = listOf(
+                TilsagnBeregningFri.InputLinje(
+                    id = UUID.randomUUID(),
+                    beskrivelse = "Beskrivelse",
+                    belop = 1500,
+                    antall = 1,
+                ),
+            ),
+            prisbetingelser = null,
+        ),
     )
 
     beforeEach {
@@ -195,7 +205,17 @@ class TilsagnServiceTest : FunSpec({
 
         test("oppdaterer prismodell for tilsagn med fri prismodell") {
             val nyePrisbetingelser = "Helt ferske prisbetingelser"
-            val beregningInput = TilsagnBeregningFri.Input(belop = 1000, prisbetingelser = nyePrisbetingelser)
+            val beregningInput = TilsagnBeregningFri.Input(
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "1500",
+                        belop = 1500,
+                        antall = 1,
+                    ),
+                ),
+                prisbetingelser = nyePrisbetingelser,
+            )
             val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
             service.upsert(
                 request.copy(

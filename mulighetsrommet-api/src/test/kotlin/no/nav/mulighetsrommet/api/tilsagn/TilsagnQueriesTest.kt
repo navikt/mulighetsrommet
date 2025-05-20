@@ -43,7 +43,20 @@ class TilsagnQueriesTest : FunSpec({
         bestillingsnummer = "1",
         bestillingStatus = null,
         belopBrukt = 0,
-        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123, prisbetingelser = "Prisbetingelser fra avtale"), TilsagnBeregningFri.Output(123)),
+        beregning = TilsagnBeregningFri(
+            TilsagnBeregningFri.Input(
+                listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "Beskrivelse",
+                        belop = 123,
+                        antall = 1,
+                    ),
+                ),
+                prisbetingelser = "Prisbetingelser fra avtale",
+            ),
+            TilsagnBeregningFri.Output(123),
+        ),
     )
 
     context("CRUD") {
@@ -79,7 +92,10 @@ class TilsagnQueriesTest : FunSpec({
                         slettet = false,
                     )
                     it.beregning shouldBe TilsagnBeregningFri(
-                        TilsagnBeregningFri.Input(123, prisbetingelser = "Prisbetingelser fra avtale"),
+                        TilsagnBeregningFri.Input(
+                            linjer = (tilsagn.beregning as TilsagnBeregningFri).input.linjer,
+                            prisbetingelser = "Prisbetingelser fra avtale",
+                        ),
                         TilsagnBeregningFri.Output(123),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
@@ -123,7 +139,14 @@ class TilsagnQueriesTest : FunSpec({
                 val beregning = TilsagnBeregningFri(
                     input = TilsagnBeregningFri.Input(
                         prisbetingelser = AvtaleFixtures.ARR.prisbetingelser,
-                        belop = 1000,
+                        linjer = listOf(
+                            TilsagnBeregningFri.InputLinje(
+                                id = UUID.randomUUID(),
+                                beskrivelse = "Beskrivelse",
+                                belop = 500,
+                                antall = 2,
+                            ),
+                        ),
                     ),
                     output = TilsagnBeregningFri.Output(1000),
                 )

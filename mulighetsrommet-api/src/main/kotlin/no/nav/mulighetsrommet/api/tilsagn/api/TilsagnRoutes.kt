@@ -360,7 +360,7 @@ private fun resolveTilsagnDefaults(
 
             val lastDayOfMonth = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
             val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
-            val beregning = TilsagnBeregningFri.Input(belop = 0, prisbetingelser = avtale.prisbetingelser)
+            val beregning = TilsagnBeregningFri.Input(linjer = listOf(TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)), prisbetingelser = avtale.prisbetingelser)
 
             TilsagnDefaults(
                 id = null,
@@ -388,7 +388,17 @@ private fun resolveEkstraTilsagnDefaults(
             periodeStart = request.periodeStart,
             periodeSlutt = request.periodeSlutt,
             kostnadssted = request.kostnadssted,
-            beregning = TilsagnBeregningFri.Input(prisbetingelser = prisbetingelser, belop = request.belop),
+            beregning = TilsagnBeregningFri.Input(
+                prisbetingelser = prisbetingelser,
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "",
+                        belop = request.belop,
+                        antall = 1,
+                    ),
+                ),
+            ),
         )
     } else {
         TilsagnDefaults(
@@ -398,7 +408,17 @@ private fun resolveEkstraTilsagnDefaults(
             periodeStart = request.periodeStart,
             periodeSlutt = request.periodeSlutt,
             kostnadssted = request.kostnadssted,
-            beregning = null,
+            beregning = TilsagnBeregningFri.Input(
+                prisbetingelser = prisbetingelser,
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "",
+                        belop = 0,
+                        antall = 1,
+                    ),
+                ),
+            ),
         )
     }
 }

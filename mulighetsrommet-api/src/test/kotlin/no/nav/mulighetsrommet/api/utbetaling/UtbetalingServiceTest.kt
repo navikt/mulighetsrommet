@@ -1276,7 +1276,17 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(1000, prisbetingelser = null),
+                            input = TilsagnBeregningFri.Input(
+                                linjer = listOf(
+                                    TilsagnBeregningFri.InputLinje(
+                                        id = UUID.randomUUID(),
+                                        beskrivelse = "Beskrivelse",
+                                        belop = 1500,
+                                        antall = 1,
+                                    ),
+                                ),
+                                prisbetingelser = null,
+                            ),
                             output = TilsagnBeregningFri.Output(1000),
                         ),
                     ),
@@ -1378,7 +1388,17 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(belop = 1, prisbetingelser = null),
+                            input = TilsagnBeregningFri.Input(
+                                linjer = listOf(
+                                    TilsagnBeregningFri.InputLinje(
+                                        id = UUID.randomUUID(),
+                                        beskrivelse = "Beskrivelse",
+                                        belop = 1500,
+                                        antall = 1,
+                                    ),
+                                ),
+                                prisbetingelser = null,
+                            ),
                             output = TilsagnBeregningFri.Output(belop = 1),
                         ),
                     ),
