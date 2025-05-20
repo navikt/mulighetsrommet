@@ -1,33 +1,18 @@
 import { fetchDecoratorHtml } from "@navikt/nav-dekoratoren-moduler/ssr";
 import { Environment, getEnvironment } from "~/services/environment";
 
-const visDekoratørUnderUtvikling = true;
-const brukSsrDekoratørIMiljø = true;
-
-export type Dekoratørfragmenter = {
+export type DekoratorElements = {
   head: string;
   header: string;
   footer: string;
   scripts: string;
 };
 
-export const hentSsrDekoratør = async (): Promise<Dekoratørfragmenter | null> => {
+export const fetchSsrDekorator = async (): Promise<DekoratorElements | null> => {
   const env = getEnvironment();
 
   try {
-    if (env === Environment.Lokalt) {
-      if (visDekoratørUnderUtvikling) {
-        return await hentDekoratør(env);
-      } else {
-        return null;
-      }
-    } else {
-      if (brukSsrDekoratørIMiljø) {
-        return await hentDekoratør(env);
-      } else {
-        return null;
-      }
-    }
+    return await fetchDekorator(env);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // eslint-disable-next-line no-console
@@ -36,7 +21,7 @@ export const hentSsrDekoratør = async (): Promise<Dekoratørfragmenter | null> 
   }
 };
 
-export const hentDekoratør = async (env: Environment): Promise<Dekoratørfragmenter> => {
+export const fetchDekorator = async (env: Environment): Promise<DekoratorElements> => {
   const decorator = await fetchDecoratorHtml({
     env: env === Environment.ProdGcp ? "prod" : "dev",
     params: {
