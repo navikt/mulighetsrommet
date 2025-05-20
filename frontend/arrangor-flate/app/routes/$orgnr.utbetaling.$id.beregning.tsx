@@ -29,7 +29,7 @@ import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
 import { internalNavigation } from "~/internal-navigation";
-import { hentMiljø, Miljø } from "~/services/miljø";
+import { Environment, getEnvironment } from "~/services/environment";
 import {
   formaterDato,
   formaterPeriode,
@@ -56,7 +56,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const deltakerlisteUrl = deltakerOversiktLenke(hentMiljø());
+  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
 
   const { id } = params;
   if (!id) {
@@ -328,8 +328,8 @@ function getFormattedFodselsdato(person?: UtbetalingDeltakelsePerson) {
       : null;
 }
 
-function deltakerOversiktLenke(miljo: Miljø): string {
-  if (miljo === Miljø.DevGcp) {
+function deltakerOversiktLenke(env: Environment): string {
+  if (env === Environment.DevGcp) {
     return "https://amt.intern.dev.nav.no/deltakeroversikt";
   }
   return "https://nav.no/deltakeroversikt";

@@ -1,23 +1,24 @@
 import { Arrangor, ArrangorflateService } from "api-client";
 import { BodyShort, Box, Heading } from "@navikt/ds-react";
-import { LoaderFunction, useNavigate } from "react-router";
 import {
   isRouteErrorResponse,
   Links,
+  LoaderFunction,
   Meta,
   MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useNavigate,
   useRouteError,
 } from "react-router";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
-import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
-import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
+import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
+import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
 import { problemDetailResponse } from "./utils";
@@ -34,14 +35,19 @@ export const loader: LoaderFunction = async ({ request }) => {
     throw problemDetailResponse(error);
   }
 
+  let dekorator = null;
+  if (process.env.DISABLE_DEKORATOR !== "true") {
+    dekorator = await fetchSsrDekorator();
+  }
+
   return {
-    dekorator: await hentSsrDekoratør(),
+    dekorator,
     arrangortilganger,
   };
 };
 
 export type LoaderData = {
-  dekorator: Dekoratørfragmenter | null;
+  dekorator: DekoratorElements | null;
   arrangortilganger: Arrangor[];
 };
 
@@ -60,7 +66,7 @@ function Dokument({
   children,
   arrangorer,
 }: {
-  dekorator?: Dekoratørfragmenter;
+  dekorator?: DekoratorElements;
   children: ReactNode;
   arrangorer: Arrangor[];
 }) {
