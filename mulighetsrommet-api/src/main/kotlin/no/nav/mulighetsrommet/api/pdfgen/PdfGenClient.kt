@@ -80,7 +80,7 @@ data class UtbetalingPdfDto(
     val periodeSlutt: LocalDate,
     val arrangor: ArrangorPdf,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val godkjentArrangorTidspunkt: LocalDateTime?,
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime?,
     @Serializable(with = LocalDateSerializer::class)
