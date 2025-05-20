@@ -97,7 +97,7 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
         <Box
           padding="4"
           borderColor="border-subtle"
-          borderRadius="8"
+          borderRadius="large"
           borderWidth="1"
           key={sats.periodeStart}
         >

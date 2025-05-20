@@ -341,7 +341,7 @@ function TeamTiltakTiltaksgjennomforingAvtalerLink() {
 
 export function IngenFunnetBox(props: { title: string }) {
   return (
-    <Box background="bg-default" borderRadius="2" padding="5">
+    <Box background="bg-default" borderRadius="medium" padding="5">
       <VStack align="center">
         <img
           src={ingenFunnImg}

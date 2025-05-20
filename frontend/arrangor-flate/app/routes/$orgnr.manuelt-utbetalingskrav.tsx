@@ -379,7 +379,7 @@ export default function ManuellUtbetalingForm() {
           {relevanteTilsagn.length > 0 ? (
             <VStack gap="2" className="max-h-128 overflow-auto">
               {relevanteTilsagn.map((tilsagn) => (
-                <Box borderColor="border-subtle" padding="2" borderWidth="2" borderRadius="8">
+                <Box borderColor="border-subtle" padding="2" borderWidth="2" borderRadius="large">
                   <TilsagnDetaljer
                     tilsagn={tilsagn}
                     ekstraDefinisjoner={[
