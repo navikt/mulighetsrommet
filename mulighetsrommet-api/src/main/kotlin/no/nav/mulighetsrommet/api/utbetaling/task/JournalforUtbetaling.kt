@@ -77,7 +77,7 @@ class JournalforUtbetaling(
                         organisasjonsnummer = arrflateUtbetaling.arrangor.organisasjonsnummer.value,
                         navn = arrflateUtbetaling.arrangor.navn,
                     ),
-                    godkjentArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
+                    godkjentAvArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
                     createdAt = arrflateUtbetaling.createdAt,
                     fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
                     gjennomforing = GjennomforingPdf(
