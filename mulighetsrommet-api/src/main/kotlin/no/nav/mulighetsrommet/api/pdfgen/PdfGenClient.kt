@@ -71,7 +71,6 @@ class PdfGenClient(
     }
 }
 
-
 @Serializable
 data class UtbetalingPdfDto(
     val status: String,
