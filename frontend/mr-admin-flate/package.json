@@ -19,7 +19,6 @@
     "playwright:codegen": "playwright codegen playwright.dev"
   },
   "dependencies": {
-    "@amplitude/analytics-browser": "2.17.6",
     "@grafana/faro-web-sdk": "1.18.1",
     "@hookform/resolvers": "5.0.1",
     "@mr/api-client-v2": "workspace:*",

@@ -1,7 +1,6 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
-import { logEvent } from "@/logging/amplitude";
 import { ReactNode } from "react";
 
 export interface ForsideKortProps {
@@ -12,20 +11,10 @@ export interface ForsideKortProps {
   tekst?: string;
 }
 
-function loggKlikkPaKort(forsidekort: string) {
-  logEvent({
-    name: "tiltaksadministrasjon.klikk-forsidekort",
-    data: {
-      forsidekort,
-    },
-  });
-}
-
 export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: ForsideKortProps) {
   return (
     <Link
       key={url}
-      onClick={() => loggKlikkPaKort(navn)}
       className="text-text-default w-[370px] h-[350px] bg-white items-center grid grid-rows-[auto,1fr,1fr] p-12 text-center shadow-md hover:shadow-lg transition-all duration-150 ease-in-out no-underline text-black rounded"
       to={url}
       {...(apneINyTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}

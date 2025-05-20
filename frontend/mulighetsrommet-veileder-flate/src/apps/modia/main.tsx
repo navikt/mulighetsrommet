@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
-import { initAmplitudeModia } from "@/logging/amplitude";
 import "../../index.css";
 
 if (import.meta.env.VITE_FARO_URL) {
@@ -16,8 +15,6 @@ if (import.meta.env.VITE_FARO_URL) {
     isolate: true,
   });
 }
-
-initAmplitudeModia();
 
 /**
  * Applikasjonen blir lastet inn i `veilarbpersonflate` i dev og prod ved at vi definerer et

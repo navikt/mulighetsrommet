@@ -23,9 +23,3 @@ export type LogEventFromApp = (params?: {
   eventName: unknown | string;
   eventData?: unknown | Record<string, unknown>;
 }) => Promise<void>;
-
-declare global {
-  interface Window {
-    veilarbpersonflatefsAmplitude: LogEventFromApp;
-  }
-}

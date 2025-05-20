@@ -1,6 +1,5 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
-import { useLogEvent } from "@/logging/amplitude";
 import { Deltakelse, DeltakelserMelding } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
@@ -38,7 +37,6 @@ function Feilmelding({ message }: { message: string }) {
 }
 
 export function Landingsside() {
-  const { logEvent } = useLogEvent();
   const [activeTab, setActiveTab] = useState<"aktive" | "historikk" | "delt-i-dialogen">("aktive");
 
   return (
@@ -62,17 +60,7 @@ export function Landingsside() {
         <VStack gap="4">
           <FeedbackFraUrl />
           <Heading size="large">Oversikt over brukerens tiltak</Heading>
-          <Tabs
-            onChange={(fane) => {
-              logEvent({
-                name: "arbeidsmarkedstiltak.landingsside.fane-valgt",
-                data: {
-                  action: fane,
-                },
-              });
-            }}
-            defaultValue={activeTab}
-          >
+          <Tabs defaultValue={activeTab}>
             <Tabs.List>
               <Tabs.Tab
                 data-testid="aktive-tab"
@@ -211,7 +199,6 @@ function DeltakelserAktive() {
 }
 
 function DeltakelserHistoriske() {
-  const { logEvent } = useLogEvent();
   const { data } = useTiltakshistorikkForBruker("HISTORISKE");
   const [yngreEnn5aar, eldreEnn5aar] = data.deltakelser.reduce<[Deltakelse[], Deltakelse[]]>(
     ([yngre, eldre], deltakelse) => {
@@ -252,16 +239,7 @@ function DeltakelserHistoriske() {
       )}
       {eldreEnn5aar.length > 0 && (
         <HStack justify="start">
-          <Button
-            size="small"
-            onClick={() => {
-              logEvent({
-                name: "arbeidsmarkedstiltak.historikk.vis-all-historikk",
-              });
-              setVisAlle(!visAlle);
-            }}
-            variant="tertiary"
-          >
+          <Button size="small" onClick={() => setVisAlle(!visAlle)} variant="tertiary">
             {visAlle
               ? "Se bare historikk 5 år tilbake i tid"
               : "Se historikk mer enn 5 år tilbake i tid"}

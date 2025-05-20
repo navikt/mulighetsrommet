@@ -3,7 +3,6 @@ import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
-import { useLogEvent } from "@/logging/amplitude";
 import { Separator } from "@/utils/Separator";
 import { erPreview } from "@/utils/Utils";
 import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
@@ -36,16 +35,13 @@ export function Delemodal({
   veilederEnhet,
   veilederFylke,
 }: DelemodalProps) {
-  const { logEvent } = useLogEvent();
   const mutation = useDelTiltakMedBruker({
     onSuccess: (response) => {
       dispatch({ type: "Sendt ok", payload: response.dialogId });
-      logDelMedbrukerEvent("Delte med bruker", tiltak.tiltakstype.navn);
       mutation.reset();
     },
     onError: () => {
       dispatch({ type: "Sending feilet" });
-      logDelMedbrukerEvent("Del med bruker feilet", tiltak.tiltakstype.navn);
     },
   });
 
@@ -55,24 +51,10 @@ export function Delemodal({
   const originaltekstLengde = state.originalDeletekst.length;
   const lukkStatusmodal = () => dispatch({ type: "Toggle statusmodal", payload: false });
   const lukkModal = () => dispatch({ type: "Toggle modal", payload: false });
-  const logDelMedbrukerEvent = (
-    action:
-      | "Delte med bruker"
-      | "Del med bruker feilet"
-      | "Avbrutt del med bruker"
-      | "Sett venter på svar fra bruker",
-    tiltakstype: string,
-  ) => {
-    logEvent({
-      name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action, tiltakstype },
-    });
-  };
 
   const clickCancel = () => {
     lukkModal();
     dispatch({ type: "Avbryt" });
-    logDelMedbrukerEvent("Avbrutt del med bruker", tiltak.tiltakstype.navn);
   };
 
   const handleSend = async () => {
@@ -98,10 +80,6 @@ export function Delemodal({
 
   const enableEndreDeletekst = () => {
     dispatch({ type: "Enable rediger deletekst", payload: true });
-    logEvent({
-      name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action: "Endre deletekst", tiltakstype: tiltak.tiltakstype.navn },
-    });
   };
 
   return (
@@ -140,15 +118,6 @@ export function Delemodal({
                     type: "Venter på svar fra bruker",
                     payload: e.currentTarget.checked,
                   });
-                  if (e.currentTarget.checked) {
-                    logEvent({
-                      name: "arbeidsmarkedstiltak.del-med-bruker",
-                      data: {
-                        action: "Sett venter på svar fra bruker",
-                        tiltakstype: tiltak.tiltakstype.navn,
-                      },
-                    });
-                  }
                 }}
                 checked={state.venterPaaSvarFraBruker}
                 value="venter-pa-svar-fra-bruker"
