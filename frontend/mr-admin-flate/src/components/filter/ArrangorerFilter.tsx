@@ -1,6 +1,6 @@
 import { Search } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
-import { ArrangorerFilter as ArrangorerFilterProps } from "../../api/atoms";
+import { ArrangorerFilter as ArrangorerFilterProps } from "@/api/atoms";
 
 interface Props {
   filterAtom: WritableAtom<ArrangorerFilterProps, [newValue: ArrangorerFilterProps], void>;

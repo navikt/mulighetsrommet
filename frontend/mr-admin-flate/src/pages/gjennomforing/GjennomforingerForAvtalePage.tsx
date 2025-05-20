@@ -17,7 +17,7 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 
 export function GjennomforingerForAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();

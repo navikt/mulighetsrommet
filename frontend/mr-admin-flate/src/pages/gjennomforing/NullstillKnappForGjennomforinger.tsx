@@ -5,7 +5,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
 import { useFetcher } from "react-router";
-import { filterToActionRequest } from "../../api/lagret-filter/lagretFilterAction";
+import { filterToActionRequest } from "@/api/lagret-filter/lagretFilterAction";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;

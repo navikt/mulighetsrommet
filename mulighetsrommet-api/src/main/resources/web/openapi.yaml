@@ -6208,8 +6208,6 @@ components:
           type: number
         person:
           $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
-        veileder:
-          type: string
       required:
         - id
         - startDato

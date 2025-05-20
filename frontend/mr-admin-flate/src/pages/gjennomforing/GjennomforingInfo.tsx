@@ -4,9 +4,9 @@ import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useParams } from "react-router";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
 

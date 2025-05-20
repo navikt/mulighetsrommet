@@ -4,8 +4,8 @@ import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { Avtaletype, TilsagnService, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
-import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { TilsagnTabell } from "./TilsagnTabell";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
