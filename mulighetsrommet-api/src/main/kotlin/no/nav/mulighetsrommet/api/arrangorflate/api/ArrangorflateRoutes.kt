@@ -225,50 +225,48 @@ fun Route.arrangorflateRoutes() {
 
                 val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
                 val pdfContent = pdfClient.getUtbetalingKvittering(
-                    UtbetalingsdetaljerPdf(
-                        utbetaling = UtbetalingPdfDto(
-                            status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
-                            periodeStart = arrflateUtbetaling.periode.start,
-                            periodeSlutt = arrflateUtbetaling.periode.slutt.minusDays(1),
-                            arrangor = ArrangorPdf(
-                                organisasjonsnummer = arrflateUtbetaling.arrangor.organisasjonsnummer.value,
-                                navn = arrflateUtbetaling.arrangor.navn,
-                            ),
-                            godkjentArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
-                            createdAt = arrflateUtbetaling.createdAt,
-                            fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
-                            gjennomforing = GjennomforingPdf(
-                                navn = arrflateUtbetaling.gjennomforing.navn,
-                            ),
-                            tiltakstype = TiltakstypePdf(
-                                navn = arrflateUtbetaling.tiltakstype.navn,
-                            ),
-                            beregning = when (arrflateUtbetaling.beregning) {
-                                is Beregning.Fri -> BeregningPdf(
-                                    antallManedsverk = null,
-                                    belop = arrflateUtbetaling.beregning.belop,
-                                    deltakelser = emptyList(),
-                                    stengt = emptyList(),
-                                )
-
-                                is Beregning.Forhandsgodkjent -> BeregningPdf(
-                                    antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
-                                    belop = arrflateUtbetaling.beregning.belop,
-                                    deltakelser = emptyList(),
-                                    stengt = emptyList(),
-                                )
-                            },
-                            betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
-                            linjer = arrflateUtbetaling.linjer.map {
-                                UtbetalingslinjerPdfDto(
-                                    id = it.id,
-                                    tilsagn = it.tilsagn,
-                                    status = toReadableName(it.status),
-                                    belop = it.belop,
-                                    statusSistOppdatert = it.statusSistOppdatert,
-                                )
-                            },
+                    utbetaling = UtbetalingPdfDto(
+                        status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
+                        periodeStart = arrflateUtbetaling.periode.start,
+                        periodeSlutt = arrflateUtbetaling.periode.slutt.minusDays(1),
+                        arrangor = ArrangorPdf(
+                            organisasjonsnummer = arrflateUtbetaling.arrangor.organisasjonsnummer.value,
+                            navn = arrflateUtbetaling.arrangor.navn,
                         ),
+                        godkjentArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
+                        createdAt = arrflateUtbetaling.createdAt,
+                        fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
+                        gjennomforing = GjennomforingPdf(
+                            navn = arrflateUtbetaling.gjennomforing.navn,
+                        ),
+                        tiltakstype = TiltakstypePdf(
+                            navn = arrflateUtbetaling.tiltakstype.navn,
+                        ),
+                        beregning = when (arrflateUtbetaling.beregning) {
+                            is Beregning.Fri -> BeregningPdf(
+                                antallManedsverk = null,
+                                belop = arrflateUtbetaling.beregning.belop,
+                                deltakelser = emptyList(),
+                                stengt = emptyList(),
+                            )
+
+                            is Beregning.Forhandsgodkjent -> BeregningPdf(
+                                antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                                belop = arrflateUtbetaling.beregning.belop,
+                                deltakelser = emptyList(),
+                                stengt = emptyList(),
+                            )
+                        },
+                        betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
+                        linjer = arrflateUtbetaling.linjer.map {
+                            UtbetalingslinjerPdfDto(
+                                id = it.id,
+                                tilsagn = it.tilsagn,
+                                status = toReadableName(it.status),
+                                belop = it.belop,
+                                statusSistOppdatert = it.statusSistOppdatert,
+                            )
+                        },
                     ),
                 )
 
