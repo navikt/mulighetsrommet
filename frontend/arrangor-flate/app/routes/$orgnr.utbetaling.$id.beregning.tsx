@@ -38,9 +38,10 @@ import {
   useOrgnrFromUrl,
 } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
-import { Definisjonsliste } from "../components/Definisjonsliste";
-import { tekster } from "../tekster";
-import { getBeregningDetaljer } from "../utils/beregning";
+import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { tekster } from "~/tekster";
+import { getBeregningDetaljer } from "~/utils/beregning";
+
 export const meta: MetaFunction = () => {
   return [
     { title: "Beregning" },
@@ -95,7 +96,6 @@ enum DeltakerSortKey {
   PERSON_NAVN = "PERSON_NAVN",
   PERIODE_START = "PERIODE_START",
   PERIODE_SLUTT = "PERIODE_SLUTT",
-  VEILEDER_NAVN = "VEILEDER_NAVN",
 }
 
 export default function UtbetalingBeregning() {
@@ -317,8 +317,6 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Utbetalin
       return (d) => d.forstePeriodeStartDato;
     case DeltakerSortKey.PERIODE_SLUTT:
       return (d) => d.sistePeriodeSluttDato;
-    case DeltakerSortKey.VEILEDER_NAVN:
-      return (d) => d.veileder;
   }
 }
 

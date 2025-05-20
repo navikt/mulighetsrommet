@@ -40,8 +40,6 @@ fun mapUtbetalingToArrFlateUtbetaling(
                     manedsverk = manedsverk,
                     perioder = deltakelse.perioder,
                     person = person,
-                    // TODO data om veileder hos arrangør
-                    veileder = null,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
