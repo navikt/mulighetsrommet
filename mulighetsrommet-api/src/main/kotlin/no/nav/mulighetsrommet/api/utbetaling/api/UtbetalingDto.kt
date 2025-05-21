@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -25,6 +26,7 @@ data class UtbetalingDto(
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
+    val kostnadssteder: List<NavEnhetDbo>,
 ) {
     @Serializable
     data class Beregning(
@@ -32,7 +34,7 @@ data class UtbetalingDto(
     )
 
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus) = UtbetalingDto(
+        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus, kostnadssteder: List<NavEnhetDbo>?) = UtbetalingDto(
             id = utbetaling.id,
             status = status,
             periode = utbetaling.periode,
@@ -46,6 +48,7 @@ data class UtbetalingDto(
             innsendtAv = formaterInnsendtAv(utbetaling.innsender),
             journalpostId = utbetaling.journalpostId,
             tilskuddstype = utbetaling.tilskuddstype,
+            kostnadssteder = kostnadssteder ?: emptyList(),
         )
 
         private fun formaterInnsendtAv(agent: Agent?): String? {

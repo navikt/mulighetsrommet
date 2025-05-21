@@ -1,4 +1,9 @@
-import { compareByKey, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
+import {
+  compareByKey,
+  formaterNavEnheter,
+  formaterPeriodeSlutt,
+  formaterPeriodeStart,
+} from "@/utils/Utils";
 import { UtbetalingDto, AdminUtbetalingStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
@@ -74,6 +79,7 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
           <TableColumnHeader sortKey="periodeSlutt" sortable>
             {utbetalingTekster.periode.slutt.label}
           </TableColumnHeader>
+          <Table.ColumnHeader>Kostnadssteder</Table.ColumnHeader>
           <TableColumnHeader sortKey="belop" sortable align="right">
             {utbetalingTekster.beregning.belop.label}
           </TableColumnHeader>
@@ -84,11 +90,26 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(({ beregning, periode, id, status }) => {
+        {sortedData.map(({ beregning, periode, id, status, kostnadssteder }) => {
           return (
             <Table.Row key={id}>
               <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
               <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
+              <Table.DataCell
+                aria-label={`Kostnadssteder: ${kostnadssteder
+                  .map((kostnadssted) => kostnadssted.navn)
+                  .join(", ")}`}
+                title={`Kostnadssteder: ${kostnadssteder
+                  .map((kostnadssted) => kostnadssted.navn)
+                  .join(", ")}`}
+              >
+                {formaterNavEnheter(
+                  kostnadssteder.map((kostnadssted) => ({
+                    navn: kostnadssted.navn,
+                    enhetsnummer: kostnadssted.enhetsnummer,
+                  })),
+                )}
+              </Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <UtbetalingStatusTag status={status} />

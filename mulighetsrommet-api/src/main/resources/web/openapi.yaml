@@ -5977,7 +5977,11 @@ components:
           type: string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
-      required: [id, status, periode, beregning, createdAt, tilskuddstype]
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+      required: [id, status, periode, beregning, createdAt, tilskuddstype, kostnadssteder]
 
     DeltakerForKostnadsfordeling:
       type: object
