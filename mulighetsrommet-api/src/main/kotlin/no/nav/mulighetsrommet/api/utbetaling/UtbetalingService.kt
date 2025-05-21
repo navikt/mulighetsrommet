@@ -308,7 +308,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.get(request.utbetalingId)
             ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
 
-        UtbetalingValidator.validateOpprettDelutbetalinger(
+        val delutbetalinger = UtbetalingValidator.validateOpprettDelutbetalinger(
             utbetaling,
             request.delutbetalinger.map { req ->
                 val previous = queries.delutbetaling.get(req.id)
@@ -322,11 +322,8 @@ class UtbetalingService(
                 )
             },
         )
-            .onLeft { return ValidationError(errors = it).left() }
-            .onRight {
-                it.forEach {
-                    upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
-                }
+            .getOrElse {
+                return@opprettDelutbetalinger ValidationError(errors = it).left()
             }
 
         // Slett de som ikke er med i requesten
@@ -338,6 +335,10 @@ class UtbetalingService(
                 }
                 queries.delutbetaling.delete(it.id)
             }
+
+        delutbetalinger.forEach {
+            upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
+        }
 
         logEndring(
             "Utbetaling sendt til godkjenning",
