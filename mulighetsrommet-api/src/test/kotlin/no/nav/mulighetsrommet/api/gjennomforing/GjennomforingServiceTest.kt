@@ -62,7 +62,7 @@ class GjennomforingServiceTest : FunSpec({
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request
 
-            every { validator.validate(gjennomforing.toDbo(), any()) } returns listOf(
+            every { validator.validate(any(), any()) } returns listOf(
                 FieldError("navn", "Dårlig navn"),
             ).left()
 

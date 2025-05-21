@@ -14,8 +14,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.FrikobleKontaktpersonRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
@@ -386,38 +384,7 @@ data class GjennomforingRequest(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
-) {
-    fun toDbo() = GjennomforingDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstypeId,
-        avtaleId = avtaleId,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        antallPlasser = antallPlasser,
-        arrangorId = arrangorId,
-        arrangorKontaktpersoner = arrangorKontaktpersoner,
-        administratorer = administratorer,
-        navEnheter = navEnheter,
-        oppstart = oppstart,
-        kontaktpersoner = kontaktpersoner.map {
-            GjennomforingKontaktpersonDbo(
-                navIdent = it.navIdent,
-                navEnheter = it.navEnheter,
-                beskrivelse = it.beskrivelse,
-            )
-        },
-        stedForGjennomforing = stedForGjennomforing,
-        faneinnhold = faneinnhold,
-        beskrivelse = beskrivelse,
-        deltidsprosent = deltidsprosent,
-        estimertVentetidVerdi = estimertVentetid?.verdi,
-        estimertVentetidEnhet = estimertVentetid?.enhet,
-        tilgjengeligForArrangorDato = tilgjengeligForArrangorDato,
-        amoKategorisering = amoKategorisering,
-        utdanningslop = utdanningslop,
-    )
-}
+)
 
 @Serializable
 data class AvbrytRequest(
