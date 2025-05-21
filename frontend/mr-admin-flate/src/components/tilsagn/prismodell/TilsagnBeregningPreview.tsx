@@ -4,7 +4,10 @@ import { Heading, Label } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import {
+  InferredTilsagn,
+  TilsagnBeregningSchema,
+} from "@/components/tilsagn/prismodell/TilsagnSchema";
 
 interface Props {
   input: TilsagnBeregningInput;
@@ -32,10 +35,12 @@ export function TilsagnBeregningPreview(props: Props) {
   }
 
   useEffect(() => {
-    beregnTilsagn(input, {
-      onSuccess,
-      onError: (error) => onValidationError(error as ValidationError),
-    });
+    if (TilsagnBeregningSchema.safeParse(input).success) {
+      beregnTilsagn(input, {
+        onSuccess,
+        onError: (error) => onValidationError(error as ValidationError),
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [beregnTilsagn, valueOfFlattendDeps(input)]);
 

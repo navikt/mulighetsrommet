@@ -19,7 +19,7 @@ const TilsagnBeregningFriInputLinje = z.object({
     .positive({ message: "Antall må være positivt" }),
 });
 
-const TilsagnBeregningSchema = z.discriminatedUnion("type", [
+export const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("FORHANDSGODKJENT"),
     sats: z.number({
