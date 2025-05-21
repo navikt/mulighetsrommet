@@ -33,7 +33,7 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
         {prismodell === Prismodell.FORHANDSGODKJENT && (
           <ForhandsgodkjentAvtalePrismodell tiltakstype={tiltakstype.tiltakskode} />
         )}
-        {prismodell === Prismodell.FRI && <FriAvtalePrismodell />}
+        <PrisBetingelser />
       </FormGroup>
     </HGrid>
   );
@@ -154,7 +154,7 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
   );
 }
 
-function FriAvtalePrismodell() {
+function PrisBetingelser() {
   const {
     register,
     formState: { errors },
