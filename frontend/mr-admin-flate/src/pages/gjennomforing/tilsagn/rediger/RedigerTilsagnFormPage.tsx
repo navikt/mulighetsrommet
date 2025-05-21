@@ -29,7 +29,7 @@ function useRedigerTilsagnFormData() {
   return {
     avtale,
     gjennomforing,
-    aktiveTilsagn: aktiveTilsagn.data.filter((t) => t.id !== tilsagnDetaljer.data.tilsagn.id),
+    aktiveTilsagn: aktiveTilsagn.data,
     ...tilsagnDetaljer.data,
   };
 }
@@ -91,7 +91,7 @@ export function RedigerTilsagnFormPage() {
           </WhitePaddedBox>
           <WhitePaddedBox>
             <VStack gap="4">
-              <Heading size="medium">Andre aktive tilsagn</Heading>
+              <Heading size="medium">Aktive tilsagn</Heading>
               {aktiveTilsagn.length > 0 ? (
                 <TilsagnTabell tilsagn={aktiveTilsagn} />
               ) : (
