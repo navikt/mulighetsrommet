@@ -37,7 +37,7 @@ class MsGraphClientTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getNavAnsatt(id, AccessType.M2M) shouldBe EntraIdNavAnsatt(
+        client.getNavAnsatt(id, AccessType.M2M) shouldBe EntraNavAnsatt(
             entraObjectId = id,
             navIdent = NavIdent("DD123456"),
             fornavn = "Donald",

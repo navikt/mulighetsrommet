@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
-import no.nav.mulighetsrommet.api.clients.msgraph.EntraIdNavAnsatt
+import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.navansatt.api.NavAnsattFilter
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
@@ -44,7 +44,7 @@ class NavAnsattService(
         queries.ansatt.getAll(rollerContainsAll = roller)
     }
 
-    suspend fun getNavAnsattFromAzureSok(query: String): List<EntraIdNavAnsatt> {
+    suspend fun getNavAnsattFromAzureSok(query: String): List<EntraNavAnsatt> {
         return microsoftGraphClient.getNavAnsattSok(query)
     }
 
@@ -116,7 +116,7 @@ class NavAnsattService(
             }.toSet()
     }
 
-    private suspend fun toNavAnsatt(ansatt: EntraIdNavAnsatt, accessType: AccessType): NavAnsatt {
+    private suspend fun toNavAnsatt(ansatt: EntraNavAnsatt, accessType: AccessType): NavAnsatt {
         val roles = getNavAnsattRoles(ansatt.entraObjectId, accessType)
         return ansatt.toNavAnsatt(roles)
     }
@@ -128,7 +128,7 @@ class NavAnsattService(
     }
 }
 
-fun EntraIdNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
+fun EntraNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
     entraObjectId = entraObjectId,
     navIdent = navIdent,
     fornavn = fornavn,

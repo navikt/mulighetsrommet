@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
-import no.nav.mulighetsrommet.api.clients.msgraph.EntraIdNavAnsatt
+import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -41,7 +41,7 @@ class NavAnsattServiceTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    fun toAzureAdNavAnsattDto(dbo: NavAnsattDbo) = EntraIdNavAnsatt(
+    fun toAzureAdNavAnsattDto(dbo: NavAnsattDbo) = EntraNavAnsatt(
         entraObjectId = dbo.entraObjectId,
         navIdent = dbo.navIdent,
         fornavn = dbo.fornavn,
