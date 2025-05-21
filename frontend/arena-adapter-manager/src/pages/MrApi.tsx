@@ -55,14 +55,26 @@ export function MrApi() {
           task={"generate-utbetaling"}
           input={{
             type: "object",
-            required: ["dayInMonth"],
+            required: ["month"],
             properties: {
-              dayInMonth: {
-                type: "string",
-                title: "Dato i måned",
-                description:
-                  'En tilfeldig dato i måneden det skal genereres for (format: "2023-01-31")',
-                default: false,
+              month: {
+                type: "number",
+                title: "Velg måned",
+                description: "Velg måneden det skal genereres utbetaling for",
+                oneOf: [
+                  { const: 1, title: "Januar" },
+                  { const: 2, title: "Februar" },
+                  { const: 3, title: "Mars" },
+                  { const: 4, title: "April" },
+                  { const: 5, title: "Mai" },
+                  { const: 6, title: "Juni" },
+                  { const: 7, title: "Juli" },
+                  { const: 8, title: "August" },
+                  { const: 9, title: "September" },
+                  { const: 10, title: "Oktober" },
+                  { const: 11, title: "November" },
+                  { const: 12, title: "Desember" },
+                ],
               },
             },
           }}

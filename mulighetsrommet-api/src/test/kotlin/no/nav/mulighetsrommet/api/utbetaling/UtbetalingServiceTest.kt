@@ -234,7 +234,7 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
 
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1))
+            service.genererUtbetalingForMonth(1)
 
             database.run {
                 queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(0)
@@ -257,7 +257,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1))
+            val utbetaling = service.genererUtbetalingForMonth(1)
                 .shouldHaveSize(1)
                 .first()
 
@@ -296,7 +296,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.betalingsinformasjon.kid shouldBe null
@@ -308,7 +308,7 @@ class UtbetalingServiceTest : FunSpec({
                 )
             }
 
-            val sisteKrav = service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).first()
+            val sisteKrav = service.genererUtbetalingForMonth(2).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
         }
@@ -384,7 +384,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser shouldBe setOf(
@@ -478,7 +478,7 @@ class UtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.stengt shouldBe setOf(
@@ -502,7 +502,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
                 it.belop shouldBe 20975
@@ -536,14 +536,14 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).shouldHaveSize(1)
+            service.genererUtbetalingForMonth(1).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(1) }
 
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).shouldHaveSize(1)
+            service.genererUtbetalingForMonth(2).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
 
             // Februar finnes allerede så ingen nye
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).shouldHaveSize(0)
+            service.genererUtbetalingForMonth(2).shouldHaveSize(0)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
         }
 
@@ -568,7 +568,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)

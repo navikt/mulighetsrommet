@@ -70,7 +70,9 @@ class UtbetalingService(
 
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
-    suspend fun genererUtbetalingForMonth(date: LocalDate): List<Utbetaling> = db.transaction {
+    suspend fun genererUtbetalingForMonth(month: Int): List<Utbetaling> = db.transaction {
+        val currentYear = LocalDate.now().year
+        val date = LocalDate.of(currentYear, month, 1)
         val periode = Periode.forMonthOf(date)
 
         getGjennomforingerForGenereringAvUtbetalinger(periode)

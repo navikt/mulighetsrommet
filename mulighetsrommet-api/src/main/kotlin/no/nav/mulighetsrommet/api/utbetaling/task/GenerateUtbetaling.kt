@@ -29,12 +29,12 @@ class GenerateUtbetaling(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
         .executeSuspend { _, _ ->
-            val dayInPreviousMonth = LocalDate.now().minusMonths(1)
-            runTask(dayInPreviousMonth)
+            val month = LocalDate.now().minusMonths(1).month.value
+            runTask(month)
         }
 
-    suspend fun runTask(dayInMonth: LocalDate) {
+    suspend fun runTask(month: Int) {
         if (config.disabled) return
-        utbetalingService.genererUtbetalingForMonth(dayInMonth)
+        utbetalingService.genererUtbetalingForMonth(month)
     }
 }
