@@ -104,6 +104,16 @@ val ApplicationConfigDev = AppConfig(
                 rolle = Rolle.SAKSBEHANDLER_OKONOMI,
             ),
             EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_attestant-utbetaling",
+                rolle = Rolle.ATTESTANT_UTBETALING,
+            ),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "f2d4a628-c17d-4ae0-b720-0abf9add8c30".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_beslutter-tilsagn",
+                rolle = Rolle.BESLUTTER_TILSAGN,
+            ),
+            EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "1edfb41e-8689-4c97-8e65-e3450cb06b43".toUUID(),
                 kommentar = "0200-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
