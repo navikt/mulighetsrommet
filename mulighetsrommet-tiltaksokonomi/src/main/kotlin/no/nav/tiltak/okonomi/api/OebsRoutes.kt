@@ -10,7 +10,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.tiltak.okonomi.api.serializers.OebsLocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.tiltak.okonomi.plugins.AuthProvider
 import no.nav.tiltak.okonomi.service.OkonomiService
 import java.time.LocalDateTime
@@ -66,7 +66,7 @@ fun Routing.oebsRoutes(
 @Serializable
 data class OebsBestillingKvittering(
     val bestillingsNummer: String,
-    @Serializable(with = OebsLocalDateTimeSerializer::class)
+    @Serializable(with = LocalDateTimeSerializer::class)
     val opprettelsesTidspunkt: LocalDateTime,
     val statusOebs: String? = null,
     val feilMelding: String? = null,
@@ -80,7 +80,7 @@ data class OebsBestillingKvittering(
 @Serializable
 data class OebsFakturaKvittering(
     val fakturaNummer: String,
-    @Serializable(with = OebsLocalDateTimeSerializer::class)
+    @Serializable(with = LocalDateTimeSerializer::class)
     val opprettelsesTidspunkt: LocalDateTime,
     val statusOebs: String? = null,
     val feilMelding: String? = null,

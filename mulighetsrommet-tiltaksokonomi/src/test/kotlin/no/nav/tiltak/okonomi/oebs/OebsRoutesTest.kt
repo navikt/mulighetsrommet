@@ -270,7 +270,7 @@ class OebsRoutesTest : FunSpec({
                         [{
                             "bestillingsNummer": "999",
                             "statusOebs": "Godkjent",
-                            "opprettelsesTidspunkt": "2023-01-01 09:33:16"
+                            "opprettelsesTidspunkt": "2023-01-01T09:33:16"
                         }]
                     """.trimIndent(),
                 )
@@ -296,7 +296,7 @@ class OebsRoutesTest : FunSpec({
                         [{
                             "bestillingsNummer": "${bestilling.bestillingsnummer}",
                             "statusOebs": "Godkjent",
-                            "opprettelsesTidspunkt": "2023-01-01 09:33:16",
+                            "opprettelsesTidspunkt": "2012-04-23T18:25:43.511",
                             "foo": "2023-01-01 09:33:16",
                             "bar": {
                                 "baz": true
