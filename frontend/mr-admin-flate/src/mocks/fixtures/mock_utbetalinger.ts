@@ -12,6 +12,7 @@ import {
   UtbetalingDto,
   UtbetalingLinje,
 } from "@mr/api-client-v2";
+import { mockEnheter } from "./mock_enheter";
 
 export const mockUtbetalinger: UtbetalingDto[] = [
   {
@@ -34,6 +35,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z123456",
     journalpostId: "JP123456",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
@@ -55,6 +57,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Arrangør",
     journalpostId: "JP123457",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
@@ -76,6 +79,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "129e4567-e89b-12d3-a456-426614174002",
@@ -97,6 +101,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "130e4567-e89b-12d3-a456-426614174002",
@@ -118,6 +123,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
 ];
 
