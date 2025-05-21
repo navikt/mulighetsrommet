@@ -1,7 +1,7 @@
 import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
-import { Button, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -101,17 +101,19 @@ function BeregningInputLinjerSkjema() {
           {...register(`beregning.linjer.${index}.id`)}
           defaultValue={item.id}
         />
-        <Button
-          className="mt-7"
-          size="small"
-          variant="danger"
-          icon={<TrashIcon title="Slett linje" />}
-          onClickCapture={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            remove(index);
-          }}
-        />
+        <Tooltip content={`Slett linje ${index + 1}`}>
+          <Button
+            className="mt-7"
+            size="small"
+            variant="danger"
+            icon={<TrashIcon aria-hidden />}
+            onClickCapture={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              remove(index);
+            }}
+          />
+        </Tooltip>
       </div>
     </HStack>
   ));
