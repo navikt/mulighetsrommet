@@ -36,6 +36,26 @@ export const tilsagnTekster = {
     prisbetingelser: {
       label: "Pris- og betalingsbetingelser",
     },
+    input: {
+      label: "Utregning",
+      linjer: {
+        rad: {
+          label: "Rad",
+        },
+        beskrivelse: {
+          label: "Beskrivelse",
+        },
+        belop: {
+          label: "Beløp",
+        },
+        antall: {
+          label: "Antall",
+        },
+        delsum: {
+          label: "Delsum",
+        },
+      },
+    },
   },
   totrinn: {
     behandletAv: "Behandlet av",

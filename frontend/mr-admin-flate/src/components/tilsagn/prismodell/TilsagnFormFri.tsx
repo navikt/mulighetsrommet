@@ -6,6 +6,7 @@ import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/Tilsagn
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TrashIcon } from "@navikt/aksel-icons";
+import { TilsagnBeregningTable } from "./TilsagnBeregningTable";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -59,6 +60,9 @@ function BeregningInputLinjerSkjema() {
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
   const linjer = fields.map((item, index) => (
     <HStack gap="4" key={item.id}>
+      <div className="mt-7">
+        <b>{index + 1}</b>
+      </div>
       <Textarea
         className="flex-1"
         size="small"
@@ -135,13 +139,17 @@ function BeregningOutputPreview() {
   const { watch } = useFormContext<FriTilsagn>();
 
   const values = watch();
+  const linjer = values.beregning?.linjer || [];
   return (
-    <TilsagnBeregningPreview
-      input={{
-        type: "FRI",
-        linjer: values.beregning?.linjer || [],
-        prisbetingelser: values.beregning?.prisbetingelser,
-      }}
-    />
+    <>
+      <TilsagnBeregningPreview
+        input={{
+          type: "FRI",
+          linjer: linjer,
+          prisbetingelser: values.beregning?.prisbetingelser,
+        }}
+        children={<TilsagnBeregningTable linjer={linjer} medRadnummer />}
+      />
+    </>
   );
 }

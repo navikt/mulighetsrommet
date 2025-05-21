@@ -1,5 +1,6 @@
 import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { TilsagnBeregningTable } from "@/components/tilsagn/prismodell/TilsagnBeregningTable";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnAarsakTilTekst } from "@/utils/Utils";
@@ -40,7 +41,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
         align="start"
         justify={{ sm: "space-between", lg: "start" }}
       >
-        <HStack gap={{ sm: "24", lg: "8", xl: "32" }} className="mb-6 lg:m-0">
+        <HStack gap={{ sm: "24", lg: "8", xl: "0 32" }} className="mb-6 lg:m-0 flex-1">
           <VStack gap="6">
             <MetadataHorisontal
               header={tilsagnTekster.bestillingsnummer.label}
@@ -83,8 +84,14 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
               />
             )}
           </VStack>
+          {beregning.type === "FRI" && beregning.input.prisbetingelser && (
+            <PrisbetingelserFriModell
+              tilsagnStatus={tilsagn.status}
+              prisbetingelser={beregning.input.prisbetingelser}
+            />
+          )}
         </HStack>
-        <VStack gap="6" justify="start" className=" lg:border-l-1 border-gray-300 lg:px-4">
+        <VStack gap="6" className=" lg:border-l-1 border-gray-300 lg:px-4 flex-1">
           <MetadataHorisontal
             header={tilsagnTekster.status.label}
             verdi={<TilsagnTag visAarsakerOgForklaring status={status} />}
@@ -111,14 +118,9 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             header={tilsagnTekster.belopGjenstaende.label}
             verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
+          {beregning.type === "FRI" && <BeregningFriModell tilsagn={tilsagn} />}
         </VStack>
       </HStack>
-      {beregning.type === "FRI" && beregning.input.prisbetingelser && (
-        <PrisbetingelserFriModell
-          tilsagnStatus={tilsagn.status}
-          prisbetingelser={beregning.input.prisbetingelser}
-        />
-      )}
     </>
   );
 }
@@ -139,24 +141,51 @@ function PrisbetingelserFriModell({
   const style = startOpenForStatus ? { backgroundColor: "var(--a-surface-warning-subtle)" } : {};
 
   return (
-    <div className="mt-8 mb-4">
-      <ExpansionCard
-        size="small"
-        style={style}
-        aria-label={tilsagnTekster.beregning.prisbetingelser.label}
-        defaultOpen={startOpenForStatus}
-      >
-        <ExpansionCard.Header>
-          <ExpansionCard.Title size="small">
-            {tilsagnTekster.beregning.prisbetingelser.label}
-          </ExpansionCard.Title>
-        </ExpansionCard.Header>
-        <ExpansionCard.Content>
-          {paragraphs.map((i) => (
-            <p key={i}>{i}</p>
-          ))}
-        </ExpansionCard.Content>
-      </ExpansionCard>
-    </div>
+    <ExpansionCard
+      size="small"
+      style={style}
+      aria-label={tilsagnTekster.beregning.prisbetingelser.label}
+      defaultOpen={startOpenForStatus}
+      className="mt-6 flex-1"
+    >
+      <ExpansionCard.Header>
+        <ExpansionCard.Title size="small">
+          {tilsagnTekster.beregning.prisbetingelser.label}
+        </ExpansionCard.Title>
+      </ExpansionCard.Header>
+      <ExpansionCard.Content>
+        {paragraphs.map((i) => (
+          <p key={i}>{i}</p>
+        ))}
+      </ExpansionCard.Content>
+    </ExpansionCard>
+  );
+}
+
+interface BeregningFriModellProps {
+  tilsagn: TilsagnDto;
+}
+function BeregningFriModell({ tilsagn }: BeregningFriModellProps) {
+  const startOpenForStatus = [TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT].includes(
+    tilsagn.status,
+  );
+  if (tilsagn.beregning.type !== "FRI") {
+    return null;
+  }
+  return (
+    <ExpansionCard
+      size="small"
+      aria-label={tilsagnTekster.beregning.input.label}
+      defaultOpen={startOpenForStatus}
+    >
+      <ExpansionCard.Header>
+        <ExpansionCard.Title size="small">
+          {tilsagnTekster.beregning.input.label}
+        </ExpansionCard.Title>
+      </ExpansionCard.Header>
+      <ExpansionCard.Content>
+        <TilsagnBeregningTable linjer={tilsagn.beregning.input.linjer} />
+      </ExpansionCard.Content>
+    </ExpansionCard>
   );
 }
