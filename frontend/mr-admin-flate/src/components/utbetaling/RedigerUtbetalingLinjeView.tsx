@@ -4,7 +4,6 @@ import {
   DelutbetalingRequest,
   FieldError,
   OpprettDelutbetalingerRequest,
-  Prismodell,
   TilsagnDto,
   TilsagnStatus,
   TilsagnType,
@@ -21,6 +20,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -51,13 +51,14 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
 
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
+  const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
+
   function opprettEkstraTilsagn() {
     const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
     const defaultBelop = tilsagn.length === 0 ? utbetaling.beregning.belop : 0;
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
-        `?type=${tilsagnType(utbetaling.tilskuddstype)}` +
-        `&prismodell=${Prismodell.FRI}` +
+        `?type=${tilsagnsTypeFraTilskudd}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${formaterDatoSomYYYYMMDD(subtractDays(utbetaling.periode.slutt, 1))}` +
@@ -123,7 +124,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
             </ActionMenu.Trigger>
             <ActionMenu.Content>
               <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-                Opprett tilsagn
+                Opprett {avtaletekster.tilsagn.type(tilsagnsTypeFraTilskudd).toLowerCase()}
               </ActionMenu.Item>
               <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
                 Hent godkjente tilsagn
