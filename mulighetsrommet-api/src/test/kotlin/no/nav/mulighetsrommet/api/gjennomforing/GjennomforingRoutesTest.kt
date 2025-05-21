@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingRoutesTest : FunSpec({
@@ -298,8 +297,8 @@ class GjennomforingRoutesTest : FunSpec({
     }
 
     context("avbryt gjennomføring") {
-        val avsluttetGjennomforingId = UUID.randomUUID()
         val aktivGjennomforingId = UUID.randomUUID()
+        val avsluttetGjennomforingId = UUID.randomUUID()
 
         val domain = MulighetsrommetTestDomain(
             ansatte = listOf(ansatt),
@@ -309,18 +308,14 @@ class GjennomforingRoutesTest : FunSpec({
                     id = aktivGjennomforingId,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now(),
+                    status = GjennomforingStatus.GJENNOMFORES,
                 ),
                 GjennomforingFixtures.Oppfolging1.copy(
                     id = avsluttetGjennomforingId,
+                    status = GjennomforingStatus.AVSLUTTET,
                 ),
             ),
-        ) {
-            queries.gjennomforing.setAvsluttet(
-                avsluttetGjennomforingId,
-                LocalDateTime.now(),
-                AvbruttAarsak.Feilregistrering,
-            )
-        }
+        )
 
         beforeAny {
             domain.initialize(database.db)

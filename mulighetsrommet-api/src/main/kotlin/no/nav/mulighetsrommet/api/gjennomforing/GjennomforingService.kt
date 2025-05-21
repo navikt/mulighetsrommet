@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingStatusMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -46,10 +47,15 @@ class GjennomforingService(
     suspend fun upsert(
         request: GjennomforingRequest,
         navIdent: NavIdent,
+        today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, GjennomforingDto> = either {
         val previous = get(request.id)
 
-        val dbo = validator.validate(toDbo(request), previous)
+        val status = previous?.status?.status ?: GjennomforingStatusMapper.fromSluttDato(
+            sluttDato = request.sluttDato,
+            today = today,
+        )
+        val dbo = validator.validate(toDbo(request, status), previous)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)
@@ -171,10 +177,18 @@ class GjennomforingService(
     fun setAvsluttet(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
-        avsluttetAarsak: AvbruttAarsak?,
+        avbruttAarsak: AvbruttAarsak?,
         endretAv: Agent,
     ): Unit = db.transaction {
-        queries.gjennomforing.setAvsluttet(id, avsluttetTidspunkt, avsluttetAarsak)
+        val gjennomforing = getOrError(id)
+        val status = GjennomforingStatusMapper.fromAvsluttetTidspunkt(
+            startDato = gjennomforing.startDato,
+            sluttDato = gjennomforing.sluttDato,
+            avsluttetTidspunkt = avsluttetTidspunkt,
+        )
+        queries.gjennomforing.setStatus(id, status, avsluttetTidspunkt, avbruttAarsak)
+        queries.gjennomforing.setPublisert(id, false)
+        queries.gjennomforing.setApentForPamelding(id, false)
 
         val dto = getOrError(id)
         val operation = when (dto.status.status) {
@@ -319,7 +333,7 @@ class GjennomforingService(
     }
 }
 
-private fun toDbo(request: GjennomforingRequest) = request.run {
+private fun toDbo(request: GjennomforingRequest, status: GjennomforingStatus) = request.run {
     GjennomforingDbo(
         id = id,
         navn = navn,
@@ -327,6 +341,7 @@ private fun toDbo(request: GjennomforingRequest) = request.run {
         avtaleId = avtaleId,
         startDato = startDato,
         sluttDato = sluttDato,
+        status = status,
         antallPlasser = antallPlasser,
         arrangorId = arrangorId,
         arrangorKontaktpersoner = arrangorKontaktpersoner,

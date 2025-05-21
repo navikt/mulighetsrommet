@@ -106,7 +106,7 @@ class GjennomforingValidator(
             } ?: false
 
             if (!avtaleHasArrangor) {
-                add(FieldError.of(GjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
+                add(FieldError.of(GjennomforingDbo::arrangorId, "Du må velge en arrangør fra avtalen"))
             }
 
             if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
@@ -297,6 +297,15 @@ class GjennomforingValidator(
                 FieldError.of(
                     GjennomforingDbo::avtaleId,
                     "Avtalen må være aktiv for å kunne opprette tiltak",
+                ),
+            )
+        }
+
+        if (gjennomforing.status != GjennomforingStatus.GJENNOMFORES) {
+            add(
+                FieldError.of(
+                    GjennomforingDbo::status,
+                    "Gjennomføringen kan ikke opprettes med status ${gjennomforing.status}",
                 ),
             )
         }

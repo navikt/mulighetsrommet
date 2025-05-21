@@ -42,16 +42,19 @@ class UpdateGjennomforingStatusTest : FunSpec({
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 12, 31),
+            status = GJENNOMFORES,
         )
         val gjennomforing2 = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
+            status = GJENNOMFORES,
         )
         val gjennomforing3 = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
+            status = GJENNOMFORES,
         )
         val domain = MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
@@ -160,22 +163,25 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
         test("forsøker ikke å avslutte gjennomføringer som allerede er avsluttet, avlyst eller avbrutt") {
             database.run {
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing1.id,
-                    LocalDate.of(2024, 1, 1).atStartOfDay(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing1.id,
+                    status = AVSLUTTET,
+                    tidspunkt = LocalDate.of(2024, 1, 1).atStartOfDay(),
+                    aarsak = null,
                 )
 
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing2.id,
-                    LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing2.id,
+                    status = AVLYST,
+                    tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
+                    aarsak = AvbruttAarsak.Feilregistrering,
                 )
 
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing3.id,
-                    LocalDate.of(2023, 1, 1).atStartOfDay(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing3.id,
+                    status = AVBRUTT,
+                    tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
+                    aarsak = AvbruttAarsak.ForFaaDeltakere,
                 )
             }
 
@@ -193,7 +199,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.status.shouldBe(AVBRUTT)
-                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
+                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.ForFaaDeltakere)
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()

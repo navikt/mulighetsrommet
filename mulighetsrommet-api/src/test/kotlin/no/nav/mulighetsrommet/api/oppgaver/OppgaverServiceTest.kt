@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.Oppgave
@@ -557,14 +558,12 @@ class OppgaverServiceTest : FunSpec({
                     AFT1.copy(administratorer = listOf()),
                     AFT1.copy(
                         id = avsluttetGjennomforing,
+                        status = GjennomforingStatus.AVSLUTTET,
                         administratorer = listOf(),
-                        sluttDato = LocalDate.now().minusDays(2),
                     ),
                     AFT1.copy(id = UUID.randomUUID(), administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent)),
                 ),
-            ) {
-                queries.gjennomforing.setAvsluttet(avsluttetGjennomforing, LocalDateTime.now(), null)
-            }.initialize(database.db)
+            ).initialize(database.db)
 
             val service = OppgaverService(database.db)
 

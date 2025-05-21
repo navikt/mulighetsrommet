@@ -17,10 +17,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -179,6 +176,24 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
+    test("kan ikke bare opprettes med status GJENNOMFORES") {
+        val gjennomfores = gjennomforing.copy(status = GjennomforingStatus.GJENNOMFORES)
+        val avsluttet = gjennomforing.copy(status = GjennomforingStatus.AVSLUTTET)
+        val avbrutt = gjennomforing.copy(status = GjennomforingStatus.AVBRUTT)
+        val avlyst = gjennomforing.copy(status = GjennomforingStatus.AVLYST)
+
+        createValidator().validate(gjennomfores, null).shouldBeRight()
+        createValidator().validate(avsluttet, null).shouldBeLeft(
+            listOf(FieldError("/status", "Gjennomføringen kan ikke opprettes med status AVSLUTTET")),
+        )
+        createValidator().validate(avbrutt, null).shouldBeLeft(
+            listOf(FieldError("/status", "Gjennomføringen kan ikke opprettes med status AVBRUTT")),
+        )
+        createValidator().validate(avlyst, null).shouldBeLeft(
+            listOf(FieldError("/status", "Gjennomføringen kan ikke opprettes med status AVLYST")),
+        )
+    }
+
     test("skal returnere en ny verdi for 'tilgjengelig for arrangør'-dato når datoen er utenfor gyldig tidsrom") {
         val startDato = LocalDate.now().plusMonths(1)
         val dbo = gjennomforing.copy(startDato = startDato)
@@ -287,7 +302,7 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should validate fields in the gjennomføring and fields related to the avtale") {
+    test("validerer at datafelter i gjennomføring i henhold til data i avtalen") {
         forAll(
             row(
                 gjennomforing.copy(
@@ -318,14 +333,14 @@ class GjennomforingValidatorTest : FunSpec({
             ),
             row(
                 gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-                listOf(FieldError("/arrangorId", "Du må velge en arrangør for avtalen")),
+                listOf(FieldError("/arrangorId", "Du må velge en arrangør fra avtalen")),
             ),
         ) { input, error ->
             createValidator().validate(input, null).shouldBeLeft(error)
         }
     }
 
-    context("when gjennomføring already exists") {
+    context("når gjennonmføring allerede eksisterer") {
         beforeEach {
             database.run { queries.gjennomforing.upsert(gjennomforing.copy(administratorer = listOf())) }
         }
@@ -345,7 +360,7 @@ class GjennomforingValidatorTest : FunSpec({
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
             val previous = database.run { queries.gjennomforing.get(gjennomforing.id) }
 
-            validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous)
+            validator.validate(gjennomforing.copy(startDato = avtaleStartDato.plusDays(5)), previous)
                 .shouldBeRight()
             validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous)
                 .shouldBeLeft(
@@ -389,12 +404,13 @@ class GjennomforingValidatorTest : FunSpec({
             validator.validate(gjennomforing, previous).shouldBeRight()
         }
 
-        test("should fail when is avbrutt") {
+        test("skal feile når gjennomføring er avbrutt") {
             val previous = database.run {
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing.id,
-                    LocalDateTime.now(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing.id,
+                    status = GjennomforingStatus.AVBRUTT,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsak = AvbruttAarsak.Feilregistrering,
                 )
                 queries.gjennomforing.get(gjennomforing.id)
             }
@@ -404,10 +420,14 @@ class GjennomforingValidatorTest : FunSpec({
             )
         }
 
-        test("should fail when is avsluttet") {
+        test("skal feile når gjennomføring er avsluttet") {
             val previous = database.run {
-                queries.gjennomforing.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
-                queries.gjennomforing.setAvsluttet(gjennomforing.id, LocalDateTime.now(), null)
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing.id,
+                    status = GjennomforingStatus.AVSLUTTET,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsak = null,
+                )
                 queries.gjennomforing.get(gjennomforing.id)
             }
 

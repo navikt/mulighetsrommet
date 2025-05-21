@@ -21,14 +21,10 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    gjennomforing.navn,
                    gjennomforing.start_dato,
                    gjennomforing.slutt_dato,
+                   gjennomforing.status,
                    gjennomforing.tiltaksnummer,
                    gjennomforing.created_at     as opprettet_tidspunkt,
                    gjennomforing.updated_at     as oppdatert_tidspunkt,
-                   tiltaksgjennomforing_status(
-                           gjennomforing.start_dato,
-                           gjennomforing.slutt_dato,
-                           gjennomforing.avsluttet_tidspunkt
-                   )                            as status,
                    tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
                    avtale.id                    as avtale_id,
                    avtale.navn                  as avtale_navn,
