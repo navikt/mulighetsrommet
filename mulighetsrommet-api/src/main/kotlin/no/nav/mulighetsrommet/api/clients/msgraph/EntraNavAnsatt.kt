@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
-data class EntraIdNavAnsatt(
+data class EntraNavAnsatt(
     @Serializable(with = UUIDSerializer::class)
     val entraObjectId: UUID,
     val navIdent: NavIdent,
