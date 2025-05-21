@@ -55,7 +55,7 @@ function useTilsagnDetaljer() {
     gjennomforing,
     historikk,
     ...tilsagnDetaljer,
-    aktiveTilsagn: aktiveTilsagn?.filter((x) => x.id !== tilsagnDetaljer.tilsagn.id),
+    aktiveTilsagn,
   };
 }
 
@@ -480,7 +480,7 @@ export function TilsagnPage() {
         </VStack>
       </ContentBox>
       <VStack padding="4" className="bg-white">
-        <Heading size="medium">Andre aktive tilsagn</Heading>
+        <Heading size="medium">Aktive tilsagn</Heading>
         {aktiveTilsagn.length > 0 ? (
           <TilsagnTabell tilsagn={aktiveTilsagn} />
         ) : (
