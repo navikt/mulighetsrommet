@@ -7,7 +7,7 @@ import java.util.*
 
 fun MockOAuth2Server.createRequestWithAnsattClaims(
     ansatt: NavAnsattDbo,
-    roles: Set<AdGruppeNavAnsattRolleMapping>,
+    roles: Set<EntraGroupNavAnsattRolleMapping>,
 ): (HttpRequestBuilder) -> Unit = { request: HttpRequestBuilder ->
     val claims = getAnsattClaims(ansatt, roles)
     request.bearerAuth(issueToken(claims = claims).serialize())
@@ -15,12 +15,12 @@ fun MockOAuth2Server.createRequestWithAnsattClaims(
 
 fun getAnsattClaims(
     ansatt: NavAnsattDbo,
-    roles: Set<AdGruppeNavAnsattRolleMapping>,
+    roles: Set<EntraGroupNavAnsattRolleMapping>,
 ): Map<String, Any> {
     return mapOf(
         "NAVident" to ansatt.navIdent.value,
         "oid" to ansatt.entraObjectId,
         "uti" to UUID.randomUUID().toString(),
-        "groups" to roles.map { it.adGruppeId.toString() },
+        "groups" to roles.map { it.entraGroupId.toString() },
     )
 }

@@ -5,8 +5,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraIdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.navansatt.api.NavAnsattFilter
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class NavAnsattService(
-    private val roles: Set<AdGruppeNavAnsattRolleMapping>,
+    private val roles: Set<EntraGroupNavAnsattRolleMapping>,
     private val db: ApiDatabase,
     private val microsoftGraphClient: MsGraphClient,
 ) {
@@ -53,7 +53,7 @@ class NavAnsattService(
     }
 
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
-        val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.adGruppeId
+        val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.entraGroupId
         requireNotNull(kontaktPersonGruppeId)
 
         val ansatt = getOrSynchronizeNavAnsatt(navIdent, AccessType.M2M)
@@ -104,7 +104,7 @@ class NavAnsattService(
     }
 
     fun getNavAnsattRolesFromGroups(groups: List<UUID>): Set<NavAnsattRolle> {
-        val rolesDirectory = roles.groupBy { it.adGruppeId }
+        val rolesDirectory = roles.groupBy { it.entraGroupId }
 
         return groups
             .flatMap { rolesDirectory[it] ?: emptyList() }

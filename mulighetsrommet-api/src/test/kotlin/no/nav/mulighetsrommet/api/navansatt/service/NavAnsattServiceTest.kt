@@ -8,7 +8,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraIdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -57,22 +57,22 @@ class NavAnsattServiceTest : FunSpec({
 
     val adGruppeGenerell = UUID.randomUUID()
     val rolleGenerell = NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)
-    val rolleMappingGenerell = AdGruppeNavAnsattRolleMapping(
-        adGruppeId = adGruppeGenerell,
+    val rolleMappingGenerell = EntraGroupNavAnsattRolleMapping(
+        entraGroupId = adGruppeGenerell,
         rolle = rolleGenerell.rolle,
     )
 
     val adGruppeKontaktperson = UUID.randomUUID()
     val rolleKontaktperson = NavAnsattRolle.generell(KONTAKTPERSON)
-    val rolleMappingKontaktperson = AdGruppeNavAnsattRolleMapping(
-        adGruppeId = adGruppeKontaktperson,
+    val rolleMappingKontaktperson = EntraGroupNavAnsattRolleMapping(
+        entraGroupId = adGruppeKontaktperson,
         rolle = rolleKontaktperson.rolle,
     )
 
     val msGraph = mockk<MsGraphClient>()
 
     fun createNavAnsattService(
-        roles: Set<AdGruppeNavAnsattRolleMapping>,
+        roles: Set<EntraGroupNavAnsattRolleMapping>,
     ) = NavAnsattService(
         roles = roles,
         db = database.db,
@@ -129,8 +129,8 @@ class NavAnsattServiceTest : FunSpec({
 
         test("should resolve Nav-enhet from the mapping") {
             val adGruppeBeslutterOslo = UUID.randomUUID()
-            val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
-                adGruppeId = adGruppeBeslutterOslo,
+            val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
+                entraGroupId = adGruppeBeslutterOslo,
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0387")),
             )
@@ -158,14 +158,14 @@ class NavAnsattServiceTest : FunSpec({
             ).initialize(database.db)
 
             val adGruppeBeslutterInnlandet = UUID.randomUUID()
-            val rolleBeslutterInnlandet = AdGruppeNavAnsattRolleMapping(
-                adGruppeId = adGruppeBeslutterInnlandet,
+            val rolleBeslutterInnlandet = EntraGroupNavAnsattRolleMapping(
+                entraGroupId = adGruppeBeslutterInnlandet,
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0400")),
             )
             val adGruppeBeslutterOslo = UUID.randomUUID()
-            val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
-                adGruppeId = adGruppeBeslutterOslo,
+            val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
+                entraGroupId = adGruppeBeslutterOslo,
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0300")),
             )
@@ -195,13 +195,13 @@ class NavAnsattServiceTest : FunSpec({
 
         test("should support both generell rolle and rolle for Nav-enhet") {
             val adGruppeBeslutterGenerell = UUID.randomUUID()
-            val rolleBeslutterGenerell = AdGruppeNavAnsattRolleMapping(
-                adGruppeId = adGruppeBeslutterGenerell,
+            val rolleBeslutterGenerell = EntraGroupNavAnsattRolleMapping(
+                entraGroupId = adGruppeBeslutterGenerell,
                 rolle = Rolle.BESLUTTER_TILSAGN,
             )
             val adGruppeBeslutterOslo = UUID.randomUUID()
-            val rolleBeslutterOslo = AdGruppeNavAnsattRolleMapping(
-                adGruppeId = adGruppeBeslutterOslo,
+            val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
+                entraGroupId = adGruppeBeslutterOslo,
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0387")),
             )
@@ -227,8 +227,8 @@ class NavAnsattServiceTest : FunSpec({
         test("should support multiple roles from the same group") {
             val supertilgang = UUID.randomUUID()
             val roles = setOf(
-                AdGruppeNavAnsattRolleMapping(supertilgang, TILTAKADMINISTRASJON_GENERELL),
-                AdGruppeNavAnsattRolleMapping(supertilgang, KONTAKTPERSON),
+                EntraGroupNavAnsattRolleMapping(supertilgang, TILTAKADMINISTRASJON_GENERELL),
+                EntraGroupNavAnsattRolleMapping(supertilgang, KONTAKTPERSON),
             )
 
             coEvery { msGraph.getMemberGroups(ansatt1.entraObjectId, any()) } returns listOf(supertilgang)
@@ -243,8 +243,8 @@ class NavAnsattServiceTest : FunSpec({
     }
 
     context("getNavAnsatteFromAzure") {
-        coEvery { msGraph.getGroupMembers(rolleMappingGenerell.adGruppeId) } returns listOf(ansatt1, ansatt2)
-        coEvery { msGraph.getGroupMembers(rolleMappingKontaktperson.adGruppeId) } returns listOf(ansatt2)
+        coEvery { msGraph.getGroupMembers(rolleMappingGenerell.entraGroupId) } returns listOf(ansatt1, ansatt2)
+        coEvery { msGraph.getGroupMembers(rolleMappingKontaktperson.entraGroupId) } returns listOf(ansatt2)
 
         coEvery { msGraph.getMemberGroups(ansatt1.entraObjectId, any()) } returns listOf(adGruppeGenerell)
         coEvery { msGraph.getMemberGroups(ansatt2.entraObjectId, any()) } returns listOf(
@@ -276,7 +276,7 @@ class NavAnsattServiceTest : FunSpec({
                 runBlocking {
                     val service = createNavAnsattService(groups)
 
-                    val groupIds = groups.map { it.adGruppeId }.toSet()
+                    val groupIds = groups.map { it.entraGroupId }.toSet()
                     val resolvedAnsatte = service.getNavAnsatteInGroups(groupIds)
 
                     resolvedAnsatte shouldContainExactlyInAnyOrder expectedAnsatte

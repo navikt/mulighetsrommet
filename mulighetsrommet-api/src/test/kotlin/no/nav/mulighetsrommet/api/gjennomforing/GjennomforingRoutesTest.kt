@@ -38,8 +38,8 @@ class GjennomforingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
-    val gjennomforingSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+    val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
+    val gjennomforingSkrivRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
 
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(generellRolle, gjennomforingSkrivRolle)),

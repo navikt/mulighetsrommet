@@ -40,7 +40,7 @@ fun createAuthConfig(
     oauth: MockOAuth2Server?,
     issuer: String = "default",
     audience: String = "default",
-    roles: Set<AdGruppeNavAnsattRolleMapping>,
+    roles: Set<EntraGroupNavAnsattRolleMapping>,
 ): AuthConfig = AuthConfig(
     azure = AuthProvider(
         issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,

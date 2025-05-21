@@ -69,11 +69,11 @@ data class AuthConfig(
     val azure: AuthProvider,
     val tokenx: AuthProvider,
     val maskinporten: AuthProvider,
-    val roles: Set<AdGruppeNavAnsattRolleMapping>,
+    val roles: Set<EntraGroupNavAnsattRolleMapping>,
 )
 
-data class AdGruppeNavAnsattRolleMapping(
-    val adGruppeId: UUID,
+data class EntraGroupNavAnsattRolleMapping(
+    val entraGroupId: UUID,
     val rolle: Rolle,
     val enheter: Set<NavEnhetNummer> = setOf(),
     val kommentar: String? = null,

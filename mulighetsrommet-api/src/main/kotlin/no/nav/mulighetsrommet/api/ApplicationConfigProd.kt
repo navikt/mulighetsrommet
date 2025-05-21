@@ -60,182 +60,182 @@ val ApplicationConfigProd = AppConfig(
             privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
         ),
         roles = setOf(
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = teamMulighetsrommetAdGruppeId,
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = teamMulighetsrommetAdGruppeId,
                 rolle = Rolle.TEAM_MULIGHETSROMMET,
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = teamMulighetsrommetAdGruppeId,
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = teamMulighetsrommetAdGruppeId,
                 rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
             ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = tiltaksadministrasjonAdGruppeId,
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = tiltaksadministrasjonAdGruppeId,
                 kommentar = "0000-GA-TILTAK-ANSVARLIG",
                 rolle = Rolle.TILTAKADMINISTRASJON_GENERELL,
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = kontaktpersonAdGruppeId,
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = kontaktpersonAdGruppeId,
                 kommentar = "0000-CA-Tiltaksadministrasjon_kontaktperson",
                 rolle = Rolle.KONTAKTPERSON,
             ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "33053061-86da-4d6b-9372-33238fabd25f".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "33053061-86da-4d6b-9372-33238fabd25f".toUUID(),
                 kommentar = "0000-GA-TILTAK-tiltaksgjennomforinger_skriv",
                 rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "46ba8787-eb24-4f7b-830f-4c5e9256de65".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "46ba8787-eb24-4f7b-830f-4c5e9256de65".toUUID(),
                 kommentar = "0000-GA-TILTAK-avtaler_skriv",
                 rolle = Rolle.AVTALER_SKRIV,
             ),
 
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "a54fd054-4047-46a6-be7c-f1b69f346be8".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "a54fd054-4047-46a6-be7c-f1b69f346be8".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi",
                 rolle = Rolle.SAKSBEHANDLER_OKONOMI,
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "8eb13232-5a99-4e03-8f43-059dbd368ece".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "8eb13232-5a99-4e03-8f43-059dbd368ece".toUUID(),
                 kommentar = "0200-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("0200")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "7db540e4-f2a7-4942-ab5f-dc54203a088f".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "7db540e4-f2a7-4942-ab5f-dc54203a088f".toUUID(),
                 kommentar = "0200-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0200")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "af433bab-7bf6-4ed2-81bc-e9675fb763ef".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "af433bab-7bf6-4ed2-81bc-e9675fb763ef".toUUID(),
                 kommentar = "0300-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("0300")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "fd2a78f7-934d-4abf-95af-a6ee967cbe5d".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "fd2a78f7-934d-4abf-95af-a6ee967cbe5d".toUUID(),
                 kommentar = "0300-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0300")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "edc8a889-ffc2-4813-921b-8eea4fe0fd76".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "edc8a889-ffc2-4813-921b-8eea4fe0fd76".toUUID(),
                 kommentar = "0400-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("0400")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "77b9322c-9ac7-479a-9403-ead8706b6d66".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "77b9322c-9ac7-479a-9403-ead8706b6d66".toUUID(),
                 kommentar = "0400-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0400")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "5d5bc9ae-fe49-43dc-8255-cabac857542b".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "5d5bc9ae-fe49-43dc-8255-cabac857542b".toUUID(),
                 kommentar = "0600-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("0600")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "28d01506-93e1-4390-9b8c-7885c876fc10".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "28d01506-93e1-4390-9b8c-7885c876fc10".toUUID(),
                 kommentar = "0600-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0600")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "ba86368e-d776-4909-89e5-acb5b7932428".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "ba86368e-d776-4909-89e5-acb5b7932428".toUUID(),
                 kommentar = "0800-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("0800")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "43c8bf56-5c32-41f7-8d79-017d83335dc3".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "43c8bf56-5c32-41f7-8d79-017d83335dc3".toUUID(),
                 kommentar = "0800-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("0800")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "c536c283-1407-4043-967a-d4fbf5b44bbf".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "c536c283-1407-4043-967a-d4fbf5b44bbf".toUUID(),
                 kommentar = "1000-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("1000")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "76ba924c-e029-4e69-a571-e3acc35a4d8b".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "76ba924c-e029-4e69-a571-e3acc35a4d8b".toUUID(),
                 kommentar = "1000-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("1000")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "368e20e4-12d4-4026-b852-275f356301be".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "368e20e4-12d4-4026-b852-275f356301be".toUUID(),
                 kommentar = "1100-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("1100")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "7bda4d14-01f1-49c0-85f9-c75308188331".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "7bda4d14-01f1-49c0-85f9-c75308188331".toUUID(),
                 kommentar = "1100-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("1100")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "1d2b9d34-ead6-428d-96de-6e677a77afb0".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "1d2b9d34-ead6-428d-96de-6e677a77afb0".toUUID(),
                 kommentar = "1200-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("1200")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "c9e0307d-355a-47ef-8776-132746ebbb15".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "c9e0307d-355a-47ef-8776-132746ebbb15".toUUID(),
                 kommentar = "1200-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("1200")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "b9f39ac5-6b6f-47a4-a23a-2218c46ee18d".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "b9f39ac5-6b6f-47a4-a23a-2218c46ee18d".toUUID(),
                 kommentar = "1500-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("1500")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "949db0d2-68ff-413f-87ab-39cd49ec305b".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "949db0d2-68ff-413f-87ab-39cd49ec305b".toUUID(),
                 kommentar = "1500-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("1500")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "7c11c112-f82c-4a4b-86a0-3769335599af".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "7c11c112-f82c-4a4b-86a0-3769335599af".toUUID(),
                 kommentar = "1800-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("1800")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "f576ab19-837e-4654-a252-e6ca0b62ba03".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "f576ab19-837e-4654-a252-e6ca0b62ba03".toUUID(),
                 kommentar = "1800-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("1800")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "37706a74-6b78-4719-9f63-11a2f8bfd37c".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "37706a74-6b78-4719-9f63-11a2f8bfd37c".toUUID(),
                 kommentar = "1900-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("1900")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "c2f30e37-c74c-4660-a632-37e8e8e80329".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "c2f30e37-c74c-4660-a632-37e8e8e80329".toUUID(),
                 kommentar = "1900-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("1900")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "92b61aff-7958-4fec-b0c2-604530f45ed5".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "92b61aff-7958-4fec-b0c2-604530f45ed5".toUUID(),
                 kommentar = "5700-CA-Tiltaksadministrasjon_attestant-utbetaling",
                 rolle = Rolle.ATTESTANT_UTBETALING,
                 enheter = setOf(NavEnhetNummer("5700")),
             ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "93b27697-0d6d-4f1f-bf63-2f2134bf2cca".toUUID(),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "93b27697-0d6d-4f1f-bf63-2f2134bf2cca".toUUID(),
                 kommentar = "5700-CA-Tiltaksadministrasjon_beslutter-tilsagn",
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 enheter = setOf(NavEnhetNummer("5700")),
