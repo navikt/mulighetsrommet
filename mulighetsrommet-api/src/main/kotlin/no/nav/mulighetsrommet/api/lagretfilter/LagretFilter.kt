@@ -5,20 +5,19 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
-enum class FilterDokumentType {
+enum class LagretFilterType {
     AVTALE,
     GJENNOMFORING,
     GJENNOMFORING_MODIA,
 }
 
 @Serializable
-data class LagretFilterDto(
+data class LagretFilter(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val brukerId: String,
     val navn: String,
-    val type: FilterDokumentType,
+    val type: LagretFilterType,
     val filter: JsonElement,
-    val isDefault: Boolean,
+    val isDefault: Boolean = false,
     val sortOrder: Int,
 )

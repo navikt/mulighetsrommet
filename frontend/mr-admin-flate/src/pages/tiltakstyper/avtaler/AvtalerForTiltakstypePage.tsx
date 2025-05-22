@@ -8,7 +8,7 @@ import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
-import { LagretDokumenttype } from "@mr/api-client-v2";
+import { LagretFilterType } from "@mr/api-client-v2";
 import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
@@ -21,8 +21,8 @@ export function AvtalerForTiltakstypePage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(filterAtom);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.AVTALE);
-  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.AVTALE);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.AVTALE);
+  const deleteFilterMutation = useSlettFilter();
 
   return (
     <>

@@ -11,7 +11,6 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { QueryKeys } from "./api/QueryKeys";
-import { lagreFilterAction } from "./api/lagret-filter/lagretFilterAction";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
 import { ErrorPage } from "./pages/ErrorPage";
@@ -138,7 +137,6 @@ const router = (queryClient: QueryClient) => {
             path: "avtaler",
             element: <AvtalerPage />,
             errorElement: <ErrorPage />,
-            action: lagreFilterAction(queryClient),
           },
           {
             path: "avtaler/:avtaleId",
@@ -176,7 +174,6 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/",
             element: <GjennomforingerPage />,
             errorElement: <ErrorPage />,
-            action: lagreFilterAction(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId",

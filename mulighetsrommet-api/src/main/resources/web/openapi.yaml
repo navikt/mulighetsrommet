@@ -1883,7 +1883,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LagretFilterRequest"
+              $ref: "#/components/schemas/LagretFilter"
       responses:
         204:
           description: "Lagret ok"
@@ -1904,7 +1904,7 @@ paths:
           name: dokumenttype
           description: type dokument
           schema:
-            $ref: "#/components/schemas/LagretDokumenttype"
+            $ref: "#/components/schemas/LagretFilterType"
           required: true
       responses:
         200:
@@ -1914,7 +1914,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/LagretFilterDto"
+                  $ref: "#/components/schemas/LagretFilter"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -5465,37 +5465,14 @@ components:
         - id
         - avtaleId
 
-    LagretFilterRequest:
-      type: object
-      properties:
-        id:
-          type: [string, "null"]
-          format: uuid
-        navn:
-          type: string
-        "type":
-          $ref: "#/components/schemas/LagretDokumenttype"
-        filter:
-          type: object
-        isDefault:
-          type: boolean
-        sortOrder:
-          type: number
-      required:
-        - id
-        - type
-        - navn
-        - filter
-        - sortOrder
-
-    LagretDokumenttype:
+    LagretFilterType:
       type: string
       enum:
         - AVTALE
         - GJENNOMFORING
         - GJENNOMFORING_MODIA
 
-    LagretFilterDto:
+    LagretFilter:
       type: object
       properties:
         id:
@@ -5504,7 +5481,7 @@ components:
         navn:
           type: string
         "type":
-          $ref: "#/components/schemas/LagretDokumenttype"
+          $ref: "#/components/schemas/LagretFilterType"
         filter:
           type: object
         isDefault:

@@ -13,7 +13,7 @@ import java.util.*
 
 class LagretFilterService(private val db: ApiDatabase) {
 
-    fun upsertFilter(brukerId: String, filter: LagretFilterRequest): Either<LagretFilterError, UUID> = db.session {
+    fun upsertFilter(brukerId: String, filter: LagretFilter): Either<LagretFilterError, UUID> = db.session {
         checkOwnership(filter.id, brukerId).map {
             @Language("PostgreSQL")
             val query = """
@@ -32,7 +32,7 @@ class LagretFilterService(private val db: ApiDatabase) {
                 "navn" to filter.navn,
                 "type" to filter.type.name,
                 "filter" to filter.filter.let { Json.encodeToString<JsonElement>(it) },
-                "is_default" to (filter.isDefault == true),
+                "is_default" to filter.isDefault,
                 "sort_order" to filter.sortOrder,
             )
 
@@ -44,8 +44,8 @@ class LagretFilterService(private val db: ApiDatabase) {
 
     fun getLagredeFiltereForBruker(
         brukerId: String,
-        dokumentType: FilterDokumentType,
-    ): List<LagretFilterDto> = db.session {
+        dokumentType: LagretFilterType,
+    ): List<LagretFilter> = db.session {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -57,11 +57,10 @@ class LagretFilterService(private val db: ApiDatabase) {
         val params = mapOf("brukerId" to brukerId, "dokumentType" to dokumentType.name)
 
         session.list(queryOf(query, params)) {
-            LagretFilterDto(
+            LagretFilter(
                 id = it.uuid("id"),
-                brukerId = it.string("bruker_id"),
                 navn = it.string("navn"),
-                type = FilterDokumentType.valueOf(it.string("type")),
+                type = LagretFilterType.valueOf(it.string("type")),
                 filter = Json.parseToJsonElement(it.string("filter")),
                 isDefault = it.boolean("is_default"),
                 sortOrder = it.int("sort_order"),

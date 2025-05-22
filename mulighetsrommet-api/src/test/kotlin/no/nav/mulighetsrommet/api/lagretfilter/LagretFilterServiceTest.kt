@@ -22,17 +22,17 @@ class LagretFilterServiceTest : FunSpec({
         val lagretFilterService = LagretFilterService(database.db)
 
         test("Skal kunne lagre og hente ut lagrede filter for bruker") {
-            val filter1 = LagretFilterRequest(
+            val filter1 = LagretFilter(
                 id = UUID.randomUUID(),
                 navn = "Avtalefilter for Benny",
-                type = FilterDokumentType.AVTALE,
+                type = LagretFilterType.AVTALE,
                 filter = Json.parseToJsonElement("""{"filter": "filter1"}"""),
                 sortOrder = 0,
             )
-            val filter2 = LagretFilterRequest(
+            val filter2 = LagretFilter(
                 id = UUID.randomUUID(),
                 navn = "Gjennomføringsfilter for Johnny",
-                type = FilterDokumentType.GJENNOMFORING,
+                type = LagretFilterType.GJENNOMFORING,
                 filter = Json.parseToJsonElement("""{"filter": "filter1"}"""),
                 sortOrder = 0,
             )
@@ -42,7 +42,7 @@ class LagretFilterServiceTest : FunSpec({
 
             val lagretFilterForBenny = lagretFilterService.getLagredeFiltereForBruker(
                 brukerId = bruker1Id,
-                FilterDokumentType.AVTALE,
+                LagretFilterType.AVTALE,
             )
 
             lagretFilterForBenny.shouldHaveSize(1).first().navn shouldBe "Avtalefilter for Benny"
@@ -51,15 +51,15 @@ class LagretFilterServiceTest : FunSpec({
 
             lagretFilterService.getLagredeFiltereForBruker(
                 bruker1Id,
-                FilterDokumentType.AVTALE,
+                LagretFilterType.AVTALE,
             ).shouldBeEmpty()
         }
 
         test("Skal ikke ha tilgang til andre brukere sine filtre") {
-            val filter1 = LagretFilterRequest(
+            val filter1 = LagretFilter(
                 id = UUID.randomUUID(),
                 navn = "Avtalefilter for Benny",
-                type = FilterDokumentType.AVTALE,
+                type = LagretFilterType.AVTALE,
                 filter = Json.parseToJsonElement("""{"filter": "filter1"}"""),
                 sortOrder = 0,
             )
