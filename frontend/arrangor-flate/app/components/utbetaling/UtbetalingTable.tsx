@@ -113,7 +113,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                     ].includes(status) ? (
                       <Link
                         as={ReactRouterLink}
-                        aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
+                        aria-label={`Start innsending for krav om utbetaling for ${gjennomforing.navn}`}
                         to={internalNavigation(orgnr).innsendingsinformasjon(id)}
                       >
                         Start innsending

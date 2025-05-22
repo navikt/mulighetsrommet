@@ -33,7 +33,7 @@ export default function UtbetalingLayout() {
 
   return (
     <VStack gap="4" width="100%" className="bg-bg-subtle flex-1 px-10 pt-4 pb-10">
-      <Link as={ReactRouterLink} to={internalNavigation(orgnr).utbetalinger}>
+      <Link as={ReactRouterLink} to={internalNavigation(orgnr).utbetalinger} className="max-w-max">
         <ChevronLeftIcon /> Tilbake til oversikt
       </Link>
       <Stack

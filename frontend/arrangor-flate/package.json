@@ -14,7 +14,7 @@
     "typecheck": "react-router typegen && tsc",
     "build": "react-router build",
     "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist",
-    "playwright": "playwright test",
+    "playwright": "cross-env DISABLE_DEKORATOR='true' playwright test ",
     "playwright:debug": "playwright test --debug",
     "playwright:open": "playwright test --ui",
     "playwright:codegen": "playwright codegen playwright.dev",

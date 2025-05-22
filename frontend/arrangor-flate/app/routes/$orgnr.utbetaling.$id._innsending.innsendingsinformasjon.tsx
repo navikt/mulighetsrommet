@@ -82,7 +82,7 @@ export default function TilsagnDetaljerPage() {
             <TilsagnDetaljer tilsagn={tilsagn} />
           ))}
         </Box>
-        {tilsagn.length > 1 && (
+        {tilsagn.length >= 1 && (
           <HStack gap="4" className="mt-4">
             <Button
               as={ReactRouterLink}
@@ -92,7 +92,11 @@ export default function TilsagnDetaljerPage() {
             >
               Avbryt
             </Button>
-            <Button as={ReactRouterLink} to={internalNavigation(orgnr).beregning(utbetaling.id)}>
+            <Button
+              as={ReactRouterLink}
+              aria-label="Neste"
+              to={internalNavigation(orgnr).beregning(utbetaling.id)}
+            >
               Neste
             </Button>
           </HStack>
