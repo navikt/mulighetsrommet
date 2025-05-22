@@ -1,11 +1,11 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, SortState, Table } from "@navikt/ds-react";
+import { Alert, Link, SortState, Table } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { formaterDato, formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "~/internal-navigation";
-import { LinkWithTabState } from "../LinkWithTabState";
 import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
+import { Link as ReactRouterLink } from "react-router";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
@@ -107,7 +107,8 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   </Table.DataCell>
                   <Table.DataCell />
                   <Table.DataCell>
-                    <LinkWithTabState
+                    <Link
+                      as={ReactRouterLink}
                       aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
                       className="hover:underline font-bold no-underline"
                       to={
@@ -115,12 +116,12 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                           ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
                           ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
                         ].includes(status)
-                          ? internalNavigation(orgnr).beregning(id)
+                          ? internalNavigation(orgnr).innsendingsinformasjon(id)
                           : internalNavigation(orgnr).detaljer(id)
                       }
                     >
                       Detaljer
-                    </LinkWithTabState>
+                    </Link>
                   </Table.DataCell>
                 </Table.Row>
               </React.Fragment>
