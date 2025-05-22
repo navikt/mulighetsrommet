@@ -397,7 +397,7 @@ class GjennomforingQueries(private val session: Session) {
         return session.update(queryOf(query, apentForPamelding, id))
     }
 
-    fun settilgjengeligForArrangorDato(id: UUID, date: LocalDate): Int {
+    fun setTilgjengeligForArrangorDato(id: UUID, date: LocalDate): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing

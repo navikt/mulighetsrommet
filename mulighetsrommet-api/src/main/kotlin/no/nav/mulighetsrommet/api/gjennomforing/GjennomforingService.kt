@@ -151,7 +151,7 @@ class GjennomforingService(
                 gjennomforing.startDato,
             )
             .map {
-                queries.gjennomforing.settilgjengeligForArrangorDato(
+                queries.gjennomforing.setTilgjengeligForArrangorDato(
                     id,
                     tilgjengeligForArrangorDato,
                 )
