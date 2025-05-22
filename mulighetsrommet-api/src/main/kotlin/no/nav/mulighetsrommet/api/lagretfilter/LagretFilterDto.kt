@@ -19,16 +19,6 @@ data class LagretFilterDto(
     val navn: String,
     val type: FilterDokumentType,
     val filter: JsonElement,
-    val sortOrder: Int,
-)
-
-@Serializable
-data class LagretFilterUpsert(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val brukerId: String,
-    val navn: String,
-    val type: FilterDokumentType,
-    val filter: JsonElement,
+    val isDefault: Boolean,
     val sortOrder: Int,
 )

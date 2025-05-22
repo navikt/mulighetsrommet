@@ -1,16 +1,17 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { LagretDokumenttype, LagretFilter } from "@mr/api-client-v2";
+import { LagretDokumenttype, LagretFilterDto } from "@mr/api-client-v2";
 
 export const lagretFilterHandlers = [
-  http.get<PathParams, LagretFilter[] | undefined>(
+  http.get<PathParams, LagretFilterDto[] | undefined>(
     "*/api/v1/intern/lagret-filter/mine/:dokumenttype",
     () => {
-      return HttpResponse.json<LagretFilter[]>([
+      return HttpResponse.json<LagretFilterDto[]>([
         {
           id: window.crypto.randomUUID(),
           brukerId: "B123456",
           filter: {},
           navn: "Et mocket-filter",
+          isDefault: false,
           sortOrder: 0,
           type: LagretDokumenttype.AVTALE,
         },
@@ -21,6 +22,7 @@ export const lagretFilterHandlers = [
           navn:
             "Et mocket tiltaksgjennomføringsfilter med et ganske langt navn så vi kan teste" +
             " hvordan det ser ut også",
+          isDefault: false,
           sortOrder: 0,
           type: LagretDokumenttype.GJENNOMFORING,
         },
@@ -29,6 +31,7 @@ export const lagretFilterHandlers = [
           brukerId: "B123456",
           filter: {},
           navn: "Et mocket modia/nav-filter",
+          isDefault: false,
           sortOrder: 0,
           type: LagretDokumenttype.GJENNOMFORING_MODIA,
         },
