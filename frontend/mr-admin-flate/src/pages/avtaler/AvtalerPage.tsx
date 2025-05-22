@@ -10,7 +10,7 @@ import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
-import { LagretDokumenttype } from "@mr/api-client-v2";
+import { LagretFilterType } from "@mr/api-client-v2";
 import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
@@ -20,8 +20,8 @@ import { useState } from "react";
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.AVTALE);
-  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.AVTALE);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.AVTALE);
+  const deleteFilterMutation = useSlettFilter();
 
   const [filter, setFilter] = useAtom(avtaleFilterAtom);
 

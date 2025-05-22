@@ -1,16 +1,15 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { LagretDokumenttype, LagretFilterDto } from "@mr/api-client-v2";
+import { LagretFilterType, LagretFilter } from "@mr/api-client-v2";
 
 export const lagretFilterHandlers = [
-  http.get<PathParams, LagretFilterDto[] | undefined>(
+  http.get<PathParams, LagretFilter[] | undefined>(
     "*/api/v1/intern/lagret-filter/mine/:dokumenttype",
     () => {
-      return HttpResponse.json<LagretFilterDto[]>([
+      return HttpResponse.json<LagretFilter[]>([
         {
           id: "cd5ed640-e8e4-46fb-a7b5-e98667f6c1ab",
-          brukerId: "Z990079",
           navn: "Liten mulighet Fredrikstad",
-          type: LagretDokumenttype.GJENNOMFORING_MODIA,
+          type: LagretFilterType.GJENNOMFORING_MODIA,
           filter: {
             search: "",
             navEnheter: [

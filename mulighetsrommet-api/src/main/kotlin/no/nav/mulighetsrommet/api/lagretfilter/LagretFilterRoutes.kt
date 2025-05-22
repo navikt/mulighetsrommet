@@ -5,13 +5,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -25,7 +22,7 @@ fun Route.lagretFilterRoutes() {
 
             val filter = lagretFilterService.getLagredeFiltereForBruker(
                 brukerId = navIdent.value,
-                dokumentType = FilterDokumentType.valueOf(dokumenttype),
+                dokumentType = LagretFilterType.valueOf(dokumenttype),
             )
 
             call.respond(filter)
@@ -33,7 +30,7 @@ fun Route.lagretFilterRoutes() {
 
         post {
             val navIdent = getNavIdent()
-            val request = call.receive<LagretFilterRequest>()
+            val request = call.receive<LagretFilter>()
 
             lagretFilterService.upsertFilter(brukerId = navIdent.value, request)
                 .onLeft {
@@ -63,14 +60,3 @@ fun Route.lagretFilterRoutes() {
 private fun toProblemDetail(error: LagretFilterError): ProblemDetail = when (error) {
     is LagretFilterError.Forbidden -> Forbidden(error.message)
 }
-
-@Serializable
-data class LagretFilterRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    val type: FilterDokumentType,
-    val filter: JsonElement,
-    val isDefault: Boolean? = null,
-    val sortOrder: Int,
-)

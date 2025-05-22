@@ -1,8 +1,8 @@
 import { useApiQuery } from "@mr/frontend-common";
-import { LagretDokumenttype, LagretFilterService } from "@mr/api-client-v2";
+import { LagretFilterService, LagretFilterType } from "@mr/api-client-v2";
 import { QueryKeys } from "../QueryKeys";
 
-export function useLagredeFilter(dokumenttype: LagretDokumenttype) {
+export function useLagredeFilter(dokumenttype: LagretFilterType) {
   return useApiQuery({
     queryKey: QueryKeys.lagredeFilter(dokumenttype),
     queryFn: () => LagretFilterService.getMineFilterForDokumenttype({ path: { dokumenttype } }),

@@ -1,12 +1,11 @@
 import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
-import { LagretDokumenttype } from "@mr/api-client-v2";
+import { LagretFilterType } from "@mr/api-client-v2";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { HStack } from "@navikt/ds-react";
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
-import { useFetcher } from "react-router";
-import { filterToActionRequest } from "@/api/lagret-filter/lagretFilterAction";
+import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -15,7 +14,7 @@ interface Props {
 
 export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const fetcher = useFetcher();
+  const lagreFilterMutation = useLagreFilter();
 
   return (
     <div className="grid grid-cols-[auto auto] h-[100%] items-center">
@@ -37,14 +36,16 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
             }}
           />
           <LagreFilterButton
-            onLagre={(r) => {
-              const formData = filterToActionRequest(r, LagretDokumenttype.AVTALE);
-              fetcher.submit(formData, {
-                method: "POST",
-                action: "/avtaler",
-              });
-            }}
             filter={filter}
+            onLagre={(namedFilter) => {
+              lagreFilterMutation.mutate({
+                ...namedFilter,
+                type: LagretFilterType.AVTALE,
+                isDefault: false,
+                sortOrder: 0,
+              });
+              lagreFilterMutation.reset();
+            }}
           />
         </HStack>
       ) : null}

@@ -14,8 +14,14 @@ const LagreFilterSchema = z.object({
 type InferredLagreFilterSchema = z.infer<typeof LagreFilterSchema>;
 
 interface Props {
-  filter: any;
-  onLagre: (r: any) => void;
+  filter: { [key: string]: unknown };
+  onLagre: (filter: NamedFilter) => void;
+}
+
+interface NamedFilter {
+  id: string;
+  navn: string;
+  filter: { [key: string]: unknown };
 }
 
 export function LagreFilterButton({ onLagre, filter }: Props) {
@@ -37,13 +43,11 @@ export function LagreFilterButton({ onLagre, filter }: Props) {
   }, [setFocus, isOpen]);
 
   function lagreFilter(data: InferredLagreFilterSchema) {
-    onLagre(
-      {
-        navn: data.navn,
-        filter,
-        id: window.crypto.randomUUID(),
-      }
-    );
+    onLagre({
+      id: window.crypto.randomUUID(),
+      navn: data.navn,
+      filter,
+    });
     setIsOpen(false);
     form.reset();
   }
