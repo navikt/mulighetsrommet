@@ -39,10 +39,6 @@ export function GjennomforingFormPage() {
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
-  if (!avtale) {
-    return null;
-  }
-
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
       tittel: "Gjennomføringer",
@@ -77,7 +73,7 @@ export function GjennomforingFormPage() {
       <ContentBox>
         <Box padding="4" background="bg-default">
           {isError && <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>}
-          {ansatt && (
+          {ansatt && avtale && (
             <GjennomforingFormContainer
               onClose={() => {
                 navigerTilbake();
