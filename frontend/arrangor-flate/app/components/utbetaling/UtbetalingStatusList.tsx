@@ -1,5 +1,5 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Accordion, Heading } from "@navikt/ds-react";
+import { Accordion, Heading, VStack } from "@navikt/ds-react";
 import { ArrangorUtbetalingLinje, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
 import { Link } from "react-router";
 import { formaterDato, useOrgnrFromUrl } from "../../utils";
@@ -13,7 +13,7 @@ interface Props {
 
 export default function UtbetalingStatusList({ utbetaling }: Props) {
   return (
-    <>
+    <VStack gap="4">
       <Definisjonsliste
         title="Utbetalingsstatus"
         definitions={[
@@ -36,7 +36,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
           </Accordion>
         </>
       ) : null}
-    </>
+    </VStack>
   );
 }
 

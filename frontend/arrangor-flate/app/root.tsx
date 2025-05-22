@@ -15,12 +15,12 @@ import {
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
 import { Header } from "./components/Header";
-import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
 import { problemDetailResponse } from "./utils";
+import css from "./root.module.css";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger" }];
 
@@ -77,7 +77,7 @@ function Dokument({
       <body>
         {dekorator && parse(dekorator.header)}
         <Header arrangorer={arrangorer} />
-        <main className={css.side}>{children}</main>
+        <main className={css.main}>{children}</main>
         <ScrollRestoration />
         <Scripts />
         {dekorator && parse(dekorator.footer)}
