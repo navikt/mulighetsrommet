@@ -8,7 +8,6 @@ export const lagretFilterHandlers = [
       return HttpResponse.json<LagretFilterDto[]>([
         {
           id: window.crypto.randomUUID(),
-          brukerId: "B123456",
           filter: {},
           navn: "Et mocket-filter",
           isDefault: false,
@@ -17,7 +16,6 @@ export const lagretFilterHandlers = [
         },
         {
           id: window.crypto.randomUUID(),
-          brukerId: "B123456",
           filter: {},
           navn:
             "Et mocket tiltaksgjennomføringsfilter med et ganske langt navn så vi kan teste" +
@@ -28,7 +26,6 @@ export const lagretFilterHandlers = [
         },
         {
           id: window.crypto.randomUUID(),
-          brukerId: "B123456",
           filter: {},
           navn: "Et mocket modia/nav-filter",
           isDefault: false,

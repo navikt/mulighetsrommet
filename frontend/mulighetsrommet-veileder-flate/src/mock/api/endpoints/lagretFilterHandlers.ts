@@ -8,7 +8,6 @@ export const lagretFilterHandlers = [
       return HttpResponse.json<LagretFilterDto[]>([
         {
           id: "cd5ed640-e8e4-46fb-a7b5-e98667f6c1ab",
-          brukerId: "Z990079",
           navn: "Liten mulighet Fredrikstad",
           type: LagretDokumenttype.GJENNOMFORING_MODIA,
           filter: {

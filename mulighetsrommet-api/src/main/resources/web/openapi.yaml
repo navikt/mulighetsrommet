@@ -5501,8 +5501,6 @@ components:
         id:
           type: string
           format: uuid
-        brukerId:
-          type: string
         navn:
           type: string
         "type":
@@ -5515,7 +5513,6 @@ components:
           type: number
       required:
         - id
-        - brukerId
         - type
         - navn
         - filter
