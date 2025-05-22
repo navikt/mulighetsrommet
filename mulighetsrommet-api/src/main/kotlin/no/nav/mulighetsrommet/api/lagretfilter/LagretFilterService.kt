@@ -17,21 +17,23 @@ class LagretFilterService(private val db: ApiDatabase) {
         checkOwnership(filter.id, brukerId).map {
             @Language("PostgreSQL")
             val query = """
-            insert into lagret_filter (id, bruker_id, navn, type, filter, sort_order)
-            values (:id::uuid, :brukerId, :navn, :type::filter_dokument_type, :filter::jsonb, :sortOrder)
+            insert into lagret_filter (id, bruker_id, navn, type, filter, is_default, sort_order)
+            values (:id::uuid, :bruker_id, :navn, :type::filter_dokument_type, :filter::jsonb, :is_default, :sort_order)
             on conflict (id) do update set
                 navn = excluded.navn,
                 filter = excluded.filter,
-                sort_order = excluded.sort_order
+                sort_order = excluded.sort_order,
+                is_default = excluded.is_default
             """.trimIndent()
 
             val params = mapOf(
                 "id" to filter.id,
-                "brukerId" to brukerId,
+                "bruker_id" to brukerId,
                 "navn" to filter.navn,
                 "type" to filter.type.name,
                 "filter" to filter.filter.let { Json.encodeToString<JsonElement>(it) },
-                "sortOrder" to filter.sortOrder,
+                "is_default" to (filter.isDefault == true),
+                "sort_order" to filter.sortOrder,
             )
 
             session.execute(queryOf(query, params))
@@ -61,6 +63,7 @@ class LagretFilterService(private val db: ApiDatabase) {
                 navn = it.string("navn"),
                 type = FilterDokumentType.valueOf(it.string("type")),
                 filter = Json.parseToJsonElement(it.string("filter")),
+                isDefault = it.boolean("is_default"),
                 sortOrder = it.int("sort_order"),
             )
         }

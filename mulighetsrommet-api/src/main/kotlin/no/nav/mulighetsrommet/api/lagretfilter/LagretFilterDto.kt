@@ -19,5 +19,6 @@ data class LagretFilterDto(
     val navn: String,
     val type: FilterDokumentType,
     val filter: JsonElement,
+    val isDefault: Boolean,
     val sortOrder: Int,
 )

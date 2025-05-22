@@ -71,5 +71,6 @@ data class LagretFilterRequest(
     val navn: String,
     val type: FilterDokumentType,
     val filter: JsonElement,
+    val isDefault: Boolean? = null,
     val sortOrder: Int,
 )

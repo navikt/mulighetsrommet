@@ -1914,7 +1914,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/LagretFilter"
+                  $ref: "#/components/schemas/LagretFilterDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -5477,6 +5477,8 @@ components:
           $ref: "#/components/schemas/LagretDokumenttype"
         filter:
           type: object
+        isDefault:
+          type: boolean
         sortOrder:
           type: number
       required:
@@ -5493,7 +5495,7 @@ components:
         - GJENNOMFORING
         - GJENNOMFORING_MODIA
 
-    LagretFilter:
+    LagretFilterDto:
       type: object
       properties:
         id:
@@ -5507,6 +5509,8 @@ components:
           $ref: "#/components/schemas/LagretDokumenttype"
         filter:
           type: object
+        isDefault:
+          type: boolean
         sortOrder:
           type: number
       required:
@@ -5515,6 +5519,7 @@ components:
         - type
         - navn
         - filter
+        - isDefault
         - sortOrder
 
     SetNotificationStatusRequest:
