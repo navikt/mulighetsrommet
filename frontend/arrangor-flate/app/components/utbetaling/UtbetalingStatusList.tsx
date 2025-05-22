@@ -1,7 +1,7 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Accordion, Heading } from "@navikt/ds-react";
+import { Accordion, Heading, Link, VStack } from "@navikt/ds-react";
 import { ArrangorUtbetalingLinje, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { formaterDato, useOrgnrFromUrl } from "../../utils";
 import { Definisjonsliste } from "../Definisjonsliste";
 import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
@@ -13,7 +13,7 @@ interface Props {
 
 export default function UtbetalingStatusList({ utbetaling }: Props) {
   return (
-    <>
+    <VStack gap="4">
       <Definisjonsliste
         title="Utbetalingsstatus"
         definitions={[
@@ -36,7 +36,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
           </Accordion>
         </>
       ) : null}
-    </>
+    </VStack>
   );
 }
 
@@ -53,7 +53,9 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje
                 {
                   key: "Tilsagn",
                   value: (
-                    <Link to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>Se tilsagnsdetaljer</Link>
+                    <Link as={ReactRouterLink} to={`/${orgnr}/tilsagn/${linje.tilsagn.id}`}>
+                      Se tilsagnsdetaljer
+                    </Link>
                   ),
                 },
                 { key: "Beløp til utbetaling", value: formaterNOK(linje.belop) },

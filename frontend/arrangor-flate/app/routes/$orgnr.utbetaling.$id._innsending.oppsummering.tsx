@@ -1,7 +1,5 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
-  Alert,
-  Box,
   Button,
   Checkbox,
   ErrorSummary,
@@ -31,7 +29,6 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
-import { PageHeader } from "~/components/PageHeader";
 import { Separator } from "~/components/Separator";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
@@ -43,7 +40,6 @@ import {
   useOrgnrFromUrl,
 } from "~/utils";
 import { Definisjonsliste } from "../components/Definisjonsliste";
-import { TilsagnDetaljer } from "../components/tilsagn/TilsagnDetaljer";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 
@@ -164,7 +160,7 @@ export function validateKid(kid: string | null) {
 }
 
 export default function BekreftUtbetaling() {
-  const { utbetaling, tilsagn } = useLoaderData<BekreftUtbetalingData>();
+  const { utbetaling } = useLoaderData<BekreftUtbetalingData>();
   const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
   const fetcher = useFetcher();
@@ -190,115 +186,96 @@ export default function BekreftUtbetaling() {
   }
 
   return (
-    <VStack className="max-w-[50%]" gap="5">
-      <PageHeader
-        title="Oppsummering av innsending"
-        tilbakeLenke={{
-          navn: tekster.bokmal.utbetaling.tilbakeTilBeregning,
-          url: internalNavigation(orgnr).beregning(utbetaling.id),
-        }}
-      />
-      <Definisjonsliste
-        definitions={[
-          { key: "Frist for innsending", value: formaterDato(utbetaling.fristForGodkjenning) },
-        ]}
-      />
-      <Definisjonsliste
-        definitions={[
-          { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
-          { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-        ]}
-      />
-      <Separator />
-      <Heading size="small" level="2">
-        Tilsagnsdetaljer
+    <>
+      <Heading level="2" spacing size="large">
+        Oppsummering
       </Heading>
-      {tilsagn.length === 0 && (
-        <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
-      )}
-      {tilsagn.map((t) => (
-        <Box
-          padding="2"
-          key={t.id}
-          borderWidth="1"
-          borderColor="border-subtle"
-          borderRadius="medium"
-        >
-          <TilsagnDetaljer tilsagn={t} />
-        </Box>
-      ))}
-      <Separator />
-      <Definisjonsliste
-        title={"Utbetaling"}
-        headingLevel="3"
-        definitions={[
-          {
-            key: "Utbetalingsperiode",
-            value: formaterPeriode(utbetaling.periode),
-          },
-          ...getBeregningDetaljer(utbetaling.beregning),
-        ]}
-      />
-      <Separator />
-      <Heading size="small" level="2">
-        Betalingsinformasjon
-      </Heading>
-      <Form method="post">
-        <KontonummerInput
-          kontonummer={utbetaling.betalingsinformasjon.kontonummer ?? undefined}
-          error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
-          onClick={() => handleHentKontonummer()}
+      <VStack gap="6">
+        <Definisjonsliste
+          title="Innsendingsinformasjon"
+          headingLevel="3"
+          definitions={[
+            {
+              key: "Arrangør",
+              value: `${utbetaling.arrangor.navn} - ${utbetaling.arrangor.organisasjonsnummer}`,
+            },
+            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+            { key: "Frist for innsending", value: formaterDato(utbetaling.fristForGodkjenning) },
+          ]}
         />
-        <HStack>
-          <TextField
-            className="mt-5"
-            label="KID-nummer for utbetaling (valgfritt)"
-            size="small"
-            name="kid"
-            error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
-            defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
-            maxLength={25}
-            id="kid"
-          />
-        </HStack>
-        <VStack gap="2" justify={"start"} align={"start"}>
-          <Checkbox
-            name="bekreftelse"
-            value="bekreftet"
-            error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
-            id="bekreftelse"
-          >
-            {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
-          </Checkbox>
-          <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
-          <input type="hidden" name="orgnr" value={orgnr} />
-          {data?.errors && data.errors.length > 0 && (
-            <ErrorSummary ref={errorSummaryRef}>
-              {data.errors.map((error: FieldError) => {
-                return (
-                  <ErrorSummary.Item
-                    href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                    key={jsonPointerToFieldPath(error.pointer)}
-                  >
-                    {error.detail}
-                  </ErrorSummary.Item>
-                );
-              })}
-            </ErrorSummary>
-          )}
-          <HStack gap="4">
-            <Button
-              as={ReactRouterLink}
-              type="button"
-              variant="secondary"
-              to={internalNavigation(orgnr).beregning(utbetaling.id)}
+        <Separator />
+        <Definisjonsliste
+          title={"Utbetaling"}
+          headingLevel="3"
+          definitions={[
+            {
+              key: "Utbetalingsperiode",
+              value: formaterPeriode(utbetaling.periode),
+            },
+            ...getBeregningDetaljer(utbetaling.beregning),
+          ]}
+        />
+        <Separator />
+        <Heading size="medium" level="3">
+          Betalingsinformasjon
+        </Heading>
+        <Form method="post">
+          <VStack gap="4">
+            <KontonummerInput
+              kontonummer={utbetaling.betalingsinformasjon.kontonummer ?? undefined}
+              error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
+              onClick={() => handleHentKontonummer()}
+            />
+            <TextField
+              label="KID-nummer for utbetaling (valgfritt)"
+              size="small"
+              name="kid"
+              htmlSize={35}
+              error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
+              defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
+              maxLength={25}
+              id="kid"
+            />
+            <Separator />
+            <Checkbox
+              name="bekreftelse"
+              value="bekreftet"
+              error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
+              id="bekreftelse"
             >
-              Tilbake
-            </Button>
-            <Button type="submit">Bekreft og send inn</Button>
-          </HStack>
-        </VStack>
-      </Form>
-    </VStack>
+              {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
+            </Checkbox>
+            <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
+            <input type="hidden" name="orgnr" value={orgnr} />
+            {data?.errors && data.errors.length > 0 && (
+              <ErrorSummary ref={errorSummaryRef}>
+                {data.errors.map((error: FieldError) => {
+                  return (
+                    <ErrorSummary.Item
+                      href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                      key={jsonPointerToFieldPath(error.pointer)}
+                    >
+                      {error.detail}
+                    </ErrorSummary.Item>
+                  );
+                })}
+              </ErrorSummary>
+            )}
+            <HStack gap="4">
+              <Button
+                as={ReactRouterLink}
+                type="button"
+                variant="tertiary"
+                to={internalNavigation(orgnr).beregning(utbetaling.id)}
+              >
+                Tilbake
+              </Button>
+              <Button type="submit">Bekreft og send inn</Button>
+            </HStack>
+          </VStack>
+        </Form>
+      </VStack>
+    </>
   );
 }

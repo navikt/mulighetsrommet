@@ -1,9 +1,10 @@
 import { ExclamationmarkTriangleIcon, ParasolBeachIcon, PersonIcon } from "@navikt/aksel-icons";
 import {
   Alert,
+  Box,
   Button,
   GuidePanel,
-  HGrid,
+  Heading,
   HStack,
   Link,
   List,
@@ -27,7 +28,6 @@ import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { PageHeader } from "~/components/PageHeader";
 import { internalNavigation } from "~/internal-navigation";
 import { Environment, getEnvironment } from "~/services/environment";
 import {
@@ -115,32 +115,22 @@ export default function UtbetalingBeregning() {
   }
 
   return (
-    <VStack gap="4">
-      <PageHeader
-        title="Beregning"
-        tilbakeLenke={{
-          navn: tekster.bokmal.tilbakeTilOversikt,
-          url: internalNavigation(orgnr).utbetalinger,
-        }}
-      />
-      <HGrid gap="5" columns={1}>
+    <>
+      <Heading level="2" spacing size="large">
+        Beregning
+      </Heading>
+      <VStack gap="4">
+        {beregning}
         <Definisjonsliste
-          definitions={[
-            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
-            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-            { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
-          ]}
+          definitions={getBeregningDetaljer(utbetaling.beregning)}
+          className="my-2"
         />
-      </HGrid>
-      {beregning}
-      <VStack align="end" gap="4">
-        <Definisjonsliste definitions={getBeregningDetaljer(utbetaling.beregning)} />
         <HStack gap="4">
           <Button
             as={ReactRouterLink}
             type="button"
-            variant="secondary"
-            to={internalNavigation(orgnr).utbetalinger}
+            variant="tertiary"
+            to={internalNavigation(orgnr).innsendingsinformasjon(utbetaling.id)}
           >
             Tilbake
           </Button>
@@ -153,7 +143,7 @@ export default function UtbetalingBeregning() {
           </Button>
         </HStack>
       </VStack>
-    </VStack>
+    </>
   );
 }
 
@@ -199,42 +189,45 @@ function ForhandsgodkjentBeregning({
   );
 
   return (
-    <>
-      <HGrid gap="5" columns={1}>
-        <GuidePanel>
-          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
-          <Link as={ReactRouterLink} to={deltakerlisteUrl}>
-            Deltakeroversikten
-          </Link>
-          .
-          <br />
-          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}
-        </GuidePanel>
-        {beregning.stengt.length > 0 && (
-          <Alert variant={"info"}>
-            {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-            <ul>
-              {beregning.stengt.map(({ periode, beskrivelse }) => (
-                <li key={periode.start + periode.slutt}>
-                  {formaterPeriode(periode)}: {beskrivelse}
-                </li>
-              ))}
-            </ul>
-          </Alert>
-        )}
-        {deltakereMedRelevanteForslag.length > 0 && (
-          <Alert variant="warning">
-            {tekster.bokmal.utbetaling.beregning.ubehandledeDeltakerforslag}
-            <List>
-              {deltakereMedRelevanteForslag.map((deltaker) => (
-                <List.Item key={deltaker.id}>{deltaker.person?.navn}</List.Item>
-              ))}
-            </List>
-          </Alert>
-        )}
+    <VStack gap="4">
+      <GuidePanel>
+        {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
+        <Link as={ReactRouterLink} to={deltakerlisteUrl}>
+          Deltakeroversikten
+        </Link>
+        .
+        <br />
+        {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}
+      </GuidePanel>
+      {beregning.stengt.length > 0 && (
+        <Alert variant={"info"}>
+          {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+          <ul>
+            {beregning.stengt.map(({ periode, beskrivelse }) => (
+              <li key={periode.start + periode.slutt}>
+                {formaterPeriode(periode)}: {beskrivelse}
+              </li>
+            ))}
+          </ul>
+        </Alert>
+      )}
+      {deltakereMedRelevanteForslag.length > 0 && (
+        <Alert variant="warning">
+          {tekster.bokmal.utbetaling.beregning.ubehandledeDeltakerforslag}
+          <List>
+            {deltakereMedRelevanteForslag.map((deltaker) => (
+              <List.Item key={deltaker.id}>{deltaker.person?.navn}</List.Item>
+            ))}
+          </List>
+        </Alert>
+      )}
+      <Box>
+        <Heading level="3" size="medium">
+          Deltakere
+        </Heading>
         <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
           <Table.Header>
-            <Table.Row>
+            <>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
                 Navn
               </Table.ColumnHeader>
@@ -252,9 +245,8 @@ function ForhandsgodkjentBeregning({
               <Table.ColumnHeader align="right" scope="col">
                 Månedsverk
               </Table.ColumnHeader>
-
               <Table.HeaderCell scope="col"></Table.HeaderCell>
-            </Table.Row>
+            </>
           </Table.Header>
           <Table.Body>
             {sortedData.map((deltakelse, index) => {
@@ -280,12 +272,14 @@ function ForhandsgodkjentBeregning({
                   }
                 >
                   <Table.DataCell className="font-bold">
-                    {hasRelevanteForslag(id) && (
-                      <Tooltip content="Har ubehandlede forslag som påvirker utbetalingen">
-                        <ExclamationmarkTriangleIcon fontSize="1.5rem" />
-                      </Tooltip>
-                    )}
-                    {person?.navn}
+                    <HStack gap="2">
+                      {hasRelevanteForslag(id) && (
+                        <Tooltip content="Har ubehandlede forslag som påvirker utbetalingen">
+                          <ExclamationmarkTriangleIcon fontSize="1.5rem" />
+                        </Tooltip>
+                      )}
+                      {person.navn}
+                    </HStack>
                   </Table.DataCell>
                   <Table.DataCell>{fodselsdato}</Table.DataCell>
                   <Table.DataCell>{formaterDato(deltakelse.startDato)}</Table.DataCell>
@@ -300,8 +294,8 @@ function ForhandsgodkjentBeregning({
             })}
           </Table.Body>
         </Table>
-      </HGrid>
-    </>
+      </Box>
+    </VStack>
   );
 }
 

@@ -1,5 +1,4 @@
 body {
-  background-color: white;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -9,12 +8,15 @@ body {
   background-color: white;
 }
 
-.side {
+.main {
   display: flex;
   flex-direction: column;
-  margin: 1rem;
   overflow-x: auto;
   flex-grow: 1;
+}
+
+.side {
+  margin: 1rem;
   width: min(90%, 2500px);
 }
 

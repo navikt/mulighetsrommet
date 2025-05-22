@@ -1,4 +1,5 @@
-import { Link, LinkProps, useSearchParams } from "react-router";
+import { Link } from "@navikt/ds-react";
+import { Link as ReactRouterLink, LinkProps, useSearchParams } from "react-router";
 interface Props extends LinkProps {
   tabKey?: string;
 }
@@ -9,7 +10,7 @@ export function LinkWithTabState({ to, children, tabKey = "forside-tab", ...prop
   const linkTo = currentTab ? `${to}?${tabKey}=${encodeURIComponent(currentTab)}` : to;
 
   return (
-    <Link to={linkTo} {...props}>
+    <Link as={ReactRouterLink} to={linkTo} {...props}>
       {children}
     </Link>
   );
