@@ -45,7 +45,7 @@ class LagretFilterServiceTest : FunSpec({
                 LagretFilterType.AVTALE,
             )
 
-            lagretFilterForBenny.shouldHaveSize(1).first().navn shouldBe "Avtalefilter for Benny"
+            lagretFilterForBenny.shouldHaveSize(1).first() shouldBe filter1
 
             lagretFilterService.deleteFilter(brukerId = bruker1Id, filter1.id).shouldBeRight()
 
@@ -53,6 +53,82 @@ class LagretFilterServiceTest : FunSpec({
                 bruker1Id,
                 LagretFilterType.AVTALE,
             ).shouldBeEmpty()
+        }
+
+        test("Skal bare godta ett default filter per filter-type") {
+            val filter1 = LagretFilter(
+                id = UUID.randomUUID(),
+                navn = "Filter 1",
+                type = LagretFilterType.AVTALE,
+                filter = Json.parseToJsonElement("""{"filter": 1}"""),
+                isDefault = true,
+                sortOrder = 0,
+            )
+            val filter2 = LagretFilter(
+                id = UUID.randomUUID(),
+                navn = "Filter 2",
+                type = LagretFilterType.AVTALE,
+                filter = Json.parseToJsonElement("""{"filter": 2}"""),
+                isDefault = false,
+                sortOrder = 1,
+            )
+
+            lagretFilterService.upsertFilter(brukerId = bruker1Id, filter1).shouldBeRight()
+            lagretFilterService.upsertFilter(brukerId = bruker1Id, filter2).shouldBeRight()
+
+            lagretFilterService.getLagredeFiltereForBruker(
+                brukerId = bruker1Id,
+                LagretFilterType.AVTALE,
+            ) shouldBe listOf(filter1, filter2)
+
+            val newDefaultFilter = filter2.copy(isDefault = true)
+            lagretFilterService.upsertFilter(brukerId = bruker1Id, newDefaultFilter).shouldBeRight()
+
+            lagretFilterService.getLagredeFiltereForBruker(
+                brukerId = bruker1Id,
+                LagretFilterType.AVTALE,
+            ) shouldBe listOf(
+                filter1.copy(isDefault = false),
+                newDefaultFilter,
+            )
+
+            lagretFilterService.deleteFilter(brukerId = bruker1Id, filter1.id).shouldBeRight()
+            lagretFilterService.deleteFilter(brukerId = bruker1Id, filter2.id).shouldBeRight()
+        }
+
+        test("Skal godta default filter per filter-type") {
+            val filter1 = LagretFilter(
+                id = UUID.randomUUID(),
+                navn = "Default avtale",
+                type = LagretFilterType.AVTALE,
+                filter = Json.parseToJsonElement("""{"filter": 1}"""),
+                isDefault = true,
+                sortOrder = 0,
+            )
+            val filter2 = LagretFilter(
+                id = UUID.randomUUID(),
+                navn = "Default gjennomføring",
+                type = LagretFilterType.GJENNOMFORING,
+                filter = Json.parseToJsonElement("""{"filter": 2}"""),
+                isDefault = true,
+                sortOrder = 1,
+            )
+
+            lagretFilterService.upsertFilter(brukerId = bruker1Id, filter1).shouldBeRight()
+            lagretFilterService.upsertFilter(brukerId = bruker1Id, filter2).shouldBeRight()
+
+            lagretFilterService.getLagredeFiltereForBruker(
+                brukerId = bruker1Id,
+                LagretFilterType.AVTALE,
+            ) shouldBe listOf(filter1)
+
+            lagretFilterService.getLagredeFiltereForBruker(
+                brukerId = bruker1Id,
+                LagretFilterType.GJENNOMFORING,
+            ) shouldBe listOf(filter2)
+
+            lagretFilterService.deleteFilter(brukerId = bruker1Id, filter1.id).shouldBeRight()
+            lagretFilterService.deleteFilter(brukerId = bruker1Id, filter2.id).shouldBeRight()
         }
 
         test("Skal ikke ha tilgang til andre brukere sine filtre") {
@@ -73,6 +149,8 @@ class LagretFilterServiceTest : FunSpec({
             lagretFilterService.deleteFilter(brukerId = bruker2Id, filter1.id)
                 .shouldBeLeft()
                 .shouldBeTypeOf<LagretFilterError.Forbidden>()
+
+            lagretFilterService.deleteFilter(brukerId = bruker1Id, filter1.id).shouldBeRight()
         }
     }
 })
