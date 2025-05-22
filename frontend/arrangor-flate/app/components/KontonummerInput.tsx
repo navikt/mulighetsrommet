@@ -1,5 +1,6 @@
 import {
   Alert,
+  BodyShort,
   Button,
   Heading,
   HelpText,
@@ -17,8 +18,25 @@ interface Props {
 
 export function KontonummerInput({ kontonummer, error, onClick }: Props) {
   return (
-    <HStack>
-      <HStack align="end" gap="2">
+    <VStack gap="4">
+      {!kontonummer ? (
+        <Alert variant="warning">
+          <VStack align="start" gap="2">
+            <Heading spacing size="xsmall" level="3">
+              Fant ikke kontonummer
+            </Heading>
+            <BodyShort>
+              Vi fant ikke noe kontonummer for din organisasjon. Her kan du lese om{" "}
+              <EndreKontonummerLink />.
+            </BodyShort>
+            <BodyShort className="text-balance">
+              Når du har registrert kontonummer kan du prøve på nytt ved å trykke på knappen{" "}
+              <b>Synkroniser kontonummer</b>.
+            </BodyShort>
+          </VStack>
+        </Alert>
+      ) : null}
+      <HStack align="end">
         <TextField
           label="Kontonummer"
           size="small"
@@ -26,12 +44,13 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           error={error}
           name="kontonummer"
           defaultValue={kontonummer}
+          htmlSize={35}
           maxLength={11}
           minLength={11}
           id="kontonummer"
           readOnly
         />
-        <HStack align="start" gap="2">
+        <HStack align="center" gap="2">
           <Button type="button" variant="secondary" size="small" onClick={onClick}>
             Synkroniser kontonummer
           </Button>
@@ -41,27 +60,10 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           </HelpText>
         </HStack>
       </HStack>
-      <small className="mt-2 block">
+      <BodyShort size="small">
         Er kontonummeret feil kan du lese her om <EndreKontonummerLink />.
-      </small>
-      {!kontonummer ? (
-        <Alert variant="warning" className="my-5">
-          <VStack align="start" gap="2">
-            <Heading spacing size="xsmall" level="3">
-              Fant ikke kontonummer
-            </Heading>
-            <p>
-              Vi fant ikke noe kontonummer for din organisasjon. Her kan du lese om{" "}
-              <EndreKontonummerLink />.
-            </p>
-            <p className="text-balance">
-              Når du har registrert kontonummer kan du prøve på nytt ved å trykke på knappen{" "}
-              <b>Synkroniser kontonummer</b>.
-            </p>
-          </VStack>
-        </Alert>
-      ) : null}
-    </HStack>
+      </BodyShort>
+    </VStack>
   );
 }
 
