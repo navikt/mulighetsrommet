@@ -3,9 +3,7 @@ package no.nav.mulighetsrommet.api.tiltakstype
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -36,12 +34,6 @@ class TiltakstypeService(
         .recordStats()
         .build()
 
-    private val cacheByGjennomforingId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()
-        .expireAfterWrite(12, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
     private val cacheByTiltakskode: Cache<String, TiltakstypeDto> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
         .maximumSize(200)
@@ -50,19 +42,12 @@ class TiltakstypeService(
 
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
-    // TODO fjerne paginering?
-    fun getAll(
-        filter: TiltakstypeFilter,
-        pagination: Pagination,
-    ): PaginatedResponse<TiltakstypeDto> = db.session {
-        val items = queries.tiltakstype.getAllSkalMigreres(
+    fun getAll(filter: TiltakstypeFilter): List<TiltakstypeDto> = db.session {
+        queries.tiltakstype.getAllSkalMigreres(
             sortering = filter.sortering,
         )
-
-        PaginatedResponse.of(pagination, items.size, items)
     }
 
-    // TODO inline?
     fun getById(id: UUID): TiltakstypeDto? = db.session {
         queries.tiltakstype.get(id)
     }

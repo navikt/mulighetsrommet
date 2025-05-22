@@ -5,9 +5,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.clients.msgraph.EntraIdNavAnsatt
+import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.navansatt.api.NavAnsattFilter
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class NavAnsattService(
-    private val roles: Set<AdGruppeNavAnsattRolleMapping>,
+    private val roles: Set<EntraGroupNavAnsattRolleMapping>,
     private val db: ApiDatabase,
     private val microsoftGraphClient: MsGraphClient,
 ) {
@@ -44,7 +44,7 @@ class NavAnsattService(
         queries.ansatt.getAll(rollerContainsAll = roller)
     }
 
-    suspend fun getNavAnsattFromAzureSok(query: String): List<EntraIdNavAnsatt> {
+    suspend fun getNavAnsattFromAzureSok(query: String): List<EntraNavAnsatt> {
         return microsoftGraphClient.getNavAnsattSok(query)
     }
 
@@ -53,7 +53,7 @@ class NavAnsattService(
     }
 
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
-        val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.adGruppeId
+        val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.entraGroupId
         requireNotNull(kontaktPersonGruppeId)
 
         val ansatt = getOrSynchronizeNavAnsatt(navIdent, AccessType.M2M)
@@ -104,7 +104,7 @@ class NavAnsattService(
     }
 
     fun getNavAnsattRolesFromGroups(groups: List<UUID>): Set<NavAnsattRolle> {
-        val rolesDirectory = roles.groupBy { it.adGruppeId }
+        val rolesDirectory = roles.groupBy { it.entraGroupId }
 
         return groups
             .flatMap { rolesDirectory[it] ?: emptyList() }
@@ -116,7 +116,7 @@ class NavAnsattService(
             }.toSet()
     }
 
-    private suspend fun toNavAnsatt(ansatt: EntraIdNavAnsatt, accessType: AccessType): NavAnsatt {
+    private suspend fun toNavAnsatt(ansatt: EntraNavAnsatt, accessType: AccessType): NavAnsatt {
         val roles = getNavAnsattRoles(ansatt.entraObjectId, accessType)
         return ansatt.toNavAnsatt(roles)
     }
@@ -128,7 +128,7 @@ class NavAnsattService(
     }
 }
 
-fun EntraIdNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
+fun EntraNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
     entraObjectId = entraObjectId,
     navIdent = navIdent,
     fornavn = fornavn,

@@ -6,7 +6,6 @@ import styles from "./TiltakDetaljer.module.scss";
 import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@/utils/ErrorFallback";
-import { useLogEvent } from "@/logging/amplitude";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 
 interface Props {
@@ -14,11 +13,7 @@ interface Props {
   setOppskriftId: (id: string | undefined) => void;
 }
 
-type TabsType = "tab1" | "tab2" | "tab3" | "tab4" | "tab5";
-
 export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
-  const { logEvent } = useLogEvent();
-
   const oppskrifterEnabled = isOppskrifterEnabled(tiltak);
 
   const faneoverskrifter = [
@@ -30,21 +25,6 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
 
   if (oppskrifterEnabled) {
     faneoverskrifter.push("Oppskrifter");
-  }
-
-  function getFaneValgt(value: TabsType): (typeof faneoverskrifter)[number] {
-    switch (value) {
-      case "tab1":
-        return "For hvem";
-      case "tab2":
-        return "Detaljer og innhold";
-      case "tab3":
-        return "Påmelding og varighet";
-      case "tab4":
-        return "Kontaktinfo";
-      case "tab5":
-        return "Oppskrifter";
-    }
   }
 
   const { tiltakstype, faneinnhold } = tiltak;
@@ -59,13 +39,6 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
         if (value !== "tab5") {
           setOppskriftId(undefined);
         }
-        logEvent({
-          name: "arbeidsmarkedstiltak.fanevalg",
-          data: {
-            faneValgt: getFaneValgt(value as TabsType),
-            tiltakstype: tiltakstype.navn,
-          },
-        });
       }}
     >
       <Tabs.List className={styles.fane_liste} id="fane_liste">

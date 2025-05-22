@@ -40,6 +40,17 @@ data class ArrangorUtbetalingLinje(
     val belop: Int,
 )
 
+fun toReadableName(delutbetalingStatus: DelutbetalingStatus): String {
+    return when (delutbetalingStatus) {
+        DelutbetalingStatus.TIL_GODKJENNING -> "Til godkjenning"
+        DelutbetalingStatus.GODKJENT -> "Godkjent"
+        DelutbetalingStatus.RETURNERT -> "Returnert"
+        DelutbetalingStatus.UTBETALT -> "Utbetalt"
+        DelutbetalingStatus.OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
+        DelutbetalingStatus.BEHANDLES_AV_NAV -> "Behandles av NAV"
+    }
+}
+
 @Serializable
 data class DeltakerForKostnadsfordeling(
     @Serializable(with = UUIDSerializer::class)

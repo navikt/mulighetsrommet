@@ -48,8 +48,16 @@ class CachedTokenProvider(
     companion object {
         fun init(clientId: String, tokenEndpointUrl: String, privateJwk: String): CachedTokenProvider {
             return CachedTokenProvider(
-                m2mTokenProvider = createM2mTokenClient(clientId = clientId, tokenEndpointUrl = tokenEndpointUrl, privateJwk = privateJwk),
-                oboTokenProvider = createOboTokenClient(clientId = clientId, tokenEndpointUrl = tokenEndpointUrl, privateJwk = privateJwk),
+                m2mTokenProvider = createM2mTokenClient(
+                    clientId = clientId,
+                    tokenEndpointUrl = tokenEndpointUrl,
+                    privateJwk = privateJwk,
+                ),
+                oboTokenProvider = createOboTokenClient(
+                    clientId = clientId,
+                    tokenEndpointUrl = tokenEndpointUrl,
+                    privateJwk = privateJwk,
+                ),
             )
         }
     }
@@ -115,16 +123,13 @@ fun createMaskinportenM2mTokenClient(
     clientId: String,
     tokenEndpointUrl: String,
     issuer: String,
-    privateJwk: String?,
-): MaskinPortenTokenProvider? = when (privateJwk) {
-    null -> null
-    else -> MaskinPortenTokenProvider(
-        clientId = clientId,
-        tokenEndpointUrl = tokenEndpointUrl,
-        privateJwk = privateJwk,
-        issuer = issuer,
-    )
-}
+    privateJwk: String,
+): MaskinPortenTokenProvider = MaskinPortenTokenProvider(
+    clientId = clientId,
+    tokenEndpointUrl = tokenEndpointUrl,
+    privateJwk = privateJwk,
+    issuer = issuer,
+)
 
 fun createMockRSAKey(keyID: String): String = KeyPairGenerator
     .getInstance("RSA").let {

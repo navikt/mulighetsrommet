@@ -10,12 +10,12 @@ import { inneholderUrl } from "@/utils/Utils";
 import { Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { QueryKeys } from "../../api/QueryKeys";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { QueryKeys } from "@/api/QueryKeys";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 
 export function AvtaleFormPage() {
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ export function AvtaleFormPage() {
               });
               navigate(`/avtaler/${id}`);
             }}
-            tiltakstyper={tiltakstyper.data}
+            tiltakstyper={tiltakstyper}
             ansatt={ansatt}
             enheter={enheter}
             avtale={avtale}

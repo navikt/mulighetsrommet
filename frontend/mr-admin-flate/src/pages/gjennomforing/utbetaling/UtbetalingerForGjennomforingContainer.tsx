@@ -3,7 +3,7 @@ import { Toggles } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
-import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { HarSkrivetilgang } from "../../../components/authActions/HarSkrivetilgang";
 import { UtbetalingerTable } from "../../../components/utbetaling/UtbetalingerTable";
 import { KnapperadContainer } from "../../KnapperadContainer";
@@ -30,7 +30,7 @@ export function UtbetalingerForGjennomforingContainer() {
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Gjennomføring">
+        <HarSkrivetilgang ressurs="Økonomi">
           <Dropdown>
             <Button size="small" as={Dropdown.Toggle}>
               Handlinger

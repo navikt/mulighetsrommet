@@ -32,8 +32,8 @@ test.describe("Utbetalinger detaljer", () => {
       .first();
     await expect(returnertUtbetalingRow).toBeVisible();
 
-    // Click on the "Detaljer" link within that row
-    await returnertUtbetalingRow.locator("a", { hasText: "Detaljer" }).click();
+    // Click on the "Behandle" link within that row
+    await returnertUtbetalingRow.locator("a", { hasText: "Behandle" }).click();
 
     // Verify we're on the utbetaling details page
     await expect(page).toHaveURL(/.*\/utbetalinger\/.*/);
@@ -73,8 +73,8 @@ test.describe("Utbetalinger detaljer", () => {
     const returnertUtbetalingRow = page.locator("tr").filter({ hasText: "RETURNERT" }).first();
     await expect(returnertUtbetalingRow).toBeVisible();
 
-    // Click on the "Detaljer" link within that row
-    await returnertUtbetalingRow.locator("a", { hasText: "Detaljer" }).click();
+    // Click on the "Behandle" link within that row
+    await returnertUtbetalingRow.locator("a", { hasText: "Behandle" }).click();
 
     // Verify we're on the utbetaling details page
     await expect(page).toHaveURL(/.*\/utbetalinger\/.*/);

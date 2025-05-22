@@ -1,9 +1,11 @@
 import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
-import { DeepPartial, useFormContext } from "react-hook-form";
-import { TextField } from "@navikt/ds-react";
+import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
+import { Button, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { TrashIcon } from "@navikt/aksel-icons";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -32,14 +34,100 @@ function BeregningInputSkjema() {
   } = useFormContext<FriTilsagn>();
 
   return (
-    <TextField
-      size="small"
-      type="number"
-      label="Beløp"
-      style={{ width: "180px" }}
-      error={errors.beregning?.belop?.message}
-      {...register("beregning.belop", { valueAsNumber: true })}
-    />
+    <>
+      <div className="pb-3">
+        <Textarea
+          size="small"
+          label={avtaletekster.prisOgBetalingLabel}
+          readOnly
+          error={errors.beregning?.prisbetingelser?.message}
+          {...register("beregning.prisbetingelser")}
+        />
+      </div>
+
+      <BeregningInputLinjerSkjema />
+    </>
+  );
+}
+
+function BeregningInputLinjerSkjema() {
+  const {
+    register,
+    formState: { errors },
+    control,
+  } = useFormContext<FriTilsagn>();
+  const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
+  const linjer = fields.map((item, index) => (
+    <HStack gap="4" key={item.id}>
+      <Textarea
+        className="flex-1"
+        size="small"
+        label="Beskrivelse"
+        error={errors.beregning?.input?.linjer?.[index]?.beskrivelse?.message}
+        {...register(`beregning.linjer.${index}.beskrivelse`)}
+        defaultValue={item.beskrivelse}
+      />
+      <div>
+        <TextField
+          size="small"
+          type="number"
+          label="Beløp"
+          style={{ width: "180px" }}
+          error={errors.beregning?.input?.linjer?.[index]?.belop?.message}
+          {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
+          defaultValue={item.belop}
+        />
+      </div>
+      <div>
+        <TextField
+          size="small"
+          type="number"
+          label="Antall"
+          style={{ width: "180px" }}
+          error={errors.beregning?.input?.linjer?.[index]?.antall?.message}
+          {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
+          defaultValue={item.antall}
+        />
+      </div>
+      <div>
+        <TextField
+          label="Linje-id"
+          hideLabel
+          hidden
+          {...register(`beregning.linjer.${index}.id`)}
+          defaultValue={item.id}
+        />
+        <Button
+          className="mt-7"
+          size="small"
+          variant="danger"
+          icon={<TrashIcon title="Slett linje" />}
+          onClickCapture={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            remove(index);
+          }}
+        />
+      </div>
+    </HStack>
+  ));
+  return (
+    <VStack className="mt-4" gap="4">
+      {linjer}
+      <div>
+        <Button
+          size="small"
+          variant="secondary"
+          onClickCapture={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
+          }}
+        >
+          Legg til ny linje
+        </Button>
+      </div>
+    </VStack>
   );
 }
 
@@ -51,7 +139,8 @@ function BeregningOutputPreview() {
     <TilsagnBeregningPreview
       input={{
         type: "FRI",
-        belop: values.beregning?.belop,
+        linjer: values.beregning?.linjer || [],
+        prisbetingelser: values.beregning?.prisbetingelser,
       }}
     />
   );

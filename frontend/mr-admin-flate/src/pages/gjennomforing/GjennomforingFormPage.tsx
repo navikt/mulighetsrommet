@@ -9,12 +9,12 @@ import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
-import { QueryKeys } from "../../api/QueryKeys";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 function useGjennomforingFormData() {
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
@@ -38,10 +38,6 @@ export function GjennomforingFormPage() {
   };
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
-
-  if (!avtale) {
-    return null;
-  }
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -77,7 +73,7 @@ export function GjennomforingFormPage() {
       <ContentBox>
         <Box padding="4" background="bg-default">
           {isError && <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>}
-          {ansatt && (
+          {ansatt && avtale && (
             <GjennomforingFormContainer
               onClose={() => {
                 navigerTilbake();

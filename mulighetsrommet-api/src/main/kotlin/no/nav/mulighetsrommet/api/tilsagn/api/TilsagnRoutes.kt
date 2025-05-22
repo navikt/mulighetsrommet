@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -107,12 +108,8 @@ fun Route.tilsagnRoutes() {
 
             val defaults = when (request.type) {
                 TilsagnType.TILSAGN -> {
-                    val prismodell = gjennomforing.avtaleId
-                        ?.let { db.session { queries.avtale.get(it)?.prismodell } }
-                        ?: throw StatusException(
-                            HttpStatusCode.BadRequest,
-                            "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
-                        )
+                    val avtale = gjennomforing.avtaleId
+                        ?.let { db.session { queries.avtale.get(it) } }
 
                     val sisteTilsagn = db.session {
                         queries.tilsagn
@@ -120,11 +117,15 @@ fun Route.tilsagnRoutes() {
                             .firstOrNull()
                     }
 
-                    resolveTilsagnDefaults(service.config.okonomiConfig, prismodell, gjennomforing, sisteTilsagn)
+                    resolveTilsagnDefaults(service.config.okonomiConfig, avtale, gjennomforing, sisteTilsagn)
                 }
 
-                TilsagnType.EKSTRATILSAGN ->
-                    resolveEkstraTilsagnDefaults(gjennomforing, request)
+                TilsagnType.EKSTRATILSAGN -> {
+                    val prisbetingelser = gjennomforing.avtaleId
+                        ?.let { db.session { queries.avtale.get(it)?.prisbetingelser } }
+
+                    resolveEkstraTilsagnDefaults(request, gjennomforing, prisbetingelser)
+                }
 
                 TilsagnType.INVESTERING -> TilsagnDefaults(
                     id = null,
@@ -142,7 +143,6 @@ fun Route.tilsagnRoutes() {
 
         post("/beregn") {
             val request = call.receive<TilsagnBeregningInput>()
-
             val result = service.beregnTilsagn(request)
                 .map { it.output }
                 .mapLeft { ValidationError(errors = it) }
@@ -247,7 +247,6 @@ data class TilsagnDefaults(
     val beregning: TilsagnBeregningInput?,
 )
 
-// TODO: benytt TilsagnDefaults (modell med bare nullable) i begge tilfeller og valider at feltene ikke er null i stedet. Da kan vi gjøre all validering i backend!
 @Serializable
 data class TilsagnRequest(
     @Serializable(with = UUIDSerializer::class)
@@ -303,75 +302,83 @@ data class AvtaltSats(
 
 private fun resolveTilsagnDefaults(
     config: OkonomiConfig,
-    prismodell: Prismodell,
+    avtale: AvtaleDto?,
     gjennomforing: GjennomforingDto,
     tilsagn: Tilsagn?,
-) = when (prismodell) {
-    Prismodell.FORHANDSGODKJENT -> {
-        val periodeStart = listOfNotNull(
-            config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
-            gjennomforing.startDato,
-            tilsagn?.periode?.slutt,
-        ).max()
+): TilsagnDefaults {
+    val prismodell = avtale?.prismodell ?: throw StatusException(
+        HttpStatusCode.BadRequest,
+        "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
+    )
+    return when (prismodell) {
+        Prismodell.FORHANDSGODKJENT -> {
+            val periodeStart = listOfNotNull(
+                config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+                gjennomforing.startDato,
+                tilsagn?.periode?.slutt,
+            ).max()
 
-        val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
-        val lastDayOfYear = periodeStart.withMonth(12).withDayOfMonth(31)
-        val periodeSlutt = listOfNotNull(
-            gjennomforing.sluttDato,
-            forhandsgodkjentTilsagnPeriodeSlutt,
-            lastDayOfYear,
-        )
-            .filter { it > periodeStart }
-            .min()
+            val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
+            val lastDayOfYear = periodeStart.withMonth(12).withDayOfMonth(31)
+            val periodeSlutt = listOfNotNull(
+                gjennomforing.sluttDato,
+                forhandsgodkjentTilsagnPeriodeSlutt,
+                lastDayOfYear,
+            )
+                .filter { it > periodeStart }
+                .min()
 
-        val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
-        val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
-            ?.let { sats ->
-                TilsagnBeregningForhandsgodkjent.Input(
-                    periode = periode,
-                    sats = sats,
-                    antallPlasser = gjennomforing.antallPlasser,
-                )
-            }
+            val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+            val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
+                ?.let { sats ->
+                    TilsagnBeregningForhandsgodkjent.Input(
+                        periode = periode,
+                        sats = sats,
+                        antallPlasser = gjennomforing.antallPlasser,
+                    )
+                }
 
-        TilsagnDefaults(
-            id = null,
-            gjennomforingId = gjennomforing.id,
-            type = TilsagnType.TILSAGN,
-            periodeStart = periodeStart,
-            periodeSlutt = periodeSlutt,
-            kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
-            beregning = beregning,
-        )
-    }
+            TilsagnDefaults(
+                id = null,
+                gjennomforingId = gjennomforing.id,
+                type = TilsagnType.TILSAGN,
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
+                beregning = beregning,
+            )
+        }
 
-    else -> {
-        val firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1)
-        val periodeStart = listOfNotNull(
-            config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
-            gjennomforing.startDato,
-            tilsagn?.periode?.slutt,
-            firstDayOfCurrentMonth,
-        ).max()
+        Prismodell.FRI -> {
+            val firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1)
+            val periodeStart = listOfNotNull(
+                config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+                gjennomforing.startDato,
+                tilsagn?.periode?.slutt,
+                firstDayOfCurrentMonth,
+            ).max()
 
-        val lastDayOfMonth = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
-        val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
+            val lastDayOfMonth = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
+            val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
+            val beregning = TilsagnBeregningFri.Input(linjer = listOf(TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)), prisbetingelser = avtale.prisbetingelser)
 
-        TilsagnDefaults(
-            id = null,
-            gjennomforingId = gjennomforing.id,
-            type = TilsagnType.TILSAGN,
-            periodeStart = periodeStart,
-            periodeSlutt = periodeSlutt,
-            kostnadssted = null,
-            beregning = null,
-        )
+            TilsagnDefaults(
+                id = null,
+                gjennomforingId = gjennomforing.id,
+                type = TilsagnType.TILSAGN,
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                kostnadssted = null,
+                beregning = beregning,
+            )
+        }
     }
 }
 
 private fun resolveEkstraTilsagnDefaults(
-    gjennomforing: GjennomforingDto,
     request: TilsagnDefaultsRequest,
+    gjennomforing: GjennomforingDto,
+    prisbetingelser: String?,
 ): TilsagnDefaults {
     return if (request.prismodell == Prismodell.FRI && request.belop != null) {
         TilsagnDefaults(
@@ -381,7 +388,17 @@ private fun resolveEkstraTilsagnDefaults(
             periodeStart = request.periodeStart,
             periodeSlutt = request.periodeSlutt,
             kostnadssted = request.kostnadssted,
-            beregning = TilsagnBeregningFri.Input(belop = request.belop),
+            beregning = TilsagnBeregningFri.Input(
+                prisbetingelser = prisbetingelser,
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "",
+                        belop = request.belop,
+                        antall = 1,
+                    ),
+                ),
+            ),
         )
     } else {
         TilsagnDefaults(

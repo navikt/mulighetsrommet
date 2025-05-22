@@ -1,19 +1,19 @@
 import { defaultGjennomforingfilter, GjennomforingFilter } from "@/api/atoms";
-import { AvtaleDto, LagretDokumenttype } from "@mr/api-client-v2";
+import { AvtaleDto, LagretFilterType } from "@mr/api-client-v2";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
-import { useFetcher } from "react-router";
-import { filterToActionRequest } from "../../api/lagret-filter/lagretFilterAction";
+import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;
   avtale?: AvtaleDto;
 }
+
 export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const fetcher = useFetcher();
+  const lagreFilterMutation = useLagreFilter();
 
   return filter.visMineGjennomforinger ||
     filter.search.length > 0 ||
@@ -32,12 +32,14 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
       />
       <LagreFilterButton
         filter={filter}
-        onLagre={(r) => {
-          const formData = filterToActionRequest(r, LagretDokumenttype.GJENNOMFORING);
-          fetcher.submit(formData, {
-            method: "POST",
-            action: "/gjennomforinger",
+        onLagre={(namedFilter) => {
+          lagreFilterMutation.mutate({
+            ...namedFilter,
+            type: LagretFilterType.GJENNOMFORING,
+            isDefault: false,
+            sortOrder: 0,
           });
+          lagreFilterMutation.reset();
         }}
       />
     </>

@@ -3,7 +3,7 @@ import {
   type GetAvtalerData,
   GetEnheterData,
   GetGjennomforingerData,
-  LagretDokumenttype,
+  LagretFilterType,
   Rolle,
   NotificationStatus,
 } from "@mr/api-client-v2";
@@ -47,13 +47,13 @@ export const QueryKeys = {
   getTilsagnForGjennomforing: (gjennomforingId?: string) => ["tilsagn", gjennomforingId],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
-  besluttTilsagnUtbetaling: () => ["beslutt-tilsagn-utbetaling"],
   annullerTilsagn: () => ["annuller-tilsagn"],
   gjorOppTilsagn: () => ["gjor-opp-tilsagn"],
   slettTilsagn: () => ["slett-tilsagn"],
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
-  lagredeFilter: (dokumenttype: LagretDokumenttype) => ["lagredeFilter", dokumenttype],
+  lagredeFilter: (dokumenttype?: LagretFilterType) =>
+    ["lagredeFilter", dokumenttype].filter((part) => part !== undefined),
   utbetalingerByGjennomforing: (gjennomforingId?: string) => [
     "utbetaling-for-gjennomforing",
     gjennomforingId,

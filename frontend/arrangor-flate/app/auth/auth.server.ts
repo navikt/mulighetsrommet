@@ -1,13 +1,13 @@
 import { getToken, parseIdportenToken, requestTokenxOboToken, validateToken } from "@navikt/oasis";
 import { redirectDocument } from "react-router";
 import { v4 as uuidv4 } from "uuid";
-import { hentMiljø, Miljø } from "../services/miljø";
+import { Environment, getEnvironment } from "~/services/environment";
 
 const loginUrl = "/oauth2/login";
 
 export async function apiHeaders(request: Request): Promise<Record<string, string>> {
   const token =
-    hentMiljø() === Miljø.Lokalt
+    getEnvironment() === Environment.Lokalt
       ? process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN
       : await oboExchange(
           request,
@@ -48,7 +48,7 @@ export async function oboExchange(request: Request, audience: string) {
 }
 
 export async function checkValidToken(request: Request) {
-  if (hentMiljø() === Miljø.Lokalt) return;
+  if (getEnvironment() === Environment.Lokalt) return;
   const token = getToken(request);
 
   if (!token) {

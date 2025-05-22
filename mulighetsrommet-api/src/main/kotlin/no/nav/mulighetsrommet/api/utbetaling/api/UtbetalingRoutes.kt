@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -105,7 +106,7 @@ fun Route.utbetalingRoutes() {
                     }
 
                     UtbetalingDetaljerDto(
-                        utbetaling = toUtbetalingDto(utbetaling),
+                        utbetaling = toUtbetalingDto(utbetaling, emptyList()),
                         deltakere = deltakere,
                         linjer = linjer,
                     )
@@ -193,7 +194,16 @@ fun Route.utbetalingRoutes() {
 
             val utbetalinger = db.session {
                 queries.utbetaling.getByGjennomforing(id)
-                    .map { utbetaling -> toUtbetalingDto(utbetaling) }
+                    .map { utbetaling ->
+                        val kostnadssteder =
+                            queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
+                                    TilsagnDto.fromTilsagn(it)
+                                }
+                                tilsagn.kostnadssted
+                            }
+                        toUtbetalingDto(utbetaling, kostnadssteder)
+                    }
             }
 
             call.respond(utbetalinger)
@@ -214,11 +224,11 @@ private fun toDeltakerForKostnadsfordeling(
     manedsverk = manedsverk,
 )
 
-private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling): UtbetalingDto {
+private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling, kostnadssteder: List<NavEnhetDbo>?): UtbetalingDto {
     val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
     val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
 
-    return UtbetalingDto.fromUtbetaling(utbetaling, status)
+    return UtbetalingDto.fromUtbetaling(utbetaling, status, kostnadssteder)
 }
 
 @OptIn(ExperimentalSerializationApi::class)

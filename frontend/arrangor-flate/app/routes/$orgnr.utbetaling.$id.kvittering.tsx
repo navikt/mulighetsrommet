@@ -1,4 +1,3 @@
-import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Alert, BodyLong, BodyShort, ExpansionCard, Link, VStack } from "@navikt/ds-react";
 import { ArrangorflateService } from "api-client";
 import {
@@ -81,20 +80,12 @@ export default function UtbetalingKvittering() {
               <BodyShort>{tekster.bokmal.utbetaling.kvittering.orgnr(orgnr)}</BodyShort>
               <br />
               {id && (
-                <>
-                  <BodyLong>
-                    {tekster.bokmal.utbetaling.kvittering.statusLenkeIntro}{" "}
-                    <Link as={ReactRouterLink} to={internalNavigation(orgnr).detaljer(id)}>
-                      {tekster.bokmal.utbetaling.kvittering.statusLenkeTekst}
-                    </Link>
-                  </BodyLong>
-                  <br />
-                  <BodyShort>Innsending:</BodyShort>
-                  <Link href={`/${orgnr}/utbetaling/${id}/kvittering/lastned`} target="_blank">
-                    <FilePdfIcon title="Pdf" />
-                    {tekster.bokmal.utbetaling.kvittering.pdfKvitteringLenke}
+                <BodyLong>
+                  {tekster.bokmal.utbetaling.kvittering.statusLenkeIntro}{" "}
+                  <Link as={ReactRouterLink} to={internalNavigation(orgnr).detaljer(id)}>
+                    {tekster.bokmal.utbetaling.kvittering.statusLenkeTekst.toLowerCase()}
                   </Link>
-                </>
+                </BodyLong>
               )}
             </VStack>
           </ExpansionCard.Content>

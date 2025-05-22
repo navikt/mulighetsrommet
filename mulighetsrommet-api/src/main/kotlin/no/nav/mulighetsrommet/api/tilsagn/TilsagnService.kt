@@ -184,13 +184,13 @@ class TilsagnService(
             }
 
             TilsagnStatus.TIL_OPPGJOR -> {
-                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-                if (oppgjor.behandletAv == navIdent) {
-                    return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
-                }
-
                 when (besluttelse) {
-                    BesluttTilsagnRequest.GodkjentTilsagnRequest ->
+                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> {
+                        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+                        if (oppgjor.behandletAv == navIdent) {
+                            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
+                        }
+
                         gjorOppTilsagn(tilsagn, navIdent)
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
@@ -198,6 +198,7 @@ class TilsagnService(
                                 storeGjorOppBestilling(it)
                             }
                             .right()
+                    }
 
                     is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisOppgjor(tilsagn, besluttelse, navIdent)
                 }
@@ -236,9 +237,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-        if (besluttetAv == opprettelse.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte et tilsagn du selv har opprettet"))).left()
-        }
         if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
         }
@@ -290,9 +288,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-        if (besluttetAv == annullering.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise annullering du selv har opprettet"))).left()
-        }
 
         queries.totrinnskontroll.upsert(
             annullering.copy(
@@ -390,9 +385,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-        if (besluttetAv == oppgjor.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise oppgjør du selv har opprettet"))).left()
-        }
 
         queries.totrinnskontroll.upsert(
             oppgjor.copy(

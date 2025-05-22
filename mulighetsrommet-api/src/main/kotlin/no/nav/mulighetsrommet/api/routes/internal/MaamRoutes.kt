@@ -17,11 +17,9 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
 import java.util.*
 
 fun Route.maamRoutes() {
@@ -49,10 +47,7 @@ fun Route.maamRoutes() {
                     val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
                     InitialLoadGjennomforinger.Input(ids = ids)
                 } else if (input.tiltakstyper != null) {
-                    InitialLoadGjennomforinger.Input(
-                        tiltakskoder = input.tiltakstyper,
-                        opphav = input.opphav,
-                    )
+                    InitialLoadGjennomforinger.Input(tiltakskoder = input.tiltakstyper)
                 } else {
                     throw BadRequestException("Ugyldig input")
                 }
@@ -90,8 +85,8 @@ fun Route.maamRoutes() {
             }
 
             post("generate-utbetaling") {
-                val (dayInMonth) = call.receive<GenerateUtbetalingRequest>()
-                generateUtbetaling.runTask(dayInMonth)
+                val (month) = call.receive<GenerateUtbetalingRequest>()
+                generateUtbetaling.runTask(month)
                 call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Generering av utbetaling OK"))
             }
         }
@@ -115,8 +110,7 @@ fun Route.maamRoutes() {
 
 @Serializable
 data class GenerateUtbetalingRequest(
-    @Serializable(with = LocalDateSerializer::class)
-    val dayInMonth: LocalDate,
+    val month: Int,
 )
 
 @Serializable

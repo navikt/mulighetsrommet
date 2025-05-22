@@ -12,6 +12,7 @@ import {
   UtbetalingDto,
   UtbetalingLinje,
 } from "@mr/api-client-v2";
+import { mockEnheter } from "./mock_enheter";
 
 export const mockUtbetalinger: UtbetalingDto[] = [
   {
@@ -34,6 +35,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z123456",
     journalpostId: "JP123456",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
@@ -55,6 +57,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Arrangør",
     journalpostId: "JP123457",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
@@ -76,6 +79,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "129e4567-e89b-12d3-a456-426614174002",
@@ -97,6 +101,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "130e4567-e89b-12d3-a456-426614174002",
@@ -118,6 +123,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
 ];
 
@@ -142,7 +148,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: {
+          type: "FRI",
+          prisbetingelser: null,
+          linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
+        },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -184,7 +194,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: {
+          type: "FRI",
+          prisbetingelser: null,
+          linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
+        },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -233,7 +247,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: {
+          type: "FRI",
+          prisbetingelser: null,
+          linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
+        },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -283,7 +301,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: {
+          type: "FRI",
+          prisbetingelser: null,
+          linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
+        },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -326,7 +348,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: {
+          type: "FRI",
+          prisbetingelser: null,
+          linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
+        },
         output: { type: "FRI", belop: 14_000 },
       },
       belopBrukt: 4_000,
@@ -378,7 +404,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       beregning: {
         type: "FRI",
-        input: { type: "FRI", belop: 14_000 },
+        input: {
+          type: "FRI",
+          prisbetingelser: null,
+          linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
+        },
         output: { type: "FRI", belop: 14_000 },
       },
       status: TilsagnStatus.GODKJENT,

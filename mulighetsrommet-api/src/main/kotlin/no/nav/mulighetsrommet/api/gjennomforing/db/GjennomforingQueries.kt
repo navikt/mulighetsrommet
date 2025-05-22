@@ -308,7 +308,6 @@ class GjennomforingQueries(private val session: Session) {
         arrangorIds: List<UUID> = emptyList(),
         arrangorOrgnr: List<Organisasjonsnummer> = emptyList(),
         administratorNavIdent: NavIdent? = null,
-        opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
         koordinatorNavIdent: NavIdent? = null,
     ): PaginatedResult<GjennomforingDto> = with(session) {
@@ -324,7 +323,6 @@ class GjennomforingQueries(private val session: Session) {
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
-            "opphav" to opphav?.name,
             "publisert" to publisert,
         )
 
@@ -364,7 +362,6 @@ class GjennomforingQueries(private val session: Session) {
               and ((:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb) or (:koordinator_nav_ident::text is null or koordinator_json @> :koordinator_nav_ident::jsonb))
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (tiltakstype_tiltakskode is not null)
-              and (:opphav::opphav is null or opphav = :opphav::opphav)
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
             order by $order

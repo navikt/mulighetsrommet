@@ -28,8 +28,11 @@ test("Kan navigere gjennom hele utbetalingen", async ({ page }) => {
   await expect(page).toHaveTitle("Oversikt");
   await expect(page.getByRole("heading", { name: "Oversikt over innsendinger" })).toBeVisible();
   await sjekkUU(page);
-  await page.getByRole("link", { name: "Detaljer" }).first().click();
+  await page.getByRole("link", { name: "Start innsending" }).first().click();
 
+  await expect(page.getByRole("heading", { name: "Innsendingsinformasjon" })).toBeVisible();
+  await sjekkUU(page);
+  await page.getByRole("button", { name: "Neste" }).first().click();
   await expect(page.getByRole("heading", { name: "Beregning" })).toBeVisible();
   await expect(
     page.getByText(

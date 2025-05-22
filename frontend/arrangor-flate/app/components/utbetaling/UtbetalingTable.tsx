@@ -107,21 +107,26 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   </Table.DataCell>
                   <Table.DataCell />
                   <Table.DataCell>
-                    <Link
-                      as={ReactRouterLink}
-                      aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
-                      className="hover:underline font-bold no-underline"
-                      to={
-                        [
-                          ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                          ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
-                        ].includes(status)
-                          ? internalNavigation(orgnr).innsendingsinformasjon(id)
-                          : internalNavigation(orgnr).detaljer(id)
-                      }
-                    >
-                      Detaljer
-                    </Link>
+                    {[
+                      ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                      ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
+                    ].includes(status) ? (
+                      <Link
+                        as={ReactRouterLink}
+                        aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
+                        to={internalNavigation(orgnr).innsendingsinformasjon(id)}
+                      >
+                        Start innsending
+                      </Link>
+                    ) : (
+                      <Link
+                        as={ReactRouterLink}
+                        aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
+                        to={internalNavigation(orgnr).detaljer(id)}
+                      >
+                        Detaljer
+                      </Link>
+                    )}
                   </Table.DataCell>
                 </Table.Row>
               </React.Fragment>

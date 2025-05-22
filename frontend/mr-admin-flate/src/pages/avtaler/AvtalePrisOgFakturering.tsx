@@ -1,4 +1,4 @@
-import { Alert, Box, HGrid, HStack, Select, TextField, VStack } from "@navikt/ds-react";
+import { Alert, Box, HGrid, HStack, Select, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client-v2";
@@ -7,6 +7,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { DateInput } from "@/components/skjema/DateInput";
+import { useEffect } from "react";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -32,6 +33,7 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
         {prismodell === Prismodell.FORHANDSGODKJENT && (
           <ForhandsgodkjentAvtalePrismodell tiltakstype={tiltakstype.tiltakskode} />
         )}
+        <PrisBetingelser />
       </FormGroup>
     </HGrid>
   );
@@ -48,10 +50,21 @@ interface Option {
 }
 
 function SelectPrismodell(props: SelectPrismodellProps) {
+  const fieldName = "prismodell";
   const {
     register,
     formState: { errors },
+    setValue,
   } = useFormContext<InferredAvtaleSchema>();
+
+  const preselectPrismodell: false | Prismodell =
+    props.options.length === 1 && (props.options[0].value as Prismodell);
+
+  useEffect(() => {
+    if (preselectPrismodell) {
+      setValue(fieldName, preselectPrismodell);
+    }
+  }, [setValue, preselectPrismodell]);
 
   return (
     <Select
@@ -59,7 +72,7 @@ function SelectPrismodell(props: SelectPrismodellProps) {
       size="small"
       error={errors.prismodell?.message}
       readOnly={props.readOnly}
-      {...register("prismodell")}
+      {...register(fieldName)}
     >
       {props.options.map((option) => (
         <option key={option.value} value={option.value}>
@@ -138,5 +151,21 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
         </Box>
       ))}
     </VStack>
+  );
+}
+
+function PrisBetingelser() {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<InferredAvtaleSchema>();
+
+  return (
+    <Textarea
+      size="small"
+      error={errors.prisbetingelser?.message}
+      label={avtaletekster.prisOgBetalingLabel}
+      {...register("prisbetingelser")}
+    />
   );
 }

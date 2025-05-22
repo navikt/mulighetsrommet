@@ -464,7 +464,6 @@ class AvtaleQueries(private val session: Session) {
         val avbruttTidspunkt = when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
-            // @todo: What should utkast be?
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
         }
@@ -491,14 +490,8 @@ class AvtaleQueries(private val session: Session) {
         val personopplysninger = stringOrNull("personopplysninger_json")
             ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
             ?: emptyList()
-        val underenheter = stringOrNull("arrangor_underenheter_json")
-            ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
-            ?: emptyList()
         val administratorer = stringOrNull("administratorer_json")
             ?.let { Json.decodeFromString<List<AvtaleDto.Administrator>>(it) }
-            ?: emptyList()
-        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }
             ?: emptyList()
         val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
@@ -524,6 +517,11 @@ class AvtaleQueries(private val session: Session) {
             ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 
         val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let {
+            val underenheter = stringOrNull("arrangor_underenheter_json")
+                ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
+                ?: emptyList()
+            val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+                ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) } ?: emptyList()
             AvtaleDto.ArrangorHovedenhet(
                 id = it,
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),

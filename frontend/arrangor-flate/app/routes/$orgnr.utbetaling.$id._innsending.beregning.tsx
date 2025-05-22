@@ -29,7 +29,7 @@ import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { internalNavigation } from "~/internal-navigation";
-import { hentMiljø, Miljø } from "~/services/miljø";
+import { Environment, getEnvironment } from "~/services/environment";
 import {
   formaterDato,
   formaterPeriode,
@@ -38,9 +38,10 @@ import {
   useOrgnrFromUrl,
 } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
-import { Definisjonsliste } from "../components/Definisjonsliste";
-import { tekster } from "../tekster";
-import { getBeregningDetaljer } from "../utils/beregning";
+import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { tekster } from "~/tekster";
+import { getBeregningDetaljer } from "~/utils/beregning";
+
 export const meta: MetaFunction = () => {
   return [
     { title: "Beregning" },
@@ -55,7 +56,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const deltakerlisteUrl = deltakerOversiktLenke(hentMiljø());
+  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
 
   const { id } = params;
   if (!id) {
@@ -95,7 +96,6 @@ enum DeltakerSortKey {
   PERSON_NAVN = "PERSON_NAVN",
   PERIODE_START = "PERIODE_START",
   PERIODE_SLUTT = "PERIODE_SLUTT",
-  VEILEDER_NAVN = "VEILEDER_NAVN",
 }
 
 export default function UtbetalingBeregning() {
@@ -311,8 +311,6 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Utbetalin
       return (d) => d.forstePeriodeStartDato;
     case DeltakerSortKey.PERIODE_SLUTT:
       return (d) => d.sistePeriodeSluttDato;
-    case DeltakerSortKey.VEILEDER_NAVN:
-      return (d) => d.veileder;
   }
 }
 
@@ -324,8 +322,8 @@ function getFormattedFodselsdato(person?: UtbetalingDeltakelsePerson) {
       : null;
 }
 
-function deltakerOversiktLenke(miljo: Miljø): string {
-  if (miljo === Miljø.DevGcp) {
+function deltakerOversiktLenke(env: Environment): string {
+  if (env === Environment.DevGcp) {
     return "https://amt.intern.dev.nav.no/deltakeroversikt";
   }
   return "https://nav.no/deltakeroversikt";

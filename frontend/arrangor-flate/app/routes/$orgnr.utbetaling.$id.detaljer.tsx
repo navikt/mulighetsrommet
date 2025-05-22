@@ -1,6 +1,6 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Box, Heading, HStack, Link, Spacer, VStack } from "@navikt/ds-react";
+import { Box, Heading, Spacer, HStack, VStack, Link } from "@navikt/ds-react";
 import { ArrangorflateService, ArrFlateUtbetaling } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
@@ -103,7 +103,6 @@ export default function UtbetalingDetaljerSide() {
           },
         ]}
       />
-
       <Definisjonsliste
         title={"Utbetaling"}
         headingLevel="3"

@@ -64,7 +64,17 @@ object ArrangorflateTestUtils {
         bestillingsnummer = "A-2025/1-1",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(1000),
+            input = TilsagnBeregningFri.Input(
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "Beskrivelse",
+                        belop = 1000,
+                        antall = 1,
+                    ),
+                ),
+                prisbetingelser = null,
+            ),
             output = TilsagnBeregningFri.Output(1000),
         ),
         type = TilsagnType.TILSAGN,

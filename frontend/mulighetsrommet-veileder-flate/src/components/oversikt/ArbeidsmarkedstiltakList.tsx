@@ -1,6 +1,5 @@
 import { paginationAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { useLogEvent } from "@/logging/amplitude";
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useAtom } from "jotai";
@@ -33,8 +32,6 @@ export function ArbeidsmarkedstiltakList({
   const [{ page, pageSize }, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
   const [sortValue, setSortValue] = useAtom(sorteringAtom);
-
-  const { logEvent } = useLogEvent();
 
   useEffect(() => {
     // Reset state
@@ -78,13 +75,6 @@ export function ArbeidsmarkedstiltakList({
                 value={pageSize}
                 onChange={(e) => {
                   setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
-                  logEvent({
-                    name: "arbeidsmarkedstiltak.vis-antall-tiltak",
-                    data: {
-                      valgt_antall: parseInt(e.currentTarget.value),
-                      antall_tiltak: tiltak.length,
-                    },
-                  });
                 }}
               >
                 {antallSize.map((ant) => (

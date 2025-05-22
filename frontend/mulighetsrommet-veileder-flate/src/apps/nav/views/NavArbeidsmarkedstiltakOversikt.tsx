@@ -11,7 +11,7 @@ import {
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { LagretDokumenttype } from "@mr/api-client-v2";
+import { LagretFilterType } from "@mr/api-client-v2";
 import { LagredeFilterOversikt, LagreFilterButton, ListSkeleton } from "@mr/frontend-common";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
@@ -35,9 +35,9 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
   const { filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
   const [tagsHeight, setTagsHeight] = useState(0);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING_MODIA);
-  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING_MODIA);
-  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.GJENNOMFORING_MODIA);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.GJENNOMFORING_MODIA);
+  const deleteFilterMutation = useSlettFilter();
+  const lagreFilterMutation = useLagreFilter();
 
   return (
     <>
@@ -56,10 +56,11 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
             <HStack gap="2">
               <NullstillFilterKnapp onClick={resetFilterToDefaults} />
               <LagreFilterButton
-                onLagre={(r) => {
+                onLagre={(namedFilter) => {
                   lagreFilterMutation.mutate({
-                    ...r,
-                    type: LagretDokumenttype.GJENNOMFORING_MODIA,
+                    ...namedFilter,
+                    type: LagretFilterType.GJENNOMFORING_MODIA,
+                    isDefault: false,
                     sortOrder: 0,
                   });
                   lagreFilterMutation.reset();

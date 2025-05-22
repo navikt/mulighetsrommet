@@ -8,8 +8,8 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Prismodell, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useParams, useSearchParams } from "react-router";
-import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
 import { Laster } from "../../../../components/laster/Laster";
@@ -34,7 +34,7 @@ function useHentData() {
     ...tilsagnDefaultsQuery({
       gjennomforingId,
       type,
-      prismodell,
+      prismodell: (prismodell ?? avtale?.prismodell) || null,
       periodeStart,
       periodeSlutt,
       belop: belop ? Number(belop) : null,

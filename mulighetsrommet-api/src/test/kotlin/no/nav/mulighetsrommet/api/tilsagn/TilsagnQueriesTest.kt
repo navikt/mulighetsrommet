@@ -10,7 +10,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -29,13 +29,13 @@ class TilsagnQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        avtaler = listOf(AvtaleFixtures.AFT),
-        gjennomforinger = listOf(AFT1),
+        avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
+        gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.ArbeidsrettetRehabilitering),
     )
 
     val tilsagn = TilsagnDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = AFT1.id,
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
         lopenummer = 1,
@@ -43,7 +43,20 @@ class TilsagnQueriesTest : FunSpec({
         bestillingsnummer = "1",
         bestillingStatus = null,
         belopBrukt = 0,
-        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+        beregning = TilsagnBeregningFri(
+            TilsagnBeregningFri.Input(
+                listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "Beskrivelse",
+                        belop = 123,
+                        antall = 1,
+                    ),
+                ),
+                prisbetingelser = "Prisbetingelser fra avtale",
+            ),
+            TilsagnBeregningFri.Output(123),
+        ),
     )
 
     context("CRUD") {
@@ -62,8 +75,8 @@ class TilsagnQueriesTest : FunSpec({
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
                     it.gjennomforing shouldBe Tilsagn.Gjennomforing(
-                        id = AFT1.id,
-                        navn = AFT1.navn,
+                        id = GjennomforingFixtures.AFT1.id,
+                        navn = GjennomforingFixtures.AFT1.navn,
                     )
                     it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
                     it.kostnadssted shouldBe Gjovik
@@ -79,7 +92,10 @@ class TilsagnQueriesTest : FunSpec({
                         slettet = false,
                     )
                     it.beregning shouldBe TilsagnBeregningFri(
-                        TilsagnBeregningFri.Input(123),
+                        TilsagnBeregningFri.Input(
+                            linjer = (tilsagn.beregning as TilsagnBeregningFri).input.linjer,
+                            prisbetingelser = "Prisbetingelser fra avtale",
+                        ),
                         TilsagnBeregningFri.Output(123),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
@@ -114,12 +130,39 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
+        test("upsert fri beregning") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                val beregning = TilsagnBeregningFri(
+                    input = TilsagnBeregningFri.Input(
+                        prisbetingelser = AvtaleFixtures.ARR.prisbetingelser,
+                        linjer = listOf(
+                            TilsagnBeregningFri.InputLinje(
+                                id = UUID.randomUUID(),
+                                beskrivelse = "Beskrivelse",
+                                belop = 500,
+                                antall = 2,
+                            ),
+                        ),
+                    ),
+                    output = TilsagnBeregningFri.Output(1000),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning, gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id))
+                queries.get(tilsagn.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregning
+                }
+            }
+        }
+
         test("løpenummer er unikt per gjennomføring") {
-            val aft2 = AFT1.copy(id = UUID.randomUUID())
+            val aft2 = GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID())
 
             val domain2 = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1, aft2),
+                gjennomforinger = listOf(GjennomforingFixtures.AFT1, aft2),
             )
 
             database.runAndRollback { session ->
@@ -132,7 +175,7 @@ class TilsagnQueriesTest : FunSpec({
                         id = UUID.randomUUID(),
                         lopenummer = 1,
                         bestillingsnummer = "1",
-                        gjennomforingId = AFT1.id,
+                        gjennomforingId = GjennomforingFixtures.AFT1.id,
                     ),
                 )
 
@@ -151,7 +194,7 @@ class TilsagnQueriesTest : FunSpec({
                             id = UUID.randomUUID(),
                             lopenummer = 1,
                             bestillingsnummer = "3",
-                            gjennomforingId = AFT1.id,
+                            gjennomforingId = GjennomforingFixtures.AFT1.id,
                         ),
                     )
                 }.shouldBeLeft().shouldBeTypeOf<IntegrityConstraintViolation.UniqueViolation>()
@@ -195,7 +238,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
                 queries.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
 
-                queries.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
+                queries.getAll(gjennomforingId = GjennomforingFixtures.AFT1.id).shouldHaveSize(1)
                 queries.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
 
                 queries.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)

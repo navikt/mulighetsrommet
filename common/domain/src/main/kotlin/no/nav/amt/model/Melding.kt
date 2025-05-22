@@ -96,7 +96,7 @@ sealed interface Melding {
             data class AvsluttDeltakelse(
                 @Serializable(with = LocalDateSerializer::class)
                 val sluttdato: LocalDate? = null,
-                val aarsak: EndringAarsak,
+                val aarsak: EndringAarsak?,
                 val harDeltatt: Boolean? = null,
             ) : Endring
 
