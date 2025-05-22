@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingOppgaveData
 import no.nav.mulighetsrommet.api.navansatt.helper.NavAnsattRolleHelper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -156,15 +156,9 @@ class OppgaverService(val db: ApiDatabase) {
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
     ): List<Oppgave> = db.session {
-        val tiltakstypeIds = queries.tiltakstype.getAll().filter { it.tiltakskode in tiltakskoder }.map { it.id }
-
         queries.gjennomforing
-            .getAll(
-                tiltakstypeIder = tiltakstypeIds,
-                navEnheter = navEnheter.toList(),
-                statuser = listOf(GjennomforingStatus.GJENNOMFORES),
-            )
-            .items
+            .getOppgaveData(tiltakskoder = tiltakskoder)
+            .filter { navEnheter.isEmpty() || it.navEnhet == null || it.navEnhet.enhetsnummer in navEnheter }
             .flatMap { toOppgaver(it) }
     }
 
@@ -367,32 +361,29 @@ private fun QueryContext.toOppgaver(avtale: AvtaleDto): List<Oppgave> = buildLis
     }
 }
 
-private fun QueryContext.toOppgaver(gjennomforing: GjennomforingDto): List<Oppgave> = buildList {
-    if (gjennomforing.administratorer.isEmpty()) {
-        val updatedAt = queries.gjennomforing.getUpdatedAt(gjennomforing.id)
-        add(
-            Oppgave(
-                id = gjennomforing.id,
-                type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
-                title = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
-                enhet = gjennomforing.kontorstruktur.firstOrNull()?.region?.let {
-                    OppgaveEnhet(
-                        nummer = it.enhetsnummer,
-                        navn = it.navn,
-                    )
-                },
-                description = """Avtalen "${gjennomforing.navn}" mangler administrator. Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-                    navn = gjennomforing.tiltakstype.navn,
-                ),
-                link = OppgaveLink(
-                    linkText = "Se avtale",
-                    link = "//${gjennomforing.id}",
-                ),
-                createdAt = updatedAt,
-                oppgaveIcon = OppgaveIcon.AVTALE,
+private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildList {
+    add(
+        Oppgave(
+            id = data.id,
+            type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
+            title = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
+            enhet = data.navEnhet?.let {
+                OppgaveEnhet(
+                    nummer = it.enhetsnummer,
+                    navn = it.navn,
+                )
+            },
+            description = """Gjennomføringen "${data.navn}" mangler administrator. Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
+            tiltakstype = OppgaveTiltakstype(
+                tiltakskode = data.tiltakskode,
+                navn = data.tiltakstypeNavn,
             ),
-        )
-    }
+            link = OppgaveLink(
+                linkText = "Se gjennomforing",
+                link = "//${data.id}",
+            ),
+            createdAt = data.updatedAt,
+            oppgaveIcon = OppgaveIcon.AVTALE,
+        ),
+    )
 }
