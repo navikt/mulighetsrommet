@@ -18,7 +18,7 @@ class LagretFilterServiceTest : FunSpec({
     val bruker1Id = "B123456"
     val bruker2Id = "J987654"
 
-    context("LagreTFilterService") {
+    context("LagretFilterService") {
         val lagretFilterService = LagretFilterService(database.db)
 
         test("Skal kunne lagre og hente ut lagrede filter for bruker") {
