@@ -1,4 +1,4 @@
-import { Button, Tabs } from "@navikt/ds-react";
+import { Box, Button, Tabs } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetalingKompakt,
@@ -16,6 +16,7 @@ import { useTabState } from "../hooks/useTabState";
 import { internalNavigation } from "../internal-navigation";
 import { toggleIsEnabled } from "../services/featureToggle/featureToggleService";
 import { tekster } from "../tekster";
+import css from "../root.module.css";
 
 export const meta: MetaFunction = () => {
   return [
@@ -70,8 +71,8 @@ export default function UtbetalingOversikt() {
   const orgnr = useOrgnrFromUrl();
 
   return (
-    <>
-      <div className="flex justify-between sm:flex-row sm:my-5 sm:p-1">
+    <Box className={css.side}>
+      <div className="flex justify-between sm:flex-row sm:p-1">
         <PageHeader title={tekster.bokmal.utbetaling.headingTitle} />
         {opprettManuellUtbetalingToggle && (
           <Button
@@ -102,6 +103,6 @@ export default function UtbetalingOversikt() {
           <TilsagnTable tilsagn={tilsagn} />
         </Tabs.Panel>
       </Tabs>
-    </>
+    </Box>
   );
 }
