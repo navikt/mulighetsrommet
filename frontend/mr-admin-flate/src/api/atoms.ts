@@ -1,7 +1,12 @@
 import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { SortState } from "@navikt/ds-react";
 import { atom, WritableAtom } from "jotai";
-import { atomFamily } from "jotai/utils";
+import {
+  atomFamily,
+  atomWithStorage,
+  createJSONStorage,
+  unstable_withStorageValidator as withStorageValidator,
+} from "jotai/utils";
 import {
   Avtalestatus,
   Avtaletype,
@@ -15,40 +20,6 @@ import {
 } from "@mr/api-client-v2";
 import { z, ZodType } from "zod";
 
-const safeZodParse = (zodSchema: ZodType, initialValue: unknown, str: string) => {
-  try {
-    const result = zodSchema.safeParse(JSON.parse(str));
-    if (!result.success) {
-      return initialValue;
-    }
-    return result.data;
-  } catch {
-    return initialValue;
-  }
-};
-
-/**
- * atomWithStorage fra jotai rendrer først alltid initial value selv om den
- * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
- * Dette er anbefalt måte og ha en sync versjon av atomWithStorage
- */
-function atomWithStorage<Value>(
-  key: string,
-  initialValue: Value,
-  storage: Storage,
-  zodSchema: ZodType,
-) {
-  const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
-  return atom(
-    (get) => safeZodParse(zodSchema, initialValue, get(baseAtom)),
-    (_, set, nextValue: Value) => {
-      const str = JSON.stringify(nextValue);
-      set(baseAtom, str);
-      storage.setItem(key, str);
-    },
-  );
-}
-
 function createSorteringProps(sortItems: z.ZodType) {
   return z.object({
     tableSort: z.custom<SortState>(),
@@ -56,10 +27,10 @@ function createSorteringProps(sortItems: z.ZodType) {
   });
 }
 
-const tiltakstypeFilterSchema = z.object({
+const TiltakstypeFilterSchema = z.object({
   sort: createSorteringProps(z.custom<SorteringTiltakstyper>()).optional(),
 });
-export type TiltakstypeFilter = z.infer<typeof tiltakstypeFilterSchema>;
+export type TiltakstypeFilter = z.infer<typeof TiltakstypeFilterSchema>;
 
 export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   sort: {
@@ -71,11 +42,21 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   },
 };
 
+function createFilterValidator<T>(schema: ZodType<T>) {
+  return (values: unknown): values is T => {
+    return Boolean(schema.safeParse(values).success);
+  };
+}
+
+const tiltakstypeFilterStorage = withStorageValidator(
+  createFilterValidator(TiltakstypeFilterSchema),
+)(createJSONStorage(() => sessionStorage));
+
 export const tiltakstypeFilterAtom = atomWithStorage<TiltakstypeFilter>(
   "tiltakstype-filter",
   defaultTiltakstypeFilter,
-  sessionStorage,
-  tiltakstypeFilterSchema,
+  tiltakstypeFilterStorage,
+  { getOnInit: true },
 );
 
 export const GjennomforingFilterSchema = z.object({
@@ -116,11 +97,15 @@ export const defaultGjennomforingfilter: GjennomforingFilterType = {
   lagretFilterIdValgt: undefined,
 };
 
+const gjennomforingFilterStorage = withStorageValidator(
+  createFilterValidator(GjennomforingFilterSchema),
+)(createJSONStorage(() => sessionStorage));
+
 export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilterType>(
   "gjennomforing-filter",
   defaultGjennomforingfilter,
-  sessionStorage,
-  GjennomforingFilterSchema,
+  gjennomforingFilterStorage,
+  { getOnInit: true },
 );
 
 export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
@@ -133,8 +118,7 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
       ...defaultGjennomforingfilter,
       avtale: avtaleId,
     },
-    sessionStorage,
-    GjennomforingFilterSchema,
+    createJSONStorage(() => sessionStorage),
   );
 });
 
@@ -176,21 +160,25 @@ export const defaultAvtaleFilter: AvtaleFilterType = {
   lagretFilterIdValgt: undefined,
 };
 
+const avtaleFilterStorage = withStorageValidator(createFilterValidator(AvtaleFilterSchema))(
+  createJSONStorage(() => sessionStorage),
+);
+
 export const avtaleFilterAtom = atomWithStorage<AvtaleFilterType>(
   "avtale-filter",
   defaultAvtaleFilter,
-  sessionStorage,
-  AvtaleFilterSchema,
+  avtaleFilterStorage,
+  { getOnInit: true },
 );
 
-const arrangorerFilterSchema = z.object({
+const ArrangorerFilterSchema = z.object({
   sok: z.string(),
   page: z.number(),
   pageSize: z.number(),
   sortering: createSorteringProps(z.custom<SorteringArrangorer>()),
 });
 
-export type ArrangorerFilter = z.infer<typeof arrangorerFilterSchema>;
+export type ArrangorerFilter = z.infer<typeof ArrangorerFilterSchema>;
 export const defaultArrangorerFilter: ArrangorerFilter = {
   sok: "",
   sortering: {
@@ -204,20 +192,24 @@ export const defaultArrangorerFilter: ArrangorerFilter = {
   pageSize: ARRANGORER_PAGE_SIZE,
 };
 
+const arrangorerFilterStorage = withStorageValidator(createFilterValidator(ArrangorerFilterSchema))(
+  createJSONStorage(() => sessionStorage),
+);
+
 export const arrangorerFilterAtom = atomWithStorage<ArrangorerFilter>(
   "arrangorer-filter",
   defaultArrangorerFilter,
-  sessionStorage,
-  arrangorerFilterSchema,
+  arrangorerFilterStorage,
+  { getOnInit: true },
 );
 
-const oppgaverFilterSchema = z.object({
+const OppgaverFilterSchema = z.object({
   type: z.nativeEnum(OppgaveType).array(),
   tiltakstyper: z.array(z.string()),
   regioner: z.array(z.string()),
 });
 
-export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;
+export type OppgaverFilter = z.infer<typeof OppgaverFilterSchema>;
 
 export const defaultOppgaverFilter: OppgaverFilter = {
   type: [],
@@ -225,11 +217,15 @@ export const defaultOppgaverFilter: OppgaverFilter = {
   regioner: [],
 };
 
+const oppgaverFilterStorage = withStorageValidator(createFilterValidator(OppgaverFilterSchema))(
+  createJSONStorage(() => sessionStorage),
+);
+
 export const oppgaverFilterAtom = atomWithStorage<OppgaverFilter>(
   "oppgaver-filter",
   defaultOppgaverFilter,
-  sessionStorage,
-  oppgaverFilterSchema,
+  oppgaverFilterStorage,
+  { getOnInit: true },
 );
 
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
@@ -242,8 +238,7 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
       ...defaultAvtaleFilter,
       tiltakstyper: [tiltakstypeId],
     },
-    sessionStorage,
-    AvtaleFilterSchema,
+    createJSONStorage(() => sessionStorage),
   );
 });
 
