@@ -46,6 +46,9 @@ export function GjennomforingerForAvtalePage() {
             avtale={avtale}
           />
         }
+        nullstillFilterButton={
+          <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
+        }
         tags={
           <GjennomforingFilterTags
             filter={filter}
@@ -69,9 +72,6 @@ export function GjennomforingerForAvtalePage() {
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={
-          <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
-        }
       />
       <TilToppenKnapp />
     </>

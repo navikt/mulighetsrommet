@@ -44,6 +44,9 @@ export function AvtalerForTiltakstypePage() {
               }}
             />
           }
+          nullstillFilterButton={
+            <NullstillKnappForAvtaler filter={filter} resetFilter={resetFilter} />
+          }
           tags={
             <AvtaleFilterTags
               filter={filter}
@@ -64,13 +67,6 @@ export function AvtalerForTiltakstypePage() {
           }
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
-          nullstillFilterButton={
-            <NullstillKnappForAvtaler
-              filter={filter}
-              resetFilter={resetFilter}
-              tiltakstypeId={tiltakstypeId}
-            />
-          }
         />
       </ContentBox>
       <TilToppenKnapp />
