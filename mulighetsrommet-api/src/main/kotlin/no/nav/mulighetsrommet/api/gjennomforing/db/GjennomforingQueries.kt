@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.*
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -270,7 +271,7 @@ class GjennomforingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toTiltaksgjennomforingDto() }
+        return session.single(queryOf(query, id)) { it.toGjennomforingDto() }
     }
 
     fun getPrismodell(id: UUID): Prismodell? {
@@ -354,7 +355,6 @@ class GjennomforingQueries(private val session: Session) {
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
               and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
-                   nav_region_enhetsnummer = any (:nav_enheter) or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
@@ -370,7 +370,7 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return queryOf(query, parameters + pagination.parameters)
-            .mapPaginated { it.toTiltaksgjennomforingDto() }
+            .mapPaginated { it.toGjennomforingDto() }
             .runWithSession(this)
     }
 
@@ -382,17 +382,6 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.update(queryOf(query, id))
-    }
-
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int {
-        @Language("PostgreSQL")
-        val query = """
-            update gjennomforing
-            set opphav = ?::opphav
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.update(queryOf(query, opphav.name, id))
     }
 
     fun setPublisert(id: UUID, publisert: Boolean): Int {
@@ -530,6 +519,68 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
+    fun getOppgaveData(
+        tiltakskoder: Set<Tiltakskode>,
+    ): List<GjennomforingOppgaveData> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                gjennomforing.id,
+                gjennomforing.navn,
+                gjennomforing.updated_at,
+                tiltakstype.tiltakskode                                        as tiltakstype_tiltakskode,
+                tiltakstype.navn                                               as tiltakstype_navn,
+                (
+                    select jsonb_agg(
+                        jsonb_build_object(
+                            'enhetsnummer', nav_enhet.enhetsnummer,
+                            'navn', nav_enhet.navn,
+                            'type', nav_enhet.type,
+                            'status', nav_enhet.status,
+                            'overordnetEnhet', nav_enhet.overordnet_enhet
+                        )
+                    )
+                    from gjennomforing_nav_enhet
+                    join nav_enhet on nav_enhet.enhetsnummer = gjennomforing_nav_enhet.enhetsnummer
+                    where gjennomforing_nav_enhet.gjennomforing_id = gjennomforing.id
+                ) as nav_enheter_json
+            from gjennomforing
+                inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+                left join gjennomforing_administrator on gjennomforing_administrator.gjennomforing_id = gjennomforing.id
+            where
+                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
+                and tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avsluttet_tidspunkt) = 'GJENNOMFORES'
+            group by gjennomforing.id, tiltakstype.tiltakskode, tiltakstype.navn
+            having count(gjennomforing_administrator.nav_ident) = 0
+        """.trimIndent()
+
+        val params = mapOf(
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createArrayOfTiltakskode(it) },
+        )
+
+        return session.list(queryOf(query, params)) {
+            val navEnheter = it.stringOrNull("nav_enheter_json")
+                ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
+                ?: emptyList()
+            val kontorstruktur = fromNavEnheter(navEnheter)
+            val region = kontorstruktur.firstOrNull()?.region
+
+            GjennomforingOppgaveData(
+                id = it.uuid("id"),
+                navn = it.string("navn"),
+                updatedAt = it.localDateTime("updated_at"),
+                tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
+                tiltakstypeNavn = it.string("tiltakstype_navn"),
+                navEnhet = region?.let {
+                    GjennomforingOppgaveData.NavEnhet(
+                        enhetsnummer = region.enhetsnummer,
+                        navn = region.navn,
+                    )
+                },
+            )
+        }
+    }
+
     private fun GjennomforingDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
@@ -550,7 +601,7 @@ class GjennomforingQueries(private val session: Session) {
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
     )
 
-    private fun Row.toTiltaksgjennomforingDto(): GjennomforingDto {
+    private fun Row.toGjennomforingDto(): GjennomforingDto {
         val administratorer = stringOrNull("administratorer_json")
             ?.let { Json.decodeFromString<List<GjennomforingDto.Administrator>>(it) }
             ?: emptyList()
@@ -641,4 +692,18 @@ class GjennomforingQueries(private val session: Session) {
             stengt = stengt,
         )
     }
+}
+
+data class GjennomforingOppgaveData(
+    val id: UUID,
+    val navn: String,
+    val navEnhet: NavEnhet?,
+    val tiltakskode: Tiltakskode,
+    val tiltakstypeNavn: String,
+    val updatedAt: LocalDateTime,
+) {
+    data class NavEnhet(
+        val enhetsnummer: NavEnhetNummer,
+        val navn: String,
+    )
 }
