@@ -1,4 +1,4 @@
-import { OppgaverFilter } from "@/api/atoms";
+import { OppgaverFilterType } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
@@ -7,7 +7,7 @@ import { useAtom, WritableAtom } from "jotai";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 
 interface Props {
-  filterAtom: WritableAtom<OppgaverFilter, [newValue: OppgaverFilter], void>;
+  filterAtom: WritableAtom<OppgaverFilterType, [newValue: OppgaverFilterType], void>;
   tiltakstypeId?: string;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;

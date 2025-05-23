@@ -30,9 +30,10 @@ function createSorteringProps(sortItems: z.ZodType) {
 const TiltakstypeFilterSchema = z.object({
   sort: createSorteringProps(z.custom<SorteringTiltakstyper>()).optional(),
 });
-export type TiltakstypeFilter = z.infer<typeof TiltakstypeFilterSchema>;
 
-export const defaultTiltakstypeFilter: TiltakstypeFilter = {
+export type TiltakstypeFilterType = z.infer<typeof TiltakstypeFilterSchema>;
+
+export const defaultTiltakstypeFilter: TiltakstypeFilterType = {
   sort: {
     sortString: SorteringTiltakstyper.NAVN_ASCENDING,
     tableSort: {
@@ -52,7 +53,7 @@ const tiltakstypeFilterStorage = withStorageValidator(
   createFilterValidator(TiltakstypeFilterSchema),
 )(createJSONStorage(() => sessionStorage));
 
-export const tiltakstypeFilterAtom = atomWithStorage<TiltakstypeFilter>(
+export const tiltakstypeFilterAtom = atomWithStorage<TiltakstypeFilterType>(
   "tiltakstype-filter",
   defaultTiltakstypeFilter,
   tiltakstypeFilterStorage,
@@ -178,8 +179,8 @@ const ArrangorerFilterSchema = z.object({
   sortering: createSorteringProps(z.custom<SorteringArrangorer>()),
 });
 
-export type ArrangorerFilter = z.infer<typeof ArrangorerFilterSchema>;
-export const defaultArrangorerFilter: ArrangorerFilter = {
+export type ArrangorerFilterType = z.infer<typeof ArrangorerFilterSchema>;
+export const defaultArrangorerFilter: ArrangorerFilterType = {
   sok: "",
   sortering: {
     sortString: SorteringArrangorer.NAVN_ASCENDING,
@@ -196,7 +197,7 @@ const arrangorerFilterStorage = withStorageValidator(createFilterValidator(Arran
   createJSONStorage(() => sessionStorage),
 );
 
-export const arrangorerFilterAtom = atomWithStorage<ArrangorerFilter>(
+export const arrangorerFilterAtom = atomWithStorage<ArrangorerFilterType>(
   "arrangorer-filter",
   defaultArrangorerFilter,
   arrangorerFilterStorage,
@@ -209,9 +210,9 @@ const OppgaverFilterSchema = z.object({
   regioner: z.array(z.string()),
 });
 
-export type OppgaverFilter = z.infer<typeof OppgaverFilterSchema>;
+export type OppgaverFilterType = z.infer<typeof OppgaverFilterSchema>;
 
-export const defaultOppgaverFilter: OppgaverFilter = {
+export const defaultOppgaverFilter: OppgaverFilterType = {
   type: [],
   tiltakstyper: [],
   regioner: [],
@@ -221,7 +222,7 @@ const oppgaverFilterStorage = withStorageValidator(createFilterValidator(Oppgave
   createJSONStorage(() => sessionStorage),
 );
 
-export const oppgaverFilterAtom = atomWithStorage<OppgaverFilter>(
+export const oppgaverFilterAtom = atomWithStorage<OppgaverFilterType>(
   "oppgaver-filter",
   defaultOppgaverFilter,
   oppgaverFilterStorage,
