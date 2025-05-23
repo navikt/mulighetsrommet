@@ -9,7 +9,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato, sorterPaRegionsnavn } from "@/utils/Utils";
-import { AvtaleDto, Avtaletype, Prismodell } from "@mr/api-client-v2";
+import { AvtaleDto, Avtaletype } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
@@ -115,7 +115,7 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
 
         <VStack gap="5">
           <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
-            {okonomiTabEnabled === false && avtale.prismodell === Prismodell.FRI && (
+            {okonomiTabEnabled === false && (
               <Metadata
                 header={avtaletekster.prisOgBetalingLabel}
                 verdi={avtale.prisbetingelser ?? "-"}

@@ -200,7 +200,7 @@ export function AvtaleFormDetaljer({
           opsjonsmodell={opsjonsmodeller.find((m) => m.value === watchedOpsjonsmodell)}
         />
 
-        {okonomiTabEnabled === false && avtale?.prismodell === Prismodell.FRI && (
+        {okonomiTabEnabled === false && (
           <>
             <FormGroup>
               <Textarea
