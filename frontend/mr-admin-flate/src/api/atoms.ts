@@ -27,6 +27,12 @@ function createSorteringProps(sortItems: z.ZodType) {
   });
 }
 
+function createFilterValidator<T>(schema: ZodType<T>) {
+  return (values: unknown): values is T => {
+    return Boolean(schema.safeParse(values).success);
+  };
+}
+
 const TiltakstypeFilterSchema = z.object({
   sort: createSorteringProps(z.custom<SorteringTiltakstyper>()).optional(),
 });
@@ -42,12 +48,6 @@ export const defaultTiltakstypeFilter: TiltakstypeFilterType = {
     },
   },
 };
-
-function createFilterValidator<T>(schema: ZodType<T>) {
-  return (values: unknown): values is T => {
-    return Boolean(schema.safeParse(values).success);
-  };
-}
 
 const tiltakstypeFilterStorage = withStorageValidator(
   createFilterValidator(TiltakstypeFilterSchema),
