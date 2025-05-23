@@ -39,6 +39,7 @@ import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { Laster } from "@/components/laster/Laster";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -159,6 +160,9 @@ export function TilsagnPage() {
 
   function slettTilsagn() {
     slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
+  }
+  if (!tilsagn) {
+    return <Laster tekst="Laster tilsagn..." />;
   }
 
   const visHandlingerMeny =
