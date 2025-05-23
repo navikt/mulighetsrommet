@@ -5,7 +5,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { HStack } from "@navikt/ds-react";
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>;
@@ -14,7 +14,7 @@ interface Props {
 
 export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const lagreFilterMutation = useLagreFilter();
+  const { lagreFilter } = useLagredeFilter(LagretFilterType.AVTALE);
 
   return (
     <div className="grid grid-cols-[auto auto] h-[100%] items-center">
@@ -35,18 +35,7 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
               });
             }}
           />
-          <LagreFilterButton
-            filter={filter}
-            onLagre={(namedFilter) => {
-              lagreFilterMutation.mutate({
-                ...namedFilter,
-                type: LagretFilterType.AVTALE,
-                isDefault: false,
-                sortOrder: 0,
-              });
-              lagreFilterMutation.reset();
-            }}
-          />
+          <LagreFilterButton filter={filter} onLagre={lagreFilter} />
         </HStack>
       ) : null}
     </div>

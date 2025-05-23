@@ -1,4 +1,7 @@
-import { OppgaverFilterType as OppgaverFilterProps, oppgaverFilterAccordionAtom } from "@/api/atoms";
+import {
+  OppgaverFilterType as OppgaverFilterProps,
+  oppgaverFilterAccordionAtom,
+} from "@/api/atoms";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
