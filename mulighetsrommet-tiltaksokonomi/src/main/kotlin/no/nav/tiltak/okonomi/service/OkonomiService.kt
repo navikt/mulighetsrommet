@@ -373,5 +373,7 @@ private fun venterPaaKvittering(bestilling: Bestilling, fakturaer: List<Faktura>
         -> {}
     }
 
-    return fakturaer.any { it.status == FakturaStatusType.SENDT }
+    // TODO: Når vi får kvittering på faktura også
+    // return fakturaer.any { it.status == FakturaStatusType.SENDT }
+    return false
 }
