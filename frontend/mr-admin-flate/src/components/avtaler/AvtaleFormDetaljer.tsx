@@ -3,7 +3,6 @@ import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/Avta
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
   AvtaleDto,
@@ -201,7 +200,7 @@ export function AvtaleFormDetaljer({
           opsjonsmodell={opsjonsmodeller.find((m) => m.value === watchedOpsjonsmodell)}
         />
 
-        {okonomiTabEnabled === false && tiltakskode && erAnskaffetTiltak(tiltakskode) && (
+        {okonomiTabEnabled === false && avtale?.prismodell === Prismodell.FRI && (
           <>
             <FormGroup>
               <Textarea
