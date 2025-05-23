@@ -380,7 +380,7 @@ private fun resolveEkstraTilsagnDefaults(
     gjennomforing: GjennomforingDto,
     prisbetingelser: String?,
 ): TilsagnDefaults {
-    return if (request.prismodell == Prismodell.FRI && request.belop != null) {
+    return if (request.prismodell == Prismodell.FRI) {
         TilsagnDefaults(
             id = null,
             gjennomforingId = gjennomforing.id,
@@ -394,7 +394,7 @@ private fun resolveEkstraTilsagnDefaults(
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "",
-                        belop = request.belop,
+                        belop = request.belop ?: 0,
                         antall = 1,
                     ),
                 ),
