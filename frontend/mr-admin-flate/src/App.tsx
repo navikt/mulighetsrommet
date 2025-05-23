@@ -1,7 +1,7 @@
 import { OppgaveoversiktPage } from "@/pages/oppgaveoversikt/OppgaveoversiktPage";
 import { OppgaverPage } from "@/pages/oppgaveoversikt/oppgaver/OppgaverPage";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
-import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
+import { TilsagnForGjennomforingPage } from "@/pages/gjennomforing/tilsagn/TilsagnForGjennomforingPage";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, Rolle } from "@mr/api-client-v2";
 import { useApiQuery } from "@mr/frontend-common";
@@ -195,7 +195,7 @@ const router = (queryClient: QueryClient) => {
             children: [
               {
                 index: true,
-                element: <TilsagnForGjennomforingContainer />,
+                element: <TilsagnForGjennomforingPage />,
                 errorElement: <ErrorPage />,
               },
             ],
