@@ -30,9 +30,9 @@ export function jsonPointerToFieldPath(pointer: string): string {
   return pointer
     .replace(/^\//, "") // Remove leading slash
     .replace(/\/$/, "") // Remove trailing slash
-    .split("/")          // Split by slash
-    .filter(Boolean)     // Remove empty parts (handles double slashes)
-    .join(".")           // Join with dots
+    .split("/") // Split by slash
+    .filter(Boolean) // Remove empty parts (handles double slashes)
+    .join(".") // Join with dots
     .replace(/~1/g, "/") // Decode escaped '/'
     .replace(/~0/g, "~"); // Decode escaped '~'
 }
