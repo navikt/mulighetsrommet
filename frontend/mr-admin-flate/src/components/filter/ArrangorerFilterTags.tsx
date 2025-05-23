@@ -1,9 +1,9 @@
-import { ArrangorerFilter } from "@/api/atoms";
+import { ArrangorerFilterType } from "@/api/atoms";
 import { useAtom, WritableAtom } from "jotai";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 
 interface Props {
-  filterAtom: WritableAtom<ArrangorerFilter, [newValue: ArrangorerFilter], void>;
+  filterAtom: WritableAtom<ArrangorerFilterType, [newValue: ArrangorerFilterType], void>;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
