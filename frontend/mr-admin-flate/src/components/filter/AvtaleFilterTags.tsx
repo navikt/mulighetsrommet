@@ -1,4 +1,3 @@
-import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil } from "@mr/api-client-v2";
 import { AvtaleFilterType } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
@@ -10,15 +9,20 @@ import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>;
+  filter: AvtaleFilterType;
+  updateFilter: (values: Partial<AvtaleFilterType>) => void;
   tiltakstypeId?: string;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
 
-export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTagsHeight }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
-
+export function AvtaleFilterTags({
+  filter,
+  updateFilter,
+  tiltakstypeId,
+  filterOpen,
+  setTagsHeight,
+}: Props) {
   const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE, {
@@ -31,8 +35,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
         <FilterTag
           label={`Søkt på: '${filter.sok}'`}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               sok: "",
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -45,8 +48,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
           key={status}
           label={AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               statuser: addOrRemove(filter.statuser, status),
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -59,8 +61,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
           key={avtaletype}
           label={avtaletypeTilTekst(avtaletype)}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               avtaletyper: addOrRemove(filter.avtaletyper, avtaletype),
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -72,8 +73,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
         <FilterTag
           label="Mine avtaler"
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               visMineAvtaler: false,
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -86,8 +86,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
           key={enhetsnummer}
           label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -101,8 +100,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
             key={tiltakstype}
             label={tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
             onClose={() => {
-              setFilter({
-                ...filter,
+              updateFilter({
                 tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                 page: 1,
                 lagretFilterIdValgt: undefined,
@@ -115,8 +113,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
           key={id}
           label={arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               arrangorer: addOrRemove(filter.arrangorer, id),
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -128,8 +125,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTag
         <FilterTag
           label={filter.personvernBekreftet ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               personvernBekreftet: undefined,
               page: 1,
               lagretFilterIdValgt: undefined,

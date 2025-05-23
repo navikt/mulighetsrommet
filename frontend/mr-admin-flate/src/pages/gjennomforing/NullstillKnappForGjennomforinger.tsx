@@ -1,18 +1,15 @@
-import { defaultGjennomforingfilter, GjennomforingFilterType } from "@/api/atoms";
-import { AvtaleDto, LagretFilterType } from "@mr/api-client-v2";
+import { GjennomforingFilterType } from "@/api/atoms";
+import { LagretFilterType } from "@mr/api-client-v2";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { WritableAtom } from "jotai";
-import { useAtom } from "jotai/index";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 
 interface Props {
-  filterAtom: WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>;
-  avtale?: AvtaleDto;
+  filter: GjennomforingFilterType;
+  resetFilter: () => void;
 }
 
-export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function NullstillKnappForGjennomforinger({ filter, resetFilter }: Props) {
   const { lagreFilter } = useLagredeFilter(LagretFilterType.GJENNOMFORING);
 
   return filter.visMineGjennomforinger ||
@@ -22,14 +19,7 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
     filter.statuser.length > 0 ||
     filter.arrangorer.length > 0 ? (
     <>
-      <NullstillFilterKnapp
-        onClick={() => {
-          setFilter({
-            ...defaultGjennomforingfilter,
-            avtale: avtale?.id ?? defaultGjennomforingfilter.avtale,
-          });
-        }}
-      />
+      <NullstillFilterKnapp onClick={() => resetFilter()} />
       <LagreFilterButton filter={filter} onLagre={lagreFilter} />
     </>
   ) : null;

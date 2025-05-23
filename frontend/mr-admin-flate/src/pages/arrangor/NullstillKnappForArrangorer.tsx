@@ -1,19 +1,15 @@
-import { WritableAtom, useAtom } from "jotai";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { ArrangorerFilterType, defaultArrangorerFilter } from "@/api/atoms";
+import { ArrangorerFilterType } from "@/api/atoms";
 
 interface Props {
-  filterAtom: WritableAtom<ArrangorerFilterType, [newValue: ArrangorerFilterType], void>;
+  filter: ArrangorerFilterType;
+  resetFilter: () => void;
 }
 
-export function NullstillKnappForArrangorer({ filterAtom }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
-
+export function NullstillKnappForArrangorer({ filter, resetFilter }: Props) {
   return (
     <div>
-      {filter.sok.length > 0 ? (
-        <NullstillFilterKnapp onClick={() => setFilter({ ...defaultArrangorerFilter })} />
-      ) : null}
+      {filter.sok.length > 0 ? <NullstillFilterKnapp onClick={() => resetFilter()} /> : null}
     </div>
   );
 }

@@ -77,7 +77,7 @@ export const GjennomforingFilterSchema = z.object({
 
 export type GjennomforingFilterType = z.infer<typeof GjennomforingFilterSchema>;
 
-export const defaultGjennomforingfilter: GjennomforingFilterType = {
+export const defaultGjennomforingFilter: GjennomforingFilterType = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
@@ -104,7 +104,7 @@ const gjennomforingFilterStorage = withStorageValidator(
 
 export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilterType>(
   "gjennomforing-filter",
-  defaultGjennomforingfilter,
+  defaultGjennomforingFilter,
   gjennomforingFilterStorage,
   { getOnInit: true },
 );
@@ -116,7 +116,7 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   return atomWithStorage(
     `gjennomforing-filter-${avtaleId}`,
     {
-      ...defaultGjennomforingfilter,
+      ...defaultGjennomforingFilter,
       avtale: avtaleId,
     },
     createJSONStorage(() => sessionStorage),
@@ -229,7 +229,7 @@ export const oppgaverFilterAtom = atomWithStorage<OppgaverFilterType>(
   { getOnInit: true },
 );
 
-export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
+export const getAvtalerForTiltakstypeFilterAtomFamily = atomFamily<
   string,
   WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>
 >((tiltakstypeId: string) => {

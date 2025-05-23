@@ -1,4 +1,8 @@
-import { gjennomforingerForAvtaleFilterAtomFamily } from "@/api/atoms";
+import {
+  defaultGjennomforingFilter,
+  gjennomforingerForAvtaleFilterAtomFamily,
+  GjennomforingFilterType,
+} from "@/api/atoms";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
@@ -10,21 +14,32 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useAtom } from "jotai";
 
 export function GjennomforingerForAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
 
   const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(avtaleId);
+  const [filter, setFilter] = useAtom(filterAtomGjennomforinger);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
+
+  function updateFilter(value: Partial<GjennomforingFilterType>) {
+    setFilter({ ...filter, ...value });
+  }
+
+  function resetFilter() {
+    setFilter({ ...defaultGjennomforingFilter, avtale: avtaleId });
+  }
 
   return (
     <>
       <FilterAndTableLayout
         filter={
           <GjennomforingFilter
-            filterAtom={filterAtomGjennomforinger}
+            filter={filter}
+            updateFilter={updateFilter}
             skjulFilter={{
               tiltakstype: true,
             }}
@@ -33,7 +48,8 @@ export function GjennomforingerForAvtalePage() {
         }
         tags={
           <GjennomforingFilterTags
-            filterAtom={filterAtomGjennomforinger}
+            filter={filter}
+            updateFilter={updateFilter}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}
           />
@@ -45,7 +61,8 @@ export function GjennomforingerForAvtalePage() {
               tiltakstype: true,
               arrangor: true,
             }}
-            filterAtom={filterAtomGjennomforinger}
+            filter={filter}
+            updateFilter={updateFilter}
             tagsHeight={tagsHeight}
             filterOpen={filterOpen}
           />
@@ -53,10 +70,7 @@ export function GjennomforingerForAvtalePage() {
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         nullstillFilterButton={
-          <NullstillKnappForGjennomforinger
-            avtale={avtale}
-            filterAtom={filterAtomGjennomforinger}
-          />
+          <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
         }
       />
       <TilToppenKnapp />

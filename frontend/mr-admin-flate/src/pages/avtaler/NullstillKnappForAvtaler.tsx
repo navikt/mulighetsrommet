@@ -1,19 +1,17 @@
-import { AvtaleFilterType, defaultAvtaleFilter } from "@/api/atoms";
+import { AvtaleFilterType } from "@/api/atoms";
 import { LagretFilterType } from "@mr/api-client-v2";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { HStack } from "@navikt/ds-react";
-import { WritableAtom } from "jotai";
-import { useAtom } from "jotai/index";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>;
+  filter: AvtaleFilterType;
+  resetFilter: () => void;
   tiltakstypeId?: string;
 }
 
-export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function NullstillKnappForAvtaler({ filter, resetFilter, tiltakstypeId }: Props) {
   const { lagreFilter } = useLagredeFilter(LagretFilterType.AVTALE);
 
   return (
@@ -27,14 +25,7 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
       filter.personvernBekreftet !== undefined ||
       filter.arrangorer.length > 0 ? (
         <HStack gap="2">
-          <NullstillFilterKnapp
-            onClick={() => {
-              setFilter({
-                ...defaultAvtaleFilter,
-                tiltakstyper: tiltakstypeId ? [tiltakstypeId] : defaultAvtaleFilter.tiltakstyper,
-              });
-            }}
-          />
+          <NullstillFilterKnapp onClick={() => resetFilter()} />
           <LagreFilterButton filter={filter} onLagre={lagreFilter} />
         </HStack>
       ) : null}

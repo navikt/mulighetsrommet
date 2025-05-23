@@ -12,7 +12,6 @@ import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
 import React, { createRef, useEffect, useState } from "react";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Laster } from "../laster/Laster";
@@ -25,13 +24,19 @@ const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: b
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
-  filterAtom: WritableAtom<GjennomforingFilterType, GjennomforingFilterType[], void>;
+  filter: GjennomforingFilterType;
+  updateFilter: (values: Partial<GjennomforingFilterType>) => void;
   tagsHeight: number;
   filterOpen: boolean;
 }
 
-export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filterOpen }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function GjennomforingTable({
+  skjulKolonner,
+  filter,
+  updateFilter,
+  tagsHeight,
+  filterOpen,
+}: Props) {
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
@@ -67,10 +72,6 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
       setExcelUrl("");
     }
   }, [excelUrl, link]);
-
-  function updateFilter(newFilter: Partial<GjennomforingFilterType>) {
-    setFilter({ ...filter, ...newFilter });
-  }
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending

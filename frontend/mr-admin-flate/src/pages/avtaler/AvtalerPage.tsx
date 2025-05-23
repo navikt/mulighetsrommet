@@ -1,4 +1,9 @@
-import { avtaleFilterAtom, AvtaleFilterSchema, AvtaleFilterType } from "@/api/atoms";
+import {
+  avtaleFilterAtom,
+  AvtaleFilterSchema,
+  AvtaleFilterType,
+  defaultAvtaleFilter,
+} from "@/api/atoms";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
@@ -24,6 +29,14 @@ export function AvtalerPage() {
     LagretFilterType.AVTALE,
   );
 
+  function updateFilter(value: Partial<AvtaleFilterType>) {
+    setFilter((prev) => ({ ...prev, ...value }));
+  }
+
+  function resetFilter() {
+    setFilter(defaultAvtaleFilter);
+  }
+
   return (
     <main>
       <title>Avtaler</title>
@@ -31,8 +44,10 @@ export function AvtalerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
-            nullstillFilterButton={<NullstillKnappForAvtaler filterAtom={avtaleFilterAtom} />}
-            filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
+            nullstillFilterButton={
+              <NullstillKnappForAvtaler filter={filter} resetFilter={resetFilter} />
+            }
+            filter={<AvtaleFilter filter={filter} updateFilter={updateFilter} />}
             lagredeFilter={
               <LagredeFilterOversikt
                 filter={filter}
@@ -49,7 +64,8 @@ export function AvtalerPage() {
             }
             tags={
               <AvtaleFilterTags
-                filterAtom={avtaleFilterAtom}
+                filter={filter}
+                updateFilter={updateFilter}
                 filterOpen={filterOpen}
                 setTagsHeight={setTagsHeight}
               />
@@ -57,7 +73,8 @@ export function AvtalerPage() {
             buttons={<AvtaleFilterButtons />}
             table={
               <AvtaleTabell
-                filterAtom={avtaleFilterAtom}
+                filter={filter}
+                updateFilter={updateFilter}
                 tagsHeight={tagsHeight}
                 filterOpen={filterOpen}
               />

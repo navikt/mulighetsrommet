@@ -1,9 +1,8 @@
-import { useApiQuery } from "@mr/frontend-common";
-import { useDebounce } from "@mr/frontend-common";
+import { useApiQuery, useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingFilterType } from "../atoms";
 import { type GetGjennomforingerData, GjennomforingerService } from "@mr/api-client-v2";
-import { getPublisertStatus } from "../../utils/Utils";
+import { getPublisertStatus } from "@/utils/Utils";
 
 export function useAdminGjennomforinger(filter: Partial<GjennomforingFilterType>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
