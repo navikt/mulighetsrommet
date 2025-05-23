@@ -6,7 +6,7 @@ import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { TilsagnTabell } from "./TilsagnTabell";
+import { TilsagnTabell } from "./tabell/TilsagnTabell";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
@@ -17,7 +17,7 @@ function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
   };
 }
 
-export function TilsagnForGjennomforingContainer() {
+export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
