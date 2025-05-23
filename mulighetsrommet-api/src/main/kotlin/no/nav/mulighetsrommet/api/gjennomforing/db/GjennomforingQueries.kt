@@ -355,7 +355,6 @@ class GjennomforingQueries(private val session: Session) {
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
               and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
-                   nav_region_enhetsnummer = any (:nav_enheter) or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or

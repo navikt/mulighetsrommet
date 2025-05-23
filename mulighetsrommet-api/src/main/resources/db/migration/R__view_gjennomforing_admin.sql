@@ -23,11 +23,6 @@ select gjennomforing.id,
        gjennomforing.sted_for_gjennomforing,
        gjennomforing.publisert,
        gjennomforing.lopenummer,
-       gjennomforing.nav_region                                       as nav_region_enhetsnummer,
-       nav_region.navn                                                as nav_region_navn,
-       nav_region.type                                                as nav_region_type,
-       nav_region.overordnet_enhet                                    as nav_region_overordnet_enhet,
-       nav_region.status                                              as nav_region_status,
        gjennomforing.arena_ansvarlig_enhet                            as arena_nav_enhet_enhetsnummer,
        arena_nav_enhet.navn                                           as arena_nav_enhet_navn,
        gjennomforing.avsluttet_tidspunkt,
@@ -54,7 +49,6 @@ select gjennomforing.id,
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
-         left join nav_enhet nav_region on nav_region.enhetsnummer = gjennomforing.nav_region
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
