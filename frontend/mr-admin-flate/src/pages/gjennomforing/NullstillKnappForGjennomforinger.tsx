@@ -1,4 +1,4 @@
-import { defaultGjennomforingfilter, GjennomforingFilter } from "@/api/atoms";
+import { defaultGjennomforingfilter, GjennomforingFilterType } from "@/api/atoms";
 import { AvtaleDto, LagretFilterType } from "@mr/api-client-v2";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
@@ -7,7 +7,7 @@ import { useAtom } from "jotai/index";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 interface Props {
-  filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;
+  filterAtom: WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>;
   avtale?: AvtaleDto;
 }
 

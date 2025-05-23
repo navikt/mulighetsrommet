@@ -1,6 +1,6 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import {
-  GjennomforingFilter as GjennomforingFilterProps,
+  GjennomforingFilterType as GjennomforingFilterProps,
   gjennomforingFilterAccordionAtom,
 } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";

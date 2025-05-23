@@ -175,9 +175,10 @@ export const GjennomforingFilterSchema = z.object({
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
 });
-export type GjennomforingFilter = z.infer<typeof GjennomforingFilterSchema>;
 
-export const defaultGjennomforingfilter: GjennomforingFilter = {
+export type GjennomforingFilterType = z.infer<typeof GjennomforingFilterSchema>;
+
+export const defaultGjennomforingfilter: GjennomforingFilterType = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
@@ -198,7 +199,7 @@ export const defaultGjennomforingfilter: GjennomforingFilter = {
   lagretFilterIdValgt: undefined,
 };
 
-export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilter>(
+export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilterType>(
   "gjennomforing-filter",
   defaultGjennomforingfilter,
   sessionStorage,
@@ -207,7 +208,7 @@ export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilter>(
 
 export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   string,
-  WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>
+  WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>
 >((avtaleId: string) => {
   return atomWithHashAndStorage(
     `gjennomforing-filter-${avtaleId}`,
@@ -234,9 +235,10 @@ export const AvtaleFilterSchema = z.object({
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
 });
-export type AvtaleFilter = z.infer<typeof AvtaleFilterSchema>;
 
-export const defaultAvtaleFilter: AvtaleFilter = {
+export type AvtaleFilterType = z.infer<typeof AvtaleFilterSchema>;
+
+export const defaultAvtaleFilter: AvtaleFilterType = {
   sok: "",
   statuser: [Avtalestatus.AKTIV],
   avtaletyper: [],
@@ -257,7 +259,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   lagretFilterIdValgt: undefined,
 };
 
-export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
+export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilterType>(
   "avtale-filter",
   defaultAvtaleFilter,
   sessionStorage,
@@ -315,7 +317,7 @@ export const oppgaverFilterAtom = atomWithHashAndStorage<OppgaverFilter>(
 
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
   string,
-  WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>
+  WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>
 >((tiltakstypeId: string) => {
   return atomWithHashAndStorage(
     `avtale-filter-${tiltakstypeId}`,

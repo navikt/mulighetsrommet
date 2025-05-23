@@ -1,4 +1,4 @@
-import { GjennomforingFilter } from "@/api/atoms";
+import { GjennomforingFilterType } from "@/api/atoms";
 import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
@@ -25,7 +25,7 @@ const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: b
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
-  filterAtom: WritableAtom<GjennomforingFilter, GjennomforingFilter[], void>;
+  filterAtom: WritableAtom<GjennomforingFilterType, GjennomforingFilterType[], void>;
   tagsHeight: number;
   filterOpen: boolean;
 }
@@ -38,7 +38,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
   const { data, isLoading } = useAdminGjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
 
-  async function lastNedFil(filter: GjennomforingFilter) {
+  async function lastNedFil(filter: GjennomforingFilterType) {
     const query = createQueryParamsForExcelDownloadForGjennomforing(filter);
     const { data } = await GjennomforingerService.lastNedGjennomforingerSomExcel(query);
     return data;
@@ -68,7 +68,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
     }
   }, [excelUrl, link]);
 
-  function updateFilter(newFilter: Partial<GjennomforingFilter>) {
+  function updateFilter(newFilter: Partial<GjennomforingFilterType>) {
     setFilter({ ...filter, ...newFilter });
   }
 

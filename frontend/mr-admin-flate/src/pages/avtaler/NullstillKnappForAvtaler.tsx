@@ -1,4 +1,4 @@
-import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
+import { AvtaleFilterType, defaultAvtaleFilter } from "@/api/atoms";
 import { LagretFilterType } from "@mr/api-client-v2";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
@@ -8,7 +8,7 @@ import { useAtom } from "jotai/index";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
+  filterAtom: WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>;
   tiltakstypeId?: string;
 }
 
