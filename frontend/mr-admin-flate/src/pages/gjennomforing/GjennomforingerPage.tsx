@@ -4,7 +4,6 @@ import {
   GjennomforingFilterType,
 } from "@/api/atoms";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
@@ -20,15 +19,14 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.GJENNOMFORING);
-  const deleteFilterMutation = useSlettFilter();
-  const lagreFilterMutation = useLagreFilter();
+  const { lagredeFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
+    LagretFilterType.GJENNOMFORING,
+  );
 
   return (
     <main>
@@ -44,15 +42,8 @@ export function GjennomforingerPage() {
               onSetFilter={(filter) => {
                 setFilter(filter as GjennomforingFilterType);
               }}
-              onDeleteFilter={(id) => {
-                deleteFilterMutation.mutate(id);
-              }}
-              onSetDefaultFilter={(id, isDefault) => {
-                const filter = lagredeFilter.find((f) => f.id === id);
-                if (filter) {
-                  lagreFilterMutation.mutate({ ...filter, isDefault });
-                }
-              }}
+              onDeleteFilter={slettFilter}
+              onSetDefaultFilter={setDefaultFilter}
               validateFilterStructure={(filter) => {
                 return GjennomforingFilterSchema.safeParse(filter).success;
               }}

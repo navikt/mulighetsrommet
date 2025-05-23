@@ -1,6 +1,5 @@
 import { avtaleFilterAtom, AvtaleFilterSchema, AvtaleFilterType } from "@/api/atoms";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
@@ -16,15 +15,14 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(avtaleFilterAtom);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.AVTALE);
-  const deleteFilterMutation = useSlettFilter();
-  const lagreFilterMutation = useLagreFilter();
+  const { lagredeFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
+    LagretFilterType.AVTALE,
+  );
 
   return (
     <main>
@@ -42,15 +40,8 @@ export function AvtalerPage() {
                 onSetFilter={(filter) => {
                   setFilter(filter as AvtaleFilterType);
                 }}
-                onDeleteFilter={(id) => {
-                  deleteFilterMutation.mutate(id);
-                }}
-                onSetDefaultFilter={(id, isDefault) => {
-                  const filter = lagredeFilter.find((f) => f.id === id);
-                  if (filter) {
-                    lagreFilterMutation.mutate({ ...filter, isDefault });
-                  }
-                }}
+                onDeleteFilter={slettFilter}
+                onSetDefaultFilter={setDefaultFilter}
                 validateFilterStructure={(filter) => {
                   return AvtaleFilterSchema.safeParse(filter).success;
                 }}

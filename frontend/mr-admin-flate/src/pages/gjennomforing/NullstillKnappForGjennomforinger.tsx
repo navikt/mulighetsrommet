@@ -4,7 +4,7 @@ import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/La
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>;
@@ -13,7 +13,7 @@ interface Props {
 
 export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const lagreFilterMutation = useLagreFilter();
+  const { lagreFilter } = useLagredeFilter(LagretFilterType.GJENNOMFORING);
 
   return filter.visMineGjennomforinger ||
     filter.search.length > 0 ||
@@ -30,18 +30,7 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
           });
         }}
       />
-      <LagreFilterButton
-        filter={filter}
-        onLagre={(namedFilter) => {
-          lagreFilterMutation.mutate({
-            ...namedFilter,
-            type: LagretFilterType.GJENNOMFORING,
-            isDefault: false,
-            sortOrder: 0,
-          });
-          lagreFilterMutation.reset();
-        }}
-      />
+      <LagreFilterButton filter={filter} onLagre={lagreFilter} />
     </>
   ) : null;
 }

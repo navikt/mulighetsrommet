@@ -1,7 +1,7 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import {
-  GjennomforingFilterType as GjennomforingFilterProps,
   gjennomforingFilterAccordionAtom,
+  GjennomforingFilterType as GjennomforingFilterProps,
 } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
@@ -16,7 +16,6 @@ import { ArrangorTil, AvtaleDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { useEffect } from "react";
 import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";
@@ -27,7 +26,7 @@ interface Props {
   avtale?: AvtaleDto;
 }
 
-export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) {
+export function GjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
   const { data: tiltakstyper } = useTiltakstyper();
@@ -39,13 +38,6 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
       pageSize: 10000,
     },
   );
-
-  useEffect(() => {
-    setFilter({
-      ...filter,
-      avtale: avtale?.id ?? "",
-    });
-  }, [avtale, filter, setFilter]);
 
   if (!arrangorer || isLoadingArrangorer) {
     return <FilterSkeleton />;
