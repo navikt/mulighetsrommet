@@ -2,7 +2,6 @@ import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { SortState } from "@navikt/ds-react";
 import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
-import { RESET } from "jotai/vanilla/utils";
 import {
   Avtalestatus,
   Avtaletype,
@@ -15,11 +14,6 @@ import {
   SorteringTiltakstyper,
 } from "@mr/api-client-v2";
 import { z, ZodType } from "zod";
-
-type SetStateActionWithReset<Value> =
-  | Value
-  | typeof RESET
-  | ((prev: Value) => Value | typeof RESET);
 
 const safeZodParse = (zodSchema: ZodType, initialValue: unknown, str: string) => {
   try {
@@ -55,83 +49,6 @@ function atomWithStorage<Value>(
   );
 }
 
-/**
- * Kopiert fra https://github.com/jotaijs/jotai-location/blob/main/src/atomWithHash.ts
- * med unntak av:
- * - det indre atom'et som er endret til et storage atom
- * - setHash har alltid "replaceState" oppførsel (dvs. lager ikke ny entry i history)
- * - Forsøker å lese inn hash først (ytterst i funksjonen her), uten dette funka ikke
- *   lenking med hash i ny fane
- */
-function atomWithHashAndStorage<Value>(
-  key: string,
-  initialValue: Value,
-  storage: Storage,
-  zodSchema: ZodType,
-): WritableAtom<Value, [SetStateActionWithReset<Value>], void> {
-  const serialize = JSON.stringify;
-  const deserialize = (str: string) => safeZodParse(zodSchema, initialValue, str);
-  const subscribe = (callback: any) => {
-    window.addEventListener("hashchange", callback);
-    return () => {
-      window.removeEventListener("hashchange", callback);
-    };
-  };
-  const setHash = (searchParams: string) => {
-    window.history.replaceState(
-      window.history.state,
-      "",
-      `${window.location.pathname}${window.location.search}#${searchParams}`,
-    );
-  };
-
-  let str = null;
-  if (typeof window !== "undefined" && window.location) {
-    const searchParams = new URLSearchParams(window.location.hash.slice(1));
-    str = searchParams.get(key);
-  }
-
-  const strAtom = atomWithStorage<string | null>(key, str, storage, z.string().nullable());
-  strAtom.onMount = (setAtom) => {
-    if (typeof window === "undefined" || !window.location) {
-      return undefined;
-    }
-    const callback = () => {
-      const searchParams = new URLSearchParams(window.location.hash.slice(1));
-      const str = searchParams.get(key);
-      if (str != null) {
-        setAtom(str);
-      }
-    };
-    const unsubscribe = subscribe(callback);
-    callback();
-    return unsubscribe;
-  };
-  const valueAtom = atom((get) => {
-    const str = get(strAtom);
-    return str === null ? initialValue : deserialize(str);
-  });
-  return atom(
-    (get) => get(valueAtom),
-    (get, set, update: SetStateActionWithReset<Value>) => {
-      const nextValue =
-        typeof update === "function"
-          ? (update as (prev: Value) => Value | typeof RESET)(get(valueAtom))
-          : update;
-      const searchParams = new URLSearchParams(window.location.hash.slice(1));
-      if (nextValue === RESET) {
-        set(strAtom, null);
-        searchParams.delete(key);
-      } else {
-        const str = serialize(nextValue);
-        set(strAtom, str);
-        searchParams.set(key, str);
-      }
-      setHash(searchParams.toString());
-    },
-  );
-}
-
 function createSorteringProps(sortItems: z.ZodType) {
   return z.object({
     tableSort: z.custom<SortState>(),
@@ -154,7 +71,7 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   },
 };
 
-export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
+export const tiltakstypeFilterAtom = atomWithStorage<TiltakstypeFilter>(
   "tiltakstype-filter",
   defaultTiltakstypeFilter,
   sessionStorage,
@@ -210,7 +127,7 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   string,
   WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>
 >((avtaleId: string) => {
-  return atomWithHashAndStorage(
+  return atomWithStorage(
     `gjennomforing-filter-${avtaleId}`,
     {
       ...defaultGjennomforingfilter,
@@ -259,7 +176,7 @@ export const defaultAvtaleFilter: AvtaleFilterType = {
   lagretFilterIdValgt: undefined,
 };
 
-export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilterType>(
+export const avtaleFilterAtom = atomWithStorage<AvtaleFilterType>(
   "avtale-filter",
   defaultAvtaleFilter,
   sessionStorage,
@@ -287,7 +204,7 @@ export const defaultArrangorerFilter: ArrangorerFilter = {
   pageSize: ARRANGORER_PAGE_SIZE,
 };
 
-export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
+export const arrangorerFilterAtom = atomWithStorage<ArrangorerFilter>(
   "arrangorer-filter",
   defaultArrangorerFilter,
   sessionStorage,
@@ -308,7 +225,7 @@ export const defaultOppgaverFilter: OppgaverFilter = {
   regioner: [],
 };
 
-export const oppgaverFilterAtom = atomWithHashAndStorage<OppgaverFilter>(
+export const oppgaverFilterAtom = atomWithStorage<OppgaverFilter>(
   "oppgaver-filter",
   defaultOppgaverFilter,
   sessionStorage,
@@ -319,7 +236,7 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
   string,
   WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>
 >((tiltakstypeId: string) => {
-  return atomWithHashAndStorage(
+  return atomWithStorage(
     `avtale-filter-${tiltakstypeId}`,
     {
       ...defaultAvtaleFilter,
