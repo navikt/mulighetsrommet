@@ -227,12 +227,13 @@ class OkonomiServiceTest : FunSpec({
         test("annullering feiler når det finnes fakturaer for bestilling") {
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling("5"))
+                    .copy(status = BestillingStatusType.AKTIV)
                 queries.bestilling.insertBestilling(bestilling)
 
                 val faktura = Faktura.fromOpprettFaktura(
                     createOpprettFaktura("5", "5-1"),
                     bestilling.linjer,
-                )
+                ).copy(status = FakturaStatusType.UTBETALT)
                 queries.faktura.insertFaktura(faktura)
             }
 
@@ -245,8 +246,10 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
+        val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling("6"))
+            .copy(status = BestillingStatusType.AKTIV)
+
         db.session {
-            val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling("6"))
             queries.bestilling.insertBestilling(bestilling)
         }
 
@@ -257,6 +260,20 @@ class OkonomiServiceTest : FunSpec({
             val annullerBestilling = createAnnullerBestilling("6")
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke annullere bestilling 6 hos oebs"
+            }
+        }
+
+        test("annullering feiler når bestilling ikke er aktiv ennå") {
+            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("87"))
+            db.session {
+                queries.bestilling.insertBestilling(bestilling2)
+            }
+            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
+            val service = createOkonomiService(oebsClient(oebsRespondError()))
+
+            val annullerBestilling = createAnnullerBestilling("87")
+            service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
+                it.message shouldBe "Bestilling ${bestilling2.bestillingsnummer} kan ikke annulleres fordi vi venter på kvittering"
             }
         }
 
@@ -302,9 +319,8 @@ class OkonomiServiceTest : FunSpec({
         val bestillingsnummer = "B1"
 
         db.session {
-            val bestilling = Bestilling.fromOpprettBestilling(
-                createOpprettBestilling(bestillingsnummer),
-            )
+            val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
+                .copy(status = BestillingStatusType.AKTIV)
             queries.bestilling.insertBestilling(bestilling)
         }
 
@@ -323,6 +339,19 @@ class OkonomiServiceTest : FunSpec({
             val opprettFaktura = createOpprettFaktura(bestillingsnummer, "B1-F1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke sende faktura B1-F1 til oebs"
+            }
+        }
+
+        test("feiler når bestilling ikke er aktiv ennå") {
+            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("876"))
+            db.session {
+                queries.bestilling.insertBestilling(bestilling2)
+            }
+            val service = createOkonomiService(oebsClient(oebsRespondError()))
+
+            val opprettFaktura = createOpprettFaktura(bestilling2.bestillingsnummer, "B1-F1")
+            service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
+                it.message shouldBe "Faktura B1-F1 kan ikke opprettes fordi vi venter på kvittering"
             }
         }
 
@@ -369,11 +398,13 @@ class OkonomiServiceTest : FunSpec({
     }
 
     context("gjør opp bestilling") {
-        db.session {
-            val bestilling1 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B2"))
-            queries.bestilling.insertBestilling(bestilling1)
+        val bestilling1 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B2"))
+            .copy(status = BestillingStatusType.AKTIV)
+        val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B3"))
+            .copy(status = BestillingStatusType.AKTIV)
 
-            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B3"))
+        db.session {
+            queries.bestilling.insertBestilling(bestilling1)
             queries.bestilling.insertBestilling(bestilling2)
         }
 
@@ -439,6 +470,22 @@ class OkonomiServiceTest : FunSpec({
                         status = BestillingStatusType.OPPGJORT,
                     ),
                 )
+            }
+        }
+
+        // TODO: Skru på når vi får kvittering på fakturaer
+        xtest("feiler når en faktura venter på kvittering") {
+            val service = createOkonomiService(oebsClient(oebsRespondError()))
+
+            val opprettFaktura = createOpprettFaktura(bestilling1.bestillingsnummer, "B1-F55")
+            db.session {
+                val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling1.linjer)
+                queries.faktura.insertFaktura(faktura)
+            }
+
+            val gjorOppBestilling = createGjorOppBestilling(bestilling1.bestillingsnummer)
+            service.gjorOppBestilling(gjorOppBestilling).shouldBeLeft().should {
+                it.message shouldBe "Bestilling ${bestilling1.bestillingsnummer} kan ikke gjøres opp fordi vi venter på kvittering"
             }
         }
     }
