@@ -13,8 +13,12 @@ import java.util.*
 
 class LagretFilterService(private val db: ApiDatabase) {
 
-    fun upsertFilter(brukerId: String, filter: LagretFilter): Either<LagretFilterError, UUID> = db.session {
+    fun upsertFilter(brukerId: String, filter: LagretFilter): Either<LagretFilterError, UUID> = db.transaction {
         checkOwnership(filter.id, brukerId).map {
+            if (filter.isDefault) {
+                unsetDefault(brukerId, filter.type)
+            }
+
             @Language("PostgreSQL")
             val query = """
             insert into lagret_filter (id, bruker_id, navn, type, filter, is_default, sort_order)
@@ -91,5 +95,26 @@ class LagretFilterService(private val db: ApiDatabase) {
         return currentOwner?.takeIf { it != brukerId }
             ?.let { LagretFilterError.Forbidden("Du har ikke tilgang til filter med id=$filterId").left() }
             ?: filterId.right()
+    }
+
+    private fun QueryContext.unsetDefault(
+        brukerId: String,
+        type: LagretFilterType,
+    ) {
+        @Language("PostgreSQL")
+        val resetDefaultQuery = """
+            update lagret_filter
+            set is_default = false
+            where bruker_id = :bruker_id
+              and type = :type::filter_dokument_type
+              and is_default = true
+        """.trimIndent()
+
+        val params = mapOf(
+            "bruker_id" to brukerId,
+            "type" to type.name,
+        )
+
+        session.execute(queryOf(resetDefaultQuery, params))
     }
 }

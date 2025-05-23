@@ -1,6 +1,5 @@
-import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil } from "@mr/api-client-v2";
-import { GjennomforingFilter } from "@/api/atoms";
+import { GjennomforingFilterType } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
@@ -8,13 +7,18 @@ import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 
 interface Props {
-  filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;
+  filter: GjennomforingFilterType;
+  updateFilter: (values: Partial<GjennomforingFilterType>) => void;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
 
-export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function GjennomforingFilterTags({
+  filter,
+  updateFilter,
+  filterOpen,
+  setTagsHeight,
+}: Props) {
   const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
@@ -26,8 +30,7 @@ export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight 
         <FilterTag
           label={`Søkt på: '${filter.search}'`}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               search: "",
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -38,9 +41,7 @@ export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight 
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
           navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
-          onClose={() =>
-            setFilter({ ...filter, navEnheter: [], page: 1, lagretFilterIdValgt: undefined })
-          }
+          onClose={() => updateFilter({ navEnheter: [], page: 1, lagretFilterIdValgt: undefined })}
         />
       )}
       {filter.tiltakstyper.map((tiltakstype) => (
@@ -48,8 +49,7 @@ export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight 
           key={tiltakstype}
           label={tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -64,8 +64,7 @@ export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight 
             TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label || status
           }
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               statuser: addOrRemove(filter.statuser, status),
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -77,8 +76,7 @@ export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight 
         <FilterTag
           label="Mine gjennomføringer"
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               visMineGjennomforinger: false,
               page: 1,
               lagretFilterIdValgt: undefined,
@@ -91,8 +89,7 @@ export function GjennomforingFilterTags({ filterAtom, filterOpen, setTagsHeight 
           key={id}
           label={arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               arrangorer: addOrRemove(filter.arrangorer, id),
               page: 1,
               lagretFilterIdValgt: undefined,

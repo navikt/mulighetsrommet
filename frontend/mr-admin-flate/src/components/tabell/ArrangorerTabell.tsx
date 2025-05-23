@@ -1,29 +1,24 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
 import { ArrangorTil, SorteringArrangorer } from "@mr/api-client-v2";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { Link } from "react-router";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { ArrangorerFilter } from "@/api/atoms";
+import { ArrangorerFilterType } from "@/api/atoms";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TabellWrapper } from "./TabellWrapper";
 
 interface Props {
-  filterAtom: WritableAtom<ArrangorerFilter, [newValue: ArrangorerFilter], void>;
+  filter: ArrangorerFilterType;
+  updateFilter: (values: Partial<ArrangorerFilterType>) => void;
   tagsHeight: number;
   filterOpen: boolean;
 }
 
-export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
   const sort = filter.sortering.tableSort;
   const { data, isLoading } = useArrangorer(ArrangorTil.AVTALE, filter);
-
-  function updateFilter(newFilter: Partial<ArrangorerFilter>) {
-    setFilter({ ...filter, ...newFilter });
-  }
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending

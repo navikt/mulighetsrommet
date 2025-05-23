@@ -1,5 +1,5 @@
 import { DateInput } from "@/components/skjema/DateInput";
-import { forwardRef } from "react";
+import { ForwardedRef, forwardRef } from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 
 export interface ControlledDateInputProps<T extends FieldValues> {
@@ -19,6 +19,8 @@ export interface ControlledDateInputProps<T extends FieldValues> {
 
 export const ControlledDateInput = forwardRef(function ControlledDateInput<T extends FieldValues>(
   props: ControlledDateInputProps<T>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: ForwardedRef<HTMLElement>,
 ) {
   const {
     name,

@@ -1,9 +1,9 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { OppgaverService, Tiltakskode } from "@mr/api-client-v2";
 import { useApiQuery } from "@mr/frontend-common";
-import { OppgaverFilter } from "../atoms";
+import { OppgaverFilterType } from "../atoms";
 
-export function useOppgaver(filter: OppgaverFilter) {
+export function useOppgaver(filter: OppgaverFilterType) {
   return useApiQuery({
     queryKey: QueryKeys.oppgaver({ ...filter }),
     queryFn: () =>
