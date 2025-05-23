@@ -1,11 +1,12 @@
 import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
-import { Button, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TrashIcon } from "@navikt/aksel-icons";
+import { TilsagnBeregningTable } from "./TilsagnBeregningTable";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -59,6 +60,9 @@ function BeregningInputLinjerSkjema() {
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
   const linjer = fields.map((item, index) => (
     <HStack gap="4" key={item.id}>
+      <div className="mt-7">
+        <b>{index + 1}</b>
+      </div>
       <Textarea
         className="flex-1"
         size="small"
@@ -97,17 +101,19 @@ function BeregningInputLinjerSkjema() {
           {...register(`beregning.linjer.${index}.id`)}
           defaultValue={item.id}
         />
-        <Button
-          className="mt-7"
-          size="small"
-          variant="danger"
-          icon={<TrashIcon title="Slett linje" />}
-          onClickCapture={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            remove(index);
-          }}
-        />
+        <Tooltip content={`Slett linje ${index + 1}`}>
+          <Button
+            className="mt-7"
+            size="small"
+            variant="danger"
+            icon={<TrashIcon aria-hidden />}
+            onClickCapture={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              remove(index);
+            }}
+          />
+        </Tooltip>
       </div>
     </HStack>
   ));
@@ -135,13 +141,17 @@ function BeregningOutputPreview() {
   const { watch } = useFormContext<FriTilsagn>();
 
   const values = watch();
+  const linjer = values.beregning?.linjer || [];
   return (
-    <TilsagnBeregningPreview
-      input={{
-        type: "FRI",
-        linjer: values.beregning?.linjer || [],
-        prisbetingelser: values.beregning?.prisbetingelser,
-      }}
-    />
+    <>
+      <TilsagnBeregningPreview
+        input={{
+          type: "FRI",
+          linjer: linjer,
+          prisbetingelser: values.beregning?.prisbetingelser,
+        }}
+        children={<TilsagnBeregningTable linjer={linjer} medRadnummer />}
+      />
+    </>
   );
 }

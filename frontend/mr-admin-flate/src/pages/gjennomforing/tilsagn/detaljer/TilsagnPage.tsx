@@ -302,7 +302,7 @@ export function TilsagnPage() {
               forklaring={tilOppgjor.forklaring}
             />
           )}
-          <VStack gap="2" padding="4" className="rounded-lg border-gray-300 border-1">
+          <VStack gap="6" padding="4" className="rounded-lg border-gray-300 border-1">
             <TilsagnDetaljer
               tilsagn={tilsagn}
               opprettelse={opprettelse}
