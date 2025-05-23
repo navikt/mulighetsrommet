@@ -116,7 +116,7 @@ class OkonomiService(
         if (venterPaaKvittering(bestilling, fakturaer)) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi vi venter på kvittering").left()
         }
-        if (bestilling.status !in listOf(BestillingStatusType.AKTIV)) {
+        if (bestilling.status != BestillingStatusType.AKTIV) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status: ${bestilling.status}").left()
         }
 
@@ -160,7 +160,7 @@ class OkonomiService(
         if (venterPaaKvittering(bestilling, fakturaer)) {
             return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
         }
-        if (bestilling.status !in listOf(BestillingStatusType.AKTIV)) {
+        if (bestilling.status != BestillingStatusType.AKTIV) {
             return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
         }
 
@@ -207,7 +207,7 @@ class OkonomiService(
         if (venterPaaKvittering(bestilling, fakturaer)) {
             return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi vi venter på kvittering").left()
         }
-        if (bestilling.status !in listOf(BestillingStatusType.AKTIV)) {
+        if (bestilling.status != BestillingStatusType.AKTIV) {
             return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
         }
 
