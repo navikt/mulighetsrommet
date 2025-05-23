@@ -55,7 +55,7 @@ export function AvtaleInfo() {
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
-              <AvtaleDetaljer avtale={avtale} />
+              <AvtaleDetaljer avtale={avtale} okonomiTabEnabled={enableTilsagn} />
             </InlineErrorBoundary>
           </Tabs.Panel>
           {enableTilsagn && (
