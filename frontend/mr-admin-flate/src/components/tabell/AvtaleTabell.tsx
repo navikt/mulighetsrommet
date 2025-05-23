@@ -12,7 +12,6 @@ import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
 import { createRef, useEffect, useState } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { Laster } from "../laster/Laster";
@@ -21,13 +20,13 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>;
+  filter: AvtaleFilterType;
+  updateFilter: (values: Partial<AvtaleFilterType>) => void;
   tagsHeight: number;
   filterOpen: boolean;
 }
 
-export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
@@ -64,10 +63,6 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
       setExcelUrl("");
     }
   }, [excelUrl, link]);
-
-  function updateFilter(newFilter: Partial<AvtaleFilterType>) {
-    setFilter({ ...filter, ...newFilter });
-  }
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending

@@ -1,4 +1,8 @@
-import { getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
+import {
+  AvtaleFilterType,
+  defaultAvtaleFilter,
+  getAvtalerForTiltakstypeFilterAtomFamily,
+} from "@/api/atoms";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
@@ -10,12 +14,22 @@ import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
+import { useAtom } from "jotai";
 
 export function AvtalerForTiltakstypePage() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
-  const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
+  const filterAtom = getAvtalerForTiltakstypeFilterAtomFamily(tiltakstypeId);
+  const [filter, setFilter] = useAtom(filterAtom);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
+
+  function updateFilter(value: Partial<AvtaleFilterType>) {
+    setFilter({ ...filter, ...value });
+  }
+
+  function resetFilter() {
+    setFilter({ ...defaultAvtaleFilter, tiltakstyper: [tiltakstypeId] });
+  }
 
   return (
     <>
@@ -23,7 +37,8 @@ export function AvtalerForTiltakstypePage() {
         <FilterAndTableLayout
           filter={
             <AvtaleFilter
-              filterAtom={filterAtom}
+              filter={filter}
+              updateFilter={updateFilter}
               skjulFilter={{
                 tiltakstype: true,
               }}
@@ -31,7 +46,8 @@ export function AvtalerForTiltakstypePage() {
           }
           tags={
             <AvtaleFilterTags
-              filterAtom={filterAtom}
+              filter={filter}
+              updateFilter={updateFilter}
               tiltakstypeId={tiltakstypeId}
               filterOpen={filterOpen}
               setTagsHeight={setTagsHeight}
@@ -39,12 +55,21 @@ export function AvtalerForTiltakstypePage() {
           }
           buttons={<AvtaleFilterButtons />}
           table={
-            <AvtaleTabell filterAtom={filterAtom} tagsHeight={tagsHeight} filterOpen={filterOpen} />
+            <AvtaleTabell
+              filter={filter}
+              updateFilter={updateFilter}
+              tagsHeight={tagsHeight}
+              filterOpen={filterOpen}
+            />
           }
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
           nullstillFilterButton={
-            <NullstillKnappForAvtaler filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />
+            <NullstillKnappForAvtaler
+              filter={filter}
+              resetFilter={resetFilter}
+              tiltakstypeId={tiltakstypeId}
+            />
           }
         />
       </ContentBox>

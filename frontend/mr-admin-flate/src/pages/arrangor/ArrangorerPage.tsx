@@ -1,4 +1,4 @@
-import { arrangorerFilterAtom } from "@/api/atoms";
+import { arrangorerFilterAtom, ArrangorerFilterType, defaultArrangorerFilter } from "@/api/atoms";
 import { ArrangorerFilter } from "@/components/filter/ArrangorerFilter";
 import { ArrangorerFilterTags } from "@/components/filter/ArrangorerFilterTags";
 import { ArrangorIkon } from "@/components/ikoner/ArrangorIkon";
@@ -10,10 +10,21 @@ import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { useState } from "react";
 import { NullstillKnappForArrangorer } from "./NullstillKnappForArrangorer";
+import { useAtom } from "jotai";
 
 export function ArrangorerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
+
+  const [filter, setFilter] = useAtom(arrangorerFilterAtom);
+
+  function updateFilter(value: Partial<ArrangorerFilterType>) {
+    setFilter((prev) => ({ ...prev, ...value }));
+  }
+
+  function resetFilter() {
+    setFilter(defaultArrangorerFilter);
+  }
 
   return (
     <main>
@@ -23,12 +34,13 @@ export function ArrangorerPage() {
         <ContentBox>
           <FilterAndTableLayout
             nullstillFilterButton={
-              <NullstillKnappForArrangorer filterAtom={arrangorerFilterAtom} />
+              <NullstillKnappForArrangorer filter={filter} resetFilter={resetFilter} />
             }
-            filter={<ArrangorerFilter filterAtom={arrangorerFilterAtom} />}
+            filter={<ArrangorerFilter filter={filter} updateFilter={updateFilter} />}
             tags={
               <ArrangorerFilterTags
-                filterAtom={arrangorerFilterAtom}
+                filter={filter}
+                updateFilter={updateFilter}
                 filterOpen={filterOpen}
                 setTagsHeight={setTagsHeight}
               />
@@ -36,7 +48,8 @@ export function ArrangorerPage() {
             buttons={null}
             table={
               <ArrangorerTabell
-                filterAtom={arrangorerFilterAtom}
+                filter={filter}
+                updateFilter={updateFilter}
                 tagsHeight={tagsHeight}
                 filterOpen={filterOpen}
               />

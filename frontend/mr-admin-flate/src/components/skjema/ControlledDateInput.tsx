@@ -19,6 +19,8 @@ export interface ControlledDateInputProps<T extends FieldValues> {
 
 export const ControlledDateInput = forwardRef(function ControlledDateInput<T extends FieldValues>(
   props: ControlledDateInputProps<T>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _: ForwardedRef<HTMLElement>,
 ) {
   const {
     name,

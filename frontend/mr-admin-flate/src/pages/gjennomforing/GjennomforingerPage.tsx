@@ -1,4 +1,5 @@
 import {
+  defaultGjennomforingFilter,
   gjennomforingfilterAtom,
   GjennomforingFilterSchema,
   GjennomforingFilterType,
@@ -28,13 +29,21 @@ export function GjennomforingerPage() {
     LagretFilterType.GJENNOMFORING,
   );
 
+  function updateFilter(value: Partial<GjennomforingFilterType>) {
+    setFilter((prev) => ({ ...prev, ...value }));
+  }
+
+  function resetFilter() {
+    setFilter(defaultGjennomforingFilter);
+  }
+
   return (
     <main>
       <title>Gjennomføringer</title>
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingIkon />} />
       <ContentBox>
         <FilterAndTableLayout
-          filter={<GjennomforingFilter filterAtom={gjennomforingfilterAtom} />}
+          filter={<GjennomforingFilter filter={filter} updateFilter={updateFilter} />}
           lagredeFilter={
             <LagredeFilterOversikt
               filter={filter}
@@ -51,7 +60,8 @@ export function GjennomforingerPage() {
           }
           tags={
             <GjennomforingFilterTags
-              filterAtom={gjennomforingfilterAtom}
+              filter={filter}
+              updateFilter={updateFilter}
               filterOpen={filterOpen}
               setTagsHeight={setTagsHeight}
             />
@@ -60,7 +70,8 @@ export function GjennomforingerPage() {
           table={
             <ReloadAppErrorBoundary>
               <GjennomforingTable
-                filterAtom={gjennomforingfilterAtom}
+                filter={filter}
+                updateFilter={updateFilter}
                 tagsHeight={tagsHeight}
                 filterOpen={filterOpen}
               />
@@ -69,7 +80,7 @@ export function GjennomforingerPage() {
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
           nullstillFilterButton={
-            <NullstillKnappForGjennomforinger filterAtom={gjennomforingfilterAtom} />
+            <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
           }
         />
       </ContentBox>
