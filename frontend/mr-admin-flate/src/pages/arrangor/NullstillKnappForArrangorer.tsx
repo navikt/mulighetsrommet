@@ -7,9 +7,5 @@ interface Props {
 }
 
 export function NullstillKnappForArrangorer({ filter, resetFilter }: Props) {
-  return (
-    <div>
-      {filter.sok.length > 0 ? <NullstillFilterKnapp onClick={() => resetFilter()} /> : null}
-    </div>
-  );
+  return filter.sok.length > 0 ? <NullstillFilterKnapp onClick={() => resetFilter()} /> : null;
 }
