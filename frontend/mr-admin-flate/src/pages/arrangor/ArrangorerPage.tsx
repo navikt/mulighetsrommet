@@ -9,8 +9,9 @@ import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { useState } from "react";
-import { NullstillKnappForArrangorer } from "./NullstillKnappForArrangorer";
 import { useAtom } from "jotai";
+import { dequal } from "dequal";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 export function ArrangorerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -26,6 +27,8 @@ export function ArrangorerPage() {
     setFilter(defaultArrangorerFilter);
   }
 
+  const hasChanged = !dequal(filter, defaultArrangorerFilter);
+
   return (
     <main>
       <title>Arrangører</title>
@@ -35,7 +38,7 @@ export function ArrangorerPage() {
           <FilterAndTableLayout
             filter={<ArrangorerFilter filter={filter} updateFilter={updateFilter} />}
             nullstillFilterButton={
-              <NullstillKnappForArrangorer filter={filter} resetFilter={resetFilter} />
+              hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null
             }
             tags={
               <ArrangorerFilterTags

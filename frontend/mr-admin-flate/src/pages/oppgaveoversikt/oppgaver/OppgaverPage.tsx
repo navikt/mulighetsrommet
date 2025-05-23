@@ -11,7 +11,8 @@ import { useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
-import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
+import { dequal } from "dequal";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -52,13 +53,13 @@ export function OppgaverPage() {
     setFilter(defaultOppgaverFilter);
   }
 
+  const hasChanged = !dequal(filter, defaultOppgaverFilter);
+
   return (
     <ContentBox>
       <FilterAndTableLayout
         filter={<OppgaverFilter filter={filter} updateFilter={updateFilter} />}
-        nullstillFilterButton={
-          <NullstillKnappForOppgaver filter={filter} resetFilter={resetFilter} />
-        }
+        nullstillFilterButton={hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null}
         tags={
           <OppgaveFilterTags
             filter={filter}
