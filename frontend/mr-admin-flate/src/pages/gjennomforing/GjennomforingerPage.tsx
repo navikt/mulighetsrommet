@@ -15,7 +15,11 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
 import { LagretFilterType } from "@mr/api-client-v2";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import {
+  LagredeFilterOversikt,
+  LagreFilterButton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
@@ -25,7 +29,7 @@ export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
-  const { lagredeFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
+  const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
     LagretFilterType.GJENNOMFORING,
   );
 
@@ -44,6 +48,12 @@ export function GjennomforingerPage() {
       <ContentBox>
         <FilterAndTableLayout
           filter={<GjennomforingFilter filter={filter} updateFilter={updateFilter} />}
+          nullstillFilterButton={
+            <>
+              <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
+              <LagreFilterButton filter={filter} onLagre={lagreFilter} />
+            </>
+          }
           lagredeFilter={
             <LagredeFilterOversikt
               filter={filter}
@@ -79,9 +89,6 @@ export function GjennomforingerPage() {
           }
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
-          nullstillFilterButton={
-            <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
-          }
         />
       </ContentBox>
       <TilToppenKnapp />

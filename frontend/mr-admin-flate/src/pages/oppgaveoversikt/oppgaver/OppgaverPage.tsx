@@ -56,6 +56,9 @@ export function OppgaverPage() {
     <ContentBox>
       <FilterAndTableLayout
         filter={<OppgaverFilter filter={filter} updateFilter={updateFilter} />}
+        nullstillFilterButton={
+          <NullstillKnappForOppgaver filter={filter} resetFilter={resetFilter} />
+        }
         tags={
           <OppgaveFilterTags
             filter={filter}
@@ -92,9 +95,6 @@ export function OppgaverPage() {
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={
-          <NullstillKnappForOppgaver filter={filter} resetFilter={resetFilter} />
-        }
       />
     </ContentBox>
   );

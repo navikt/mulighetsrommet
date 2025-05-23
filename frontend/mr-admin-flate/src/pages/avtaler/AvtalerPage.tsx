@@ -15,7 +15,11 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretFilterType } from "@mr/api-client-v2";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import {
+  LagredeFilterOversikt,
+  LagreFilterButton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
@@ -25,7 +29,7 @@ export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(avtaleFilterAtom);
-  const { lagredeFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
+  const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
     LagretFilterType.AVTALE,
   );
 
@@ -44,10 +48,13 @@ export function AvtalerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
-            nullstillFilterButton={
-              <NullstillKnappForAvtaler filter={filter} resetFilter={resetFilter} />
-            }
             filter={<AvtaleFilter filter={filter} updateFilter={updateFilter} />}
+            nullstillFilterButton={
+              <>
+                <NullstillKnappForAvtaler filter={filter} resetFilter={resetFilter} />
+                <LagreFilterButton filter={filter} onLagre={lagreFilter} />
+              </>
+            }
             lagredeFilter={
               <LagredeFilterOversikt
                 filter={filter}

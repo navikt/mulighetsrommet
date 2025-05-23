@@ -33,10 +33,10 @@ export function ArrangorerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
+            filter={<ArrangorerFilter filter={filter} updateFilter={updateFilter} />}
             nullstillFilterButton={
               <NullstillKnappForArrangorer filter={filter} resetFilter={resetFilter} />
             }
-            filter={<ArrangorerFilter filter={filter} updateFilter={updateFilter} />}
             tags={
               <ArrangorerFilterTags
                 filter={filter}
