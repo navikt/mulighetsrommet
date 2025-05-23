@@ -13,7 +13,6 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
 import { LagretFilterType } from "@mr/api-client-v2";
 import {
   LagredeFilterOversikt,
@@ -24,6 +23,8 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
+import { dequal } from "dequal";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -41,6 +42,8 @@ export function GjennomforingerPage() {
     setFilter(defaultGjennomforingFilter);
   }
 
+  const hasChanged = !dequal(filter, defaultGjennomforingFilter);
+
   return (
     <main>
       <title>Gjennomføringer</title>
@@ -50,7 +53,7 @@ export function GjennomforingerPage() {
           filter={<GjennomforingFilter filter={filter} updateFilter={updateFilter} />}
           nullstillFilterButton={
             <>
-              <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
+              {hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null}
               <LagreFilterButton filter={filter} onLagre={lagreFilter} />
             </>
           }

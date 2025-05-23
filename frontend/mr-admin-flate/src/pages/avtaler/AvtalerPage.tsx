@@ -13,7 +13,6 @@ import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretFilterType } from "@mr/api-client-v2";
 import {
   LagredeFilterOversikt,
@@ -24,6 +23,8 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
+import { dequal } from "dequal";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -41,6 +42,8 @@ export function AvtalerPage() {
     setFilter(defaultAvtaleFilter);
   }
 
+  const hasChanged = !dequal(filter, defaultAvtaleFilter);
+
   return (
     <main>
       <title>Avtaler</title>
@@ -51,7 +54,7 @@ export function AvtalerPage() {
             filter={<AvtaleFilter filter={filter} updateFilter={updateFilter} />}
             nullstillFilterButton={
               <>
-                <NullstillKnappForAvtaler filter={filter} resetFilter={resetFilter} />
+                {hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null}
                 <LagreFilterButton filter={filter} onLagre={lagreFilter} />
               </>
             }

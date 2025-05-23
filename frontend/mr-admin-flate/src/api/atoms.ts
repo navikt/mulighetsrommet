@@ -109,19 +109,25 @@ export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilterType>(
   { getOnInit: true },
 );
 
-export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
-  string,
+const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
+  GjennomforingFilterType,
   WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>
->((avtaleId: string) => {
-  return atomWithStorage(
-    `gjennomforing-filter-${avtaleId}`,
-    {
-      ...defaultGjennomforingFilter,
-      avtale: avtaleId,
-    },
-    createJSONStorage(() => sessionStorage),
-  );
-});
+>(
+  (filter: GjennomforingFilterType) => {
+    return atomWithStorage(
+      `gjennomforing-filter-${filter.avtale}`,
+      filter,
+      createJSONStorage(() => sessionStorage),
+    );
+  },
+  (a, b) => a.avtale === b.avtale,
+);
+
+export function getGjennomforingerForAvtaleFilterAtom(avtaleId: string) {
+  const defaultFilterValue = { ...defaultGjennomforingFilter, avtale: avtaleId };
+  const filterAtom = gjennomforingerForAvtaleFilterAtomFamily(defaultFilterValue);
+  return { defaultFilterValue, filterAtom };
+}
 
 export const AvtaleFilterSchema = z.object({
   sok: z.string(),
@@ -229,19 +235,25 @@ export const oppgaverFilterAtom = atomWithStorage<OppgaverFilterType>(
   { getOnInit: true },
 );
 
-export const getAvtalerForTiltakstypeFilterAtomFamily = atomFamily<
-  string,
+const avtalerForTiltakstypeFilterAtomFamily = atomFamily<
+  AvtaleFilterType,
   WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>
->((tiltakstypeId: string) => {
-  return atomWithStorage(
-    `avtale-filter-${tiltakstypeId}`,
-    {
-      ...defaultAvtaleFilter,
-      tiltakstyper: [tiltakstypeId],
-    },
-    createJSONStorage(() => sessionStorage),
-  );
-});
+>(
+  (filter: AvtaleFilterType) => {
+    return atomWithStorage(
+      `avtale-filter-${filter.tiltakstyper[0]}`,
+      filter,
+      createJSONStorage(() => sessionStorage),
+    );
+  },
+  (a, b) => a.tiltakstyper[0] === b.tiltakstyper[0],
+);
+
+export function getAvtalerForTiltakstypeFilterAtom(tiltakstypeId: string) {
+  const defaultFilterValue = { ...defaultAvtaleFilter, tiltakstyper: [tiltakstypeId] };
+  const filterAtom = avtalerForTiltakstypeFilterAtomFamily(defaultFilterValue);
+  return { defaultFilterValue, filterAtom };
+}
 
 export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 

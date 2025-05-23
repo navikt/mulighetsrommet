@@ -1,27 +1,24 @@
-import {
-  defaultGjennomforingFilter,
-  gjennomforingerForAvtaleFilterAtomFamily,
-  GjennomforingFilterType,
-} from "@/api/atoms";
+import { getGjennomforingerForAvtaleFilterAtom, GjennomforingFilterType } from "@/api/atoms";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
 import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useAtom } from "jotai";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { dequal } from "dequal";
 
 export function GjennomforingerForAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
 
-  const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(avtaleId);
-  const [filter, setFilter] = useAtom(filterAtomGjennomforinger);
+  const { defaultFilterValue, filterAtom } = getGjennomforingerForAvtaleFilterAtom(avtaleId);
+  const [filter, setFilter] = useAtom(filterAtom);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
 
@@ -30,8 +27,10 @@ export function GjennomforingerForAvtalePage() {
   }
 
   function resetFilter() {
-    setFilter({ ...defaultGjennomforingFilter, avtale: avtaleId });
+    setFilter(defaultFilterValue);
   }
+
+  const hasChanged = !dequal(filter, defaultFilterValue);
 
   return (
     <>
@@ -46,9 +45,7 @@ export function GjennomforingerForAvtalePage() {
             avtale={avtale}
           />
         }
-        nullstillFilterButton={
-          <NullstillKnappForGjennomforinger filter={filter} resetFilter={resetFilter} />
-        }
+        nullstillFilterButton={hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null}
         tags={
           <GjennomforingFilterTags
             filter={filter}
