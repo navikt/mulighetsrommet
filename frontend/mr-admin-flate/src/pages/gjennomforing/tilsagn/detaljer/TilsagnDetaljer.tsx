@@ -13,7 +13,7 @@ import {
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ExpansionCard, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
-import { Key, ReactNode } from "react";
+import { ReactNode } from "react";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -93,7 +93,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           </HStack>
           {beregning.type === "FRI" && beregning.input.prisbetingelser && (
             <PrisbetingelserFriModell
-              key={tilsagn.id}
+              id={tilsagn.id}
               tilsagnStatus={tilsagn.status}
               prisbetingelser={beregning.input.prisbetingelser}
             />
@@ -127,7 +127,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
           {beregning.type === "FRI" && (
-            <BeregningFriModell status={tilsagn.status} beregning={beregning} key={tilsagn.id} />
+            <BeregningFriModell id={tilsagn.id} status={tilsagn.status} beregning={beregning} />
           )}
         </VStack>
       </HStack>
@@ -136,15 +136,15 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
 }
 
 interface PrisbetingelserFriModellProps {
+  id: string;
   tilsagnStatus: TilsagnStatus;
   prisbetingelser: string | null;
-  key?: Key | null;
 }
 
 function PrisbetingelserFriModell({
+  id,
   tilsagnStatus,
   prisbetingelser,
-  key,
 }: PrisbetingelserFriModellProps) {
   const paragraphs = prisbetingelser?.split("\n") || [];
   const startOpenForStatus = [TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT].includes(
@@ -154,7 +154,7 @@ function PrisbetingelserFriModell({
 
   return (
     <ExpansionCard
-      key={key}
+      key={id}
       size="small"
       style={style}
       aria-label={tilsagnTekster.beregning.prisbetingelser.label}
@@ -176,12 +176,12 @@ function PrisbetingelserFriModell({
 }
 
 interface BeregningFriModellProps {
+  id: string;
   status: TilsagnStatus;
   beregning: TilsagnBeregningFri;
-  key?: Key | null;
 }
 
-function BeregningFriModell({ status, beregning, key }: BeregningFriModellProps) {
+function BeregningFriModell({ id, status, beregning }: BeregningFriModellProps) {
   const startOpenForStatus = [TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT].includes(
     status,
   );
@@ -190,7 +190,7 @@ function BeregningFriModell({ status, beregning, key }: BeregningFriModellProps)
   }
   return (
     <ExpansionCard
-      key={key}
+      key={id}
       size="small"
       aria-label={tilsagnTekster.beregning.input.label}
       defaultOpen={startOpenForStatus}

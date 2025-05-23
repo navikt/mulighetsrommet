@@ -53,6 +53,10 @@ export function RedigerTilsagnFormPage() {
     },
   ];
 
+  if (!avtale || !tilsagn) {
+    return <Laster tekst="Laster data..." />;
+  }
+
   const defaults: TilsagnRequest = {
     id: tilsagn.id,
     type: tilsagn.type,
@@ -62,10 +66,6 @@ export function RedigerTilsagnFormPage() {
     beregning: tilsagn.beregning.input,
     gjennomforingId: gjennomforing.id,
   };
-
-  if (!avtale) {
-    return <Laster tekst="Laster data..." />;
-  }
 
   return (
     <main>
