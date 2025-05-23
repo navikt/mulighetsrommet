@@ -1,13 +1,13 @@
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
-import { GjennomforingFilter } from "@/api/atoms";
+import { GjennomforingFilterType } from "@/api/atoms";
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { ReactNode } from "react";
 import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
 
 interface Props {
-  filter: Partial<GjennomforingFilter>;
+  filter: Partial<GjennomforingFilterType>;
   action: (gjennomforing: GjennomforingDto) => ReactNode;
 }
 

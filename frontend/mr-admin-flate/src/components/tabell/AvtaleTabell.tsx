@@ -1,4 +1,4 @@
-import { AvtaleFilter } from "@/api/atoms";
+import { AvtaleFilterType } from "@/api/atoms";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import {
@@ -21,7 +21,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
+  filterAtom: WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>;
   tagsHeight: number;
   filterOpen: boolean;
 }
@@ -35,7 +35,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
 
   const link = createRef<HTMLAnchorElement>();
 
-  async function lastNedFil(filter: AvtaleFilter) {
+  async function lastNedFil(filter: AvtaleFilterType) {
     const query = createQueryParamsForExcelDownloadForAvtale(filter);
     const { data } = await AvtalerService.lastNedAvtalerSomExcel(query);
     return data;
@@ -65,7 +65,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
     }
   }, [excelUrl, link]);
 
-  function updateFilter(newFilter: Partial<AvtaleFilter>) {
+  function updateFilter(newFilter: Partial<AvtaleFilterType>) {
     setFilter({ ...filter, ...newFilter });
   }
 

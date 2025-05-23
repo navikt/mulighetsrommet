@@ -1,4 +1,8 @@
-import { gjennomforingfilterAtom, GjennomforingFilterSchema } from "@/api/atoms";
+import {
+  gjennomforingfilterAtom,
+  GjennomforingFilterSchema,
+  GjennomforingFilterType,
+} from "@/api/atoms";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
@@ -16,6 +20,7 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
+import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -23,6 +28,7 @@ export function GjennomforingerPage() {
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
   const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.GJENNOMFORING);
   const deleteFilterMutation = useSlettFilter();
+  const lagreFilterMutation = useLagreFilter();
 
   return (
     <main>
@@ -33,10 +39,20 @@ export function GjennomforingerPage() {
           filter={<GjennomforingFilter filterAtom={gjennomforingfilterAtom} />}
           lagredeFilter={
             <LagredeFilterOversikt
-              setFilter={setFilter}
-              lagredeFilter={lagredeFilter}
-              onDelete={(id: string) => deleteFilterMutation.mutate(id)}
               filter={filter}
+              lagredeFilter={lagredeFilter}
+              onSetFilter={(filter) => {
+                setFilter(filter as GjennomforingFilterType);
+              }}
+              onDeleteFilter={(id) => {
+                deleteFilterMutation.mutate(id);
+              }}
+              onSetDefaultFilter={(id, isDefault) => {
+                const filter = lagredeFilter.find((f) => f.id === id);
+                if (filter) {
+                  lagreFilterMutation.mutate({ ...filter, isDefault });
+                }
+              }}
               validateFilterStructure={(filter) => {
                 return GjennomforingFilterSchema.safeParse(filter).success;
               }}

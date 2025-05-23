@@ -1,10 +1,10 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiQuery } from "@mr/frontend-common";
 import { useDebounce } from "@mr/frontend-common";
-import { AvtaleFilter } from "../atoms";
+import { AvtaleFilterType } from "../atoms";
 import { AvtalerService, type GetAvtalerData } from "@mr/api-client-v2";
 
-export function useAvtaler(filter: Partial<AvtaleFilter>) {
+export function useAvtaler(filter: Partial<AvtaleFilterType>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);
 
   const queryFilter: Pick<GetAvtalerData, "query"> = {

@@ -5,6 +5,7 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
 import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import {
+  ArbeidsmarkedstiltakFilter,
   ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
   useArbeidsmarkedstiltakFilter,
@@ -72,10 +73,20 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         }
         lagredeFilter={
           <LagredeFilterOversikt
-            onDelete={(id: string) => deleteFilterMutation.mutate(id)}
-            lagredeFilter={lagredeFilter}
             filter={filter}
-            setFilter={setFilter}
+            lagredeFilter={lagredeFilter}
+            onSetFilter={(filter) => {
+              setFilter(filter as ArbeidsmarkedstiltakFilter);
+            }}
+            onDeleteFilter={(id) => {
+              deleteFilterMutation.mutate(id);
+            }}
+            onSetDefaultFilter={(id, isDefault) => {
+              const filter = lagredeFilter.find((f) => f.id === id);
+              if (filter) {
+                lagreFilterMutation.mutate({ ...filter, isDefault });
+              }
+            }}
             validateFilterStructure={(filter) => {
               return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
             }}

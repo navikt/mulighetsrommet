@@ -1,6 +1,6 @@
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil } from "@mr/api-client-v2";
-import { AvtaleFilter } from "@/api/atoms";
+import { AvtaleFilterType } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
@@ -10,7 +10,7 @@ import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 
 interface Props {
-  filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
+  filterAtom: WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>;
   tiltakstypeId?: string;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;

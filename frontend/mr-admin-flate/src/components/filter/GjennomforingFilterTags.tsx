@@ -1,6 +1,6 @@
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil } from "@mr/api-client-v2";
-import { GjennomforingFilter } from "@/api/atoms";
+import { GjennomforingFilterType } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
@@ -8,7 +8,7 @@ import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 
 interface Props {
-  filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;
+  filterAtom: WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
