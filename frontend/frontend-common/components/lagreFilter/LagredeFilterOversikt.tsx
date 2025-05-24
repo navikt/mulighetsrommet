@@ -14,6 +14,8 @@ interface LagretFilter {
 }
 
 interface Props {
+  selectedFilterId?: string;
+  onSelectFilterId?: (id: string) => void;
   lagredeFilter: LagretFilter[];
   filter: FilterValues;
   onSetFilter: (filter: FilterValues) => void;
@@ -23,6 +25,8 @@ interface Props {
 }
 
 export function LagredeFilterOversikt({
+  selectedFilterId,
+  onSelectFilterId,
   lagredeFilter,
   filter,
   onSetFilter,
@@ -39,6 +43,11 @@ export function LagredeFilterOversikt({
   const filterHarUgyldigStrukturModalRef = useRef<HTMLDialogElement>(null);
 
   function oppdaterFilter(id: string) {
+    if (onSelectFilterId) {
+      onSelectFilterId(id);
+      return;
+    }
+
     const valgtFilter = lagredeFilter.find((f) => f.id === id);
     if (valgtFilter) {
       if (!validateFilterStructure(valgtFilter.filter)) {
@@ -85,7 +94,7 @@ export function LagredeFilterOversikt({
           legend="Lagrede filter"
           hideLegend
           onChange={(id) => oppdaterFilter(id)}
-          value={filter.lagretFilterIdValgt ? filter.lagretFilterIdValgt : null}
+          value={selectedFilterId || null}
         >
           <div className={styles.overflow}>
             {lagredeFilter.map((lagretFilter) => {

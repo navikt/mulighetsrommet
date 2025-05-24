@@ -44,7 +44,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
     updateFilter({
       [key]: checked ? values : [],
       page: 1,
-      lagretFilterIdValgt: undefined,
     });
   }
 
@@ -60,7 +59,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
           updateFilter({
             search,
             page: 1,
-            lagretFilterIdValgt: undefined,
           });
         }}
         value={filter.search}
@@ -75,7 +73,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
             updateFilter({
               visMineGjennomforinger: event.currentTarget.checked,
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         >
@@ -101,7 +98,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
                 updateFilter({
                   navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
               regioner={regioner}
@@ -131,7 +127,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
                 updateFilter({
                   statuser: addOrRemove(filter.statuser, status),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />
@@ -158,7 +153,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
                 updateFilter({
                   arrangorer: addOrRemove(filter.arrangorer, id),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />
@@ -192,7 +186,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
                   updateFilter({
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                     page: 1,
-                    lagretFilterIdValgt: undefined,
                   });
                 }}
               />
@@ -222,7 +215,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
                 updateFilter({
                   publisert: addOrRemove(filter.publisert, id),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />
