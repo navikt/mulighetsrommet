@@ -56,7 +56,7 @@
     "winston": "3.17.0"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.67.4",
+    "@hey-api/openapi-ts": "0.67.6",
     "@playwright/test": "1.52.0",
     "@react-router/dev": "7.6.0",
     "@react-router/fs-routes": "7.6.0",
