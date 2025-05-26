@@ -1,9 +1,9 @@
-import { OppgaverFilterType } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
+import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
 
 interface Props {
   filter: OppgaverFilterType;

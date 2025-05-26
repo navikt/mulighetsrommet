@@ -1,4 +1,3 @@
-import { defaultOppgaverFilter, oppgaverFilterAtom, OppgaverFilterType } from "@/api/atoms";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
@@ -6,13 +5,13 @@ import { GetOppgaverResponse } from "@mr/api-client-v2";
 import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
-import { useAtom } from "jotai/index";
 import { useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
-import { dequal } from "dequal";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { oppgaverFilterStateAtom } from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { useFilterState } from "@/filter/useFilterState";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -40,29 +39,25 @@ function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
 export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [, setTagsHeight] = useState(0);
+
+  const { filter, updateFilter, resetToDefault, hasChanged } =
+    useFilterState(oppgaverFilterStateAtom);
+
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
-  const [filter, setFilter] = useAtom(oppgaverFilterAtom);
-  const oppgaver = useOppgaver(filter);
+
+  const oppgaver = useOppgaver(filter.values);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
-
-  function updateFilter(value: Partial<OppgaverFilterType>) {
-    setFilter((prev) => ({ ...prev, ...value }));
-  }
-
-  function resetFilter() {
-    setFilter(defaultOppgaverFilter);
-  }
-
-  const hasChanged = !dequal(filter, defaultOppgaverFilter);
 
   return (
     <ContentBox>
       <FilterAndTableLayout
-        filter={<OppgaverFilter filter={filter} updateFilter={updateFilter} />}
-        nullstillFilterButton={hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null}
+        filter={<OppgaverFilter filter={filter.values} updateFilter={updateFilter} />}
+        nullstillFilterButton={
+          hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
+        }
         tags={
           <OppgaveFilterTags
-            filter={filter}
+            filter={filter.values}
             updateFilter={updateFilter}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}
