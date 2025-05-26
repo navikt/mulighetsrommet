@@ -114,6 +114,9 @@ class DeltakerQueriesTest : FunSpec({
                 Deltakelsesmengde(LocalDate.of(2023, 3, 5), 100.0),
                 Deltakelsesmengde(LocalDate.of(2023, 3, 10), 100.0),
             )
+
+            queries.delete(deltaker1.id)
+            queries.getDeltakelsesmengder(deltaker1.id) shouldBe listOf()
         }
     }
 
