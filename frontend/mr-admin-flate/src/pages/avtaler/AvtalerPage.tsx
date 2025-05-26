@@ -1,4 +1,3 @@
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
@@ -18,17 +17,23 @@ import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/Ti
 import { useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { AvtaleFilterSchema, avtalerFilterStateAtom } from "@/pages/avtaler/filter";
-import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
+import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
-    LagretFilterType.AVTALE,
-  );
-  const { filter, updateFilter, resetToDefault, selectFilter, hasChanged } =
-    useFilterStateWithSavedFilters(avtalerFilterStateAtom, lagredeFilter);
+  const {
+    filter,
+    updateFilter,
+    resetFilterToDefault,
+    selectFilter,
+    hasChanged,
+    filters,
+    saveFilter,
+    deleteFilter,
+    setDefaultFilter,
+  } = useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE);
 
   return (
     <main>
@@ -39,17 +44,19 @@ export function AvtalerPage() {
           <FilterAndTableLayout
             filter={<AvtaleFilter filter={filter.values} updateFilter={updateFilter} />}
             nullstillFilterButton={
-              <>
-                {hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null}
-                <LagreFilterButton filter={filter.values} onLagre={lagreFilter} />
-              </>
+              hasChanged ? (
+                <>
+                  <NullstillFilterKnapp onClick={resetFilterToDefault} />
+                  <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
+                </>
+              ) : null
             }
             lagredeFilter={
               <LagredeFilterOversikt
-                filters={lagredeFilter}
+                filters={filters}
                 selectedFilterId={filter.id}
                 onSelectFilterId={selectFilter}
-                onDeleteFilter={slettFilter}
+                onDeleteFilter={deleteFilter}
                 onSetDefaultFilter={setDefaultFilter}
                 validateFilterStructure={(filter) => {
                   return AvtaleFilterSchema.safeParse(filter).success;

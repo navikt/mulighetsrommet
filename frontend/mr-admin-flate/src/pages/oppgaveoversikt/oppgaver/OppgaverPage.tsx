@@ -18,8 +18,7 @@ import {
   OppgaverFilterSchema,
   oppgaverFilterStateAtom,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
-import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -48,11 +47,17 @@ export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [, setTagsHeight] = useState(0);
 
-  const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
-    LagretFilterType.OPPGAVE,
-  );
-  const { filter, updateFilter, resetToDefault, selectFilter, hasChanged } =
-    useFilterStateWithSavedFilters(oppgaverFilterStateAtom, lagredeFilter);
+  const {
+    filter,
+    updateFilter,
+    resetFilterToDefault,
+    selectFilter,
+    hasChanged,
+    filters,
+    saveFilter,
+    deleteFilter,
+    setDefaultFilter,
+  } = useSavedFiltersState(oppgaverFilterStateAtom, LagretFilterType.OPPGAVE);
 
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
 
@@ -66,17 +71,17 @@ export function OppgaverPage() {
         nullstillFilterButton={
           hasChanged ? (
             <>
-              <NullstillFilterKnapp onClick={resetToDefault} />
-              <LagreFilterButton filter={filter.values} onLagre={lagreFilter} />
+              <NullstillFilterKnapp onClick={resetFilterToDefault} />
+              <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
             </>
           ) : null
         }
         lagredeFilter={
           <LagredeFilterOversikt
-            filters={lagredeFilter}
+            filters={filters}
             selectedFilterId={filter.id}
             onSelectFilterId={selectFilter}
-            onDeleteFilter={slettFilter}
+            onDeleteFilter={deleteFilter}
             onSetDefaultFilter={setDefaultFilter}
             validateFilterStructure={(filter) => {
               return OppgaverFilterSchema.safeParse(filter).success;

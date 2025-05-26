@@ -1,4 +1,3 @@
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
@@ -21,17 +20,23 @@ import {
   GjennomforingFilterSchema,
   gjennomforingFilterStateAtom,
 } from "@/pages/gjennomforing/filter";
-import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
+import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
-    LagretFilterType.GJENNOMFORING,
-  );
-  const { filter, updateFilter, resetToDefault, selectFilter, hasChanged } =
-    useFilterStateWithSavedFilters(gjennomforingFilterStateAtom, lagredeFilter);
+  const {
+    filter,
+    updateFilter,
+    resetFilterToDefault,
+    selectFilter,
+    hasChanged,
+    filters,
+    saveFilter,
+    deleteFilter,
+    setDefaultFilter,
+  } = useSavedFiltersState(gjennomforingFilterStateAtom, LagretFilterType.GJENNOMFORING);
 
   return (
     <main>
@@ -41,17 +46,19 @@ export function GjennomforingerPage() {
         <FilterAndTableLayout
           filter={<GjennomforingFilter filter={filter.values} updateFilter={updateFilter} />}
           nullstillFilterButton={
-            <>
-              {hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null}
-              <LagreFilterButton filter={filter.values} onLagre={lagreFilter} />
-            </>
+            hasChanged ? (
+              <>
+                <NullstillFilterKnapp onClick={resetFilterToDefault} />
+                <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
+              </>
+            ) : null
           }
           lagredeFilter={
             <LagredeFilterOversikt
-              filters={lagredeFilter}
+              filters={filters}
               selectedFilterId={filter.id}
               onSelectFilterId={selectFilter}
-              onDeleteFilter={slettFilter}
+              onDeleteFilter={deleteFilter}
               onSetDefaultFilter={setDefaultFilter}
               validateFilterStructure={(filter) => {
                 return GjennomforingFilterSchema.safeParse(filter).success;
