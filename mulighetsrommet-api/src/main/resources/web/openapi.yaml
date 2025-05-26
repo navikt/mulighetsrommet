@@ -5471,6 +5471,7 @@ components:
         - AVTALE
         - GJENNOMFORING
         - GJENNOMFORING_MODIA
+        - OPPGAVE
 
     LagretFilter:
       type: object

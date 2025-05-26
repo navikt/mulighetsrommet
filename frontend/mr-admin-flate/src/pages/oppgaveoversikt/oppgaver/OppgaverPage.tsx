@@ -1,8 +1,12 @@
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { GetOppgaverResponse } from "@mr/api-client-v2";
-import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import { GetOppgaverResponse, LagretFilterType } from "@mr/api-client-v2";
+import {
+  LagredeFilterOversikt,
+  LagreFilterButton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
 import { useState } from "react";
@@ -10,8 +14,12 @@ import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { oppgaverFilterStateAtom } from "@/pages/oppgaveoversikt/oppgaver/filter";
-import { useFilterState } from "@/filter/useFilterState";
+import {
+  OppgaverFilterSchema,
+  oppgaverFilterStateAtom,
+} from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -40,8 +48,11 @@ export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [, setTagsHeight] = useState(0);
 
-  const { filter, updateFilter, resetToDefault, hasChanged } =
-    useFilterState(oppgaverFilterStateAtom);
+  const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
+    LagretFilterType.OPPGAVE,
+  );
+  const { filter, updateFilter, resetToDefault, selectFilter, hasChanged } =
+    useFilterStateWithSavedFilters(oppgaverFilterStateAtom, lagredeFilter);
 
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
 
@@ -53,7 +64,24 @@ export function OppgaverPage() {
       <FilterAndTableLayout
         filter={<OppgaverFilter filter={filter.values} updateFilter={updateFilter} />}
         nullstillFilterButton={
-          hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
+          hasChanged ? (
+            <>
+              <NullstillFilterKnapp onClick={resetToDefault} />
+              <LagreFilterButton filter={filter.values} onLagre={lagreFilter} />
+            </>
+          ) : null
+        }
+        lagredeFilter={
+          <LagredeFilterOversikt
+            filters={lagredeFilter}
+            selectedFilterId={filter.id}
+            onSelectFilterId={selectFilter}
+            onDeleteFilter={slettFilter}
+            onSetDefaultFilter={setDefaultFilter}
+            validateFilterStructure={(filter) => {
+              return OppgaverFilterSchema.safeParse(filter).success;
+            }}
+          />
         }
         tags={
           <OppgaveFilterTags

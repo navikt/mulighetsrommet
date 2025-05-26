@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@/filter/filter-validator";
 
-const OppgaverFilterSchema = z.object({
+export const OppgaverFilterSchema = z.object({
   type: z.nativeEnum(OppgaveType).array(),
   tiltakstyper: z.nativeEnum(Tiltakskode).array(),
   regioner: z.array(z.string()),
