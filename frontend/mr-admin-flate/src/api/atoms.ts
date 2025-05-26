@@ -129,24 +129,24 @@ export function getGjennomforingerForAvtaleFilterAtom(avtaleId: string) {
 }
 
 export type FilterState<T> = {
+  filter: FilterEntry<T>;
+  defaultFilter: FilterEntry<T>;
+  isInitialized: boolean;
+};
+
+export type FilterEntry<T> = {
   id?: string;
   values: T;
 };
 
-export type FilterManagerState<T> = {
-  filter: FilterState<T>;
-  defaultFilter: FilterState<T>;
-  isInitialized: boolean;
-};
-
 export type FilterAction<T> =
-  | { type: "UPDATE_DEFAULT"; payload?: FilterState<T> }
+  | { type: "UPDATE_DEFAULT"; payload?: FilterEntry<T> }
   | { type: "RESET_TO_DEFAULT" }
-  | { type: "SELECT_FILTER"; payload: FilterState<T> }
+  | { type: "SELECT_FILTER"; payload: FilterEntry<T> }
   | { type: "SET_FILTER"; payload: T }
   | { type: "UPDATE_FILTER"; payload: Partial<T> };
 
-export function createFilterAtomWithAPI<T extends object>(
+export function createFilterStateAtom<T extends object>(
   storageKey: string,
   fallbackFilter: T,
   validator: (value: unknown) => value is T,
@@ -158,8 +158,8 @@ export function createFilterAtomWithAPI<T extends object>(
   };
 
   // Create storage
-  const filterStateStorage = withStorageValidator<FilterManagerState<T>>(
-    (value: unknown): value is FilterManagerState<T> => {
+  const filterStateStorage = withStorageValidator<FilterState<T>>(
+    (value: unknown): value is FilterState<T> => {
       if (!value || typeof value !== "object") return false;
       const state = value as any;
       return (
@@ -172,10 +172,7 @@ export function createFilterAtomWithAPI<T extends object>(
     },
   )(createJSONStorage(() => sessionStorage));
 
-  function filterReducer(
-    state: FilterManagerState<T>,
-    action: FilterAction<T>,
-  ): FilterManagerState<T> {
+  function filterReducer(state: FilterState<T>, action: FilterAction<T>): FilterState<T> {
     switch (action.type) {
       case "UPDATE_DEFAULT": {
         const defaultFilter = action.payload ?? initialState.defaultFilter;
@@ -226,7 +223,7 @@ export function createFilterAtomWithAPI<T extends object>(
     }
   }
 
-  const filterManagerAtom = atomWithStorage<FilterManagerState<T>>(
+  const filterManagerAtom = atomWithStorage<FilterState<T>>(
     storageKey,
     initialState,
     filterStateStorage,

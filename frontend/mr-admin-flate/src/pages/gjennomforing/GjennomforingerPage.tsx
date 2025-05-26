@@ -1,9 +1,9 @@
 import {
-  createFilterAtomWithAPI,
+  createFilterStateAtom,
   createFilterValidator,
   defaultGjennomforingFilter,
   FilterAction,
-  FilterManagerState,
+  FilterState,
   GjennomforingFilterSchema,
   GjennomforingFilterType,
 } from "@/api/atoms";
@@ -29,17 +29,17 @@ import { useCallback, useEffect, useState } from "react";
 import { dequal } from "dequal";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
-export const gjennomforingFilterManagerAtom = createFilterAtomWithAPI<GjennomforingFilterType>(
+export const gjennomforingFilterManagerAtom = createFilterStateAtom<GjennomforingFilterType>(
   "gjennomforing-filter",
   defaultGjennomforingFilter,
   createFilterValidator(GjennomforingFilterSchema),
 );
 
-export function useFilterWithInit<T extends object>(
-  filterReducerAtom: WritableAtom<FilterManagerState<T>, [FilterAction<T>], void>,
+export function useFilterState<T extends object>(
+  filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
   lagredeFilter: Array<{ id: string; isDefault: boolean; filter: unknown }>,
 ) {
-  const [{ filter, defaultFilter }, dispatch] = useAtom(filterReducerAtom);
+  const [{ filter, defaultFilter }, dispatch] = useAtom(filterStateAtom);
 
   useEffect(() => {
     const defaultFilter = lagredeFilter.find((f) => f.isDefault);
@@ -109,7 +109,7 @@ export function GjennomforingerPage() {
   );
 
   const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
-    useFilterWithInit(gjennomforingFilterManagerAtom, lagredeFilter);
+    useFilterState(gjennomforingFilterManagerAtom, lagredeFilter);
 
   return (
     <main>
