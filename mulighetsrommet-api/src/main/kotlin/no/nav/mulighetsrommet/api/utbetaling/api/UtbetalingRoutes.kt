@@ -196,11 +196,15 @@ fun Route.utbetalingRoutes() {
                 queries.utbetaling.getByGjennomforing(id)
                     .map { utbetaling ->
                         val kostnadssteder =
-                            queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                            queries.delutbetaling.getByUtbetalingId(utbetaling.id).mapNotNull { delutbetaling ->
                                 val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
                                     TilsagnDto.fromTilsagn(it)
                                 }
-                                tilsagn.kostnadssted
+                                if (tilsagn.type != TilsagnType.EKSTRATILSAGN) {
+                                    tilsagn.kostnadssted
+                                } else {
+                                    null
+                                }
                             }
                         toUtbetalingDto(utbetaling, kostnadssteder)
                     }

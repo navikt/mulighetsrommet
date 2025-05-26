@@ -419,13 +419,10 @@ private fun getTotrinnskontrollForAnsatt(
     ansatt: NavAnsatt,
     totrinnskontrollService: TotrinnskontrollService,
 ): TotrinnskontrollDto {
-    val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
-    var besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(totrinnskontroll)
-    var behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(totrinnskontroll)
     return TotrinnskontrollDto.fromTotrinnskontroll(
         totrinnskontroll,
-        kanBesluttesAvAnsatt,
-        behandletAvNavn,
-        besluttetAvNavn,
+        kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
+        behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(totrinnskontroll),
+        besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(totrinnskontroll),
     )
 }
