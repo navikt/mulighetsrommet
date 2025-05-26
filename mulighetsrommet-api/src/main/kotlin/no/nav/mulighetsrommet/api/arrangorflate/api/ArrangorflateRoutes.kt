@@ -62,12 +62,17 @@ fun Route.arrangorflateRoutes() {
         return arrangorService.getArrangorOrSyncFromBrreg(organisasjonsnummer)
             .getOrElse {
                 when (it) {
-                    BrregError.NotFound -> throw StatusException(
+                    is BrregError.NotFound -> throw StatusException(
                         HttpStatusCode.BadRequest,
                         "Fant ikke arrangør $organisasjonsnummer i Brreg",
                     )
 
-                    BrregError.BadRequest, BrregError.Error -> throw StatusException(
+                    is BrregError.FjernetAvJuridiskeArsaker -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Arrangør $organisasjonsnummer er fjernet av juridiske årsaker",
+                    )
+
+                    is BrregError.BadRequest, BrregError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
                         "Feil oppsto ved henting av arrangør $organisasjonsnummer fra Brreg",
                     )

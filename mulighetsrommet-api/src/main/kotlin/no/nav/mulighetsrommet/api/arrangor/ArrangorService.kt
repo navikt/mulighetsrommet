@@ -4,9 +4,6 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import io.ktor.http.*
-import io.ktor.server.plugins.*
-import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
@@ -71,7 +68,7 @@ class ArrangorService(
                 // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
                 underenheter + slettedeVirksomheter
             }
-            .mapLeft { toStatusResponseError(it) }
+            .mapLeft { toStatusResponseError(it, orgnr) }
     }
 
     fun getArrangor(orgnr: Organisasjonsnummer): ArrangorDto? = db.session {
@@ -92,11 +89,11 @@ class ArrangorService(
                 }
             }
             .map { virksomhet ->
-                db.transaction {
-                    val id = getArrangor(virksomhet.organisasjonsnummer)?.id ?: UUID.randomUUID()
-                    val arrangor = virksomhet.toArrangorDto(id)
-                    queries.arrangor.upsert(arrangor)
-                    queries.arrangor.getById(id)
+                syncToDatbase(virksomhet)
+            }
+            .onLeft { error ->
+                if (error is BrregError.FjernetAvJuridiskeArsaker) {
+                    syncToDatabase(error.enhet)
                 }
             }
     }
@@ -119,6 +116,20 @@ class ArrangorService(
             gjennomforinger = gjennomforinger,
             avtaler = avtaler,
         )
+    }
+
+    private fun syncToDatbase(virksomhet: BrregEnhet): ArrangorDto = db.transaction {
+        val id = getArrangor(virksomhet.organisasjonsnummer)?.id ?: UUID.randomUUID()
+        val arrangor = virksomhet.toArrangorDto(id)
+        queries.arrangor.upsert(arrangor)
+        queries.arrangor.getById(id)
+    }
+
+    private fun syncToDatabase(enhet: FjernetBrregEnhetDto): Unit = db.transaction {
+        getArrangor(enhet.organisasjonsnummer)?.copy(slettetDato = enhet.slettetDato)?.also { arrangor ->
+            log.info("Markerer arrangør som slettet: $arrangor")
+            queries.arrangor.upsert(arrangor)
+        }
     }
 }
 

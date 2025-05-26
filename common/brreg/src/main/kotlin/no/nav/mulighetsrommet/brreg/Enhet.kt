@@ -29,6 +29,13 @@ internal data class Underenhet(
 )
 
 @Serializable
+internal data class FjernetEnhet(
+    val organisasjonsnummer: Organisasjonsnummer,
+    @Serializable(with = LocalDateSerializer::class)
+    val slettedato: LocalDate,
+)
+
+@Serializable
 internal data class Organisasjonsform(
     val kode: String,
     @Serializable(with = LocalDateSerializer::class)
