@@ -122,7 +122,9 @@ function BeregningInputLinjerSkjema() {
     <VStack className="mt-4" gap="4">
       {linjer}
       {errors.beregning?.linjer?.message && (
-        <Alert size="small" variant="error">{errors.beregning?.linjer?.message}</Alert>
+        <Alert size="small" variant="error">
+          {errors.beregning?.linjer?.message}
+        </Alert>
       )}
       <div>
         <Button
@@ -131,7 +133,7 @@ function BeregningInputLinjerSkjema() {
           onClickCapture={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setError("beregning.linjer", { });
+            setError("beregning.linjer", {});
             append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
           }}
         >

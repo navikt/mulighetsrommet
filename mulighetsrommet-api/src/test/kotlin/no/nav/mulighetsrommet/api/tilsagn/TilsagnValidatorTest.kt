@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import arrow.core.left
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import java.util.UUID

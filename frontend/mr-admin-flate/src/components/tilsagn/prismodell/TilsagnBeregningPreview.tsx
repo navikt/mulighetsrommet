@@ -34,8 +34,8 @@ export function TilsagnBeregningPreview(props: Props) {
   }
 
   function onValidationError(error: ValidationError) {
-    setBeregning({type: beregning!.type, belop: 0})
-    
+    setBeregning({ type: beregning!.type, belop: 0 });
+
     error.errors.forEach((error: { pointer: string; detail: string }) => {
       const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
       setError(name, { type: "custom", message: error.detail });

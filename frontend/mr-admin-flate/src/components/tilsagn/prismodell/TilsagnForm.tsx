@@ -59,7 +59,7 @@ export function TilsagnForm(props: Props) {
       },
     });
   };
- 
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
