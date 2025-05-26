@@ -41,7 +41,10 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
 export function compareByKey<T extends Record<string, any>>(a: T, b: T, orderBy: keyof T): number {
   const aValue = a[orderBy];
   const bValue = b[orderBy];
+  return compare(aValue, bValue);
+}
 
+export function compare<T>(aValue: T, bValue: T): number {
   if (aValue == null && bValue == null) {
     return 0;
   } else if (aValue == null) {

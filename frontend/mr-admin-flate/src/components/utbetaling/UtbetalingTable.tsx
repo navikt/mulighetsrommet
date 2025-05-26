@@ -1,4 +1,5 @@
 import {
+  compare,
   compareByKey,
   formaterNavEnheter,
   formaterPeriodeSlutt,
@@ -28,7 +29,7 @@ interface UtbetalingTabellData extends UtbetalingDto {
   status: AdminUtbetalingStatus;
 }
 
-export function UtbetalingerTable({ utbetalinger }: Props) {
+export function UtbetalingTable({ utbetalinger }: Props) {
   const { gjennomforingId } = useParams();
 
   const [sort, setSort] = useState<ScopedSortState | undefined>();
@@ -57,6 +58,11 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
     }))
     .toSorted((a, b) => {
       if (sort) {
+        if (sort.orderBy === "kostnadssteder") {
+          return sort.direction === "ascending"
+            ? compare(b.kostnadssteder.at(0)?.navn, a.kostnadssteder.at(0)?.navn)
+            : compare(a.kostnadssteder.at(0)?.navn, b.kostnadssteder.at(0)?.navn);
+        }
         return sort.direction === "ascending"
           ? compareByKey(b, a, sort.orderBy)
           : compareByKey(a, b, sort.orderBy);
@@ -79,7 +85,9 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
           <TableColumnHeader sortKey="periodeSlutt" sortable>
             {utbetalingTekster.periode.slutt.label}
           </TableColumnHeader>
-          <Table.ColumnHeader>Kostnadssteder</Table.ColumnHeader>
+          <Table.ColumnHeader sortKey="kostnadssteder" sortable>
+            Kostnadssted
+          </Table.ColumnHeader>
           <TableColumnHeader sortKey="belop" sortable align="right">
             {utbetalingTekster.beregning.belop.label}
           </TableColumnHeader>
