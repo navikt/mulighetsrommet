@@ -483,7 +483,7 @@ export function TilsagnPage() {
           </VStack>
         </VStack>
       </ContentBox>
-      <VStack padding="4" className="bg-white">
+      <VStack padding="4" className="bg-white overflow-x-scroll">
         <Heading size="medium">Aktive tilsagn</Heading>
         {aktiveTilsagn.length > 0 ? (
           <TilsagnTabell tilsagn={aktiveTilsagn} />
