@@ -521,7 +521,7 @@ class TilsagnService(
                 input,
             )
 
-            else -> input.right()
+            else -> TilsagnValidator.validateBeregningInput(input)
         }
     }
 

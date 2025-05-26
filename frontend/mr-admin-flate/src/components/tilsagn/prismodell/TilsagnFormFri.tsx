@@ -1,7 +1,7 @@
 import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
-import { Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
+import { Alert, Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -55,6 +55,7 @@ function BeregningInputLinjerSkjema() {
   const {
     register,
     formState: { errors },
+    setError,
     control,
   } = useFormContext<FriTilsagn>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
@@ -120,6 +121,9 @@ function BeregningInputLinjerSkjema() {
   return (
     <VStack className="mt-4" gap="4">
       {linjer}
+      {errors.beregning?.linjer?.message && (
+        <Alert size="small" variant="error">{errors.beregning?.linjer?.message}</Alert>
+      )}
       <div>
         <Button
           size="small"
@@ -127,6 +131,7 @@ function BeregningInputLinjerSkjema() {
           onClickCapture={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            setError("beregning.linjer", { });
             append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
           }}
         >
