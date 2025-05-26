@@ -28,9 +28,9 @@ class TilsagnValidatorTest : FunSpec({
                     prisbetingelser = null,
                 )
                 val leftFieldErrors = listOf(
-                    FieldError(pointer = "linjer/0/belop", detail = "Beløp må være positivt"),
-                    FieldError(pointer = "linjer/0/beskrivelse", detail = "Beskrivelse mangler"),
-                    FieldError(pointer = "linjer/0/antall", detail = "Antall må være positivt"),
+                    FieldError(pointer = "beregning/linjer/0/belop", detail = "Beløp må være positivt"),
+                    FieldError(pointer = "beregning/linjer/0/beskrivelse", detail = "Beskrivelse mangler"),
+                    FieldError(pointer = "beregning/linjer/0/antall", detail = "Antall må være positivt"),
                 )
 
                 TilsagnValidator.validateBeregningInput(input) shouldBeLeft leftFieldErrors
