@@ -83,7 +83,7 @@ export default function UtbetalingDetaljerSide() {
         />
         <Spacer />
         <Link
-          href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/kvittering/lastned`}
+          href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned`}
           target="_blank"
         >
           <FilePdfIcon />
