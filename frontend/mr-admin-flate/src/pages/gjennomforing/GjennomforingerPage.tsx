@@ -20,7 +20,6 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import {
   GjennomforingFilterSchema,
   gjennomforingFilterStateAtom,
-  GjennomforingFilterType,
 } from "@/pages/gjennomforing/filter";
 import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
 
@@ -31,7 +30,7 @@ export function GjennomforingerPage() {
   const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
     LagretFilterType.GJENNOMFORING,
   );
-  const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
+  const { filter, updateFilter, resetToDefault, selectFilter, hasChanged } =
     useFilterStateWithSavedFilters(gjennomforingFilterStateAtom, lagredeFilter);
 
   return (
@@ -49,13 +48,9 @@ export function GjennomforingerPage() {
           }
           lagredeFilter={
             <LagredeFilterOversikt
+              filters={lagredeFilter}
               selectedFilterId={filter.id}
               onSelectFilterId={selectFilter}
-              filter={filter.values}
-              lagredeFilter={lagredeFilter}
-              onSetFilter={(filter) => {
-                setFilter(filter as GjennomforingFilterType);
-              }}
               onDeleteFilter={slettFilter}
               onSetDefaultFilter={setDefaultFilter}
               validateFilterStructure={(filter) => {

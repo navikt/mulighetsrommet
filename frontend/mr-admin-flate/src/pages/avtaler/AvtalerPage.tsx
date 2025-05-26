@@ -17,11 +17,7 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import {
-  AvtaleFilterSchema,
-  AvtaleFilterType,
-  avtalerFilterStateAtom,
-} from "@/pages/avtaler/filter";
+import { AvtaleFilterSchema, avtalerFilterStateAtom } from "@/pages/avtaler/filter";
 import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
 
 export function AvtalerPage() {
@@ -31,7 +27,7 @@ export function AvtalerPage() {
   const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
     LagretFilterType.AVTALE,
   );
-  const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
+  const { filter, updateFilter, resetToDefault, selectFilter, hasChanged } =
     useFilterStateWithSavedFilters(avtalerFilterStateAtom, lagredeFilter);
 
   return (
@@ -50,13 +46,9 @@ export function AvtalerPage() {
             }
             lagredeFilter={
               <LagredeFilterOversikt
+                filters={lagredeFilter}
                 selectedFilterId={filter.id}
                 onSelectFilterId={selectFilter}
-                filter={filter.values}
-                lagredeFilter={lagredeFilter}
-                onSetFilter={(filter) => {
-                  setFilter(filter as AvtaleFilterType);
-                }}
                 onDeleteFilter={slettFilter}
                 onSetDefaultFilter={setDefaultFilter}
                 validateFilterStructure={(filter) => {
