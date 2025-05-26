@@ -1,14 +1,12 @@
 import { Search } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
-import { ArrangorerFilter as ArrangorerFilterProps } from "@/api/atoms";
+import { ArrangorerFilterType as ArrangorerFilterProps } from "@/api/atoms";
 
 interface Props {
-  filterAtom: WritableAtom<ArrangorerFilterProps, [newValue: ArrangorerFilterProps], void>;
+  filter: ArrangorerFilterProps;
+  updateFilter: (values: Partial<ArrangorerFilterProps>) => void;
 }
 
-export function ArrangorerFilter({ filterAtom }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
-
+export function ArrangorerFilter({ filter, updateFilter }: Props) {
   return (
     <div>
       <Search
@@ -18,7 +16,7 @@ export function ArrangorerFilter({ filterAtom }: Props) {
         variant="simple"
         placeholder="Navn, organisasjonsnummer"
         onChange={(search: string) => {
-          setFilter({ ...filter, sok: search, page: 1 });
+          updateFilter({ sok: search, page: 1 });
         }}
         value={filter.sok}
         aria-label="Søk etter arrangør"

@@ -1,4 +1,4 @@
-import { AvtaleFilter } from "@/api/atoms";
+import { AvtaleFilterType } from "@/api/atoms";
 import { Avtalestatus, Avtaletype, SorteringAvtaler } from "@mr/api-client-v2";
 import { describe, expect, test } from "vitest";
 import {
@@ -70,7 +70,7 @@ describe("Utils - capitalizeEveryWord", () => {
 
 describe("Avtaletabell", () => {
   test("Skal returnere korrekt searchParams for avtalefilter", () => {
-    const filter: AvtaleFilter = {
+    const filter: AvtaleFilterType = {
       sok: "",
       statuser: [Avtalestatus.AKTIV],
       avtaletyper: [Avtaletype.AVTALE],

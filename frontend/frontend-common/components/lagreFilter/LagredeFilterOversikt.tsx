@@ -1,32 +1,34 @@
-import { TrashFillIcon } from "@navikt/aksel-icons";
+import { StarFillIcon, StarIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import styles from "./LagredeFilterOversikt.module.scss";
 import { VarselModal } from "../varsel/VarselModal";
 
+type FilterValues = { [key: string]: unknown };
 
 interface LagretFilter {
-    id: string;
-    navn: string;
-    filter: {
-        [key: string]: unknown;
-    };
+  id: string;
+  navn: string;
+  filter: FilterValues;
+  isDefault: boolean;
 }
 
 interface Props {
   lagredeFilter: LagretFilter[];
-  filter: any;
-  setFilter: (filter: any) => void;
-  validateFilterStructure: (filter: any) => boolean;
-  onDelete: (id: string) => void;
+  filter: FilterValues;
+  onSetFilter: (filter: FilterValues) => void;
+  validateFilterStructure: (filter: FilterValues) => boolean;
+  onDeleteFilter: (id: string) => void;
+  onSetDefaultFilter: (id: string, isDefault: boolean) => void;
 }
 
 export function LagredeFilterOversikt({
   lagredeFilter,
   filter,
-  setFilter,
+  onSetFilter,
   validateFilterStructure,
-  onDelete,
+  onDeleteFilter,
+  onSetDefaultFilter,
 }: Props) {
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<
@@ -42,14 +44,14 @@ export function LagredeFilterOversikt({
       if (!validateFilterStructure(valgtFilter.filter)) {
         setFilterHarUgyldigStruktur(valgtFilter);
       } else {
-        setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
+        onSetFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
       }
     }
   }
 
   function slettFilter(id: string) {
-    onDelete(id);
-    setFilter({ ...filter, lagretFilterIdValgt: undefined });
+    onDeleteFilter(id);
+    onSetFilter({ ...filter, lagretFilterIdValgt: undefined });
     setFilterForSletting(undefined);
     setFilterHarUgyldigStruktur(undefined);
     sletteFilterModalRef.current?.close();
@@ -86,7 +88,7 @@ export function LagredeFilterOversikt({
           value={filter.lagretFilterIdValgt ? filter.lagretFilterIdValgt : null}
         >
           <div className={styles.overflow}>
-            {lagredeFilter?.map((lagretFilter) => {
+            {lagredeFilter.map((lagretFilter) => {
               return (
                 <HStack
                   key={lagretFilter.id}
@@ -98,17 +100,30 @@ export function LagredeFilterOversikt({
                   <Radio size="small" value={lagretFilter.id}>
                     {lagretFilter.navn}
                   </Radio>
-                  <Button
-                    className={styles.sletteknapp}
-                    icon={<TrashFillIcon />}
-                    iconPosition="right"
-                    aria-label="Slett filter"
-                    variant="tertiary-neutral"
-                    size="medium"
-                    onClick={() => {
-                      setFilterForSletting(lagredeFilter.find((f) => f.id === lagretFilter.id));
-                    }}
-                  />
+                  <div className={styles.filterActions}>
+                    <Button
+                      icon={lagretFilter.isDefault ? <StarFillIcon /> : <StarIcon />}
+                      iconPosition="right"
+                      aria-label={
+                        lagretFilter.isDefault ? "Fjern som favoritt" : "Velg som favoritt"
+                      }
+                      variant="tertiary"
+                      size="medium"
+                      onClick={() => {
+                        onSetDefaultFilter(lagretFilter.id, !lagretFilter.isDefault);
+                      }}
+                    />
+                    <Button
+                      icon={<TrashFillIcon />}
+                      iconPosition="right"
+                      aria-label="Slett filter"
+                      variant="tertiary-neutral"
+                      size="medium"
+                      onClick={() => {
+                        setFilterForSletting(lagredeFilter.find((f) => f.id === lagretFilter.id));
+                      }}
+                    />
+                  </div>
                 </HStack>
               );
             })}
@@ -126,7 +141,7 @@ export function LagredeFilterOversikt({
             setFilterForSletting(undefined);
             sletteFilterModalRef.current?.close();
           }}
-          body={sletteBody(filterForSletting?.navn)}
+          body={sletteBody(filterForSletting.navn)}
           primaryButton={sletteKnapp(filterForSletting.id)}
           secondaryButton
           secondaryButtonHandleAction={() => sletteFilterModalRef.current?.close()}

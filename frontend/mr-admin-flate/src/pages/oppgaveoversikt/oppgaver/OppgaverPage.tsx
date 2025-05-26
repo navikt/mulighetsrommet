@@ -1,4 +1,4 @@
-import { oppgaverFilterAtom } from "@/api/atoms";
+import { defaultOppgaverFilter, oppgaverFilterAtom, OppgaverFilterType } from "@/api/atoms";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
@@ -11,7 +11,8 @@ import { useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
-import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
+import { dequal } from "dequal";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -40,17 +41,29 @@ export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [, setTagsHeight] = useState(0);
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
-  const [filter] = useAtom(oppgaverFilterAtom);
+  const [filter, setFilter] = useAtom(oppgaverFilterAtom);
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
+
+  function updateFilter(value: Partial<OppgaverFilterType>) {
+    setFilter((prev) => ({ ...prev, ...value }));
+  }
+
+  function resetFilter() {
+    setFilter(defaultOppgaverFilter);
+  }
+
+  const hasChanged = !dequal(filter, defaultOppgaverFilter);
 
   return (
     <ContentBox>
       <FilterAndTableLayout
-        filter={<OppgaverFilter oppgaveFilterAtom={oppgaverFilterAtom} />}
+        filter={<OppgaverFilter filter={filter} updateFilter={updateFilter} />}
+        nullstillFilterButton={hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null}
         tags={
           <OppgaveFilterTags
-            filterAtom={oppgaverFilterAtom}
+            filter={filter}
+            updateFilter={updateFilter}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}
           />
@@ -83,7 +96,6 @@ export function OppgaverPage() {
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={<NullstillKnappForOppgaver filterAtom={oppgaverFilterAtom} />}
       />
     </ContentBox>
   );

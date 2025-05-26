@@ -1,8 +1,12 @@
 import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { SortState } from "@navikt/ds-react";
 import { atom, WritableAtom } from "jotai";
-import { atomFamily } from "jotai/utils";
-import { RESET } from "jotai/vanilla/utils";
+import {
+  atomFamily,
+  atomWithStorage,
+  createJSONStorage,
+  unstable_withStorageValidator as withStorageValidator,
+} from "jotai/utils";
 import {
   Avtalestatus,
   Avtaletype,
@@ -16,122 +20,6 @@ import {
 } from "@mr/api-client-v2";
 import { z, ZodType } from "zod";
 
-type SetStateActionWithReset<Value> =
-  | Value
-  | typeof RESET
-  | ((prev: Value) => Value | typeof RESET);
-
-const safeZodParse = (zodSchema: ZodType, initialValue: unknown, str: string) => {
-  try {
-    const result = zodSchema.safeParse(JSON.parse(str));
-    if (!result.success) {
-      return initialValue;
-    }
-    return result.data;
-  } catch {
-    return initialValue;
-  }
-};
-
-/**
- * atomWithStorage fra jotai rendrer først alltid initial value selv om den
- * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
- * Dette er anbefalt måte og ha en sync versjon av atomWithStorage
- */
-function atomWithStorage<Value>(
-  key: string,
-  initialValue: Value,
-  storage: Storage,
-  zodSchema: ZodType,
-) {
-  const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
-  return atom(
-    (get) => safeZodParse(zodSchema, initialValue, get(baseAtom)),
-    (_, set, nextValue: Value) => {
-      const str = JSON.stringify(nextValue);
-      set(baseAtom, str);
-      storage.setItem(key, str);
-    },
-  );
-}
-
-/**
- * Kopiert fra https://github.com/jotaijs/jotai-location/blob/main/src/atomWithHash.ts
- * med unntak av:
- * - det indre atom'et som er endret til et storage atom
- * - setHash har alltid "replaceState" oppførsel (dvs. lager ikke ny entry i history)
- * - Forsøker å lese inn hash først (ytterst i funksjonen her), uten dette funka ikke
- *   lenking med hash i ny fane
- */
-function atomWithHashAndStorage<Value>(
-  key: string,
-  initialValue: Value,
-  storage: Storage,
-  zodSchema: ZodType,
-): WritableAtom<Value, [SetStateActionWithReset<Value>], void> {
-  const serialize = JSON.stringify;
-  const deserialize = (str: string) => safeZodParse(zodSchema, initialValue, str);
-  const subscribe = (callback: any) => {
-    window.addEventListener("hashchange", callback);
-    return () => {
-      window.removeEventListener("hashchange", callback);
-    };
-  };
-  const setHash = (searchParams: string) => {
-    window.history.replaceState(
-      window.history.state,
-      "",
-      `${window.location.pathname}${window.location.search}#${searchParams}`,
-    );
-  };
-
-  let str = null;
-  if (typeof window !== "undefined" && window.location) {
-    const searchParams = new URLSearchParams(window.location.hash.slice(1));
-    str = searchParams.get(key);
-  }
-
-  const strAtom = atomWithStorage<string | null>(key, str, storage, z.string().nullable());
-  strAtom.onMount = (setAtom) => {
-    if (typeof window === "undefined" || !window.location) {
-      return undefined;
-    }
-    const callback = () => {
-      const searchParams = new URLSearchParams(window.location.hash.slice(1));
-      const str = searchParams.get(key);
-      if (str != null) {
-        setAtom(str);
-      }
-    };
-    const unsubscribe = subscribe(callback);
-    callback();
-    return unsubscribe;
-  };
-  const valueAtom = atom((get) => {
-    const str = get(strAtom);
-    return str === null ? initialValue : deserialize(str);
-  });
-  return atom(
-    (get) => get(valueAtom),
-    (get, set, update: SetStateActionWithReset<Value>) => {
-      const nextValue =
-        typeof update === "function"
-          ? (update as (prev: Value) => Value | typeof RESET)(get(valueAtom))
-          : update;
-      const searchParams = new URLSearchParams(window.location.hash.slice(1));
-      if (nextValue === RESET) {
-        set(strAtom, null);
-        searchParams.delete(key);
-      } else {
-        const str = serialize(nextValue);
-        set(strAtom, str);
-        searchParams.set(key, str);
-      }
-      setHash(searchParams.toString());
-    },
-  );
-}
-
 function createSorteringProps(sortItems: z.ZodType) {
   return z.object({
     tableSort: z.custom<SortState>(),
@@ -139,12 +27,19 @@ function createSorteringProps(sortItems: z.ZodType) {
   });
 }
 
-const tiltakstypeFilterSchema = z.object({
+function createFilterValidator<T>(schema: ZodType<T>) {
+  return (values: unknown): values is T => {
+    return Boolean(schema.safeParse(values).success);
+  };
+}
+
+const TiltakstypeFilterSchema = z.object({
   sort: createSorteringProps(z.custom<SorteringTiltakstyper>()).optional(),
 });
-export type TiltakstypeFilter = z.infer<typeof tiltakstypeFilterSchema>;
 
-export const defaultTiltakstypeFilter: TiltakstypeFilter = {
+export type TiltakstypeFilterType = z.infer<typeof TiltakstypeFilterSchema>;
+
+export const defaultTiltakstypeFilter: TiltakstypeFilterType = {
   sort: {
     sortString: SorteringTiltakstyper.NAVN_ASCENDING,
     tableSort: {
@@ -154,11 +49,15 @@ export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   },
 };
 
-export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
+const tiltakstypeFilterStorage = withStorageValidator(
+  createFilterValidator(TiltakstypeFilterSchema),
+)(createJSONStorage(() => sessionStorage));
+
+export const tiltakstypeFilterAtom = atomWithStorage<TiltakstypeFilterType>(
   "tiltakstype-filter",
   defaultTiltakstypeFilter,
-  sessionStorage,
-  tiltakstypeFilterSchema,
+  tiltakstypeFilterStorage,
+  { getOnInit: true },
 );
 
 export const GjennomforingFilterSchema = z.object({
@@ -175,9 +74,10 @@ export const GjennomforingFilterSchema = z.object({
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
 });
-export type GjennomforingFilter = z.infer<typeof GjennomforingFilterSchema>;
 
-export const defaultGjennomforingfilter: GjennomforingFilter = {
+export type GjennomforingFilterType = z.infer<typeof GjennomforingFilterSchema>;
+
+export const defaultGjennomforingFilter: GjennomforingFilterType = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
@@ -198,27 +98,36 @@ export const defaultGjennomforingfilter: GjennomforingFilter = {
   lagretFilterIdValgt: undefined,
 };
 
-export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilter>(
+const gjennomforingFilterStorage = withStorageValidator(
+  createFilterValidator(GjennomforingFilterSchema),
+)(createJSONStorage(() => sessionStorage));
+
+export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilterType>(
   "gjennomforing-filter",
-  defaultGjennomforingfilter,
-  sessionStorage,
-  GjennomforingFilterSchema,
+  defaultGjennomforingFilter,
+  gjennomforingFilterStorage,
+  { getOnInit: true },
 );
 
-export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
-  string,
-  WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>
->((avtaleId: string) => {
-  return atomWithHashAndStorage(
-    `gjennomforing-filter-${avtaleId}`,
-    {
-      ...defaultGjennomforingfilter,
-      avtale: avtaleId,
-    },
-    sessionStorage,
-    GjennomforingFilterSchema,
-  );
-});
+const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
+  GjennomforingFilterType,
+  WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>
+>(
+  (filter: GjennomforingFilterType) => {
+    return atomWithStorage(
+      `gjennomforing-filter-${filter.avtale}`,
+      filter,
+      createJSONStorage(() => sessionStorage),
+    );
+  },
+  (a, b) => a.avtale === b.avtale,
+);
+
+export function getGjennomforingerForAvtaleFilterAtom(avtaleId: string) {
+  const defaultFilterValue = { ...defaultGjennomforingFilter, avtale: avtaleId };
+  const filterAtom = gjennomforingerForAvtaleFilterAtomFamily(defaultFilterValue);
+  return { defaultFilterValue, filterAtom };
+}
 
 export const AvtaleFilterSchema = z.object({
   sok: z.string(),
@@ -234,9 +143,10 @@ export const AvtaleFilterSchema = z.object({
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
 });
-export type AvtaleFilter = z.infer<typeof AvtaleFilterSchema>;
 
-export const defaultAvtaleFilter: AvtaleFilter = {
+export type AvtaleFilterType = z.infer<typeof AvtaleFilterSchema>;
+
+export const defaultAvtaleFilter: AvtaleFilterType = {
   sok: "",
   statuser: [Avtalestatus.AKTIV],
   avtaletyper: [],
@@ -257,22 +167,26 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   lagretFilterIdValgt: undefined,
 };
 
-export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
-  "avtale-filter",
-  defaultAvtaleFilter,
-  sessionStorage,
-  AvtaleFilterSchema,
+const avtaleFilterStorage = withStorageValidator(createFilterValidator(AvtaleFilterSchema))(
+  createJSONStorage(() => sessionStorage),
 );
 
-const arrangorerFilterSchema = z.object({
+export const avtaleFilterAtom = atomWithStorage<AvtaleFilterType>(
+  "avtale-filter",
+  defaultAvtaleFilter,
+  avtaleFilterStorage,
+  { getOnInit: true },
+);
+
+const ArrangorerFilterSchema = z.object({
   sok: z.string(),
   page: z.number(),
   pageSize: z.number(),
   sortering: createSorteringProps(z.custom<SorteringArrangorer>()),
 });
 
-export type ArrangorerFilter = z.infer<typeof arrangorerFilterSchema>;
-export const defaultArrangorerFilter: ArrangorerFilter = {
+export type ArrangorerFilterType = z.infer<typeof ArrangorerFilterSchema>;
+export const defaultArrangorerFilter: ArrangorerFilterType = {
   sok: "",
   sortering: {
     sortString: SorteringArrangorer.NAVN_ASCENDING,
@@ -285,48 +199,61 @@ export const defaultArrangorerFilter: ArrangorerFilter = {
   pageSize: ARRANGORER_PAGE_SIZE,
 };
 
-export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
-  "arrangorer-filter",
-  defaultArrangorerFilter,
-  sessionStorage,
-  arrangorerFilterSchema,
+const arrangorerFilterStorage = withStorageValidator(createFilterValidator(ArrangorerFilterSchema))(
+  createJSONStorage(() => sessionStorage),
 );
 
-const oppgaverFilterSchema = z.object({
+export const arrangorerFilterAtom = atomWithStorage<ArrangorerFilterType>(
+  "arrangorer-filter",
+  defaultArrangorerFilter,
+  arrangorerFilterStorage,
+  { getOnInit: true },
+);
+
+const OppgaverFilterSchema = z.object({
   type: z.nativeEnum(OppgaveType).array(),
   tiltakstyper: z.array(z.string()),
   regioner: z.array(z.string()),
 });
 
-export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;
+export type OppgaverFilterType = z.infer<typeof OppgaverFilterSchema>;
 
-export const defaultOppgaverFilter: OppgaverFilter = {
+export const defaultOppgaverFilter: OppgaverFilterType = {
   type: [],
   tiltakstyper: [],
   regioner: [],
 };
 
-export const oppgaverFilterAtom = atomWithHashAndStorage<OppgaverFilter>(
-  "oppgaver-filter",
-  defaultOppgaverFilter,
-  sessionStorage,
-  oppgaverFilterSchema,
+const oppgaverFilterStorage = withStorageValidator(createFilterValidator(OppgaverFilterSchema))(
+  createJSONStorage(() => sessionStorage),
 );
 
-export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
-  string,
-  WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>
->((tiltakstypeId: string) => {
-  return atomWithHashAndStorage(
-    `avtale-filter-${tiltakstypeId}`,
-    {
-      ...defaultAvtaleFilter,
-      tiltakstyper: [tiltakstypeId],
-    },
-    sessionStorage,
-    AvtaleFilterSchema,
-  );
-});
+export const oppgaverFilterAtom = atomWithStorage<OppgaverFilterType>(
+  "oppgaver-filter",
+  defaultOppgaverFilter,
+  oppgaverFilterStorage,
+  { getOnInit: true },
+);
+
+const avtalerForTiltakstypeFilterAtomFamily = atomFamily<
+  AvtaleFilterType,
+  WritableAtom<AvtaleFilterType, [newValue: AvtaleFilterType], void>
+>(
+  (filter: AvtaleFilterType) => {
+    return atomWithStorage(
+      `avtale-filter-${filter.tiltakstyper[0]}`,
+      filter,
+      createJSONStorage(() => sessionStorage),
+    );
+  },
+  (a, b) => a.tiltakstyper[0] === b.tiltakstyper[0],
+);
+
+export function getAvtalerForTiltakstypeFilterAtom(tiltakstypeId: string) {
+  const defaultFilterValue = { ...defaultAvtaleFilter, tiltakstyper: [tiltakstypeId] };
+  const filterAtom = avtalerForTiltakstypeFilterAtomFamily(defaultFilterValue);
+  return { defaultFilterValue, filterAtom };
+}
 
 export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 

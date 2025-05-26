@@ -1,8 +1,5 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import {
-  GjennomforingFilter as GjennomforingFilterProps,
-  gjennomforingFilterAccordionAtom,
-} from "@/api/atoms";
+import { gjennomforingFilterAccordionAtom, GjennomforingFilterType } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
@@ -15,20 +12,19 @@ import {
 import { ArrangorTil, AvtaleDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
-import { useEffect } from "react";
+import { useAtom } from "jotai";
 import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";
 
 interface Props {
-  filterAtom: WritableAtom<GjennomforingFilterProps, [newValue: GjennomforingFilterProps], void>;
+  filter: GjennomforingFilterType;
+  updateFilter: (values: Partial<GjennomforingFilterType>) => void;
   skjulFilter?: Record<Filters, boolean>;
   avtale?: AvtaleDto;
 }
 
-export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: enheter } = useNavEnheter();
@@ -40,33 +36,16 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
     },
   );
 
-  useEffect(() => {
-    setFilter({
-      ...filter,
-      avtale: avtale?.id ?? "",
-    });
-  }, [avtale, filter, setFilter]);
-
   if (!arrangorer || isLoadingArrangorer) {
     return <FilterSkeleton />;
   }
 
   function selectDeselectAll(checked: boolean, key: string, values: string[]) {
-    if (checked) {
-      setFilter({
-        ...filter,
-        page: 1,
-        [key]: values,
-        lagretFilterIdValgt: undefined,
-      });
-    } else {
-      setFilter({
-        ...filter,
-        page: 1,
-        [key]: [],
-        lagretFilterIdValgt: undefined,
-      });
-    }
+    updateFilter({
+      [key]: checked ? values : [],
+      page: 1,
+      lagretFilterIdValgt: undefined,
+    });
   }
 
   return (
@@ -78,11 +57,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
         variant="simple"
         placeholder="Navn, tiltaksnr., tiltaksarrangør"
         onChange={(search: string) => {
-          setFilter({
-            ...filter,
+          updateFilter({
+            search,
             page: 1,
             lagretFilterIdValgt: undefined,
-            search,
           });
         }}
         value={filter.search}
@@ -94,11 +72,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
           size="small"
           checked={filter.visMineGjennomforinger}
           onChange={(event) => {
-            setFilter({
-              ...filter,
+            updateFilter({
+              visMineGjennomforinger: event.currentTarget.checked,
               page: 1,
               lagretFilterIdValgt: undefined,
-              visMineGjennomforinger: event.currentTarget.checked,
             });
           }}
         >
@@ -121,11 +98,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
             <NavEnhetFilter
               navEnheter={filter.navEnheter}
               setNavEnheter={(navEnheter: string[]) => {
-                setFilter({
-                  ...filter,
+                updateFilter({
+                  navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
                   page: 1,
                   lagretFilterIdValgt: undefined,
-                  navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
                 });
               }}
               regioner={regioner}
@@ -152,11 +128,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
               items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
               onChange={(status) => {
-                setFilter({
-                  ...filter,
+                updateFilter({
+                  statuser: addOrRemove(filter.statuser, status),
                   page: 1,
                   lagretFilterIdValgt: undefined,
-                  statuser: addOrRemove(filter.statuser, status),
                 });
               }}
             />
@@ -180,11 +155,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
               items={arrangorOptions(arrangorer.data)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
-                setFilter({
-                  ...filter,
+                updateFilter({
+                  arrangorer: addOrRemove(filter.arrangorer, id),
                   page: 1,
                   lagretFilterIdValgt: undefined,
-                  arrangorer: addOrRemove(filter.arrangorer, id),
                 });
               }}
             />
@@ -215,11 +189,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
                 items={tiltakstypeOptions(tiltakstyper)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {
-                  setFilter({
-                    ...filter,
+                  updateFilter({
+                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                     page: 1,
                     lagretFilterIdValgt: undefined,
-                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
                 }}
               />
@@ -246,11 +219,10 @@ export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) 
               ]}
               isChecked={(id) => filter.publisert.includes(id)}
               onChange={(id) => {
-                setFilter({
-                  ...filter,
+                updateFilter({
+                  publisert: addOrRemove(filter.publisert, id),
                   page: 1,
                   lagretFilterIdValgt: undefined,
-                  publisert: addOrRemove(filter.publisert, id),
                 });
               }}
             />

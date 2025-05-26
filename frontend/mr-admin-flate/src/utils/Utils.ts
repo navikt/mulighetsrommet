@@ -1,4 +1,4 @@
-import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
+import { AvtaleFilterType, GjennomforingFilterType } from "@/api/atoms";
 import {
   AgentDto,
   AvbrytAvtaleAarsak,
@@ -219,7 +219,7 @@ export function formaterNavEnheter(
 }
 
 export function createQueryParamsForExcelDownloadForAvtale(
-  filter: AvtaleFilter,
+  filter: AvtaleFilterType,
 ): Pick<LastNedAvtalerSomExcelData, "query"> {
   return {
     query: {
@@ -237,7 +237,7 @@ export function createQueryParamsForExcelDownloadForAvtale(
 }
 
 export function createQueryParamsForExcelDownloadForGjennomforing(
-  filter: GjennomforingFilter,
+  filter: GjennomforingFilterType,
 ): Pick<LastNedGjennomforingerSomExcelData, "query"> {
   return {
     query: {
