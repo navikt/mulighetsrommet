@@ -67,7 +67,7 @@ function BeregningInputLinjerSkjema() {
         className="flex-1"
         size="small"
         label="Beskrivelse"
-        error={errors.beregning?.input?.linjer?.[index]?.beskrivelse?.message}
+        error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
         {...register(`beregning.linjer.${index}.beskrivelse`)}
         defaultValue={item.beskrivelse}
       />
@@ -77,7 +77,7 @@ function BeregningInputLinjerSkjema() {
           type="number"
           label="Beløp"
           style={{ width: "180px" }}
-          error={errors.beregning?.input?.linjer?.[index]?.belop?.message}
+          error={errors.beregning?.linjer?.[index]?.belop?.message}
           {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
           defaultValue={item.belop}
         />
@@ -88,7 +88,7 @@ function BeregningInputLinjerSkjema() {
           type="number"
           label="Antall"
           style={{ width: "180px" }}
-          error={errors.beregning?.input?.linjer?.[index]?.antall?.message}
+          error={errors.beregning?.linjer?.[index]?.antall?.message}
           {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
           defaultValue={item.antall}
         />
