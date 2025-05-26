@@ -9,8 +9,6 @@ import { ForhandsvisningIkon } from "../ikoner/ForhandsvisningIkon";
 import { GjennomforingIkon } from "../ikoner/GjennomforingIkon";
 import { Forsidekort, ForsideKortProps } from "./Forsidekort";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
-import { Tiltakskode, Toggles } from "@mr/api-client-v2";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -57,17 +55,10 @@ const forsidekortData: ForsideKortProps[] = [
 ];
 
 export function ForsidekortListe() {
-  const { data: enableTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
-  );
-
   return (
     <div className="flex flex-wrap gap-8">
       {forsidekortData.map((kort) => {
-        if (kort.navn !== "Oppgaver" || enableTilsagn) {
-          return <Forsidekort key={kort.navn} {...kort} />;
-        }
+        return <Forsidekort key={kort.navn} {...kort} />;
       })}
     </div>
   );
