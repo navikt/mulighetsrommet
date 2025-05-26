@@ -17,12 +17,12 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { useFilterState } from "@/filter/useFilterState";
 import {
   GjennomforingFilterSchema,
   gjennomforingFilterStateAtom,
   GjennomforingFilterType,
 } from "@/pages/gjennomforing/filter";
+import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -32,7 +32,7 @@ export function GjennomforingerPage() {
     LagretFilterType.GJENNOMFORING,
   );
   const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
-    useFilterState(gjennomforingFilterStateAtom, lagredeFilter);
+    useFilterStateWithSavedFilters(gjennomforingFilterStateAtom, lagredeFilter);
 
   return (
     <main>

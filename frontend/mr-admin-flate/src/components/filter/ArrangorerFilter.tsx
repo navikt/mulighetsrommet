@@ -1,9 +1,9 @@
 import { Search } from "@navikt/ds-react";
-import { ArrangorerFilterType as ArrangorerFilterProps } from "@/api/atoms";
+import { ArrangorerFilterType } from "@/pages/arrangor/filter";
 
 interface Props {
-  filter: ArrangorerFilterProps;
-  updateFilter: (values: Partial<ArrangorerFilterProps>) => void;
+  filter: ArrangorerFilterType;
+  updateFilter: (values: Partial<ArrangorerFilterType>) => void;
 }
 
 export function ArrangorerFilter({ filter, updateFilter }: Props) {

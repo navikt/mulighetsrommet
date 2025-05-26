@@ -1,5 +1,5 @@
-import { ArrangorerFilterType } from "@/api/atoms";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
+import { ArrangorerFilterType } from "@/pages/arrangor/filter";
 
 interface Props {
   filter: ArrangorerFilterType;

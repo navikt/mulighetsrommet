@@ -1,4 +1,3 @@
-import { ARRANGORER_PAGE_SIZE } from "@/constants";
 import { SortState } from "@navikt/ds-react";
 import { atom } from "jotai";
 import {
@@ -6,7 +5,7 @@ import {
   createJSONStorage,
   unstable_withStorageValidator as withStorageValidator,
 } from "jotai/utils";
-import { OppgaveType, SorteringArrangorer } from "@mr/api-client-v2";
+import { OppgaveType } from "@mr/api-client-v2";
 import { z, ZodType } from "zod";
 
 export function createSorteringProps(sortItems: z.ZodType) {
@@ -21,38 +20,6 @@ export function createFilterValidator<T>(schema: ZodType<T>) {
     return Boolean(schema.safeParse(values).success);
   };
 }
-
-const ArrangorerFilterSchema = z.object({
-  sok: z.string(),
-  page: z.number(),
-  pageSize: z.number(),
-  sortering: createSorteringProps(z.custom<SorteringArrangorer>()),
-});
-
-export type ArrangorerFilterType = z.infer<typeof ArrangorerFilterSchema>;
-export const defaultArrangorerFilter: ArrangorerFilterType = {
-  sok: "",
-  sortering: {
-    sortString: SorteringArrangorer.NAVN_ASCENDING,
-    tableSort: {
-      orderBy: "navn",
-      direction: "ascending",
-    },
-  },
-  page: 1,
-  pageSize: ARRANGORER_PAGE_SIZE,
-};
-
-const arrangorerFilterStorage = withStorageValidator(createFilterValidator(ArrangorerFilterSchema))(
-  createJSONStorage(() => sessionStorage),
-);
-
-export const arrangorerFilterAtom = atomWithStorage<ArrangorerFilterType>(
-  "arrangorer-filter",
-  defaultArrangorerFilter,
-  arrangorerFilterStorage,
-  { getOnInit: true },
-);
 
 const OppgaverFilterSchema = z.object({
   type: z.nativeEnum(OppgaveType).array(),

@@ -17,12 +17,12 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { useFilterState } from "@/filter/useFilterState";
 import {
   AvtaleFilterSchema,
   AvtaleFilterType,
   avtalerFilterStateAtom,
 } from "@/pages/avtaler/filter";
+import { useFilterStateWithSavedFilters } from "@/filter/useFilterStateWithSavedFilters";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -31,9 +31,8 @@ export function AvtalerPage() {
   const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
     LagretFilterType.AVTALE,
   );
-
   const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
-    useFilterState(avtalerFilterStateAtom, lagredeFilter);
+    useFilterStateWithSavedFilters(avtalerFilterStateAtom, lagredeFilter);
 
   return (
     <main>
