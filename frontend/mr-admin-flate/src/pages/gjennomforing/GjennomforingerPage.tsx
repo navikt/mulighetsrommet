@@ -1,12 +1,3 @@
-import {
-  createFilterStateAtom,
-  createFilterValidator,
-  defaultGjennomforingFilter,
-  FilterAction,
-  FilterState,
-  GjennomforingFilterSchema,
-  GjennomforingFilterType,
-} from "@/api/atoms";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
@@ -24,81 +15,14 @@ import {
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useAtom, WritableAtom } from "jotai";
-import { useCallback, useEffect, useState } from "react";
-import { dequal } from "dequal";
+import { useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-
-export const gjennomforingFilterManagerAtom = createFilterStateAtom<GjennomforingFilterType>(
-  "gjennomforing-filter",
-  defaultGjennomforingFilter,
-  createFilterValidator(GjennomforingFilterSchema),
-);
-
-export function useFilterState<T extends object>(
-  filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
-  lagredeFilter: Array<{ id: string; isDefault: boolean; filter: unknown }>,
-) {
-  const [{ filter, defaultFilter }, dispatch] = useAtom(filterStateAtom);
-
-  useEffect(() => {
-    const defaultFilter = lagredeFilter.find((f) => f.isDefault);
-    if (defaultFilter) {
-      dispatch({
-        type: "UPDATE_DEFAULT",
-        payload: {
-          id: defaultFilter.id,
-          values: defaultFilter.filter as T,
-        },
-      });
-    }
-  }, [lagredeFilter, dispatch]);
-
-  const resetToDefault = useCallback(() => {
-    dispatch({ type: "RESET_TO_DEFAULT" });
-  }, [dispatch]);
-
-  const setFilter = useCallback(
-    (newFilter: T) => {
-      dispatch({ type: "SET_FILTER", payload: newFilter });
-    },
-    [dispatch],
-  );
-
-  const updateFilter = useCallback(
-    (partialFilter: Partial<T>) => {
-      dispatch({ type: "UPDATE_FILTER", payload: partialFilter });
-    },
-    [dispatch],
-  );
-
-  const selectFilter = useCallback(
-    (filterId: string) => {
-      const savedFilter = lagredeFilter.find((f) => f.id === filterId);
-      if (savedFilter) {
-        dispatch({
-          type: "SELECT_FILTER",
-          payload: {
-            id: filterId,
-            values: savedFilter.filter as T,
-          },
-        });
-      }
-    },
-    [lagredeFilter, dispatch],
-  );
-
-  const hasChanged = !dequal(filter.values, defaultFilter.values);
-
-  return {
-    filter,
-    setFilter,
-    updateFilter,
-    resetToDefault,
-    selectFilter,
-    hasChanged,
-  };
-}
+import { useFilterState } from "@/filter/useFilterState";
+import {
+  GjennomforingFilterSchema,
+  gjennomforingFilterStateAtom,
+  GjennomforingFilterType,
+} from "@/pages/gjennomforing/filter";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -109,7 +33,7 @@ export function GjennomforingerPage() {
   );
 
   const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
-    useFilterState(gjennomforingFilterManagerAtom, lagredeFilter);
+    useFilterState(gjennomforingFilterStateAtom, lagredeFilter);
 
   return (
     <main>

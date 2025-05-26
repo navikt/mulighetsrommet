@@ -1,13 +1,8 @@
-import { GjennomforingFilterType } from "@/api/atoms";
 import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import {
-  createQueryParamsForExcelDownloadForGjennomforing,
-  formaterDato,
-  formaterNavEnheter,
-} from "@/utils/Utils";
-import { GjennomforingerService, SorteringGjennomforinger } from "@mr/api-client-v2";
+import { formaterDato, formaterNavEnheter } from "@/utils/Utils";
+import { SorteringGjennomforinger } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
@@ -17,6 +12,8 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
+import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
+import { downloadGjennomforingerAsExcel } from "@/api/gjennomforing/downloadGjennomforingerAsExcel";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -43,19 +40,13 @@ export function GjennomforingTable({
   const { data, isLoading } = useAdminGjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
 
-  async function lastNedFil(filter: GjennomforingFilterType) {
-    const query = createQueryParamsForExcelDownloadForGjennomforing(filter);
-    const { data } = await GjennomforingerService.lastNedGjennomforingerSomExcel(query);
-    return data;
-  }
-
   async function lastNedExcel() {
     setLasterExcel(true);
     if (excelUrl) {
       setExcelUrl("");
     }
 
-    const excelFil = await lastNedFil(filter);
+    const excelFil = await downloadGjennomforingerAsExcel(filter);
     const url = URL.createObjectURL(excelFil);
     setExcelUrl(url);
     setLasterExcel(false);

@@ -1,5 +1,4 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { gjennomforingFilterAccordionAtom, GjennomforingFilterType } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
@@ -14,6 +13,10 @@ import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/front
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { CheckboxList } from "./CheckboxList";
+import {
+  gjennomforingFilterAccordionAtom,
+  GjennomforingFilterType,
+} from "@/pages/gjennomforing/filter";
 
 type Filters = "tiltakstype";
 

@@ -1,4 +1,3 @@
-import { getGjennomforingerForAvtaleFilterAtom, GjennomforingFilterType } from "@/api/atoms";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
@@ -12,6 +11,10 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useAtom } from "jotai";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { dequal } from "dequal";
+import {
+  getGjennomforingerForAvtaleFilterAtom,
+  GjennomforingFilterType,
+} from "@/pages/gjennomforing/filter";
 
 export function GjennomforingerForAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();

@@ -1,4 +1,4 @@
-import { AvtaleFilterType, GjennomforingFilterType } from "@/api/atoms";
+import { AvtaleFilterType } from "@/api/atoms";
 import {
   AgentDto,
   AvbrytAvtaleAarsak,
@@ -11,7 +11,6 @@ import {
   InnholdElement,
   Kurstype,
   LastNedAvtalerSomExcelData,
-  LastNedGjennomforingerSomExcelData,
   NavEnhet,
   Periode,
   TilsagnAvvisningAarsak,
@@ -232,25 +231,6 @@ export function createQueryParamsForExcelDownloadForAvtale(
       personvernBekreftet: filter.personvernBekreftet,
       visMineAvtaler: filter.visMineAvtaler,
       size: 10000,
-    },
-  };
-}
-
-export function createQueryParamsForExcelDownloadForGjennomforing(
-  filter: GjennomforingFilterType,
-): Pick<LastNedGjennomforingerSomExcelData, "query"> {
-  return {
-    query: {
-      search: filter.search,
-      navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
-      tiltakstyper: filter.tiltakstyper,
-      statuser: filter.statuser,
-      avtaleId: filter.avtale,
-      arrangorer: filter.arrangorer,
-      visMineTiltaksgjennomforinger: filter.visMineGjennomforinger,
-      size: filter.pageSize,
-      sort: filter.sortering.sortString,
-      publisert: getPublisertStatus(filter.publisert),
     },
   };
 }
