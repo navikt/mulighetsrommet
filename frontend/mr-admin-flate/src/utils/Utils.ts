@@ -1,4 +1,3 @@
-import { AvtaleFilterType } from "@/api/atoms";
 import {
   AgentDto,
   AvbrytAvtaleAarsak,
@@ -10,7 +9,6 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
-  LastNedAvtalerSomExcelData,
   NavEnhet,
   Periode,
   TilsagnAvvisningAarsak,
@@ -215,24 +213,6 @@ export function formaterNavEnheter(
   const forsteEnhet = navEnheter.shift();
 
   return `${forsteEnhet?.navn} ${navEnheter.length > 0 ? `+ ${navEnheter.length}` : ""}`;
-}
-
-export function createQueryParamsForExcelDownloadForAvtale(
-  filter: AvtaleFilterType,
-): Pick<LastNedAvtalerSomExcelData, "query"> {
-  return {
-    query: {
-      search: filter.sok,
-      tiltakstyper: filter.tiltakstyper,
-      statuser: filter.statuser,
-      avtaletyper: filter.avtaletyper,
-      navRegioner: filter.navRegioner,
-      arrangorer: filter.arrangorer,
-      personvernBekreftet: filter.personvernBekreftet,
-      visMineAvtaler: filter.visMineAvtaler,
-      size: 10000,
-    },
-  };
 }
 
 export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {

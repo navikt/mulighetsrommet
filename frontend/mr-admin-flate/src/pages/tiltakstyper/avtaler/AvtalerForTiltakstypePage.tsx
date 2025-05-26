@@ -1,4 +1,3 @@
-import { AvtaleFilterType, getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
@@ -12,6 +11,7 @@ import { useState } from "react";
 import { useAtom } from "jotai";
 import { dequal } from "dequal";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { AvtaleFilterType, getAvtalerForTiltakstypeFilterAtom } from "@/pages/avtaler/filter";
 
 export function AvtalerForTiltakstypePage() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();

@@ -1,9 +1,3 @@
-import {
-  avtaleFilterAtom,
-  AvtaleFilterSchema,
-  AvtaleFilterType,
-  defaultAvtaleFilter,
-} from "@/api/atoms";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
@@ -21,28 +15,25 @@ import {
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { dequal } from "dequal";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { useFilterState } from "@/filter/useFilterState";
+import {
+  AvtaleFilterSchema,
+  AvtaleFilterType,
+  avtalerFilterStateAtom,
+} from "@/pages/avtaler/filter";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
-  const [filter, setFilter] = useAtom(avtaleFilterAtom);
+
   const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
     LagretFilterType.AVTALE,
   );
 
-  function updateFilter(value: Partial<AvtaleFilterType>) {
-    setFilter((prev) => ({ ...prev, ...value }));
-  }
-
-  function resetFilter() {
-    setFilter(defaultAvtaleFilter);
-  }
-
-  const hasChanged = !dequal(filter, defaultAvtaleFilter);
+  const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
+    useFilterState(avtalerFilterStateAtom, lagredeFilter);
 
   return (
     <main>
@@ -51,16 +42,18 @@ export function AvtalerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
-            filter={<AvtaleFilter filter={filter} updateFilter={updateFilter} />}
+            filter={<AvtaleFilter filter={filter.values} updateFilter={updateFilter} />}
             nullstillFilterButton={
               <>
-                {hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null}
-                <LagreFilterButton filter={filter} onLagre={lagreFilter} />
+                {hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null}
+                <LagreFilterButton filter={filter.values} onLagre={lagreFilter} />
               </>
             }
             lagredeFilter={
               <LagredeFilterOversikt
-                filter={filter}
+                selectedFilterId={filter.id}
+                onSelectFilterId={selectFilter}
+                filter={filter.values}
                 lagredeFilter={lagredeFilter}
                 onSetFilter={(filter) => {
                   setFilter(filter as AvtaleFilterType);
@@ -74,7 +67,7 @@ export function AvtalerPage() {
             }
             tags={
               <AvtaleFilterTags
-                filter={filter}
+                filter={filter.values}
                 updateFilter={updateFilter}
                 filterOpen={filterOpen}
                 setTagsHeight={setTagsHeight}
@@ -83,7 +76,7 @@ export function AvtalerPage() {
             buttons={<AvtaleFilterButtons />}
             table={
               <AvtaleTabell
-                filter={filter}
+                filter={filter.values}
                 updateFilter={updateFilter}
                 tagsHeight={tagsHeight}
                 filterOpen={filterOpen}
