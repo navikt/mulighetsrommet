@@ -85,6 +85,7 @@ val ApplicationConfigLocal = AppConfig(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.SAKSBEHANDLER_OKONOMI),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.BESLUTTER_TILSAGN),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.ATTESTANT_UTBETALING),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.KONTAKTPERSON),
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(setOf()),
