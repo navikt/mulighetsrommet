@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atom, WritableAtom } from "jotai";
 import {
   atomWithStorage,
   createJSONStorage,
@@ -27,7 +27,7 @@ export function createFilterStateAtom<T extends object>(
   storageKey: string,
   fallbackFilter: T,
   validator: (value: unknown) => value is T,
-) {
+): WritableAtom<FilterState<T>, [FilterAction<T>], void> {
   const initialState = {
     isInitialized: false,
     defaultFilter: { id: undefined, values: fallbackFilter },

@@ -2,9 +2,9 @@ import { createFilterValidator, createSorteringProps } from "@/api/atoms";
 import { PAGE_SIZE } from "@/constants";
 import { GjennomforingStatus, NavEnhet, SorteringGjennomforinger } from "@mr/api-client-v2";
 import { z } from "zod";
-import { createFilterStateAtom } from "@/filter/filter-state";
+import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atom, WritableAtom } from "jotai";
-import { atomFamily, atomWithStorage, createJSONStorage } from "jotai/utils";
+import { atomFamily } from "jotai/utils";
 
 export const GjennomforingFilterSchema = z.object({
   search: z.string(),
@@ -50,19 +50,18 @@ export const gjennomforingFilterStateAtom = createFilterStateAtom<GjennomforingF
 
 export function getGjennomforingerForAvtaleFilterAtom(avtaleId: string) {
   const defaultFilterValue = { ...defaultGjennomforingFilter, avtale: avtaleId };
-  const filterAtom = gjennomforingerForAvtaleFilterAtomFamily(defaultFilterValue);
-  return { defaultFilterValue, filterAtom };
+  return gjennomforingerForAvtaleFilterAtomFamily(defaultFilterValue);
 }
 
 const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   GjennomforingFilterType,
-  WritableAtom<GjennomforingFilterType, [newValue: GjennomforingFilterType], void>
+  WritableAtom<FilterState<GjennomforingFilterType>, [FilterAction<GjennomforingFilterType>], void>
 >(
-  (filter: GjennomforingFilterType) => {
-    return atomWithStorage(
-      `gjennomforing-filter-${filter.avtale}`,
-      filter,
-      createJSONStorage(() => sessionStorage),
+  (defaultFilter: GjennomforingFilterType) => {
+    return createFilterStateAtom(
+      `gjennomforing-filter-${defaultFilter.avtale}`,
+      defaultFilter,
+      createFilterValidator(GjennomforingFilterSchema),
     );
   },
   (a, b) => a.avtale === b.avtale,

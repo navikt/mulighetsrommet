@@ -5,7 +5,7 @@ import { FilterAction, FilterState } from "@/filter/filter-state";
 
 export function useFilterState<T extends object>(
   filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
-  lagredeFilter: Array<{ id: string; isDefault: boolean; filter: unknown }>,
+  lagredeFilter: Array<{ id: string; isDefault: boolean; filter: unknown }> = [],
 ) {
   const [{ filter, defaultFilter }, dispatch] = useAtom(filterStateAtom);
 
