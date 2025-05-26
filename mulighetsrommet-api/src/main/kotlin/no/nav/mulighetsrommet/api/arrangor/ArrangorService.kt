@@ -4,9 +4,6 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import io.ktor.http.*
-import io.ktor.server.plugins.*
-import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
@@ -71,7 +68,7 @@ class ArrangorService(
                 // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
                 underenheter + slettedeVirksomheter
             }
-            .mapLeft { toStatusResponseError(it) }
+            .mapLeft { toStatusResponseError(it, orgnr) }
     }
 
     fun getArrangor(orgnr: Organisasjonsnummer): ArrangorDto? = db.session {

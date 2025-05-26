@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.brreg
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.client.engine.mock.*
@@ -167,6 +168,23 @@ class BrregClientTest : FunSpec({
                 organisasjonsform = "BEDR",
                 navn = "VESTFOLD OG TELEMARK FYLKESKOMMUNE AVD SKIEN OPPLÆRING, KULTUR OG TANNHELSE",
                 slettetDato = LocalDate.of(2023, 12, 30),
+            )
+        }
+
+        test("hent underenhet fjernet av juridiske årsaker gitt orgnr") {
+            val brregClient = BrregClient(
+                clientEngine = createMockEngine {
+                    get("/enhetsregisteret/api/underenheter/433695968") {
+                        respondJson(BrregFixtures.FJERNET_AV_JURIDISKE_ARSAKER, status = HttpStatusCode.Gone)
+                    }
+                },
+            )
+
+            brregClient.getUnderenhet(Organisasjonsnummer("433695968")) shouldBeLeft BrregError.FjernetAvJuridiskeArsaker(
+                FjernetBrregEnhetDto(
+                    organisasjonsnummer = Organisasjonsnummer("433695968"),
+                    slettetDato = LocalDate.of(2025, 5, 24),
+                ),
             )
         }
     }

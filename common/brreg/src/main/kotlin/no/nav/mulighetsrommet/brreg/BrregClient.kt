@@ -154,6 +154,13 @@ class BrregClient(
         return when (response.status) {
             HttpStatusCode.OK -> response.body<T>().right()
 
+            HttpStatusCode.Gone -> {
+                val enhet = response.body<FjernetEnhet>().let {
+                    FjernetBrregEnhetDto(it.organisasjonsnummer, it.slettedato)
+                }
+                BrregError.FjernetAvJuridiskeArsaker(enhet).left()
+            }
+
             HttpStatusCode.BadRequest -> {
                 val bodyAsText = response.bodyAsText()
                 log.warn("BadRequest: response=$bodyAsText")
@@ -171,10 +178,4 @@ class BrregClient(
             }
         }
     }
-}
-
-enum class BrregError {
-    BadRequest,
-    NotFound,
-    Error,
 }
