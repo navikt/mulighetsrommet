@@ -1,6 +1,7 @@
 import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { z } from "zod";
-import { createFilterValidator, createSorteringProps } from "@/api/atoms";
+import { createSorteringProps } from "@/api/atoms";
+import { createFilterValidator } from "@/filter/filter-validator";
 import { createFilterStateAtom } from "@/filter/filter-state";
 
 const TiltakstypeFilterSchema = z.object({

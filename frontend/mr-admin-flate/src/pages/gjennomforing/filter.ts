@@ -1,4 +1,5 @@
-import { createFilterValidator, createSorteringProps } from "@/api/atoms";
+import { createSorteringProps } from "@/api/atoms";
+import { createFilterValidator } from "@/filter/filter-validator";
 import { PAGE_SIZE } from "@/constants";
 import { GjennomforingStatus, NavEnhet, SorteringGjennomforinger } from "@mr/api-client-v2";
 import { z } from "zod";

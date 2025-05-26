@@ -2,7 +2,7 @@ import { atom } from "jotai";
 import { OppgaveType, Tiltakskode } from "@mr/api-client-v2";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
-import { createFilterValidator } from "@/api/atoms";
+import { createFilterValidator } from "@/filter/filter-validator";
 
 const OppgaverFilterSchema = z.object({
   type: z.nativeEnum(OppgaveType).array(),
