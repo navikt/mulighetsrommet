@@ -103,6 +103,52 @@ class ArrangorServiceTest : FunSpec({
             }
         }
 
+        test("skal synkronisere slettetDato for enhet fjernet av jurisike årsaker når arrangør eksisterer") {
+            val arrangor = ArrangorDto(
+                id = UUID.randomUUID(),
+                organisasjonsnummer = Organisasjonsnummer("100200300"),
+                organisasjonsform = "AS",
+                navn = "Bedrift Bedriftsson",
+                underenheter = emptyList(),
+                slettetDato = null,
+            )
+            database.run {
+                queries.arrangor.upsert(arrangor)
+            }
+
+            val orgnr = Organisasjonsnummer("100200300")
+            val error = BrregError.FjernetAvJuridiskeArsaker(
+                FjernetBrregEnhetDto(orgnr, LocalDate.of(2020, 1, 1)),
+            )
+
+            coEvery { brregClient.getBrregEnhet(orgnr) } returns error.left()
+
+            arrangorService.syncArrangorFromBrreg(orgnr).shouldBeLeft(error)
+
+            database.run {
+                queries.arrangor.get(orgnr).shouldNotBeNull().should {
+                    it.navn shouldBe "Bedrift Bedriftsson"
+                    it.organisasjonsnummer shouldBe orgnr
+                    it.slettetDato shouldBe LocalDate.of(2020, 1, 1)
+                }
+            }
+        }
+
+        test("skal ikke synkronisere enhet fjernet av juridiske årsaker når arrangør ikke eksisterer") {
+            val orgnr = Organisasjonsnummer("100200300")
+            val error = BrregError.FjernetAvJuridiskeArsaker(
+                FjernetBrregEnhetDto(orgnr, LocalDate.of(2020, 1, 1)),
+            )
+
+            coEvery { brregClient.getBrregEnhet(orgnr) } returns error.left()
+
+            arrangorService.syncArrangorFromBrreg(orgnr).shouldBeLeft(error)
+
+            database.run {
+                queries.arrangor.get(orgnr).shouldBeNull()
+            }
+        }
+
         test("NotFound error når enhet ikke finnes") {
             val orgnr = Organisasjonsnummer("123123123")
 

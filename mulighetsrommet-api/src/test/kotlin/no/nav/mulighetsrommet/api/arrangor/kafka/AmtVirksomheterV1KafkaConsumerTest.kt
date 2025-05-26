@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangor.kafka
 
+import arrow.core.left
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -16,11 +17,14 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.FjernetBrregEnhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import java.time.LocalDate
 import java.util.*
 
 class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
@@ -102,19 +106,48 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             }
         }
 
+        test("håndterer virksomet som er fjernet fra Brreg") {
+            val orgnr = Organisasjonsnummer("433695968")
+
+            database.run {
+                queries.arrangor.upsert(
+                    ArrangorDto(
+                        id = UUID.randomUUID(),
+                        organisasjonsnummer = orgnr,
+                        organisasjonsform = null,
+                        navn = "Slottet",
+                    ),
+                )
+            }
+
+            val fjernetVirksomhet = AmtVirksomhetV1Dto(
+                navn = "Fjernet virksomhet",
+                organisasjonsnummer = orgnr,
+                overordnetEnhetOrganisasjonsnummer = null,
+            )
+
+            coEvery { brregClient.getBrregEnhet(orgnr) } returns BrregError.FjernetAvJuridiskeArsaker(
+                FjernetBrregEnhetDto(orgnr, LocalDate.of(2025, 5, 24)),
+            ).left()
+
+            virksomhetConsumer.consume(orgnr.value, Json.encodeToJsonElement(fjernetVirksomhet))
+
+            database.run {
+                queries.arrangor.get(orgnr).shouldNotBeNull().slettetDato shouldBe LocalDate.of(2025, 5, 24)
+            }
+        }
+
         test("delete virksomheter for tombstone messages") {
             database.run {
-                database.run {
-                    queries.arrangor.upsert(
-                        ArrangorDto(
-                            id = UUID.randomUUID(),
-                            organisasjonsnummer = underenhetDto.organisasjonsnummer,
-                            organisasjonsform = virksomhetDto.organisasjonsform,
-                            navn = "Kiwi",
-                        ),
-                    )
-                    queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
-                }
+                queries.arrangor.upsert(
+                    ArrangorDto(
+                        id = UUID.randomUUID(),
+                        organisasjonsnummer = underenhetDto.organisasjonsnummer,
+                        organisasjonsform = virksomhetDto.organisasjonsform,
+                        navn = "Kiwi",
+                    ),
+                )
+                queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
             }
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, JsonNull)

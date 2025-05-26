@@ -4,6 +4,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -35,11 +36,19 @@ class AmtVirksomheterV1KafkaConsumer(
     }
 
     private suspend fun updateVirksomhet(amtVirksomhet: AmtVirksomhetV1Dto) {
-        arrangorService.syncArrangorFromBrreg(amtVirksomhet.organisasjonsnummer)
-            .onLeft { error ->
-                logger.error("Error when syncing orgnr: ${amtVirksomhet.organisasjonsnummer} from brreg in AmtVirksomhetV1TopicConsumer")
-                throw IllegalStateException("Forventet å finne virksomhet med orgnr ${amtVirksomhet.organisasjonsnummer} i Brreg. Er det feil data i meldingen? Respons fra Brreg: $error")
+        arrangorService.syncArrangorFromBrreg(amtVirksomhet.organisasjonsnummer).onLeft { error ->
+            when (error) {
+                is BrregError.FjernetAvJuridiskeArsaker -> {
+                    logger.warn("Virksomhet med orgnr=${amtVirksomhet.organisasjonsnummer} er fjernet fra Brreg")
+                    return
+                }
+
+                else -> {
+                    logger.error("Feil ved sync av orgnr ${amtVirksomhet.organisasjonsnummer} fra Brreg")
+                    throw IllegalStateException("Forventet å finne virksomhet med orgnr ${amtVirksomhet.organisasjonsnummer} i Brreg. Er det feil data i meldingen? Error: $error")
+                }
             }
+        }
     }
 
     private fun shouldIgnoreMessage(key: String): Boolean {

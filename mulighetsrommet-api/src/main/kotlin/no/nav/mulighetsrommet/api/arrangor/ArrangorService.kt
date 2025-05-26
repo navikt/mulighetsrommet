@@ -89,11 +89,11 @@ class ArrangorService(
                 }
             }
             .map { virksomhet ->
-                db.transaction {
-                    val id = getArrangor(virksomhet.organisasjonsnummer)?.id ?: UUID.randomUUID()
-                    val arrangor = virksomhet.toArrangorDto(id)
-                    queries.arrangor.upsert(arrangor)
-                    queries.arrangor.getById(id)
+                syncToDatbase(virksomhet)
+            }
+            .onLeft { error ->
+                if (error is BrregError.FjernetAvJuridiskeArsaker) {
+                    syncToDatabase(error.enhet)
                 }
             }
     }
@@ -116,6 +116,20 @@ class ArrangorService(
             gjennomforinger = gjennomforinger,
             avtaler = avtaler,
         )
+    }
+
+    private fun syncToDatbase(virksomhet: BrregEnhet): ArrangorDto = db.transaction {
+        val id = getArrangor(virksomhet.organisasjonsnummer)?.id ?: UUID.randomUUID()
+        val arrangor = virksomhet.toArrangorDto(id)
+        queries.arrangor.upsert(arrangor)
+        queries.arrangor.getById(id)
+    }
+
+    private fun syncToDatabase(enhet: FjernetBrregEnhetDto): Unit = db.transaction {
+        getArrangor(enhet.organisasjonsnummer)?.copy(slettetDato = enhet.slettetDato)?.also { arrangor ->
+            log.info("Markerer arrangør som slettet: $arrangor")
+            queries.arrangor.upsert(arrangor)
+        }
     }
 }
 
