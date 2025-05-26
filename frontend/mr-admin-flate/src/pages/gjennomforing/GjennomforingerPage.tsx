@@ -31,7 +31,6 @@ export function GjennomforingerPage() {
   const { lagredeFilter, lagreFilter, slettFilter, setDefaultFilter } = useLagredeFilter(
     LagretFilterType.GJENNOMFORING,
   );
-
   const { filter, setFilter, updateFilter, resetToDefault, selectFilter, hasChanged } =
     useFilterState(gjennomforingFilterStateAtom, lagredeFilter);
 

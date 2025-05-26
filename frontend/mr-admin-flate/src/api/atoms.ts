@@ -6,7 +6,7 @@ import {
   createJSONStorage,
   unstable_withStorageValidator as withStorageValidator,
 } from "jotai/utils";
-import { OppgaveType, SorteringArrangorer, SorteringTiltakstyper } from "@mr/api-client-v2";
+import { OppgaveType, SorteringArrangorer } from "@mr/api-client-v2";
 import { z, ZodType } from "zod";
 
 export function createSorteringProps(sortItems: z.ZodType) {
@@ -21,33 +21,6 @@ export function createFilterValidator<T>(schema: ZodType<T>) {
     return Boolean(schema.safeParse(values).success);
   };
 }
-
-const TiltakstypeFilterSchema = z.object({
-  sort: createSorteringProps(z.custom<SorteringTiltakstyper>()).optional(),
-});
-
-export type TiltakstypeFilterType = z.infer<typeof TiltakstypeFilterSchema>;
-
-export const defaultTiltakstypeFilter: TiltakstypeFilterType = {
-  sort: {
-    sortString: SorteringTiltakstyper.NAVN_ASCENDING,
-    tableSort: {
-      orderBy: "navn",
-      direction: "ascending",
-    },
-  },
-};
-
-const tiltakstypeFilterStorage = withStorageValidator(
-  createFilterValidator(TiltakstypeFilterSchema),
-)(createJSONStorage(() => sessionStorage));
-
-export const tiltakstypeFilterAtom = atomWithStorage<TiltakstypeFilterType>(
-  "tiltakstype-filter",
-  defaultTiltakstypeFilter,
-  tiltakstypeFilterStorage,
-  { getOnInit: true },
-);
 
 const ArrangorerFilterSchema = z.object({
   sok: z.string(),
