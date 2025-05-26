@@ -11,15 +11,10 @@ export function useFilterState<T extends object>(
 
   useEffect(() => {
     const defaultFilter = lagredeFilter.find((f) => f.isDefault);
-    if (defaultFilter) {
-      dispatch({
-        type: "UPDATE_DEFAULT",
-        payload: {
-          id: defaultFilter.id,
-          values: defaultFilter.filter as T,
-        },
-      });
-    }
+    const newDefault = defaultFilter
+      ? { id: defaultFilter.id, values: defaultFilter.filter as T }
+      : undefined;
+    dispatch({ type: "UPDATE_DEFAULT", payload: newDefault });
   }, [lagredeFilter, dispatch]);
 
   const resetToDefault = useCallback(() => {
