@@ -11,6 +11,7 @@ import { addYear, formaterDato, isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
+  GjennomforingKontaktperson,
   GjennomforingOppstartstype,
   NavEnhet,
   Tiltakskode,
@@ -364,6 +365,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                           index={index}
                           navEnheter={navEnheterOptions}
                           id={field.id}
+                          lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
                         />
                       </div>
                     </div>
@@ -409,26 +411,36 @@ function SokEtterKontaktperson({
   index,
   navEnheter,
   id,
+  lagredeKontaktpersoner,
 }: {
   index: number;
   navEnheter: { label: string; value: string }[];
   id: string;
+  lagredeKontaktpersoner: GjennomforingKontaktperson[];
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
   const { register, watch } = useFormContext<InferredGjennomforingSchema>();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
-    const excludedKontaktpersoner = watch("kontaktpersoner")
-      ?.filter((_, i) => i !== selectedIndex)
-      .map((k) => k.navIdent);
+    const excludedKontaktpersoner = watch("kontaktpersoner")?.map((k) => k.navIdent);
 
     const alleredeValgt = watch("kontaktpersoner")
       ?.filter((_, i) => i === selectedIndex)
-      ?.map((kontaktperson) => ({
-        label: kontaktperson.navIdent,
-        value: kontaktperson.navIdent,
-      }));
+      ?.map((kontaktperson) => {
+        const personFraSok = kontaktpersoner?.find((k) => k.navIdent == kontaktperson.navIdent);
+        const personFraDb = lagredeKontaktpersoner?.find(
+          (k) => k.navIdent == kontaktperson.navIdent,
+        );
+        const navn = personFraSok
+          ? `${personFraSok?.fornavn} ${personFraSok?.etternavn}`
+          : personFraDb?.navn;
+
+        return {
+          label: navn ? `${navn} - ${kontaktperson.navIdent}` : kontaktperson.navIdent,
+          value: kontaktperson.navIdent,
+        };
+      });
 
     const options =
       kontaktpersoner
