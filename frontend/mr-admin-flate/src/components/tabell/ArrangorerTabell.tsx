@@ -3,11 +3,11 @@ import { ArrangorTil, SorteringArrangorer } from "@mr/api-client-v2";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { Link } from "react-router";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { ArrangorerFilterType } from "@/api/atoms";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TabellWrapper } from "./TabellWrapper";
+import { ArrangorerFilterType } from "@/pages/arrangor/filter";
 
 interface Props {
   filter: ArrangorerFilterType;

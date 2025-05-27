@@ -1,4 +1,3 @@
-import { arrangorerFilterAtom, ArrangorerFilterType, defaultArrangorerFilter } from "@/api/atoms";
 import { ArrangorerFilter } from "@/components/filter/ArrangorerFilter";
 import { ArrangorerFilterTags } from "@/components/filter/ArrangorerFilterTags";
 import { ArrangorIkon } from "@/components/ikoner/ArrangorIkon";
@@ -9,25 +8,16 @@ import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { useState } from "react";
-import { useAtom } from "jotai";
-import { dequal } from "dequal";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { arrangorerFilterStateAtom } from "@/pages/arrangor/filter";
+import { useFilterState } from "@/filter/useFilterState";
 
 export function ArrangorerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const [filter, setFilter] = useAtom(arrangorerFilterAtom);
-
-  function updateFilter(value: Partial<ArrangorerFilterType>) {
-    setFilter((prev) => ({ ...prev, ...value }));
-  }
-
-  function resetFilter() {
-    setFilter(defaultArrangorerFilter);
-  }
-
-  const hasChanged = !dequal(filter, defaultArrangorerFilter);
+  const { filter, updateFilter, resetToDefault, hasChanged } =
+    useFilterState(arrangorerFilterStateAtom);
 
   return (
     <main>
@@ -36,13 +26,13 @@ export function ArrangorerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
-            filter={<ArrangorerFilter filter={filter} updateFilter={updateFilter} />}
+            filter={<ArrangorerFilter filter={filter.values} updateFilter={updateFilter} />}
             nullstillFilterButton={
-              hasChanged ? <NullstillFilterKnapp onClick={resetFilter} /> : null
+              hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
             }
             tags={
               <ArrangorerFilterTags
-                filter={filter}
+                filter={filter.values}
                 updateFilter={updateFilter}
                 filterOpen={filterOpen}
                 setTagsHeight={setTagsHeight}
@@ -51,7 +41,7 @@ export function ArrangorerPage() {
             buttons={null}
             table={
               <ArrangorerTabell
-                filter={filter}
+                filter={filter.values}
                 updateFilter={updateFilter}
                 tagsHeight={tagsHeight}
                 filterOpen={filterOpen}

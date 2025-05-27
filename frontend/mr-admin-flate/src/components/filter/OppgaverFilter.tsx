@@ -1,4 +1,3 @@
-import { oppgaverFilterAccordionAtom, OppgaverFilterType } from "@/api/atoms";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
@@ -6,6 +5,10 @@ import { useAtom } from "jotai/index";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
+import {
+  oppgaverFilterAccordionAtom,
+  OppgaverFilterType,
+} from "@/pages/oppgaveoversikt/oppgaver/filter";
 
 interface Props {
   filter: OppgaverFilterType;

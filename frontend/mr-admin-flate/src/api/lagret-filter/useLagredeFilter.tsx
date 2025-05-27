@@ -31,16 +31,16 @@ export function useLagredeFilter(dokumenttype: LagretFilterType) {
     },
   });
 
-  const { data: lagredeFilter } = useApiSuspenseQuery({
+  const { data: filters } = useApiSuspenseQuery({
     queryKey: QueryKeys.lagredeFilter(dokumenttype),
     queryFn: () => LagretFilterService.getMineFilterForDokumenttype({ path: { dokumenttype } }),
   });
 
-  function slettFilter(id: string) {
+  function deleteFilter(id: string) {
     slettFilterMutation.mutate(id);
   }
 
-  function lagreFilter(filter: NamedFilter) {
+  function saveFilter(filter: NamedFilter) {
     lagreFilterMutation.mutate(
       {
         ...filter,
@@ -57,16 +57,16 @@ export function useLagredeFilter(dokumenttype: LagretFilterType) {
   }
 
   function setDefaultFilter(id: string, isDefault: boolean) {
-    const filter = lagredeFilter.find((f) => f.id === id);
+    const filter = filters.find((f) => f.id === id);
     if (filter) {
       lagreFilterMutation.mutate({ ...filter, isDefault });
     }
   }
 
   return {
-    lagredeFilter,
-    slettFilter,
-    lagreFilter,
+    filters,
+    deleteFilter,
+    saveFilter,
     setDefaultFilter,
   };
 }

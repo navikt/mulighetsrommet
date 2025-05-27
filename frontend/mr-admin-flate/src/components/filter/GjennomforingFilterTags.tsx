@@ -1,10 +1,10 @@
 import { ArrangorTil } from "@mr/api-client-v2";
-import { GjennomforingFilterType } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
+import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -33,7 +33,6 @@ export function GjennomforingFilterTags({
             updateFilter({
               search: "",
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -41,7 +40,7 @@ export function GjennomforingFilterTags({
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
           navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
-          onClose={() => updateFilter({ navEnheter: [], page: 1, lagretFilterIdValgt: undefined })}
+          onClose={() => updateFilter({ navEnheter: [], page: 1 })}
         />
       )}
       {filter.tiltakstyper.map((tiltakstype) => (
@@ -52,7 +51,6 @@ export function GjennomforingFilterTags({
             updateFilter({
               tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -67,7 +65,6 @@ export function GjennomforingFilterTags({
             updateFilter({
               statuser: addOrRemove(filter.statuser, status),
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -79,7 +76,6 @@ export function GjennomforingFilterTags({
             updateFilter({
               visMineGjennomforinger: false,
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -92,7 +88,6 @@ export function GjennomforingFilterTags({
             updateFilter({
               arrangorer: addOrRemove(filter.arrangorer, id),
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />

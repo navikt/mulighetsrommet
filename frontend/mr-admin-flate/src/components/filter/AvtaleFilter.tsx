@@ -1,5 +1,4 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { avtaleFilterAccordionAtom, AvtaleFilterType as AvtaleFilterProps } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
@@ -15,12 +14,13 @@ import { useAtom } from "jotai";
 import { ArrangorTil } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { CheckboxList } from "./CheckboxList";
+import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/filter";
 
 type Filters = "tiltakstype";
 
 interface Props {
-  filter: AvtaleFilterProps;
-  updateFilter: (values: Partial<AvtaleFilterProps>) => void;
+  filter: AvtaleFilterType;
+  updateFilter: (values: Partial<AvtaleFilterType>) => void;
   skjulFilter?: Record<Filters, boolean>;
 }
 
@@ -40,7 +40,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
     updateFilter({
       [key]: checked ? values : [],
       page: 1,
-      lagretFilterIdValgt: undefined,
     });
   }
 
@@ -57,7 +56,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           updateFilter({
             sok: search,
             page: 1,
-            lagretFilterIdValgt: undefined,
           });
         }}
         value={filter.sok}
@@ -72,7 +70,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
             updateFilter({
               visMineAvtaler: event.currentTarget.checked,
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         >
@@ -96,7 +93,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
                 updateFilter({
                   navRegioner: addOrRemove(filter.navRegioner, region),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />
@@ -125,7 +121,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
                 updateFilter({
                   statuser: addOrRemove(filter.statuser, status),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />
@@ -159,7 +154,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
                   updateFilter({
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                     page: 1,
-                    lagretFilterIdValgt: undefined,
                   });
                 }}
               />
@@ -192,7 +186,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
                 updateFilter({
                   avtaletyper: addOrRemove(filter.avtaletyper, type),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />
@@ -218,7 +211,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
                 updateFilter({
                   arrangorer: addOrRemove(filter.arrangorer, id),
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />
@@ -252,7 +244,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
                 updateFilter({
                   personvernBekreftet: bekreftet,
                   page: 1,
-                  lagretFilterIdValgt: undefined,
                 });
               }}
             />

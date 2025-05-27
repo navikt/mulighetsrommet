@@ -42,6 +42,7 @@
     "@tanstack/react-query-devtools": "5.76.1",
     "axe-core": "4.10.3",
     "classnames": "2.5.1",
+    "dequal": "^2.0.3",
     "jotai": "2.12.4",
     "jotai-location": "0.6.0",
     "react": "19.0.0",

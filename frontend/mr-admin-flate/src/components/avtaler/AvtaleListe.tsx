@@ -1,10 +1,10 @@
 import { Alert, Table } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
-import { AvtaleFilterType } from "@/api/atoms";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { ReactNode } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
+import { AvtaleFilterType } from "@/pages/avtaler/filter";
 
 interface Props {
   filter: Partial<AvtaleFilterType>;

@@ -1,24 +1,22 @@
-import { tiltakstypeFilterAtom } from "@/api/atoms";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterDato } from "@/utils/Utils";
 import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Table } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
+import { tiltakstypeFilterStateAtom } from "@/pages/tiltakstyper/filter";
+import { useFilterState } from "@/filter/useFilterState";
 
 export function TiltakstypeTabell() {
-  const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
+  const { filter, updateFilter } = useFilterState(tiltakstypeFilterStateAtom);
 
-  const { data: tiltakstyper } = useTiltakstyper(filter);
+  const sort = filter.values.sort?.tableSort;
 
-  const sort = filter.sort?.tableSort;
   const handleSort = (sortKey: string) => {
     const direction = sort?.direction === "ascending" ? "descending" : "ascending";
 
-    setFilter({
-      ...filter,
+    updateFilter({
       sort: {
         sortString: `${sortKey}-${direction}` as SorteringTiltakstyper,
         tableSort: {
@@ -29,10 +27,12 @@ export function TiltakstypeTabell() {
     });
   };
 
+  const { data: tiltakstyper } = useTiltakstyper(filter.values);
+
   return (
     <TabellWrapper className="m-0">
       <Table
-        sort={sort!}
+        sort={sort}
         onSortChange={(sortKey) => handleSort(sortKey)}
         className="bg-white border-separate border-spacing-0 border-t border-gray-200"
       >

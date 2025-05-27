@@ -1,14 +1,19 @@
-import { ApentForPamelding, Innsatsgruppe, NavEnhet } from "@mr/api-client-v2";
+import { ApentForPamelding, Innsatsgruppe, LagretFilterType, NavEnhet } from "@mr/api-client-v2";
 import {
   atomWithStorage,
   createJSONStorage,
   unstable_withStorageValidator as withStorageValidator,
 } from "jotai/utils";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { z } from "zod";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { dequal } from "dequal";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
+import { useCallback, useEffect } from "react";
 
 export const ArbeidsmarkedstiltakFilterSchema = z.object({
   search: z.string(),
@@ -36,11 +41,13 @@ export function useArbeidsmarkedstiltakFilter(): [
   ArbeidsmarkedstiltakFilter,
   (filter: ArbeidsmarkedstiltakFilter) => void,
 ] {
+  const setSelectedFilterId = useSetAtom(selectedFilterIdAtom);
   const [value, setValue] = useAtom(filterAtom);
 
   return [
     value.filter,
     (filter: ArbeidsmarkedstiltakFilter) => {
+      setSelectedFilterId(undefined);
       setValue({ brukerIKontekst: value.brukerIKontekst, filter });
     },
   ];
@@ -51,7 +58,7 @@ export function useArbeidsmarkedstiltakFilterValue() {
   return value.filter;
 }
 
-export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
+export function useArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const [{ brukerIKontekst, filter }, setValue] = useAtom(filterAtom);
 
   const { data: brukerdata } = useBrukerdata();
@@ -75,25 +82,101 @@ export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   };
 }
 
-export function useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
+export function useArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
+  const [filterIsInitialized, setFilterIsInitialized] = useAtom(filterIsInitializedAtom);
+  const [selectedFilterId, setSelectedFilterId] = useAtom(selectedFilterIdAtom);
   const [{ filter }, setValue] = useAtom(filterAtom);
 
-  const filterHasChanged =
-    filter.search !== "" ||
-    filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
-    filter.innsatsgruppe?.nokkel !== undefined ||
-    filter.navEnheter.length !== 0 ||
-    filter.tiltakstyper.length > 0;
+  const { data: savedFilters = [], status } = useLagredeFilter(
+    LagretFilterType.GJENNOMFORING_MODIA,
+  );
+  const saveFilterMutation = useLagreFilter();
+  const deleteFilterMutation = useSlettFilter();
+
+  const defaultFilter = savedFilters.find((f) => f.isDefault);
+  const defaultFilterValues =
+    (defaultFilter?.filter as ArbeidsmarkedstiltakFilter | undefined) ?? defaultTiltakfilter;
+
+  const selectFilter = useCallback(
+    (id: string) => {
+      const valgtFilter = savedFilters.find((f) => f.id === id);
+      if (valgtFilter !== undefined) {
+        setSelectedFilterId(valgtFilter.id);
+        setValue({
+          brukerIKontekst: null,
+          filter: valgtFilter.filter as ArbeidsmarkedstiltakFilter,
+        });
+      }
+    },
+    [savedFilters, setSelectedFilterId, setValue],
+  );
+
+  const resetFilterToDefaults = useCallback(() => {
+    if (defaultFilter) {
+      setSelectedFilterId(defaultFilter.id);
+    }
+
+    setValue({
+      brukerIKontekst: null,
+      filter: defaultFilterValues,
+    });
+  }, [defaultFilter, defaultFilterValues, setSelectedFilterId, setValue]);
+
+  const setDefaultFilter = useCallback(
+    (id: string, isDefault: boolean) => {
+      const filter = savedFilters.find((f) => f.id === id);
+      if (filter) {
+        saveFilterMutation.mutate({ ...filter, isDefault });
+      }
+    },
+    [savedFilters, saveFilterMutation],
+  );
+
+  const saveFilter = useCallback(
+    (namedFilter: { id: string; navn: string; filter: { [key: string]: unknown } }) => {
+      saveFilterMutation.mutate(
+        {
+          ...namedFilter,
+          type: LagretFilterType.GJENNOMFORING_MODIA,
+          isDefault: false,
+          sortOrder: 0,
+        },
+        {
+          onSuccess() {
+            saveFilterMutation.reset();
+          },
+        },
+      );
+    },
+    [saveFilterMutation],
+  );
+
+  const deleteFilter = useCallback(
+    (id: string) => {
+      deleteFilterMutation.mutate(id);
+    },
+    [deleteFilterMutation],
+  );
+
+  useEffect(() => {
+    if (status === "success" && !filterIsInitialized) {
+      resetFilterToDefaults();
+      setFilterIsInitialized(true);
+    }
+  }, [status, filterIsInitialized, setFilterIsInitialized, resetFilterToDefaults]);
+
+  const filterHasChanged = !dequal(filter, defaultFilterValues);
 
   return {
     filter,
     filterHasChanged,
-    resetFilterToDefaults() {
-      setValue({
-        brukerIKontekst: null,
-        filter: defaultTiltakfilter,
-      });
-    },
+    selectedFilterId,
+    savedFilters,
+    selectFilter,
+    resetFilterToDefaults,
+    setDefaultFilter,
+    saveFilter,
+    deleteFilter,
   };
 }
 
@@ -150,3 +233,17 @@ export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
 export function isFilterReady(filter: ArbeidsmarkedstiltakFilter): boolean {
   return filter.innsatsgruppe !== undefined && filter.navEnheter.length !== 0;
 }
+
+const selectedFilterIdAtom = atomWithStorage<string | undefined>(
+  "selected-filter-id",
+  undefined,
+  createJSONStorage(() => sessionStorage),
+  { getOnInit: true },
+);
+
+const filterIsInitializedAtom = atomWithStorage<boolean>(
+  "filter-is-initialized",
+  false,
+  createJSONStorage(() => sessionStorage),
+  { getOnInit: true },
+);

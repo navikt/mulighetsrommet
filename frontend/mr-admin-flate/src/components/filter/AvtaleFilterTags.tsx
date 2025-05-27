@@ -1,5 +1,4 @@
 import { ArrangorTil } from "@mr/api-client-v2";
-import { AvtaleFilterType } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
@@ -7,6 +6,7 @@ import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
+import { AvtaleFilterType } from "@/pages/avtaler/filter";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -38,7 +38,6 @@ export function AvtaleFilterTags({
             updateFilter({
               sok: "",
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -51,7 +50,6 @@ export function AvtaleFilterTags({
             updateFilter({
               statuser: addOrRemove(filter.statuser, status),
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -64,7 +62,6 @@ export function AvtaleFilterTags({
             updateFilter({
               avtaletyper: addOrRemove(filter.avtaletyper, avtaletype),
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -76,7 +73,6 @@ export function AvtaleFilterTags({
             updateFilter({
               visMineAvtaler: false,
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -89,7 +85,6 @@ export function AvtaleFilterTags({
             updateFilter({
               navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -103,7 +98,6 @@ export function AvtaleFilterTags({
               updateFilter({
                 tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                 page: 1,
-                lagretFilterIdValgt: undefined,
               });
             }}
           />
@@ -116,7 +110,6 @@ export function AvtaleFilterTags({
             updateFilter({
               arrangorer: addOrRemove(filter.arrangorer, id),
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -128,7 +121,6 @@ export function AvtaleFilterTags({
             updateFilter({
               personvernBekreftet: undefined,
               page: 1,
-              lagretFilterIdValgt: undefined,
             });
           }}
         />

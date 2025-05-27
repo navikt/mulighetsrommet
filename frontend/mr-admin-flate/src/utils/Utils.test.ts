@@ -1,11 +1,5 @@
-import { AvtaleFilterType } from "@/api/atoms";
-import { Avtalestatus, Avtaletype, SorteringAvtaler } from "@mr/api-client-v2";
 import { describe, expect, test } from "vitest";
-import {
-  capitalizeEveryWord,
-  createQueryParamsForExcelDownloadForAvtale,
-  kalkulerStatusBasertPaaFraOgTilDato,
-} from "./Utils";
+import { capitalizeEveryWord, kalkulerStatusBasertPaaFraOgTilDato } from "./Utils";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
@@ -65,41 +59,6 @@ describe("Utils - capitalizeEveryWord", () => {
     const tekst = "";
     const result = capitalizeEveryWord(tekst);
     expect(result).toEqual("");
-  });
-});
-
-describe("Avtaletabell", () => {
-  test("Skal returnere korrekt searchParams for avtalefilter", () => {
-    const filter: AvtaleFilterType = {
-      sok: "",
-      statuser: [Avtalestatus.AKTIV],
-      avtaletyper: [Avtaletype.AVTALE],
-      navRegioner: ["0600"],
-      tiltakstyper: ["123"],
-      sortering: {
-        sortString: SorteringAvtaler.NAVN_ASCENDING,
-        tableSort: {
-          orderBy: "navn",
-          direction: "ascending",
-        },
-      },
-      arrangorer: ["123456789"],
-      visMineAvtaler: true,
-      personvernBekreftet: true,
-      page: 0,
-      pageSize: 0,
-    };
-
-    const queryParams = createQueryParamsForExcelDownloadForAvtale(filter);
-    expect(queryParams.query).toBeDefined();
-    expect(queryParams.query!.tiltakstyper).toEqual(["123"]);
-    expect(queryParams.query!.statuser).toEqual(["AKTIV"]);
-    expect(queryParams.query!.avtaletyper).toEqual(["Avtale"]);
-    expect(queryParams.query!.navRegioner).toEqual(["0600"]);
-    expect(queryParams.query!.arrangorer).toEqual(["123456789"]);
-    expect(queryParams.query!.visMineAvtaler).toEqual(true);
-    expect(queryParams.query!.personvernBekreftet).toEqual(true);
-    expect(queryParams.query!.size).toEqual(10000);
   });
 });
 

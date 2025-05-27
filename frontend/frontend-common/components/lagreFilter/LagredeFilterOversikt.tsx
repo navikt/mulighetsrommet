@@ -14,47 +14,45 @@ interface LagretFilter {
 }
 
 interface Props {
-  lagredeFilter: LagretFilter[];
-  filter: FilterValues;
-  onSetFilter: (filter: FilterValues) => void;
-  validateFilterStructure: (filter: FilterValues) => boolean;
+  filters: LagretFilter[];
+  selectedFilterId: string | undefined;
+  onSelectFilterId: (id: string) => void;
   onDeleteFilter: (id: string) => void;
   onSetDefaultFilter: (id: string, isDefault: boolean) => void;
+  validateFilterStructure: (filter: FilterValues) => boolean;
 }
 
 export function LagredeFilterOversikt({
-  lagredeFilter,
-  filter,
-  onSetFilter,
+  filters,
+  selectedFilterId,
+  onSelectFilterId,
   validateFilterStructure,
   onDeleteFilter,
   onSetDefaultFilter,
 }: Props) {
-  const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
-  const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<
-    LagretFilter | undefined
-  >(undefined);
-
+  const [filterForSletting, setFilterForSletting] = useState<LagretFilter | null>();
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
+
   const filterHarUgyldigStrukturModalRef = useRef<HTMLDialogElement>(null);
+  const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<LagretFilter | null>();
 
   function oppdaterFilter(id: string) {
-    const valgtFilter = lagredeFilter.find((f) => f.id === id);
-    if (valgtFilter) {
-      if (!validateFilterStructure(valgtFilter.filter)) {
-        setFilterHarUgyldigStruktur(valgtFilter);
-      } else {
-        onSetFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
-      }
+    const selectedFilter = filters.find((f) => f.id === id);
+
+    if (selectedFilter !== undefined && !validateFilterStructure(selectedFilter.filter)) {
+      setFilterHarUgyldigStruktur(selectedFilter);
+    } else {
+      onSelectFilterId(id);
     }
   }
 
   function slettFilter(id: string) {
     onDeleteFilter(id);
-    onSetFilter({ ...filter, lagretFilterIdValgt: undefined });
-    setFilterForSletting(undefined);
-    setFilterHarUgyldigStruktur(undefined);
+
+    setFilterForSletting(null);
     sletteFilterModalRef.current?.close();
+
+    setFilterHarUgyldigStruktur(null);
     filterHarUgyldigStrukturModalRef.current?.close();
   }
 
@@ -76,7 +74,7 @@ export function LagredeFilterOversikt({
 
   return (
     <>
-      {lagredeFilter.length === 0 ? (
+      {filters.length === 0 ? (
         <Alert variant="info" inline>
           Du har ingen lagrede filter
         </Alert>
@@ -85,10 +83,10 @@ export function LagredeFilterOversikt({
           legend="Lagrede filter"
           hideLegend
           onChange={(id) => oppdaterFilter(id)}
-          value={filter.lagretFilterIdValgt ? filter.lagretFilterIdValgt : null}
+          value={selectedFilterId || null}
         >
           <div className={styles.overflow}>
-            {lagredeFilter.map((lagretFilter) => {
+            {filters.map((lagretFilter) => {
               return (
                 <HStack
                   key={lagretFilter.id}
@@ -120,7 +118,7 @@ export function LagredeFilterOversikt({
                       variant="tertiary-neutral"
                       size="medium"
                       onClick={() => {
-                        setFilterForSletting(lagredeFilter.find((f) => f.id === lagretFilter.id));
+                        setFilterForSletting(lagretFilter);
                       }}
                     />
                   </div>
