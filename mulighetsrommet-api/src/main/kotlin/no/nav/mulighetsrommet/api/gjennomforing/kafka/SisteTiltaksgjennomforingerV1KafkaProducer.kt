@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.kafka
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto

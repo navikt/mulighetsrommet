@@ -12,7 +12,9 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -65,11 +67,7 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, enabledTiltakskoder = emptyList())
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
+            consumeGjennomforing(consumer, gjennomforing)
 
             verify(exactly = 0) { producer.publish(any()) }
             verify(exactly = 0) { producerClient.sendSync(any()) }
@@ -82,11 +80,7 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
+            consumeGjennomforing(consumer, gjennomforing)
 
             val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
             verify(exactly = 1) { producer.publish(expectedMessage) }
@@ -103,11 +97,7 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
+            consumeGjennomforing(consumer, gjennomforing)
 
             val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)
             verify(exactly = 1) { producer.publish(expectedMessage) }
@@ -115,3 +105,11 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
         }
     }
 })
+
+private suspend fun consumeGjennomforing(
+    consumer: SisteTiltaksgjennomforingerV1KafkaConsumer,
+    gjennomforing: GjennomforingDto,
+) {
+    val message = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(gjennomforing)
+    consumer.consume(gjennomforing.id.toString(), Json.encodeToJsonElement(message))
+}

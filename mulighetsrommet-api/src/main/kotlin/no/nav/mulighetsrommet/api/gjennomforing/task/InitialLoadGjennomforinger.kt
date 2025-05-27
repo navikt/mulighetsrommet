@@ -6,6 +6,8 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -81,7 +83,7 @@ class InitialLoadGjennomforinger(
                 result.items
             },
         ) {
-            gjennomforingProducer.publish(it.toTiltaksgjennomforingV1Dto())
+            publish(it)
         }
 
         logger.info("Antall relastet på topic: $total")
@@ -95,14 +97,19 @@ class InitialLoadGjennomforinger(
                 gjennomforingProducer.retract(id)
             } else {
                 logger.info("Publiserer melding for $id")
-                gjennomforingProducer.publish(gjennomforing.toTiltaksgjennomforingV1Dto())
+                publish(gjennomforing)
             }
         }
     }
 
     private fun initialLoadTiltaksgjennomforingerByAvtale(avtaleId: UUID) = db.session {
         queries.gjennomforing.getAll(avtaleId = avtaleId).items.forEach {
-            gjennomforingProducer.publish(it.toTiltaksgjennomforingV1Dto())
+            publish(it)
         }
+    }
+
+    private fun publish(dto: GjennomforingDto) {
+        val message = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+        gjennomforingProducer.publish(message)
     }
 }

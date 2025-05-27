@@ -4,8 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
@@ -93,56 +91,5 @@ data class GjennomforingDto(
         @Serializable(with = LocalDateSerializer::class)
         val slutt: LocalDate,
         val beskrivelse: String,
-    )
-
-    fun toTiltaksgjennomforingV1Dto() = TiltaksgjennomforingEksternV1Dto(
-        id = id,
-        tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
-            id = tiltakstype.id,
-            navn = tiltakstype.navn,
-            arenaKode = tiltakstype.tiltakskode.toArenaKode(),
-            tiltakskode = tiltakstype.tiltakskode,
-        ),
-        navn = navn,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        status = status.status,
-        virksomhetsnummer = arrangor.organisasjonsnummer.value,
-        oppstart = oppstart,
-        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorDato,
-        apentForPamelding = apentForPamelding,
-        antallPlasser = antallPlasser,
-    )
-
-    fun toTiltaksgjennomforingDbo() = GjennomforingDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstype.id,
-        arrangorId = arrangor.id,
-        arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
-        startDato = startDato,
-        sluttDato = sluttDato,
-        antallPlasser = antallPlasser,
-        avtaleId = avtaleId ?: id,
-        administratorer = administratorer.map { it.navIdent },
-        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer }
-            .toSet(),
-        oppstart = oppstart,
-        kontaktpersoner = kontaktpersoner.map {
-            GjennomforingKontaktpersonDbo(
-                navIdent = it.navIdent,
-                navEnheter = it.navEnheter,
-                beskrivelse = it.beskrivelse,
-            )
-        },
-        stedForGjennomforing = stedForGjennomforing,
-        faneinnhold = faneinnhold,
-        beskrivelse = beskrivelse,
-        deltidsprosent = deltidsprosent,
-        estimertVentetidVerdi = estimertVentetid?.verdi,
-        estimertVentetidEnhet = estimertVentetid?.enhet,
-        tilgjengeligForArrangorDato = tilgjengeligForArrangorDato,
-        amoKategorisering = amoKategorisering,
-        utdanningslop = utdanningslop?.toDbo(),
     )
 }

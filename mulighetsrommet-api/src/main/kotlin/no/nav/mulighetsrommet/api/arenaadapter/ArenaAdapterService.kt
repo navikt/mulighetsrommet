@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
@@ -115,7 +116,7 @@ class ArenaAdapterService(
             logUpdateGjennomforing(next)
         }
 
-        gjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingV1Dto())
+        gjennomforingKafkaProducer.publish(TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(next))
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer) {
