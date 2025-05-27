@@ -368,7 +368,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            get(),
+            config = ArenaAdapterService.Config(appConfig.kafka.clients.gjennomforinger.topic),
             get(),
             get(),
             get(),
@@ -392,7 +392,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         GjennomforingService(
-            get(),
+            config = GjennomforingService.Config(appConfig.kafka.clients.gjennomforinger.topic),
             get(),
             get(),
             get(),

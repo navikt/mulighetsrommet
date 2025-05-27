@@ -7,12 +7,12 @@ import arrow.core.raise.either
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -33,11 +33,14 @@ import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingService(
+    private val config: Config,
     private val db: ApiDatabase,
-    private val gjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val validator: GjennomforingValidator,
     private val navAnsattService: NavAnsattService,
 ) {
+    data class Config(
+        val sisteTiltaksgjennomforingerV1Topic: String,
+    )
 
     suspend fun upsert(
         request: GjennomforingRequest,
@@ -301,8 +304,16 @@ class GjennomforingService(
         }
     }
 
-    private fun publishToKafka(dto: GjennomforingDto) {
-        val message = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
-        gjennomforingKafkaProducer.publish(message)
+    private fun QueryContext.publishToKafka(dto: GjennomforingDto) {
+        val eksternDto = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+
+        val record = StoredProducerRecord(
+            config.sisteTiltaksgjennomforingerV1Topic,
+            eksternDto.id.toString().toByteArray(),
+            Json.encodeToString(eksternDto).toByteArray(),
+            null,
+        )
+
+        queries.kafkaProducerRecord.storeRecord(record)
     }
 }
