@@ -8,7 +8,7 @@ import {
   useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { Box, HStack, Select, VStack } from "@navikt/ds-react";
+import { HStack, Select, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
