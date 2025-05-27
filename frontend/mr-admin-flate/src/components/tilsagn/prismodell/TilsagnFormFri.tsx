@@ -1,7 +1,7 @@
 import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
-import { Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
+import { Alert, Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -55,6 +55,7 @@ function BeregningInputLinjerSkjema() {
   const {
     register,
     formState: { errors },
+    setError,
     control,
   } = useFormContext<FriTilsagn>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
@@ -67,7 +68,7 @@ function BeregningInputLinjerSkjema() {
         className="flex-1"
         size="small"
         label="Beskrivelse"
-        error={errors.beregning?.input?.linjer?.[index]?.beskrivelse?.message}
+        error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
         {...register(`beregning.linjer.${index}.beskrivelse`)}
         defaultValue={item.beskrivelse}
       />
@@ -77,7 +78,7 @@ function BeregningInputLinjerSkjema() {
           type="number"
           label="Beløp"
           style={{ width: "180px" }}
-          error={errors.beregning?.input?.linjer?.[index]?.belop?.message}
+          error={errors.beregning?.linjer?.[index]?.belop?.message}
           {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
           defaultValue={item.belop}
         />
@@ -88,7 +89,7 @@ function BeregningInputLinjerSkjema() {
           type="number"
           label="Antall"
           style={{ width: "180px" }}
-          error={errors.beregning?.input?.linjer?.[index]?.antall?.message}
+          error={errors.beregning?.linjer?.[index]?.antall?.message}
           {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
           defaultValue={item.antall}
         />
@@ -120,6 +121,11 @@ function BeregningInputLinjerSkjema() {
   return (
     <VStack className="mt-4" gap="4">
       {linjer}
+      {errors.beregning?.linjer?.message && (
+        <Alert size="small" variant="error">
+          {errors.beregning?.linjer?.message}
+        </Alert>
+      )}
       <div>
         <Button
           size="small"
@@ -127,6 +133,7 @@ function BeregningInputLinjerSkjema() {
           onClickCapture={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            setError("beregning.linjer", {});
             append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
           }}
         >

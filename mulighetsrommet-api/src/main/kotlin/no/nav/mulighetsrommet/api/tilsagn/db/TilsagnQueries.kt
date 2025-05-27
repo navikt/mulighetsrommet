@@ -167,6 +167,13 @@ class TilsagnQueries(private val session: Session) {
         linjer: List<TilsagnBeregningFri.InputLinje>,
     ) {
         @Language("PostgreSQL")
+        val deleteExistingQuery = """
+            delete from tilsagn_fri_beregning
+            where tilsagn_id = ?
+        """.trimIndent()
+        execute(queryOf(deleteExistingQuery, tilsagnId))
+
+        @Language("PostgreSQL")
         val query = """
             insert into tilsagn_fri_beregning (
                     id,
@@ -181,11 +188,6 @@ class TilsagnQueries(private val session: Session) {
                     :belop,
                     :antall
                 )
-            on conflict (id) do update set
-                tilsagn_id = excluded.tilsagn_id,
-                beskrivelse = excluded.beskrivelse,
-                belop = excluded.belop,
-                antall = excluded.antall
         """.trimIndent()
         val paramCollection = linjer.map { mapOf("id" to it.id, "tilsagn_id" to tilsagnId, "beskrivelse" to it.beskrivelse, "belop" to it.belop, "antall" to it.antall) }
 
