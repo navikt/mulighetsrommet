@@ -69,7 +69,7 @@
     "msw": "2.8.4",
     "playwright": "1.52.0",
     "postcss-import": "16.1.0",
-    "rollup-plugin-visualizer": "5.14.0",
+    "rollup-plugin-visualizer": "6.0.0",
     "sass-embedded": "1.89.0",
     "typescript": "5.8.3",
     "vite": "6.3.5",
