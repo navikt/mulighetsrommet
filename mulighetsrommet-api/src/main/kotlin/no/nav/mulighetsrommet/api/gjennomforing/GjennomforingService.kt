@@ -39,7 +39,7 @@ class GjennomforingService(
     private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
-        val sisteTiltaksgjennomforingerV1Topic: String,
+        val topic: String,
     )
 
     suspend fun upsert(
@@ -308,7 +308,7 @@ class GjennomforingService(
         val eksternDto = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
 
         val record = StoredProducerRecord(
-            config.sisteTiltaksgjennomforingerV1Topic,
+            config.topic,
             eksternDto.id.toString().toByteArray(),
             Json.encodeToString(eksternDto).toByteArray(),
             null,

@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
-import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
@@ -47,7 +46,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -120,7 +118,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             db(appConfig.database),
             kafka(appConfig),
             services(appConfig),
-            tasks(appConfig.tasks),
+            tasks(appConfig),
             slack(appConfig.slack),
         )
     }
@@ -155,7 +153,6 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.arenaMigreringTiltaksgjennomforinger,
         )
     }
-    single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.clients.gjennomforinger) }
     single { SisteTiltakstyperV2KafkaProducer(get(), config.clients.tiltakstyper) }
 
     single {
@@ -368,7 +365,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            config = ArenaAdapterService.Config(appConfig.kafka.clients.gjennomforinger.topic),
+            ArenaAdapterService.Config(appConfig.kafka.clients.sisteTiltaksgnennomforingerTopic),
             get(),
             get(),
             get(),
@@ -392,7 +389,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         GjennomforingService(
-            config = GjennomforingService.Config(appConfig.kafka.clients.gjennomforinger.topic),
+            GjennomforingService.Config(appConfig.kafka.clients.sisteTiltaksgnennomforingerTopic),
             get(),
             get(),
             get(),
@@ -447,13 +444,20 @@ private fun services(appConfig: AppConfig) = module {
     }
 }
 
-private fun tasks(config: TaskConfig) = module {
-    single { GenerateValidationReport(config.generateValidationReport, get(), get(), get()) }
-    single { InitialLoadGjennomforinger(get(), get()) }
+private fun tasks(config: AppConfig) = module {
+    val tasks = config.tasks
+    single { GenerateValidationReport(tasks.generateValidationReport, get(), get(), get()) }
+    single {
+        InitialLoadGjennomforinger(
+            InitialLoadGjennomforinger.Config(config.kafka.clients.sisteTiltaksgnennomforingerTopic),
+            get(),
+            get(),
+        )
+    }
     single { InitialLoadTiltakstyper(get(), get(), get()) }
-    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
-    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
-    single { GenerateUtbetaling(config.generateUtbetaling, get()) }
+    single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
+    single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
+    single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { OppdaterUtbetalingBeregning(get()) }
@@ -462,18 +466,18 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
-            config.notifySluttdatoForGjennomforingerNarmerSeg,
+            tasks.notifySluttdatoForGjennomforingerNarmerSeg,
             get(),
             get(),
         )
         val notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg(
-            config.notifySluttdatoForAvtalerNarmerSeg,
+            tasks.notifySluttdatoForAvtalerNarmerSeg,
             get(),
             get(),
         )
-        val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
+        val updateApentForPamelding = UpdateApentForPamelding(tasks.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()

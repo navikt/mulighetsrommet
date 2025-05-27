@@ -33,7 +33,7 @@ class ArenaAdapterService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
-        val sisteTiltaksgjennomforingerV1Topic: String,
+        val topic: String,
     )
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.transaction {
@@ -145,7 +145,7 @@ class ArenaAdapterService(
         val eksternDto = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
 
         val record = StoredProducerRecord(
-            config.sisteTiltaksgjennomforingerV1Topic,
+            config.topic,
             eksternDto.id.toString().toByteArray(),
             Json.encodeToString(eksternDto).toByteArray(),
             null,
