@@ -300,6 +300,19 @@ object BrregFixtures {
     """.trimIndent()
 
     @Language("JSON")
+    val FJERNET_AV_JURIDISKE_ARSAKER = """
+        {
+          "organisasjonsnummer": "433695968",
+          "slettedato": "2025-05-24",
+          "_links": {
+            "self": {
+              "href": "https://data.brreg.no/enhetsregisteret/api/underenheter/433695968"
+            }
+          }
+        }
+    """.trimIndent()
+
+    @Language("JSON")
     val SOK_UNDERENHET = """
         {
           "_embedded": {

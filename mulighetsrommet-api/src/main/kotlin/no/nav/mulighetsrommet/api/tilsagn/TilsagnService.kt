@@ -27,13 +27,8 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.textRepr
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
-import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
 import java.time.Instant
@@ -189,13 +184,13 @@ class TilsagnService(
             }
 
             TilsagnStatus.TIL_OPPGJOR -> {
-                val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-                if (oppgjor.behandletAv == navIdent) {
-                    return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
-                }
-
                 when (besluttelse) {
-                    BesluttTilsagnRequest.GodkjentTilsagnRequest ->
+                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> {
+                        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+                        if (oppgjor.behandletAv == navIdent) {
+                            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
+                        }
+
                         gjorOppTilsagn(tilsagn, navIdent)
                             .also {
                                 // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
@@ -203,6 +198,7 @@ class TilsagnService(
                                 storeGjorOppBestilling(it)
                             }
                             .right()
+                    }
 
                     is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisOppgjor(tilsagn, besluttelse, navIdent)
                 }
@@ -241,9 +237,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-        if (besluttetAv == opprettelse.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte et tilsagn du selv har opprettet"))).left()
-        }
         if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
         }
@@ -295,9 +288,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-        if (besluttetAv == annullering.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise annullering du selv har opprettet"))).left()
-        }
 
         queries.totrinnskontroll.upsert(
             annullering.copy(
@@ -317,7 +307,6 @@ class TilsagnService(
 
         queries.notifications.insert(
             ScheduledNotification(
-                type = NotificationType.NOTIFICATION,
                 title = "Et $tilsagnDisplayName du sendte til annullering er blitt avvist",
                 description = """$beslutterNavn avviste annulleringen av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen
                     | "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
@@ -396,9 +385,6 @@ class TilsagnService(
         require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-        if (besluttetAv == oppgjor.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Du kan ikke avvise oppgjør du selv har opprettet"))).left()
-        }
 
         queries.totrinnskontroll.upsert(
             oppgjor.copy(
@@ -419,7 +405,6 @@ class TilsagnService(
 
         queries.notifications.insert(
             ScheduledNotification(
-                type = NotificationType.NOTIFICATION,
                 title = "Et $tilsagnDisplayName du sendte til oppgjør er blitt avvist",
                 description = """$beslutterNavn avviste oppgjøret av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn}
                     | for gjennomføringen "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
@@ -506,7 +491,6 @@ class TilsagnService(
             """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil."""
 
         val notice = ScheduledNotification(
-            type = NotificationType.NOTIFICATION,
             title = title,
             description = description,
             metadata = NotificationMetadata(
@@ -537,7 +521,7 @@ class TilsagnService(
                 input,
             )
 
-            else -> input.right()
+            else -> TilsagnValidator.validateBeregningInput(input)
         }
     }
 

@@ -868,28 +868,6 @@ paths:
       operationId: getTiltakstyper
       parameters:
         - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for tiltakstyper
-        - in: query
-          name: tiltakstypestatuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/TiltakstypeStatus"
-          description: Statuser for tiltakstyper
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-        - in: query
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringTiltakstyper"
@@ -899,7 +877,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltakstype"
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakstypeDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1903,7 +1883,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LagretFilterRequest"
+              $ref: "#/components/schemas/LagretFilter"
       responses:
         204:
           description: "Lagret ok"
@@ -1924,7 +1904,7 @@ paths:
           name: dokumenttype
           description: type dokument
           schema:
-            $ref: "#/components/schemas/LagretDokumenttype"
+            $ref: "#/components/schemas/LagretFilterType"
           required: true
       responses:
         200:
@@ -2529,16 +2509,16 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/arrangorflate/utbetaling/{id}/kvittering:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/utbetalingsdetaljer:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
         - Arrangorflate
-      operationId: getUtbetalingKvittering
+      operationId: getUtbetalingsdetaljerPdf
       responses:
         200:
-          description: Generer PDF kvittering for utbetaling
+          description: Generer PDF utbetalingsdetaljer for utbetaling
           content:
             application/pdf:
               schema:
@@ -2881,19 +2861,6 @@ components:
         - totalPages
         - pageSize
 
-    PaginertTiltakstype:
-      type: object
-      required:
-        - pagination
-        - data
-      properties:
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltakstypeDto"
-
     PaginertGjennomforing:
       type: object
       required:
@@ -3007,7 +2974,7 @@ components:
         sakarkivNummer:
           type: [string, "null"]
         arrangor:
-          $ref: "#/components/schemas/ArrangorHovedenhet"
+          $ref: "#/components/schemas/AvtaleArrangorHovedenhet"
         startDato:
           type: string
           format: date
@@ -3262,8 +3229,8 @@ components:
     NotificationStatus:
       type: string
       enum:
-        - DONE
-        - NOT_DONE
+        - READ
+        - UNREAD
 
     OppgaveTypeDto:
       type: object
@@ -3286,6 +3253,8 @@ components:
         - UTBETALING_TIL_BEHANDLING
         - UTBETALING_TIL_GODKJENNING
         - UTBETALING_RETURNERT
+        - AVTALE_MANGLER_ADMINISTRATOR
+        - GJENNOMFORING_MANGLER_ADMINISTRATOR
 
     SorteringAvtaler:
       type: string
@@ -3346,7 +3315,7 @@ components:
         tiltaksnummer:
           type: [string, "null"]
         arrangor:
-          $ref: "#/components/schemas/ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingArrangorUnderenhet"
         startDato:
           type: string
           format: date
@@ -3744,11 +3713,11 @@ components:
           type: [string, "null"]
           format: uuid
         tiltakstypeNavn:
-            type: string
-        veilederTilhorerFylke:
-            type: [string, "null"]
-        veilederTilhorerEnhet:
-            type: [string, "null"]
+          type: string
+        deltFraFylke:
+          type: [string, "null"]
+        deltFraEnhet:
+          type: [string, "null"]
       required:
         - fnr
         - overskrift
@@ -3757,8 +3726,8 @@ components:
         - gjennomforingId
         - sanityId
         - tiltakstypeNavn
-        - veilederTilhorerFylke
-        - veilederTilhorerEnhet
+        - deltFraFylke
+        - deltFraEnhet
 
     DelTiltakMedBrukerResponse:
       type: object
@@ -4004,9 +3973,9 @@ components:
           type: string
         tiltakstypeNavn:
           type: [string, "null"]
-        veilederTilhorerFylke:
+        deltFraFylke:
           type: [string, "null"]
-        veilederTilhorerEnhet:
+        deltFraEnhet:
           type: [string, "null"]
       required:
         - norskIdent
@@ -4065,7 +4034,7 @@ components:
         - status
         - type
 
-    ArrangorHovedenhet:
+    AvtaleArrangorHovedenhet:
       type: object
       properties:
         id:
@@ -4080,7 +4049,7 @@ components:
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/ArrangorUnderenhet"
+            $ref: "#/components/schemas/AvtaleArrangorUnderenhet"
         kontaktpersoner:
           type: array
           items:
@@ -4093,7 +4062,25 @@ components:
         - underenheter
         - kontaktpersoner
 
-    ArrangorUnderenhet:
+    AvtaleArrangorUnderenhet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        slettet:
+          type: boolean
+      required:
+        - id
+        - organisasjonsnummer
+        - navn
+        - slettet
+
+    GjennomforingArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -4661,8 +4648,6 @@ components:
         id:
           type: string
           format: uuid
-        type:
-          $ref: "#/components/schemas/NotificationType"
         title:
           type: string
         description:
@@ -4672,7 +4657,7 @@ components:
         createdAt:
           type: string
           format: date-time
-        doneAt:
+        readAt:
           type: string
           format: date-time
         metadata:
@@ -4686,26 +4671,19 @@ components:
                   type: string
       required:
         - id
-        - type
         - title
         - description
         - user
         - createdAt
-        - doneAt
-
-    NotificationType:
-      type: string
-      enum:
-        - NOTIFICATION
-        - TASK
+        - readAt
 
     UserNotificationSummary:
       type: object
       properties:
-        notDoneCount:
+        unreadCount:
           type: integer
       required:
-        - notDoneCount
+        - unreadCount
 
     Oppgave:
       type: object
@@ -5487,33 +5465,13 @@ components:
         - id
         - avtaleId
 
-    LagretFilterRequest:
-      type: object
-      properties:
-        id:
-          type: [string, "null"]
-          format: uuid
-        navn:
-          type: string
-        "type":
-          $ref: "#/components/schemas/LagretDokumenttype"
-        filter:
-          type: object
-        sortOrder:
-          type: number
-      required:
-        - id
-        - type
-        - navn
-        - filter
-        - sortOrder
-
-    LagretDokumenttype:
+    LagretFilterType:
       type: string
       enum:
         - AVTALE
         - GJENNOMFORING
         - GJENNOMFORING_MODIA
+        - OPPGAVE
 
     LagretFilter:
       type: object
@@ -5521,22 +5479,22 @@ components:
         id:
           type: string
           format: uuid
-        brukerId:
-          type: string
         navn:
           type: string
         "type":
-          $ref: "#/components/schemas/LagretDokumenttype"
+          $ref: "#/components/schemas/LagretFilterType"
         filter:
           type: object
+        isDefault:
+          type: boolean
         sortOrder:
           type: number
       required:
         - id
-        - brukerId
         - type
         - navn
         - filter
+        - isDefault
         - sortOrder
 
     SetNotificationStatusRequest:
@@ -5874,11 +5832,35 @@ components:
       properties:
         type:
           const: FRI
-        belop:
-          type: integer
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnBeregningFriInputLinje"
+        prisbetingelser:
+          type: [string, "null"]
       required:
         - type
         - belop
+        - prisbetingelser
+        - linjer
+
+    TilsagnBeregningFriInputLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        beskrivelse:
+          type: string
+        belop:
+          type: integer
+        antall:
+          type: integer
+      required:
+        - id
+        - beskrivelse
+        - belop
+        - antall
 
     TilsagnBeregningFriOutput:
       type: object
@@ -5975,7 +5957,11 @@ components:
           type: string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
-      required: [id, status, periode, beregning, createdAt, tilskuddstype]
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+      required: [id, status, periode, beregning, createdAt, tilskuddstype, kostnadssteder]
 
     DeltakerForKostnadsfordeling:
       type: object
@@ -6230,8 +6216,6 @@ components:
           type: number
         person:
           $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
-        veileder:
-          type: string
       required:
         - id
         - startDato

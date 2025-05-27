@@ -518,6 +518,70 @@ class OppgaverServiceTest : FunSpec({
             )
         }
     }
+
+    context("avtaler") {
+        test("oppgaver når aktive avtaler mangler administrator") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(
+                    AvtaleFixtures.AFT.copy(administratorer = listOf()),
+                    AvtaleFixtures.gruppeAmo.copy(administratorer = listOf(), sluttDato = LocalDate.now().minusDays(1)),
+                    AvtaleFixtures.VTA.copy(administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                ),
+            ).initialize(database.db)
+
+            val service = OppgaverService(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.AVTALE_MANGLER_ADMINISTRATOR),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(NavAnsattRolle.generell(Rolle.AVTALER_SKRIV)),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(
+                    AvtaleFixtures.AFT.id,
+                    OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
+                ),
+            )
+        }
+    }
+
+    context("gjennomføringer") {
+        test("oppgaver når aktive gjennomføringer mangler administrator") {
+            val avsluttetGjennomforing = UUID.randomUUID()
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(
+                    AFT1.copy(administratorer = listOf()),
+                    AFT1.copy(
+                        id = avsluttetGjennomforing,
+                        administratorer = listOf(),
+                        sluttDato = LocalDate.now().minusDays(2),
+                    ),
+                    AFT1.copy(id = UUID.randomUUID(), administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                ),
+            ) {
+                queries.gjennomforing.setAvsluttet(avsluttetGjennomforing, LocalDateTime.now(), null)
+            }.initialize(database.db)
+
+            val service = OppgaverService(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.navIdent,
+                roller = setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(
+                    AFT1.id,
+                    OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
+                ),
+            )
+        }
+    }
 })
 
 private data class PartialOppgave(val id: UUID, val type: OppgaveType)

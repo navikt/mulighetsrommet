@@ -79,7 +79,7 @@ object TilsagnValidator {
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregningInput> = either {
         return when (input) {
             is TilsagnBeregningForhandsgodkjent.Input -> validateAFTTilsagnBeregningInput(input)
-            is TilsagnBeregningFri.Input -> input.right()
+            is TilsagnBeregningFri.Input -> validateBeregningFriInput(input)
         }
     }
 
@@ -101,6 +101,42 @@ object TilsagnValidator {
                         TilsagnBeregningForhandsgodkjent.Input::antallPlasser,
                     ),
                 )
+            }
+        }
+
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
+    }
+
+    private fun validateBeregningFriInput(input: TilsagnBeregningFri.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
+        if (input.linjer.isEmpty()) {
+            return listOf(FieldError.ofPointer(pointer = "beregning/linjer", detail = "Du må legge til en linje")).left()
+        }
+        val errors = buildList {
+            input.linjer.forEachIndexed { index, linje ->
+                if (linje.belop <= 0) {
+                    add(
+                        FieldError.ofPointer(
+                            pointer = "beregning/linjer/$index/belop",
+                            detail = "Beløp må være positivt",
+                        ),
+                    )
+                }
+                if (linje.beskrivelse.isBlank()) {
+                    add(
+                        FieldError.ofPointer(
+                            pointer = "beregning/linjer/$index/beskrivelse",
+                            detail = "Beskrivelse mangler",
+                        ),
+                    )
+                }
+                if (linje.antall <= 0) {
+                    add(
+                        FieldError.ofPointer(
+                            pointer = "beregning/linjer/$index/antall",
+                            detail = "Antall må være positivt",
+                        ),
+                    )
+                }
             }
         }
 

@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function Definisjonsliste({ title, definitions, className, headingLevel }: Props) {
-  const headingSize = headingLevel === "3" ? "small" : "medium";
+  const headingSize = headingLevel === "4" ? "small" : "medium";
   return (
     <VStack gap="3" className={className}>
       {title && (
@@ -24,7 +24,7 @@ export function Definisjonsliste({ title, definitions, className, headingLevel }
       )}
       <dl className="flex flex-col gap-1.5">
         {definitions.map((definition, index) => (
-          <HStack gap="2" key={index}>
+          <HStack gap="2" align="center" key={index}>
             <dt>{definition.key}:</dt>
             <dd className="font-bold text-right">{definition.value}</dd>
           </HStack>

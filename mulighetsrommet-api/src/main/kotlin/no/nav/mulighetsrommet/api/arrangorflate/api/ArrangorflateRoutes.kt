@@ -14,13 +14,16 @@ import io.ktor.server.util.*
 import io.ktor.utils.io.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
-import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.pdfgen.*
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -55,14 +58,33 @@ fun Route.arrangorflateRoutes() {
         ?.find { it == organisasjonsnummer }
         ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
 
+    suspend fun resolveArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto {
+        return arrangorService.getArrangorOrSyncFromBrreg(organisasjonsnummer)
+            .getOrElse {
+                when (it) {
+                    is BrregError.NotFound -> throw StatusException(
+                        HttpStatusCode.BadRequest,
+                        "Fant ikke arrangør $organisasjonsnummer i Brreg",
+                    )
+
+                    is BrregError.FjernetAvJuridiskeArsaker -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Arrangør $organisasjonsnummer er fjernet av juridiske årsaker",
+                    )
+
+                    is BrregError.BadRequest, BrregError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Feil oppsto ved henting av arrangør $organisasjonsnummer fra Brreg",
+                    )
+                }
+            }
+    }
+
     route("/arrangorflate") {
         get("/tilgang-arrangor") {
             val arrangorer = arrangorTilganger()
-                ?.map {
-                    arrangorService.getArrangorOrSyncFromBrreg(it).getOrElse {
-                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
-                    }
-                } ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
+                ?.map { resolveArrangor(it) }
+                ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
 
             call.respond(arrangorer)
         }
@@ -199,19 +221,59 @@ fun Route.arrangorflateRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
 
-            get("/kvittering") {
+            get("/utbetalingsdetaljer") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val utbetaling = arrangorFlateService.getUtbetaling(id)
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
-                    gjennomforingId = utbetaling.gjennomforing.id,
-                    periode = utbetaling.periode,
+                val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
+                val pdfContent = pdfClient.getUtbetalingKvittering(
+                    utbetaling = UtbetalingPdfDto(
+                        status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
+                        periodeStart = arrflateUtbetaling.periode.start,
+                        periodeSlutt = arrflateUtbetaling.periode.slutt.minusDays(1),
+                        arrangor = ArrangorPdf(
+                            organisasjonsnummer = arrflateUtbetaling.arrangor.organisasjonsnummer.value,
+                            navn = arrflateUtbetaling.arrangor.navn,
+                        ),
+                        godkjentAvArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
+                        createdAt = arrflateUtbetaling.createdAt,
+                        fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
+                        gjennomforing = GjennomforingPdf(
+                            navn = arrflateUtbetaling.gjennomforing.navn,
+                        ),
+                        tiltakstype = TiltakstypePdf(
+                            navn = arrflateUtbetaling.tiltakstype.navn,
+                        ),
+                        beregning = when (arrflateUtbetaling.beregning) {
+                            is Beregning.Fri -> BeregningPdf(
+                                antallManedsverk = null,
+                                belop = arrflateUtbetaling.beregning.belop,
+                                deltakelser = emptyList(),
+                                stengt = emptyList(),
+                            )
+
+                            is Beregning.Forhandsgodkjent -> BeregningPdf(
+                                antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                                belop = arrflateUtbetaling.beregning.belop,
+                                deltakelser = emptyList(),
+                                stengt = emptyList(),
+                            )
+                        },
+                        betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
+                        linjer = arrflateUtbetaling.linjer.map {
+                            UtbetalingslinjerPdfDto(
+                                id = it.id,
+                                tilsagn = it.tilsagn,
+                                status = toReadableName(it.status),
+                                belop = it.belop,
+                                statusSistOppdatert = it.statusSistOppdatert,
+                            )
+                        },
+                    ),
                 )
-                val utbetalingAft = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-                val pdfContent = pdfClient.getUtbetalingKvittering(utbetalingAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",

@@ -1,6 +1,5 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { Header } from "@/components/detaljside/Header";
-import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -10,17 +9,8 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import { AdminUtbetalingStatus, Rolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { BankNoteIcon } from "@navikt/aksel-icons";
-import {
-  Accordion,
-  Alert,
-  Box,
-  CopyButton,
-  Heading,
-  HGrid,
-  HStack,
-  VStack,
-} from "@navikt/ds-react";
+import { BankNoteFillIcon } from "@navikt/aksel-icons";
+import { Accordion, Alert, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -78,141 +68,131 @@ export function UtbetalingPage() {
     <>
       <title>Utbetalinger</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <Header>
-        <BankNoteIcon className="w-10 h-10" />
+      <HStack gap="2" className="bg-white border-b-2 border-gray-200 p-2">
+        <BankNoteFillIcon color="#2AA758" className="w-10 h-10" />
         <Heading size="large" level="1">
           Utbetaling for {gjennomforing.navn}
         </Heading>
-      </Header>
+      </HStack>
       <ContentBox>
         <WhitePaddedBox>
-          <HStack gap="2" justify={"end"}>
-            <EndringshistorikkPopover>
-              <ViewEndringshistorikk historikk={historikk} />
-            </EndringshistorikkPopover>
-          </HStack>
           <VStack gap="4">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
-              <VStack gap="4" id="kostnadsfordeling">
+            <VStack
+              gap="4"
+              id="kostnadsfordeling"
+              padding="4"
+              className="border-gray-300 border-1 rounded-lg"
+            >
+              <HGrid columns="1fr 1fr 0.25fr">
                 <VStack>
-                  <div className="self-end">
-                    <UtbetalingStatusTag status={utbetaling.status} />
-                  </div>
-                  <HGrid columns="1fr 1fr">
-                    <VStack>
-                      <Heading
-                        size="medium"
-                        level="2"
-                        spacing
-                        data-testid="utbetaling-til-utbetaling"
-                      >
-                        Til utbetaling
+                  <Heading size="medium" level="2" spacing data-testid="utbetaling-til-utbetaling">
+                    Til utbetaling
+                  </Heading>
+                  <VStack gap="2">
+                    <MetadataHorisontal
+                      header="Status"
+                      verdi={<UtbetalingStatusTag status={utbetaling.status} />}
+                    />
+
+                    <MetadataHorisontal
+                      header="Utbetalingsperiode"
+                      verdi={formaterPeriode(utbetaling.periode)}
+                    />
+                    <MetadataHorisontal
+                      header="Dato innsendt"
+                      verdi={formaterDato(
+                        utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
+                      )}
+                    />
+                    <MetadataHorisontal
+                      header="Innsendt av"
+                      verdi={utbetaling.innsendtAv || "Ukjent innsender"}
+                    />
+                    <MetadataHorisontal
+                      header={utbetalingTekster.beregning.belop.label}
+                      verdi={formaterNOK(utbetaling.beregning.belop)}
+                    />
+                    {utbetaling.beskrivelse && (
+                      <MetadataHorisontal
+                        header="Begrunnelse for utbetaling"
+                        verdi={utbetaling.beskrivelse}
+                      />
+                    )}
+                  </VStack>
+                </VStack>
+                <VStack gap="4">
+                  <Heading size="medium" level="2">
+                    Betalingsinformasjon
+                  </Heading>
+                  <VStack gap="2">
+                    <MetadataHorisontal
+                      header="Kontonummer"
+                      verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                    />
+                    <MetadataHorisontal
+                      header="KID (valgfritt)"
+                      verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
+                    />
+                  </VStack>
+                  {utbetaling.journalpostId ? (
+                    <>
+                      <Heading size="medium" level="2">
+                        Journalføring
                       </Heading>
                       <VStack gap="2">
                         <MetadataHorisontal
-                          header="Utbetalingsperiode"
-                          verdi={formaterPeriode(utbetaling.periode)}
+                          header="Journalpost-ID i Gosys"
+                          verdi={
+                            <HStack align="center">
+                              <CopyButton
+                                size="small"
+                                variant="action"
+                                copyText={utbetaling.journalpostId}
+                                title="Kopier journalpost-ID"
+                              />
+                              {utbetaling.journalpostId}
+                            </HStack>
+                          }
                         />
-                        <MetadataHorisontal
-                          header="Dato innsendt"
-                          verdi={formaterDato(
-                            utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
-                          )}
-                        />
-                        <MetadataHorisontal
-                          header="Innsendt av"
-                          verdi={utbetaling.innsendtAv || "Ukjent innsender"}
-                        />
-                        <MetadataHorisontal
-                          header={utbetalingTekster.beregning.belop.label}
-                          verdi={formaterNOK(utbetaling.beregning.belop)}
-                        />
-                        {utbetaling.beskrivelse && (
-                          <MetadataHorisontal
-                            header="Begrunnelse for utbetaling"
-                            verdi={utbetaling.beskrivelse}
-                          />
-                        )}
                       </VStack>
-                    </VStack>
-                    <VStack gap="4">
-                      <>
-                        <Heading size="medium" level="2">
-                          Betalingsinformasjon
-                        </Heading>
-                        <VStack gap="2">
-                          <MetadataHorisontal
-                            header="Kontonummer"
-                            verdi={utbetaling.betalingsinformasjon?.kontonummer}
-                          />
-                          <MetadataHorisontal
-                            header="KID (valgfritt)"
-                            verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
-                          />
-                        </VStack>
-                      </>
-                      {utbetaling.journalpostId ? (
-                        <>
-                          <Heading size="medium" level="2">
-                            Journalføring
-                          </Heading>
-                          <VStack gap="2">
-                            <MetadataHorisontal
-                              header="Journalpost-ID i Gosys"
-                              verdi={
-                                <HStack align="center" gap="1">
-                                  <CopyButton
-                                    size="small"
-                                    copyText={utbetaling.journalpostId}
-                                    title="Kopier journalpost-ID"
-                                  ></CopyButton>
-                                  {utbetaling.journalpostId}
-                                </HStack>
-                              }
-                            />
-                          </VStack>
-                        </>
-                      ) : null}
-                    </VStack>
-                  </HGrid>
+                    </>
+                  ) : null}
                 </VStack>
-                <Separator />
-                {deltakere.length > 0 && (
-                  <>
-                    <Accordion>
-                      <Accordion.Item>
-                        <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
-                        <Accordion.Content>
-                          <DeltakerOversikt deltakere={deltakere} />
-                        </Accordion.Content>
-                      </Accordion.Item>
-                    </Accordion>
-                    <Separator />
-                  </>
-                )}
-                {tilsagn.every(
-                  (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
-                ) && (
-                  <Alert variant="info">
-                    Det finnes ingen godkjente tilsagn for utbetalingsperioden
-                  </Alert>
-                )}
-                {erSaksbehandlerOkonomi &&
-                [
-                  AdminUtbetalingStatus.KLAR_TIL_BEHANDLING,
-                  AdminUtbetalingStatus.RETURNERT,
-                ].includes(utbetaling.status) ? (
-                  <RedigerUtbetalingLinjeView
-                    tilsagn={tilsagn}
-                    utbetaling={utbetaling}
-                    linjer={linjer}
-                  />
-                ) : (
-                  <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
-                )}
-              </VStack>
-            </Box>
+                <HStack justify="end" align="start">
+                  <EndringshistorikkPopover>
+                    <ViewEndringshistorikk historikk={historikk} />
+                  </EndringshistorikkPopover>
+                </HStack>
+              </HGrid>
+              <Accordion>
+                <Accordion.Item>
+                  <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
+                  <Accordion.Content>
+                    {deltakere.length > 0 && <DeltakerOversikt deltakere={deltakere} />}
+                  </Accordion.Content>
+                </Accordion.Item>
+              </Accordion>
+              {tilsagn.every(
+                (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
+              ) && (
+                <Alert variant="info">
+                  Det finnes ingen godkjente tilsagn for utbetalingsperioden
+                </Alert>
+              )}
+              {erSaksbehandlerOkonomi &&
+              [AdminUtbetalingStatus.KLAR_TIL_BEHANDLING, AdminUtbetalingStatus.RETURNERT].includes(
+                utbetaling.status,
+              ) ? (
+                <RedigerUtbetalingLinjeView
+                  tilsagn={tilsagn}
+                  utbetaling={utbetaling}
+                  linjer={linjer}
+                />
+              ) : (
+                <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
+              )}
+            </VStack>
           </VStack>
         </WhitePaddedBox>
       </ContentBox>

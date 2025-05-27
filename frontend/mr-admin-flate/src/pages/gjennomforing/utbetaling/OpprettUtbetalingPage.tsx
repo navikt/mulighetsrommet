@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router";
-import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { OpprettUtbetalingForm } from "./OpprettUtbetalingForm";
-import { useKontonummerForArrangor } from "../../../api/arrangor/useKontonummerForArrangor";
+import { useKontonummerForArrangor } from "@/api/arrangor/useKontonummerForArrangor";
 
 export function OpprettUtbetalingPage() {
   const { gjennomforingId } = useParams();

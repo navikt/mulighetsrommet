@@ -38,7 +38,7 @@ interface UseSuspenseQueryWrapperOptions<TQueryFnData, TError, TData>
 export function useApiSuspenseQuery<TQueryFnData, TData = TQueryFnData>(
   options: UseSuspenseQueryWrapperOptions<TQueryFnData, never, TData>,
 ) {
-  const { queryFn, ...restOptions } = options;
+  const { queryFn, retry, ...restOptions } = options;
 
   // Use the original useSuspenseQuery, mapping the returned data to data?.data
   return useSuspenseQuery<TQueryFnData, never, TData>({
@@ -49,6 +49,10 @@ export function useApiSuspenseQuery<TQueryFnData, TData = TQueryFnData>(
         throw new Error("Data is undefined"); // Ensure data is always defined
       }
       return result.data; // Extract the nested `data`
+    },
+    retry: (failureCount, response: Response) => {
+      if (response.status >= 500 && failureCount < 3) return true;
+      return false;
     },
   });
 }

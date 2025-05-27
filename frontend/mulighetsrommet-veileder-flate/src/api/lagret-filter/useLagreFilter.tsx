@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { LagretDokumenttype, LagretFilterRequest, LagretFilterService } from "@mr/api-client-v2";
+import { LagretFilter, LagretFilterService } from "@mr/api-client-v2";
 import { QueryKeys } from "../query-keys";
 
-export function useLagreFilter(dokumenttype: LagretDokumenttype) {
+export function useLagreFilter() {
   const queryClient = useQueryClient();
-  return useMutation<any, any, LagretFilterRequest>({
+  return useMutation<any, any, LagretFilter>({
     mutationFn: (body) => LagretFilterService.upsertFilter({ body }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.lagredeFilter(dokumenttype),
+      return queryClient.invalidateQueries({
+        queryKey: QueryKeys.lagredeFilter(),
       });
     },
   });

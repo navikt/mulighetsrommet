@@ -99,7 +99,9 @@ class TilsagnQueries(private val session: Session) {
                 upsertTilsagnBeregningForhandsgodkjent(dbo.id, dbo.beregning)
             }
 
-            is TilsagnBeregningFri -> {}
+            is TilsagnBeregningFri -> {
+                upsertTilsagnBeregningFri(dbo.id, dbo.beregning)
+            }
         }
     }
 
@@ -130,6 +132,66 @@ class TilsagnQueries(private val session: Session) {
         )
 
         execute(queryOf(query, params))
+    }
+
+    private fun TransactionalSession.upsertTilsagnBeregningFri(
+        id: UUID,
+        beregning: TilsagnBeregningFri,
+    ) {
+        upsertTilsagnBeregningFriPrisbetingelser(id, beregning.input.prisbetingelser)
+        upsertTilsagnBeregningFriLinjer(id, beregning.input.linjer)
+    }
+
+    private fun TransactionalSession.upsertTilsagnBeregningFriPrisbetingelser(
+        id: UUID,
+        prisbetingelser: String?,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into tilsagn_fri_prisbetingelser (
+                    tilsagn_id,
+                    prisbetingelser
+                ) values (
+                    :tilsagn_id::uuid,
+                    :prisbetingelser
+                )
+            on conflict (tilsagn_id) do update set
+                prisbetingelser = excluded.prisbetingelser;
+        """.trimIndent()
+
+        execute(queryOf(query, mapOf("tilsagn_id" to id, "prisbetingelser" to prisbetingelser)))
+    }
+
+    private fun TransactionalSession.upsertTilsagnBeregningFriLinjer(
+        tilsagnId: UUID,
+        linjer: List<TilsagnBeregningFri.InputLinje>,
+    ) {
+        @Language("PostgreSQL")
+        val deleteExistingQuery = """
+            delete from tilsagn_fri_beregning
+            where tilsagn_id = ?
+        """.trimIndent()
+        execute(queryOf(deleteExistingQuery, tilsagnId))
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into tilsagn_fri_beregning (
+                    id,
+                    tilsagn_id,
+                    beskrivelse,
+                    belop,
+                    antall
+                ) values (
+                    :id::uuid,
+                    :tilsagn_id::uuid,
+                    :beskrivelse,
+                    :belop,
+                    :antall
+                )
+        """.trimIndent()
+        val paramCollection = linjer.map { mapOf("id" to it.id, "tilsagn_id" to tilsagnId, "beskrivelse" to it.beskrivelse, "belop" to it.belop, "antall" to it.antall) }
+
+        batchPreparedNamedStatement(query, paramCollection)
     }
 
     fun setBruktBelop(id: UUID, belop: Int) {
@@ -304,21 +366,45 @@ class TilsagnQueries(private val session: Session) {
     }
 
     private fun getBeregningFri(id: UUID): TilsagnBeregningFri {
+        val friBeregningLinjer = getBeregningFriLinjerForTilsagn(id)
+
         @Language("PostgreSQL")
         val query = """
-            select belop_beregnet
-            from tilsagn
-            where id = ?::uuid
+            select
+                t.belop_beregnet, tfp.prisbetingelser
+            from tilsagn t
+                left join tilsagn_fri_prisbetingelser tfp
+                    on tfp.tilsagn_id = t.id
+            where
+                t.id = ?::uuid
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) {
             TilsagnBeregningFri(
                 input = TilsagnBeregningFri.Input(
-                    belop = it.int("belop_beregnet"),
+                    prisbetingelser = it.stringOrNull("prisbetingelser"),
+                    linjer = friBeregningLinjer,
                 ),
                 output = TilsagnBeregningFri.Output(
                     belop = it.int("belop_beregnet"),
                 ),
+            )
+        }
+    }
+
+    private fun getBeregningFriLinjerForTilsagn(tilsagnId: UUID): List<TilsagnBeregningFri.InputLinje> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from tilsagn_fri_beregning
+            where tilsagn_id = ?::uuid
+        """.trimIndent()
+        return session.list(queryOf(query, tilsagnId)) {
+            TilsagnBeregningFri.InputLinje(
+                id = it.uuid("id"),
+                beskrivelse = it.string("beskrivelse"),
+                belop = it.int("belop"),
+                antall = it.int("antall"),
             )
         }
     }

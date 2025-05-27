@@ -43,7 +43,7 @@ fun Route.arrangorRoutes() {
             }
 
             val response = arrangorService.getArrangorOrSyncFromBrreg(orgnr)
-                .mapLeft { toStatusResponseError(it) }
+                .mapLeft { toStatusResponseError(it, orgnr) }
 
             call.respondWithStatusResponse(response)
         }
@@ -209,8 +209,15 @@ data class ArrangorKontaktpersonRequest(
     }
 }
 
+fun toStatusResponseError(it: BrregError, orgnr: Organisasjonsnummer) = when (it) {
+    is BrregError.NotFound -> NotFound("Fant ikke bedrift $orgnr i Brreg")
+    is BrregError.FjernetAvJuridiskeArsaker -> BadRequest("Bediften $orgnr er fjernet fra Brreg av juridiske årsaker")
+    is BrregError.BadRequest, is BrregError.Error -> InternalServerError("Feil oppsto ved henting av bedrift $orgnr fra Brreg")
+}
+
 fun toStatusResponseError(it: BrregError) = when (it) {
-    BrregError.NotFound -> NotFound("not found fra brreg")
-    BrregError.BadRequest -> BadRequest("bad request mot brreg")
-    BrregError.Error -> InternalServerError("brreg internal server error")
+    is BrregError.NotFound -> NotFound("Not Found fra Brreg")
+    is BrregError.FjernetAvJuridiskeArsaker -> BadRequest("Fjernet av juridiske årsaker fra Brreg")
+    is BrregError.BadRequest -> BadRequest("Bad Request mot Brreg")
+    is BrregError.Error -> InternalServerError("Internal server error fra Brreg")
 }

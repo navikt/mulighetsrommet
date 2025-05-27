@@ -1,22 +1,25 @@
-import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } from "@/api/atoms";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai/index";
+import { useAtom } from "jotai/index";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
+import {
+  oppgaverFilterAccordionAtom,
+  OppgaverFilterType,
+} from "@/pages/oppgaveoversikt/oppgaver/filter";
 
 interface Props {
-  oppgaveFilterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
+  filter: OppgaverFilterType;
+  updateFilter: (values: Partial<OppgaverFilterType>) => void;
 }
 
-export function OppgaverFilter({ oppgaveFilterAtom: filterAtom }: Props) {
+export function OppgaverFilter({ filter, updateFilter }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: regioner } = useNavRegioner();
 
-  const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
   return (
@@ -36,8 +39,7 @@ export function OppgaverFilter({ oppgaveFilterAtom: filterAtom }: Props) {
                 value={filter.type}
                 legend="Velg tilsagn du vil se"
                 onChange={(value) => {
-                  setFilter({
-                    ...filter,
+                  updateFilter({
                     type: [...value],
                   });
                 }}
@@ -67,8 +69,7 @@ export function OppgaverFilter({ oppgaveFilterAtom: filterAtom }: Props) {
                 value={filter.regioner}
                 legend="Velg regioner"
                 onChange={(value) => {
-                  setFilter({
-                    ...filter,
+                  updateFilter({
                     regioner: [...value],
                   });
                 }}
@@ -102,14 +103,13 @@ export function OppgaverFilter({ oppgaveFilterAtom: filterAtom }: Props) {
                 value={filter.tiltakstyper}
                 legend="Velg tiltakstype"
                 onChange={(value) => {
-                  setFilter({
-                    ...filter,
+                  updateFilter({
                     tiltakstyper: [...value],
                   });
                 }}
                 hideLegend
               >
-                {tiltakstyper.data.map((t) => {
+                {tiltakstyper.map((t) => {
                   return (
                     <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
                       {t.navn}

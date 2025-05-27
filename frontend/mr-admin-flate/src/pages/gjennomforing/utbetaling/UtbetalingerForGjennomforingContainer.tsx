@@ -3,11 +3,11 @@ import { Toggles } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
-import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
-import { HarSkrivetilgang } from "../../../components/authActions/HarSkrivetilgang";
-import { UtbetalingerTable } from "../../../components/utbetaling/UtbetalingerTable";
-import { KnapperadContainer } from "../../KnapperadContainer";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { utbetalingerByGjennomforingQuery } from "./utbetalingerForGjennomforingLoader";
+import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
+import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useParams();
@@ -30,7 +30,7 @@ export function UtbetalingerForGjennomforingContainer() {
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Gjennomføring">
+        <HarSkrivetilgang ressurs="Økonomi">
           <Dropdown>
             <Button size="small" as={Dropdown.Toggle}>
               Handlinger
@@ -50,7 +50,7 @@ export function UtbetalingerForGjennomforingContainer() {
         </HarSkrivetilgang>
       </KnapperadContainer>
       {utbetalinger.data.length > 0 ? (
-        <UtbetalingerTable utbetalinger={utbetalinger.data} />
+        <UtbetalingTable utbetalinger={utbetalinger.data} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen utbetalinger for dette tiltaket

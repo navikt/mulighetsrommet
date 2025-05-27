@@ -234,7 +234,7 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
 
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1))
+            service.genererUtbetalingForMonth(1)
 
             database.run {
                 queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(0)
@@ -257,7 +257,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1))
+            val utbetaling = service.genererUtbetalingForMonth(1)
                 .shouldHaveSize(1)
                 .first()
 
@@ -296,7 +296,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.betalingsinformasjon.kid shouldBe null
@@ -308,7 +308,7 @@ class UtbetalingServiceTest : FunSpec({
                 )
             }
 
-            val sisteKrav = service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).first()
+            val sisteKrav = service.genererUtbetalingForMonth(2).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
         }
@@ -384,7 +384,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser shouldBe setOf(
@@ -478,7 +478,7 @@ class UtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.stengt shouldBe setOf(
@@ -502,7 +502,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
                 it.belop shouldBe 20975
@@ -536,14 +536,14 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).shouldHaveSize(1)
+            service.genererUtbetalingForMonth(1).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(1) }
 
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).shouldHaveSize(1)
+            service.genererUtbetalingForMonth(2).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
 
             // Februar finnes allerede så ingen nye
-            service.genererUtbetalingForMonth(LocalDate.of(2025, 2, 1)).shouldHaveSize(0)
+            service.genererUtbetalingForMonth(2).shouldHaveSize(0)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
         }
 
@@ -568,7 +568,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2025, 1, 1)).first()
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
@@ -1033,15 +1033,70 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
+            service.besluttDelutbetaling(
+                delutbetalingId2,
+                BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
+                domain.ansatte[1].navIdent,
+            ).shouldBeRight()
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(
+                    utbetaling.id,
+                    listOf(DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5)),
+                ),
+                domain.ansatte[0].navIdent,
+            ).shouldBeRight()
+
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling.id) }
+            delutbetalinger.size shouldBe 1
+            delutbetalinger[0].id shouldBe delutbetalingId1
+        }
+
+        test("ny send til godkjenning med de to samme tilsagn men nye id'er fungerer") {
+            val tilsagn1 = Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+            )
+            val tilsagn2 = Tilsagn2.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+            )
+            val utbetaling = utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                beregning = UtbetalingBeregningFri(
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
+                ),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1, tilsagn2),
+                utbetalinger = listOf(utbetaling),
+            ) {
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+            }.initialize(database.db)
+            val service = createUtbetalingService()
+
+            val delutbetalingId1 = UUID.randomUUID()
+            val delutbetalingId2 = UUID.randomUUID()
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
                     listOf(
                         DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
+                        DelutbetalingRequest(delutbetalingId2, tilsagn2.id, gjorOppTilsagn = false, belop = 5),
                     ),
                 ),
                 domain.ansatte[0].navIdent,
-            ).shouldBeLeft()
+            ).shouldBeRight()
             service.besluttDelutbetaling(
                 delutbetalingId2,
                 BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
@@ -1054,15 +1109,15 @@ class UtbetalingServiceTest : FunSpec({
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
                     listOf(
-                        DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
+                        DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 5),
+                        DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 5),
                     ),
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
             val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling.id) }
-            delutbetalinger.size shouldBe 1
-            delutbetalinger[0].id shouldBe delutbetalingId1
+            delutbetalinger.size shouldBe 2
         }
 
         test("returner returnerer alle delutbetalinger (selv godkjente)") {
@@ -1276,7 +1331,17 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(1000),
+                            input = TilsagnBeregningFri.Input(
+                                linjer = listOf(
+                                    TilsagnBeregningFri.InputLinje(
+                                        id = UUID.randomUUID(),
+                                        beskrivelse = "Beskrivelse",
+                                        belop = 1500,
+                                        antall = 1,
+                                    ),
+                                ),
+                                prisbetingelser = null,
+                            ),
                             output = TilsagnBeregningFri.Output(1000),
                         ),
                     ),
@@ -1378,7 +1443,17 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(belop = 1),
+                            input = TilsagnBeregningFri.Input(
+                                linjer = listOf(
+                                    TilsagnBeregningFri.InputLinje(
+                                        id = UUID.randomUUID(),
+                                        beskrivelse = "Beskrivelse",
+                                        belop = 1500,
+                                        antall = 1,
+                                    ),
+                                ),
+                                prisbetingelser = null,
+                            ),
                             output = TilsagnBeregningFri.Output(belop = 1),
                         ),
                     ),

@@ -27,7 +27,7 @@ fun Route.navAnsattRoutes() {
             val q: String by call.request.queryParameters
 
             val ansatte = ansattService.getNavAnsattFromAzureSok(query = q).map {
-                NavAnsattDto.fromAzureAdNavAnsatt(it)
+                NavAnsattDto.fromEntraNavAnsatt(it)
             }
 
             call.respond(ansatte)

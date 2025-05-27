@@ -1,16 +1,18 @@
 import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { TilsagnBeregningTable } from "@/components/tilsagn/prismodell/TilsagnBeregningTable";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
+  TilsagnBeregningFri,
   TilsagnDto,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
   TotrinnskontrollDto,
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
+import { ExpansionCard, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
 interface Props {
@@ -36,49 +38,68 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
         {meny}
       </HStack>
       <HStack
-        gap={{ lg: "14", xl: "32" }}
+        gap={{ xs: "8", lg: "14", xl: "16" }}
         align="start"
         justify={{ sm: "space-between", lg: "start" }}
       >
-        <HStack gap={{ sm: "24", lg: "8", xl: "32" }} className="mb-6 lg:m-0">
-          <VStack gap="6">
-            <MetadataHorisontal
-              header={tilsagnTekster.bestillingsnummer.label}
-              verdi={bestillingsnummer}
-            />
-            <MetadataHorisontal
-              header={tilsagnTekster.periode.start.label}
-              verdi={formaterPeriodeStart(periode)}
-            />
-            {beregning.type === "FORHANDSGODKJENT" && (
+        <VStack
+          gap={{ xs: "6 16", lg: "8", xl: "6 16" }}
+          justify="start"
+          className="mb-6 lg:m-0 flex-1"
+        >
+          <HStack gap="6">
+            <VStack gap="6" className="flex-1">
               <MetadataHorisontal
-                header={tilsagnTekster.antallPlasser.label}
-                verdi={beregning.input.antallPlasser}
+                header={tilsagnTekster.bestillingsnummer.label}
+                verdi={bestillingsnummer}
               />
-            )}
-            <MetadataHorisontal
-              header={tilsagnTekster.kostnadssted.label}
-              verdi={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
-            />
-          </VStack>
-          <VStack gap="6">
-            <MetadataHorisontal
-              header={tilsagnTekster.type.label}
-              verdi={avtaletekster.tilsagn.type(type)}
-            />
-            <MetadataHorisontal
-              header={tilsagnTekster.periode.slutt.label}
-              verdi={formaterPeriodeSlutt(periode)}
-            />
-            {beregning.type === "FORHANDSGODKJENT" && (
               <MetadataHorisontal
-                header={tilsagnTekster.sats.label}
-                verdi={formaterNOK(beregning.input.sats)}
+                header={tilsagnTekster.periode.start.label}
+                verdi={formaterPeriodeStart(periode)}
               />
-            )}
-          </VStack>
-        </HStack>
-        <VStack gap="6" justify="start" className=" lg:border-l-1 border-gray-300 lg:px-4">
+              {beregning.type === "FORHANDSGODKJENT" && (
+                <MetadataHorisontal
+                  header={tilsagnTekster.antallPlasser.label}
+                  verdi={beregning.input.antallPlasser}
+                />
+              )}
+              <MetadataHorisontal
+                header={tilsagnTekster.kostnadssted.label}
+                verdi={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
+              />
+            </VStack>
+            <VStack gap="6" className="flex-1">
+              <MetadataHorisontal
+                header={tilsagnTekster.type.label}
+                verdi={avtaletekster.tilsagn.type(type)}
+              />
+              <MetadataHorisontal
+                header={tilsagnTekster.periode.slutt.label}
+                verdi={formaterPeriodeSlutt(periode)}
+              />
+              {beregning.type === "FORHANDSGODKJENT" && (
+                <MetadataHorisontal
+                  header={tilsagnTekster.sats.label}
+                  verdi={formaterNOK(beregning.input.sats)}
+                />
+              )}
+              {beregning.type === "FRI" && !beregning.input.prisbetingelser && (
+                <MetadataHorisontal
+                  header={tilsagnTekster.beregning.prisbetingelser.label}
+                  verdi="-"
+                />
+              )}
+            </VStack>
+          </HStack>
+          {beregning.type === "FRI" && beregning.input.prisbetingelser && (
+            <PrisbetingelserFriModell
+              id={tilsagn.id}
+              tilsagnStatus={tilsagn.status}
+              prisbetingelser={beregning.input.prisbetingelser}
+            />
+          )}
+        </VStack>
+        <VStack gap="6" className=" lg:border-l-1 border-gray-300 lg:px-4 flex-1">
           <MetadataHorisontal
             header={tilsagnTekster.status.label}
             verdi={<TilsagnTag visAarsakerOgForklaring status={status} />}
@@ -105,8 +126,83 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             header={tilsagnTekster.belopGjenstaende.label}
             verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
+          {beregning.type === "FRI" && (
+            <BeregningFriModell id={tilsagn.id} status={tilsagn.status} beregning={beregning} />
+          )}
         </VStack>
       </HStack>
     </>
+  );
+}
+
+interface PrisbetingelserFriModellProps {
+  id: string;
+  tilsagnStatus: TilsagnStatus;
+  prisbetingelser: string | null;
+}
+
+function PrisbetingelserFriModell({
+  id,
+  tilsagnStatus,
+  prisbetingelser,
+}: PrisbetingelserFriModellProps) {
+  const paragraphs = prisbetingelser?.split("\n") || [];
+  const startOpenForStatus = [TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT].includes(
+    tilsagnStatus,
+  );
+  const style = startOpenForStatus ? { backgroundColor: "var(--a-surface-warning-subtle)" } : {};
+
+  return (
+    <ExpansionCard
+      key={id}
+      size="small"
+      style={style}
+      aria-label={tilsagnTekster.beregning.prisbetingelser.label}
+      defaultOpen={startOpenForStatus}
+      className="flex-1"
+    >
+      <ExpansionCard.Header>
+        <ExpansionCard.Title size="small">
+          {tilsagnTekster.beregning.prisbetingelser.label}
+        </ExpansionCard.Title>
+      </ExpansionCard.Header>
+      <ExpansionCard.Content>
+        {paragraphs.map((i) => (
+          <p key={i}>{i}</p>
+        ))}
+      </ExpansionCard.Content>
+    </ExpansionCard>
+  );
+}
+
+interface BeregningFriModellProps {
+  id: string;
+  status: TilsagnStatus;
+  beregning: TilsagnBeregningFri;
+}
+
+function BeregningFriModell({ id, status, beregning }: BeregningFriModellProps) {
+  const startOpenForStatus = [TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT].includes(
+    status,
+  );
+  if (beregning.type !== "FRI") {
+    return null;
+  }
+  return (
+    <ExpansionCard
+      key={id}
+      size="small"
+      aria-label={tilsagnTekster.beregning.input.label}
+      defaultOpen={startOpenForStatus}
+    >
+      <ExpansionCard.Header>
+        <ExpansionCard.Title size="small">
+          {tilsagnTekster.beregning.input.label}
+        </ExpansionCard.Title>
+      </ExpansionCard.Header>
+      <ExpansionCard.Content>
+        <TilsagnBeregningTable linjer={beregning.input.linjer} />
+      </ExpansionCard.Content>
+    </ExpansionCard>
   );
 }

@@ -77,6 +77,13 @@ data class SlettetBrregUnderenhetDto(
 ) : BrregUnderenhet()
 
 @Serializable
+data class FjernetBrregEnhetDto(
+    val organisasjonsnummer: Organisasjonsnummer,
+    @Serializable(with = LocalDateSerializer::class)
+    val slettetDato: LocalDate,
+)
+
+@Serializable
 data class BrregAdresse(
     val landkode: String?,
     val postnummer: String?,

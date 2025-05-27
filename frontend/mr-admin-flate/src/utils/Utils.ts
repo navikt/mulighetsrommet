@@ -1,4 +1,3 @@
-import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 import {
   AgentDto,
   AvbrytAvtaleAarsak,
@@ -10,8 +9,6 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
-  LastNedAvtalerSomExcelData,
-  LastNedGjennomforingerSomExcelData,
   NavEnhet,
   Periode,
   TilsagnAvvisningAarsak,
@@ -41,7 +38,10 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
 export function compareByKey<T extends Record<string, any>>(a: T, b: T, orderBy: keyof T): number {
   const aValue = a[orderBy];
   const bValue = b[orderBy];
+  return compare(aValue, bValue);
+}
 
+export function compare<T>(aValue: T, bValue: T): number {
   if (aValue == null && bValue == null) {
     return 0;
   } else if (aValue == null) {
@@ -213,43 +213,6 @@ export function formaterNavEnheter(
   const forsteEnhet = navEnheter.shift();
 
   return `${forsteEnhet?.navn} ${navEnheter.length > 0 ? `+ ${navEnheter.length}` : ""}`;
-}
-
-export function createQueryParamsForExcelDownloadForAvtale(
-  filter: AvtaleFilter,
-): Pick<LastNedAvtalerSomExcelData, "query"> {
-  return {
-    query: {
-      search: filter.sok,
-      tiltakstyper: filter.tiltakstyper,
-      statuser: filter.statuser,
-      avtaletyper: filter.avtaletyper,
-      navRegioner: filter.navRegioner,
-      arrangorer: filter.arrangorer,
-      personvernBekreftet: filter.personvernBekreftet,
-      visMineAvtaler: filter.visMineAvtaler,
-      size: 10000,
-    },
-  };
-}
-
-export function createQueryParamsForExcelDownloadForGjennomforing(
-  filter: GjennomforingFilter,
-): Pick<LastNedGjennomforingerSomExcelData, "query"> {
-  return {
-    query: {
-      search: filter.search,
-      navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
-      tiltakstyper: filter.tiltakstyper,
-      statuser: filter.statuser,
-      avtaleId: filter.avtale,
-      arrangorer: filter.arrangorer,
-      visMineTiltaksgjennomforinger: filter.visMineGjennomforinger,
-      size: filter.pageSize,
-      sort: filter.sortering.sortString,
-      publisert: getPublisertStatus(filter.publisert),
-    },
-  };
 }
 
 export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {

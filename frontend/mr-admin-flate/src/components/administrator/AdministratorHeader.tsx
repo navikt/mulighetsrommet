@@ -12,8 +12,6 @@ import { Dropdown, Heading, InternalHeader, Modal, ReadMore, Spacer } from "@nav
 import { useRef, useState } from "react";
 import { Link } from "react-router";
 import { NotifikasjonerBjelle } from "../notifikasjoner/NotifikasjonerBjelle";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { Tiltakskode, Toggles } from "@mr/api-client-v2";
 import { Metadata } from "../detaljside/Metadata";
 import { Bolk } from "../detaljside/Bolk";
 
@@ -29,11 +27,6 @@ export function AdministratorHeader() {
   const endringsmeldingerLinkRef = useRef<HTMLAnchorElement>(null);
   const logoutLinkRef = useRef<HTMLAnchorElement>(null);
   const menylenke = "text-blue-800";
-
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET],
-  );
 
   return (
     <InternalHeader>
@@ -86,16 +79,14 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
-            {enableOkonomi && (
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => oppgaverLinkRef.current?.click()}
-                as="span"
-              >
-                <Link ref={oppgaverLinkRef} to="/oppgaveoversikt/oppgaver" className={menylenke}>
-                  Oppgaver
-                </Link>
-              </Dropdown.Menu.GroupedList.Item>
-            )}
+            <Dropdown.Menu.GroupedList.Item
+              onClick={() => oppgaverLinkRef.current?.click()}
+              as="span"
+            >
+              <Link ref={oppgaverLinkRef} to="/oppgaveoversikt/oppgaver" className={menylenke}>
+                Oppgaver
+              </Link>
+            </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
               onClick={() => notifikasjonerLinkRef.current?.click()}
               as="span"

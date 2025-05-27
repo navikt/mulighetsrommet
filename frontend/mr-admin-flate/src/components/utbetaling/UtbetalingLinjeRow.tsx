@@ -107,11 +107,11 @@ export function UtbetalingLinjeRow({
         </VStack>
       }
     >
-      <Table.DataCell className={grayBgClass}>
+      <Table.HeaderCell className={grayBgClass}>
         <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${linje.tilsagn.id}`}>
           {linje.tilsagn.bestillingsnummer}
         </Link>
-      </Table.DataCell>
+      </Table.HeaderCell>
       <Table.DataCell className={grayBgClass}>
         {tilsagnTypeToString(linje.tilsagn.type)}
       </Table.DataCell>
@@ -125,8 +125,8 @@ export function UtbetalingLinjeRow({
       <Table.DataCell className={grayBgClass}>
         {formaterNOK(linje.tilsagn.belopGjenstaende)}
       </Table.DataCell>
-      <Table.DataCell colSpan={2}>
-        <HStack gap="2" align="start">
+      <Table.DataCell>
+        <HStack gap="2">
           <Checkbox
             hideLabel
             readOnly={readOnly}
@@ -146,16 +146,14 @@ export function UtbetalingLinjeRow({
           </HelpText>
         </HStack>
       </Table.DataCell>
-      <Table.DataCell colSpan={2}>
+      <Table.DataCell>
         <TextField
           size="small"
           error={belopError}
           label="Utbetales"
           readOnly={readOnly}
           hideLabel
-          className="w-60"
           inputMode="numeric"
-          htmlSize={14}
           onChange={(e) => {
             setBelopError(undefined);
             const num = Number(e.target.value);
@@ -171,9 +169,8 @@ export function UtbetalingLinjeRow({
           value={linje.belop}
         />
       </Table.DataCell>
-      <Table.DataCell colSpan={2} align="right">
-        {knappeColumn || (linje.status && <DelutbetalingTag status={linje.status} />)}
-      </Table.DataCell>
+      <Table.DataCell>{linje.status && <DelutbetalingTag status={linje.status} />}</Table.DataCell>
+      <Table.DataCell align="right">{knappeColumn}</Table.DataCell>
     </Table.ExpandableRow>
   );
 }

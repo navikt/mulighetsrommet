@@ -7,8 +7,8 @@ import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFak
 import { Toggles } from "@mr/api-client-v2";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
@@ -55,7 +55,7 @@ export function AvtaleInfo() {
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
-              <AvtaleDetaljer avtale={avtale} />
+              <AvtaleDetaljer avtale={avtale} okonomiTabEnabled={enableTilsagn} />
             </InlineErrorBoundary>
           </Tabs.Panel>
           {enableTilsagn && (

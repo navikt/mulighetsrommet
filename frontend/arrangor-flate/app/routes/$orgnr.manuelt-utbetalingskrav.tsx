@@ -2,11 +2,11 @@ import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-dat
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
-  Box,
   Button,
   Checkbox,
   DatePicker,
   ErrorSummary,
+  Heading,
   HStack,
   Select,
   Textarea,
@@ -34,6 +34,7 @@ import {
   useFetcher,
   useLoaderData,
   useRevalidator,
+  Link as ReactRouterLink,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
@@ -44,6 +45,7 @@ import { formaterDato, isValidationError, problemDetailResponse, useOrgnrFromUrl
 import { FileUploader } from "../components/fileUploader/FileUploader";
 import { internalNavigation } from "../internal-navigation";
 import { tekster } from "../tekster";
+import css from "../root.module.css";
 
 const MIN_BESKRIVELSE_LENGTH = 10;
 const MAX_BESKRIVELSE_LENGTH = 500;
@@ -309,7 +311,7 @@ export default function ManuellUtbetalingForm() {
     return [];
   }, [gjennomforingId, periodeStart, periodeSlutt, tilsagn, tilskuddstype]);
   return (
-    <VStack gap="4">
+    <VStack gap="4" className={css.side}>
       <PageHeader
         title={tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
         tilbakeLenke={{
@@ -317,46 +319,49 @@ export default function ManuellUtbetalingForm() {
           url: internalNavigation(orgnr).utbetalinger,
         }}
       />
-      <Form method="post" encType="multipart/form-data">
-        <input type="hidden" name="orgnr" value={orgnr} />
-        <VStack gap="4" className="max-w-[50%]">
-          <HStack gap="4" align="start">
-            <DatePicker {...periodeStartPickerProps} dropdownCaption>
-              <DatePicker.Input
-                label="Fra dato"
-                size="small"
-                error={errorAt("/periodeStart")}
-                name="periodeStart"
-                id="periodeStart"
-                {...periodeStartInputProps}
-              />
-            </DatePicker>
-            <DatePicker {...periodeSluttPickerProps} dropdownCaption>
-              <DatePicker.Input
-                label="Til dato"
-                size="small"
-                error={errorAt("/periodeSlutt")}
-                name="periodeSlutt"
-                id="periodeSlutt"
-                {...periodeSluttInputProps}
-              />
-            </DatePicker>
-          </HStack>
-          <Select
-            error={errorAt("/tilskuddstype")}
-            label="Velg type utbetaling"
-            name="tilskuddstype"
-            size="small"
-            id="tilskuddstype"
-            onChange={(e) => {
-              setTilskuddstype(e.target.value as Tilskuddstype);
-            }}
-          >
-            <option>- Velg type -</option>
-            <option value={Tilskuddstype.TILTAK_INVESTERINGER}>Investering</option>
-            <option value={Tilskuddstype.TILTAK_DRIFTSTILSKUDD}>Drift</option>
-          </Select>
-          <>
+      <Form method="post" encType="multipart/form-data" className="max-w-[50%]">
+        <VStack gap="6">
+          <VStack gap="4" className="max-w-[50%]">
+            <Heading as="legend" level="3" size="medium">
+              Innsending
+            </Heading>
+            <input type="hidden" name="orgnr" value={orgnr} />
+            <HStack gap="4">
+              <DatePicker {...periodeStartPickerProps} dropdownCaption>
+                <DatePicker.Input
+                  label="Fra dato"
+                  size="small"
+                  error={errorAt("/periodeStart")}
+                  name="periodeStart"
+                  id="periodeStart"
+                  {...periodeStartInputProps}
+                />
+              </DatePicker>
+              <DatePicker {...periodeSluttPickerProps} dropdownCaption>
+                <DatePicker.Input
+                  label="Til dato"
+                  size="small"
+                  error={errorAt("/periodeSlutt")}
+                  name="periodeSlutt"
+                  id="periodeSlutt"
+                  {...periodeSluttInputProps}
+                />
+              </DatePicker>
+            </HStack>
+            <Select
+              error={errorAt("/tilskuddstype")}
+              label="Velg type utbetaling"
+              name="tilskuddstype"
+              size="small"
+              id="tilskuddstype"
+              onChange={(e) => {
+                setTilskuddstype(e.target.value as Tilskuddstype);
+              }}
+            >
+              <option>- Velg type -</option>
+              <option value={Tilskuddstype.TILTAK_INVESTERINGER}>Investering</option>
+              <option value={Tilskuddstype.TILTAK_DRIFTSTILSKUDD}>Drift</option>
+            </Select>
             <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
             <UNSAFE_Combobox
               size="small"
@@ -374,99 +379,123 @@ export default function ManuellUtbetalingForm() {
                 }
               }}
             />
-          </>
+          </VStack>
           <Separator />
-          {relevanteTilsagn.length > 0 ? (
-            <VStack gap="2" className="max-h-128 overflow-auto">
-              {relevanteTilsagn.map((tilsagn) => (
-                <Box borderColor="border-subtle" padding="2" borderWidth="2" borderRadius="large">
-                  <TilsagnDetaljer
-                    tilsagn={tilsagn}
-                    ekstraDefinisjoner={[
-                      { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
-                      {
-                        key: "Tilsagnstype",
-                        value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type),
-                      },
-                    ]}
-                  />
-                </Box>
-              ))}
-            </VStack>
-          ) : (
-            <Alert variant="info" className="my-5">
-              Fant ingen relevante tilsagn for gjennomføring i perioden. Det er fortsatt mulig å
-              sende inn.
-            </Alert>
-          )}
-          <Separator />
-          <FileUploader
-            error={errorAt("/vedlegg")}
-            maxFiles={10}
-            maxSizeMB={3}
-            maxSizeBytes={3 * 1024 * 1024}
-            id="vedlegg"
-          />
-          <Textarea
-            label="Beskrivelse"
-            description="Her kan du spesifisere hva utbetalingen gjelder"
-            size="small"
-            name="beskrivelse"
-            error={errorAt("/beskrivelse")}
-            id="beskrivelse"
-            minLength={10}
-            maxLength={500}
-          />
-          <Separator />
-          <TextField
-            label="Beløp til utbetaling"
-            error={errorAt("/belop")}
-            size="small"
-            name="belop"
-            id="belop"
-          />
-          <Separator />
-          <KontonummerInput
-            kontonummer={kontonummer}
-            error={errorAt("/kontonummer")}
-            onClick={() => revalidator.revalidate()}
-          />
-          <TextField
-            className="mt-5"
-            label="KID-nummer for utbetaling (valgfritt)"
-            size="small"
-            name="kid"
-            error={errorAt("/kid")}
-            maxLength={25}
-            id="kid"
-          />
-          <VStack gap="2" justify={"start"} align={"start"}>
-            <Checkbox
-              name="bekreftelse"
-              value="bekreftet"
-              error={Boolean(errorAt("/bekreftelse"))}
-              id="bekreftelse"
-            >
-              Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
-            </Checkbox>
-            {data?.errors && data.errors.length > 0 && (
-              <ErrorSummary ref={errorSummaryRef}>
-                {data.errors.map((error: FieldError) => {
-                  return (
-                    <ErrorSummary.Item
-                      href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                      key={jsonPointerToFieldPath(error.pointer)}
-                    >
-                      {error.detail}
-                    </ErrorSummary.Item>
-                  );
-                })}
-              </ErrorSummary>
+          <VStack gap="4">
+            <Heading level="3" size="medium">
+              Tilsagn
+            </Heading>
+            {relevanteTilsagn.length < 1 && (
+              <Alert variant="info">
+                Fant ingen relevante tilsagn for gjennomføring i perioden. Det er fortsatt mulig å
+                sende inn.
+              </Alert>
             )}
+            {relevanteTilsagn.map((tilsagn) => (
+              <TilsagnDetaljer
+                tilsagn={tilsagn}
+                ekstraDefinisjoner={[
+                  { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
+                  {
+                    key: "Tilsagnstype",
+                    value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type),
+                  },
+                ]}
+              />
+            ))}
+          </VStack>
+          <Separator />
+          <VStack gap="4">
+            <Heading level="3" size="medium">
+              Vedlegg
+            </Heading>
+            <FileUploader
+              error={errorAt("/vedlegg")}
+              maxFiles={10}
+              maxSizeMB={3}
+              maxSizeBytes={3 * 1024 * 1024}
+              id="vedlegg"
+            />
+            <Textarea
+              label="Beskrivelse"
+              description="Her kan du spesifisere hva utbetalingen gjelder"
+              name="beskrivelse"
+              error={errorAt("/beskrivelse")}
+              id="beskrivelse"
+              minLength={10}
+              maxLength={500}
+            />
+          </VStack>
+          <Separator />
+          <VStack className="max-w-[50%]">
+            <Heading level="3" spacing size="medium">
+              Utbetaling
+            </Heading>
+            <TextField
+              label="Beløp til utbetaling"
+              error={errorAt("/belop")}
+              htmlSize={35}
+              size="small"
+              name="belop"
+              id="belop"
+            />
+          </VStack>
+          <Separator />
+          <VStack gap="4">
+            <Heading level="3" size="medium">
+              Betalingsinformasjon
+            </Heading>
+            <KontonummerInput
+              kontonummer={kontonummer}
+              error={errorAt("/kontonummer")}
+              onClick={() => revalidator.revalidate()}
+            />
+            <TextField
+              label="KID-nummer for utbetaling (valgfritt)"
+              size="small"
+              name="kid"
+              error={errorAt("/kid")}
+              htmlSize={35}
+              maxLength={25}
+              id="kid"
+            />
+          </VStack>
+          <Separator />
+          <Checkbox
+            name="bekreftelse"
+            value="bekreftet"
+            error={Boolean(errorAt("/bekreftelse"))}
+            id="bekreftelse"
+          >
+            Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
+          </Checkbox>
+          {data?.errors && data.errors.length > 0 && (
+            <ErrorSummary ref={errorSummaryRef}>
+              {data.errors.map((error: FieldError) => {
+                return (
+                  <ErrorSummary.Item
+                    href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                    key={jsonPointerToFieldPath(error.pointer)}
+                  >
+                    {error.detail}
+                  </ErrorSummary.Item>
+                );
+              })}
+            </ErrorSummary>
+          )}
+          <HStack>
+            <Button
+              as={ReactRouterLink}
+              type="button"
+              variant="tertiary"
+              to={internalNavigation(orgnr).utbetalinger}
+            >
+              Avbryt
+            </Button>
             <Button disabled={fetcher.state !== "idle"} type="submit">
               {fetcher.state === "submitting" ? "Sender inn..." : "Bekreft og send inn"}
             </Button>
-          </VStack>
+          </HStack>
         </VStack>
       </Form>
     </VStack>

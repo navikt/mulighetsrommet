@@ -566,34 +566,6 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
-        // TODO: kan all logikk basert på opphav fjernes? Trenger vel ikke egen logikk basert på dette lengre?
-        test("filtrering på opphav") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                    gjennomforinger = listOf(Oppfolging1, Oppfolging2),
-                ).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                queries.setOpphav(Oppfolging1.id, ArenaMigrering.Opphav.ARENA)
-
-                queries.getAll(opphav = null).should {
-                    it.totalCount shouldBe 2
-                }
-
-                queries.getAll(opphav = ArenaMigrering.Opphav.ARENA).should {
-                    it.totalCount shouldBe 1
-                    it.items[0].id shouldBe Oppfolging1.id
-                }
-
-                queries.getAll(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE).should {
-                    it.totalCount shouldBe 1
-                    it.items[0].id shouldBe Oppfolging2.id
-                }
-            }
-        }
-
         test("filtrering på avtale") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(

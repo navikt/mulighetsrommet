@@ -1,7 +1,5 @@
 import { Prismodell, TilsagnService, TilsagnType } from "@mr/api-client-v2";
-
-import { queryOptions } from "@tanstack/react-query";
-import { QueryKeys } from "../../../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export const tilsagnDefaultsQuery = (params: {
   gjennomforingId?: string;
@@ -11,12 +9,11 @@ export const tilsagnDefaultsQuery = (params: {
   periodeSlutt: string | null;
   belop: number | null;
   kostnadssted: string | null;
-}) =>
-  queryOptions({
-    queryKey: [QueryKeys.opprettTilsagn(), params],
-    queryFn: () =>
-      TilsagnService.getTilsagnDefaults({
-        body: { gjennomforingId: params.gjennomforingId!, ...params },
-      }),
-    enabled: !!params.gjennomforingId,
-  });
+}) => ({
+  queryKey: [QueryKeys.opprettTilsagn(), params],
+  queryFn: () =>
+    TilsagnService.getTilsagnDefaults({
+      body: { gjennomforingId: params.gjennomforingId!, ...params },
+    }),
+  enabled: !!params.gjennomforingId,
+});

@@ -42,7 +42,8 @@ module "mr_api_datastream" {
         { table = "utdanning" },
         { table = "tilsagn" },
         { table = "delutbetaling" },
-        { table = "utbetaling" }
+        { table = "utbetaling" },
+        { table = "del_med_bruker", columns = ["id", "tiltakstype_navn", "delt_fra_fylke", "delt_fra_enhet", "created_at"] }
       ]
     }
   ]
@@ -108,6 +109,13 @@ module "mr_api_datastream" {
         dataset_id = "mulighetsrommet_api_datastream"
         project_id = var.gcp_project["project"]
         table_id   = "gjennomforing_nav_enhet_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "del_med_bruker_view"
       }
     },
   ]

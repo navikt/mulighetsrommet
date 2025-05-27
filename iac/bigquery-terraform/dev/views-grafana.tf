@@ -27,9 +27,9 @@ SELECT
 FROM
   `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilsagn`
 GROUP BY
-  1
+  type
 ORDER BY
-  2 desc
+  antall desc
 EOF
 }
 
@@ -88,7 +88,7 @@ SELECT
 FROM
   `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilsagn`
 GROUP BY
-  1
+  status
 EOF
 }
 
@@ -167,8 +167,8 @@ ON
 WHERE
   d.generated_date IS NOT NULL
 GROUP BY
-  1
+  created_date
 ORDER BY
-  1
+  created_date
 EOF
 }

@@ -1,61 +1,47 @@
-import {
-  gjennomforingerForAvtaleFilterAtomFamily,
-  gjennomforingfilterAtom,
-  GjennomforingFilterSchema,
-} from "@/api/atoms";
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
-import { LagretDokumenttype } from "@mr/api-client-v2";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { getGjennomforingerForAvtaleFilterAtom } from "@/pages/gjennomforing/filter";
+import { useFilterState } from "@/filter/useFilterState";
 
 export function GjennomforingerForAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
 
-  const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(avtaleId);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
-  const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING);
-  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING);
+
+  const filterAtom = getGjennomforingerForAvtaleFilterAtom(avtaleId);
+  const { filter, updateFilter, resetToDefault, hasChanged } = useFilterState(filterAtom);
 
   return (
     <>
       <FilterAndTableLayout
         filter={
           <GjennomforingFilter
-            filterAtom={filterAtomGjennomforinger}
+            filter={filter.values}
+            updateFilter={updateFilter}
             skjulFilter={{
               tiltakstype: true,
             }}
             avtale={avtale}
           />
         }
-        lagredeFilter={
-          <LagredeFilterOversikt
-            setFilter={setFilter}
-            filter={filter}
-            lagredeFilter={lagredeFilter}
-            onDelete={(id: string) => deleteFilterMutation.mutate(id)}
-            validateFilterStructure={(filter) => {
-              return GjennomforingFilterSchema.safeParse(filter).success;
-            }}
-          />
+        nullstillFilterButton={
+          hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
         }
         tags={
           <GjennomforingFilterTags
-            filterAtom={filterAtomGjennomforinger}
+            filter={filter.values}
+            updateFilter={updateFilter}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}
           />
@@ -67,19 +53,14 @@ export function GjennomforingerForAvtalePage() {
               tiltakstype: true,
               arrangor: true,
             }}
-            filterAtom={filterAtomGjennomforinger}
+            filter={filter.values}
+            updateFilter={updateFilter}
             tagsHeight={tagsHeight}
             filterOpen={filterOpen}
           />
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={
-          <NullstillKnappForGjennomforinger
-            avtale={avtale}
-            filterAtom={filterAtomGjennomforinger}
-          />
-        }
       />
       <TilToppenKnapp />
     </>

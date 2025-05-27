@@ -73,7 +73,6 @@ data class UtbetalingDeltakelse(
     val perioder: List<DeltakelsePeriode>,
     val manedsverk: Double,
     val person: Person?,
-    val veileder: String?,
 ) {
     @Serializable
     data class Person(

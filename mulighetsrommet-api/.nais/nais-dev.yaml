@@ -80,26 +80,60 @@ spec:
           - id: "48026f54-6259-4c35-a148-bc4257bcaf03"
           # 0000-CA-Tiltaksadministrasjon_kontaktperson
           - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
-          # 0000-AZ-TILTAK-okonomi_beslutter
-          - id: "b00ba197-c90a-4ff9-966e-6c9cf1c882bf"
           # 0000-CA-Tiltaksadministrasjon_saksbehandler-okonomi
           - id: "d776c0f9-9c8a-4299-8d34-aa563925b00b"
-          # 0000-CA-Tiltaksadministrasjon_beslutter-tilsagn
-          - id: "f2d4a628-c17d-4ae0-b720-0abf9add8c30"
-          # 0300-CA-Tiltaksadministrasjon_beslutter-tilsagn
-          - id: "059b2db3-e38d-4482-bf2f-21d4a226aa94"
-          # 0400-CA-Tiltaksadministrasjon_beslutter-tilsagn
-          - id: "3e6fe3c5-58e2-466e-9117-adecb4c1ee74"
-          # 5700-CA-Tiltaksadministrasjon_beslutter-tilsagn
-          - id: "34902073-90be-4025-9bb0-da6b71b293ff"
           # 0000-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac"
+          # 0000-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "f2d4a628-c17d-4ae0-b720-0abf9add8c30"
+          # 0200-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "1edfb41e-8689-4c97-8e65-e3450cb06b43"
+          # 0200-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "33b600e0-0b88-4097-9052-525f0eb10191"
           # 0300-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "88c9cffb-bb4f-4e9d-9af3-cf66ac11f156"
+          # 0300-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "059b2db3-e38d-4482-bf2f-21d4a226aa94"
           # 0400-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "e79ba9ba-efd9-456b-8567-dadbe65f8b24"
+          # 0400-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "3e6fe3c5-58e2-466e-9117-adecb4c1ee74"
+          # 0600-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "ddb6d18c-cadb-4cbc-b0d2-58ad535ca16c"
+          # 0600-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "202216c0-bd70-4466-a902-f1809d588a79"
+          # 0800-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "a8efb768-31c2-4ac2-acda-d7dafbaa5e58"
+          # 0800-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "671c4e78-1b39-42fc-9182-b60508166365"
+          # 1000-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "2eeb8676-11b3-41f0-91da-a68a9fd51ba4"
+          # 1000-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "0f2013ef-1b46-4701-8d7b-033fbfb73efc"
+          # 1100-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "100d863c-b686-4c36-bf46-a37167552377"
+          # 1100-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "881b995e-1b02-4729-8a27-ba4b378df6d6"
+          # 1200-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "dcbccfab-e6df-41aa-b57c-2775320e8955"
+          # 1200-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "20614177-ec1a-47bf-a89c-cd0d99e1e790"
+          # 1500-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "8e4e5710-5321-438b-9aa0-96a1e32eab71"
+          # 1500-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "ad23027c-5185-4011-8b50-1a3799f4a847"
+          # 1800-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "6ecef1a0-cb8e-45d4-afb5-115116d0aab4"
+          # 1800-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "a2c0ba66-c564-472b-8e39-b8fc74ed7f48"
+          # 1900-CA-Tiltaksadministrasjon_attestant-utbetaling
+          - id: "95dfba28-62da-49fb-ae3c-237573c6eaeb"
+          # 1900-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "35c4d0f9-a7ac-4588-8762-5913cb787058"
           # 5700-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "f57989e2-410e-45dd-9285-32c3bacc94d4"
+          # 5700-CA-Tiltaksadministrasjon_beslutter-tilsagn
+          - id: "34902073-90be-4025-9bb0-da6b71b293ff"
         extra:
           - NAVident
           - azp_name

@@ -38,13 +38,13 @@ class MsGraphClient(
     private val tokenProvider: TokenProvider,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val ansattDataCache: Cache<UUID, EntraIdNavAnsatt> = Caffeine.newBuilder()
+    private val ansattDataCache: Cache<UUID, EntraNavAnsatt> = Caffeine.newBuilder()
         .expireAfterWrite(4, TimeUnit.HOURS)
         .maximumSize(2000)
         .recordStats()
         .build()
 
-    private val ansattDataCacheByNavIdent: Cache<NavIdent, EntraIdNavAnsatt> = Caffeine.newBuilder()
+    private val ansattDataCacheByNavIdent: Cache<NavIdent, EntraNavAnsatt> = Caffeine.newBuilder()
         .expireAfterWrite(4, TimeUnit.HOURS)
         .maximumSize(2000)
         .recordStats()
@@ -59,14 +59,14 @@ class MsGraphClient(
         }
     }
 
-    private val entraIdNavAnsattFields =
+    private val entraNavAnsattFields =
         "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone"
 
-    suspend fun getNavAnsatt(navAnsattOid: UUID, accessType: AccessType): EntraIdNavAnsatt {
+    suspend fun getNavAnsatt(navAnsattOid: UUID, accessType: AccessType): EntraNavAnsatt {
         return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattOid) {
             val response = client.get("$baseUrl/v1.0/users/$navAnsattOid") {
                 bearerAuth(tokenProvider.exchange(accessType))
-                parameter($$"$select", entraIdNavAnsattFields)
+                parameter($$"$select", entraNavAnsattFields)
             }
 
             if (!response.status.isSuccess()) {
@@ -79,12 +79,12 @@ class MsGraphClient(
         }
     }
 
-    suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): EntraIdNavAnsatt? {
+    suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): EntraNavAnsatt? {
         return CacheUtils.tryCacheFirstNullable(ansattDataCacheByNavIdent, navIdent) {
             val response = client.get("$baseUrl/v1.0/users") {
                 bearerAuth(tokenProvider.exchange(accessType))
                 parameter($$"$search", "\"onPremisesSamAccountName:${navIdent.value}\"")
-                parameter($$"$select", entraIdNavAnsattFields)
+                parameter($$"$select", entraNavAnsattFields)
                 header("ConsistencyLevel", "eventual")
             }
 
@@ -101,7 +101,7 @@ class MsGraphClient(
         }
     }
 
-    suspend fun getNavAnsattSok(nameQuery: String): List<EntraIdNavAnsatt> {
+    suspend fun getNavAnsattSok(nameQuery: String): List<EntraNavAnsatt> {
         if (nameQuery.isBlank()) {
             return emptyList()
         }
@@ -109,7 +109,7 @@ class MsGraphClient(
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             parameter($$"$search", "\"displayName:$nameQuery\"")
             parameter($$"$orderBy", "displayName")
-            parameter($$"$select", entraIdNavAnsattFields)
+            parameter($$"$select", entraNavAnsattFields)
             header("ConsistencyLevel", "eventual")
         }
 
@@ -139,10 +139,10 @@ class MsGraphClient(
         return result.value.map { it }
     }
 
-    suspend fun getGroupMembers(groupId: UUID): List<EntraIdNavAnsatt> {
+    suspend fun getGroupMembers(groupId: UUID): List<EntraNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            parameter($$"$select", entraIdNavAnsattFields)
+            parameter($$"$select", entraNavAnsattFields)
             parameter($$"$top", "999")
         }
 
@@ -173,7 +173,7 @@ class MsGraphClient(
      */
     private fun isNavAnsatt(it: MsGraphUserDto) = it.onPremisesSamAccountName != null
 
-    private fun toNavAnsatt(user: MsGraphUserDto): Either<Throwable, EntraIdNavAnsatt> = Either.catch {
+    private fun toNavAnsatt(user: MsGraphUserDto): Either<Throwable, EntraNavAnsatt> = Either.catch {
         when {
             user.onPremisesSamAccountName == null -> {
                 throw IllegalArgumentException("NAVident mangler for bruker med id=${user.id}")
@@ -199,7 +199,7 @@ class MsGraphClient(
                 throw IllegalArgumentException("Epost på ansatt mangler for bruker med id=${user.id}")
             }
 
-            else -> EntraIdNavAnsatt(
+            else -> EntraNavAnsatt(
                 entraObjectId = user.id,
                 navIdent = NavIdent(user.onPremisesSamAccountName),
                 fornavn = user.givenName,

@@ -1,18 +1,13 @@
-import { HttpResponse, PathParams, http } from "msw";
+import { http, HttpResponse, PathParams } from "msw";
+import { PaginertAvtale, TiltakstypeDto, VeilederflateTiltakstype } from "@mr/api-client-v2";
 import {
-  PaginertTiltakstype,
-  TiltakstypeDto,
-  PaginertAvtale,
-  VeilederflateTiltakstype,
-} from "@mr/api-client-v2";
-import {
-  paginertMockTiltakstyper,
   mockVeilederflateTiltakstypeAFT,
+  paginertMockTiltakstyper,
 } from "../fixtures/mock_tiltakstyper";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const tiltakstypeHandlers = [
-  http.get<PathParams, PaginertTiltakstype>("*/api/v1/intern/tiltakstyper", () => {
+  http.get<PathParams, TiltakstypeDto[]>("*/api/v1/intern/tiltakstyper", () => {
     return HttpResponse.json(paginertMockTiltakstyper);
   }),
 
@@ -20,7 +15,7 @@ export const tiltakstypeHandlers = [
     "*/api/v1/intern/tiltakstyper/:id",
     ({ params }) => {
       const { id } = params;
-      return HttpResponse.json(paginertMockTiltakstyper.data.find((gj) => gj.id === id));
+      return HttpResponse.json(paginertMockTiltakstyper.find((gj) => gj.id === id));
     },
   ),
 

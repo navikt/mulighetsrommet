@@ -310,7 +310,10 @@ object AvtaleFixtures {
         prismodell = null,
     )
 
-    val ArbeidsrettetRehabilitering = AvtaleDbo(
+    /**
+     * ARR = ArbeidsrettetRehabilitering
+     */
+    val ARR = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "ARR avtale",
         avtalenummer = "2023#13",

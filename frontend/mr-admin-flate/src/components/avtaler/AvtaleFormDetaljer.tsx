@@ -3,7 +3,6 @@ import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/Avta
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
   AvtaleDto,
@@ -38,9 +37,16 @@ interface Props {
   ansatt: NavAnsatt;
   avtale?: AvtaleDto;
   enheter: NavEnhet[];
+  okonomiTabEnabled?: boolean;
 }
 
-export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
+export function AvtaleFormDetaljer({
+  tiltakstyper,
+  ansatt,
+  enheter,
+  avtale,
+  okonomiTabEnabled,
+}: Props) {
   const { data: administratorer } = useAvtaleAdministratorer();
 
   const {
@@ -194,7 +200,7 @@ export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Pr
           opsjonsmodell={opsjonsmodeller.find((m) => m.value === watchedOpsjonsmodell)}
         />
 
-        {tiltakskode && erAnskaffetTiltak(tiltakskode) && (
+        {okonomiTabEnabled === false && (
           <>
             <FormGroup>
               <Textarea

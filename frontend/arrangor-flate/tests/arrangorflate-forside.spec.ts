@@ -23,13 +23,14 @@ test("Kan navigere til forsiden", async ({ page }) => {
   await sjekkUU(page);
 });
 
-test("Kan navigere gjennom hele utbetalingen", async ({ page }) => {
+test("Kan navigere gjennom hele innsendingen", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Oversikt");
-  await expect(page.getByRole("heading", { name: "Oversikt over innsendinger" })).toBeVisible();
-  await sjekkUU(page);
-  await page.getByRole("link", { name: "Detaljer" }).first().click();
+  await page.getByRole("link", { name: "Start innsending" }).first().click();
 
+  await expect(page.getByRole("heading", { name: "Innsendingsinformasjon" })).toBeVisible();
+  await sjekkUU(page);
+
+  await page.getByRole("button", { name: "Neste" }).click();
   await expect(page.getByRole("heading", { name: "Beregning" })).toBeVisible();
   await expect(
     page.getByText(
@@ -37,15 +38,16 @@ test("Kan navigere gjennom hele utbetalingen", async ({ page }) => {
     ),
   ).toBeVisible();
   await sjekkUU(page);
-  await page.getByRole("button", { name: "Neste" }).first().click();
-  await expect(page.getByRole("heading", { name: "Oppsummering av innsending" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Neste" }).click();
+  await expect(page.getByRole("heading", { name: "Oppsummering" })).toBeVisible();
   await page
     .getByRole("checkbox", {
       name: "Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold",
     })
-    .click();
+    .check();
   await sjekkUU(page);
-  await page.getByRole("button", { name: "Bekreft og send inn" }).first().click();
+  await page.getByRole("button", { name: "Bekreft og send inn" }).click();
   await expect(page.getByRole("heading", { name: "Innsendingen er mottatt" })).toBeVisible();
 
   await sjekkUU(page);

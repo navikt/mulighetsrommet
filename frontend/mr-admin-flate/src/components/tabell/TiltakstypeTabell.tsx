@@ -1,29 +1,22 @@
-import { tiltakstypeFilterAtom } from "@/api/atoms";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterDato } from "@/utils/Utils";
 import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { Alert, Table } from "@navikt/ds-react";
-import { useAtom } from "jotai";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { TiltakstypeStatusTag } from "../statuselementer/TiltakstypeStatusTag";
+import { Table } from "@navikt/ds-react";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
+import { tiltakstypeFilterStateAtom } from "@/pages/tiltakstyper/filter";
+import { useFilterState } from "@/filter/useFilterState";
 
 export function TiltakstypeTabell() {
-  const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
+  const { filter, updateFilter } = useFilterState(tiltakstypeFilterStateAtom);
 
-  const { data: tiltakstyper } = useTiltakstyper();
-
-  const sort = filter.sort?.tableSort;
-
-  if (!tiltakstyper || tiltakstyper.data.length === 0) {
-    return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
-  }
+  const sort = filter.values.sort?.tableSort;
 
   const handleSort = (sortKey: string) => {
     const direction = sort?.direction === "ascending" ? "descending" : "ascending";
 
-    setFilter({
-      ...filter,
+    updateFilter({
       sort: {
         sortString: `${sortKey}-${direction}` as SorteringTiltakstyper,
         tableSort: {
@@ -34,11 +27,13 @@ export function TiltakstypeTabell() {
     });
   };
 
+  const { data: tiltakstyper } = useTiltakstyper(filter.values);
+
   return (
     <TabellWrapper className="m-0">
       <Table
-        sort={sort!}
-        onSortChange={(sortKey) => handleSort(sortKey!)}
+        sort={sort}
+        onSortChange={(sortKey) => handleSort(sortKey)}
         className="bg-white border-separate border-spacing-0 border-t border-gray-200"
       >
         <Table.Header>
@@ -58,11 +53,11 @@ export function TiltakstypeTabell() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltakstyper.data.map((tiltakstype, index) => {
+          {tiltakstyper.map((tiltakstype) => {
             const startDato = formaterDato(tiltakstype.startDato);
             const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
             return (
-              <Table.Row key={index}>
+              <Table.Row key={tiltakstype.id}>
                 <Table.DataCell
                   aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
                   className="underline"

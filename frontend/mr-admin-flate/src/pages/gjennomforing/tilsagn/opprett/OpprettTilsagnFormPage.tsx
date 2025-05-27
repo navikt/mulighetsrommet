@@ -7,14 +7,14 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Prismodell, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router";
-import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
 import { Laster } from "../../../../components/laster/Laster";
 import { aktiveTilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 function useHentData() {
   const [searchParams] = useSearchParams();
@@ -30,11 +30,11 @@ function useHentData() {
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
-  const { data: defaults } = useSuspenseQuery({
+  const { data: defaults } = useApiSuspenseQuery({
     ...tilsagnDefaultsQuery({
       gjennomforingId,
       type,
-      prismodell,
+      prismodell: (prismodell ?? avtale?.prismodell) || null,
       periodeStart,
       periodeSlutt,
       belop: belop ? Number(belop) : null,
@@ -42,7 +42,7 @@ function useHentData() {
     }),
   });
 
-  const { data: aktiveTilsagn } = useSuspenseQuery({
+  const { data: aktiveTilsagn } = useApiSuspenseQuery({
     ...aktiveTilsagnQuery(gjennomforingId),
   });
 
@@ -88,7 +88,7 @@ export function OpprettTilsagnFormPage() {
               <TilsagnFormContainer
                 avtale={avtale}
                 gjennomforing={gjennomforing}
-                defaults={defaults.data}
+                defaults={defaults}
               />
             </VStack>
           </WhitePaddedBox>
@@ -97,8 +97,8 @@ export function OpprettTilsagnFormPage() {
       <WhitePaddedBox>
         <VStack gap="4">
           <Heading size="medium">Aktive tilsagn</Heading>
-          {aktiveTilsagn.data.length > 0 ? (
-            <TilsagnTabell tilsagn={aktiveTilsagn.data} />
+          {aktiveTilsagn.length > 0 ? (
+            <TilsagnTabell tilsagn={aktiveTilsagn} />
           ) : (
             <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
           )}

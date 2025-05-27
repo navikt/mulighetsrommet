@@ -1,12 +1,9 @@
 package no.nav.mulighetsrommet.api.tiltakstype
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
-import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import org.koin.ktor.ext.inject
@@ -19,9 +16,8 @@ fun Route.tiltakstypeRoutes() {
     route("tiltakstyper") {
         get {
             val filter = getTiltakstypeFilter()
-            val pagination = getPaginationParams()
 
-            val tiltakstyper = tiltakstypeService.getAll(filter, pagination)
+            val tiltakstyper = tiltakstypeService.getAll(filter)
 
             call.respond(tiltakstyper)
         }

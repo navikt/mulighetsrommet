@@ -5,7 +5,6 @@ import {
   InferredGjennomforingSchema,
   GjennomforingSchema,
 } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
-import { logEvent } from "@/logging/amplitude";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AvtaleDto,
@@ -35,15 +34,6 @@ interface Props {
   gjennomforing?: GjennomforingDto;
   defaultValues: DeepPartial<InferredGjennomforingSchema>;
   enheter: NavEnhet[];
-}
-
-function loggRedaktorEndrerTilgjengeligForArrangor(datoValgt: string) {
-  logEvent({
-    name: "tiltaksadministrasjon.sett-tilgjengelig-for-redaktor",
-    data: {
-      datoValgt,
-    },
-  });
 }
 
 export function GjennomforingFormContainer({
@@ -127,13 +117,6 @@ export function GjennomforingFormContainer({
           ? (data.utdanningslop ?? null)
           : null,
     };
-
-    if (
-      data.tilgjengeligForArrangorDato &&
-      data.startOgSluttDato.startDato !== data.tilgjengeligForArrangorDato
-    ) {
-      loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorDato);
-    }
 
     mutation.mutate(body, {
       onSuccess: handleSuccess,

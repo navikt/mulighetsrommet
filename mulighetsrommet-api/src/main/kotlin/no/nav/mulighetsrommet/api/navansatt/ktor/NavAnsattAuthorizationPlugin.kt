@@ -13,16 +13,24 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 
 class NavAnsattAuthorizationPluginConfiguration {
-    var roles: List<Rolle> = listOf()
+    var requiredRoles: RequiredRoles = RequiredRoles(emptyList())
 }
+
+data class RequiredRoles(
+    val roles: List<AnyRoles>,
+)
+
+data class AnyRoles(
+    val roles: Set<Rolle>,
+)
 
 val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
     name = "NavAnsattAuthorizationPlugin",
     createConfiguration = ::NavAnsattAuthorizationPluginConfiguration,
 ) {
-    val requiredRoles = pluginConfig.roles
+    val requiredRoles = pluginConfig.requiredRoles
 
-    require(requiredRoles.isNotEmpty()) { "Minst én rolle er påkrevd" }
+    require(requiredRoles.roles.isNotEmpty()) { "Minst én rolle er påkrevd" }
 
     pluginConfig.apply {
         on(AuthenticationChecked) { call ->
@@ -35,17 +43,17 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
             if (principal.roller.isEmpty()) {
                 return@on call.respond(
                     HttpStatusCode.Forbidden,
-                    NavAnsattManglerTilgang(principal.navIdent, requiredRoles.first()),
+                    NavAnsattManglerTilgang(principal.navIdent, requiredRoles.roles.first().roles),
                 )
             }
 
             val navAnsattRoles = principal.roller.map { it.rolle }
 
-            requiredRoles.forEach { requiredRole ->
-                if (requiredRole !in navAnsattRoles) {
+            requiredRoles.roles.forEach { anyOfRoles ->
+                if (anyOfRoles.roles.intersect(navAnsattRoles).isEmpty()) {
                     return@on call.respond(
                         HttpStatusCode.Forbidden,
-                        NavAnsattManglerTilgang(principal.navIdent, requiredRole),
+                        NavAnsattManglerTilgang(principal.navIdent, anyOfRoles.roles),
                     )
                 }
             }
@@ -56,15 +64,15 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
 @Serializable
 class NavAnsattManglerTilgang(
     val navIdent: NavIdent,
-    val missingRole: Rolle,
+    val missingRoles: Set<Rolle>,
     override val title: String = "Mangler tilgang til ressurs",
 ) : ProblemDetail() {
     override val type = "mangler-tilgang"
     override val status: Int = HttpStatusCode.Forbidden.value
     override val detail: String =
-        "rollen '$missingRole' er påkrevd for å få tilgang til denne ressursen"
+        "Minst en av følgende roller er påkrevd for å få tilgang til denne ressursen: ${missingRoles.joinToString(", ")}"
     override val extensions = mapOf(
-        "missingRole" to Json.encodeToJsonElement(missingRole),
+        "missingRoles" to Json.encodeToJsonElement(missingRoles),
     )
     override val instance = navIdent.value
 }

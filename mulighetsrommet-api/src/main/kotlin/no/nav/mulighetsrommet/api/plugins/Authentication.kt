@@ -59,7 +59,7 @@ fun RoutingContext.getNavIdent(): NavIdent {
 }
 
 /**
- * Gets the EntraId 'oid' claim from the underlying [JWTPrincipal], or throws a [StatusException]
+ * Gets the Microsoft Entra 'oid' claim from the underlying [JWTPrincipal], or throws a [StatusException]
  * if the claim is not available.
  */
 fun RoutingContext.getNavAnsattEntraObjectId(): UUID {

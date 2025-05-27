@@ -48,9 +48,9 @@ class UtbetalingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
-    val saksbehandlerOkonomiRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
-    val attestantUtbetalingRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
+    val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
+    val saksbehandlerOkonomiRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
+    val attestantUtbetalingRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
 
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(
@@ -120,7 +120,7 @@ class UtbetalingRoutesTest : FunSpec({
                     )
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.SAKSBEHANDLER_OKONOMI
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.SAKSBEHANDLER_OKONOMI)
             }
         }
 
@@ -173,7 +173,7 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest)
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRole shouldBe Rolle.ATTESTANT_UTBETALING
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
             }
         }
 

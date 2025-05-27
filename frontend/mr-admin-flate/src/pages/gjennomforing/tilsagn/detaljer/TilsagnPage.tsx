@@ -31,7 +31,6 @@ import {
   TrashIcon,
 } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
@@ -39,23 +38,25 @@ import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsa
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { Laster } from "@/components/laster/Laster";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: tilsagnDetaljer } = useApiSuspenseQuery(tilsagnQuery(tilsagnId));
   const { data: ansatt } = useHentAnsatt();
-  const { data: historikk } = useSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
-  const { data: aktiveTilsagn } = useSuspenseQuery({
+  const { data: historikk } = useApiSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
+  const { data: aktiveTilsagn } = useApiSuspenseQuery({
     ...aktiveTilsagnQuery(gjennomforingId),
   });
   return {
     ansatt,
     gjennomforing,
     historikk,
-    ...tilsagnDetaljer.data,
-    aktiveTilsagn: aktiveTilsagn?.data.filter((x) => x.id !== tilsagnDetaljer.data.tilsagn.id),
+    ...tilsagnDetaljer,
+    aktiveTilsagn,
   };
 }
 
@@ -160,6 +161,9 @@ export function TilsagnPage() {
   function slettTilsagn() {
     slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
   }
+  if (!tilsagn) {
+    return <Laster tekst="Laster tilsagn..." />;
+  }
 
   const visHandlingerMeny =
     ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI) &&
@@ -168,7 +172,7 @@ export function TilsagnPage() {
   const handlingsMeny = (
     <HStack gap="2" justify={"end"}>
       <EndringshistorikkPopover>
-        <ViewEndringshistorikk historikk={historikk.data} />
+        <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
       {visHandlingerMeny ? (
         <ActionMenu>
@@ -302,7 +306,7 @@ export function TilsagnPage() {
               forklaring={tilOppgjor.forklaring}
             />
           )}
-          <VStack gap="2" padding="4" className="rounded-lg border-gray-300 border-1">
+          <VStack gap="6" padding="4" className="rounded-lg border-gray-300 border-1">
             <TilsagnDetaljer
               tilsagn={tilsagn}
               opprettelse={opprettelse}
@@ -479,8 +483,8 @@ export function TilsagnPage() {
           </VStack>
         </VStack>
       </ContentBox>
-      <VStack padding="4" className="bg-white">
-        <Heading size="medium">Andre aktive tilsagn</Heading>
+      <VStack padding="4" className="bg-white overflow-x-scroll">
+        <Heading size="medium">Aktive tilsagn</Heading>
         {aktiveTilsagn.length > 0 ? (
           <TilsagnTabell tilsagn={aktiveTilsagn} />
         ) : (

@@ -6,7 +6,6 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -29,7 +28,6 @@ class InitialLoadGjennomforinger(
             @Serializable(with = UUIDSerializer::class)
             UUID,
             >? = null,
-        val opphav: ArenaMigrering.Opphav? = null,
         val tiltakskoder: List<Tiltakskode>? = null,
         @Serializable(with = UUIDSerializer::class)
         val avtaleId: UUID? = null,
@@ -49,7 +47,6 @@ class InitialLoadGjennomforinger(
             if (input.tiltakskoder != null) {
                 initialLoadTiltaksgjennomforinger(
                     tiltakskoder = input.tiltakskoder,
-                    opphav = input.opphav,
                 )
             }
 
@@ -71,7 +68,6 @@ class InitialLoadGjennomforinger(
 
     private suspend fun initialLoadTiltaksgjennomforinger(
         tiltakskoder: List<Tiltakskode>,
-        opphav: ArenaMigrering.Opphav?,
     ): Unit = db.session {
         val tiltakstypeIder = tiltakskoder.map { queries.tiltakstype.getByTiltakskode(it).id }
 
@@ -80,7 +76,6 @@ class InitialLoadGjennomforinger(
                 logger.info("Henter gjennomføringer pagination=$pagination")
                 val result = queries.gjennomforing.getAll(
                     pagination = pagination,
-                    opphav = opphav,
                     tiltakstypeIder = tiltakstypeIder,
                 )
                 result.items

@@ -44,7 +44,11 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
         <TilsagnFormFri
           defaultValues={{
             ...defaults,
-            beregning: { ...defaults.beregning, type: "FRI" },
+            beregning: {
+              ...defaults.beregning,
+              type: "FRI",
+              prisbetingelser: avtale.prisbetingelser,
+            },
           }}
           {...props}
         />

@@ -119,7 +119,7 @@ spec:
           - id: "c9e0307d-355a-47ef-8776-132746ebbb15"
           # 1500-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "b9f39ac5-6b6f-47a4-a23a-2218c46ee18d"
-          # 1500-CA-Tiltaksadministrasjon_beslutter-tilsag
+          # 1500-CA-Tiltaksadministrasjon_beslutter-tilsagn
           - id: "949db0d2-68ff-413f-87ab-39cd49ec305b"
           # 1800-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "7c11c112-f82c-4a4b-86a0-3769335599af"

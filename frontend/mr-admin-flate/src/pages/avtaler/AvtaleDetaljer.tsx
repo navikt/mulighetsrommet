@@ -9,7 +9,6 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato, sorterPaRegionsnavn } from "@/utils/Utils";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { AvtaleDto, Avtaletype } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
@@ -19,9 +18,10 @@ import { Link } from "react-router";
 
 interface Props {
   avtale: AvtaleDto;
+  okonomiTabEnabled?: boolean;
 }
 
-export function AvtaleDetaljer({ avtale }: Props) {
+export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
   const {
     navn,
     avtalenummer,
@@ -115,7 +115,7 @@ export function AvtaleDetaljer({ avtale }: Props) {
 
         <VStack gap="5">
           <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
-            {erAnskaffetTiltak(tiltakstype.tiltakskode) && (
+            {okonomiTabEnabled === false && (
               <Metadata
                 header={avtaletekster.prisOgBetalingLabel}
                 verdi={avtale.prisbetingelser ?? "-"}

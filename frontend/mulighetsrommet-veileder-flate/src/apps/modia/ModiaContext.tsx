@@ -35,8 +35,7 @@ function HydrateAtoms({
 }
 
 export function ModiaContext(props: ModiaContextProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setContextData] = useAtom(modiaContextAtom);
+  const [, setContextData] = useAtom(modiaContextAtom);
 
   const [loadedFilter, setLoadedFilter] = useState<FilterMedBrukerIKontekst | null>(null);
 

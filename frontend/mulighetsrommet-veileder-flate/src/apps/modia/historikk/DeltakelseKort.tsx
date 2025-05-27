@@ -180,12 +180,10 @@ function resolveStatusStyle(
 
     case GruppetiltakDeltakerStatus.IKKE_AKTUELL:
     case GruppetiltakDeltakerStatus.FEILREGISTRERT:
-    case GruppetiltakDeltakerStatus.VENTELISTE:
     case GruppetiltakDeltakerStatus.AVBRUTT:
     case GruppetiltakDeltakerStatus.AVBRUTT_UTKAST:
     case ArenaDeltakerStatus.IKKE_AKTUELL:
     case ArenaDeltakerStatus.FEILREGISTRERT:
-    case ArenaDeltakerStatus.VENTELISTE:
     case ArenaDeltakerStatus.AVSLAG:
     case ArenaDeltakerStatus.DELTAKELSE_AVBRUTT:
     case ArenaDeltakerStatus.GJENNOMFORING_AVBRUTT:
@@ -196,18 +194,20 @@ function resolveStatusStyle(
     case ArbeidsgiverAvtaleStatus.ANNULLERT:
       return { variant: "neutral" };
 
+    case GruppetiltakDeltakerStatus.VENTELISTE:
     case GruppetiltakDeltakerStatus.HAR_SLUTTET:
     case GruppetiltakDeltakerStatus.FULLFORT:
+    case ArenaDeltakerStatus.VENTELISTE:
     case ArenaDeltakerStatus.FULLFORT:
     case ArbeidsgiverAvtaleStatus.AVSLUTTET:
       return { variant: "alt1" };
 
-    case GruppetiltakDeltakerStatus.SOKT_INN:
     case GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART:
     case ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD:
     case ArenaDeltakerStatus.AKTUELL:
       return { variant: "alt3" };
 
+    case GruppetiltakDeltakerStatus.SOKT_INN:
     case GruppetiltakDeltakerStatus.VURDERES:
       return { variant: "alt2" };
   }

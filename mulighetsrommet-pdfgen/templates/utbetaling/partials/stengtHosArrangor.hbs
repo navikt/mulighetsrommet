@@ -1,13 +1,11 @@
+{{#if utbetaling.beregning.stengt.length}}
 <div class="block line_bottom">
     <h4>Stengt hos arrangør</h4>
-    {{#if utbetaling.beregning.stengt.length}}
     <p>Det er registrert stengt hos arrangør i følgende perioder:</p>
     <ul>
         {{#each utbetaling.beregning.stengt}}
         <li>{{iso_to_nor_date periode.start}} - {{iso_to_nor_date periode.slutt}}: {{beskrivelse}}</li>
         {{/each}}
     </ul>
-    {{else}}
-    <p>Ingen registrerte stengte perioder</p>
-    {{/if}}
 </div>
+{{/if}}

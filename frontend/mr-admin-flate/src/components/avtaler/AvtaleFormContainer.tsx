@@ -1,7 +1,6 @@
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AvtaleDto,
@@ -9,6 +8,7 @@ import {
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
+  Prismodell,
   Tiltakskode,
   TiltakstypeDto,
   Toggles,
@@ -96,9 +96,7 @@ export function AvtaleFormContainer({
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
-      prisbetingelser: erAnskaffetTiltak(data.tiltakstype.tiltakskode)
-        ? data.prisbetingelser || null
-        : null,
+      prisbetingelser: data.prismodell === Prismodell.FRI ? data.prisbetingelser || null : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
@@ -194,6 +192,7 @@ export function AvtaleFormContainer({
                 tiltakstyper={props.tiltakstyper}
                 ansatt={ansatt}
                 enheter={props.enheter}
+                okonomiTabEnabled={enableTilsagn}
               />
             </Box>
           </Tabs.Panel>

@@ -33,28 +33,25 @@ class NotificationQueriesTest : FunSpec({
 
     val notification1 = ScheduledNotification(
         id = UUID.randomUUID(),
-        type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for flere brukere",
         createdAt = now,
         targets = nonEmptyListOf(user1, user2),
     )
     val notification2 = ScheduledNotification(
         id = UUID.randomUUID(),
-        type = NotificationType.NOTIFICATION,
         title = "Notifikasjon for spesifikk bruker",
         createdAt = now,
         targets = nonEmptyListOf(user1),
     )
 
-    fun ScheduledNotification.asUserNotification(userId: NavIdent, doneAt: LocalDateTime? = null) = run {
+    fun ScheduledNotification.asUserNotification(userId: NavIdent, readAt: LocalDateTime? = null) = run {
         UserNotification(
             id = id,
-            type = type,
             title = title,
             description = description,
             user = userId,
             createdAt = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault()),
-            doneAt = doneAt,
+            readAt = readAt,
         )
     }
 
@@ -102,7 +99,7 @@ class NotificationQueriesTest : FunSpec({
         }
     }
 
-    val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+    val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
 
     test("should only set done_at for the specific user when the notification type is NOTIFICATION") {
         database.runAndRollback { session ->
@@ -113,32 +110,12 @@ class NotificationQueriesTest : FunSpec({
             queries.insert(notification1)
             queries.insert(notification2)
 
-            queries.setNotificationDoneAt(notification1.id, user1, doneAtTime)
+            queries.setNotificationReadAt(notification1.id, user1, readAtTime)
 
             queries.getUserNotifications() shouldContainExactlyInAnyOrder listOf(
                 notification1.asUserNotification(user2),
                 notification2.asUserNotification(user1),
-                notification1.asUserNotification(user1, doneAtTime),
-            )
-        }
-    }
-
-    test("should set done_at for all users when the notification type is TASK") {
-        database.runAndRollback { session ->
-            domain.setup(session)
-
-            val notifications = NotificationQueries(session)
-
-            val task = notification1.copy(type = NotificationType.TASK)
-            notifications.insert(task)
-            notifications.insert(notification2)
-
-            notifications.setNotificationDoneAt(task.id, user1, doneAtTime)
-
-            notifications.getUserNotifications() shouldContainExactlyInAnyOrder listOf(
-                notification2.asUserNotification(user1),
-                task.asUserNotification(user1, doneAtTime),
-                task.asUserNotification(user2, doneAtTime),
+                notification1.asUserNotification(user1, readAtTime),
             )
         }
     }
@@ -154,22 +131,22 @@ class NotificationQueriesTest : FunSpec({
 
             notifications.getUserNotifications(
                 user1,
-                NotificationStatus.NOT_DONE,
+                NotificationStatus.UNREAD,
             ) shouldContainExactlyInAnyOrder listOf(
                 notification1.asUserNotification(user1),
                 notification2.asUserNotification(user1),
             )
 
-            notifications.getUserNotifications(user1, NotificationStatus.DONE).shouldBeEmpty()
+            notifications.getUserNotifications(user1, NotificationStatus.READ).shouldBeEmpty()
 
-            notifications.setNotificationDoneAt(notification2.id, user1, doneAtTime) shouldBe 1
-            notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime) shouldBe 1
+            notifications.setNotificationReadAt(notification2.id, user1, readAtTime) shouldBe 1
+            notifications.setNotificationReadAt(notification1.id, user1, readAtTime) shouldBe 1
 
-            notifications.getUserNotifications(user1, NotificationStatus.NOT_DONE).shouldBeEmpty()
+            notifications.getUserNotifications(user1, NotificationStatus.UNREAD).shouldBeEmpty()
 
-            notifications.getUserNotifications(user1, NotificationStatus.DONE) shouldContainExactlyInAnyOrder listOf(
-                notification1.asUserNotification(user1, doneAtTime),
-                notification2.asUserNotification(user1, doneAtTime),
+            notifications.getUserNotifications(user1, NotificationStatus.READ) shouldContainExactlyInAnyOrder listOf(
+                notification1.asUserNotification(user1, readAtTime),
+                notification2.asUserNotification(user1, readAtTime),
             )
         }
     }
@@ -182,7 +159,7 @@ class NotificationQueriesTest : FunSpec({
 
             queries.insert(notification2)
 
-            queries.setNotificationDoneAt(notification2.id, user2, doneAtTime) shouldBe 0
+            queries.setNotificationReadAt(notification2.id, user2, readAtTime) shouldBe 0
 
             queries.getUserNotifications(user1) shouldContainExactlyInAnyOrder listOf(
                 notification2.asUserNotification(user1, null),
@@ -201,19 +178,19 @@ class NotificationQueriesTest : FunSpec({
             queries.insert(notification2)
 
             queries.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
-                notDoneCount = 2,
+                unreadCount = 2,
             )
             queries.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
-                notDoneCount = 1,
+                unreadCount = 1,
             )
 
-            queries.setNotificationDoneAt(notification1.id, user1, LocalDateTime.now())
+            queries.setNotificationReadAt(notification1.id, user1, LocalDateTime.now())
 
             queries.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
-                notDoneCount = 1,
+                unreadCount = 1,
             )
             queries.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
-                notDoneCount = 1,
+                unreadCount = 1,
             )
         }
     }
