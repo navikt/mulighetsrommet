@@ -8,7 +8,7 @@ import {
   useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { Select } from "@navikt/ds-react";
+import { HStack, Select, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
@@ -98,29 +98,27 @@ export function OppgaverPage() {
         }
         buttons={null}
         table={
-          <div className="flex flex-col">
-            <div className="flex justify-end">
-              <div>
-                <Select
-                  label={"Sortering"}
-                  onChange={(e) => {
-                    setSorting(e.target.value as OppgaverSorting);
-                  }}
-                >
-                  <option value="nyeste">Nyeste</option>
-                  <option value="eldste">Eldste</option>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-2 mt-4">
+          <VStack gap="2" className="mr-2">
+            <HStack justify="end">
+              <Select
+                label={"Sortering"}
+                onChange={(e) => {
+                  setSorting(e.target.value as OppgaverSorting);
+                }}
+              >
+                <option value="nyeste">Nyeste</option>
+                <option value="eldste">Eldste</option>
+              </Select>
+            </HStack>
+            <VStack gap="2">
               {sortedOppgaver.map((o) => {
                 return <Oppgave key={o.id} oppgave={o} />;
               })}
               {sortedOppgaver.length === 0 && (
                 <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
               )}
-            </div>
-          </div>
+            </VStack>
+          </VStack>
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
