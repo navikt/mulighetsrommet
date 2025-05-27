@@ -1,23 +1,19 @@
-import { GjennomforingFilter } from "@/api/atoms";
 import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import {
-  createQueryParamsForExcelDownloadForGjennomforing,
-  formaterDato,
-  formaterNavEnheter,
-} from "@/utils/Utils";
-import { GjennomforingerService, SorteringGjennomforinger } from "@mr/api-client-v2";
+import { formaterDato, formaterNavEnheter } from "@/utils/Utils";
+import { SorteringGjennomforinger } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
 import React, { createRef, useEffect, useState } from "react";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
+import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
+import { downloadGjennomforingerAsExcel } from "@/api/gjennomforing/downloadGjennomforingerAsExcel";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -25,24 +21,24 @@ const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: b
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
-  filterAtom: WritableAtom<GjennomforingFilter, GjennomforingFilter[], void>;
+  filter: GjennomforingFilterType;
+  updateFilter: (values: Partial<GjennomforingFilterType>) => void;
   tagsHeight: number;
   filterOpen: boolean;
 }
 
-export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filterOpen }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
+export function GjennomforingTable({
+  skjulKolonner,
+  filter,
+  updateFilter,
+  tagsHeight,
+  filterOpen,
+}: Props) {
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
   const { data, isLoading } = useAdminGjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
-
-  async function lastNedFil(filter: GjennomforingFilter) {
-    const query = createQueryParamsForExcelDownloadForGjennomforing(filter);
-    const { data } = await GjennomforingerService.lastNedGjennomforingerSomExcel(query);
-    return data;
-  }
 
   async function lastNedExcel() {
     setLasterExcel(true);
@@ -50,7 +46,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
       setExcelUrl("");
     }
 
-    const excelFil = await lastNedFil(filter);
+    const excelFil = await downloadGjennomforingerAsExcel(filter);
     const url = URL.createObjectURL(excelFil);
     setExcelUrl(url);
     setLasterExcel(false);
@@ -67,10 +63,6 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
       setExcelUrl("");
     }
   }, [excelUrl, link]);
-
-  function updateFilter(newFilter: Partial<GjennomforingFilter>) {
-    setFilter({ ...filter, ...newFilter });
-  }
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending

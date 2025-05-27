@@ -9,7 +9,7 @@ import { ArbeidsmarkedstiltakList } from "@/components/oversikt/Arbeidsmarkedsti
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import {
   isFilterReady,
-  useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst,
+  useArbeidsmarkedstiltakFilterMedBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ListSkeleton, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
@@ -21,12 +21,12 @@ import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsle
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
+  const [tagsHeight, setTagsHeight] = useState(0);
+
   const { data: alleTiltakDeltMedBruker } = useAlleTiltakDeltMedBruker();
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
-    useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();
-
-  const [tagsHeight, setTagsHeight] = useState(0);
+    useArbeidsmarkedstiltakFilterMedBrukerIKontekst();
 
   const { data: tiltak = [], isPending } = useModiaArbeidsmarkedstiltak();
 

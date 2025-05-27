@@ -44,7 +44,7 @@ fun Route.utbetalingRoutes() {
     val totrinnskontrollService: TotrinnskontrollService by inject()
 
     route("/utbetaling/{id}") {
-        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING, Rolle.BESLUTTER_TILSAGN)) {
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 

@@ -60,7 +60,7 @@ fun Route.tilsagnRoutes() {
         }
 
         route("/{id}") {
-            authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING, Rolle.BESLUTTER_TILSAGN)) {
+            authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
                 get {
                     val id = call.parameters.getOrFail<UUID>("id")
                     val navIdent = getNavIdent()

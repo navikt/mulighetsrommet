@@ -1,21 +1,25 @@
-import { OppgaverFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
-import { useAtom, WritableAtom } from "jotai";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
+import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
 
 interface Props {
-  filterAtom: WritableAtom<OppgaverFilter, [newValue: OppgaverFilter], void>;
+  filter: OppgaverFilterType;
+  updateFilter: (values: Partial<OppgaverFilterType>) => void;
   tiltakstypeId?: string;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
 
-export function OppgaveFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTagsHeight }: Props) {
-  const [filter, setFilter] = useAtom(filterAtom);
-
+export function OppgaveFilterTags({
+  filter,
+  updateFilter,
+  tiltakstypeId,
+  filterOpen,
+  setTagsHeight,
+}: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
   const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper();
@@ -27,8 +31,7 @@ export function OppgaveFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTa
           key={type}
           label={oppgavetyper.find((o) => type === o.type)?.navn || type}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               type: addOrRemove(filter.type, type),
             });
           }}
@@ -40,8 +43,7 @@ export function OppgaveFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTa
           key={enhetsnummer}
           label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
-            setFilter({
-              ...filter,
+            updateFilter({
               regioner: addOrRemove(filter.regioner, enhetsnummer),
             });
           }}
@@ -53,8 +55,7 @@ export function OppgaveFilterTags({ filterAtom, tiltakstypeId, filterOpen, setTa
             key={tiltakstype}
             label={tiltakstyper.find((t) => tiltakstype === t.tiltakskode)?.navn || tiltakstype}
             onClose={() => {
-              setFilter({
-                ...filter,
+              updateFilter({
                 tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
               });
             }}

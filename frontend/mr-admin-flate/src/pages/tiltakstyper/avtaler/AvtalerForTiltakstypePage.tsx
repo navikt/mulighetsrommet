@@ -1,21 +1,25 @@
-import { getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
 import { ContentBox } from "@/layouts/ContentBox";
-import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { getAvtalerForTiltakstypeFilterAtom } from "@/pages/avtaler/filter";
+import { useFilterState } from "@/filter/useFilterState";
 
 export function AvtalerForTiltakstypePage() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
-  const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
+
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
+
+  const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
+  const { filter, updateFilter, resetToDefault, hasChanged } = useFilterState(filterAtom);
 
   return (
     <>
@@ -23,15 +27,20 @@ export function AvtalerForTiltakstypePage() {
         <FilterAndTableLayout
           filter={
             <AvtaleFilter
-              filterAtom={filterAtom}
+              filter={filter.values}
+              updateFilter={updateFilter}
               skjulFilter={{
                 tiltakstype: true,
               }}
             />
           }
+          nullstillFilterButton={
+            hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
+          }
           tags={
             <AvtaleFilterTags
-              filterAtom={filterAtom}
+              filter={filter.values}
+              updateFilter={updateFilter}
               tiltakstypeId={tiltakstypeId}
               filterOpen={filterOpen}
               setTagsHeight={setTagsHeight}
@@ -39,13 +48,15 @@ export function AvtalerForTiltakstypePage() {
           }
           buttons={<AvtaleFilterButtons />}
           table={
-            <AvtaleTabell filterAtom={filterAtom} tagsHeight={tagsHeight} filterOpen={filterOpen} />
+            <AvtaleTabell
+              filter={filter.values}
+              updateFilter={updateFilter}
+              tagsHeight={tagsHeight}
+              filterOpen={filterOpen}
+            />
           }
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
-          nullstillFilterButton={
-            <NullstillKnappForAvtaler filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />
-          }
         />
       </ContentBox>
       <TilToppenKnapp />

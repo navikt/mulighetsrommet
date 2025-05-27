@@ -412,6 +412,9 @@ importers:
       classnames:
         specifier: 2.5.1
         version: 2.5.1
+      dequal:
+        specifier: ^2.0.3
+        version: 2.0.3
       highcharts:
         specifier: 12.2.0
         version: 12.2.0
@@ -657,6 +660,9 @@ importers:
       classnames:
         specifier: 2.5.1
         version: 2.5.1
+      dequal:
+        specifier: ^2.0.3
+        version: 2.0.3
       jotai:
         specifier: 2.12.4
         version: 2.12.4(@types/react@19.0.3)(react@19.0.0)

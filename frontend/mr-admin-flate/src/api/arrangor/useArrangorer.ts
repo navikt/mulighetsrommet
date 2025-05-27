@@ -1,10 +1,9 @@
-import { useApiQuery } from "@mr/frontend-common";
+import { useApiQuery, useDebounce } from "@mr/frontend-common";
 import { ArrangorService, ArrangorTil, type GetArrangorerData } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
-import { ArrangorerFilter } from "../atoms";
-import { useDebounce } from "@mr/frontend-common";
+import { ArrangorerFilterType } from "@/pages/arrangor/filter";
 
-export function useArrangorer(til?: ArrangorTil, filter?: Partial<ArrangorerFilter>) {
+export function useArrangorer(til?: ArrangorTil, filter?: Partial<ArrangorerFilterType>) {
   const debouncedSok = useDebounce(filter?.sok?.trim(), 300);
 
   const arrangorFilter: Pick<GetArrangorerData, "query"> = {

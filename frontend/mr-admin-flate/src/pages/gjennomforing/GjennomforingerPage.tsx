@@ -1,6 +1,3 @@
-import { gjennomforingfilterAtom, GjennomforingFilterSchema } from "@/api/atoms";
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
@@ -9,20 +6,37 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
 import { LagretFilterType } from "@mr/api-client-v2";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import {
+  LagredeFilterOversikt,
+  LagreFilterButton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useAtom } from "jotai/index";
 import { useState } from "react";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import {
+  GjennomforingFilterSchema,
+  gjennomforingFilterStateAtom,
+} from "@/pages/gjennomforing/filter";
+import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
-  const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.GJENNOMFORING);
-  const deleteFilterMutation = useSlettFilter();
+
+  const {
+    filter,
+    updateFilter,
+    resetFilterToDefault,
+    selectFilter,
+    hasChanged,
+    filters,
+    saveFilter,
+    deleteFilter,
+    setDefaultFilter,
+  } = useSavedFiltersState(gjennomforingFilterStateAtom, LagretFilterType.GJENNOMFORING);
 
   return (
     <main>
@@ -30,13 +44,22 @@ export function GjennomforingerPage() {
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingIkon />} />
       <ContentBox>
         <FilterAndTableLayout
-          filter={<GjennomforingFilter filterAtom={gjennomforingfilterAtom} />}
+          filter={<GjennomforingFilter filter={filter.values} updateFilter={updateFilter} />}
+          nullstillFilterButton={
+            hasChanged ? (
+              <>
+                <NullstillFilterKnapp onClick={resetFilterToDefault} />
+                <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
+              </>
+            ) : null
+          }
           lagredeFilter={
             <LagredeFilterOversikt
-              setFilter={setFilter}
-              lagredeFilter={lagredeFilter}
-              onDelete={(id: string) => deleteFilterMutation.mutate(id)}
-              filter={filter}
+              filters={filters}
+              selectedFilterId={filter.id}
+              onSelectFilterId={selectFilter}
+              onDeleteFilter={deleteFilter}
+              onSetDefaultFilter={setDefaultFilter}
               validateFilterStructure={(filter) => {
                 return GjennomforingFilterSchema.safeParse(filter).success;
               }}
@@ -44,7 +67,8 @@ export function GjennomforingerPage() {
           }
           tags={
             <GjennomforingFilterTags
-              filterAtom={gjennomforingfilterAtom}
+              filter={filter.values}
+              updateFilter={updateFilter}
               filterOpen={filterOpen}
               setTagsHeight={setTagsHeight}
             />
@@ -53,7 +77,8 @@ export function GjennomforingerPage() {
           table={
             <ReloadAppErrorBoundary>
               <GjennomforingTable
-                filterAtom={gjennomforingfilterAtom}
+                filter={filter.values}
+                updateFilter={updateFilter}
                 tagsHeight={tagsHeight}
                 filterOpen={filterOpen}
               />
@@ -61,9 +86,6 @@ export function GjennomforingerPage() {
           }
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
-          nullstillFilterButton={
-            <NullstillKnappForGjennomforinger filterAtom={gjennomforingfilterAtom} />
-          }
         />
       </ContentBox>
       <TilToppenKnapp />

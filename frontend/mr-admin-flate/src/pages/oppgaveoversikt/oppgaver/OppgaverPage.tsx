@@ -1,17 +1,24 @@
-import { oppgaverFilterAtom } from "@/api/atoms";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { GetOppgaverResponse } from "@mr/api-client-v2";
-import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import { GetOppgaverResponse, LagretFilterType } from "@mr/api-client-v2";
+import {
+  LagredeFilterOversikt,
+  LagreFilterButton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
-import { useAtom } from "jotai/index";
 import { useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
-import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import {
+  OppgaverFilterSchema,
+  oppgaverFilterStateAtom,
+} from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -39,18 +46,52 @@ function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
 export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [, setTagsHeight] = useState(0);
+
+  const {
+    filter,
+    updateFilter,
+    resetFilterToDefault,
+    selectFilter,
+    hasChanged,
+    filters,
+    saveFilter,
+    deleteFilter,
+    setDefaultFilter,
+  } = useSavedFiltersState(oppgaverFilterStateAtom, LagretFilterType.OPPGAVE);
+
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
-  const [filter] = useAtom(oppgaverFilterAtom);
-  const oppgaver = useOppgaver(filter);
+
+  const oppgaver = useOppgaver(filter.values);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
   return (
     <ContentBox>
       <FilterAndTableLayout
-        filter={<OppgaverFilter oppgaveFilterAtom={oppgaverFilterAtom} />}
+        filter={<OppgaverFilter filter={filter.values} updateFilter={updateFilter} />}
+        nullstillFilterButton={
+          hasChanged ? (
+            <>
+              <NullstillFilterKnapp onClick={resetFilterToDefault} />
+              <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
+            </>
+          ) : null
+        }
+        lagredeFilter={
+          <LagredeFilterOversikt
+            filters={filters}
+            selectedFilterId={filter.id}
+            onSelectFilterId={selectFilter}
+            onDeleteFilter={deleteFilter}
+            onSetDefaultFilter={setDefaultFilter}
+            validateFilterStructure={(filter) => {
+              return OppgaverFilterSchema.safeParse(filter).success;
+            }}
+          />
+        }
         tags={
           <OppgaveFilterTags
-            filterAtom={oppgaverFilterAtom}
+            filter={filter.values}
+            updateFilter={updateFilter}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}
           />
@@ -83,7 +124,6 @@ export function OppgaverPage() {
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={<NullstillKnappForOppgaver filterAtom={oppgaverFilterAtom} />}
       />
     </ContentBox>
   );

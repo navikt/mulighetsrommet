@@ -1,6 +1,3 @@
-import { avtaleFilterAtom, AvtaleFilterSchema } from "@/api/atoms";
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
@@ -9,21 +6,34 @@ import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretFilterType } from "@mr/api-client-v2";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import {
+  LagredeFilterOversikt,
+  LagreFilterButton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useAtom } from "jotai/index";
 import { useState } from "react";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { AvtaleFilterSchema, avtalerFilterStateAtom } from "@/pages/avtaler/filter";
+import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.AVTALE);
-  const deleteFilterMutation = useSlettFilter();
 
-  const [filter, setFilter] = useAtom(avtaleFilterAtom);
+  const {
+    filter,
+    updateFilter,
+    resetFilterToDefault,
+    selectFilter,
+    hasChanged,
+    filters,
+    saveFilter,
+    deleteFilter,
+    setDefaultFilter,
+  } = useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE);
 
   return (
     <main>
@@ -32,14 +42,22 @@ export function AvtalerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
-            nullstillFilterButton={<NullstillKnappForAvtaler filterAtom={avtaleFilterAtom} />}
-            filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
+            filter={<AvtaleFilter filter={filter.values} updateFilter={updateFilter} />}
+            nullstillFilterButton={
+              hasChanged ? (
+                <>
+                  <NullstillFilterKnapp onClick={resetFilterToDefault} />
+                  <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
+                </>
+              ) : null
+            }
             lagredeFilter={
               <LagredeFilterOversikt
-                onDelete={(id: string) => deleteFilterMutation.mutate(id)}
-                lagredeFilter={lagredeFilter}
-                setFilter={setFilter}
-                filter={filter}
+                filters={filters}
+                selectedFilterId={filter.id}
+                onSelectFilterId={selectFilter}
+                onDeleteFilter={deleteFilter}
+                onSetDefaultFilter={setDefaultFilter}
                 validateFilterStructure={(filter) => {
                   return AvtaleFilterSchema.safeParse(filter).success;
                 }}
@@ -47,7 +65,8 @@ export function AvtalerPage() {
             }
             tags={
               <AvtaleFilterTags
-                filterAtom={avtaleFilterAtom}
+                filter={filter.values}
+                updateFilter={updateFilter}
                 filterOpen={filterOpen}
                 setTagsHeight={setTagsHeight}
               />
@@ -55,7 +74,8 @@ export function AvtalerPage() {
             buttons={<AvtaleFilterButtons />}
             table={
               <AvtaleTabell
-                filterAtom={avtaleFilterAtom}
+                filter={filter.values}
+                updateFilter={updateFilter}
                 tagsHeight={tagsHeight}
                 filterOpen={filterOpen}
               />

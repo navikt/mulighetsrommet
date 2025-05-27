@@ -7,37 +7,35 @@ import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstilta
 import {
   ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
-  useArbeidsmarkedstiltakFilter,
-  useArbeidsmarkedstiltakFilterValue,
-  useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
+  useArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { LagretFilterType } from "@mr/api-client-v2";
 import { LagredeFilterOversikt, LagreFilterButton, ListSkeleton } from "@mr/frontend-common";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { BodyShort, HStack } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 interface Props {
   preview?: boolean;
 }
 
 export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
-  const { data: tiltak = [], isPending } = useNavArbeidsmarkedstiltak({
-    preview,
-  });
   const [filterOpen, setFilterOpen] = useState(true);
-  const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
-  const filterValue = useArbeidsmarkedstiltakFilterValue();
-  const { filterHasChanged, resetFilterToDefaults } =
-    useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
   const [tagsHeight, setTagsHeight] = useState(0);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretFilterType.GJENNOMFORING_MODIA);
-  const deleteFilterMutation = useSlettFilter();
-  const lagreFilterMutation = useLagreFilter();
+
+  const {
+    filter,
+    filterHasChanged,
+    selectedFilterId,
+    selectFilter,
+    savedFilters,
+    resetFilterToDefaults,
+    saveFilter,
+    setDefaultFilter,
+    deleteFilter,
+  } = useArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
+
+  const { data: tiltak = [], isPending } = useNavArbeidsmarkedstiltak({ preview });
 
   return (
     <>
@@ -55,27 +53,17 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
           filterHasChanged && (
             <HStack gap="2">
               <NullstillFilterKnapp onClick={resetFilterToDefaults} />
-              <LagreFilterButton
-                onLagre={(namedFilter) => {
-                  lagreFilterMutation.mutate({
-                    ...namedFilter,
-                    type: LagretFilterType.GJENNOMFORING_MODIA,
-                    isDefault: false,
-                    sortOrder: 0,
-                  });
-                  lagreFilterMutation.reset();
-                }}
-                filter={filterValue}
-              />
+              <LagreFilterButton onLagre={saveFilter} filter={filter} />
             </HStack>
           )
         }
         lagredeFilter={
           <LagredeFilterOversikt
-            onDelete={(id: string) => deleteFilterMutation.mutate(id)}
-            lagredeFilter={lagredeFilter}
-            filter={filter}
-            setFilter={setFilter}
+            filters={savedFilters}
+            selectedFilterId={selectedFilterId}
+            onSelectFilterId={selectFilter}
+            onDeleteFilter={deleteFilter}
+            onSetDefaultFilter={setDefaultFilter}
             validateFilterStructure={(filter) => {
               return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
             }}
@@ -86,7 +74,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
             tiltak={tiltak}
             filterOpen={filterOpen}
             feilmelding={
-              !isFilterReady(filterValue) ? (
+              !isFilterReady(filter) ? (
                 <Feilmelding
                   data-testid="filter-mangler-verdier-feilmelding"
                   header="Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltak"

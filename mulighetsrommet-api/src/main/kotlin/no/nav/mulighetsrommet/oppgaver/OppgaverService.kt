@@ -380,7 +380,7 @@ private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildLis
             ),
             link = OppgaveLink(
                 linkText = "Se gjennomforing",
-                link = "//${data.id}",
+                link = "/gjennomforinger/${data.id}",
             ),
             createdAt = data.updatedAt,
             oppgaveIcon = OppgaveIcon.AVTALE,
