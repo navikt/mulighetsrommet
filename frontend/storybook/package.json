@@ -8,7 +8,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@navikt/ds-tailwind": "7.21.1",
+    "@navikt/ds-tailwind": "7.22.0",
     "@tailwindcss/typography": "0.5.16",
     "react": "18.3.1",
     "react-router": "7.6.1"
