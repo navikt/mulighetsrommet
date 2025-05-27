@@ -39,12 +39,9 @@ class SisteTiltaksgjennomforingerV1KafkaConsumer(
         val gjennomforing = queries.gjennomforing.get(id)
         requireNotNull(gjennomforing)
 
-        val endretTidspunkt = queries.gjennomforing.getUpdatedAt(id)
-
         val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(
             gjennomforing,
             arenaGjennomforing?.arenaId,
-            endretTidspunkt,
         )
         arenaMigreringTiltaksgjennomforingProducer.publish(migrertGjennomforing)
     }

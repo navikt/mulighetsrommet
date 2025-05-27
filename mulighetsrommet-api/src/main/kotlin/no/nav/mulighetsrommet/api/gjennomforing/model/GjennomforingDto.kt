@@ -42,7 +42,9 @@ data class GjennomforingDto(
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
+    val opprettetTidspunkt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val oppdatertTidspunkt: LocalDateTime,
     val publisert: Boolean,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,

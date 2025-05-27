@@ -39,10 +39,8 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
         ).initialize(database.db)
 
-        val (gjennomforing, endretTidspunkt) = database.run {
-            val tiltak = queries.gjennomforing.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
-            val ts = queries.gjennomforing.getUpdatedAt(GjennomforingFixtures.Oppfolging1.id)
-            Pair(tiltak, ts)
+        val gjennomforing = database.run {
+            queries.gjennomforing.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
         }
 
         fun createConsumer(
@@ -82,7 +80,7 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gjennomforing)
 
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
+            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null)
             verify(exactly = 1) { producer.publish(expectedMessage) }
             verify(exactly = 1) { producerClient.sendSync(any()) }
         }
@@ -99,7 +97,7 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gjennomforing)
 
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)
+            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123)
             verify(exactly = 1) { producer.publish(expectedMessage) }
             verify(exactly = 1) { producerClient.sendSync(any()) }
         }

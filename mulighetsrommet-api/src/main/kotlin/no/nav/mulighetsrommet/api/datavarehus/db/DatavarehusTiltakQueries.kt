@@ -35,7 +35,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    avtale.created_at            as avtale_opprettet_tidspunkt,
                    avtale.updated_at            as avtale_oppdatert_tidspunkt,
                    arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
-            from gjennomforing gjennomforing
+            from gjennomforing
                      join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                      left join avtale on gjennomforing.avtale_id = avtale.id
                      join arrangor on gjennomforing.arrangor_id = arrangor.id

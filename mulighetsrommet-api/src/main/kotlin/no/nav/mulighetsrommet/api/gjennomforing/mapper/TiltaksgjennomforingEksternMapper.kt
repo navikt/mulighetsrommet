@@ -21,5 +21,7 @@ object TiltaksgjennomforingEksternMapper {
         tilgjengeligForArrangorFraOgMedDato = dto.tilgjengeligForArrangorDato,
         apentForPamelding = dto.apentForPamelding,
         antallPlasser = dto.antallPlasser,
+        opprettetTidspunkt = dto.opprettetTidspunkt,
+        oppdatertTidspunkt = dto.oppdatertTidspunkt,
     )
 }
