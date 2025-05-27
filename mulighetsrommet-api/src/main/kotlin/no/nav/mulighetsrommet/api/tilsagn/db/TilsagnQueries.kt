@@ -188,7 +188,6 @@ class TilsagnQueries(private val session: Session) {
                     :belop,
                     :antall
                 )
-            on conflict do nothing
         """.trimIndent()
         val paramCollection = linjer.map { mapOf("id" to it.id, "tilsagn_id" to tilsagnId, "beskrivelse" to it.beskrivelse, "belop" to it.belop, "antall" to it.antall) }
 

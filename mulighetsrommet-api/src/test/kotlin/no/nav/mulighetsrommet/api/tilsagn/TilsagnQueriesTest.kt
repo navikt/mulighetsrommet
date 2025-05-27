@@ -33,17 +33,8 @@ class TilsagnQueriesTest : FunSpec({
         gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.ArbeidsrettetRehabilitering),
     )
 
-    val tilsagn = TilsagnDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        type = TilsagnType.TILSAGN,
-        periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
-        lopenummer = 1,
-        kostnadssted = Gjovik.enhetsnummer,
-        bestillingsnummer = "1",
-        bestillingStatus = null,
-        belopBrukt = 0,
-        beregning = TilsagnBeregningFri(
+    val beregningFri = {
+        TilsagnBeregningFri(
             TilsagnBeregningFri.Input(
                 listOf(
                     TilsagnBeregningFri.InputLinje(
@@ -56,7 +47,20 @@ class TilsagnQueriesTest : FunSpec({
                 prisbetingelser = "Prisbetingelser fra avtale",
             ),
             TilsagnBeregningFri.Output(123),
-        ),
+        )
+    }
+
+    val tilsagn = TilsagnDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        type = TilsagnType.TILSAGN,
+        periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
+        lopenummer = 1,
+        kostnadssted = Gjovik.enhetsnummer,
+        bestillingsnummer = "1",
+        bestillingStatus = null,
+        belopBrukt = 0,
+        beregning = beregningFri(),
     )
 
     context("CRUD") {
@@ -176,6 +180,7 @@ class TilsagnQueriesTest : FunSpec({
                         lopenummer = 1,
                         bestillingsnummer = "1",
                         gjennomforingId = GjennomforingFixtures.AFT1.id,
+                        beregning = beregningFri(),
                     ),
                 )
 
@@ -185,6 +190,7 @@ class TilsagnQueriesTest : FunSpec({
                         lopenummer = 1,
                         bestillingsnummer = "2",
                         gjennomforingId = aft2.id,
+                        beregning = beregningFri(),
                     ),
                 )
 
@@ -195,6 +201,7 @@ class TilsagnQueriesTest : FunSpec({
                             lopenummer = 1,
                             bestillingsnummer = "3",
                             gjennomforingId = GjennomforingFixtures.AFT1.id,
+                            beregning = beregningFri(),
                         ),
                     )
                 }.shouldBeLeft().shouldBeTypeOf<IntegrityConstraintViolation.UniqueViolation>()

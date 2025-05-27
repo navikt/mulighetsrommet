@@ -54,14 +54,8 @@ class TilsagnServiceTest : FunSpec({
     val ansatt1 = NavAnsattFixture.DonaldDuck.navIdent
     val ansatt2 = NavAnsattFixture.MikkeMus.navIdent
 
-    val request = TilsagnRequest(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        type = TilsagnType.TILSAGN,
-        periodeStart = LocalDate.of(2025, 1, 1),
-        periodeSlutt = LocalDate.of(2025, 1, 31),
-        kostnadssted = Gjovik.enhetsnummer,
-        beregning = TilsagnBeregningFri.Input(
+    val beregningFri = {
+        TilsagnBeregningFri.Input(
             linjer = listOf(
                 TilsagnBeregningFri.InputLinje(
                     id = UUID.randomUUID(),
@@ -71,7 +65,16 @@ class TilsagnServiceTest : FunSpec({
                 ),
             ),
             prisbetingelser = null,
-        ),
+        )
+    }
+    val request = TilsagnRequest(
+        id = UUID.randomUUID(),
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        type = TilsagnType.TILSAGN,
+        periodeStart = LocalDate.of(2025, 1, 1),
+        periodeSlutt = LocalDate.of(2025, 1, 31),
+        kostnadssted = Gjovik.enhetsnummer,
+        beregning = beregningFri(),
     )
 
     beforeEach {
@@ -245,11 +248,11 @@ class TilsagnServiceTest : FunSpec({
                 ansatt1,
             ).shouldBeRight()
             service.upsert(
-                request.copy(id = tilsagn2),
+                request.copy(id = tilsagn2, beregning = beregningFri()),
                 ansatt1,
             ).shouldBeRight()
             service.upsert(
-                request.copy(id = tilsagn3, gjennomforingId = domain2.gjennomforinger[1].id),
+                request.copy(id = tilsagn3, gjennomforingId = domain2.gjennomforinger[1].id, beregning = beregningFri()),
                 ansatt1,
             ).shouldBeRight()
 
