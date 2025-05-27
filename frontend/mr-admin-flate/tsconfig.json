@@ -30,6 +30,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "tests", "../frontend-common/components/error-handling/ErrorBoundary.tsx", "../frontend-common/components/errorboundary/errors.ts"],
+  "include": ["src", "tests", "../frontend-common/components/error-handling/ErrorBoundary.tsx", "../frontend-common/components/errorboundary/errors.ts", "tests/adminflate.utbetalingsdetaljer.spec.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
