@@ -42,6 +42,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,
             antallPlasser = 10,
+            opprettetTidspunkt = LocalDateTime.now(),
+            oppdatertTidspunkt = LocalDateTime.now(),
         )
 
         val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)

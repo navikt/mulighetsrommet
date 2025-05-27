@@ -329,6 +329,8 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         tilgjengeligForArrangorFraOgMedDato = null,
         apentForPamelding = true,
         antallPlasser = 10,
+        opprettetTidspunkt = LocalDateTime.now(),
+        oppdatertTidspunkt = LocalDateTime.now(),
     )
     queries.gruppetiltak.upsert(tiltak)
 
