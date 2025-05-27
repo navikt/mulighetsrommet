@@ -1,7 +1,7 @@
 import { formaterDato } from "@/utils/Utils";
 import { type Oppgave, OppgaveEnhet, OppgaveIcon, OppgaveType } from "@mr/api-client-v2";
 import { BankNoteIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import { Heading, HStack, Tag } from "@navikt/ds-react";
+import { BodyShort, Box, Button, Heading, HStack, Spacer, Tag } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { ReactNode } from "react";
 
@@ -13,31 +13,25 @@ export function Oppgave({ oppgave }: OppgaveProps) {
   const { title, description, link, createdAt, oppgaveIcon } = oppgave;
 
   return (
-    <>
-      <div className="bg-white p-4" data-testid="oppgaver">
-        <div className="flex justify-between items-center">
-          <span>{oppgave.tiltakstype.navn}</span>
-          <HStack gap="2">
-            <OppgaveEnhetTag enhet={oppgave.enhet} />
-            <OppgaveStatus type={oppgave.type} label={oppgave.title} icon={icon(oppgaveIcon)} />
-          </HStack>
-        </div>
-        <div>
-          <div className="flex justify-between mt-4">
-            <Heading size="medium" className="flex items-center gap-2">
-              {title}
-            </Heading>
-          </div>
-          <div>{description}</div>
-          <Link className="mt-3" to={link.link}>
-            {link.linkText}
-          </Link>
-        </div>
-        <div className="flex justify-end text-small">
-          <span>Opprettet {formaterDato(createdAt)}</span>
-        </div>
-      </div>
-    </>
+    <Box background="bg-default" padding="4" data-testid="oppgaver">
+      <HStack gap="2">
+        <BodyShort>{oppgave.tiltakstype.navn}</BodyShort>
+        <Spacer />
+        <OppgaveEnhetTag enhet={oppgave.enhet} />
+        <OppgaveStatus type={oppgave.type} label={oppgave.title} icon={icon(oppgaveIcon)} />
+      </HStack>
+      <Heading size="medium" spacing>
+        {title}
+      </Heading>
+      <BodyShort>{description}</BodyShort>
+      <HStack align="end">
+        <BodyShort>Opprettet {formaterDato(createdAt)}</BodyShort>
+        <Spacer />
+        <Button as={Link} size="small" className="mt-3" to={link.link}>
+          {link.linkText}
+        </Button>
+      </HStack>
+    </Box>
   );
 }
 
