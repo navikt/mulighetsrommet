@@ -86,7 +86,7 @@ data class KafkaConfig(
 
 data class KafkaClients(
     val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
-    val sisteTiltaksgnennomforingerTopic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+    val sisteTiltaksgjennomforingerTopic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
 
     val dvhGjennomforing: DatavarehusTiltakV1KafkaProducer.Config = DatavarehusTiltakV1KafkaProducer.Config(
         consumerId = "dvh-gjennomforing-consumer",

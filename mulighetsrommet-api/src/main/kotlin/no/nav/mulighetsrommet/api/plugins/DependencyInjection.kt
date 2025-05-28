@@ -365,7 +365,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            ArenaAdapterService.Config(appConfig.kafka.clients.sisteTiltaksgnennomforingerTopic),
+            ArenaAdapterService.Config(appConfig.kafka.clients.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -389,7 +389,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         GjennomforingService(
-            GjennomforingService.Config(appConfig.kafka.clients.sisteTiltaksgnennomforingerTopic),
+            GjennomforingService.Config(appConfig.kafka.clients.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -449,7 +449,7 @@ private fun tasks(config: AppConfig) = module {
     single { GenerateValidationReport(tasks.generateValidationReport, get(), get(), get()) }
     single {
         InitialLoadGjennomforinger(
-            InitialLoadGjennomforinger.Config(config.kafka.clients.sisteTiltaksgnennomforingerTopic),
+            InitialLoadGjennomforinger.Config(config.kafka.clients.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
         )
