@@ -122,9 +122,9 @@ export const action: ActionFunction = async ({ params, request }) => {
     };
   }
 
-  const validationErrors = validateKid(kid);
-  if (validationErrors) {
-    return validationErrors;
+  const kidError = validateKid(kid);
+  if (kidError) {
+    return { errors: [kidError] };
   }
 
   const { error } = await ArrangorflateService.godkjennUtbetaling({
@@ -146,17 +146,23 @@ export const action: ActionFunction = async ({ params, request }) => {
 };
 
 export function validateKid(kid: string | null) {
-  const errors = [];
-  const KID_REGEX = /^\d{2,25}$/;
+  if (!kid) return;
 
+  const KID_REGEX = /^\d{2,25}$/;
   if (typeof kid === "string" && !KID_REGEX.test(kid)) {
-    errors.push({
+    return {
       pointer: "/kid",
       detail: "KID-nummer kan kun inneholde tall og være maks 25 siffer",
-    });
+    };
   }
 
-  return errors.length > 0 ? { errors } : null;
+  const num = Number(kid);
+  if (isNaN(num) || (num % 10 !== 0 && num % 11 !== 0)) {
+    return {
+      pointer: "/kid",
+      detail: "Ugyldig KID-nummer",
+    };
+  }
 }
 
 export default function BekreftUtbetaling() {
