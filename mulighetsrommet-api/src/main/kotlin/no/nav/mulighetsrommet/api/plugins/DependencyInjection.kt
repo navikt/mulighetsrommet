@@ -44,8 +44,7 @@ import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProd
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -147,12 +146,6 @@ private fun kafka(appConfig: AppConfig) = module {
             .withMetrics(Metrikker.appMicrometerRegistry)
             .build()
     }
-    single {
-        ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
-            get(),
-            config.clients.arenaMigreringTiltaksgjennomforinger,
-        )
-    }
     single { SisteTiltakstyperV2KafkaProducer(get(), config.clients.tiltakstyper) }
 
     single {
@@ -162,12 +155,12 @@ private fun kafka(appConfig: AppConfig) = module {
                 kafkaProducerClient = get(),
                 db = get(),
             ),
-            SisteTiltaksgjennomforingerV1KafkaConsumer(
-                config = config.clients.gjennomforingerV1,
-                db = get(),
-                tiltakstyper = get(),
-                arenaAdapterClient = get(),
-                arenaMigreringTiltaksgjennomforingProducer = get(),
+            ArenaMigreringGjennomforingKafkaProducer(
+                config.clients.arenaMigreringProducer,
+                get(),
+                get(),
+                get(),
+                get(),
             ),
             AmtDeltakerV1KafkaConsumer(
                 config = config.clients.amtDeltakerV1,
