@@ -31,13 +31,6 @@ class SakEventProcessor(
             )
         }
 
-        if (!sakHasEnhet(data)) {
-            return@either ProcessingResult(
-                Ignored,
-                "Sak ignorert fordi den ikke har en tilhørende enhet (AETATENHET_ANSVARLIG = null)",
-            )
-        }
-
         data
             .toSak()
             .flatMap { entities.upsertSak(it) }
@@ -50,8 +43,6 @@ class SakEventProcessor(
     }
 
     private fun sakIsRelatedToTiltaksgjennomforing(payload: ArenaSak): Boolean = payload.SAKSKODE == "TILT"
-
-    private fun sakHasEnhet(payload: ArenaSak): Boolean = payload.AETATENHET_ANSVARLIG.isNotBlank()
 
     private fun ArenaSak.toSak() = Either
         .catch {
