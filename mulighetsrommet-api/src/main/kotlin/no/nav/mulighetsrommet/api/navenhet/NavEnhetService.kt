@@ -48,7 +48,7 @@ class NavEnhetService(
         val alleEnheter = hentAlleEnheter(
             EnhetFilter(
                 statuser = listOf(NavEnhetStatus.AKTIV),
-                typer = listOf(Norg2Type.KO, Norg2Type.LOKAL, Norg2Type.FYLKE),
+                typer = listOf(Norg2Type.KO, Norg2Type.LOKAL, Norg2Type.FYLKE, Norg2Type.ARK),
             ),
         )
 
@@ -62,8 +62,10 @@ class NavEnhetService(
                     type = region.type,
                     enheter = alleEnheter
                         .filter {
-                            it.overordnetEnhet == region.enhetsnummer &&
-                                (it.type == Norg2Type.LOKAL || NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value))
+                            (
+                                it.overordnetEnhet == region.enhetsnummer &&
+                                    (it.type == Norg2Type.LOKAL || NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value) || NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value))
+                                )
                         }
                         // K er før L så egne ansatte (som er KO) legger seg nederst (med desc)
                         .sortedByDescending { it.type },
