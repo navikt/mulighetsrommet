@@ -22,13 +22,15 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
 import java.util.*
 
+private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
+
 class UpdateGjennomforingStatusTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createTask() = UpdateGjennomforingStatus(
         database.db,
         GjennomforingService(
-            config = GjennomforingService.Config("siste-tiltaksgjennomforinger-topic"),
+            config = GjennomforingService.Config(PRODUCER_TOPIC),
             db = database.db,
             validator = mockk(relaxed = true),
             navAnsattService = mockk(relaxed = true),
@@ -107,6 +109,9 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
                 queries.kafkaProducerRecord.getRecords(10).also { records ->
                     records.shouldHaveSize(2)
+                    records.forEach {
+                        it.topic shouldBe PRODUCER_TOPIC
+                    }
 
                     Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(records[0].value.decodeToString()).should {
                         it.id shouldBe gjennomforing2.id
