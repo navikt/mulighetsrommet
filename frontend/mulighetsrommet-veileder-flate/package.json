@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "cross-env vite",
+    "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite",
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
     "lint": "eslint src --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --fix",
