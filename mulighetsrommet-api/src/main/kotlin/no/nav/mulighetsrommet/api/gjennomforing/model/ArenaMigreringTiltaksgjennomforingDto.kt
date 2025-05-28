@@ -36,7 +36,6 @@ data class ArenaMigreringTiltaksgjennomforingDto(
         fun from(
             gjennomforing: GjennomforingDto,
             arenaId: Int?,
-            endretTidspunkt: LocalDateTime,
         ): ArenaMigreringTiltaksgjennomforingDto {
             val enhetsnummer = if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
                 gjennomforing.arenaAnsvarligEnhet?.enhetsnummer
@@ -59,8 +58,8 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 tiltakskode = gjennomforing.tiltakstype.tiltakskode.toArenaKode(),
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
-                opprettetTidspunkt = gjennomforing.createdAt,
-                endretTidspunkt = endretTidspunkt,
+                opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
+                endretTidspunkt = gjennomforing.oppdatertTidspunkt,
                 navn = gjennomforing.navn,
                 orgnummer = gjennomforing.arrangor.organisasjonsnummer.value,
                 antallPlasser = gjennomforing.antallPlasser,

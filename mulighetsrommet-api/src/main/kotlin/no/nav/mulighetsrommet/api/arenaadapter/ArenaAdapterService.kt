@@ -2,12 +2,13 @@ package no.nav.mulighetsrommet.api.arenaadapter
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
@@ -24,12 +25,16 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ArenaAdapterService(
+    private val config: Config,
     private val db: ApiDatabase,
-    private val gjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    data class Config(
+        val topic: String,
+    )
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.transaction {
         syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
@@ -115,7 +120,7 @@ class ArenaAdapterService(
             logUpdateGjennomforing(next)
         }
 
-        gjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingV1Dto())
+        publishToKafka(next)
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer) {
@@ -134,6 +139,19 @@ class ArenaAdapterService(
         current: GjennomforingDto,
     ): Boolean {
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
+    }
+
+    private fun QueryContext.publishToKafka(dto: GjennomforingDto) {
+        val eksternDto = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+
+        val record = StoredProducerRecord(
+            config.topic,
+            eksternDto.id.toString().toByteArray(),
+            Json.encodeToString(eksternDto).toByteArray(),
+            null,
+        )
+
+        queries.kafkaProducerRecord.storeRecord(record)
     }
 
     private fun QueryContext.logUpdateAvtale(dto: AvtaleDto) {

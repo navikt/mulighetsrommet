@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -86,18 +85,17 @@ data class KafkaConfig(
 )
 
 data class KafkaClients(
+    val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
+    val sisteTiltaksgjennomforingerTopic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+
     val dvhGjennomforing: DatavarehusTiltakV1KafkaProducer.Config = DatavarehusTiltakV1KafkaProducer.Config(
         consumerId = "dvh-gjennomforing-consumer",
         consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
         consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
         producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
     ),
-    val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
     val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config = SisteTiltakstyperV2KafkaProducer.Config(
         topic = "team-mulighetsrommet.siste-tiltakstyper-v3",
-    ),
-    val gjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
-        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
     ),
     val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
         topic = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",

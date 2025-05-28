@@ -7,12 +7,14 @@ import arrow.core.raise.either
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -31,11 +33,14 @@ import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingService(
+    private val config: Config,
     private val db: ApiDatabase,
-    private val gjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val validator: GjennomforingValidator,
     private val navAnsattService: NavAnsattService,
 ) {
+    data class Config(
+        val topic: String,
+    )
 
     suspend fun upsert(
         request: GjennomforingRequest,
@@ -51,7 +56,7 @@ class GjennomforingService(
             }
             .bind()
 
-        if (previous?.toTiltaksgjennomforingDbo() == dbo) {
+        if (previous != null && GjennomforingDboMapper.toTiltaksgjennomforingDbo(previous) == dbo) {
             return@either previous
         }
 
@@ -68,7 +73,7 @@ class GjennomforingService(
             }
             logEndring(operation, dto, navIdent)
 
-            gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+            publishToKafka(dto)
 
             dto
         }
@@ -101,7 +106,9 @@ class GjennomforingService(
     }
 
     fun getEkstern(id: UUID): TiltaksgjennomforingEksternV1Dto? = db.session {
-        queries.gjennomforing.get(id)?.toTiltaksgjennomforingV1Dto()
+        queries.gjennomforing.get(id)?.let { dto ->
+            TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+        }
     }
 
     fun getAllEkstern(
@@ -114,7 +121,7 @@ class GjennomforingService(
                 arrangorOrgnr = filter.arrangorOrgnr,
             )
             .let { (totalCount, items) ->
-                val data = items.map { dto -> dto.toTiltaksgjennomforingV1Dto() }
+                val data = items.map { dto -> TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto) }
                 PaginatedResponse.of(pagination, totalCount, data)
             }
     }
@@ -150,7 +157,7 @@ class GjennomforingService(
                 val dto = getOrError(id)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, navIdent)
-                gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+                publishToKafka(dto)
             }
     }
 
@@ -179,7 +186,7 @@ class GjennomforingService(
         }
         logEndring(operation, dto, endretAv)
 
-        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+        publishToKafka(dto)
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, agent: Agent): Unit = db.transaction {
@@ -193,7 +200,7 @@ class GjennomforingService(
         }
         logEndring(operation, dto, agent)
 
-        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+        publishToKafka(dto)
     }
 
     fun setStengtHosArrangor(
@@ -222,7 +229,7 @@ class GjennomforingService(
                 periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
             logEndring(operation, dto, navIdent)
-            gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+            publishToKafka(dto)
             dto
         }
     }
@@ -232,8 +239,8 @@ class GjennomforingService(
 
         val dto = getOrError(id)
         val operation = "Fjernet periode med stengt hos arrangør"
-        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
         logEndring(operation, dto, navIdent)
+        publishToKafka(dto)
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
@@ -295,5 +302,18 @@ class GjennomforingService(
         ) {
             Json.encodeToJsonElement(dto)
         }
+    }
+
+    private fun QueryContext.publishToKafka(dto: GjennomforingDto) {
+        val eksternDto = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+
+        val record = StoredProducerRecord(
+            config.topic,
+            eksternDto.id.toString().toByteArray(),
+            Json.encodeToString(eksternDto).toByteArray(),
+            null,
+        )
+
+        queries.kafkaProducerRecord.storeRecord(record)
     }
 }

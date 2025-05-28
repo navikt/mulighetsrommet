@@ -4,42 +4,37 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
+
+private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
 
 class GjennomforingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true)
     val validator = mockk<GjennomforingValidator>()
 
     fun createService(): GjennomforingService = GjennomforingService(
+        config = GjennomforingService.Config(PRODUCER_TOPIC),
         db = database.db,
-        gjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
         validator = validator,
         navAnsattService = mockk(relaxed = true),
     )
@@ -76,37 +71,30 @@ class GjennomforingServiceTest : FunSpec({
             )
         }
 
-        test("Hvis publish kaster rulles upsert tilbake") {
+        test("oppretting av gjennomføring blir lagret som et utgående kafka-record") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request
 
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
+            service.upsert(gjennomforing, bertilNavIdent)
 
-            shouldThrow<Throwable> {
-                service.upsert(gjennomforing, bertilNavIdent)
+            database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                record.topic shouldBe PRODUCER_TOPIC
+                record.key shouldBe gjennomforing.id.toString().toByteArray()
+
+                val decoded = Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(record.value.decodeToString())
+                decoded.id shouldBe gjennomforing.id
             }
-
-            service.get(gjennomforing.id) shouldBe null
         }
 
-        test("Hvis ingen endring publish'er vi ikke igjen") {
+        test("lagrer ikke duplikater som utgående kafka-records") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request
-
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
 
             service.upsert(gjennomforing, bertilNavIdent)
             service.upsert(gjennomforing, bertilNavIdent)
 
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(any()) }
-        }
-
-        test("lagrer gjennomføring når ingen feil oppstår") {
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request
-
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
-
-            service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
-
-            service.get(gjennomforing.id) shouldNotBe null
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
+            }
         }
     }
 
@@ -148,9 +136,9 @@ class GjennomforingServiceTest : FunSpec({
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
             )
-            MulighetsrommetTestDomain(gjennomforinger = listOf(gjennomforing)).initialize(database.db)
-
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
 
             val service = createService()
 
@@ -165,40 +153,14 @@ class GjennomforingServiceTest : FunSpec({
                 it.status.status shouldBe GjennomforingStatus.AVBRUTT
             }
 
-            verify(exactly = 1) {
-                tiltaksgjennomforingKafkaProducer.publish(match { it.id == gjennomforing.id })
-            }
-
             database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                record.key shouldBe gjennomforing.id.toString().toByteArray()
+
                 queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforing.id)
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
                         it.operation shouldBe "Gjennomføringen ble avbrutt"
                     }
-            }
-        }
-
-        test("avsluttes ikke hvis publish feiler") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
-                startDato = LocalDate.of(2023, 7, 1),
-                sluttDato = null,
-            )
-            MulighetsrommetTestDomain(gjennomforinger = listOf(gjennomforing)).initialize(database.db)
-
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
-
-            val service = createService()
-
-            shouldThrow<Throwable> {
-                service.setAvsluttet(
-                    gjennomforing.id,
-                    LocalDateTime.now(),
-                    AvbruttAarsak.Feilregistrering,
-                    bertilNavIdent,
-                )
-            }
-
-            service.get(gjennomforing.id).shouldNotBeNull().should {
-                it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
             }
         }
     }

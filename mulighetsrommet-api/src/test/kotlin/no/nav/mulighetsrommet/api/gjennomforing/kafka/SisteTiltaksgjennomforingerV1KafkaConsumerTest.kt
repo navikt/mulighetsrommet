@@ -12,7 +12,9 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -37,10 +39,8 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
         ).initialize(database.db)
 
-        val (gjennomforing, endretTidspunkt) = database.run {
-            val tiltak = queries.gjennomforing.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
-            val ts = queries.gjennomforing.getUpdatedAt(GjennomforingFixtures.Oppfolging1.id)
-            Pair(tiltak, ts)
+        val gjennomforing = database.run {
+            queries.gjennomforing.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
         }
 
         fun createConsumer(
@@ -65,11 +65,7 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, enabledTiltakskoder = emptyList())
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
+            consumeGjennomforing(consumer, gjennomforing)
 
             verify(exactly = 0) { producer.publish(any()) }
             verify(exactly = 0) { producerClient.sendSync(any()) }
@@ -82,13 +78,9 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
+            consumeGjennomforing(consumer, gjennomforing)
 
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
-
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
+            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null)
             verify(exactly = 1) { producer.publish(expectedMessage) }
             verify(exactly = 1) { producerClient.sendSync(any()) }
         }
@@ -103,15 +95,19 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
+            consumeGjennomforing(consumer, gjennomforing)
 
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
-
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)
+            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123)
             verify(exactly = 1) { producer.publish(expectedMessage) }
             verify(exactly = 1) { producerClient.sendSync(any()) }
         }
     }
 })
+
+private suspend fun consumeGjennomforing(
+    consumer: SisteTiltaksgjennomforingerV1KafkaConsumer,
+    gjennomforing: GjennomforingDto,
+) {
+    val message = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(gjennomforing)
+    consumer.consume(gjennomforing.id.toString(), Json.encodeToJsonElement(message))
+}

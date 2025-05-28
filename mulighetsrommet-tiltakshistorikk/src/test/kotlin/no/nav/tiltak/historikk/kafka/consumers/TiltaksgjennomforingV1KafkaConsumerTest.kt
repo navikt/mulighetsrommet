@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
@@ -47,6 +48,8 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,
             antallPlasser = 10,
+            opprettetTidspunkt = LocalDateTime.now(),
+            oppdatertTidspunkt = LocalDateTime.now(),
         )
 
         test("upsert gruppetiltak from topic") {

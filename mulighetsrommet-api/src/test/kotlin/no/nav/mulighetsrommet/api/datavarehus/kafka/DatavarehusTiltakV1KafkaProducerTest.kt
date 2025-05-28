@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
@@ -85,6 +86,8 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 tilgjengeligForArrangorFraOgMedDato = null,
                 apentForPamelding = true,
                 antallPlasser = 10,
+                opprettetTidspunkt = LocalDateTime.now(),
+                oppdatertTidspunkt = LocalDateTime.now(),
             ),
         )
 
