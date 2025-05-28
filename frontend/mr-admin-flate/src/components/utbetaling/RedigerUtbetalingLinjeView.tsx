@@ -4,7 +4,6 @@ import {
   DelutbetalingRequest,
   FieldError,
   OpprettDelutbetalingerRequest,
-  Prismodell,
   TilsagnDto,
   TilsagnStatus,
   TilsagnType,
@@ -60,7 +59,6 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
-        `&prismodell=${Prismodell.FRI}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${formaterDatoSomYYYYMMDD(subtractDays(utbetaling.periode.slutt, 1))}` +
