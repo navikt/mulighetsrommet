@@ -53,7 +53,7 @@ object Fixtures {
         fakturanummer = "4567",
         bestillingsnummer = "A-1",
         kontonummer = Kontonummer("12345678901"),
-        kid = Kid("123123123123120"),
+        kid = Kid("123123123123123"),
         belop = 500,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = FakturaStatusType.SENDT,

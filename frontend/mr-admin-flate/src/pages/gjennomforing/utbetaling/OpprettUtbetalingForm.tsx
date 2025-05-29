@@ -75,16 +75,13 @@ const Schema = z
   .refine(
     (data) => {
       const KID_REGEX = /^\d{2,25}$/;
-      return !data.kidNummer || KID_REGEX.test(data.kidNummer);
+      if (!data.kidNummer) {
+        return true;
+      } else {
+        return data.kidNummer && KID_REGEX.test(data.kidNummer);
+      }
     },
     { message: "KID-nummer må være mellom 2 og 25 siffer", path: ["kidNummer"] },
-  )
-  .refine(
-    (data) => {
-      const num = Number(data.kidNummer);
-      return !data.kidNummer || num % 10 === 0 || num % 11 === 0;
-    },
-    { message: "Ugyldig KID-nummer", path: ["kidNummer"] },
   );
 
 type InferredOpprettUtbetalingFormSchema = z.infer<typeof Schema>;

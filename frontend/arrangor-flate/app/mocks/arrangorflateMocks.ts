@@ -183,7 +183,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "1234567890",
+      kid: "123456789",
     },
     gjennomforing: {
       id: uuid(),
@@ -230,7 +230,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "1234567890",
+      kid: "123456789",
     },
     arrangor: {
       id: uuid(),
@@ -264,7 +264,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "1234567890",
+      kid: "123456789",
     },
     arrangor: {
       id: uuid(),
@@ -298,7 +298,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "1234567890",
+      kid: "123456789",
     },
     arrangor: {
       id: uuid(),

@@ -41,7 +41,7 @@ class UtbetalingQueriesTest : FunSpec({
         fristForGodkjenning = LocalDate.of(2024, 10, 1),
         beregning = beregning,
         kontonummer = Kontonummer("11111111111"),
-        kid = Kid("121"),
+        kid = Kid("12345"),
         periode = periode,
         innsender = NavIdent("Z123456"),
         beskrivelse = "En beskrivelse",
@@ -77,7 +77,7 @@ class UtbetalingQueriesTest : FunSpec({
                 it.beregning shouldBe beregning
                 it.betalingsinformasjon shouldBe Utbetaling.Betalingsinformasjon(
                     kontonummer = Kontonummer("11111111111"),
-                    kid = Kid("121"),
+                    kid = Kid("12345"),
                 )
                 it.journalpostId shouldBe null
                 it.periode shouldBe periode
