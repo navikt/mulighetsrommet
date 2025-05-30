@@ -12,9 +12,8 @@ import org.slf4j.MDC
 import java.util.*
 
 class ArenaEventConsumer(
-    config: Config,
     private val arenaEventService: ArenaEventService,
-) : KafkaTopicConsumer<String, JsonElement>(config, stringDeserializer(), ArenaJsonElementDeserializer()) {
+) : KafkaTopicConsumer<String, JsonElement>(stringDeserializer(), ArenaJsonElementDeserializer()) {
     override suspend fun consume(key: String, message: JsonElement) {
         MDC.put("correlationId", key)
 

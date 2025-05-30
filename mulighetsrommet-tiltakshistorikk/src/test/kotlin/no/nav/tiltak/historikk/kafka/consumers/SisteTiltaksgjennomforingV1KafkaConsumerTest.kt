@@ -5,7 +5,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
@@ -16,7 +15,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
+class SisteTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
@@ -26,10 +25,7 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
     context("konsumer gjennomføringer") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-            db,
-        )
+        val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(db)
 
         val tiltak = TiltaksgjennomforingEksternV1Dto(
             id = UUID.randomUUID(),

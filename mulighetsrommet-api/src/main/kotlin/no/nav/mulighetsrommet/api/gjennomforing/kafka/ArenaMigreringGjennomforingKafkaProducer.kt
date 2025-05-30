@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer.Config
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -24,15 +23,11 @@ class ArenaMigreringGjennomforingKafkaProducer(
     private val arenaAdapterClient: ArenaAdapterClient,
     private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    Config(config.consumerId, config.consumerTopic, config.consumerGroupId),
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
 
     data class Config(
-        val consumerId: String,
-        val consumerGroupId: String,
-        val consumerTopic: String,
         val producerTopic: String,
     )
 

@@ -11,10 +11,8 @@ import no.nav.tiltak.okonomi.BestillingStatus
 import org.slf4j.LoggerFactory
 
 class ReplicateOkonomiBestillingStatus(
-    config: Config,
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {

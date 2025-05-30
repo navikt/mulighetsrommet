@@ -30,7 +30,11 @@ import org.koin.logger.SLF4JLogger
 fun Application.configureDependencyInjection(
     appConfig: AppConfig,
 ) {
-    val tokenProvider = CachedTokenProvider.init(appConfig.auth.azure.audience, appConfig.auth.azure.tokenEndpointUrl, appConfig.auth.azure.privateJwk)
+    val tokenProvider = CachedTokenProvider.init(
+        appConfig.auth.azure.audience,
+        appConfig.auth.azure.tokenEndpointUrl,
+        appConfig.auth.azure.privateJwk,
+    )
     install(KoinIsolated) {
         SLF4JLogger()
         modules(
@@ -81,16 +85,15 @@ private fun db(config: DatabaseConfig) = module {
 
 private fun kafka(config: KafkaConfig) = module {
     single {
-        val consumers = listOf(
-            ArenaEventConsumer(config.consumers.arenaTiltakEndret, get()),
-            ArenaEventConsumer(config.consumers.arenaTiltakgjennomforingEndret, get()),
-            ArenaEventConsumer(config.consumers.arenaTiltakdeltakerEndret, get()),
-            ArenaEventConsumer(config.consumers.arenaHistTiltakdeltakerEndret, get()),
-            ArenaEventConsumer(config.consumers.arenaSakEndret, get()),
-            ArenaEventConsumer(config.consumers.arenaAvtaleInfoEndret, get()),
+        val consumers = mapOf(
+            config.consumers.arenaTiltakEndret to ArenaEventConsumer(get()),
+            config.consumers.arenaTiltakgjennomforingEndret to ArenaEventConsumer(get()),
+            config.consumers.arenaTiltakdeltakerEndret to ArenaEventConsumer(get()),
+            config.consumers.arenaHistTiltakdeltakerEndret to ArenaEventConsumer(get()),
+            config.consumers.arenaSakEndret to ArenaEventConsumer(get()),
+            config.consumers.arenaAvtaleInfoEndret to ArenaEventConsumer(get()),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
         )

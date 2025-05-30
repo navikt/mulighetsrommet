@@ -25,9 +25,6 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val config = DatavarehusTiltakV1KafkaProducer.Config(
-        consumerId = "id",
-        consumerGroupId = "group-id",
-        consumerTopic = "consumer-topic",
         producerTopic = "producer-topic",
     )
 

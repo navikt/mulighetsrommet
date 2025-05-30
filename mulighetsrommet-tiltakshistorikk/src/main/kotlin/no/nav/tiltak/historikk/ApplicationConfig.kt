@@ -2,13 +2,13 @@ package no.nav.tiltak.historikk
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
-import java.util.Properties
 
 data class AppConfig(
     val server: ServerConfig = ServerConfig(),
@@ -48,11 +48,18 @@ data class ServiceClientConfig(
 )
 
 data class KafkaConfig(
-    val consumerPreset: Properties,
     val consumers: KafkaConsumers,
 )
 
 data class KafkaConsumers(
-    val amtDeltakerV1: KafkaTopicConsumer.Config,
-    val sisteTiltaksgjennomforingerV1: KafkaTopicConsumer.Config,
+    val amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "amt-deltaker",
+        topic = "amt.deltaker-v1",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.deltaker.v1"),
+    ),
+    val sisteTiltaksgjennomforingerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "siste-tiltaksgjennomforinger",
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v1"),
+    ),
 )

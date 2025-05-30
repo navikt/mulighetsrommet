@@ -147,37 +147,34 @@ private fun kafka(appConfig: AppConfig) = module {
     }
 
     single {
-        val consumers = listOf(
-            DatavarehusTiltakV1KafkaProducer(
-                config = config.clients.dvhGjennomforing,
-                kafkaProducerClient = get(),
-                db = get(),
-            ),
-            ArenaMigreringGjennomforingKafkaProducer(
-                config.clients.arenaMigreringProducer,
-                get(),
-                get(),
+        val consumers = mapOf(
+            config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
+                DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavaehusTiltakTopic),
                 get(),
                 get(),
             ),
-            AmtDeltakerV1KafkaConsumer(
-                config = config.clients.amtDeltakerV1,
+            config.clients.arenaMigreringGjennomforingerConsumer to ArenaMigreringGjennomforingKafkaProducer(
+                ArenaMigreringGjennomforingKafkaProducer.Config(config.topics.arenaMigreringGjennomforingTopic),
+                get(),
+                get(),
+                get(),
+                get(),
+            ),
+            config.clients.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(
                 db = get(),
                 oppdaterUtbetaling = get(),
             ),
-            AmtVirksomheterV1KafkaConsumer(config.clients.amtVirksomheterV1, get()),
-            AmtArrangorMeldingV1KafkaConsumer(config.clients.amtArrangorMeldingV1, get()),
-            AmtKoordinatorGjennomforingV1KafkaConsumer(config.clients.amtKoordinatorMeldingV1, get()),
-            ReplicateOkonomiBestillingStatus(config.clients.replicateBestillingStatus, get()),
-            ReplicateOkonomiFakturaStatus(config.clients.replicateFakturaStatus, get()),
-            OppdaterUtbetalingBeregningForGjennomforingConsumer(
-                config.clients.oppdaterUtbetalingForGjennomforing,
+            config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
+            config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
+            config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
+            config.clients.replicateBestillingStatus to ReplicateOkonomiBestillingStatus(get()),
+            config.clients.replicateFakturaStatus to ReplicateOkonomiFakturaStatus(get()),
+            config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(
                 get(),
                 get(),
             ),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
         )
@@ -356,7 +353,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            ArenaAdapterService.Config(appConfig.kafka.clients.sisteTiltaksgjennomforingerTopic),
+            ArenaAdapterService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -380,7 +377,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         GjennomforingService(
-            GjennomforingService.Config(appConfig.kafka.clients.sisteTiltaksgjennomforingerTopic),
+            GjennomforingService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -393,7 +390,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         UtbetalingService(
             UtbetalingService.Config(
-                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
             get(),
             get(),
@@ -417,7 +414,7 @@ private fun services(appConfig: AppConfig) = module {
         TilsagnService(
             config = TilsagnService.Config(
                 okonomiConfig = appConfig.okonomi,
-                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
             db = get(),
             navAnsattService = get(),
@@ -440,14 +437,14 @@ private fun tasks(config: AppConfig) = module {
     single { GenerateValidationReport(tasks.generateValidationReport, get(), get(), get()) }
     single {
         InitialLoadGjennomforinger(
-            InitialLoadGjennomforinger.Config(config.kafka.clients.sisteTiltaksgjennomforingerTopic),
+            InitialLoadGjennomforinger.Config(config.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
         )
     }
     single {
         InitialLoadTiltakstyper(
-            InitialLoadTiltakstyper.Config(config.kafka.clients.sisteTiltakstyperTopic),
+            InitialLoadTiltakstyper.Config(config.kafka.topics.sisteTiltakstyperTopic),
             get(),
             get(),
             get(),

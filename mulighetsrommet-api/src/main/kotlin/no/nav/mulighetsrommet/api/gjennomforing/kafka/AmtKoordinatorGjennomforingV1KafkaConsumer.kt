@@ -14,10 +14,8 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class AmtKoordinatorGjennomforingV1KafkaConsumer(
-    config: Config,
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {

@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.util.UUID
+import java.util.*
 
 class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -46,9 +46,6 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             arenaAdapterClient: ArenaAdapterClient,
         ) = ArenaMigreringGjennomforingKafkaProducer(
             ArenaMigreringGjennomforingKafkaProducer.Config(
-                consumerId = "id",
-                consumerGroupId = "id",
-                consumerTopic = "consumer-topic",
                 producerTopic = "producer-topic",
             ),
             database.db,
