@@ -1,15 +1,5 @@
 .fane {
-  &_root {
-    margin-bottom: 2rem;
-  }
-
   &_liste {
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid var(--a-border-default);
-    gap: 6px;
-    justify-content: start;
-
     :global(.navds-label) {
       font-weight: normal;
       margin: 0 0.5rem;
@@ -26,10 +16,6 @@
       }
     }
 
-    .btn_tab {
-      width: fit-content;
-    }
-
     button[data-state="active"] {
       .navds-label {
         font-weight: bold;
@@ -37,24 +23,6 @@
     }
   }
 }
-
-.fane_panel {
-  margin-top: 24px;
-}
-
-@media (width <= 1200px) {
-  .fane {
-    &_root {
-      grid-row: 3;
-      max-width: none;
-    }
-
-    &_liste {
-      justify-content: space-between;
-    }
-  }
-}
-
 :global(.navds-tabs__tablist-wrapper) {
   width: 100%;
   display: block !important;

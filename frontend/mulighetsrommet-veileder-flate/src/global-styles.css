@@ -1,0 +1,45 @@
+/* Global styles extracted from modules */
+
+/* From FilterToggle.module.scss */
+.navds-accordion__content {
+  padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
+/* From PameldingKometApnerSnart.module.scss */
+.overwritten_poster .navds-guide {
+  background-color: var(--a-surface-success-subtle);
+  border-color: var(--a-border-success);
+  padding: 10px;
+}
+
+.overwritten_poster .navds-guide-panel__content {
+  border-color: var(--a-border-success);
+}
+
+/* From ViewTiltakDetaljer.module.scss */
+.sidemeny .navds-tabs__tab[aria-selected="true"] {
+  background-color: var(--a-gray-100);
+}
+
+.sidemeny .navds-tabs__tabpanel {
+  border-top: 1px solid var(--a-gray-300);
+}
+
+.navds-panel {
+  padding: 1.5rem;
+  background-color: var(--a-gray-100);
+}
+
+.navds-tabs__tablist-wrapper {
+  box-shadow: unset;
+}
+
+/* From Kopiknapp.module.scss */
+.navds-button.kopiknapp .navds-button--tertiary:hover {
+  background-color: transparent;
+}
+
+/* From TiltakDetaljer.module.scss */
+.fane_liste {
+  /* Any styles for the TiltakDetaljer.module.scss */
+}

@@ -40,6 +40,10 @@ export default defineConfig({
     tailwindcss(),
   ],
   css: {
+    /* modules: {
+      // Force to use standard CSS Modules behavior
+      scopeBehaviour: "global",
+    }*/
     preprocessorOptions: {
       scss: {
         api: "modern-compiler",

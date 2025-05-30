@@ -2,7 +2,6 @@ import { Alert, HGrid, VStack } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@mr/api-client-v2";
 import { TiltakDetaljerFaneContainer } from "../TiltakDetaljerFaneContainer";
 import ArrangorInfo from "./ArrangorInfo";
-import styles from "./KontaktinfoFane.module.scss";
 import NavKontaktpersonInfo from "./NavKontaktpersonInfo";
 import { isTiltakMedArrangor } from "@/api/queries/useArbeidsmarkedstiltakById";
 
@@ -12,7 +11,7 @@ interface Props {
 
 export function KontaktinfoFane({ tiltak }: Props) {
   return (
-    <TiltakDetaljerFaneContainer harInnhold={true} className={styles.kontaktinfo_container}>
+    <TiltakDetaljerFaneContainer harInnhold={true} className="flex flex-col">
       <VStack gap="5">
         {tiltak.faneinnhold?.kontaktinfoInfoboks && (
           <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
