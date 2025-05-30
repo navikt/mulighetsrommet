@@ -347,7 +347,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     append("gjennomforingId", GjennomforingFixtures.AFT1.id.toString())
                     append("beskrivelse", "test beskrivelse")
                     append("kontonummer", "12345678901")
-                    append("kidNummer", "121")
+                    append("kidNummer", "006402710013")
                     append("belop", 1000)
                     append("periodeStart", "2024-01-01")
                     append("periodeSlutt", "2024-01-31")

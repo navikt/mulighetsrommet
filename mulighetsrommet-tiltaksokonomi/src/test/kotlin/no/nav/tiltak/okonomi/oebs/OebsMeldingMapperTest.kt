@@ -120,7 +120,7 @@ class OebsMeldingMapperTest : FunSpec({
                 erSisteFaktura = false,
             )
 
-            meldingMedKid.kidNummer shouldBe "123123123123120"
+            meldingMedKid.kidNummer shouldBe "0004614992"
             meldingMedKid.meldingTilLeverandor.shouldBeNull()
 
             val meldingUtenKid = OebsMeldingMapper.toOebsFakturaMelding(

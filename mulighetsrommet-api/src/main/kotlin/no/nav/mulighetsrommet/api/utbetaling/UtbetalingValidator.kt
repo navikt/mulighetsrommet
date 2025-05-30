@@ -164,6 +164,15 @@ object UtbetalingValidator {
             if (request.kontonummer.value.length != 11) {
                 add(FieldError.of(OpprettManuellUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn"))
             }
+
+            if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
+                add(
+                    FieldError.of(
+                        OpprettManuellUtbetalingRequest::kidNummer,
+                        "Ugyldig kid",
+                    ),
+                )
+            }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: ValidatedManuellUtbetalingRequest(
@@ -173,7 +182,7 @@ object UtbetalingValidator {
             periodeSlutt = request.periodeSlutt,
             belop = request.belop,
             kontonummer = request.kontonummer,
-            kidNummer = request.kidNummer,
+            kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -253,19 +262,15 @@ object UtbetalingValidator {
                 )
                 null
             }
-            val kid: Kid? = request.kidNummer?.let {
-                try {
-                    Kid(it)
-                } catch (e: IllegalArgumentException) {
-                    add(
-                        FieldError.of(
-                            ArrangorflateManuellUtbetalingRequest::kontonummer,
-                            "Ugyldig kid",
-                        ),
-                    )
-                    null
-                }
+            if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
+                add(
+                    FieldError.of(
+                        ArrangorflateManuellUtbetalingRequest::kidNummer,
+                        "Ugyldig kid",
+                    ),
+                )
             }
+
             if (start != null && slutt != null && kontonummer != null) {
                 validated = ValidatedManuellUtbetalingRequest(
                     id = UUID.randomUUID(),
@@ -275,7 +280,7 @@ object UtbetalingValidator {
                     belop = request.belop,
                     beskrivelse = request.beskrivelse,
                     kontonummer = kontonummer,
-                    kidNummer = kid,
+                    kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
                     tilskuddstype = request.tilskuddstype,
                     vedlegg = request.vedlegg,
                 )
@@ -289,34 +294,44 @@ object UtbetalingValidator {
         request: GodkjennUtbetaling,
         utbetaling: Utbetaling,
         relevanteForslag: List<RelevanteForslag>,
-    ): Either<List<FieldError>, GodkjennUtbetaling> {
-        return if (utbetaling.innsender != null) {
-            listOf(
-                FieldError.root("Utbetalingen er allerede godkjent"),
-            ).left()
-        } else if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
-            listOf(
-                FieldError.ofPointer(
-                    "/info",
-                    "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn.",
-                ),
-            ).left()
-        } else if (request.digest != utbetaling.beregning.getDigest()) {
-            listOf(
-                FieldError.ofPointer(
-                    "/info",
-                    "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
-                ),
-            ).left()
-        } else if (utbetaling.betalingsinformasjon.kontonummer == null) {
-            listOf(
-                FieldError.ofPointer(
-                    "/info",
-                    "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.",
-                ),
-            ).left()
-        } else {
-            request.right()
+    ): Either<List<FieldError>, Kid?> {
+        val errors = buildList {
+            if (utbetaling.innsender != null) {
+                add(FieldError.root("Utbetalingen er allerede godkjent"))
+            }
+            if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
+                add(
+                    FieldError.ofPointer(
+                        "/info",
+                        "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn.",
+                    ),
+                )
+            }
+            if (request.digest != utbetaling.beregning.getDigest()) {
+                add(
+                    FieldError.ofPointer(
+                        "/info",
+                        "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
+                    ),
+                )
+            }
+            if (utbetaling.betalingsinformasjon.kontonummer == null) {
+                add(
+                    FieldError.ofPointer(
+                        "/info",
+                        "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.",
+                    ),
+                )
+            }
+            if (request.kid != null && Kid.parse(request.kid) == null) {
+                add(
+                    FieldError.of(
+                        GodkjennUtbetaling::kid,
+                        "Ugyldig kid",
+                    ),
+                )
+            }
         }
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: request.kid?.let { Kid.parseOrThrow(it) }.right()
     }
 }

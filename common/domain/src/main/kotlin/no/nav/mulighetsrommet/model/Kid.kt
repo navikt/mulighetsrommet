@@ -2,21 +2,28 @@ package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.Serializable
 
-private val KID_REGEX = "^\\d{2,25}$".toRegex()
+private val KID_REGEX = "^\\d{2,24}\\d|-?$".toRegex()
 
 @Serializable
 @JvmInline
-value class Kid(val value: String) {
-    init {
-        require(KID_REGEX.matches(value)) {
-            "'Kid' må være på formatet '$KID_REGEX'"
+value class Kid private constructor(val value: String) {
+    companion object {
+        fun parse(kid: String): Kid? {
+            return if (
+                KID_REGEX.matches(kid) &&
+                (
+                    Modulus.hasValidControlDigit(kid, Modulus.Algorithm.MOD10) ||
+                        Modulus.hasValidControlDigit(kid, Modulus.Algorithm.MOD11)
+                    )
+            ) {
+                Kid(kid)
+            } else {
+                null
+            }
         }
-        val intValue = value.toLongOrNull()
-        requireNotNull(intValue) {
-            "'Kid' må være et tall"
-        }
-        require(intValue % 10 == 0L || intValue % 11 == 0L) {
-            "'Kid' er ugyldig"
+
+        fun parseOrThrow(kid: String): Kid {
+            return parse(kid) ?: throw IllegalArgumentException("Ugyldig kid")
         }
     }
 }
