@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -33,7 +32,6 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
 
     fun createConsumer(): AmtKoordinatorGjennomforingV1KafkaConsumer {
         return AmtKoordinatorGjennomforingV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config("id", "tiltakskoordinators-deltakerliste-v1", Properties()),
             db = database.db,
         )
     }

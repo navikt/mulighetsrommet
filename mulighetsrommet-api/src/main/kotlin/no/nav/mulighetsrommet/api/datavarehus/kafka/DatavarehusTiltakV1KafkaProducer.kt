@@ -19,13 +19,11 @@ class DatavarehusTiltakV1KafkaProducer(
     private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config.consumer,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
 
     data class Config(
-        val consumer: KafkaTopicConsumer.Config,
         val producerTopic: String,
     )
 

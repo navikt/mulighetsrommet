@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjenn
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -47,7 +46,6 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             arenaAdapterClient: ArenaAdapterClient,
         ) = ArenaMigreringGjennomforingKafkaProducer(
             ArenaMigreringGjennomforingKafkaProducer.Config(
-                consumer = KafkaTopicConsumer.Config("id", "consumer-topic", Properties()),
                 producerTopic = "producer-topic",
             ),
             database.db,

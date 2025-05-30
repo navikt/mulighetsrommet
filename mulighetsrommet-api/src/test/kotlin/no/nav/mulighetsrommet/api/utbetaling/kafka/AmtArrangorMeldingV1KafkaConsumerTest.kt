@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
@@ -20,7 +19,6 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArrangorMeldingConsumer() = AmtArrangorMeldingV1KafkaConsumer(
-        config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker", Properties()),
         db = database.db,
     )
 

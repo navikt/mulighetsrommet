@@ -91,15 +91,9 @@ fun configureKafka(
     config: KafkaConfig,
     db: TiltakshistorikkDatabase,
 ): KafkaConsumerOrchestrator {
-    val consumers = listOf(
-        AmtDeltakerV1KafkaConsumer(
-            config = config.consumers.amtDeltakerV1,
-            db = db,
-        ),
-        SisteTiltaksgjennomforingerV1KafkaConsumer(
-            config = config.consumers.sisteTiltaksgjennomforingerV1,
-            db = db,
-        ),
+    val consumers = mapOf(
+        config.consumers.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(db),
+        config.consumers.sisteTiltaksgjennomforingerV1 to SisteTiltaksgjennomforingerV1KafkaConsumer(db),
     )
 
     return KafkaConsumerOrchestrator(

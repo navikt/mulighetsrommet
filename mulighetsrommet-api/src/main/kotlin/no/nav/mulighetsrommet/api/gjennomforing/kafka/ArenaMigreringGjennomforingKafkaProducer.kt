@@ -23,13 +23,11 @@ class ArenaMigreringGjennomforingKafkaProducer(
     private val arenaAdapterClient: ArenaAdapterClient,
     private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config.consumer,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
 
     data class Config(
-        val consumer: KafkaTopicConsumer.Config,
         val producerTopic: String,
     )
 

@@ -4,7 +4,6 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.routing.*
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
@@ -135,11 +134,6 @@ private fun Application.configureKafka(
     db: Database,
     okonomi: OkonomiService,
 ): KafkaConsumerOrchestrator {
-    val bestilling = OkonomiBestillingConsumer(
-        config = config.clients.okonomiBestillingConsumer,
-        okonomi = okonomi,
-    )
-
     val producerClient = KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
         .withProperties(config.producerPropertiesPreset)
         .build()
@@ -169,9 +163,13 @@ private fun Application.configureKafka(
         .withRecordPublisher(QueuedKafkaProducerRecordPublisher(producerClient))
         .build()
 
+    val consumers = mapOf(
+        config.clients.okonomiBestillingConsumer to OkonomiBestillingConsumer(okonomi),
+    )
+
     val kafkaConsumerOrchestrator = KafkaConsumerOrchestrator(
         db = db,
-        consumers = listOf(bestilling),
+        consumers = consumers,
     )
 
     monitor.subscribe(ApplicationStarted) {

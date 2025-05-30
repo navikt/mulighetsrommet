@@ -147,37 +147,29 @@ private fun kafka(appConfig: AppConfig) = module {
     }
 
     single {
-        val consumers = listOf(
-            DatavarehusTiltakV1KafkaProducer(
-                DatavarehusTiltakV1KafkaProducer.Config(
-                    config.clients.datavarehusGjennomforingerConsumer,
-                    config.topics.datavaehusTiltakTopic,
-                ),
+        val consumers = mapOf(
+            config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
+                DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavaehusTiltakTopic),
                 get(),
                 get(),
             ),
-            ArenaMigreringGjennomforingKafkaProducer(
-                ArenaMigreringGjennomforingKafkaProducer.Config(
-                    config.clients.arenaMigreringGjennomforingerConsumer,
-                    config.topics.arenaMigreringGjennomforingTopic,
-                ),
+            config.clients.arenaMigreringGjennomforingerConsumer to ArenaMigreringGjennomforingKafkaProducer(
+                ArenaMigreringGjennomforingKafkaProducer.Config(config.topics.arenaMigreringGjennomforingTopic),
                 get(),
                 get(),
                 get(),
                 get(),
             ),
-            AmtDeltakerV1KafkaConsumer(
-                config = config.clients.amtDeltakerV1,
+            config.clients.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(
                 db = get(),
                 oppdaterUtbetaling = get(),
             ),
-            AmtVirksomheterV1KafkaConsumer(config.clients.amtVirksomheterV1, get()),
-            AmtArrangorMeldingV1KafkaConsumer(config.clients.amtArrangorMeldingV1, get()),
-            AmtKoordinatorGjennomforingV1KafkaConsumer(config.clients.amtKoordinatorMeldingV1, get()),
-            ReplicateOkonomiBestillingStatus(config.clients.replicateBestillingStatus, get()),
-            ReplicateOkonomiFakturaStatus(config.clients.replicateFakturaStatus, get()),
-            OppdaterUtbetalingBeregningForGjennomforingConsumer(
-                config.clients.oppdaterUtbetalingForGjennomforing,
+            config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
+            config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
+            config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
+            config.clients.replicateBestillingStatus to ReplicateOkonomiBestillingStatus(get()),
+            config.clients.replicateFakturaStatus to ReplicateOkonomiFakturaStatus(get()),
+            config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(
                 get(),
                 get(),
             ),

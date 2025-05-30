@@ -6,7 +6,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -20,10 +19,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     context("consume deltakere") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val deltakerConsumer = AmtDeltakerV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker", Properties()),
-            db,
-        )
+        val deltakerConsumer = AmtDeltakerV1KafkaConsumer(db)
 
         val tiltak = TiltaksgjennomforingEksternV1Dto(
             id = UUID.randomUUID(),
