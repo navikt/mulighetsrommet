@@ -64,7 +64,6 @@ import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -146,7 +145,6 @@ private fun kafka(appConfig: AppConfig) = module {
             .withMetrics(Metrikker.appMicrometerRegistry)
             .build()
     }
-    single { SisteTiltakstyperV2KafkaProducer(get(), config.clients.tiltakstyper) }
 
     single {
         val consumers = listOf(
@@ -447,7 +445,14 @@ private fun tasks(config: AppConfig) = module {
             get(),
         )
     }
-    single { InitialLoadTiltakstyper(get(), get(), get()) }
+    single {
+        InitialLoadTiltakstyper(
+            InitialLoadTiltakstyper.Config(config.kafka.clients.sisteTiltakstyperTopic),
+            get(),
+            get(),
+            get(),
+        )
+    }
     single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
     single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }

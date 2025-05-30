@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
-import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -87,6 +86,7 @@ data class KafkaConfig(
 data class KafkaClients(
     val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
     val sisteTiltaksgjennomforingerTopic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+    val sisteTiltakstyperTopic: String = "team-mulighetsrommet.siste-tiltakstyper-v3",
 
     val arenaMigreringProducer: ArenaMigreringGjennomforingKafkaProducer.Config = ArenaMigreringGjennomforingKafkaProducer.Config(
         consumerId = "arena-migrering-gjennomforinger",
@@ -99,9 +99,6 @@ data class KafkaClients(
         consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
         consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
         producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
-    ),
-    val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config = SisteTiltakstyperV2KafkaProducer.Config(
-        topic = "team-mulighetsrommet.siste-tiltakstyper-v3",
     ),
     val oppdaterUtbetalingForGjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "oppdater-utbetaling-for-gjennomforing",
