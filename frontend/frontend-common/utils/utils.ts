@@ -36,3 +36,5 @@ export function jsonPointerToFieldPath(pointer: string): string {
     .replace(/~1/g, "/") // Decode escaped '/'
     .replace(/~0/g, "~"); // Decode escaped '~'
 }
+
+export const KID_REGEX = /^\d{2,24}\d|-$/;

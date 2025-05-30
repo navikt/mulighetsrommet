@@ -1,4 +1,4 @@
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath, KID_REGEX } from "@mr/frontend-common/utils/utils";
 import {
   Button,
   Checkbox,
@@ -147,7 +147,6 @@ export const action: ActionFunction = async ({ params, request }) => {
 
 export function validateKid(kid: string | null) {
   const errors = [];
-  const KID_REGEX = /^\d{2,25}$/;
 
   if (typeof kid === "string" && !KID_REGEX.test(kid)) {
     errors.push({

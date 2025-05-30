@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -284,6 +283,6 @@ data class OpprettManuellUtbetalingRequest(
     val periodeSlutt: LocalDate,
     val beskrivelse: String,
     val kontonummer: Kontonummer,
-    val kidNummer: Kid? = null,
+    val kidNummer: String? = null,
     val belop: Int,
 )

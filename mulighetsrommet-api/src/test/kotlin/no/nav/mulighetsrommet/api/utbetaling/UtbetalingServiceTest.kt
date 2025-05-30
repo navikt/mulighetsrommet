@@ -304,13 +304,13 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 queries.utbetaling.setKid(
                     id = utbetaling.id,
-                    kid = Kid("12345678901"),
+                    kid = Kid.parseOrThrow("006402710013"),
                 )
             }
 
             val sisteKrav = service.genererUtbetalingForMonth(2).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
+            sisteKrav.betalingsinformasjon.kid shouldBe Kid.parseOrThrow("006402710013")
         }
 
         test("genererer en utbetaling med relevante deltakelse-perioder som input") {

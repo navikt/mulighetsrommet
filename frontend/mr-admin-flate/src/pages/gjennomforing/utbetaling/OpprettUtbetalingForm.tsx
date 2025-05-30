@@ -4,7 +4,7 @@ import {
   OpprettManuellUtbetalingRequest,
   ValidationError,
 } from "@mr/api-client-v2";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath, KID_REGEX } from "@mr/frontend-common/utils/utils";
 import {
   Button,
   Heading,
@@ -74,7 +74,6 @@ const Schema = z
   )
   .refine(
     (data) => {
-      const KID_REGEX = /^\d{2,25}$/;
       if (!data.kidNummer) {
         return true;
       } else {

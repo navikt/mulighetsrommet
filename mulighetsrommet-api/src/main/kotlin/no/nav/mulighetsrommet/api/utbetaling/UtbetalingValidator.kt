@@ -164,6 +164,15 @@ object UtbetalingValidator {
             if (request.kontonummer.value.length != 11) {
                 add(FieldError.of(OpprettManuellUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn"))
             }
+
+            if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
+                add(
+                    FieldError.of(
+                        OpprettManuellUtbetalingRequest::kidNummer,
+                        "Ugyldig kid",
+                    ),
+                )
+            }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: ValidatedManuellUtbetalingRequest(
@@ -173,7 +182,7 @@ object UtbetalingValidator {
             periodeSlutt = request.periodeSlutt,
             belop = request.belop,
             kontonummer = request.kontonummer,
-            kidNummer = request.kidNummer,
+            kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -253,19 +262,15 @@ object UtbetalingValidator {
                 )
                 null
             }
-            val kid: Kid? = request.kidNummer?.let {
-                try {
-                    Kid(it)
-                } catch (e: IllegalArgumentException) {
-                    add(
-                        FieldError.of(
-                            ArrangorflateManuellUtbetalingRequest::kontonummer,
-                            "Ugyldig kid",
-                        ),
-                    )
-                    null
-                }
+            if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
+                add(
+                    FieldError.of(
+                        ArrangorflateManuellUtbetalingRequest::kidNummer,
+                        "Ugyldig kid",
+                    ),
+                )
             }
+
             if (start != null && slutt != null && kontonummer != null) {
                 validated = ValidatedManuellUtbetalingRequest(
                     id = UUID.randomUUID(),
@@ -275,7 +280,7 @@ object UtbetalingValidator {
                     belop = request.belop,
                     beskrivelse = request.beskrivelse,
                     kontonummer = kontonummer,
-                    kidNummer = kid,
+                    kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
                     tilskuddstype = request.tilskuddstype,
                     vedlegg = request.vedlegg,
                 )

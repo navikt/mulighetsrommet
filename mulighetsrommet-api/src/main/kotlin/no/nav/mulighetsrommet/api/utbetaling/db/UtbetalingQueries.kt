@@ -343,7 +343,7 @@ class UtbetalingQueries(private val session: Session) {
             beregning = beregning,
             betalingsinformasjon = Utbetaling.Betalingsinformasjon(
                 kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
-                kid = stringOrNull("kid")?.let { Kid(it) },
+                kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
             ),
             journalpostId = stringOrNull("journalpost_id"),
             periode = periode("periode"),
