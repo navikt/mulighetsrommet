@@ -43,7 +43,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         prisbetingelser = null,
         administratorer = emptyList(),
         antallPlasser = 10,
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
         kontorstruktur = emptyList(),
         beskrivelse = null,
         faneinnhold = null,

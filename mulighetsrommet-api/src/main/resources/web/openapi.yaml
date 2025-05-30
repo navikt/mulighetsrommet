@@ -3547,7 +3547,7 @@ components:
       type: string
       enum:
         - ARENA
-        - MR_ADMIN_FLATE
+        - TILTAKSADMINISTRASJON
 
     ArrangorTil:
       type: string

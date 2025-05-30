@@ -63,7 +63,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     navigate(`/avtaler/${gjennomforing.avtaleId}/gjennomforinger/skjema`, {
       state: {
         dupliserGjennomforing: {
-          opphav: Opphav.MR_ADMIN_FLATE,
+          opphav: Opphav.TILTAKSADMINISTRASJON,
           avtaleId: gjennomforing.avtaleId,
           beskrivelse: gjennomforing.beskrivelse,
           faneinnhold: gjennomforing.faneinnhold,

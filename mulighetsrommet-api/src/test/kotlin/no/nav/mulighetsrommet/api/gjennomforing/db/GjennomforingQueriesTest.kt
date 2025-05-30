@@ -87,7 +87,7 @@ class GjennomforingQueriesTest : FunSpec({
                     )
                     it.kontorstruktur shouldBe listOf(Kontorstruktur(region = Innlandet, kontorer = listOf(Gjovik)))
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
-                    it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.kontaktpersoner shouldBe listOf()
                     it.stedForGjennomforing shouldBe "Oslo"
                     it.faneinnhold shouldBe null

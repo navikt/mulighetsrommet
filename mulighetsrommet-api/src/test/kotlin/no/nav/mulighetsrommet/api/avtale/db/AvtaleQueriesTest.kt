@@ -143,7 +143,7 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(AvtaleFixtures.oppfolging.copy(id = id2))
                 queries.upsertArenaAvtale(arenaAvtale.copy(id = id2))
                 queries.get(id2).shouldNotBeNull().should {
-                    it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                 }
             }
         }
