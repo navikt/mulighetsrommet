@@ -17,7 +17,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -1308,11 +1307,6 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("Automatisk utbetaling") {
-        val godkjennUtbetaling = GodkjennUtbetaling(
-            digest = "digest",
-            kid = null,
-        )
-
         val utbetaling1Id = utbetaling1.id
 
         val utbetaling1Forhandsgodkjent = utbetaling1.copy(
@@ -1352,7 +1346,7 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
             database.run {
                 val delutbetaling = queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldHaveSize(1).first()
@@ -1395,7 +1389,7 @@ class UtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
             val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
@@ -1410,7 +1404,7 @@ class UtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
             val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
@@ -1429,7 +1423,7 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
             val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
@@ -1464,7 +1458,7 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
             val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
@@ -1489,7 +1483,7 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
             val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
@@ -1528,7 +1522,7 @@ class UtbetalingServiceTest : FunSpec({
             val tilsagnService: TilsagnService = mockk(relaxed = true)
             val service = createUtbetalingService(tilsagnService = tilsagnService)
 
-            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null)
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).first().should {
                     it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
@@ -1536,7 +1530,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
             }
 
-            service.godkjentAvArrangor(utbetaling2.id, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling2.id, kid = null)
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).first().should {
                     it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING

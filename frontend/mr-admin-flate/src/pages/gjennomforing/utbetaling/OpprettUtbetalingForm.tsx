@@ -4,7 +4,7 @@ import {
   OpprettManuellUtbetalingRequest,
   ValidationError,
 } from "@mr/api-client-v2";
-import { jsonPointerToFieldPath, KID_REGEX } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Button,
   Heading,
@@ -71,16 +71,6 @@ const Schema = z
       message: "Du må sette sluttdato for perioden",
       path: ["periodeSlutt"],
     },
-  )
-  .refine(
-    (data) => {
-      if (!data.kidNummer) {
-        return true;
-      } else {
-        return data.kidNummer && KID_REGEX.test(data.kidNummer);
-      }
-    },
-    { message: "KID-nummer må være mellom 2 og 25 siffer", path: ["kidNummer"] },
   );
 
 type InferredOpprettUtbetalingFormSchema = z.infer<typeof Schema>;

@@ -294,34 +294,44 @@ object UtbetalingValidator {
         request: GodkjennUtbetaling,
         utbetaling: Utbetaling,
         relevanteForslag: List<RelevanteForslag>,
-    ): Either<List<FieldError>, GodkjennUtbetaling> {
-        return if (utbetaling.innsender != null) {
-            listOf(
-                FieldError.root("Utbetalingen er allerede godkjent"),
-            ).left()
-        } else if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
-            listOf(
-                FieldError.ofPointer(
-                    "/info",
-                    "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn.",
-                ),
-            ).left()
-        } else if (request.digest != utbetaling.beregning.getDigest()) {
-            listOf(
-                FieldError.ofPointer(
-                    "/info",
-                    "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
-                ),
-            ).left()
-        } else if (utbetaling.betalingsinformasjon.kontonummer == null) {
-            listOf(
-                FieldError.ofPointer(
-                    "/info",
-                    "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.",
-                ),
-            ).left()
-        } else {
-            request.right()
+    ): Either<List<FieldError>, Kid?> {
+        val errors = buildList {
+            if (utbetaling.innsender != null) {
+                add(FieldError.root("Utbetalingen er allerede godkjent"))
+            }
+            if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
+                add(
+                    FieldError.ofPointer(
+                        "/info",
+                        "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn.",
+                    ),
+                )
+            }
+            if (request.digest != utbetaling.beregning.getDigest()) {
+                add(
+                    FieldError.ofPointer(
+                        "/info",
+                        "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
+                    ),
+                )
+            }
+            if (utbetaling.betalingsinformasjon.kontonummer == null) {
+                add(
+                    FieldError.ofPointer(
+                        "/info",
+                        "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.",
+                    ),
+                )
+            }
+            if (request.kid != null && Kid.parse(request.kid) == null) {
+                add(
+                    FieldError.of(
+                        GodkjennUtbetaling::kid,
+                        "Ugyldig kid",
+                    ),
+                )
+            }
         }
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: request.kid?.let { Kid.parseOrThrow(it) }.right()
     }
 }

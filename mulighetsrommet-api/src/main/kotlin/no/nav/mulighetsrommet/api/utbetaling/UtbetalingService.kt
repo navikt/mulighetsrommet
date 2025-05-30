@@ -9,7 +9,6 @@ import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
@@ -257,10 +256,10 @@ class UtbetalingService(
     // TODO: må verifisere at utbetaling ikke kan godkjennes flere ganger
     fun godkjentAvArrangor(
         utbetalingId: UUID,
-        request: GodkjennUtbetaling,
+        kid: Kid?,
     ) = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setKid(utbetalingId, request.kid)
+        queries.utbetaling.setKid(utbetalingId, kid)
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
