@@ -13,76 +13,62 @@ import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
 import io.opentelemetry.context.Scope
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 class OpenTelemetrySchedulerListener : SchedulerListener {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private var executionSpan: Span? = null
-    private var executionScope: Scope? = null
+    private val executionContexts = ConcurrentHashMap<String, ExecutionContext>()
+
+    private data class ExecutionContext(val span: Span, val scope: Scope)
 
     override fun onExecutionStart(currentlyExecuting: CurrentlyExecuting) {
-        cleanUpPreviousExecution()
-
+        val executionId = currentlyExecuting.execution.id
         val taskName = currentlyExecuting.execution.taskName
-        val id = currentlyExecuting.execution.id
 
         val tracer: Tracer = GlobalOpenTelemetry.getTracer("application")
 
         val span = tracer.spanBuilder(taskName)
-            .setAttribute(AttributeKey.stringKey(Attributes.TASK_ID_ATTRIBUTE), id)
+            .setAttribute(AttributeKey.stringKey(Attributes.TASK_ID_ATTRIBUTE), executionId)
             .setAttribute(AttributeKey.stringKey(Attributes.TASK_NAME_ATTRIBUTE), taskName)
             .startSpan()
 
-        this.executionSpan = span
-        this.executionScope = Context.current().with(span).makeCurrent()
+        val scope = Context.current().with(span).makeCurrent()
 
-        MDC.put(Attributes.TASK_ID_ATTRIBUTE, id)
-        MDC.put(Attributes.TASK_NAME_ATTRIBUTE, taskName)
+        if (executionContexts.containsKey(executionId)) {
+            log.warn("Found existing execution context for task name=$taskName id=$executionId. This should not happen.")
+        }
+        executionContexts[executionId] = ExecutionContext(span, scope)
 
-        log.info("Task started name=$taskName id=$id")
+        log.info("Task started name=$taskName id=$executionId")
     }
 
     override fun onExecutionComplete(executionComplete: ExecutionComplete) {
+        val executionId = executionComplete.execution.id
         val taskName = executionComplete.execution.taskName
-        val id = executionComplete.execution.id
-        log.info("Task finished name=$taskName id=$id")
+        log.info("Task finished name=$taskName id=$executionId")
 
-        MDC.remove(Attributes.TASK_ID_ATTRIBUTE)
-        MDC.remove(Attributes.TASK_NAME_ATTRIBUTE)
+        val context = executionContexts.remove(executionId)
+        if (context == null) {
+            log.warn("Expected to find an execution context for task name=$taskName id=$executionId. Execution context was not found.")
+            return
+        }
 
-        executionScope?.close()
-
-        val span = executionSpan ?: return
+        context.scope.close()
 
         try {
             if (executionComplete.result == ExecutionComplete.Result.FAILED) {
-                span.setStatus(StatusCode.ERROR)
+                context.span.setStatus(StatusCode.ERROR)
                 executionComplete.cause.getOrNull()?.also {
-                    span.recordException(it)
+                    context.span.recordException(it)
                 }
             } else {
-                span.setStatus(StatusCode.OK)
+                context.span.setStatus(StatusCode.OK)
             }
         } finally {
-            span.end()
-
-            executionSpan = null
-            executionScope = null
-        }
-    }
-
-    private fun cleanUpPreviousExecution() {
-        if (executionScope != null) {
-            log.warn("A new task was started, but the scope is still the current context. This should not happen and might occur due to an unexpected error in db-scheduler.")
-            executionScope?.close()
-        }
-
-        if (executionSpan != null) {
-            log.warn("A new task was started, but the span has not ended. This should not happen and might occur due to an unexpected error in db-scheduler.")
-            executionSpan?.end()
+            context.span.end()
         }
     }
 
