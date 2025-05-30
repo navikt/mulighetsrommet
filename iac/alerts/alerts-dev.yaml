@@ -114,7 +114,7 @@ spec:
     - name: Kafka
       rules:
         - alert: "Stale Kafka consumer records detected"
-          expr: sum by (app) (kafka_consumer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
+          expr: max by (app) (kafka_consumer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
           for: 5m
           annotations:
             summary: |
@@ -130,7 +130,7 @@ spec:
             severity: warning
 
         - alert: "Stale Kafka producer records detected"
-          expr: sum by (app) (kafka_producer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
+          expr: max by (app) (kafka_consumer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
           for: 5m
           annotations:
             summary: |
