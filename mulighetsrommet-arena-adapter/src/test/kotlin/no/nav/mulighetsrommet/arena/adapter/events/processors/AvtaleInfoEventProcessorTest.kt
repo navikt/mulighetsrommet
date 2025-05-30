@@ -248,7 +248,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         tiltakstypeId shouldBe tiltakstype.id
                         avtalenummer shouldBe "2022#2000"
                         arrangorOrganisasjonsnummer shouldBe "1000000"
-                        avtaletype shouldBe Avtaletype.Rammeavtale
+                        avtaletype shouldBe Avtaletype.RAMMEAVTALE
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                     }
                 }

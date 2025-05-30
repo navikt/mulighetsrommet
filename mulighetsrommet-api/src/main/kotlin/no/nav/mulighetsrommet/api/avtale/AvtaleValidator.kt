@@ -31,6 +31,9 @@ class AvtaleValidator(
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: return FieldError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel().left()
 
+        val tiltakskode = tiltakstype.tiltakskode
+            ?: return FieldError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen mangler tiltalkskode").nel().left()
+
         val errors = buildList {
             if (avtale.navn.length < 5 && currentAvtale?.opphav != ArenaMigrering.Opphav.ARENA) {
                 add(FieldError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
@@ -46,7 +49,7 @@ class AvtaleValidator(
                 }
             }
 
-            if (Avtaletype.Forhaandsgodkjent != avtale.avtaletype && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
+            if (Avtaletype.FORHANDSGODKJENT != avtale.avtaletype && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
                 if (avtale.opsjonMaksVarighet == null) {
                     add(
                         FieldError.of(
@@ -104,41 +107,41 @@ class AvtaleValidator(
                 )
             }
 
-            if (!allowedAvtaletypes(tiltakstype.tiltakskode).contains(avtale.avtaletype)) {
+            if (!allowedAvtaletypes(tiltakskode).contains(avtale.avtaletype)) {
                 add(
                     FieldError.of(
                         AvtaleDbo::avtaletype,
-                        "${avtale.avtaletype} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
+                        "${avtale.avtaletype.beskrivelse} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
                     ),
                 )
             } else {
-                if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
+                if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(FieldError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
             }
 
-            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, tiltakstype.tiltakskode!!)) {
+            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, tiltakskode)) {
                 if (avtale.prismodell == null) {
                     add(FieldError.of(AvtaleDbo::prismodell, "Du må velge en prismodell"))
-                } else if (avtale.avtaletype == Avtaletype.Forhaandsgodkjent && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
+                } else if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
                     add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen må være forhåndsgodkjent"))
-                } else if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
+                } else if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
                     add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen kan ikke være forhåndsgodkjent"))
                 }
             } else if (avtale.prismodell != null) {
                 add(
                     FieldError.of(
                         AvtaleDbo::prismodell,
-                        "Prismodell kan foreløpig ikke velges for tiltakstypen ${tiltakstype.tiltakskode}",
+                        "Prismodell kan foreløpig ikke velges for tiltakstype ${tiltakstype.navn}",
                     ),
                 )
             }
 
-            if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
+            if (tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
                 add(FieldError.ofPointer("/amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
 
-            if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+            if (tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
                 val utdanninger = avtale.utdanningslop
                 if (utdanninger == null) {
                     add(

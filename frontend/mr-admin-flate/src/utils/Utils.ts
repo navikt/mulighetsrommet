@@ -140,7 +140,7 @@ export function avtaletypeTilTekst(
   switch (type) {
     case Avtaletype.AVTALE:
       return "Avtale";
-    case Avtaletype.FORHAANDSGODKJENT:
+    case Avtaletype.FORHANDSGODKJENT:
       return "Forhåndsgodkjent";
     case Avtaletype.RAMMEAVTALE:
       return "Rammeavtale";

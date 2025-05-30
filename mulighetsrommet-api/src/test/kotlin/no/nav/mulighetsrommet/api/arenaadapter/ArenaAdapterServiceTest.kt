@@ -52,7 +52,7 @@ class ArenaAdapterServiceTest : FunSpec({
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
             arenaAnsvarligEnhet = null,
-            avtaletype = Avtaletype.Rammeavtale,
+            avtaletype = Avtaletype.RAMMEAVTALE,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             prisbetingelser = "💸",
         )
@@ -255,7 +255,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.tiltaksnummer shouldBe "2024#2024"
                     it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
-                    it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
                     it.navn shouldBe gjennomforing1.navn
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer

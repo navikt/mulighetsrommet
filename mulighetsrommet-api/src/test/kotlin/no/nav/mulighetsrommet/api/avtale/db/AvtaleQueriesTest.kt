@@ -143,7 +143,7 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(AvtaleFixtures.oppfolging.copy(id = id2))
                 queries.upsertArenaAvtale(arenaAvtale.copy(id = id2))
                 queries.get(id2).shouldNotBeNull().should {
-                    it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                 }
             }
         }
@@ -672,15 +672,15 @@ class AvtaleQueriesTest : FunSpec({
         test("Filtrer på avtaletyper returnerer riktige avtaler") {
             val avtale1 = AvtaleFixtures.gruppeAmo.copy(
                 id = UUID.randomUUID(),
-                avtaletype = Avtaletype.Avtale,
+                avtaletype = Avtaletype.AVTALE,
             )
             val avtale2 = avtale1.copy(
                 id = UUID.randomUUID(),
-                avtaletype = Avtaletype.Rammeavtale,
+                avtaletype = Avtaletype.RAMMEAVTALE,
             )
             val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
-                avtaletype = Avtaletype.OffentligOffentlig,
+                avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
             )
 
             val domain = MulighetsrommetTestDomain(
@@ -693,12 +693,12 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                queries.getAll(avtaletyper = listOf(Avtaletype.Avtale)).should {
+                queries.getAll(avtaletyper = listOf(Avtaletype.AVTALE)).should {
                     it.totalCount shouldBe 1
                     it.items shouldContainExactlyIds listOf(avtale1.id)
                 }
 
-                queries.getAll(avtaletyper = listOf(Avtaletype.Avtale, Avtaletype.OffentligOffentlig)).should {
+                queries.getAll(avtaletyper = listOf(Avtaletype.AVTALE, Avtaletype.OFFENTLIG_OFFENTLIG)).should {
                     it.totalCount shouldBe 2
                     it.items shouldContainExactlyIds listOf(avtale1.id, avtale3.id)
                 }

@@ -16,7 +16,7 @@ export const deltakelserAktive: Deltakelse[] = [
       type: GruppetiltakDeltakerStatus.KLADD,
       visningstekst: "Kladden er ikke delt",
     },
-    tiltakstypeNavn: "Arbeidsforberende trening",
+    tiltakstypeNavn: "Arbeidsforberedende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},

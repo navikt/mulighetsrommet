@@ -58,7 +58,7 @@ class AvtaleValidatorTest : FunSpec({
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-        avtaletype = Avtaletype.Rammeavtale,
+        avtaletype = Avtaletype.RAMMEAVTALE,
         prisbetingelser = null,
         navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         antallPlasser = null,
@@ -250,18 +250,18 @@ class AvtaleValidatorTest : FunSpec({
 
     test("avtaletype må være allowed") {
         val aft = AvtaleFixtures.AFT.copy(
-            avtaletype = Avtaletype.Rammeavtale,
+            avtaletype = Avtaletype.RAMMEAVTALE,
             opsjonMaksVarighet = LocalDate.now(),
             opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         )
         val vta = AvtaleFixtures.VTA.copy(
-            avtaletype = Avtaletype.Avtale,
+            avtaletype = Avtaletype.AVTALE,
             opsjonMaksVarighet = LocalDate.now(),
             opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         )
-        val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
+        val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(
-            avtaletype = Avtaletype.Forhaandsgodkjent,
+            avtaletype = Avtaletype.FORHANDSGODKJENT,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
 
@@ -284,17 +284,17 @@ class AvtaleValidatorTest : FunSpec({
             ),
         )
         validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(FieldError("/avtaletype", "OffentligOffentlig er ikke tillatt for tiltakstype Oppfølging")),
+            listOf(FieldError("/avtaletype", "Offentlig-offentlig samarbeid er ikke tillatt for tiltakstype Oppfølging")),
         )
         validator.validate(gruppeAmo, null).shouldBeLeft(
-            listOf(FieldError("/avtaletype", "Forhaandsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
+            listOf(FieldError("/avtaletype", "Forhåndsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
         )
 
-        val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
-        val vtaForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
-        val oppfolgingRamme = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale)
+        val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)
+        val vtaForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)
+        val oppfolgingRamme = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.RAMMEAVTALE)
         val gruppeAmoOffentlig = AvtaleFixtures.gruppeAmo.copy(
-            avtaletype = Avtaletype.OffentligOffentlig,
+            avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
         validator.validate(aftForhaands, null).shouldBeRight()
@@ -306,18 +306,18 @@ class AvtaleValidatorTest : FunSpec({
     test("SakarkivNummer må være med når avtalen er avtale eller rammeavtale") {
         val validator = createValidator()
 
-        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, sakarkivNummer = null)
+        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.RAMMEAVTALE, sakarkivNummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
             listOf(FieldError("/sakarkivNummer", "Du må skrive inn saksnummer til avtalesaken")),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, sakarkivNummer = null)
+        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.AVTALE, sakarkivNummer = null)
         validator.validate(avtale, null).shouldBeLeft(
             listOf(FieldError("/sakarkivNummer", "Du må skrive inn saksnummer til avtalesaken")),
         )
 
         val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(
-            avtaletype = Avtaletype.OffentligOffentlig,
+            avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
             sakarkivNummer = null,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
@@ -418,7 +418,7 @@ class AvtaleValidatorTest : FunSpec({
             val dbo = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
 
             validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell", "Prismodell kan foreløpig ikke velges for tiltakstypen OPPFOLGING"),
+                FieldError("/prismodell", "Prismodell kan foreløpig ikke velges for tiltakstype Oppfølging"),
             )
         }
 
@@ -459,7 +459,7 @@ class AvtaleValidatorTest : FunSpec({
             database.run {
                 queries.avtale.upsert(
                     avtaleDbo.copy(
-                        avtaletype = Avtaletype.Rammeavtale,
+                        avtaletype = Avtaletype.RAMMEAVTALE,
                         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN,
                         opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
                         startDato = LocalDate.of(2024, 5, 7),
@@ -482,7 +482,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val previous = database.run { queries.avtale.get(avtaleDbo.id) }
             val avtale = avtaleDbo.copy(
-                avtaletype = Avtaletype.Avtale,
+                avtaletype = Avtaletype.AVTALE,
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
                 opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
             )
@@ -510,7 +510,7 @@ class AvtaleValidatorTest : FunSpec({
 
                 val dbo = avtaleDbo.copy(
                     tiltakstypeId = TiltakstypeFixtures.AFT.id,
-                    avtaletype = Avtaletype.Forhaandsgodkjent,
+                    avtaletype = Avtaletype.FORHANDSGODKJENT,
                     startDato = avtaleDbo.startDato.plusDays(4),
                 )
 

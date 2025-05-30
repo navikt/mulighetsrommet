@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskoder.isForhaandsgodkjentTiltak
+import no.nav.mulighetsrommet.model.Tiltakskoder.isForhandsgodkjentTiltak
 import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -62,7 +62,7 @@ fun Route.gjennomforingRoutes() {
                     message = "Gjennomføringen finnes ikke",
                 )
 
-                if (!isForhaandsgodkjentTiltak(gjennomforing.tiltakstype.tiltakskode)) {
+                if (!isForhandsgodkjentTiltak(gjennomforing.tiltakstype.tiltakskode)) {
                     return@put call.respond(
                         HttpStatusCode.BadRequest,
                         message = "Avtale kan bare settes for gjennomføringer av type AFT eller VTA",

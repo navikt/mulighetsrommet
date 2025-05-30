@@ -112,14 +112,7 @@ SELECT
   tiltakstype_id,
   start_dato,
   slutt_dato,
-  CASE
-    WHEN avtaletype = 'Rammeavtale' THEN 'RAMMEAVTALE'
-    WHEN avtaletype = 'Forhaandsgodkjent' THEN 'FORHANDSGODKJENT'
-    WHEN avtaletype = 'OffentligOffentlig' THEN 'OFFENTLIG_OFFENTLIG'
-    WHEN avtaletype = 'Avtale' THEN 'AVTALE'
-    ELSE avtaletype
-  END
-    AS avtaletype,
+  avtaletype,
   created_at as opprettet_tidspunkt,
   updated_at as oppdatert_tidspunkt,
   avbrutt_tidspunkt
