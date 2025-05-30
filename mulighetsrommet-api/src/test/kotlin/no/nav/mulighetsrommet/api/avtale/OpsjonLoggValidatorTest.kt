@@ -38,7 +38,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             navn = "Nav Oslo",
             enhetsnummer = "0100",
         ),
-        avtaletype = Avtaletype.Avtale,
+        avtaletype = Avtaletype.AVTALE,
         status = AvtaleStatus.AKTIV,
         prisbetingelser = null,
         administratorer = emptyList(),

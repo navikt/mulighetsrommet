@@ -3177,10 +3177,10 @@ components:
     Avtaletype:
       type: string
       enum:
-        - Avtale
-        - Rammeavtale
-        - Forhaandsgodkjent
-        - OffentligOffentlig
+        - AVTALE
+        - RAMMEAVTALE
+        - FORHANDSGODKJENT
+        - OFFENTLIG_OFFENTLIG
 
     AvtalestatusResponse:
       oneOf:

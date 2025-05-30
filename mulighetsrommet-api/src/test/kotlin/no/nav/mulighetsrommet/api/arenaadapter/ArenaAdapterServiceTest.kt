@@ -52,7 +52,7 @@ class ArenaAdapterServiceTest : FunSpec({
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
             arenaAnsvarligEnhet = null,
-            avtaletype = Avtaletype.Rammeavtale,
+            avtaletype = Avtaletype.RAMMEAVTALE,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             prisbetingelser = "💸",
         )

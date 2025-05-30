@@ -77,7 +77,7 @@ class UtbetalingService(
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, avtaletype) ->
                 val utbetaling = when (avtaletype) {
-                    Avtaletype.Forhaandsgodkjent -> createUtbetalingForhandsgodkjent(
+                    Avtaletype.FORHANDSGODKJENT -> createUtbetalingForhandsgodkjent(
                         utbetalingId = UUID.randomUUID(),
                         gjennomforingId = gjennomforingId,
                         periode = periode,

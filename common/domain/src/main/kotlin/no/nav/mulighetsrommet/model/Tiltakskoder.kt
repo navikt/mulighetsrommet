@@ -63,11 +63,6 @@ object Tiltakskoder {
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
     )
 
-    private val ForhaandsgodkjentTiltak = listOf(
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    )
-
     fun isGruppetiltak(arenaKode: String): Boolean {
         return arenaKode in GruppetiltakArenaKoder
     }
@@ -80,7 +75,10 @@ object Tiltakskoder {
         return tiltakskode in TiltakMedFellesOppstart
     }
 
-    fun isForhaandsgodkjentTiltak(tiltakskode: Tiltakskode?): Boolean {
-        return tiltakskode in ForhaandsgodkjentTiltak
+    fun isForhandsgodkjentTiltak(tiltakskode: Tiltakskode?): Boolean {
+        return tiltakskode in listOf(
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        )
     }
 }

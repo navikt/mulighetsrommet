@@ -84,7 +84,7 @@ function SelectPrismodell(props: SelectPrismodellProps) {
 }
 
 function resolvePrismodellOptions(avtaletype: Avtaletype): Option[] {
-  if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+  if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
     return [toOption(Prismodell.FORHANDSGODKJENT)];
   } else {
     return [toOption(Prismodell.FRI)];

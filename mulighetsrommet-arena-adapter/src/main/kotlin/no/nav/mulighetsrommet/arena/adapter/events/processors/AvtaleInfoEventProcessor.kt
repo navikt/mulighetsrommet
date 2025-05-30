@@ -152,8 +152,8 @@ class AvtaleInfoEventProcessor(
         }
 
         val avtaletype = when {
-            avtale.rammeavtale -> Avtaletype.Rammeavtale
-            else -> Avtaletype.Avtale
+            avtale.rammeavtale -> Avtaletype.RAMMEAVTALE
+            else -> Avtaletype.AVTALE
         }
 
         ArenaAvtaleDbo(

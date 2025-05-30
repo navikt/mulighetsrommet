@@ -26,7 +26,7 @@ export function TilsagnForGjennomforingPage() {
   });
 
   const tilsagnstyper =
-    avtale?.avtaletype === Avtaletype.FORHAANDSGODKJENT
+    avtale?.avtaletype === Avtaletype.FORHANDSGODKJENT
       ? [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN, TilsagnType.INVESTERING]
       : [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN];
 

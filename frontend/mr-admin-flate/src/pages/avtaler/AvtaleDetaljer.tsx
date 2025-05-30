@@ -78,7 +78,7 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
         </Heading>
 
         {avtale?.opsjonsmodellData?.opsjonsmodell &&
-        avtale.avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
+        avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
           <>
             <Bolk aria-label="Opsjonsmodell">
               <Metadata
