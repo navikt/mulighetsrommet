@@ -33,10 +33,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
 
     fun createConsumer(): AmtKoordinatorGjennomforingV1KafkaConsumer {
         return AmtKoordinatorGjennomforingV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(
-                id = "amt-tiltakskoordinators-deltakerliste",
-                topic = "tiltakskoordinators-deltakerliste-v1",
-            ),
+            config = KafkaTopicConsumer.Config("id", "tiltakskoordinators-deltakerliste-v1", Properties()),
             db = database.db,
         )
     }

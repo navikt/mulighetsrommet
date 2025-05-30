@@ -11,14 +11,11 @@ import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder.TopicConfig
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.metrics.Metrikker
-import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.function.Consumer
 
 class KafkaConsumerOrchestrator(
     config: Config = Config(),
-    consumerPreset: Properties,
     db: Database,
     consumers: List<KafkaTopicConsumer<*, *>>,
 ) {
@@ -55,7 +52,7 @@ class KafkaConsumerOrchestrator(
 
         consumerClients = consumers.associate { consumer ->
             val topicConfig = toTopicConfig(consumer)
-            val client = toKafkaConsumerClient(consumer, consumerPreset, topicConfig)
+            val client = toKafkaConsumerClient(consumer, topicConfig)
             consumer.getConsumerId() to Consumer(topicConfig, client)
         }
 
@@ -125,22 +122,10 @@ class KafkaConsumerOrchestrator(
 
     private fun toKafkaConsumerClient(
         consumer: KafkaTopicConsumer<*, *>,
-        consumerPreset: Properties,
         topicConfig: TopicConfig<out Any?, out Any?>,
     ): KafkaConsumerClient {
-        fun withConsumerGroupId(p: Properties, consumerGroupId: String): Properties {
-            val p2 = Properties()
-            p2.putAll(p)
-            p2[ConsumerConfig.GROUP_ID_CONFIG] = consumerGroupId
-            return p2
-        }
-
-        val consumerClientPreset = consumer.getConsumerGroupId()
-            ?.let { withConsumerGroupId(consumerPreset, it) }
-            ?: consumerPreset
-
         return KafkaConsumerClientBuilder.builder()
-            .withProperties(consumerClientPreset)
+            .withProperties(consumer.getConsumerProperties())
             .withTopicConfig(topicConfig)
             .build()
     }

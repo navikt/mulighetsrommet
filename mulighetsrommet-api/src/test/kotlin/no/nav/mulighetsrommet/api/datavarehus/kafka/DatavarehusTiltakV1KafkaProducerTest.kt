@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
@@ -25,9 +26,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val config = DatavarehusTiltakV1KafkaProducer.Config(
-        consumerId = "id",
-        consumerGroupId = "group-id",
-        consumerTopic = "consumer-topic",
+        consumer = KafkaTopicConsumer.Config("id", "consumer-topic", Properties()),
         producerTopic = "producer-topic",
     )
 

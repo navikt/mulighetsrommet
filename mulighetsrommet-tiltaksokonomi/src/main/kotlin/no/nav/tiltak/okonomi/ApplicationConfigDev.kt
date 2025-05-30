@@ -46,7 +46,6 @@ val ApplicationConfigDev = AppConfig(
         enable = true,
     ),
     kafka = KafkaConfig(
-        consumerPropertiesPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("team-mulighetsrommet.tiltaksokonomi.v1"),
         producerPropertiesPreset = KafkaPropertiesPreset.aivenByteProducerProperties("team-mulighetsrommet.tiltaksokonomi.v1"),
         topics = KafkaTopics(
             bestillingStatus = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
@@ -55,8 +54,8 @@ val ApplicationConfigDev = AppConfig(
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
-                consumerGroupId = "tiltaksokonomi.bestilling.v1",
                 topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
+                consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
             ),
         ),
     ),

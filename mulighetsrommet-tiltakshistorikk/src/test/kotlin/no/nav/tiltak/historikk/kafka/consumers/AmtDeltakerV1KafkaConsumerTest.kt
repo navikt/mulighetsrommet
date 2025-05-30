@@ -21,7 +21,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         val db = TiltakshistorikkDatabase(database.db)
 
         val deltakerConsumer = AmtDeltakerV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker", Properties()),
             db,
         )
 

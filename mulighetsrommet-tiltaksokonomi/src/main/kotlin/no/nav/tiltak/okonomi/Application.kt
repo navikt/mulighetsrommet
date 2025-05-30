@@ -170,7 +170,6 @@ private fun Application.configureKafka(
         .build()
 
     val kafkaConsumerOrchestrator = KafkaConsumerOrchestrator(
-        consumerPreset = config.consumerPropertiesPreset,
         db = db,
         consumers = listOf(bestilling),
     )

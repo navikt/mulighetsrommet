@@ -149,12 +149,18 @@ private fun kafka(appConfig: AppConfig) = module {
     single {
         val consumers = listOf(
             DatavarehusTiltakV1KafkaProducer(
-                config = config.clients.dvhGjennomforing,
-                kafkaProducerClient = get(),
-                db = get(),
+                DatavarehusTiltakV1KafkaProducer.Config(
+                    config.clients.datavarehusGjennomforingerConsumer,
+                    config.topics.datavaehusTiltakTopic,
+                ),
+                get(),
+                get(),
             ),
             ArenaMigreringGjennomforingKafkaProducer(
-                config.clients.arenaMigreringProducer,
+                ArenaMigreringGjennomforingKafkaProducer.Config(
+                    config.clients.arenaMigreringGjennomforingerConsumer,
+                    config.topics.arenaMigreringGjennomforingTopic,
+                ),
                 get(),
                 get(),
                 get(),
@@ -177,7 +183,6 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
         )
@@ -356,7 +361,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            ArenaAdapterService.Config(appConfig.kafka.clients.sisteTiltaksgjennomforingerTopic),
+            ArenaAdapterService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -380,7 +385,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         GjennomforingService(
-            GjennomforingService.Config(appConfig.kafka.clients.sisteTiltaksgjennomforingerTopic),
+            GjennomforingService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -393,7 +398,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         UtbetalingService(
             UtbetalingService.Config(
-                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
             get(),
             get(),
@@ -417,7 +422,7 @@ private fun services(appConfig: AppConfig) = module {
         TilsagnService(
             config = TilsagnService.Config(
                 okonomiConfig = appConfig.okonomi,
-                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
             db = get(),
             navAnsattService = get(),
@@ -440,14 +445,14 @@ private fun tasks(config: AppConfig) = module {
     single { GenerateValidationReport(tasks.generateValidationReport, get(), get(), get()) }
     single {
         InitialLoadGjennomforinger(
-            InitialLoadGjennomforinger.Config(config.kafka.clients.sisteTiltaksgjennomforingerTopic),
+            InitialLoadGjennomforinger.Config(config.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
         )
     }
     single {
         InitialLoadTiltakstyper(
-            InitialLoadTiltakstyper.Config(config.kafka.clients.sisteTiltakstyperTopic),
+            InitialLoadTiltakstyper.Config(config.kafka.topics.sisteTiltakstyperTopic),
             get(),
             get(),
             get(),

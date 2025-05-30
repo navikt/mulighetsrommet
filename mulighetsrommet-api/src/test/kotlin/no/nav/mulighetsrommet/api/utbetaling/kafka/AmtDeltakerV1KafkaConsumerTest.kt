@@ -42,7 +42,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(),
     ): AmtDeltakerV1KafkaConsumer {
         return AmtDeltakerV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker", Properties()),
             db = database.db,
             relevantDeltakerSluttDatoPeriod = period,
             oppdaterUtbetaling = oppdaterUtbetaling,
@@ -97,7 +97,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
             database.run {
-                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDeltaker(), deltaker2Dbo.toDeltaker())
+                queries.deltaker.getAll()
+                    .shouldContainExactlyInAnyOrder(deltaker1Dbo.toDeltaker(), deltaker2Dbo.toDeltaker())
             }
         }
 

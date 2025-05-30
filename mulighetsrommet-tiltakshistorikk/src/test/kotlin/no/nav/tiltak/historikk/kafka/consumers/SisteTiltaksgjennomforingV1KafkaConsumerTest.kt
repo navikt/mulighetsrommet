@@ -16,7 +16,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
+class SisteTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
@@ -27,7 +27,7 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
         val db = TiltakshistorikkDatabase(database.db)
 
         val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker", Properties()),
             db,
         )
 

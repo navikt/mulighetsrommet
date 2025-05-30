@@ -34,7 +34,7 @@ fun main() {
         Netty,
         port = config.server.port,
         host = config.server.host,
-        module = { configure(config.app) },
+        module = { configure(config) },
     ).start(wait = true)
 }
 

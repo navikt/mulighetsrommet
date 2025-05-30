@@ -7,6 +7,7 @@ import io.ktor.utils.io.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
@@ -47,13 +48,16 @@ val ApplicationConfigLocal = AppConfig(
             .withBrokerUrl("localhost:29092")
             .withSerializers(ByteArraySerializer::class.java, ByteArraySerializer::class.java)
             .build(),
-        consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
-            .withBaseProperties()
-            .withConsumerGroupId("mulighetsrommet-api-kafka-consumer.v1")
-            .withBrokerUrl("localhost:29092")
-            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-            .build(),
-        clients = KafkaClients(),
+        clients = KafkaClients(
+            { consumerGroupId ->
+                consumerBuilder()
+                    .withBaseProperties()
+                    .withConsumerGroupId(consumerGroupId)
+                    .withBrokerUrl("localhost:29092")
+                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                    .build()
+            },
+        ),
     ),
     auth = AuthConfig(
         azure = AuthProvider(

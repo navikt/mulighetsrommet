@@ -6,9 +6,10 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import java.util.Properties
 
-class TestConsumer(id: String, topic: String, group: String? = null) : KafkaTopicConsumer<String?, String?>(
-    Config(id, topic, group),
+class TestConsumer(id: String, topic: String, properties: Properties) : KafkaTopicConsumer<String?, String?>(
+    Config(id, topic, properties),
     stringDeserializer(),
     stringDeserializer(),
 ) {
@@ -19,8 +20,8 @@ class TestConsumer(id: String, topic: String, group: String? = null) : KafkaTopi
     }
 }
 
-class JsonTestConsumer(name: String) : KafkaTopicConsumer<String?, JsonElement>(
-    Config(name, name),
+class JsonTestConsumer(name: String, properties: Properties) : KafkaTopicConsumer<String?, JsonElement>(
+    Config(name, name, properties),
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {

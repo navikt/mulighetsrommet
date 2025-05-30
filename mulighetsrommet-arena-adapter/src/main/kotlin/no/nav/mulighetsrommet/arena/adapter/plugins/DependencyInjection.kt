@@ -30,7 +30,11 @@ import org.koin.logger.SLF4JLogger
 fun Application.configureDependencyInjection(
     appConfig: AppConfig,
 ) {
-    val tokenProvider = CachedTokenProvider.init(appConfig.auth.azure.audience, appConfig.auth.azure.tokenEndpointUrl, appConfig.auth.azure.privateJwk)
+    val tokenProvider = CachedTokenProvider.init(
+        appConfig.auth.azure.audience,
+        appConfig.auth.azure.tokenEndpointUrl,
+        appConfig.auth.azure.privateJwk,
+    )
     install(KoinIsolated) {
         SLF4JLogger()
         modules(
@@ -90,7 +94,6 @@ private fun kafka(config: KafkaConfig) = module {
             ArenaEventConsumer(config.consumers.arenaAvtaleInfoEndret, get()),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
         )

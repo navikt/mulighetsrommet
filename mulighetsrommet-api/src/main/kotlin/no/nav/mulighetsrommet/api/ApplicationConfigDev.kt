@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -35,14 +36,13 @@ val ApplicationConfigDev = AppConfig(
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
-        consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-api-kafka-consumer.v1"),
-        clients = KafkaClients(
+        clients = KafkaClients(::aivenDefaultConsumerProperties) {
             amtDeltakerV1 = KafkaTopicConsumer.Config(
                 id = "amt-deltaker",
                 topic = "amt.deltaker-v1",
-                consumerGroupId = "mulighetsrommet-api.deltaker.v2",
-            ),
-        ),
+                consumerProperties = aivenDefaultConsumerProperties("mulighetsrommet-api.deltaker.v2"),
+            )
+        },
     ),
     auth = AuthConfig(
         azure = AuthProvider(

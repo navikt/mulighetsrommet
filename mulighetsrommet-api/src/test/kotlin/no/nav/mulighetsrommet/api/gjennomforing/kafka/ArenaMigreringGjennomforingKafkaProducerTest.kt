@@ -20,10 +20,11 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjenn
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.util.UUID
+import java.util.*
 
 class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -46,9 +47,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             arenaAdapterClient: ArenaAdapterClient,
         ) = ArenaMigreringGjennomforingKafkaProducer(
             ArenaMigreringGjennomforingKafkaProducer.Config(
-                consumerId = "id",
-                consumerGroupId = "id",
-                consumerTopic = "consumer-topic",
+                consumer = KafkaTopicConsumer.Config("id", "consumer-topic", Properties()),
                 producerTopic = "producer-topic",
             ),
             database.db,

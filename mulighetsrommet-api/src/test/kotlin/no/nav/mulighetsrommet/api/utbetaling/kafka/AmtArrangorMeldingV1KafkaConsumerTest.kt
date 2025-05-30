@@ -20,7 +20,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArrangorMeldingConsumer() = AmtArrangorMeldingV1KafkaConsumer(
-        config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+        config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker", Properties()),
         db = database.db,
     )
 

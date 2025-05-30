@@ -29,10 +29,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(testDatabaseConfig))
 
-    fun KafkaContainer.getConsumerProperties() = KafkaPropertiesBuilder.consumerBuilder()
+    fun KafkaContainer.getConsumerProperties(groupId: String = "consumer") = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(bootstrapServers)
         .withBaseProperties()
-        .withConsumerGroupId("consumer")
+        .withConsumerGroupId(groupId)
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
 
@@ -56,11 +56,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     )
 
     test("should store topics based on provided consumers during setup") {
-        val consumer = TestConsumer(id = "1", topic = "foo")
+        val consumer = TestConsumer(id = "1", topic = "foo", properties = kafka.getConsumerProperties())
 
         val orchestrator = KafkaConsumerOrchestrator(
             defaultConfig,
-            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -76,11 +75,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("should update the consumer running state based on the topic configuration") {
-        val consumer = TestConsumer(id = "1", topic = "foo")
+        val consumer = TestConsumer(id = "1", topic = "foo", properties = kafka.getConsumerProperties())
 
         val orchestrator = KafkaConsumerOrchestrator(
             KafkaConsumerOrchestrator.Config(consumerInitialRunningState = true, consumerRunningStatePollDelay = 10),
-            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -105,11 +103,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord(topic, "key2", null))
         producer.close()
 
-        val consumer = spyk(TestConsumer(id = "1", topic))
+        val consumer = spyk(TestConsumer(id = "1", topic, properties = kafka.getConsumerProperties()))
 
         KafkaConsumerOrchestrator(
             defaultConfig,
-            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -130,12 +127,11 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord(topic, "key1", "true"))
         producer.close()
 
-        val consumer1 = spyk(TestConsumer("1", topic, "group-1"))
-        val consumer2 = spyk(TestConsumer("2", topic, "group-2"))
+        val consumer1 = spyk(TestConsumer("1", topic, properties = kafka.getConsumerProperties("group-1")))
+        val consumer2 = spyk(TestConsumer("2", topic, properties = kafka.getConsumerProperties("group-2")))
 
         KafkaConsumerOrchestrator(
             defaultConfig,
-            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer1, consumer2),
         )
@@ -156,11 +152,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord(topic, "key2", null))
         producer.close()
 
-        val consumer = spyk(JsonTestConsumer(topic))
+        val consumer = spyk(JsonTestConsumer(topic, properties = kafka.getConsumerProperties()))
 
         KafkaConsumerOrchestrator(
             defaultConfig,
-            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
@@ -179,11 +174,10 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord(topic, "false"))
         producer.close()
 
-        val consumer = spyk(TestConsumer(id = "1", topic))
+        val consumer = spyk(TestConsumer(id = "1", topic, properties = kafka.getConsumerProperties()))
 
         val orchestrator = KafkaConsumerOrchestrator(
             defaultConfig,
-            kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
         )
