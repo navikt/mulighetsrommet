@@ -3,10 +3,10 @@ import {
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
 } from "@/constants";
-import { AvtaleIkon } from "../ikoner/AvtaleIkon";
-import { EndringsmeldingerIkon } from "../ikoner/EndringsmeldingerIkon";
-import { ForhandsvisningIkon } from "../ikoner/ForhandsvisningIkon";
-import { GjennomforingIkon } from "../ikoner/GjennomforingIkon";
+import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
+import { EndringsmeldingerIkon } from "@/components/ikoner/EndringsmeldingerIkon";
+import { ForhandsvisningIkon } from "@/components/ikoner/ForhandsvisningIkon";
+import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Forsidekort, ForsideKortProps } from "./Forsidekort";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 

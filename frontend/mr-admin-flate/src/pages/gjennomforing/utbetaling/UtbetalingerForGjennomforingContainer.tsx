@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { utbetalingerByGjennomforingQuery } from "./utbetalingerForGjennomforingLoader";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 
 export function UtbetalingerForGjennomforingContainer() {

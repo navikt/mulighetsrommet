@@ -1,8 +1,8 @@
 import { BodyShort, Box, Heading, Page, VStack } from "@navikt/ds-react";
 import { Link, useLocation, useRouteError } from "react-router";
-import { PORTEN_URL } from "../constants";
+import { PORTEN_URL } from "@/constants";
 import { ProblemDetail } from "@mr/api-client-v2";
-import { IngenLesetilgang } from "@/IngenLesetilgang";
+import { IngenTilgang } from "@/pages/IngenTilgang";
 
 interface GenericError {
   message?: string;
@@ -35,7 +35,7 @@ export function ErrorPage() {
     return "Vi beklager, men noe gikk galt. Vennligst prøv igjen senere.";
   };
 
-  if (error?.status === 403) return <IngenLesetilgang message={getErrorDetail()} />;
+  if (error?.status === 403) return <IngenTilgang message={getErrorDetail()} />;
 
   return (
     <Page>
