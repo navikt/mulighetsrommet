@@ -35,7 +35,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
     navigate(`/avtaler/skjema`, {
       state: {
         dupliserAvtale: {
-          opphav: Opphav.MR_ADMIN_FLATE,
+          opphav: Opphav.TILTAKSADMINISTRASJON,
           tiltakstype: avtale.tiltakstype,
           avtaletype: avtale.avtaletype,
           beskrivelse: avtale.beskrivelse,

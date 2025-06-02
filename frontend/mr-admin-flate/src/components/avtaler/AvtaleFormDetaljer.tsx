@@ -77,7 +77,7 @@ export function AvtaleFormDetaljer({
   }
 
   function handleChangeAvtaletype(avtaletype?: Avtaletype) {
-    if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+    if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("opsjonsmodellData", {
         opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
@@ -91,7 +91,7 @@ export function AvtaleFormDetaljer({
       });
     }
 
-    if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+    if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("prismodell", Prismodell.FORHANDSGODKJENT);
     } else {
       setValue("prismodell", null);
@@ -282,9 +282,9 @@ function velgAlleLokaleUnderenheter(
 }
 
 function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
-  const forhaandsgodkjent = {
-    value: Avtaletype.FORHAANDSGODKJENT,
-    label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
+  const forhandsgodkjent = {
+    value: Avtaletype.FORHANDSGODKJENT,
+    label: avtaletypeTilTekst(Avtaletype.FORHANDSGODKJENT),
   };
   const rammeavtale = {
     value: Avtaletype.RAMMEAVTALE,
@@ -301,7 +301,7 @@ function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; la
   switch (tiltakskode) {
     case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
     case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
-      return [forhaandsgodkjent];
+      return [forhandsgodkjent];
     case Tiltakskode.OPPFOLGING:
     case Tiltakskode.JOBBKLUBB:
     case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:

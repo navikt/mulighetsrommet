@@ -9,7 +9,7 @@ export const avtaletekster = {
   sluttdatoLabel: (opsjonerRegistrert: boolean) =>
     opsjonerRegistrert ? "Sluttdato*" : "Sluttdato",
   valgfriSluttdatoLabel: (avtaletype: Avtaletype) =>
-    avtaletype === Avtaletype.FORHAANDSGODKJENT ? "Sluttdato (valgfri)" : "Sluttdato",
+    avtaletype === Avtaletype.FORHANDSGODKJENT ? "Sluttdato (valgfri)" : "Sluttdato",
   maksVarighetLabel: "Maks varighet inkl. opsjon",
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",

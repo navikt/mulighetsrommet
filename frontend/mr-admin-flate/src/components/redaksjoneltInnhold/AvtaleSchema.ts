@@ -85,7 +85,7 @@ export const AvtaleSchema = z
       });
     }
 
-    if (data.avtaletype !== Avtaletype.FORHAANDSGODKJENT) {
+    if (data.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
       if (!data.opsjonsmodellData.opsjonsmodell) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

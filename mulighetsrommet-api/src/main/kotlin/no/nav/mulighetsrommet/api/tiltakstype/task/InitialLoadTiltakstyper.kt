@@ -3,19 +3,26 @@ package no.nav.mulighetsrommet.api.tiltakstype.task
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import kotlinx.serialization.json.Json
+import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
+import no.nav.mulighetsrommet.model.TiltakstypeEksternV2Dto
 import no.nav.mulighetsrommet.tasks.executeSuspend
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
 class InitialLoadTiltakstyper(
+    private val config: Config,
     private val db: ApiDatabase,
-    private val tiltakstypeProducer: SisteTiltakstyperV2KafkaProducer,
+    private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
     private val sanityService: SanityService,
 ) {
+    data class Config(
+        val topic: String,
+    )
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -45,7 +52,7 @@ class InitialLoadTiltakstyper(
                 }
 
                 logger.info("Publiserer tiltakstype til kafka id=${tiltakstype.id}")
-                tiltakstypeProducer.publish(eksternDto)
+                publishToKafka(eksternDto)
             }
 
             if (tiltakstype.sanityId != null) {
@@ -57,5 +64,14 @@ class InitialLoadTiltakstyper(
                 )
             }
         }
+    }
+
+    private fun publishToKafka(value: TiltakstypeEksternV2Dto) {
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
+            config.topic,
+            value.id.toString().toByteArray(),
+            Json.encodeToString(value).toByteArray(),
+        )
+        kafkaProducerClient.sendSync(record)
     }
 }

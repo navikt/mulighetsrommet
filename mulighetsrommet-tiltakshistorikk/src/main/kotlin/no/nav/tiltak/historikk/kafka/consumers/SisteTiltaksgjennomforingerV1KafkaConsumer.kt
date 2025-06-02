@@ -11,10 +11,8 @@ import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.util.*
 
 class SisteTiltaksgjennomforingerV1KafkaConsumer(
-    config: Config,
     private val db: TiltakshistorikkDatabase,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
-    config,
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {

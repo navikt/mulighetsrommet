@@ -14,10 +14,8 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class AmtDeltakerV1KafkaConsumer(
-    config: Config,
     private val db: TiltakshistorikkDatabase,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
-    config,
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {

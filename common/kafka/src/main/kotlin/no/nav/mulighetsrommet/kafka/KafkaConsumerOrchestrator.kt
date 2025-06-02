@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
@@ -11,19 +12,17 @@ import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder.TopicConfig
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.metrics.Metrikker
-import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
 
 class KafkaConsumerOrchestrator(
     config: Config = Config(),
-    consumerPreset: Properties,
     db: Database,
-    consumers: List<KafkaTopicConsumer<*, *>>,
+    consumers: Map<KafkaTopicConsumer.Config, KafkaTopicConsumer<*, *>>,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val consumerClients: Map<String, Consumer>
+    private val consumersById: Map<String, Consumer>
     private val consumerRecordProcessor: KafkaConsumerRecordProcessor
     private val topicPoller: Poller
     private val topicRepository = TopicRepository(db)
@@ -39,6 +38,11 @@ class KafkaConsumerOrchestrator(
          * Frequency in milliseconds of how often the [Topic.running] state should be polled.
          */
         val consumerRunningStatePollDelay: Long = 10_000,
+
+        /**
+         * The number of records to process per batch by the consumer record processor.
+         */
+        val consumerProcessorBatchSize: Int = 1000,
     )
 
     private data class Consumer(
@@ -51,17 +55,16 @@ class KafkaConsumerOrchestrator(
 
         validateConsumers(consumers)
 
-        resetTopics(config, consumers)
+        resetTopics(config, consumers.keys)
 
-        consumerClients = consumers.associate { consumer ->
-            val topicConfig = toTopicConfig(consumer)
-            val client = toKafkaConsumerClient(consumer, consumerPreset, topicConfig)
-            consumer.getConsumerId() to Consumer(topicConfig, client)
+        consumersById = consumers.entries.associate { (config, consumer) ->
+            config.id to createConsumer(config, consumer)
         }
 
-        val topicConfigs = consumerClients.map { it.value.topicConfig }
+        val topicConfigs = consumersById.values.map { it.topicConfig }
         consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
             .builder()
+            .withRecordBatchSize(config.consumerProcessorBatchSize)
             .withLockProvider(JdbcLockProvider(db.getDatasource()))
             .withKafkaConsumerRepository(kafkaConsumerRepository)
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(topicConfigs))
@@ -89,7 +92,7 @@ class KafkaConsumerOrchestrator(
     }
 
     fun getConsumers(): List<KafkaConsumerClient> {
-        return consumerClients.map { it.value.client }
+        return consumersById.map { it.value.client }
     }
 
     fun updateRunningTopics(topics: List<Topic>): List<Topic> {
@@ -106,48 +109,18 @@ class KafkaConsumerOrchestrator(
         return kafkaConsumerRepository.getAll()
     }
 
-    private fun <K, V> toTopicConfig(consumer: KafkaTopicConsumer<K, V>): TopicConfig<K, V> {
-        return TopicConfig<K, V>()
-            .withMetrics(Metrikker.appMicrometerRegistry)
-            .withLogging()
-            .withStoreOnFailure(kafkaConsumerRepository)
-            .withConsumerConfig(
-                consumer.getConsumerTopic(),
-                consumer.keyDeserializer,
-                consumer.valueDeserializer,
-                Consumer { event ->
-                    runBlocking {
-                        consumer.consume(event.key(), event.value())
-                    }
-                },
-            )
-    }
-
-    private fun toKafkaConsumerClient(
+    private fun createConsumer(
+        config: KafkaTopicConsumer.Config,
         consumer: KafkaTopicConsumer<*, *>,
-        consumerPreset: Properties,
-        topicConfig: TopicConfig<out Any?, out Any?>,
-    ): KafkaConsumerClient {
-        fun withConsumerGroupId(p: Properties, consumerGroupId: String): Properties {
-            val p2 = Properties()
-            p2.putAll(p)
-            p2[ConsumerConfig.GROUP_ID_CONFIG] = consumerGroupId
-            return p2
-        }
-
-        val consumerClientPreset = consumer.getConsumerGroupId()
-            ?.let { withConsumerGroupId(consumerPreset, it) }
-            ?: consumerPreset
-
-        return KafkaConsumerClientBuilder.builder()
-            .withProperties(consumerClientPreset)
-            .withTopicConfig(topicConfig)
-            .build()
+    ): KafkaConsumerOrchestrator.Consumer {
+        val topicConfig = toTopicConfig(config.topic, consumer, kafkaConsumerRepository)
+        val client = toKafkaConsumerClient(config.consumerProperties, topicConfig)
+        return Consumer(topicConfig, client)
     }
 
     private fun updateClientRunningState() {
         getTopics().forEach {
-            val client = consumerClients[it.id]?.client
+            val client = consumersById[it.id]?.client
             if (client != null) {
                 if (client.isRunning && !it.running) {
                     client.stop()
@@ -160,17 +133,18 @@ class KafkaConsumerOrchestrator(
         }
     }
 
-    private fun resetTopics(config: Config, consumers: List<KafkaTopicConsumer<*, *>>) {
+    private fun resetTopics(config: Config, consumerConfigs: Set<KafkaTopicConsumer.Config>) {
         val currentTopics = topicRepository.getAll()
 
-        val topics = consumers.map { consumer ->
-            val id = consumer.getConsumerId()
+        val topics = consumerConfigs.map { consumerConfig ->
+            val id = consumerConfig.id
+            val topic = consumerConfig.topic
 
             val running = currentTopics.firstOrNull { it.id == id }
                 ?.running
                 ?: config.consumerInitialRunningState
 
-            Topic(id = id, topic = consumer.getConsumerTopic(), type = TopicType.CONSUMER, running = running)
+            Topic(id = id, topic = topic, type = TopicType.CONSUMER, running = running)
         }
         topicRepository.setAll(topics)
     }
@@ -180,8 +154,39 @@ class KafkaConsumerOrchestrator(
     }
 }
 
-private fun validateConsumers(consumers: List<KafkaTopicConsumer<*, *>>) {
-    require(consumers.distinctBy { it.getConsumerId() }.size == consumers.size) {
+private fun validateConsumers(consumers: Map<KafkaTopicConsumer.Config, KafkaTopicConsumer<*, *>>) {
+    require(consumers.keys.distinctBy { it.id }.size == consumers.size) {
         "Each consumer must have a unique 'id'. At least two consumers share the same 'id'."
     }
+}
+
+private fun toKafkaConsumerClient(
+    consumerProperties: Properties,
+    topicConfig: TopicConfig<out Any?, out Any?>,
+): KafkaConsumerClient {
+    return KafkaConsumerClientBuilder.builder()
+        .withProperties(consumerProperties)
+        .withTopicConfig(topicConfig)
+        .build()
+}
+
+private fun <K, V> toTopicConfig(
+    topic: String,
+    consumer: KafkaTopicConsumer<K, V>,
+    consumerRecordRepository: KafkaConsumerRepository,
+): TopicConfig<K, V> {
+    return TopicConfig<K, V>()
+        .withMetrics(Metrikker.appMicrometerRegistry)
+        .withLogging()
+        .withStoreOnFailure(consumerRecordRepository)
+        .withConsumerConfig(
+            topic,
+            consumer.keyDeserializer,
+            consumer.valueDeserializer,
+            Consumer { event ->
+                runBlocking {
+                    consumer.consume(event.key(), event.value())
+                }
+            },
+        )
 }

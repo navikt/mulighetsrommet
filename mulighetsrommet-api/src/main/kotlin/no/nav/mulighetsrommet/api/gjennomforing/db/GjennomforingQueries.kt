@@ -288,15 +288,6 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun getUpdatedAt(id: UUID): LocalDateTime {
-        @Language("PostgreSQL")
-        val query = """
-            select updated_at from gjennomforing where id = ?::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) { it.localDateTime("updated_at") }
-    }
-
     fun getAll(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
@@ -582,7 +573,7 @@ class GjennomforingQueries(private val session: Session) {
     }
 
     private fun GjennomforingDbo.toSqlParameters() = mapOf(
-        "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
+        "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -655,7 +646,8 @@ class GjennomforingQueries(private val session: Session) {
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-            createdAt = localDateTime("created_at"),
+            opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+            oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
             deltidsprosent = double("deltidsprosent"),
             estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
                 GjennomforingDto.EstimertVentetid(

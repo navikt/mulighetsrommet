@@ -56,8 +56,8 @@ export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [
     value: Avtaletype.AVTALE,
   },
   {
-    label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
-    value: Avtaletype.FORHAANDSGODKJENT,
+    label: avtaletypeTilTekst(Avtaletype.FORHANDSGODKJENT),
+    value: Avtaletype.FORHANDSGODKJENT,
   },
   {
     label: avtaletypeTilTekst(Avtaletype.OFFENTLIG_OFFENTLIG),

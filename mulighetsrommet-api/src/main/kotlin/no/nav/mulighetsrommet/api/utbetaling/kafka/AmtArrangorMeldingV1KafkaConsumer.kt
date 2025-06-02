@@ -13,10 +13,8 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class AmtArrangorMeldingV1KafkaConsumer(
-    config: Config,
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
-    config,
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {

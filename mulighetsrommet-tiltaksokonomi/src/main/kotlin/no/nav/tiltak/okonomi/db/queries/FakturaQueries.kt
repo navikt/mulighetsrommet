@@ -202,7 +202,7 @@ class FakturaQueries(private val session: Session) {
                 bestillingsnummer = faktura.string("bestillingsnummer"),
                 fakturanummer = faktura.string("fakturanummer"),
                 kontonummer = faktura.stringOrNull("kontonummer")?.let { Kontonummer(it) },
-                kid = faktura.stringOrNull("kid")?.let { kid -> Kid(kid) },
+                kid = faktura.stringOrNull("kid")?.let { kid -> Kid.parseOrThrow(kid) },
                 belop = faktura.int("belop"),
                 periode = faktura.periode("periode"),
                 status = FakturaStatusType.valueOf(faktura.string("status")),

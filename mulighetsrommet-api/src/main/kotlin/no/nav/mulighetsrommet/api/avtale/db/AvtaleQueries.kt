@@ -439,7 +439,7 @@ class AvtaleQueries(private val session: Session) {
     }
 
     private fun AvtaleDbo.toSqlParameters() = mapOf(
-        "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
+        "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,

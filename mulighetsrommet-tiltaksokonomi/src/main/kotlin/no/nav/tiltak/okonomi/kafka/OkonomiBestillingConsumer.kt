@@ -12,10 +12,8 @@ import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
 class OkonomiBestillingConsumer(
-    config: Config,
     private val okonomi: OkonomiService,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {

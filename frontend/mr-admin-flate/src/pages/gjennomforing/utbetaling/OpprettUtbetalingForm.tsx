@@ -71,17 +71,6 @@ const Schema = z
       message: "Du må sette sluttdato for perioden",
       path: ["periodeSlutt"],
     },
-  )
-  .refine(
-    (data) => {
-      const KID_REGEX = /^\d{2,25}$/;
-      if (!data.kidNummer) {
-        return true;
-      } else {
-        return data.kidNummer && KID_REGEX.test(data.kidNummer);
-      }
-    },
-    { message: "KID-nummer må være mellom 2 og 25 siffer", path: ["kidNummer"] },
   );
 
 type InferredOpprettUtbetalingFormSchema = z.infer<typeof Schema>;

@@ -48,7 +48,7 @@ class GjennomforingValidator(
                 )
             }
 
-            if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && next.sluttDato == null) {
+            if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && next.sluttDato == null) {
                 add(
                     FieldError.of(
                         GjennomforingDbo::sluttDato,

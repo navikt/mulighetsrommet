@@ -11,7 +11,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -88,12 +87,11 @@ class GjennomforingQueriesTest : FunSpec({
                     )
                     it.kontorstruktur shouldBe listOf(Kontorstruktur(region = Innlandet, kontorer = listOf(Gjovik)))
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
-                    it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.kontaktpersoner shouldBe listOf()
                     it.stedForGjennomforing shouldBe "Oslo"
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null
-                    it.createdAt shouldNotBe null
                 }
 
                 queries.delete(Oppfolging1.id)

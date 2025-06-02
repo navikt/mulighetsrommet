@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "3.2025.04.01_09.46-936a3ae3d5d9"
+common-java-modules = "3.2025.05.30_07.00-bef2e550fb22"
 flyway = "11.8.2"
 koin = "4.1.0-Beta8"
 kotest = "5.9.1"
@@ -59,7 +59,7 @@ kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
 
-ktlint = "com.pinterest.ktlint:ktlint-cli:1.5.0"
+ktlint = "com.pinterest.ktlint:ktlint-cli:1.6.0"
 
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -110,11 +110,11 @@ nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.11"
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.50.0"
 
-postgresql = "org.postgresql:postgresql:42.7.5"
+postgresql = "org.postgresql:postgresql:42.7.6"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.7.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.8.0"
 
 slack-client = "com.slack.api:slack-api-client:1.45.3"
 

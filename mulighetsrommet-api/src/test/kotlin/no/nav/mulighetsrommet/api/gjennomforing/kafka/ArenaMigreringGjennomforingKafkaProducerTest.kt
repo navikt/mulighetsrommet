@@ -2,7 +2,10 @@ package no.nav.mulighetsrommet.api.gjennomforing.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.KafkaProducerClient
@@ -12,24 +15,21 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.Tiltakskode
+import org.apache.kafka.clients.producer.ProducerRecord
+import java.util.*
 
-class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
+class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("migrerte gjennomføringer") {
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
-        val producer = spyk(
-            ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
-                producerClient,
-                config = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(topic = "topic"),
-            ),
-        )
 
         MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
@@ -37,21 +37,21 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
         ).initialize(database.db)
 
-        val (gjennomforing, endretTidspunkt) = database.run {
-            val tiltak = queries.gjennomforing.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
-            val ts = queries.gjennomforing.getUpdatedAt(GjennomforingFixtures.Oppfolging1.id)
-            Pair(tiltak, ts)
+        val gjennomforing = database.run {
+            queries.gjennomforing.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
         }
 
         fun createConsumer(
             tiltakstyper: TiltakstypeService,
             arenaAdapterClient: ArenaAdapterClient,
-        ) = SisteTiltaksgjennomforingerV1KafkaConsumer(
-            KafkaTopicConsumer.Config(id = "id", topic = "topic"),
+        ) = ArenaMigreringGjennomforingKafkaProducer(
+            ArenaMigreringGjennomforingKafkaProducer.Config(
+                producerTopic = "producer-topic",
+            ),
             database.db,
             tiltakstyper,
-            producer,
             arenaAdapterClient,
+            producerClient,
         )
 
         afterEach {
@@ -65,13 +65,8 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, enabledTiltakskoder = emptyList())
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
+            consumeGjennomforing(consumer, gjennomforing)
 
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
-
-            verify(exactly = 0) { producer.publish(any()) }
             verify(exactly = 0) { producerClient.sendSync(any()) }
         }
 
@@ -82,15 +77,14 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
+            consumeGjennomforing(consumer, gjennomforing)
 
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
-
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
-            verify(exactly = 1) { producer.publish(expectedMessage) }
-            verify(exactly = 1) { producerClient.sendSync(any()) }
+            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null)
+            verify(exactly = 1) {
+                producerClient.sendSync(
+                    match { expectKafkaMessage(it, expectedKey = gjennomforing.id, expectedMessage = expectedMessage) },
+                )
+            }
         }
 
         test("skal inkludere eksisterende arenaId når gjennomføring allerede eksisterer i Arena") {
@@ -103,15 +97,38 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
+            consumeGjennomforing(consumer, gjennomforing)
 
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
-
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)
-            verify(exactly = 1) { producer.publish(expectedMessage) }
-            verify(exactly = 1) { producerClient.sendSync(any()) }
+            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123)
+            verify(exactly = 1) {
+                producerClient.sendSync(
+                    match { expectKafkaMessage(it, expectedKey = gjennomforing.id, expectedMessage = expectedMessage) },
+                )
+            }
         }
     }
 })
+
+private fun expectKafkaMessage(
+    record: ProducerRecord<ByteArray, ByteArray?>,
+    expectedKey: UUID,
+    expectedMessage: ArenaMigreringTiltaksgjennomforingDto,
+): Boolean = checkEquals(record.topic(), "producer-topic") &&
+    checkEquals(record.key().decodeToString(), expectedKey.toString()) &&
+    checkEquals(Json.decodeFromString(record.value()!!.decodeToString()), expectedMessage)
+
+private suspend fun consumeGjennomforing(
+    consumer: ArenaMigreringGjennomforingKafkaProducer,
+    gjennomforing: GjennomforingDto,
+) {
+    val message = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(gjennomforing)
+    consumer.consume(gjennomforing.id.toString(), Json.encodeToJsonElement(message))
+}
+
+private fun <T> checkEquals(a: T, b: T): Boolean {
+    check(a == b) {
+        "Expected '$a' to be equal to '$b'"
+    }
+
+    return true
+}

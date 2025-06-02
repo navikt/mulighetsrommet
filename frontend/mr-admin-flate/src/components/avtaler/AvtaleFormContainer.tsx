@@ -96,7 +96,10 @@ export function AvtaleFormContainer({
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
-      prisbetingelser: data.prismodell === Prismodell.FRI ? data.prisbetingelser || null : null,
+      prisbetingelser:
+        !data.prismodell || data.prismodell === Prismodell.FRI
+          ? data.prisbetingelser || null
+          : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],

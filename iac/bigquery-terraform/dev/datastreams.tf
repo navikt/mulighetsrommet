@@ -105,6 +105,28 @@ module "mr_api_datastream" {
         project_id = var.gcp_project["project"]
         table_id   = "del_med_bruker_view"
       }
-    }
+    },
+    # Grafana dataset read access:
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "tilsagn_type_antall_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "tilsagn_status_antall_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "tilsagn_nye_siste_maaned_view"
+      }
+    },
   ]
 }

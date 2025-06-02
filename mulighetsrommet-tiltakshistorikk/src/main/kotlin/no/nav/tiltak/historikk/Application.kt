@@ -51,7 +51,11 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
 
-    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl, config.auth.azure.privateJwk)
+    val cachedTokenProvider = CachedTokenProvider.init(
+        config.auth.azure.audience,
+        config.auth.azure.tokenEndpointUrl,
+        config.auth.azure.privateJwk,
+    )
 
     val tiltakDatadelingClient = TiltakDatadelingClient(
         engine = config.httpClientEngine,
@@ -87,19 +91,12 @@ fun configureKafka(
     config: KafkaConfig,
     db: TiltakshistorikkDatabase,
 ): KafkaConsumerOrchestrator {
-    val consumers = listOf(
-        AmtDeltakerV1KafkaConsumer(
-            config = config.consumers.amtDeltakerV1,
-            db = db,
-        ),
-        SisteTiltaksgjennomforingerV1KafkaConsumer(
-            config = config.consumers.sisteTiltaksgjennomforingerV1,
-            db = db,
-        ),
+    val consumers = mapOf(
+        config.consumers.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(db),
+        config.consumers.sisteTiltaksgjennomforingerV1 to SisteTiltaksgjennomforingerV1KafkaConsumer(db),
     )
 
     return KafkaConsumerOrchestrator(
-        consumerPreset = config.consumerPreset,
         db = db.db,
         consumers = consumers,
     )

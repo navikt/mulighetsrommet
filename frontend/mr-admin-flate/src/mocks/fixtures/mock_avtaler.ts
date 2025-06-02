@@ -18,7 +18,7 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    opphav: Opphav.MR_ADMIN_FLATE,
+    opphav: Opphav.TILTAKSADMINISTRASJON,
     avtalenummer: "2021#10579",
     arrangor: {
       ...mockArrangorer.data[0],
@@ -182,7 +182,7 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
-    opphav: Opphav.MR_ADMIN_FLATE,
+    opphav: Opphav.TILTAKSADMINISTRASJON,
     administratorer: [
       {
         navIdent: "B123456",

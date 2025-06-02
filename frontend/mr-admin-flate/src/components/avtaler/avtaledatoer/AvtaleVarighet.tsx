@@ -71,7 +71,7 @@ export function AvtaleVarighet({
       </Heading>
 
       <HGrid columns={2}>
-        {avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
+        {avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
           <Select
             readOnly={skalIkkeKunneRedigereOpsjoner}
             label="Avtalt mulighet for forlengelse"
@@ -159,7 +159,7 @@ export function AvtaleVarighet({
           <ControlledDateInput
             size="small"
             label={
-              avtaletype === Avtaletype.FORHAANDSGODKJENT
+              avtaletype === Avtaletype.FORHANDSGODKJENT
                 ? avtaletekster.valgfriSluttdatoLabel(avtaletype)
                 : avtaletekster.sluttdatoLabel(false)
             }
@@ -190,7 +190,7 @@ function hentModeller(avtaletype: Avtaletype | undefined): Opsjonsmodell[] {
     return [];
   }
 
-  if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+  if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
     return opsjonsmodeller.filter(
       (modell) => modell.value === OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
     );
