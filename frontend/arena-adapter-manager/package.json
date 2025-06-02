@@ -19,7 +19,7 @@
     "@rjsf/core": "5.24.10",
     "@rjsf/utils": "5.24.10",
     "@rjsf/validator-ajv8": "5.24.10",
-    "framer-motion": "12.14.0",
+    "framer-motion": "12.15.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hot-toast": "2.5.2",
