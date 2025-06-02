@@ -51,10 +51,12 @@ class GjennomforingService(
     ): Either<List<FieldError>, GjennomforingDto> = either {
         val previous = get(request.id)
 
-        val status = previous?.status?.status ?: GjennomforingStatusMapper.fromSluttDato(
-            sluttDato = request.sluttDato,
-            today = today,
-        )
+        val status = if (previous != null && previous.status.avbrutt != null) {
+            previous.status.status
+        } else {
+            GjennomforingStatusMapper.fromSluttDato(sluttDato = request.sluttDato, today = today)
+        }
+
         val dbo = validator.validate(toDbo(request, status), previous)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
