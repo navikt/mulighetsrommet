@@ -1,6 +1,6 @@
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
-import { formaterDato } from "../../utils/Utils";
+import { formaterDato } from "@/utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { ReactNode } from "react";
@@ -31,7 +31,7 @@ export function GjennomforingDetaljerMini({ gjennomforing, meny }: Props) {
         <Metadata header="Antall plasser" verdi={gjennomforing.antallPlasser} />
         <Metadata
           header="Status"
-          verdi={<GjennomforingStatusTag status={gjennomforing.status.status} />}
+          verdi={<GjennomforingStatusTag status={gjennomforing.status.type} />}
         />
       </HGrid>
     </VStack>

@@ -316,11 +316,11 @@ class GjennomforingValidator(
         previous: GjennomforingDto,
         avtale: AvtaleDto,
     ) {
-        if (previous.status.status != GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type != GjennomforingStatus.GJENNOMFORES) {
             add(
                 FieldError.of(
                     GjennomforingDbo::navn,
-                    "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.status.name.lowercase()}",
+                    "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.type.name.lowercase()}",
                 ),
             )
         }
@@ -334,7 +334,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (previous.status.status == GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type == GjennomforingStatus.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     FieldError.of(

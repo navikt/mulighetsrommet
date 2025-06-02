@@ -40,7 +40,7 @@ export function GjennomforingList(props: Props) {
           >
             <BodyShort>{gjennomforing.navn}</BodyShort>
             <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-            <GjennomforingStatusTag status={gjennomforing.status.status} />
+            <GjennomforingStatusTag status={gjennomforing.status.type} />
             {props.action(gjennomforing)}
           </li>
         ))}

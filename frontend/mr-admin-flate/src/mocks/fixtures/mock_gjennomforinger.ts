@@ -1,6 +1,7 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
+  AvbrytGjennomforingAarsak,
   Bransje,
   EstimertVentetidEnhet,
   ForerkortKlasse,
@@ -51,7 +52,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
         kontorer: [mockEnheter._0313, mockEnheter._0318, mockEnheter._0315, mockEnheter._0330],
       },
     ],
-    status: { status: GjennomforingStatus.GJENNOMFORES },
+    status: { type: GjennomforingStatus.GJENNOMFORES },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: false,
@@ -124,14 +125,11 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     administratorer: [],
     kontorstruktur: [],
     status: {
-      status: GjennomforingStatus.AVLYST,
-      avbrutt: {
-        aarsak:
-          "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-        beskrivelse:
-          "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-        tidspunkt: "2020-03-04T12:00:00",
-      },
+      type: GjennomforingStatus.AVLYST,
+      aarsak: AvbrytGjennomforingAarsak.FEILREGISTRERING,
+      beskrivelse:
+        "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      tidspunkt: "2020-03-04T12:00:00",
     },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
@@ -164,7 +162,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [],
-    status: { status: GjennomforingStatus.GJENNOMFORES },
+    status: { type: GjennomforingStatus.GJENNOMFORES },
     oppstart: GjennomforingOppstartstype.FELLES,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: true,
@@ -199,7 +197,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     kontorstruktur: [],
-    status: { status: GjennomforingStatus.GJENNOMFORES },
+    status: { type: GjennomforingStatus.GJENNOMFORES },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: true,
@@ -242,7 +240,7 @@ for (let i = 0; i < x; i++) {
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     kontorstruktur: [],
-    status: { status: GjennomforingStatus.GJENNOMFORES },
+    status: { type: GjennomforingStatus.GJENNOMFORES },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: true,

@@ -14,7 +14,7 @@ import classNames from "classnames";
 import React from "react";
 import { Outlet, useLocation, useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { GjennomforingStatusMedBeskrivelseTag } from "@mr/frontend-common";
 
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
@@ -81,12 +81,14 @@ export function GjennomforingPage() {
                 {gjennomforing.navn}
               </Heading>
             </VStack>
-            <GjennomforingStatusMedAarsakTag
-              status={gjennomforing.status.status}
-              avbrutt={gjennomforing.status.avbrutt}
+            <GjennomforingStatusMedBeskrivelseTag
+              status={gjennomforing.status.type}
+              beskrivelse={
+                "beskrivelse" in gjennomforing.status ? gjennomforing.status.beskrivelse : undefined
+              }
             />
           </div>
-          {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
+          {gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES && (
             <div className="pr-2">
               <Lenkeknapp
                 size="small"

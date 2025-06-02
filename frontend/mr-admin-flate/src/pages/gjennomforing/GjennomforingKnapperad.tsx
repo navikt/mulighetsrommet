@@ -73,7 +73,7 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
     <KnapperadContainer>
       <HarSkrivetilgang
         ressurs="Gjennomføring"
-        condition={gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES}
+        condition={gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES}
       >
         <div>
           <Switch name="publiser" checked={gjennomforingPublisert} onClick={handleClick}>
@@ -96,7 +96,7 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
             Handlinger
           </Button>
           <Dropdown.Menu>
-            {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
+            {gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES && (
               <>
                 <Dropdown.Menu.GroupedList>
                   <Dropdown.Menu.GroupedList.Item
@@ -116,15 +116,11 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
                   >
                     Rediger gjennomføring
                   </Dropdown.Menu.GroupedList.Item>
-                  {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
-                    <Dropdown.Menu.GroupedList.Item
-                      onClick={() => apentForPameldingModalRef.current?.showModal()}
-                    >
-                      {gjennomforing.apentForPamelding
-                        ? "Steng for påmelding"
-                        : "Åpne for påmelding"}
-                    </Dropdown.Menu.GroupedList.Item>
-                  )}
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => apentForPameldingModalRef.current?.showModal()}
+                  >
+                    {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+                  </Dropdown.Menu.GroupedList.Item>
                   {avtale?.prismodell === Prismodell.FORHANDSGODKJENT && (
                     <Dropdown.Menu.GroupedList.Item
                       onClick={() => registrerStengtModalRef.current?.showModal()}
@@ -132,13 +128,11 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
                       Registrer stengt hos arrangør
                     </Dropdown.Menu.GroupedList.Item>
                   )}
-                  {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
-                    <Dropdown.Menu.GroupedList.Item
-                      onClick={() => avbrytModalRef.current?.showModal()}
-                    >
-                      Avbryt gjennomføring
-                    </Dropdown.Menu.GroupedList.Item>
-                  )}
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => avbrytModalRef.current?.showModal()}
+                  >
+                    Avbryt gjennomføring
+                  </Dropdown.Menu.GroupedList.Item>
                 </Dropdown.Menu.GroupedList>
                 <Dropdown.Menu.Divider />
               </>

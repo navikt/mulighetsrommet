@@ -4,20 +4,14 @@ import { variantAndName } from "./GjennomforingStatusTag";
 
 interface Props {
   status: string;
-  avbrutt?: {
-      tidspunkt: string;
-      aarsak: string;
-      beskrivelse: string;
-  };
+  beskrivelse?: string;
 }
 
-export function GjennomforingStatusMedAarsakTag({ status, avbrutt }: Props) {
+export function GjennomforingStatusMedBeskrivelseTag({ status, beskrivelse }: Props) {
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
   const { variant, label } = variantAndName(status);
-  const labelWithBeskrivelse = avbrutt?.beskrivelse
-    ? `${label} - ${avbrutt.beskrivelse}`
-    : label;
+  const labelWithBeskrivelse = beskrivelse ? `${label} - ${beskrivelse}` : label;
 
   return (
     <Tag

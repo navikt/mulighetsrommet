@@ -1,3 +1,8 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { QueryKeys } from "@/api/QueryKeys";
 import { Header } from "@/components/detaljside/Header";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingFormContainer } from "@/components/gjennomforing/GjennomforingFormContainer";
@@ -6,21 +11,17 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
+import { GjennomforingStatusMedBeskrivelseTag } from "@mr/frontend-common";
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLocation, useNavigate, useParams } from "react-router";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
-function useGjennomforingFormData() {
-  const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
-  const { data: ansatt } = useHentAnsatt();
+import { useLocation, useNavigate } from "react-router";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
+function useGjennomforingFormData() {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
+  const { data: ansatt } = useHentAnsatt();
   return { gjennomforing, avtale, ansatt };
 }
 
@@ -64,9 +65,11 @@ export function GjennomforingFormPage() {
           {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring"}
         </Heading>
         {gjennomforing ? (
-          <GjennomforingStatusMedAarsakTag
-            status={gjennomforing.status.status}
-            avbrutt={gjennomforing.status.avbrutt}
+          <GjennomforingStatusMedBeskrivelseTag
+            status={gjennomforing.status.type}
+            beskrivelse={
+              "beskrivelse" in gjennomforing.status ? gjennomforing.status.beskrivelse : undefined
+            }
           />
         ) : null}
       </Header>

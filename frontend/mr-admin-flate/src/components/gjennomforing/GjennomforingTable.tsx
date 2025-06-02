@@ -223,7 +223,7 @@ export function GjennomforingTable({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <GjennomforingStatusTag status={gjennomforing.status.status} />
+                          <GjennomforingStatusTag status={gjennomforing.status.type} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>

@@ -3506,28 +3506,70 @@ components:
         - utdanningslop
 
     GjennomforingStatusDto:
+      oneOf:
+        - $ref: "#/components/schemas/GjennomforingStatusGjennomfores"
+        - $ref: "#/components/schemas/GjennomforingStatusAvsluttet"
+        - $ref: "#/components/schemas/GjennomforingStatusAvbrutt"
+        - $ref: "#/components/schemas/GjennomforingStatusAvlyst"
+      discriminator:
+        propertyName: type
+        mapping:
+          GJENNOMFORES: "#/components/schemas/GjennomforingStatusGjennomfores"
+          AVSLUTTET: "#/components/schemas/GjennomforingStatusAvsluttet"
+          AVBRUTT: "#/components/schemas/GjennomforingStatusAvbrutt"
+          AVLYST: "#/components/schemas/GjennomforingStatusAvlyst"
+
+    GjennomforingStatusGjennomfores:
       type: object
       properties:
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
-        avbrutt:
-          type: object
-          properties:
-            tidspunkt:
-              type: string
-              format: date-time
-            aarsak:
-              oneOf:
-                - type: string
-                - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-            beskrivelse:
-              type: string
-          required:
-            - tidspunkt
-            - aarsak
-            - beskrivelse
+        type:
+          const: GJENNOMFORES
       required:
-        - status
+        - type
+
+    GjennomforingStatusAvsluttet:
+      type: object
+      properties:
+        type:
+          const: AVSLUTTET
+      required:
+        - type
+
+    GjennomforingStatusAvbrutt:
+      type: object
+      properties:
+        type:
+          const: AVBRUTT
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
+
+    GjennomforingStatusAvlyst:
+      type: object
+      properties:
+        type:
+          const: AVLYST
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
 
     GjennomforingStatus:
       type: string

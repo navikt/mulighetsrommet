@@ -74,7 +74,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
                     it.arenaAnsvarligEnhet shouldBe null
-                    it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatus.GJENNOMFORES
                     it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId

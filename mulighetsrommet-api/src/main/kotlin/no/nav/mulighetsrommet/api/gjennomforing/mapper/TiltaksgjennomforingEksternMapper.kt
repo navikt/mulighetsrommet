@@ -15,7 +15,7 @@ object TiltaksgjennomforingEksternMapper {
         navn = dto.navn,
         startDato = dto.startDato,
         sluttDato = dto.sluttDato,
-        status = dto.status.status,
+        status = dto.status.type,
         virksomhetsnummer = dto.arrangor.organisasjonsnummer.value,
         oppstart = dto.oppstart,
         tilgjengeligForArrangorFraOgMedDato = dto.tilgjengeligForArrangorDato,

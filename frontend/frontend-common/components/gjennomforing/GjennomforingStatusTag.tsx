@@ -1,7 +1,7 @@
 import { Tag } from "@navikt/ds-react";
 
 interface Props {
-  status: string;
+  status: "GJENNOMFORES" | "AVSLUTTET" | "AVBRUTT" | "AVLYST";
 }
 
 export function GjennomforingStatusTag({ status }: Props) {
@@ -23,7 +23,10 @@ export function variantAndName(status: string): {
   variant: "alt1" | "success" | "neutral" | "error";
   label: string;
 } {
-  const statusMap: Record<string, { variant: "alt1" | "success" | "neutral" | "error"; label: string }> = {
+  const statusMap: Record<
+    string,
+    { variant: "alt1" | "success" | "neutral" | "error"; label: string }
+  > = {
     GJENNOMFORES: { variant: "success", label: "Gjennomføres" },
     AVSLUTTET: { variant: "neutral", label: "Avsluttet" },
     AVBRUTT: { variant: "error", label: "Avbrutt" },
