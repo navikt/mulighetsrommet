@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.1",
-    "@chromatic-com/storybook": "3.2.6",
+    "@chromatic-com/storybook": "4.0.0",
     "@mr/eslint-config-react-app": "workspace:*",
     "@playwright/test": "1.52.0",
     "@rollup/plugin-terser": "0.4.4",
