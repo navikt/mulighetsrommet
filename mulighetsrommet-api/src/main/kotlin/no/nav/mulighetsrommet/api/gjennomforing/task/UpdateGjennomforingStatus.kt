@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
@@ -22,21 +23,21 @@ class UpdateGjennomforingStatus(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, Daily(LocalTime.MIDNIGHT))
         .execute { _, _ ->
-            oppdaterGjennomforingStatus(LocalDate.now())
+            oppdaterGjennomforingStatus(LocalDateTime.now())
         }
 
-    fun oppdaterGjennomforingStatus(today: LocalDate) {
-        logger.info("Oppdaterer status på gjennomføringer som skal avsluttes fra og med dato $today")
+    fun oppdaterGjennomforingStatus(now: LocalDateTime) {
+        logger.info("Oppdaterer status på gjennomføringer som skal avsluttes fra og med dato $now")
 
         val gjennomforinger = getGjennomforingerSomSkalAvsluttes(
-            sluttDatoLessThan = today,
+            sluttDatoLessThan = now.toLocalDate(),
         )
 
         gjennomforinger.forEach { id ->
             logger.info("Avslutter gjennomføring id=$id")
             gjennomforingService.setAvsluttet(
                 id = id,
-                avsluttetTidspunkt = today.atStartOfDay(),
+                avsluttetTidspunkt = now,
                 avbruttAarsak = null,
                 endretAv = Tiltaksadministrasjon,
             )

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatus.*
 import no.nav.mulighetsrommet.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
@@ -77,7 +78,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("forsøker ikke å avslutte gjennomføringer før sluttDato er passert") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 1, 31))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 1, 31, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -97,7 +98,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("avslutter gjennomføringer når sluttDato er passert") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 2, 1))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -132,7 +133,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("avslutter gjennomføringer når sluttDato er passert (sluttDato passert med flere dager)") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 3, 1))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 3, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -187,7 +188,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2024, 1, 2))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2024, 1, 2, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -234,7 +235,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
             }
 
-            createTask().oppdaterGjennomforingStatus(today = LocalDate.of(2023, 2, 1))
+            createTask().oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {
