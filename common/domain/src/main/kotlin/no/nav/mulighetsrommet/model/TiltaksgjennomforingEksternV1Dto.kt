@@ -26,9 +26,9 @@ data class TiltaksgjennomforingEksternV1Dto(
     val apentForPamelding: Boolean,
     val antallPlasser: Int,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
+    val opprettetTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val oppdatertTidspunkt: LocalDateTime,
+    val oppdatertTidspunkt: LocalDateTime? = null,
 ) {
     @Serializable
     data class Tiltakstype(
