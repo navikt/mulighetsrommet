@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@axe-core/playwright": "4.10.1",
-    "@hey-api/client-fetch": "0.10.2",
+    "@hey-api/client-fetch": "0.11.0",
     "@mjackson/file-storage": "^0.6.1",
     "@mjackson/form-data-parser": "^0.7.0",
     "@mr/frontend-common": "workspace:*",
@@ -56,7 +56,7 @@
     "winston": "3.17.0"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.67.6",
+    "@hey-api/openapi-ts": "0.69.1",
     "@playwright/test": "1.52.0",
     "@react-router/dev": "7.6.1",
     "@react-router/fs-routes": "7.6.1",
