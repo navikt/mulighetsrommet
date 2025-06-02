@@ -5,6 +5,7 @@ export default {
   theme: {
     extend: {},
   },
+  safelist: ["grid-cols-[0_40%_1fr_2%]"],
   plugins: [],
   presets: [require("@navikt/ds-tailwind")],
 } satisfies Config;

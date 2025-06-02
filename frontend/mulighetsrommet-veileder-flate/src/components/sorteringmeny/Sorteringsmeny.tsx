@@ -1,5 +1,4 @@
 import { Select } from "@navikt/ds-react";
-import styles from "./Sorteringsmeny.module.scss";
 import { Sorteringer } from "./sorteringAtom";
 
 interface Props {
@@ -10,7 +9,7 @@ interface Props {
 export function Sorteringsmeny({ sortValue, setSortValue }: Props) {
   return (
     <Select
-      className={styles.sorteringsmeny}
+      className="w-[180px] mb-[0.2rem]"
       value={sortValue}
       onChange={(change) => setSortValue(change.currentTarget.value as Sorteringer)}
       size="small"

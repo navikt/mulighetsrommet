@@ -26,7 +26,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
-import styles from "./Landingsside.module.scss";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -51,7 +50,7 @@ export function Landingsside() {
         <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-[4rem] md:ml-[1rem]">
           <Link
             data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
-            className={styles.cta_link}
+            className="bg-surface-action text-white no-underline inline-flex py-5 px-3 rounded-[0.2rem] items-center h-[48px] focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-border-focus focus-visible:shadow-focus focus-visible:outline-offset-0"
             to="/arbeidsmarkedstiltak/oversikt"
           >
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak

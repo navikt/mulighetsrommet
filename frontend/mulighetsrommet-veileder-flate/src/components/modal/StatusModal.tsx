@@ -1,5 +1,4 @@
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
-import modalStyles from "./Modal.module.scss";
 
 import React from "react";
 import {
@@ -32,22 +31,21 @@ export function StatusModal({
   secondaryButtonText,
   secondaryButtonOnClick,
 }: StatusModalProps) {
+  const iconStyles = "w-[3rem] h-auto self-center";
   const ikon = () => {
     if (ikonVariant === "success")
-      return <CheckmarkCircleFillIcon className={classNames(modalStyles.icon, "text-green-600")} />;
+      return <CheckmarkCircleFillIcon className={classNames(iconStyles, "text-green-600")} />;
     else if (ikonVariant === "warning")
       return (
-        <ExclamationmarkTriangleFillIcon
-          className={classNames(modalStyles.icon, "text-orange-600")}
-        />
+        <ExclamationmarkTriangleFillIcon className={classNames(iconStyles, "text-orange-600")} />
       );
     else if (ikonVariant === "error")
-      return <XMarkOctagonFillIcon className={classNames(modalStyles.icon, "text-nav-red")} />;
+      return <XMarkOctagonFillIcon className={classNames(iconStyles, "text-nav-red")} />;
   };
 
   function footerInnhold() {
     return (
-      <div className={modalStyles.knapperad}>
+      <div className="flex gap-8">
         {secondaryButtonText ? (
           <Button
             variant="secondary"
@@ -72,7 +70,7 @@ export function StatusModal({
       aria-label={heading || "Statusmodal"}
     >
       <Modal.Header closeButton={false}>
-        <Heading align="center" size="medium" className={modalStyles.heading}>
+        <Heading align="center" size="medium" className="flex flex-col gap-4">
           {ikon()}
           {heading}
         </Heading>
