@@ -110,11 +110,11 @@ nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.11"
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.50.0"
 
-postgresql = "org.postgresql:postgresql:42.7.5"
+postgresql = "org.postgresql:postgresql:42.7.6"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.7.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.8.0"
 
 slack-client = "com.slack.api:slack-api-client:1.45.3"
 
