@@ -16,4 +16,6 @@ set status = tiltaksgjennomforing_status(start_dato, slutt_dato, avsluttet_tidsp
 alter table gjennomforing
     alter status set not null;
 
+create index idx_gjennomforing_status on gjennomforing (status);
+
 drop function tiltaksgjennomforing_status;
