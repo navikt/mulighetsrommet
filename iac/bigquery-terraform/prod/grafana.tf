@@ -26,16 +26,3 @@ resource "google_bigquery_dataset" "grafana_views" {
     user_by_email = "grafana@nais-management-233d.iam.gserviceaccount.com"
   }
 }
-
-# Authorize views in grafana dataset access to datastream dataset
-resource "google_bigquery_dataset_access" "grafana_viewing_datastream" {
-  dataset_id = module.mr_api_datastream.dataset_id
-  depends_on = [module.mr_api_datastream.dataset_id]
-  dataset {
-    dataset {
-      project_id = google_bigquery_dataset.grafana_views.project
-      dataset_id = google_bigquery_dataset.grafana_views.dataset_id
-    }
-    target_types = ["VIEWS"]
-  }
-}

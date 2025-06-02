@@ -38,6 +38,11 @@ class KafkaConsumerOrchestrator(
          * Frequency in milliseconds of how often the [Topic.running] state should be polled.
          */
         val consumerRunningStatePollDelay: Long = 10_000,
+
+        /**
+         * The number of records to process per batch by the consumer record processor.
+         */
+        val consumerProcessorBatchSize: Int = 1000,
     )
 
     private data class Consumer(
@@ -59,6 +64,7 @@ class KafkaConsumerOrchestrator(
         val topicConfigs = consumersById.values.map { it.topicConfig }
         consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
             .builder()
+            .withRecordBatchSize(config.consumerProcessorBatchSize)
             .withLockProvider(JdbcLockProvider(db.getDatasource()))
             .withKafkaConsumerRepository(kafkaConsumerRepository)
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(topicConfigs))
