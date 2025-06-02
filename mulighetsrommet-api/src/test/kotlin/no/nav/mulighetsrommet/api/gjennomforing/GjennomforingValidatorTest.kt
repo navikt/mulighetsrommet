@@ -184,13 +184,13 @@ class GjennomforingValidatorTest : FunSpec({
 
         createValidator().validate(gjennomfores, null).shouldBeRight()
         createValidator().validate(avsluttet, null).shouldBeLeft(
-            listOf(FieldError("/status", "Gjennomføringen kan ikke opprettes med status AVSLUTTET")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avsluttet")),
         )
         createValidator().validate(avbrutt, null).shouldBeLeft(
-            listOf(FieldError("/status", "Gjennomføringen kan ikke opprettes med status AVBRUTT")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avbrutt")),
         )
         createValidator().validate(avlyst, null).shouldBeLeft(
-            listOf(FieldError("/status", "Gjennomføringen kan ikke opprettes med status AVLYST")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avlyst")),
         )
     }
 

@@ -304,8 +304,8 @@ class GjennomforingValidator(
         if (gjennomforing.status != GjennomforingStatus.GJENNOMFORES) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::status,
-                    "Gjennomføringen kan ikke opprettes med status ${gjennomforing.status}",
+                    GjennomforingDbo::navn,
+                    "Du kan ikke opprette en gjennomføring som er ${gjennomforing.status.name.lowercase()}",
                 ),
             )
         }
