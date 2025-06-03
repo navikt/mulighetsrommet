@@ -1,5 +1,4 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
@@ -9,11 +8,12 @@ import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/sten
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import {
+  AvtaleDto,
   GjennomforingDto,
   GjennomforingStatus,
   NavAnsatt,
   Opphav,
-  Toggles,
+  Prismodell,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
@@ -21,12 +21,14 @@ import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import React, { useRef } from "react";
 import { useFetcher, useNavigate } from "react-router";
+
 interface Props {
   ansatt: NavAnsatt;
+  avtale?: AvtaleDto;
   gjennomforing: GjennomforingDto;
 }
 
-export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
+export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const advarselModal = useRef<HTMLDialogElement>(null);
@@ -34,11 +36,6 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
-
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [gjennomforing.tiltakstype.tiltakskode],
-  );
 
   // Add error state handling
   const publiseringErrored = fetcher.data?.error;
@@ -128,7 +125,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
                         : "Åpne for påmelding"}
                     </Dropdown.Menu.GroupedList.Item>
                   )}
-                  {enableOkonomi && (
+                  {avtale?.prismodell === Prismodell.FORHANDSGODKJENT && (
                     <Dropdown.Menu.GroupedList.Item
                       onClick={() => registrerStengtModalRef.current?.showModal()}
                     >
