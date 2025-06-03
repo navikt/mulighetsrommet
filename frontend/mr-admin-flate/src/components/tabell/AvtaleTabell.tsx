@@ -166,7 +166,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
                       {avtale.sluttDato ? formaterDato(avtale.sluttDato) : "-"}
                     </Table.DataCell>
                     <Table.DataCell>
-                      <AvtaleStatusTag status={avtale.status.type} />
+                      <AvtaleStatusTag status={avtale.status} />
                     </Table.DataCell>
                   </Table.Row>
                 );

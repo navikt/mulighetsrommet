@@ -11,9 +11,9 @@ import React, { createRef, useEffect, useState } from "react";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
-import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { downloadGjennomforingerAsExcel } from "@/api/gjennomforing/downloadGjennomforingerAsExcel";
+import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -223,7 +223,7 @@ export function GjennomforingTable({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <GjennomforingStatusTag status={gjennomforing.status.type} />
+                          <GjennomforingStatusTag status={gjennomforing.status} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>

@@ -4,7 +4,7 @@ import { GjennomforingDto } from "@mr/api-client-v2";
 import { ReactNode } from "react";
 import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
-import { GjennomforingStatusTag } from "@mr/frontend-common";
+import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
 
 interface Props {
   filter: Partial<GjennomforingFilterType>;
@@ -40,7 +40,7 @@ export function GjennomforingList(props: Props) {
           >
             <BodyShort>{gjennomforing.navn}</BodyShort>
             <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-            <GjennomforingStatusTag status={gjennomforing.status.type} />
+            <GjennomforingStatusTag status={gjennomforing.status} />
             {props.action(gjennomforing)}
           </li>
         ))}

@@ -3,7 +3,6 @@ import { AvtaleFormContainer } from "@/components/avtaler/AvtaleFormContainer";
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { AvtaleStatusTag } from "@/components/statuselementer/AvtaleStatusTag";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { inneholderUrl } from "@/utils/Utils";
@@ -16,6 +15,7 @@ import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
 
 export function AvtaleFormPage() {
   const navigate = useNavigate();
@@ -50,10 +50,7 @@ export function AvtaleFormPage() {
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
         </Heading>
-        <AvtaleStatusTag
-          status={avtale.status.type}
-          beskrivelse={"beskrivelse" in avtale.status ? avtale.status.beskrivelse : undefined}
-        />
+        <AvtaleStatusMedAarsakTag status={avtale.status} />
       </Header>
       <ContentBox>
         <WhitePaddedBox>

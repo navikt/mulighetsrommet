@@ -28,7 +28,7 @@ export function AvtaleListe(props: Props) {
             <Table.DataCell>{avtale.navn}</Table.DataCell>
             <Table.DataCell>{avtale.avtalenummer}</Table.DataCell>
             <Table.DataCell>
-              <AvtaleStatusTag status={avtale.status.type} />
+              <AvtaleStatusTag status={avtale.status} />
             </Table.DataCell>
           </Table.Row>
         ))}

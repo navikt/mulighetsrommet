@@ -11,7 +11,7 @@ type Story = StoryObj<typeof AvtaleStatusTag>;
 export const AvtaleStatusTagStory: Story = {
   tags: ["autodocs"],
   args: {
-    status: "AKTIV",
+    status: { type: "AKTIV" },
   },
 };
 

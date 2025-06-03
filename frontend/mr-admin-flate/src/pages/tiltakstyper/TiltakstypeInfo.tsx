@@ -9,23 +9,23 @@ import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 export function TiltakstypeInfo() {
   const { data: tiltakstype } = useTiltakstypeById();
 
-  const tiltakstypeSanityUrl = `${SANITY_STUDIO_URL}/structure/tiltakstype;${tiltakstype?.sanityId}`;
+  const tiltakstypeSanityUrl = `${SANITY_STUDIO_URL}/structure/tiltakstype;${tiltakstype.sanityId}`;
 
   return (
     <WhitePaddedBox>
       <Bolk>
-        <Metadata header="Tiltakstype" verdi={tiltakstype?.navn} />
-        <Metadata header="Tiltakskode" verdi={tiltakstype?.arenaKode} />
+        <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
+        <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />
       </Bolk>
       <Separator />
       <Bolk>
-        <Metadata header="Startdato" verdi={formaterDato(tiltakstype?.startDato)} />
+        <Metadata header="Startdato" verdi={formaterDato(tiltakstype.startDato)} />
         <Metadata
           header="Sluttdato"
           verdi={tiltakstype?.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
         />
       </Bolk>
-      {tiltakstype?.sanityId && (
+      {tiltakstype.sanityId && (
         <>
           <Separator />
           <Bolk aria-label="Sanity-dokument">

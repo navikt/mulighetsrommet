@@ -11,11 +11,11 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
-import { GjennomforingStatusMedBeskrivelseTag } from "@mr/frontend-common";
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/GjennomforingStatusMedAarsakTag";
 
 function useGjennomforingFormData() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -32,7 +32,7 @@ export function GjennomforingFormPage() {
   const { data: enheter } = useNavEnheter();
   const queryClient = useQueryClient();
 
-  const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
+  const redigeringsModus = inneholderUrl(gjennomforing.id);
 
   const navigerTilbake = () => {
     navigate(-1);
@@ -48,7 +48,7 @@ export function GjennomforingFormPage() {
     redigeringsModus
       ? {
           tittel: "Gjennomføring",
-          lenke: `/gjennomforinger/${gjennomforing?.id}`,
+          lenke: `/gjennomforinger/${gjennomforing.id}`,
         }
       : undefined,
     {
@@ -64,14 +64,7 @@ export function GjennomforingFormPage() {
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring"}
         </Heading>
-        {gjennomforing ? (
-          <GjennomforingStatusMedBeskrivelseTag
-            status={gjennomforing.status.type}
-            beskrivelse={
-              "beskrivelse" in gjennomforing.status ? gjennomforing.status.beskrivelse : undefined
-            }
-          />
-        ) : null}
+        <GjennomforingStatusMedAarsakTag status={gjennomforing.status} />
       </Header>
       <ContentBox>
         <Box padding="4" background="bg-default">
