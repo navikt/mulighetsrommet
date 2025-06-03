@@ -17,7 +17,7 @@ export function useDeltakelse() {
       if (data && "id" in data) {
         return data;
       } else {
-        return undefined;
+        return null;
       }
     },
     throwOnError: false,

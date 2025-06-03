@@ -8,7 +8,6 @@ export const QueryKeys = {
     type,
     "historikk",
   ],
-  BrukerDeltakelser: (fnr: string) => [...QueryKeys.Bruker(fnr), "deltakelser"],
   Deltakelse: (fnr: string, tiltakId: string) => [...QueryKeys.Bruker(fnr), tiltakId, "deltakelse"],
   DeltMedBrukerStatus: ["deltMedBrukerStatus"],
   AlleDeltMedBrukerStatus: "alleDeltMedBrukerStatus",
