@@ -342,7 +342,7 @@ class UtbetalingService(
         }
 
         logEndring(
-            "Utbetaling sendt til godkjenning",
+            "Utbetaling sendt til attestering",
             getOrError(utbetaling.id),
             navIdent,
         )
