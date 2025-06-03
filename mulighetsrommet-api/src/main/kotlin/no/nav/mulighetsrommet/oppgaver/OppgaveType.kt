@@ -23,8 +23,8 @@ enum class OppgaveType(val navn: String, val rolle: Rolle) {
         navn = "Utbetaling til behandling",
         rolle = Rolle.SAKSBEHANDLER_OKONOMI,
     ),
-    UTBETALING_TIL_GODKJENNING(
-        navn = "Utbetaling til godkjenning",
+    UTBETALING_TIL_ATTESTERING(
+        navn = "Utbetaling til attestering",
         rolle = Rolle.ATTESTANT_UTBETALING,
     ),
     UTBETALING_RETURNERT(
@@ -50,7 +50,7 @@ enum class OppgaveType(val navn: String, val rolle: Rolle) {
         )
         val DelutbetalingOppgaver = listOf(
             UTBETALING_RETURNERT,
-            UTBETALING_TIL_GODKJENNING,
+            UTBETALING_TIL_ATTESTERING,
         )
         val UtbetalingOppgaver = listOf(
             UTBETALING_TIL_BEHANDLING,

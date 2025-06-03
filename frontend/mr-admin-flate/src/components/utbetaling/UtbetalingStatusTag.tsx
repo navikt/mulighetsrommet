@@ -12,10 +12,10 @@ export function UtbetalingStatusTag({ status }: { status: AdminUtbetalingStatus 
           Returnert
         </Tag>
       );
-    case AdminUtbetalingStatus.TIL_GODKJENNING:
+    case AdminUtbetalingStatus.TIL_ATTESTERING:
       return (
         <Tag size="small" variant="warning" className={baseTagClasses}>
-          Til godkjenning
+          Til attestering
         </Tag>
       );
     case AdminUtbetalingStatus.UTBETALT:

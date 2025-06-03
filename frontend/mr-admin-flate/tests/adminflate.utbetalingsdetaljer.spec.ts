@@ -18,16 +18,16 @@ test.describe("Utbetalinger detaljer", () => {
     // Click on the "Utbetalinger" tab
     await page.locator("button", { hasText: "Utbetalinger" }).click();
   });
-  test("should navigate to utbetalinger and select a TIL_GODKJENNING utbetaling", async ({
+  test("should navigate to utbetalinger and select a TIL_ATTESTERING utbetaling", async ({
     page,
   }) => {
     // Wait for the utbetalinger table to load
     await page.waitForSelector("table");
 
-    // Find the row with status Til godkjenning
+    // Find the row with status Til attestering
     const returnertUtbetalingRow = page
       .locator("tr")
-      .filter({ hasText: "Til godkjenning" })
+      .filter({ hasText: "Til attestering" })
       .first();
     await expect(returnertUtbetalingRow).toBeVisible();
 
@@ -42,12 +42,12 @@ test.describe("Utbetalinger detaljer", () => {
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
     await expect(page.locator("table")).toBeVisible();
 
-    // Verify that Godkjenn og Send i retur buttons are visible
-    await expect(page.locator("tr button", { hasText: "Godkjenn" })).toBeVisible();
+    // Verify that Attester og Send i retur buttons are visible
+    await expect(page.locator("tr button", { hasText: /^Attester$/ })).toBeVisible();
     await expect(page.locator("tr button", { hasText: "Send i retur" })).toBeVisible();
 
-    // Verify that Godkjenn opens modal asking for "Attestering av beløp"
-    await page.locator("tr button", { hasText: "Godkjenn" }).click();
+    // Verify that Attester opens modal asking for "Attestering av beløp"
+    await page.locator("tr button", { hasText: /^Attester$/ }).click();
     await expect(page.locator("h1", { hasText: "Attestere utbetaling" })).toBeVisible();
     await expect(page.locator("button", { hasText: "Avbryt" })).toBeVisible();
     await expect(page.locator("button", { hasText: "Ja, attester beløp" })).toBeVisible();

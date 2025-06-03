@@ -166,7 +166,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
       <VStack align="end" gap="4">
         <HStack>
           <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
-            Send til godkjenning
+            Send til attestering
           </Button>
         </HStack>
         {error.find((f) => f.pointer === "/") && (

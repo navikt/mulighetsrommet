@@ -43,7 +43,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       start: "2025-01-01",
       slutt: "2025-06-30",
     },
-    status: AdminUtbetalingStatus.TIL_GODKJENNING,
+    status: AdminUtbetalingStatus.TIL_ATTESTERING,
     createdAt: "2024-07-01T14:30:00",
     godkjentAvArrangorTidspunkt: "2024-07-02T09:15:00",
     beregning: {
@@ -160,7 +160,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       status: TilsagnStatus.TIL_GODKJENNING,
       bestillingsnummer: "A-2024/123",
     },
-    status: DelutbetalingStatus.TIL_GODKJENNING,
+    status: DelutbetalingStatus.TIL_ATTESTERING,
     belop: 5000,
     gjorOppTilsagn: true,
     opprettelse: {
@@ -314,7 +314,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       bestillingsnummer: "A-2025/123",
     },
 
-    status: DelutbetalingStatus.TIL_GODKJENNING,
+    status: DelutbetalingStatus.TIL_ATTESTERING,
     belop: 3000,
     gjorOppTilsagn: false,
     opprettelse: {

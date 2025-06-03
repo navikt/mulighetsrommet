@@ -42,7 +42,7 @@ data class ArrangorUtbetalingLinje(
 
 fun toReadableName(delutbetalingStatus: DelutbetalingStatus): String {
     return when (delutbetalingStatus) {
-        DelutbetalingStatus.TIL_GODKJENNING -> "Til godkjenning"
+        DelutbetalingStatus.TIL_ATTESTERING -> "Til godkjenning"
         DelutbetalingStatus.GODKJENT -> "Godkjent"
         DelutbetalingStatus.RETURNERT -> "Returnert"
         DelutbetalingStatus.UTBETALT -> "Utbetalt"

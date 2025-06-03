@@ -59,7 +59,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               linje={linje}
               grayBackground
               knappeColumn={
-                linje?.status === DelutbetalingStatus.TIL_GODKJENNING &&
+                linje?.status === DelutbetalingStatus.TIL_ATTESTERING &&
                 linje?.opprettelse?.kanBesluttes && (
                   <HStack gap="4">
                     <Button
@@ -80,7 +80,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                         modal?.showModal();
                       }}
                     >
-                      Godkjenn
+                      Attester
                     </Button>
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
                       open={avvisModalOpen}

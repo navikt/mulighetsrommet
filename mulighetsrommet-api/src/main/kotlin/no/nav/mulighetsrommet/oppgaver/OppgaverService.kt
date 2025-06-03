@@ -273,17 +273,17 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
         link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
     )
     return when (delutbetaling.status) {
-        DelutbetalingStatus.TIL_GODKJENNING -> {
+        DelutbetalingStatus.TIL_ATTESTERING -> {
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             opprettelse to Oppgave(
                 id = delutbetaling.id,
-                type = OppgaveType.UTBETALING_TIL_GODKJENNING,
+                type = OppgaveType.UTBETALING_TIL_ATTESTERING,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Utbetaling til godkjenning",
-                description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
+                title = "Utbetaling til attestering",
+                description = "Utbetalingen for $gjennomforingsnavn er sendt til attestering",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt,
