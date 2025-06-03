@@ -71,7 +71,7 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = utbetaling1.id,
-        status = DelutbetalingStatus.TIL_GODKJENNING,
+        status = DelutbetalingStatus.TIL_ATTESTERING,
         fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         belop = 200,
         gjorOppTilsagn = false,
@@ -85,7 +85,7 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = utbetaling1.id,
-        status = DelutbetalingStatus.TIL_GODKJENNING,
+        status = DelutbetalingStatus.TIL_ATTESTERING,
         fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         belop = 150,
         gjorOppTilsagn = false,
@@ -109,7 +109,7 @@ fun QueryContext.setDelutbetalingStatus(
     queries.delutbetaling.setStatus(dto.id, status)
 
     when (status) {
-        DelutbetalingStatus.TIL_GODKJENNING, DelutbetalingStatus.BEHANDLES_AV_NAV -> {
+        DelutbetalingStatus.TIL_ATTESTERING, DelutbetalingStatus.BEHANDLES_AV_NAV -> {
             setTilGodkjenning(dto.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
         }
 

@@ -686,7 +686,7 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -896,7 +896,7 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.delutbetaling.get(delutbetaling1.id).shouldNotBeNull()
-                    .status shouldBe DelutbetalingStatus.TIL_GODKJENNING
+                    .status shouldBe DelutbetalingStatus.TIL_ATTESTERING
             }
         }
 
@@ -1285,7 +1285,7 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.OPPGJORT)
-                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
                 setRoller(
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),

@@ -21,10 +21,10 @@ export function DelutbetalingTag({ status }: Props) {
           Godkjent
         </Tag>
       );
-    case DelutbetalingStatus.TIL_GODKJENNING:
+    case DelutbetalingStatus.TIL_ATTESTERING:
       return (
         <Tag size="small" variant="warning" className={baseTagClasses}>
-          Til godkjenning
+          Til attestering
         </Tag>
       );
     case DelutbetalingStatus.RETURNERT:

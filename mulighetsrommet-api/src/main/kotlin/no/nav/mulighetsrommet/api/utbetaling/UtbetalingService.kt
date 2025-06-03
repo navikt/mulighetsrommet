@@ -356,7 +356,7 @@ class UtbetalingService(
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
         val delutbetaling = requireNotNull(queries.delutbetaling.get(id))
-        require(delutbetaling.status == DelutbetalingStatus.TIL_GODKJENNING) {
+        require(delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
             "Utbetaling er allerede besluttet"
         }
 
@@ -492,7 +492,7 @@ class UtbetalingService(
             id = id,
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
-            status = DelutbetalingStatus.TIL_GODKJENNING,
+            status = DelutbetalingStatus.TIL_ATTESTERING,
             periode = periode,
             belop = belop,
             gjorOppTilsagn = gjorOppTilsagn,

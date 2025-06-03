@@ -47,7 +47,7 @@ export const mockOppgaver: Oppgave[] = [
     oppgaveIcon: OppgaveIcon.TILSAGN,
   },
   {
-    type: OppgaveType.UTBETALING_TIL_GODKJENNING,
+    type: OppgaveType.UTBETALING_TIL_ATTESTERING,
     title: "Utbetaling til godkjenning",
     description: `Utbetaling for <gjennomføringsnavn> er sendt til godkjenning`,
     tiltakstype: {

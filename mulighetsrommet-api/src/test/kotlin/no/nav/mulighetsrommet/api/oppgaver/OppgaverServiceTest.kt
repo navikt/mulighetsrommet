@@ -267,7 +267,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
                 setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, DelutbetalingStatus.RETURNERT)
             }.initialize(database.db)
 
@@ -279,7 +279,7 @@ class OppgaverServiceTest : FunSpec({
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
             )
 
             // Skal se returnert utbetaling når ansatt har saksbehandler-rolle
@@ -336,7 +336,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     UtbetalingFixtures.delutbetaling1,
-                    DelutbetalingStatus.TIL_GODKJENNING,
+                    DelutbetalingStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -368,7 +368,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     UtbetalingFixtures.delutbetaling1,
-                    DelutbetalingStatus.TIL_GODKJENNING,
+                    DelutbetalingStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -381,7 +381,7 @@ class OppgaverServiceTest : FunSpec({
                 row(
                     NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
                     ),
                 ),
                 row(
@@ -397,7 +397,7 @@ class OppgaverServiceTest : FunSpec({
                         setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                     ),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
                     ),
                 ),
             ) { rolle, expectedOppgaver ->

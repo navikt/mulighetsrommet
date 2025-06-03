@@ -55,7 +55,7 @@ object UtbetalingValidator {
             opprettDelutbetalinger.forEachIndexed { index, req ->
                 when (req.previous?.status) {
                     null, DelutbetalingStatus.RETURNERT -> {}
-                    DelutbetalingStatus.TIL_GODKJENNING,
+                    DelutbetalingStatus.TIL_ATTESTERING,
                     DelutbetalingStatus.GODKJENT,
                     DelutbetalingStatus.UTBETALT,
                     DelutbetalingStatus.OVERFORT_TIL_UTBETALING,

@@ -3251,7 +3251,7 @@ components:
         - TILSAGN_TIL_OPPGJOR
         - TILSAGN_RETURNERT
         - UTBETALING_TIL_BEHANDLING
-        - UTBETALING_TIL_GODKJENNING
+        - UTBETALING_TIL_ATTESTERING
         - UTBETALING_RETURNERT
         - AVTALE_MANGLER_ADMINISTRATOR
         - GJENNOMFORING_MANGLER_ADMINISTRATOR
@@ -5904,7 +5904,7 @@ components:
         - VENTER_PA_ARRANGOR
         - KLAR_TIL_BEHANDLING
         - RETURNERT
-        - TIL_GODKJENNING
+        - TIL_ATTESTERING
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
 
@@ -6433,7 +6433,7 @@ components:
     DelutbetalingStatus:
       type: string
       enum:
-        - TIL_GODKJENNING
+        - TIL_ATTESTERING
         - GODKJENT
         - RETURNERT
         - UTBETALT

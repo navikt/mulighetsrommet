@@ -28,7 +28,7 @@ export function DelUtbetalingStatusTag({ status, size }: Props): ReactNode {
           Utbetalt
         </Tag>
       );
-    case DelutbetalingStatus.TIL_GODKJENNING:
+    case DelutbetalingStatus.TIL_ATTESTERING:
       return (
         <Tag variant="info" size={tagSize}>
           Behandles av Nav
