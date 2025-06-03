@@ -7,6 +7,7 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -292,7 +293,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (avtale.status != AvtaleStatus.AKTIV) {
+        if (avtale.status != AvtaleStatusDto.Aktiv) {
             add(
                 FieldError.of(
                     GjennomforingDbo::avtaleId,

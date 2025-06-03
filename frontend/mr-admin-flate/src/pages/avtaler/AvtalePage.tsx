@@ -26,7 +26,7 @@ export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
 
-  const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
+  const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
   const currentTab = () => {
     if (pathname.includes("gjennomforinger")) {
@@ -45,10 +45,13 @@ export function AvtalePage() {
           <AvtaleIkon />
           <VStack>
             <Heading size="large" level="2">
-              {avtale.navn ?? "..."}
+              {avtale.navn}
             </Heading>
           </VStack>
-          <AvtaleStatusTag avtale={avtale} showAvbruttAarsak />
+          <AvtaleStatusTag
+            status={avtale.status.type}
+            beskrivelse={"beskrivelse" in avtale.status ? avtale.status.beskrivelse : undefined}
+          />
         </div>
       </Header>
       <Tabs value={currentTab()}>

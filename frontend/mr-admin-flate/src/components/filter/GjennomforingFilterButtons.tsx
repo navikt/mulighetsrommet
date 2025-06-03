@@ -1,5 +1,5 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { AvtaleDto, Tiltakskode } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleStatus, Avtaletype } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Button } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
@@ -15,14 +15,6 @@ export function GjennomforingFilterButtons({ avtale }: Props) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const setGjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
 
-  const avtaleErAftEllerVta = avtale?.tiltakstype?.tiltakskode
-    ? [
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-      ].includes(avtale.tiltakstype.tiltakskode)
-    : false;
-  const avtalenErAktiv = avtale?.status.name === "AKTIV";
-
   return (
     <div
       style={{
@@ -33,7 +25,7 @@ export function GjennomforingFilterButtons({ avtale }: Props) {
         alignItems: "center",
       }}
     >
-      {avtale && avtalenErAktiv && (
+      {avtale?.status.type === AvtaleStatus.AKTIV && (
         <div
           style={{
             display: "flex",
@@ -53,7 +45,7 @@ export function GjennomforingFilterButtons({ avtale }: Props) {
             >
               Opprett ny gjennomføring
             </Lenkeknapp>
-            {avtaleErAftEllerVta && (
+            {avtale.avtaletype === Avtaletype.FORHANDSGODKJENT && (
               <>
                 <Button
                   size="small"

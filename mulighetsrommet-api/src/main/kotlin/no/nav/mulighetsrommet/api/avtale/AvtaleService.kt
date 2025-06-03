@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
@@ -114,7 +115,7 @@ class AvtaleService(
             return Either.Left(BadRequest(detail = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
         }
 
-        if (avtale.status != AvtaleStatus.AKTIV) {
+        if (avtale.status != AvtaleStatusDto.Aktiv) {
             return Either.Left(BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 

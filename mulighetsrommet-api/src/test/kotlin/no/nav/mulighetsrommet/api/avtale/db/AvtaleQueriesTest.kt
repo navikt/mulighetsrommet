@@ -14,6 +14,7 @@ import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -83,7 +84,7 @@ class AvtaleQueriesTest : FunSpec({
                     it.startDato shouldBe arenaAvtale.startDato
                     it.sluttDato shouldBe arenaAvtale.sluttDato
                     it.avtaletype shouldBe arenaAvtale.avtaletype
-                    it.status shouldBe AvtaleStatus.AKTIV
+                    it.status shouldBe AvtaleStatusDto.Aktiv
                     it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                     it.prisbetingelser shouldBe "Alt er dyrt"
                 }
@@ -550,7 +551,7 @@ class AvtaleQueriesTest : FunSpec({
             }
         }
 
-        test("filtrering på Avtalestatus") {
+        test("filtrering på AvtaleStatus") {
             database.runAndRollback { session ->
                 oppfolgingDomain.setup(session)
 
@@ -580,11 +581,11 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtalePlanlagt)
 
                 forAll(
-                    row(listOf(AvtaleStatus.Enum.AKTIV), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
-                    row(listOf(AvtaleStatus.Enum.AVBRUTT), listOf(avtaleAvbrutt.id)),
-                    row(listOf(AvtaleStatus.Enum.AVSLUTTET), listOf(avtaleAvsluttet.id)),
+                    row(listOf(AvtaleStatus.AKTIV), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
+                    row(listOf(AvtaleStatus.AVBRUTT), listOf(avtaleAvbrutt.id)),
+                    row(listOf(AvtaleStatus.AVSLUTTET), listOf(avtaleAvsluttet.id)),
                     row(
-                        listOf(AvtaleStatus.Enum.AVBRUTT, AvtaleStatus.Enum.AVSLUTTET),
+                        listOf(AvtaleStatus.AVBRUTT, AvtaleStatus.AVSLUTTET),
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
@@ -994,10 +995,10 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 forAll(
-                    row(dagensDato, enManedFrem, AvtaleStatus.AKTIV),
-                    row(enManedFrem, toManederFrem, AvtaleStatus.AKTIV),
-                    row(enManedTilbake, dagensDato, AvtaleStatus.AKTIV),
-                    row(toManederTilbake, enManedTilbake, AvtaleStatus.AVSLUTTET),
+                    row(dagensDato, enManedFrem, AvtaleStatusDto.Aktiv),
+                    row(enManedFrem, toManederFrem, AvtaleStatusDto.Aktiv),
+                    row(enManedTilbake, dagensDato, AvtaleStatusDto.Aktiv),
+                    row(toManederTilbake, enManedTilbake, AvtaleStatusDto.Avsluttet),
                 ) { startDato, sluttDato, expectedStatus ->
                     queries.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
@@ -1013,10 +1014,10 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 forAll(
-                    row(dagensDato, enManedFrem, dagensDato, AvtaleStatus.Enum.AVBRUTT),
-                    row(enManedFrem, toManederFrem, dagensDato, AvtaleStatus.Enum.AVBRUTT),
-                    row(toManederTilbake, enManedTilbake, dagensDato, AvtaleStatus.Enum.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), AvtaleStatus.Enum.AVBRUTT),
+                    row(dagensDato, enManedFrem, dagensDato, AvtaleStatus.AVBRUTT),
+                    row(enManedFrem, toManederFrem, dagensDato, AvtaleStatus.AVBRUTT),
+                    row(toManederTilbake, enManedTilbake, dagensDato, AvtaleStatus.AVBRUTT),
+                    row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), AvtaleStatus.AVBRUTT),
                 ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                     queries.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
@@ -1027,7 +1028,7 @@ class AvtaleQueriesTest : FunSpec({
                     )
 
                     queries.get(AvtaleFixtures.oppfolging.id)
-                        .shouldNotBeNull().status.enum shouldBe expectedStatus
+                        .shouldNotBeNull().status.type shouldBe expectedStatus
                 }
             }
         }

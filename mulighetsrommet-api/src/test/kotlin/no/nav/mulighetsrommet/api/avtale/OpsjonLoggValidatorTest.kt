@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -39,7 +40,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             enhetsnummer = "0100",
         ),
         avtaletype = Avtaletype.AVTALE,
-        status = AvtaleStatus.AKTIV,
+        status = AvtaleStatusDto.Aktiv,
         prisbetingelser = null,
         administratorer = emptyList(),
         antallPlasser = 10,

@@ -1,17 +1,17 @@
 import { Tag } from "@navikt/ds-react";
 import { useState } from "react";
-import { variantAndName } from "./GjennomforingStatusTag";
+import { variantAndName } from "@mr/frontend-common/components/gjennomforing/GjennomforingStatusTag";
+import { GjennomforingStatusDto } from "@mr/api-client-v2";
 
 interface Props {
-  status: string;
-  beskrivelse?: string;
+  status: GjennomforingStatusDto;
 }
 
-export function GjennomforingStatusMedBeskrivelseTag({ status, beskrivelse }: Props) {
+export function GjennomforingStatusMedAarsakTag({ status }: Props) {
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
-  const { variant, label } = variantAndName(status);
-  const labelWithBeskrivelse = beskrivelse ? `${label} - ${beskrivelse}` : label;
+  const { variant, label } = variantAndName(status.type);
+  const labelWithBeskrivelse = "beskrivelse" in status ? `${label} - ${status.beskrivelse}` : label;
 
   return (
     <Tag

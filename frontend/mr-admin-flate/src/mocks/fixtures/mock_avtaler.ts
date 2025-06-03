@@ -1,4 +1,11 @@
-import { AvtaleDto, Avtaletype, Opphav, OpsjonsmodellKey, Prismodell } from "@mr/api-client-v2";
+import {
+  AvbrytAvtaleAarsak,
+  AvtaleDto,
+  Avtaletype,
+  Opphav,
+  OpsjonsmodellKey,
+  Prismodell,
+} from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
@@ -45,7 +52,7 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2021-08-02",
     sluttDato: "2023-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { name: "AKTIV" },
+    status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0300,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
@@ -108,8 +115,9 @@ export const mockAvtaler: AvtaleDto[] = [
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
     status: {
-      name: "AVBRUTT",
-      aarsak:
+      type: "AVBRUTT",
+      aarsak: AvbrytAvtaleAarsak.FEILREGISTRERING,
+      beskrivelse:
         "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
       tidspunkt: "2020-03-04T12:00:00",
     },
@@ -161,7 +169,7 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { name: "AKTIV" },
+    status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
@@ -212,7 +220,7 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { name: "AKTIV" },
+    status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
@@ -268,7 +276,7 @@ for (let i = 0; i < x; i++) {
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { name: "AKTIV" },
+    status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [

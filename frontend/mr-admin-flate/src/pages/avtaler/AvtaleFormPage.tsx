@@ -50,7 +50,10 @@ export function AvtaleFormPage() {
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
         </Heading>
-        {avtale ? <AvtaleStatusTag avtale={avtale} showAvbruttAarsak /> : null}
+        <AvtaleStatusTag
+          status={avtale.status.type}
+          beskrivelse={"beskrivelse" in avtale.status ? avtale.status.beskrivelse : undefined}
+        />
       </Header>
       <ContentBox>
         <WhitePaddedBox>

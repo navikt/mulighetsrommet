@@ -1,41 +1,16 @@
 import { Tag } from "@navikt/ds-react";
-import { AvtaleDto } from "@mr/api-client-v2";
 import { useState } from "react";
-import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 
 interface Props {
-  avtale: AvtaleDto;
-  showAvbruttAarsak?: boolean;
+  status: "UTKAST" | "AKTIV" | "AVSLUTTET" | "AVBRUTT";
+  beskrivelse?: string;
 }
 
-export function AvtaleStatusTag({ avtale, showAvbruttAarsak = false }: Props) {
-  const { status } = avtale;
+export function AvtaleStatusTag({ status, beskrivelse }: Props) {
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
-  function variantAndName(): { variant: "success" | "neutral" | "error"; name: string } {
-    switch (status.name) {
-      case "AKTIV":
-        return { variant: "success", name: "Aktiv" };
-      case "AVSLUTTET":
-        return { variant: "neutral", name: "Avsluttet" };
-      case "AVBRUTT":
-        return { variant: "error", name: "Avbrutt" };
-      case "UTKAST":
-        return { variant: "neutral", name: "Utkast" };
-    }
-  }
-  const { variant, name } = variantAndName();
-
-  function labelText(): string {
-    if (status.name === "AVBRUTT" && showAvbruttAarsak) {
-      return `${name} - ${avbrytAvtaleAarsakToString(status.aarsak)}`;
-    }
-
-    return name;
-  }
-
-  const label = labelText();
-  const slicedLabel = label.length > 30 ? label.slice(0, 27) + "..." : label;
+  const { variant, name } = getVariantAndName(status);
+  const label = beskrivelse ? `${name} - ${beskrivelse}` : name;
 
   return (
     <Tag
@@ -46,7 +21,27 @@ export function AvtaleStatusTag({ avtale, showAvbruttAarsak = false }: Props) {
       aria-label={`Avtalestatus: ${name}`}
       variant={variant}
     >
-      {expandLabel ? label : slicedLabel}
+      {expandLabel ? label : truncate(label, 30)}
     </Tag>
   );
+}
+
+function getVariantAndName(status: Props["status"]): {
+  variant: "success" | "neutral" | "error";
+  name: string;
+} {
+  switch (status) {
+    case "AKTIV":
+      return { variant: "success", name: "Aktiv" };
+    case "AVSLUTTET":
+      return { variant: "neutral", name: "Avsluttet" };
+    case "AVBRUTT":
+      return { variant: "error", name: "Avbrutt" };
+    case "UTKAST":
+      return { variant: "neutral", name: "Utkast" };
+  }
+}
+
+function truncate(text: string, maxLength: number): string {
+  return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
 }
