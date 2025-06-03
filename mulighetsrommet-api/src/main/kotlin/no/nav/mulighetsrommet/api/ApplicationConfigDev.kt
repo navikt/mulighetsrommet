@@ -320,10 +320,6 @@ val ApplicationConfigDev = AppConfig(
         instanceId = System.getenv("NAIS_CLIENT_ID"),
         environment = "development",
     ),
-    axsys = AuthenticatedHttpClientConfig(
-        url = "https://axsys.dev-fss-pub.nais.io",
-        scope = "api://dev-fss.org.axsys/.default",
-    ),
     pdl = AuthenticatedHttpClientConfig(
         url = "https://pdl-api.dev-fss-pub.nais.io",
         scope = "api://dev-fss.pdl.pdl-api/.default",

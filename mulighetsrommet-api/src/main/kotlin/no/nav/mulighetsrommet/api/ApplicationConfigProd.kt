@@ -303,10 +303,6 @@ val ApplicationConfigProd = AppConfig(
         instanceId = System.getenv("NAIS_CLIENT_ID"),
         environment = "production",
     ),
-    axsys = AuthenticatedHttpClientConfig(
-        url = "https://axsys.prod-fss-pub.nais.io",
-        scope = "api://prod-fss.org.axsys/.default",
-    ),
     pdl = AuthenticatedHttpClientConfig(
         url = "https://pdl-api.prod-fss-pub.nais.io",
         scope = "api://prod-fss.pdl.pdl-api/.default",

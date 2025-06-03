@@ -47,7 +47,6 @@ data class AppConfig(
     val slack: SlackConfig,
     val pamOntologi: AuthenticatedHttpClientConfig,
     val unleash: UnleashService.Config,
-    val axsys: AuthenticatedHttpClientConfig,
     val pdl: AuthenticatedHttpClientConfig,
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,

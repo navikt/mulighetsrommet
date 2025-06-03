@@ -98,7 +98,6 @@ dependencies {
     implementation(libs.prometheus.caffeine)
 
     implementation(libs.nav.common.auditLog)
-    implementation(libs.nav.common.client)
 
     // Dependency injection
     implementation(libs.koin.ktor)
