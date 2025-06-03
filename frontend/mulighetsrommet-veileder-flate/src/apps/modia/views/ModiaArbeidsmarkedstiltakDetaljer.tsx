@@ -30,7 +30,6 @@ import {
   NavVeileder,
   Tiltakskode,
   TiltakskodeArena,
-  VeilederflateTiltak,
   VeilederflateTiltakstype,
 } from "@mr/api-client-v2";
 import { TilbakemeldingsLenke } from "@mr/frontend-common";
@@ -38,6 +37,7 @@ import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
+import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
 
 const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
@@ -209,23 +209,5 @@ function harBrukerRettPaaValgtTiltak(
     (bruker.erSykmeldtMedArbeidsgiver &&
       tiltakstype.tiltakskode === Tiltakskode.ARBEIDSRETTET_REHABILITERING &&
       bruker.innsatsgruppe === Innsatsgruppe.TRENGER_VEILEDNING)
-  );
-}
-
-/**
- * Bestemmer tilgang til en lenke som peker veileder til et eget skjema i Porten for tilbakemeldinger på innhold om
- * tiltak.
- * Dette er et prøveprosjekt som foreløpig ikke er rullet ut til alle fylker.
- */
-function isTilbakemeldingerEnabled(tiltak: VeilederflateTiltak): boolean {
-  if (tiltak.fylker.length === 0) {
-    return false;
-  }
-
-  const fylkerMedStotteForTilbakemeldingerViaPorten = [
-    "0200", // Øst-Viken
-  ];
-  return tiltak.fylker.every((fylke) =>
-    fylkerMedStotteForTilbakemeldingerViaPorten.includes(fylke),
   );
 }

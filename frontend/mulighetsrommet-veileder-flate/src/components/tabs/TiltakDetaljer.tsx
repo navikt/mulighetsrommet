@@ -7,6 +7,7 @@ import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@/utils/ErrorFallback";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
+import { isOppskrifterEnabled } from "@/apps/modia/features";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -93,15 +94,4 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
       </div>
     </Tabs>
   );
-}
-
-function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
-  if (tiltak.fylker.length < 1) {
-    return true;
-  }
-
-  const fylkerSomIkkeVilHaOppskrifter = [
-    "0800", // Vestfold og Telemark
-  ];
-  return !tiltak.fylker.some((fylke) => fylkerSomIkkeVilHaOppskrifter.includes(fylke));
 }
