@@ -5,11 +5,11 @@ import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
-enum class GjennomforingStatus {
-    GJENNOMFORES,
-    AVSLUTTET,
-    AVBRUTT,
-    AVLYST,
+enum class GjennomforingStatus(val beskrivelse: String) {
+    GJENNOMFORES("Gjennomføres"),
+    AVSLUTTET("Avsluttet"),
+    AVBRUTT("Avbrutt"),
+    AVLYST("Avlyst"),
 }
 
 @Serializable

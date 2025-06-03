@@ -14,8 +14,8 @@ export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is Veilederf
   return tiltak.type === "TILTAK_GRUPPE";
 }
 
-export function isTiltakAktivt(gjennomforing: VeilederflateTiltak): boolean {
-  return gjennomforing.status === GjennomforingStatus.GJENNOMFORES;
+export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
+  return !isTiltakGruppe(tiltak) || tiltak.status.type === GjennomforingStatus.GJENNOMFORES;
 }
 
 export function isTiltakEgenRegi(

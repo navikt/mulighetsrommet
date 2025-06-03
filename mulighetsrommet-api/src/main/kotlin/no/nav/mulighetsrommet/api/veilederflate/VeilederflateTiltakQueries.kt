@@ -86,6 +86,8 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
         ?: emptyList()
 
+    val status = GjennomforingStatus.valueOf(string("status"))
+
     return VeilederflateTiltakGruppe(
         id = uuid("id"),
         tiltakstype = VeilederflateTiltakstype(
@@ -121,6 +123,9 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         },
         personvernBekreftet = boolean("personvern_bekreftet"),
         personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
-        status = GjennomforingStatus.valueOf(string("status")),
+        status = VeilederflateTiltakGruppe.Status(
+            type = status,
+            beskrivelse = status.beskrivelse,
+        ),
     )
 }

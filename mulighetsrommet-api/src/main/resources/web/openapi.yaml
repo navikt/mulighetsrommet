@@ -4254,7 +4254,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/GjennomforingStatus"
+          $ref: "#/components/schemas/VeilederflateTiltakGruppeStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4304,6 +4304,17 @@ components:
         - personopplysningerSomKanBehandles
         - fylker
 
+    VeilederflateTiltakGruppeStatus:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatus"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - beskrivelse
+
     VeilederflateTiltakEgenRegi:
       type: object
       properties:
@@ -4313,8 +4324,6 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksnummer:
           type: string
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4349,8 +4358,6 @@ components:
           const: "TILTAK_ENKELTPLASS"
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4387,8 +4394,6 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksnummer:
           type: string
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
