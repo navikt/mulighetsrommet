@@ -7,6 +7,7 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -292,7 +293,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (avtale.status != AvtaleStatus.AKTIV) {
+        if (avtale.status != AvtaleStatusDto.Aktiv) {
             add(
                 FieldError.of(
                     GjennomforingDbo::avtaleId,
@@ -316,11 +317,11 @@ class GjennomforingValidator(
         previous: GjennomforingDto,
         avtale: AvtaleDto,
     ) {
-        if (previous.status.status != GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type != GjennomforingStatus.GJENNOMFORES) {
             add(
                 FieldError.of(
                     GjennomforingDbo::navn,
-                    "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.status.name.lowercase()}",
+                    "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.type.name.lowercase()}",
                 ),
             )
         }
@@ -334,7 +335,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (previous.status.status == GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type == GjennomforingStatus.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     FieldError.of(

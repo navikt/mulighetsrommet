@@ -1,52 +1,16 @@
-import { Tag } from "@navikt/ds-react";
-import { AvtaleDto } from "@mr/api-client-v2";
-import { useState } from "react";
-import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
+import { AvtaleStatusDto } from "@mr/api-client-v2";
+import { StatusTag } from "@mr/frontend-common";
+import { getAvtaleStatusTagProps } from "@/components/statuselementer/getStatusTagProps";
 
 interface Props {
-  avtale: AvtaleDto;
-  showAvbruttAarsak?: boolean;
+  status: AvtaleStatusDto;
 }
 
-export function AvtaleStatusTag({ avtale, showAvbruttAarsak = false }: Props) {
-  const { status } = avtale;
-  const [expandLabel, setExpandLabel] = useState<boolean>(false);
-
-  function variantAndName(): { variant: "success" | "neutral" | "error"; name: string } {
-    switch (status.name) {
-      case "AKTIV":
-        return { variant: "success", name: "Aktiv" };
-      case "AVSLUTTET":
-        return { variant: "neutral", name: "Avsluttet" };
-      case "AVBRUTT":
-        return { variant: "error", name: "Avbrutt" };
-      case "UTKAST":
-        return { variant: "neutral", name: "Utkast" };
-    }
-  }
-  const { variant, name } = variantAndName();
-
-  function labelText(): string {
-    if (status.name === "AVBRUTT" && showAvbruttAarsak) {
-      return `${name} - ${avbrytAvtaleAarsakToString(status.aarsak)}`;
-    }
-
-    return name;
-  }
-
-  const label = labelText();
-  const slicedLabel = label.length > 30 ? label.slice(0, 27) + "..." : label;
-
+export function AvtaleStatusTag({ status }: Props) {
+  const { variant, name } = getAvtaleStatusTagProps(status.type);
   return (
-    <Tag
-      className="min-w-[140px] text-center whitespace-nowrap"
-      size="small"
-      onMouseEnter={() => setExpandLabel(true)}
-      onMouseLeave={() => setExpandLabel(false)}
-      aria-label={`Avtalestatus: ${name}`}
-      variant={variant}
-    >
-      {expandLabel ? label : slicedLabel}
-    </Tag>
+    <StatusTag aria-label={`Status for avtale: ${name}`} variant={variant}>
+      {name}
+    </StatusTag>
   );
 }

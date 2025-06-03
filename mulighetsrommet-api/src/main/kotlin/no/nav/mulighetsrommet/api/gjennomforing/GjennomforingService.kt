@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingStatusMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
@@ -51,8 +52,8 @@ class GjennomforingService(
     ): Either<List<FieldError>, GjennomforingDto> = either {
         val previous = get(request.id)
 
-        val status = if (previous != null && previous.status.avbrutt != null) {
-            previous.status.status
+        val status = if (previous != null && previous.status !is GjennomforingStatusDto.Gjennomfores) {
+            previous.status.type
         } else {
             GjennomforingStatusMapper.fromSluttDato(sluttDato = request.sluttDato, today = today)
         }
@@ -193,13 +194,14 @@ class GjennomforingService(
         queries.gjennomforing.setApentForPamelding(id, false)
 
         val dto = getOrError(id)
-        val operation = when (dto.status.status) {
+        val operation = when (dto.status.type) {
             GjennomforingStatus.AVSLUTTET,
             GjennomforingStatus.AVBRUTT,
             GjennomforingStatus.AVLYST,
-            -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
+            -> "Gjennomføringen ble ${dto.status.type.name.lowercase()}"
 
-            else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.status}")
+            GjennomforingStatus.GJENNOMFORES ->
+                throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.type}")
         }
         logEndring(operation, dto, endretAv)
 

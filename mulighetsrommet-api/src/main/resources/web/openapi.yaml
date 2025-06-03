@@ -89,7 +89,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Avtalestatus"
+              $ref: "#/components/schemas/AvtaleStatus"
           description: Statuser for avtale
         - in: query
           name: avtaletyper
@@ -198,7 +198,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Avtalestatus"
+              $ref: "#/components/schemas/AvtaleStatus"
           description: Statuser for avtale
         - in: query
           name: navRegioner
@@ -248,7 +248,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Avtalestatus"
+              $ref: "#/components/schemas/AvtaleStatus"
           description: Statuser for avtale
         - in: query
           name: avtaletyper
@@ -2984,7 +2984,7 @@ components:
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
-          $ref: "#/components/schemas/AvtalestatusResponse"
+          $ref: "#/components/schemas/AvtaleStatusDto"
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         prisbetingelser:
@@ -3182,49 +3182,73 @@ components:
         - FORHANDSGODKJENT
         - OFFENTLIG_OFFENTLIG
 
-    AvtalestatusResponse:
-      oneOf:
-        - $ref: "#/components/schemas/AvtaleIkkeAvbruttStatus"
-        - $ref: "#/components/schemas/AvtaleAvbruttStatus"
-
-    AvtaleIkkeAvbruttStatus:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-            - AKTIV
-            - AVSLUTTET
-            - UTKAST
-      required:
-        - name
-
-    AvtaleAvbruttStatus:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-            - AVBRUTT
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsak:
-          oneOf:
-            - type: string
-            - $ref: "#/components/schemas/AvbrytAvtaleAarsak"
-      required:
-        - name
-        - tidspunkt
-        - aarsak
-
-    Avtalestatus:
+    AvtaleStatus:
       type: string
       enum:
         - AKTIV
         - AVSLUTTET
         - AVBRUTT
         - UTKAST
+
+    AvtaleStatusDto:
+      oneOf:
+        - $ref: "#/components/schemas/AvtaleStatusUtkast"
+        - $ref: "#/components/schemas/AvtaleStatusAktiv"
+        - $ref: "#/components/schemas/AvtaleStatusAvbrutt"
+        - $ref: "#/components/schemas/AvtaleStatusAvsluttet"
+      discriminator:
+        propertyName: type
+        mapping:
+          UTKAST: "#/components/schemas/AvtaleStatusUtkast"
+          AKTIV: "#/components/schemas/AvtaleStatusAktiv"
+          AVBRUTT: "#/components/schemas/AvtaleStatusAvbrutt"
+          AVSLUTTET: "#/components/schemas/AvtaleStatusAvsluttet"
+
+    AvtaleStatusAktiv:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AKTIV
+      required:
+        - type
+
+    AvtaleStatusUtkast:
+      type: object
+      properties:
+        type:
+          type: string
+          const: UTKAST
+      required:
+        - type
+
+    AvtaleStatusAvsluttet:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AVSLUTTET
+      required:
+        - type
+
+    AvtaleStatusAvbrutt:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AVBRUTT
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytAvtaleAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
 
     NotificationStatus:
       type: string
@@ -3506,28 +3530,70 @@ components:
         - utdanningslop
 
     GjennomforingStatusDto:
+      oneOf:
+        - $ref: "#/components/schemas/GjennomforingStatusGjennomfores"
+        - $ref: "#/components/schemas/GjennomforingStatusAvsluttet"
+        - $ref: "#/components/schemas/GjennomforingStatusAvbrutt"
+        - $ref: "#/components/schemas/GjennomforingStatusAvlyst"
+      discriminator:
+        propertyName: type
+        mapping:
+          GJENNOMFORES: "#/components/schemas/GjennomforingStatusGjennomfores"
+          AVSLUTTET: "#/components/schemas/GjennomforingStatusAvsluttet"
+          AVBRUTT: "#/components/schemas/GjennomforingStatusAvbrutt"
+          AVLYST: "#/components/schemas/GjennomforingStatusAvlyst"
+
+    GjennomforingStatusGjennomfores:
       type: object
       properties:
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
-        avbrutt:
-          type: object
-          properties:
-            tidspunkt:
-              type: string
-              format: date-time
-            aarsak:
-              oneOf:
-                - type: string
-                - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-            beskrivelse:
-              type: string
-          required:
-            - tidspunkt
-            - aarsak
-            - beskrivelse
+        type:
+          const: GJENNOMFORES
       required:
-        - status
+        - type
+
+    GjennomforingStatusAvsluttet:
+      type: object
+      properties:
+        type:
+          const: AVSLUTTET
+      required:
+        - type
+
+    GjennomforingStatusAvbrutt:
+      type: object
+      properties:
+        type:
+          const: AVBRUTT
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
+
+    GjennomforingStatusAvlyst:
+      type: object
+      properties:
+        type:
+          const: AVLYST
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
 
     GjennomforingStatus:
       type: string
@@ -4254,7 +4320,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/GjennomforingStatus"
+          $ref: "#/components/schemas/VeilederflateTiltakGruppeStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4304,6 +4370,17 @@ components:
         - personopplysningerSomKanBehandles
         - fylker
 
+    VeilederflateTiltakGruppeStatus:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatus"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - beskrivelse
+
     VeilederflateTiltakEgenRegi:
       type: object
       properties:
@@ -4313,8 +4390,6 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksnummer:
           type: string
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4349,8 +4424,6 @@ components:
           const: "TILTAK_ENKELTPLASS"
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4387,8 +4460,6 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksnummer:
           type: string
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:

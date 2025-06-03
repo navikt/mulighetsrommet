@@ -13,7 +13,10 @@ import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import java.util.*
 
 class VeilederflateService(
@@ -201,7 +204,6 @@ class VeilederflateService(
             )
         }
 
-        val status = GjennomforingStatus.GJENNOMFORES
         val navn = gjennomforing.tiltaksgjennomforingNavn ?: ""
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
@@ -216,7 +218,6 @@ class VeilederflateService(
             Tiltakskoder.isEgenRegiTiltak(arenakode) -> {
                 VeilederflateTiltakEgenRegi(
                     tiltaksnummer = tiltaksnummer,
-                    status = status,
                     beskrivelse = beskrivelse,
                     faneinnhold = faneinnhold,
                     kontaktinfo = kontaktinfo,
@@ -232,7 +233,6 @@ class VeilederflateService(
 
             arrangor != null -> VeilederflateTiltakEnkeltplassAnskaffet(
                 tiltaksnummer = tiltaksnummer,
-                status = status,
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
                 kontaktinfo = kontaktinfo,
@@ -247,7 +247,6 @@ class VeilederflateService(
             )
 
             else -> VeilederflateTiltakEnkeltplass(
-                status = status,
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
                 kontaktinfo = kontaktinfo,

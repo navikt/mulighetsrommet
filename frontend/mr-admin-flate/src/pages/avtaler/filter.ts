@@ -1,5 +1,5 @@
 import { AVTALE_PAGE_SIZE } from "@/constants";
-import { Avtalestatus, Avtaletype, SorteringAvtaler } from "@mr/api-client-v2";
+import { AvtaleStatus, Avtaletype, SorteringAvtaler } from "@mr/api-client-v2";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator } from "@/filter/filter-validator";
@@ -9,7 +9,7 @@ import { atom, WritableAtom } from "jotai";
 
 export const AvtaleFilterSchema = z.object({
   sok: z.string(),
-  statuser: z.custom<Avtalestatus>().array(),
+  statuser: z.custom<AvtaleStatus>().array(),
   avtaletyper: z.custom<Avtaletype>().array(),
   navRegioner: z.string().array(),
   tiltakstyper: z.string().array(),
@@ -25,7 +25,7 @@ export type AvtaleFilterType = z.infer<typeof AvtaleFilterSchema>;
 
 export const defaultAvtaleFilter: AvtaleFilterType = {
   sok: "",
-  statuser: [Avtalestatus.AKTIV],
+  statuser: [AvtaleStatus.AKTIV],
   avtaletyper: [],
   navRegioner: [],
   tiltakstyper: [],

@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
@@ -294,7 +295,7 @@ class AvtaleQueries(private val session: Session) {
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        statuser: List<AvtaleStatus.Enum> = emptyList(),
+        statuser: List<AvtaleStatus> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<NavEnhetNummer> = emptyList(),
         sortering: String? = null,
@@ -541,7 +542,7 @@ class AvtaleQueries(private val session: Session) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
+            status = AvtaleStatusDto.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
             beskrivelse = stringOrNull("beskrivelse"),

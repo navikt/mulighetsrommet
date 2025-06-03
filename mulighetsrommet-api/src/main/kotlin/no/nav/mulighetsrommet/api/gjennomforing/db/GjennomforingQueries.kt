@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavE
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
@@ -633,18 +634,19 @@ class GjennomforingQueries(private val session: Session) {
             Json.decodeFromString<UtdanningslopDto>(it)
         }
 
-        val status = GjennomforingStatus.valueOf(string("status"))
-        val avbrutt = when (status) {
-            GjennomforingStatus.AVBRUTT, GjennomforingStatus.AVLYST -> {
-                val aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak"))
-                AvbruttDto(
-                    tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                    aarsak = aarsak,
-                    beskrivelse = aarsak.beskrivelse,
-                )
-            }
+        val status = when (GjennomforingStatus.valueOf(string("status"))) {
+            GjennomforingStatus.GJENNOMFORES -> GjennomforingStatusDto.Gjennomfores
+            GjennomforingStatus.AVSLUTTET -> GjennomforingStatusDto.Avsluttet
 
-            else -> null
+            GjennomforingStatus.AVBRUTT -> GjennomforingStatusDto.Avbrutt(
+                tidspunkt = localDateTime("avsluttet_tidspunkt"),
+                aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak")),
+            )
+
+            GjennomforingStatus.AVLYST -> GjennomforingStatusDto.Avlyst(
+                tidspunkt = localDateTime("avsluttet_tidspunkt"),
+                aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak")),
+            )
         }
 
         return GjennomforingDto(
@@ -654,7 +656,7 @@ class GjennomforingQueries(private val session: Session) {
             lopenummer = string("lopenummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = GjennomforingStatusDto(status, avbrutt),
+            status = status,
             apentForPamelding = boolean("apent_for_pamelding"),
             antallPlasser = int("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),

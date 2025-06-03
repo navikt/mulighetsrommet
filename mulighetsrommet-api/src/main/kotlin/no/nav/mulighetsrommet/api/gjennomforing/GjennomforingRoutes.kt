@@ -95,7 +95,7 @@ fun Route.gjennomforingRoutes() {
                     message = "Gjennomføringen finnes ikke",
                 )
 
-                if (gjennomforing.status.status != GjennomforingStatus.GJENNOMFORES) {
+                if (gjennomforing.status.type != GjennomforingStatus.GJENNOMFORES) {
                     return@put call.respond(
                         HttpStatusCode.BadRequest,
                         message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",

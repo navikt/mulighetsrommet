@@ -7,7 +7,7 @@ import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { AvtaleDto, NavAnsatt, Opphav } from "@mr/api-client-v2";
+import { AvtaleDto, NavAnsatt, Opphav, AvtaleStatus } from "@mr/api-client-v2";
 import { useRef } from "react";
 import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
@@ -81,7 +81,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
                   Registrer opsjon
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {avtale && avtale.status.name === "AKTIV" && (
+              {avtale.status.type === AvtaleStatus.AKTIV && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     avbrytModalRef.current?.showModal();

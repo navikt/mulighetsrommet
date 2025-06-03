@@ -17,8 +17,8 @@ import { DetaljerSkeleton } from "./components/skeleton/DetaljerSkeleton";
 import { ListSkeleton } from "./components/skeleton/ListSkeleton";
 import { LokalInformasjonContainer } from "./components/containers/LokalInformasjonContainer";
 import { LagreFilterButton } from "./components/lagreFilter/LagreFilterButton";
-import { GjennomforingStatusTag } from "./components/gjennomforing/GjennomforingStatusTag";
-import { GjennomforingStatusMedAarsakTag } from "./components/gjennomforing/GjennomforingStatusMedAarsakTag";
+import { StatusTag } from "./components/tags/StatusTag";
+import { ExpandableStatusTag } from "./components/tags/ExpandableStatusTag";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
 import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 import { FilterContainer } from "./components/filter/FilterContainer";
@@ -45,8 +45,8 @@ export {
   LagreFilterButton,
   LagredeFilterOversikt,
   TilbakemeldingsLenke,
-  GjennomforingStatusTag,
-  GjennomforingStatusMedAarsakTag,
+  StatusTag,
+  ExpandableStatusTag,
   FilterContainer,
   useOpenFilterWhenThreshold,
   useApiQuery,

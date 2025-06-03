@@ -12,18 +12,19 @@ import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
-import { Outlet, useLocation, useParams } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/GjennomforingStatusMedAarsakTag";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { gjennomforingId } = useParams();
 
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
 
   const { data: enableTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
@@ -45,10 +46,6 @@ export function GjennomforingPage() {
     } else {
       return "gjennomforing";
     }
-  }
-
-  if (!gjennomforing) {
-    return null;
   }
 
   const currentTab = getCurrentTab();
@@ -81,12 +78,9 @@ export function GjennomforingPage() {
                 {gjennomforing.navn}
               </Heading>
             </VStack>
-            <GjennomforingStatusMedAarsakTag
-              status={gjennomforing.status.status}
-              avbrutt={gjennomforing.status.avbrutt}
-            />
+            <GjennomforingStatusMedAarsakTag status={gjennomforing.status} />
           </div>
-          {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
+          {gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES && (
             <div className="pr-2">
               <Lenkeknapp
                 size="small"
@@ -109,26 +103,22 @@ export function GjennomforingPage() {
             aria-controls="panel"
           />
           {enableTilsagn ? (
-            <>
-              <Tabs.Tab
-                value="tilsagn"
-                label="Tilsagn"
-                onClick={() =>
-                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)
-                }
-                aria-controls="panel"
-              />
-              {enableOkonomi ? (
-                <Tabs.Tab
-                  value="utbetalinger"
-                  label="Utbetalinger"
-                  onClick={() =>
-                    navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
-                  }
-                  aria-controls="panel"
-                />
-              ) : null}
-            </>
+            <Tabs.Tab
+              value="tilsagn"
+              label="Tilsagn"
+              onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)}
+              aria-controls="panel"
+            />
+          ) : null}
+          {enableOkonomi ? (
+            <Tabs.Tab
+              value="utbetalinger"
+              label="Utbetalinger"
+              onClick={() =>
+                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
+              }
+              aria-controls="panel"
+            />
           ) : null}
           {gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
             <Tabs.Tab

@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -14,10 +15,10 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus.*
-import no.nav.mulighetsrommet.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -82,13 +83,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Gjennomfores
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Gjennomfores
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Gjennomfores
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
@@ -102,13 +103,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Gjennomfores
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Avsluttet
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Avsluttet
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).also { records ->
@@ -137,13 +138,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Gjennomfores
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Avsluttet
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status shouldBe GjennomforingStatusDto.Avsluttet
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).also { records ->
@@ -192,15 +193,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBeTypeOf<GjennomforingStatusDto.Avsluttet>()
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.status.shouldBe(AVLYST)
-                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
+                    it.status.shouldBeTypeOf<GjennomforingStatusDto.Avlyst>().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.status.shouldBe(AVBRUTT)
-                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.ForFaaDeltakere)
+                    it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>().aarsak.shouldBe(AvbruttAarsak.ForFaaDeltakere)
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
@@ -239,7 +238,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {
-                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto.Avsluttet)
                     it.publisert.shouldBe(false)
                     it.apentForPamelding.shouldBe(false)
                 }

@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -13,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -434,8 +436,10 @@ class GjennomforingRoutesTest : FunSpec({
 
                 database.run {
                     queries.gjennomforing.get(aktivGjennomforingId).shouldNotBeNull().should {
-                        it.status.status shouldBe GjennomforingStatus.AVBRUTT
-                        it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
+                        it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>().should {
+                            it.type shouldBe GjennomforingStatus.AVBRUTT
+                            it.aarsak shouldBe AvbruttAarsak.Feilregistrering
+                        }
                     }
                 }
             }

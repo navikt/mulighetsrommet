@@ -4,33 +4,21 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
-import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { Link, Outlet, useLocation, useMatch, useParams } from "react-router";
+import { Heading, Tabs } from "@navikt/ds-react";
+import { Outlet, useLocation, useMatch } from "react-router";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { tiltakstypeId } = useParams();
   const { data: tiltakstype } = useTiltakstypeById();
 
   const matchAvtaler = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   const brodsmuler: (Brodsmule | undefined)[] = [
     { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-    { tittel: "Tiltakstype", lenke: matchAvtaler ? `/tiltakstyper/${tiltakstypeId}` : undefined },
+    { tittel: "Tiltakstype", lenke: matchAvtaler ? `/tiltakstyper/${tiltakstype.id}` : undefined },
     matchAvtaler ? { tittel: "Avtaler" } : undefined,
   ];
-
-  if (!tiltakstype) {
-    return (
-      <Alert variant="warning">
-        Klarte ikke finne tiltakstype
-        <div>
-          <Link to="/">Til forside</Link>
-        </div>
-      </Alert>
-    );
-  }
 
   return (
     <main>
@@ -39,9 +27,9 @@ export function DetaljerTiltakstypePage() {
       <Header>
         <TiltakstypeIkon />
         <Heading size="large" level="2">
-          {tiltakstype?.navn ?? "..."}
+          {tiltakstype.navn}
         </Heading>
-        <TiltakstypeStatusTag tiltakstype={tiltakstype} />
+        <TiltakstypeStatusTag status={tiltakstype.status} />
       </Header>
 
       <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"}>

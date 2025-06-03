@@ -1,5 +1,4 @@
-import { Alert, Table } from "@navikt/ds-react";
-import { Laster } from "../laster/Laster";
+import { Table } from "@navikt/ds-react";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { ReactNode } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
@@ -12,17 +11,7 @@ interface Props {
 }
 
 export function AvtaleListe(props: Props) {
-  const { data, isError, isPending } = useAvtaler(props.filter);
-
-  if (isError) {
-    return <Alert variant="error">Vi hadde problemer med å hente avtaler</Alert>;
-  }
-
-  if (isPending) {
-    return <Laster size="xlarge" tekst="Laster avtaler..." />;
-  }
-
-  const avtaler = data.data;
+  const { data: paginatedAvtaler } = useAvtaler(props.filter);
 
   return (
     <Table>
@@ -34,13 +23,12 @@ export function AvtaleListe(props: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {avtaler.map((avtale) => (
+        {paginatedAvtaler.data.map((avtale) => (
           <Table.Row key={avtale.id}>
             <Table.DataCell>{avtale.navn}</Table.DataCell>
             <Table.DataCell>{avtale.avtalenummer}</Table.DataCell>
             <Table.DataCell>
-              {" "}
-              <AvtaleStatusTag avtale={avtale} />
+              <AvtaleStatusTag status={avtale.status} />
             </Table.DataCell>
           </Table.Row>
         ))}

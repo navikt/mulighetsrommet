@@ -1,32 +1,16 @@
-import { Tag } from "@navikt/ds-react";
-import { TiltakstypeDto, TiltakstypeStatus } from "@mr/api-client-v2";
+import { TiltakstypeStatus } from "@mr/api-client-v2";
+import { StatusTag } from "@mr/frontend-common";
+import { getTiltakstypeStatusTagProps } from "./getStatusTagProps";
 
 interface Props {
-  tiltakstype: TiltakstypeDto;
+  status: TiltakstypeStatus;
 }
 
-export function TiltakstypeStatusTag({ tiltakstype }: Props) {
-  const status = tiltakstype.status;
-
-  function variantAndName(): { variant: "success" | "neutral"; name: string } {
-    switch (status) {
-      case TiltakstypeStatus.AKTIV:
-        return { variant: "success", name: "Aktiv" };
-      case TiltakstypeStatus.AVSLUTTET:
-        return { variant: "neutral", name: "Avsluttet" };
-    }
-  }
-
-  const { variant, name } = variantAndName();
-
+export function TiltakstypeStatusTag({ status }: Props) {
+  const { variant, name } = getTiltakstypeStatusTagProps(status);
   return (
-    <Tag
-      size="small"
-      className="w-[140px] text-center whitespace-nowrap"
-      aria-label={`Status for tiltakstype: ${name}`}
-      variant={variant}
-    >
+    <StatusTag aria-label={`Status for tiltakstype: ${name}`} variant={variant}>
       {name}
-    </Tag>
+    </StatusTag>
   );
 }
