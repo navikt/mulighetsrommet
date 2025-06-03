@@ -13,6 +13,7 @@ data class GjennomforingDbo(
     val arrangorKontaktpersoner: List<UUID>,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
+    val status: GjennomforingStatus,
     val antallPlasser: Int,
     val avtaleId: UUID,
     val administratorer: List<NavIdent>,

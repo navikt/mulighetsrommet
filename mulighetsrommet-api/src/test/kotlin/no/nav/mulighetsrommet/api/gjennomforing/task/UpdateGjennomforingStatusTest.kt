@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatus.*
 import no.nav.mulighetsrommet.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
@@ -42,16 +43,19 @@ class UpdateGjennomforingStatusTest : FunSpec({
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 12, 31),
+            status = GJENNOMFORES,
         )
         val gjennomforing2 = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
+            status = GJENNOMFORES,
         )
         val gjennomforing3 = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
+            status = GJENNOMFORES,
         )
         val domain = MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
@@ -74,7 +78,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("forsøker ikke å avslutte gjennomføringer før sluttDato er passert") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 1, 31))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 1, 31, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -94,7 +98,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("avslutter gjennomføringer når sluttDato er passert") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 2, 1))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -129,7 +133,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("avslutter gjennomføringer når sluttDato er passert (sluttDato passert med flere dager)") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 3, 1))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 3, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -160,28 +164,31 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
         test("forsøker ikke å avslutte gjennomføringer som allerede er avsluttet, avlyst eller avbrutt") {
             database.run {
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing1.id,
-                    LocalDate.of(2024, 1, 1).atStartOfDay(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing1.id,
+                    status = AVSLUTTET,
+                    tidspunkt = LocalDate.of(2024, 1, 1).atStartOfDay(),
+                    aarsak = null,
                 )
 
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing2.id,
-                    LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing2.id,
+                    status = AVLYST,
+                    tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
+                    aarsak = AvbruttAarsak.Feilregistrering,
                 )
 
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing3.id,
-                    LocalDate.of(2023, 1, 1).atStartOfDay(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing3.id,
+                    status = AVBRUTT,
+                    tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
+                    aarsak = AvbruttAarsak.ForFaaDeltakere,
                 )
             }
 
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(today = LocalDate.of(2024, 1, 2))
+            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2024, 1, 2, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -193,7 +200,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.status.shouldBe(AVBRUTT)
-                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
+                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.ForFaaDeltakere)
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
@@ -228,7 +235,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
             }
 
-            createTask().oppdaterGjennomforingStatus(today = LocalDate.of(2023, 2, 1))
+            createTask().oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {

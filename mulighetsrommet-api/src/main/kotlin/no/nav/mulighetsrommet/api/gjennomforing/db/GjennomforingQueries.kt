@@ -14,12 +14,15 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.database.*
+import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
@@ -38,6 +41,7 @@ class GjennomforingQueries(private val session: Session) {
                 arrangor_id,
                 start_dato,
                 slutt_dato,
+                status,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -57,6 +61,7 @@ class GjennomforingQueries(private val session: Session) {
                 :arrangor_id,
                 :start_dato,
                 :slutt_dato,
+                :status::gjennomforing_status,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::gjennomforing_oppstartstype,
@@ -75,6 +80,7 @@ class GjennomforingQueries(private val session: Session) {
                 arrangor_id                        = excluded.arrangor_id,
                 start_dato                         = excluded.start_dato,
                 slutt_dato                         = excluded.slutt_dato,
+                status                             = excluded.status,
                 antall_plasser                     = excluded.antall_plasser,
                 avtale_id                          = excluded.avtale_id,
                 oppstart                           = excluded.oppstart,
@@ -312,7 +318,7 @@ class GjennomforingQueries(private val session: Session) {
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
-            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
+            "statuser" to statuser.ifEmpty { null }?.let { createArrayOf("gjennomforing_status", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "publisert" to publisert,
@@ -397,7 +403,7 @@ class GjennomforingQueries(private val session: Session) {
         return session.update(queryOf(query, apentForPamelding, id))
     }
 
-    fun settilgjengeligForArrangorDato(id: UUID, date: LocalDate): Int {
+    fun setTilgjengeligForArrangorDato(id: UUID, date: LocalDate): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
@@ -419,18 +425,17 @@ class GjennomforingQueries(private val session: Session) {
         return session.update(queryOf(query, avtaleId, gjennomforingId))
     }
 
-    fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int {
+    fun setStatus(id: UUID, status: GjennomforingStatus, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
-            set avsluttet_tidspunkt = :tidspunkt,
-                avbrutt_aarsak = :aarsak,
-                publisert = false,
-                apent_for_pamelding = false
+            set status = :status::gjennomforing_status,
+                avsluttet_tidspunkt = :tidspunkt,
+                avbrutt_aarsak = :aarsak
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak?.name)
+        val params = mapOf("id" to id, "status" to status.name, "tidspunkt" to tidspunkt, "aarsak" to aarsak?.name)
 
         return session.update(queryOf(query, params))
     }
@@ -540,7 +545,7 @@ class GjennomforingQueries(private val session: Session) {
                 left join gjennomforing_administrator on gjennomforing_administrator.gjennomforing_id = gjennomforing.id
             where
                 (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
-                and tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avsluttet_tidspunkt) = 'GJENNOMFORES'
+                and status = 'GJENNOMFORES'
             group by gjennomforing.id, tiltakstype.tiltakskode, tiltakstype.navn
             having count(gjennomforing_administrator.nav_ident) = 0
         """.trimIndent()
@@ -580,6 +585,7 @@ class GjennomforingQueries(private val session: Session) {
         "arrangor_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
+        "status" to status.name,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,

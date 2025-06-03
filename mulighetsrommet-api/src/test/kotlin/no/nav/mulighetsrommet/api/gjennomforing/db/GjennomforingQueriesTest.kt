@@ -36,7 +36,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingQueriesTest : FunSpec({
@@ -179,7 +178,7 @@ class GjennomforingQueriesTest : FunSpec({
                 val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
-                queries.settilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
+                queries.setTilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
                     it.tilgjengeligForArrangorDato shouldBe LocalDate.now()
                 }
@@ -329,29 +328,6 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.setApentForPamelding(Oppfolging1.id, false)
                 queries.get(Oppfolging1.id).shouldNotBeNull().apentForPamelding shouldBe false
-            }
-        }
-
-        test("avpubliseres når gjennomføring blir avsluttet") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                queries.upsert(Oppfolging1)
-                queries.setPublisert(Oppfolging1.id, true)
-                queries.setApentForPamelding(Oppfolging1.id, true)
-
-                queries.setAvsluttet(
-                    Oppfolging1.id,
-                    LocalDateTime.now(),
-                    AvbruttAarsak.Feilregistrering,
-                )
-
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.publisert shouldBe false
-                    it.apentForPamelding shouldBe false
-                }
             }
         }
 
@@ -765,64 +741,6 @@ class GjennomforingQueriesTest : FunSpec({
                 items.lastOrNull()?.navn shouldBe expectedLast
 
                 totalCount shouldBe expectedTotalCount
-            }
-        }
-    }
-
-    context("status på gjennomføring") {
-        val dagensDato = LocalDate.of(2024, 6, 1)
-        val enManedFrem = dagensDato.plusMonths(1)
-        val enManedTilbake = dagensDato.minusMonths(1)
-        val toManederFrem = dagensDato.plusMonths(2)
-        val toManederTilbake = dagensDato.minusMonths(2)
-
-        test("status AVLYST, AVBRUTT, AVSLUTTET utledes fra avsluttet-tidspunkt") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.AFT)).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                forAll(
-                    row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), GjennomforingStatus.AVLYST),
-                    row(enManedTilbake, null, enManedTilbake.minusDays(1), GjennomforingStatus.AVLYST),
-                    row(enManedFrem, toManederFrem, dagensDato, GjennomforingStatus.AVLYST),
-                    row(dagensDato, toManederFrem, dagensDato, GjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), GjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedFrem, GjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, null, enManedFrem, GjennomforingStatus.AVBRUTT),
-                    row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), GjennomforingStatus.AVSLUTTET),
-                    row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), GjennomforingStatus.AVSLUTTET),
-                ) { startDato, sluttDato, avbruttDato, expectedStatus ->
-                    queries.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
-
-                    queries.setAvsluttet(
-                        AFT1.id,
-                        avbruttDato.atStartOfDay(),
-                        AvbruttAarsak.Feilregistrering,
-                    )
-
-                    queries.get(AFT1.id).shouldNotBeNull().status.status shouldBe expectedStatus
-                }
-            }
-        }
-
-        test("hvis ikke avsluttet så blir status GJENNOMFORES") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.AFT)).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                forAll(
-                    row(toManederTilbake, enManedTilbake, GjennomforingStatus.GJENNOMFORES),
-                    row(enManedTilbake, null, GjennomforingStatus.GJENNOMFORES),
-                    row(dagensDato, dagensDato, GjennomforingStatus.GJENNOMFORES),
-                    row(enManedFrem, toManederFrem, GjennomforingStatus.GJENNOMFORES),
-                    row(enManedFrem, null, GjennomforingStatus.GJENNOMFORES),
-                ) { startDato, sluttDato, status ->
-                    queries.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
-
-                    queries.get(AFT1.id).shouldNotBeNull().status.status shouldBe status
-                }
             }
         }
     }

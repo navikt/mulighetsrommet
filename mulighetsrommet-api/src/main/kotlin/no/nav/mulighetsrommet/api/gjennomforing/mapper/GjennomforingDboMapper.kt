@@ -13,6 +13,7 @@ object GjennomforingDboMapper {
         arrangorKontaktpersoner = dto.arrangor.kontaktpersoner.map { it.id },
         startDato = dto.startDato,
         sluttDato = dto.sluttDato,
+        status = dto.status.status,
         antallPlasser = dto.antallPlasser,
         avtaleId = dto.avtaleId ?: dto.id,
         administratorer = dto.administratorer.map { it.navIdent },

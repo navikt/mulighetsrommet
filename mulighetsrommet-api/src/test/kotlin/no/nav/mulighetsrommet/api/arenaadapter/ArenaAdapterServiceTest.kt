@@ -9,7 +9,6 @@ import io.mockk.clearAllMocks
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import kotliquery.Query
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
@@ -19,10 +18,7 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.*
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -269,9 +265,10 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal ikke overskrive avsluttet_tidspunkt") {
-            val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
-                startDato = LocalDate.now(),
-                sluttDato = LocalDate.now().plusDays(1),
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                startDato = LocalDate.of(2023, 1, 1),
+                sluttDato = LocalDate.of(2023, 4, 1),
+                status = GjennomforingStatus.GJENNOMFORES,
             )
 
             MulighetsrommetTestDomain(
@@ -285,21 +282,18 @@ class ArenaAdapterServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(gjennomforing1),
-            ).initialize(database.db)
-
-            // Setter den til custom avbrutt tidspunkt for å sjekke at den ikke overskrives med en "fake" en
-            val jan2023 = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-            database.run {
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing1.id,
-                    jan2023,
-                    AvbruttAarsak.EndringHosArrangor,
+                gjennomforinger = listOf(gjennomforing),
+            ) {
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing.id,
+                    status = GjennomforingStatus.AVBRUTT,
+                    tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                    aarsak = AvbruttAarsak.EndringHosArrangor,
                 )
-            }
+            }.initialize(database.db)
 
             val arenaDbo = ArenaGjennomforingDbo(
-                id = gjennomforing1.id,
+                id = gjennomforing.id,
                 sanityId = null,
                 navn = "Endet navn",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -319,13 +313,13 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltaksgjennomforing(arenaDbo)
 
-            val avbrutt = database.run {
-                session.single(Query("select avsluttet_tidspunkt, avbrutt_aarsak from gjennomforing where id = '${gjennomforing1.id}'")) {
-                    it.localDateTime("avsluttet_tidspunkt") to it.string("avbrutt_aarsak")
-                }
+            database.run {
+                queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status.avbrutt shouldBe AvbruttDto(
+                    tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                    aarsak = AvbruttAarsak.EndringHosArrangor,
+                    beskrivelse = "Endring hos arrangør",
+                )
             }
-
-            avbrutt shouldBe (jan2023 to "ENDRING_HOS_ARRANGOR")
         }
 
         test("skal publisere til kafka når det er endringer fra Arena") {

@@ -28,11 +28,11 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleServiceTest : FunSpec({
@@ -146,18 +146,14 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
             )
             val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = null,
+                status = GjennomforingStatus.GJENNOMFORES,
             )
             val oppfolging2 = GjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = null,
+                status = GjennomforingStatus.GJENNOMFORES,
             )
 
             database.run {
@@ -182,12 +178,12 @@ class AvtaleServiceTest : FunSpec({
                 avtaleId = avtale.id,
                 startDato = LocalDate.now().minusDays(1),
                 sluttDato = LocalDate.now().minusDays(1),
+                status = GjennomforingStatus.AVBRUTT,
             )
 
             database.run {
                 queries.avtale.upsert(avtale)
                 queries.gjennomforing.upsert(oppfolging1)
-                queries.gjennomforing.setAvsluttet(oppfolging1.id, LocalDateTime.now(), null)
             }
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
