@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -539,14 +540,25 @@ class GjennomforingQueries(private val session: Session) {
                     from gjennomforing_nav_enhet
                     join nav_enhet on nav_enhet.enhetsnummer = gjennomforing_nav_enhet.enhetsnummer
                     where gjennomforing_nav_enhet.gjennomforing_id = gjennomforing.id
-                ) as nav_enheter_json
+                ) as nav_enheter_json,
+                case when nav_enhet_arena.enhetsnummer is null
+                    then null
+                    else jsonb_build_object(
+                        'enhetsnummer', nav_enhet_arena.enhetsnummer,
+                        'navn', nav_enhet_arena.navn,
+                        'type', nav_enhet_arena.type,
+                        'status', nav_enhet_arena.status,
+                        'overordnetEnhet', nav_enhet_arena.overordnet_enhet
+                    )
+                end as arena_ansvarlig_enhet_json
             from gjennomforing
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
                 left join gjennomforing_administrator on gjennomforing_administrator.gjennomforing_id = gjennomforing.id
+                left join nav_enhet nav_enhet_arena on nav_enhet_arena.enhetsnummer = gjennomforing.arena_ansvarlig_enhet
             where
                 (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
-                and status = 'GJENNOMFORES'
-            group by gjennomforing.id, tiltakstype.tiltakskode, tiltakstype.navn
+                and gjennomforing.status = 'GJENNOMFORES'
+            group by gjennomforing.id, tiltakstype.tiltakskode, tiltakstype.navn, nav_enhet_arena.enhetsnummer
             having count(gjennomforing_administrator.nav_ident) = 0
         """.trimIndent()
 
@@ -555,11 +567,14 @@ class GjennomforingQueries(private val session: Session) {
         )
 
         return session.list(queryOf(query, params)) {
+            val arenaAnsvarligEnhet = it.stringOrNull("arena_ansvarlig_enhet_json")
+                ?.let { Json.decodeFromString<NavEnhetDbo?>(it) }
             val navEnheter = it.stringOrNull("nav_enheter_json")
                 ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
+                ?.plus(arenaAnsvarligEnhet)
+                ?.filterNotNull()
                 ?: emptyList()
             val kontorstruktur = fromNavEnheter(navEnheter)
-            val region = kontorstruktur.firstOrNull()?.region
 
             GjennomforingOppgaveData(
                 id = it.uuid("id"),
@@ -567,12 +582,7 @@ class GjennomforingQueries(private val session: Session) {
                 updatedAt = it.localDateTime("updated_at"),
                 tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
                 tiltakstypeNavn = it.string("tiltakstype_navn"),
-                navEnhet = region?.let {
-                    GjennomforingOppgaveData.NavEnhet(
-                        enhetsnummer = region.enhetsnummer,
-                        navn = region.navn,
-                    )
-                },
+                kontorstruktur = kontorstruktur,
             )
         }
     }
@@ -695,13 +705,8 @@ class GjennomforingQueries(private val session: Session) {
 data class GjennomforingOppgaveData(
     val id: UUID,
     val navn: String,
-    val navEnhet: NavEnhet?,
+    val kontorstruktur: List<Kontorstruktur>,
     val tiltakskode: Tiltakskode,
     val tiltakstypeNavn: String,
     val updatedAt: LocalDateTime,
-) {
-    data class NavEnhet(
-        val enhetsnummer: NavEnhetNummer,
-        val navn: String,
-    )
-}
+)
