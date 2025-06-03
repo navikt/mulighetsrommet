@@ -4989,7 +4989,6 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.migrering.tilsagn
         - arrangorflate.utbetaling.opprett-utbetaling-knapp
