@@ -1,5 +1,6 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
+  Alert,
   Button,
   Checkbox,
   ErrorSummary,
@@ -141,7 +142,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 };
 
 export default function BekreftUtbetaling() {
-  const { utbetaling } = useLoaderData<BekreftUtbetalingData>();
+  const { utbetaling, tilsagn } = useLoaderData<BekreftUtbetalingData>();
   const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
   const fetcher = useFetcher();
@@ -172,6 +173,15 @@ export default function BekreftUtbetaling() {
         Oppsummering
       </Heading>
       <VStack gap="6">
+        {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
+          <Alert variant={"warning"}>
+            <Heading spacing level="4" size="small">
+              Manglende midler
+            </Heading>
+            Det mangler midler på tilsagnet til å dekke hele utbetalingsbeløpet. Nav vil vurdere hva
+            som utbetales. Vennligst ta kontakt med Nav ved spørsmål.
+          </Alert>
+        )}
         <Definisjonsliste
           title="Innsendingsinformasjon"
           headingLevel="3"
