@@ -4921,7 +4921,6 @@ components:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.migrering.tilsagn
-        - mulighetsrommet.admin-flate.deltakerliste
         - arrangorflate.utbetaling.opprett-utbetaling-knapp
 
     PublisertRequest:

@@ -35,10 +35,6 @@ export function GjennomforingPage() {
     gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
   );
 
-  const { data: enableDeltakerliste } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_DELTAKERLISTE,
-  );
-
   function getCurrentTab(): GjennomforingTab {
     if (pathname.includes("tilsagn")) {
       return "tilsagn";
@@ -134,7 +130,7 @@ export function GjennomforingPage() {
               ) : null}
             </>
           ) : null}
-          {enableDeltakerliste && gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
+          {gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
             <Tabs.Tab
               value="deltakerliste"
               label="Deltakerliste"
