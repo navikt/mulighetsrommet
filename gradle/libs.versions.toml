@@ -104,7 +104,6 @@ nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modu
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
-nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.05.22_11.16-06c841fea2ec"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.11"
 

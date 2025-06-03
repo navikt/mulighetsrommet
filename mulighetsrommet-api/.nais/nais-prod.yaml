@@ -203,7 +203,6 @@ spec:
         - host: xegcworx.api.sanity.io
         - host: data.brreg.no
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
-        - host: axsys.prod-fss-pub.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
         - host: api.utdanning.no
         - host: platform.altinn.no

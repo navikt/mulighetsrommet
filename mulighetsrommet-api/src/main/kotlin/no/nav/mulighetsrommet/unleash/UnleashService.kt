@@ -4,14 +4,12 @@ import io.getunleash.DefaultUnleash
 import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
-import no.nav.common.client.axsys.AxsysClient
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByOrgnrStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy
 
-class UnleashService(config: Config, axsysClient: AxsysClient) {
+class UnleashService(config: Config) {
     private val unleash: Unleash
 
     data class Config(
@@ -33,7 +31,6 @@ class UnleashService(config: Config, axsysClient: AxsysClient) {
 
         unleash = DefaultUnleash(
             unleashConfig,
-            ByEnhetStrategy(axsysClient),
             ByNavIdentStrategy(),
             ByTiltakskodeStrategy(),
             ByOrgnrStrategy(),

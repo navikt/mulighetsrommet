@@ -4,8 +4,6 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
-import no.nav.common.client.axsys.AxsysClient
-import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
@@ -400,12 +398,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { UnleashService(appConfig.unleash, get()) }
-    single<AxsysClient> {
-        AxsysV2ClientImpl(
-            appConfig.axsys.url,
-        ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
-    }
+    single { UnleashService(appConfig.unleash) }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { GjennomforingValidator(get()) }
     single { OpsjonLoggService(get()) }

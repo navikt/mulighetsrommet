@@ -150,10 +150,6 @@ val ApplicationConfigLocal = AppConfig(
         url = "http://localhost:8090/amt-deltaker",
         scope = "default",
     ),
-    axsys = AuthenticatedHttpClientConfig(
-        url = "http://localhost:8090/axsys",
-        scope = "default",
-    ),
     pdl = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/pdl",
         scope = "default",
