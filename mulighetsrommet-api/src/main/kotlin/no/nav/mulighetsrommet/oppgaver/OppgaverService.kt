@@ -158,7 +158,7 @@ class OppgaverService(val db: ApiDatabase) {
     ): List<Oppgave> = db.session {
         queries.gjennomforing
             .getOppgaveData(tiltakskoder = tiltakskoder)
-            .filter { navEnheter.isEmpty() || it.navEnhet == null || it.navEnhet.enhetsnummer in navEnheter }
+            .filter { navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter } }
             .flatMap { toOppgaver(it) }
     }
 
@@ -367,7 +367,7 @@ private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildLis
             id = data.id,
             type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
             title = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
-            enhet = data.navEnhet?.let {
+            enhet = data.kontorstruktur.firstOrNull()?.region?.let {
                 OppgaveEnhet(
                     nummer = it.enhetsnummer,
                     navn = it.navn,
