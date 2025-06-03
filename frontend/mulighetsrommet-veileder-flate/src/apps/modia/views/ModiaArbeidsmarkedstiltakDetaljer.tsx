@@ -39,7 +39,6 @@ import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
-import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
 
 const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
@@ -112,8 +111,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 Opprett avtale
               </Button>
             )}
-
-            {isTiltakAktivt(tiltak) ? <PameldingKometApnerSnart tiltak={tiltak} /> : null}
 
             {isTiltakGruppe(tiltak) && isTiltakAktivt(tiltak) ? (
               <PameldingForGruppetiltak
