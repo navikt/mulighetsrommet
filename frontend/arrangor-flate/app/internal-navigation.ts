@@ -1,7 +1,10 @@
 export const internalNavigation = (orgnr: string) => {
   return {
     utbetalinger: `/${orgnr}/oversikt`,
-    manueltUtbetalingskrav: `/${orgnr}/manuelt-utbetalingskrav`,
+    opprettKravTilsagn: `/${orgnr}/opprett-krav/tilsagn`,
+    opprettKravVedlegg: `/${orgnr}/opprett-krav/vedlegg`,
+    opprettKravUtbetaling: `/${orgnr}/opprett-krav/utbetalingsinformasjon`,
+    opprettKravOppsummering: `/${orgnr}/opprett-krav/oppsummering`,
     innsendingsinformasjon: (id: string) => `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
     beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
     oppsummering: (id: string) => `/${orgnr}/utbetaling/${id}/oppsummering`,

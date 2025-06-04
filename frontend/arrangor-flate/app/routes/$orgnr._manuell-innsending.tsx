@@ -8,13 +8,13 @@ import { useEffect, useState } from "react";
 
 function useStep(path: string) {
   switch (path.split("/").pop()) {
-    case "innsendingsinformasjon":
+    case "tilsagn":
       return 1;
-    case "beregning":
+    case "vedlegg":
       return 2;
-    case "oppsummering":
+    case "utbetalingsinformasjon":
       return 3;
-    case "kvittering":
+    case "oppsummering":
       return 4;
     default:
       return 1;
@@ -37,10 +37,10 @@ export default function UtbetalingLayout() {
         <ChevronLeftIcon /> Tilbake til oversikt
       </Link>
       <HStack gap="10" width="100%" justify="center" className="xl:max-w-[1920px] xl:mx-auto">
-        <VStack padding="8" flexGrow="2" className="bg-bg-default rounded-lg">
+        <VStack padding="8" flexGrow="2" className="bg-bg-default rounded-lg xl:max-w-5xl">
           <Outlet />
         </VStack>
-        <Hide below="xl">
+        <Hide below="lg">
           <VStack flexGrow="1">
             <Heading size="medium" spacing level="2" id="stepper-heading">
               Steg
@@ -51,10 +51,10 @@ export default function UtbetalingLayout() {
               onStepChange={setActiveStep}
               interactive={false}
             >
-              <Stepper.Step>Innsendingsinformasjon</Stepper.Step>
-              <Stepper.Step>Beregning</Stepper.Step>
+              <Stepper.Step>Tilsagn</Stepper.Step>
+              <Stepper.Step>Vedlegg</Stepper.Step>
+              <Stepper.Step>Utbetalingsinformasjon</Stepper.Step>
               <Stepper.Step>Oppsummering</Stepper.Step>
-              <Stepper.Step>Bekreftelse</Stepper.Step>
             </Stepper>
           </VStack>
         </Hide>

@@ -45,8 +45,9 @@ export const loader: LoaderFunction = async ({
     throw problemDetailResponse(utbetalingError);
   }
   const kontonummer = utbetaling.betalingsinformasjon.kontonummer;
-  const mottattTidspunkt = utbetaling.godkjentAvArrangorTidspunkt ?? new Date().toString();
+  const mottattTidspunkt = utbetaling.godkjentAvArrangorTidspunkt;
 
+  if (!mottattTidspunkt) throw new Response("Ugyldig", { status: 400 });
   return { mottattTidspunkt, kontonummer };
 };
 

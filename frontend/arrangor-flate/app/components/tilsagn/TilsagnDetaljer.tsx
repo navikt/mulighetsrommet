@@ -38,7 +38,7 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
 
   return (
     <Definisjonsliste
-      className="mt-4 p-4 border-1 border-border-divider rounded-lg"
+      className="p-4 border-1 border-border-divider rounded-lg"
       title={tilsagn.bestillingsnummer}
       definitions={[...tilsagnDetaljer, ...beregningDetaljer]}
     />

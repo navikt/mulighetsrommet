@@ -78,7 +78,7 @@ export default function UtbetalingOversikt() {
           <Button
             variant="secondary"
             as={ReactRouterLink}
-            to={internalNavigation(orgnr).manueltUtbetalingskrav}
+            to={internalNavigation(orgnr).opprettKravTilsagn}
           >
             {tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
           </Button>
