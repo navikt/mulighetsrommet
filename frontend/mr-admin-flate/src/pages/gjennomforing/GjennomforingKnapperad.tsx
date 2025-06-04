@@ -6,7 +6,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import {
   AvtaleDto,
   GjennomforingDto,

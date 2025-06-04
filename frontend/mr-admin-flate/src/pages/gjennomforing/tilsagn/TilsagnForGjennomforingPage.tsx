@@ -1,6 +1,6 @@
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { Avtaletype, TilsagnService, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";

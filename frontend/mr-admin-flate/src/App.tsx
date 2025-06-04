@@ -3,14 +3,10 @@ import { OppgaverPage } from "@/pages/oppgaveoversikt/oppgaver/OppgaverPage";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingPage } from "@/pages/gjennomforing/tilsagn/TilsagnForGjennomforingPage";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
-import { AnsattService, Rolle } from "@mr/api-client-v2";
-import { useApiQuery } from "@mr/frontend-common";
 import { Page } from "@navikt/ds-react";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
-import { Forside } from "./Forside";
-import IkkeAutentisertApp from "./IkkeAutentisertApp";
-import { QueryKeys } from "./api/QueryKeys";
+import { ForsidePage } from "./pages/forside/ForsidePage";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
 import { ErrorPage } from "./pages/ErrorPage";
@@ -58,23 +54,11 @@ if (import.meta.env.PROD) {
 }
 
 export function App() {
-  const { data: ansatt } = useApiQuery(ansattQuery);
-  if (!ansatt) {
-    return null;
-  }
+  const queryClient = useQueryClient();
+  return <RouterProvider router={router(queryClient)} />;
+}
 
-  if (
-    !ansatt.roller?.some(
-      (rolle) =>
-        rolle === Rolle.AVTALER_SKRIV ||
-        rolle === Rolle.TILTAKSGJENNOMFORINGER_SKRIV ||
-        rolle === Rolle.TEAM_MULIGHETSROMMET ||
-        rolle === Rolle.TILTAKADMINISTRASJON_GENERELL,
-    )
-  ) {
-    return <IkkeAutentisertApp />;
-  }
-
+function AppLayout() {
   return (
     <Page background="bg-subtle">
       <Page.Block as="header" className="max-w-[1920px]">
@@ -91,21 +75,18 @@ export function App() {
   );
 }
 
-const ansattQuery = {
-  queryKey: QueryKeys.ansatt(),
-  queryFn: async () => {
-    return await AnsattService.hentInfoOmAnsatt();
-  },
-};
-
 const router = (queryClient: QueryClient) => {
   return createBrowserRouter(
     [
       {
         path: "/",
-        element: <App />,
+        element: <AppLayout />,
         errorElement: <ErrorPage />,
         children: [
+          {
+            index: true,
+            element: <ForsidePage />,
+          },
           {
             path: "error",
             element: <ErrorPage />,
@@ -313,10 +294,6 @@ const router = (queryClient: QueryClient) => {
               },
             ],
           },
-          {
-            index: true,
-            element: <Forside />,
-          },
         ],
       },
     ],
@@ -325,8 +302,3 @@ const router = (queryClient: QueryClient) => {
     },
   );
 };
-
-export function AppWithRouter() {
-  const queryClient = useQueryClient();
-  return <RouterProvider router={router(queryClient)} />;
-}

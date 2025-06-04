@@ -1,8 +1,8 @@
-import { ForsidekortListe } from "./components/forsidekort/ForsidekortListe";
-import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
-import { HeroBanner } from "./HeroBanner";
+import { ForsidekortListe } from "@/pages/forside/forsidekort/ForsidekortListe";
+import { BrukerNotifikasjoner } from "@/components/notifikasjoner/BrukerNotifikasjoner";
+import { HeroBanner } from "@/pages/forside/HeroBanner";
 
-export function Forside() {
+export function ForsidePage() {
   return (
     <main>
       <title>Nav Tiltaksadministrasjon</title>

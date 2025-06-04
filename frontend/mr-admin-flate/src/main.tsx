@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { AppWithRouter } from "./App";
+import { App } from "./App";
 import { client } from "@mr/api-client-v2";
 import "./index.css";
 import { v4 as uuidv4 } from "uuid";
@@ -55,7 +55,7 @@ enableMocking().then(() => {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <ReloadAppErrorBoundary>
-          <AppWithRouter />
+          <App />
         </ReloadAppErrorBoundary>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

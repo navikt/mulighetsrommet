@@ -1,6 +1,6 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router";
-import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
+import { kebabCase } from "../../../../../frontend-common/utils/TestUtils";
 import { ReactNode } from "react";
 
 export interface ForsideKortProps {
