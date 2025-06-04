@@ -17,10 +17,11 @@ import {
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import React, { useRef } from "react";
-import { useFetcher, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -30,29 +31,16 @@ interface Props {
 
 export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props) {
   const navigate = useNavigate();
-  const fetcher = useFetcher();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
 
-  // Add error state handling
-  const publiseringErrored = fetcher.data?.error;
+  const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 
-  async function handleClick(e: React.MouseEvent<HTMLInputElement>) {
-    fetcher.submit(
-      { id: gjennomforing.id, publisert: e.currentTarget.checked },
-      {
-        action: `/gjennomforinger/${gjennomforing.id}`,
-        method: "post",
-      },
-    );
-  }
-
-  let gjennomforingPublisert = gjennomforing.publisert;
-  if (!publiseringErrored && fetcher.formData) {
-    gjennomforingPublisert = fetcher.formData.get("publisert") === "true";
+  async function togglePublisert(e: React.MouseEvent<HTMLInputElement>) {
+    setPublisert({ publisert: e.currentTarget.checked });
   }
 
   function dupliserGjennomforing() {
@@ -75,16 +63,9 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
         ressurs="Gjennomføring"
         condition={gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES}
       >
-        <div>
-          <Switch name="publiser" checked={gjennomforingPublisert} onClick={handleClick}>
-            Publiser
-          </Switch>
-          {publiseringErrored && (
-            <Alert variant="warning" inline>
-              Det oppstod en feil ved publisering. Prøv igjen senere.
-            </Alert>
-          )}
-        </div>
+        <Switch name="publiser" checked={gjennomforing.publisert} onClick={togglePublisert}>
+          Publiser
+        </Switch>
       </HarSkrivetilgang>
 
       <EndringshistorikkPopover>

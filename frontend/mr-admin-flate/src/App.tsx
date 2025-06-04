@@ -23,7 +23,6 @@ import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
-import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
@@ -160,7 +159,6 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/:gjennomforingId",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            action: publiserAction(queryClient),
             children: [
               {
                 index: true,
