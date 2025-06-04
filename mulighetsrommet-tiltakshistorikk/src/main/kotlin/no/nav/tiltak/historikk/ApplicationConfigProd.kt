@@ -1,12 +1,13 @@
 package no.nav.tiltak.historikk
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.metrics.Metrics
 
 val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 20,
-    ),
+    ) { metricRegistry = Metrics.micrometerRegistry },
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),

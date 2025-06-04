@@ -36,7 +36,7 @@ class Database(val config: DatabaseConfig) : Closeable {
                 }
             }
 
-            config.additinalConfig.invoke(this)
+            config.additionalConfig.invoke(this)
 
             validate()
         }

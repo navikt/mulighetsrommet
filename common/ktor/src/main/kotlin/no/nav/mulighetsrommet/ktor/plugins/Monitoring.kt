@@ -4,13 +4,11 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.metrics.Metrikker
 import java.util.*
 
 fun interface MonitoredResource {
@@ -18,10 +16,6 @@ fun interface MonitoredResource {
 }
 
 fun Application.configureMonitoring(vararg resources: MonitoredResource) {
-    install(MicrometerMetrics) {
-        registry = Metrikker.appMicrometerRegistry
-    }
-
     install(CallId) {
         retrieveFromHeader("Nav-Call-Id")
         retrieveFromHeader(HttpHeaders.XRequestId)
@@ -71,10 +65,6 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
             } else {
                 call.respond(HttpStatusCode.InternalServerError)
             }
-        }
-
-        get("/internal/prometheus") {
-            call.respond(Metrikker.appMicrometerRegistry.scrape())
         }
     }
 }

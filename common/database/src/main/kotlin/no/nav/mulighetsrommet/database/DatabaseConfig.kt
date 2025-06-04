@@ -9,7 +9,7 @@ data class DatabaseConfig(
     val schema: String? = null,
     val maximumPoolSize: Int,
     val googleCloudSqlInstance: String? = null,
-    val additinalConfig: HikariConfig.() -> Unit = {},
+    val additionalConfig: HikariConfig.() -> Unit = {},
 ) {
     init {
         require(jdbcUrl.startsWith(JDBC_POSTGRESQL_PREFIX)) { "jdbcUrl must start with '$JDBC_POSTGRESQL_PREFIX'" }
