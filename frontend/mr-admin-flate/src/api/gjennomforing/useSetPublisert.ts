@@ -23,7 +23,5 @@ export function useSetPublisert(id: string) {
         }),
       ]);
     },
-
-    throwOnError: true,
   });
 }

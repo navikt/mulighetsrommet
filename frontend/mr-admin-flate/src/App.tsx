@@ -4,14 +4,12 @@ import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/Delt
 import { TilsagnForGjennomforingPage } from "@/pages/gjennomforing/tilsagn/TilsagnForGjennomforingPage";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { Page } from "@navikt/ds-react";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import { ForsidePage } from "./pages/forside/ForsidePage";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
 import { ErrorPage } from "./pages/ErrorPage";
 import { NotifikasjonerPage } from "./pages/oppgaveoversikt/notifikasjoner/NotifikasjonerPage";
-import { setLestStatusForNotifikasjonAction } from "./pages/oppgaveoversikt/notifikasjoner/notifikasjonerAction";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
@@ -53,8 +51,7 @@ if (import.meta.env.PROD) {
 }
 
 export function App() {
-  const queryClient = useQueryClient();
-  return <RouterProvider router={router(queryClient)} />;
+  return <RouterProvider router={router()} />;
 }
 
 function AppLayout() {
@@ -74,7 +71,7 @@ function AppLayout() {
   );
 }
 
-const router = (queryClient: QueryClient) => {
+const router = () => {
   return createBrowserRouter(
     [
       {
@@ -258,7 +255,6 @@ const router = (queryClient: QueryClient) => {
               {
                 path: "notifikasjoner",
                 element: <NotifikasjonerPage />,
-                action: setLestStatusForNotifikasjonAction(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {

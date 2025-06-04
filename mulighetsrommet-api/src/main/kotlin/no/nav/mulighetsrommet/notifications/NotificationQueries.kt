@@ -107,15 +107,18 @@ class NotificationQueries(private val session: Session) {
     fun getUserNotificationSummary(userId: NavIdent): UserNotificationSummary {
         @Language("PostgreSQL")
         val query = """
-            select count(*) as not_done_count
-            from notification n
-                     join user_notification un on n.id = un.notification_id
+            select
+                count(*) filter (where read_at is null) as unread_count,
+                count(*) filter (where read_at is not null) as read_count
+            from user_notification
             where user_id = ?
-              and read_at is null
         """.trimIndent()
 
         val summary = session.single(queryOf(query, userId.value)) {
-            UserNotificationSummary(it.int("not_done_count"))
+            UserNotificationSummary(
+                readCount = it.int("read_count"),
+                unreadCount = it.int("unread_count"),
+            )
         }
         return requireNotNull(summary)
     }

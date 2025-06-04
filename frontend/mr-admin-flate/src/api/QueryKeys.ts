@@ -4,8 +4,8 @@ import {
   GetEnheterData,
   GetGjennomforingerData,
   LagretFilterType,
-  Rolle,
   NotificationStatus,
+  Rolle,
 } from "@mr/api-client-v2";
 
 export const QueryKeys = {
@@ -34,8 +34,9 @@ export const QueryKeys = {
   arrangorByOrgnr: (orgnr: string) => ["arrangor", { orgnr }],
   arrangorKontaktpersoner: (id: string) => ["arrangor", id, "kontaktpersoner"],
   arrangorKontaktpersonKoblinger: (id: string) => ["arrangorKoblinger", id],
-  antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
-  notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
+  notifications: (status?: NotificationStatus) =>
+    ["notifications", status].filter((part) => part !== undefined),
+  notificationsSummary: () => ["notifications", "summary"],
   brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
   sokSertifiseringer: (q: string) => ["sokSertifiseringer", "q", q],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],

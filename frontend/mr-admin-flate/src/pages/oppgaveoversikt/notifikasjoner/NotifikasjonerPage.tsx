@@ -1,13 +1,13 @@
 import { Tabs } from "@navikt/ds-react";
-import { useQuery } from "@tanstack/react-query";
 import { Outlet, useLocation, useNavigate } from "react-router";
-import { lesteNotifikasjonerQuery, ulesteNotifikasjonerQuery } from "./notifikasjonerQueries";
+import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
-  const { data: leste } = useQuery({ ...lesteNotifikasjonerQuery });
-  const { data: uleste } = useQuery({ ...ulesteNotifikasjonerQuery });
   const navigate = useNavigate();
+
+  const summary = useNotificationSummary();
+  const { readCount, unreadCount } = summary.data;
 
   return (
     <main>
@@ -16,13 +16,13 @@ export function NotifikasjonerPage() {
           <Tabs.List id="fane_liste" className="flex flex-row justify-between">
             <Tabs.Tab
               value="nye"
-              label={`Nye notifikasjoner ${uleste?.data.pagination.totalCount ? `(${uleste?.data.pagination.totalCount})` : ""}`}
+              label={`Nye notifikasjoner (${unreadCount})`}
               onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
               aria-controls="panel"
             />
             <Tabs.Tab
               value="tidligere"
-              label={`Tidligere notifikasjoner ${leste?.data.pagination.totalCount ? `(${leste?.data.pagination.totalCount})` : ""}`}
+              label={`Tidligere notifikasjoner (${readCount})`}
               onClick={() => navigate("/oppgaveoversikt/notifikasjoner/tidligere")}
               aria-controls="panel"
             />
