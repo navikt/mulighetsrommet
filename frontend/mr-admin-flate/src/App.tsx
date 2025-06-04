@@ -4,7 +4,7 @@ import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/Delt
 import { TilsagnForGjennomforingPage } from "@/pages/gjennomforing/tilsagn/TilsagnForGjennomforingPage";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { Page } from "@navikt/ds-react";
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
+import { createBrowserRouter, Outlet, RouteObject, RouterProvider } from "react-router";
 import { ForsidePage } from "./pages/forside/ForsidePage";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
@@ -51,7 +51,8 @@ if (import.meta.env.PROD) {
 }
 
 export function App() {
-  return <RouterProvider router={router()} />;
+  const router = createBrowserRouter(routes, { basename });
+  return <RouterProvider router={router} />;
 }
 
 function AppLayout() {
@@ -71,228 +72,221 @@ function AppLayout() {
   );
 }
 
-const router = () => {
-  return createBrowserRouter(
-    [
+const routes: RouteObject[] = [
+  {
+    path: "/",
+    element: <AppLayout />,
+    errorElement: <ErrorPage />,
+    children: [
       {
-        path: "/",
-        element: <AppLayout />,
+        index: true,
+        element: <ForsidePage />,
+      },
+      {
+        path: "error",
+        element: <ErrorPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "tiltakstyper",
+        element: <TiltakstyperPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "tiltakstyper/:tiltakstypeId",
+        element: <DetaljerTiltakstypePage />,
         errorElement: <ErrorPage />,
         children: [
           {
             index: true,
-            element: <ForsidePage />,
-          },
-          {
-            path: "error",
-            element: <ErrorPage />,
+            element: <TiltakstypeInfo />,
             errorElement: <ErrorPage />,
-          },
-          {
-            path: "tiltakstyper",
-            element: <TiltakstyperPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "tiltakstyper/:tiltakstypeId",
-            element: <DetaljerTiltakstypePage />,
-            errorElement: <ErrorPage />,
-            children: [
-              {
-                index: true,
-                element: <TiltakstypeInfo />,
-                errorElement: <ErrorPage />,
-              },
-              {
-                path: "avtaler",
-                element: <AvtalerForTiltakstypePage />,
-                errorElement: <ErrorPage />,
-              },
-            ],
           },
           {
             path: "avtaler",
-            element: <AvtalerPage />,
+            element: <AvtalerForTiltakstypePage />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        path: "avtaler",
+        element: <AvtalerPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "avtaler/:avtaleId",
+        element: <AvtalePage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <AvtaleInfo />,
             errorElement: <ErrorPage />,
           },
           {
-            path: "avtaler/:avtaleId",
-            element: <AvtalePage />,
+            path: "gjennomforinger",
+            element: <GjennomforingerForAvtalePage />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        path: "avtaler/skjema",
+        element: <NewAvtaleFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "avtaler/:avtaleId/skjema",
+        element: <AvtaleFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "avtaler/:avtaleId/gjennomforinger/skjema",
+        element: <NewGjennomforingFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/",
+        element: <GjennomforingerPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId",
+        element: <GjennomforingPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <GjennomforingInfo />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/tilsagn",
+        element: <GjennomforingPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <TilsagnForGjennomforingPage />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/utbetalinger",
+        element: <GjennomforingPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <UtbetalingerForGjennomforingContainer />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/utbetalinger/skjema",
+        element: <GjennomforingPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <OpprettUtbetalingPage />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/deltakerliste",
+        element: <GjennomforingPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <DeltakerlisteContainer />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/skjema",
+        element: <GjennomforingFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
+        element: <OpprettTilsagnFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
+        element: <TilsagnPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
+        element: <RedigerTilsagnFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
+        element: <UtbetalingPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "arrangorer",
+        element: <ArrangorerPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "arrangorer/:arrangorId",
+        element: <ArrangorPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "oppgaveoversikt",
+        element: <OppgaveoversiktPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            path: "notifikasjoner",
+            element: <NotifikasjonerPage />,
             errorElement: <ErrorPage />,
             children: [
               {
                 index: true,
-                element: <AvtaleInfo />,
+                element: <NotifikasjonerList lest={false} />,
                 errorElement: <ErrorPage />,
               },
               {
-                path: "gjennomforinger",
-                element: <GjennomforingerForAvtalePage />,
+                path: "tidligere",
+                element: <NotifikasjonerList lest={true} />,
                 errorElement: <ErrorPage />,
               },
             ],
           },
           {
-            path: "avtaler/skjema",
-            element: <NewAvtaleFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "avtaler/:avtaleId/skjema",
-            element: <AvtaleFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "avtaler/:avtaleId/gjennomforinger/skjema",
-            element: <NewGjennomforingFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "gjennomforinger/",
-            element: <GjennomforingerPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId",
-            element: <GjennomforingPage />,
+            path: "oppgaver",
+            element: <OppgaverPage />,
             errorElement: <ErrorPage />,
             children: [
               {
                 index: true,
-                element: <GjennomforingInfo />,
+                element: <NotifikasjonerList lest={false} />,
                 errorElement: <ErrorPage />,
               },
-            ],
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/tilsagn",
-            element: <GjennomforingPage />,
-            errorElement: <ErrorPage />,
-            children: [
               {
-                index: true,
-                element: <TilsagnForGjennomforingPage />,
+                path: "fullforte",
+                element: <NotifikasjonerList lest={true} />,
                 errorElement: <ErrorPage />,
-              },
-            ],
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/utbetalinger",
-            element: <GjennomforingPage />,
-            errorElement: <ErrorPage />,
-            children: [
-              {
-                index: true,
-                element: <UtbetalingerForGjennomforingContainer />,
-                errorElement: <ErrorPage />,
-              },
-            ],
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/utbetalinger/skjema",
-            element: <GjennomforingPage />,
-            errorElement: <ErrorPage />,
-            children: [
-              {
-                index: true,
-                element: <OpprettUtbetalingPage />,
-                errorElement: <ErrorPage />,
-              },
-            ],
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/deltakerliste",
-            element: <GjennomforingPage />,
-            errorElement: <ErrorPage />,
-            children: [
-              {
-                index: true,
-                element: <DeltakerlisteContainer />,
-                errorElement: <ErrorPage />,
-              },
-            ],
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/skjema",
-            element: <GjennomforingFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
-            element: <OpprettTilsagnFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
-            element: <TilsagnPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <RedigerTilsagnFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
-            element: <UtbetalingPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "arrangorer",
-            element: <ArrangorerPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "arrangorer/:arrangorId",
-            element: <ArrangorPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "oppgaveoversikt",
-            element: <OppgaveoversiktPage />,
-            errorElement: <ErrorPage />,
-            children: [
-              {
-                path: "notifikasjoner",
-                element: <NotifikasjonerPage />,
-                errorElement: <ErrorPage />,
-                children: [
-                  {
-                    index: true,
-                    element: <NotifikasjonerList lest={false} />,
-                    errorElement: <ErrorPage />,
-                  },
-                  {
-                    path: "tidligere",
-                    element: <NotifikasjonerList lest={true} />,
-                    errorElement: <ErrorPage />,
-                  },
-                ],
-              },
-              {
-                path: "oppgaver",
-                element: <OppgaverPage />,
-                errorElement: <ErrorPage />,
-                children: [
-                  {
-                    index: true,
-                    element: <NotifikasjonerList lest={false} />,
-                    errorElement: <ErrorPage />,
-                  },
-                  {
-                    path: "fullforte",
-                    element: <NotifikasjonerList lest={true} />,
-                    errorElement: <ErrorPage />,
-                  },
-                ],
               },
             ],
           },
         ],
       },
     ],
-    {
-      basename,
-    },
-  );
-};
+  },
+];
