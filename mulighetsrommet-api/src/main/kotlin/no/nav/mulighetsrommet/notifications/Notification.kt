@@ -51,6 +51,7 @@ data class UserNotification(
 
 @Serializable
 data class UserNotificationSummary(
+    val readCount: Int,
     val unreadCount: Int,
 )
 

@@ -4751,9 +4751,12 @@ components:
     UserNotificationSummary:
       type: object
       properties:
+        readCount:
+          type: integer
         unreadCount:
           type: integer
       required:
+        - readCount
         - unreadCount
 
     Oppgave:

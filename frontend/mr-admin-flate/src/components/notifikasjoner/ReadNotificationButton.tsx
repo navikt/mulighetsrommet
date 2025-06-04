@@ -1,7 +1,7 @@
 import { NotificationStatus } from "@mr/api-client-v2";
 import { Button } from "@navikt/ds-react";
 import { Dispatch, SetStateAction } from "react";
-import { useFetcher } from "react-router";
+import { useMutateNotifications } from "@/api/notifikasjoner/useNotifications";
 
 interface Props {
   id: string;
@@ -9,19 +9,12 @@ interface Props {
   setError: Dispatch<SetStateAction<string>>;
 }
 
-export function ReadNotificationButton({ id, read, setError }: Props) {
-  const fetcher = useFetcher();
+export function ReadNotificationButton({ id, read }: Props) {
+  const { setNotificationStatus } = useMutateNotifications();
 
-  const setStatus = async (status: NotificationStatus) => {
-    const formData = new FormData();
-    formData.set("ids[]", id);
-    formData.set("statuses[]", status);
-    fetcher.submit(formData, { method: "POST", action: `/oppgaveoversikt/notifikasjoner` });
+  const setStatus = (status: NotificationStatus) => {
+    setNotificationStatus([{ id, status }]);
   };
-
-  if (fetcher.data?.error) {
-    setError(fetcher.data.error);
-  }
 
   return read ? (
     <Button variant="secondary" onClick={() => setStatus(NotificationStatus.UNREAD)} size="small">

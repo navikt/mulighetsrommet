@@ -1,6 +1,6 @@
 import { BellIcon } from "@navikt/aksel-icons";
 import { Link } from "react-router";
-import { useNotificationSummary } from "@/api/notifikasjoner/useNotificationSummary";
+import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
 
 function Notifier() {
   return (
@@ -9,11 +9,7 @@ function Notifier() {
 }
 
 export function NotifikasjonerBjelle() {
-  const { data: summary, isLoading: isLoadingUlesteNotifikasjoner } = useNotificationSummary();
-
-  if (isLoadingUlesteNotifikasjoner || !summary) {
-    return null;
-  }
+  const { data: summary } = useNotificationSummary();
 
   const harUlesteNotifikasjoner = summary.unreadCount > 0;
 

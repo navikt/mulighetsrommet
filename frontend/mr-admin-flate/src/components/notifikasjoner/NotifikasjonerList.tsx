@@ -1,43 +1,37 @@
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { NotificationStatus } from "@mr/api-client-v2";
 import { Button, HStack } from "@navikt/ds-react";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
-import { useFetcher } from "react-router";
-import {
-  lesteNotifikasjonerQuery,
-  ulesteNotifikasjonerQuery,
-} from "@/pages/oppgaveoversikt/notifikasjoner/notifikasjonerQueries";
 import { EmptyState } from "./EmptyState";
 import { NotifikasjonerListItem } from "./NotifikasjonerListItem";
+import { useMutateNotifications, useNotifications } from "@/api/notifikasjoner/useNotifications";
 
 interface Props {
   lest: boolean;
 }
 
 export function NotifikasjonerList({ lest }: Props) {
-  const { data: leste } = useQuery(lesteNotifikasjonerQuery);
-  const { data: uleste } = useQuery(ulesteNotifikasjonerQuery);
+  const {
+    data: { data: notifikasjoner },
+  } = useNotifications(lest ? NotificationStatus.READ : NotificationStatus.UNREAD);
 
-  const notifikasjoner = useMemo(
-    () => (lest ? leste?.data.data : uleste?.data.data),
-    [lest, leste, uleste],
-  );
-  const fetcher = useFetcher();
+  const { setNotificationStatus } = useMutateNotifications();
 
   function toggleMarkertSomlestUlest() {
-    if (notifikasjoner) {
-      const newStatus = lest ? NotificationStatus.UNREAD : NotificationStatus.READ;
-      const formData = new FormData();
-      notifikasjoner.forEach(({ id }) => {
-        formData.append("ids[]", id);
-        formData.append("statuses[]", newStatus);
-      });
-      fetcher.submit(formData, { method: "POST", action: `/oppgaveoversikt/notifikasjoner` });
+    if (notifikasjoner.length === 0) {
+      return;
     }
+
+    const newStatus = lest ? NotificationStatus.UNREAD : NotificationStatus.READ;
+
+    const updatedNotifikasjoner = notifikasjoner.map(({ id }) => ({
+      id,
+      status: newStatus,
+    }));
+
+    setNotificationStatus(updatedNotifikasjoner);
   }
 
-  if (notifikasjoner?.length === 0) {
+  if (notifikasjoner.length === 0) {
     return (
       <EmptyState
         tittel={lest ? "Du har ingen tidligere notifikasjoner" : "Ingen nye notifikasjoner"}
@@ -59,7 +53,7 @@ export function NotifikasjonerList({ lest }: Props) {
           </Button>
         </HStack>
         <ul className="m-0 mb-4 pl-0 flex flex-col">
-          {notifikasjoner?.map((n) => {
+          {notifikasjoner.map((n) => {
             return <NotifikasjonerListItem lest={lest} key={n.id} notifikasjon={n} />;
           })}
         </ul>
