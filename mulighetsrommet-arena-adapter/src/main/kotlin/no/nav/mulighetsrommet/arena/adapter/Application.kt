@@ -18,8 +18,9 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
+import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import org.koin.ktor.ext.inject
 import java.time.Instant
 
@@ -39,6 +40,8 @@ fun main() {
 }
 
 fun Application.configure(config: AppConfig) {
+    configureMetrics()
+
     val db by inject<Database>()
 
     configureDependencyInjection(config)
@@ -51,7 +54,7 @@ fun Application.configure(config: AppConfig) {
 
     KafkaMetrics(db)
         .withCountStaleConsumerRecords(minutesSinceCreatedAt = 5)
-        .register(Metrikker.appMicrometerRegistry)
+        .register(Metrics.micrometerRegistry)
 
     val kafka: KafkaConsumerOrchestrator by inject()
 

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.metrics
 
 import io.micrometer.core.instrument.AbstractTimer
 import io.micrometer.core.instrument.Timer
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import java.util.concurrent.TimeUnit
 
 suspend fun <A> Timer.recordSuspend(block: suspend () -> A): A = when (val timer = this) {
@@ -11,7 +11,7 @@ suspend fun <A> Timer.recordSuspend(block: suspend () -> A): A = when (val timer
 }
 
 private suspend fun <A> AbstractTimer.recordSuspendInternal(block: suspend () -> A): A {
-    val clock = Metrikker.appMicrometerRegistry.config().clock()
+    val clock = Metrics.micrometerRegistry.config().clock()
     val s = clock.monotonicTime()
     return try {
         block()
@@ -27,10 +27,10 @@ object Metrics {
     fun retryArenaEventTimer(table: String): Timer = Timer
         .builder("retry_arena_event_timer")
         .tags(ARENA_TABLE_TAG, table)
-        .register(Metrikker.appMicrometerRegistry)
+        .register(Metrics.micrometerRegistry)
 
     fun processArenaEventTimer(table: String): Timer = Timer
         .builder("process_arena_event_timer")
         .tags(ARENA_TABLE_TAG, table)
-        .register(Metrikker.appMicrometerRegistry)
+        .register(Metrics.micrometerRegistry)
 }

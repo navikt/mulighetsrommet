@@ -87,7 +87,7 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
 import no.nav.mulighetsrommet.slack.SlackNotifier
@@ -129,7 +129,7 @@ fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
 }
 
 private fun db(config: DatabaseConfig) = module {
-    val database = Database(config.copy { metricRegistry = Metrikker.appMicrometerRegistry })
+    val database = Database(config.copy { metricRegistry = Metrics.micrometerRegistry })
     single<Database>(createdAtStart = true) {
         database
     }
@@ -142,7 +142,7 @@ private fun kafka(appConfig: AppConfig) = module {
     single<KafkaProducerClient<ByteArray, ByteArray?>> {
         KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
             .withProperties(config.producerProperties)
-            .withMetrics(Metrikker.appMicrometerRegistry)
+            .withMetrics(Metrics.micrometerRegistry)
             .build()
     }
 

@@ -11,7 +11,7 @@ import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithSt
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder.TopicConfig
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.function.Consumer
@@ -176,7 +176,7 @@ private fun <K, V> toTopicConfig(
     consumerRecordRepository: KafkaConsumerRepository,
 ): TopicConfig<K, V> {
     return TopicConfig<K, V>()
-        .withMetrics(Metrikker.appMicrometerRegistry)
+        .withMetrics(Metrics.micrometerRegistry)
         .withLogging()
         .withStoreOnFailure(consumerRecordRepository)
         .withConsumerConfig(
