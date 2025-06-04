@@ -129,7 +129,7 @@ fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
 }
 
 private fun db(config: DatabaseConfig) = module {
-    val database = Database(config.copy { metricRegistry = Metrics.micrometerRegistry })
+    val database = Database(config)
     single<Database>(createdAtStart = true) {
         database
     }

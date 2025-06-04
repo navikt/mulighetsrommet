@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.metrics.Metrics
 
 private val arenaAdapterConsumerProperties =
     KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-kafka-consumer.v1")
@@ -49,7 +50,7 @@ val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 20,
-    ),
+    ) { metricRegistry = Metrics.micrometerRegistry },
     flyway = FlywayMigrationManager.MigrationConfig(),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(
