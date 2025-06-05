@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
-import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate

@@ -4,9 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -67,7 +65,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             avtaleId = UUID.randomUUID(),
             sluttdato = null,
             forrigeSluttdato = null,
-            status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST,
+            status = OpsjonLoggStatus.OPSJON_UTLOST,
             registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
@@ -90,7 +88,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             avtaleId = UUID.randomUUID(),
             sluttdato = LocalDate.of(2027, 7, 6),
             forrigeSluttdato = LocalDate.of(2026, 7, 6),
-            status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST,
+            status = OpsjonLoggStatus.OPSJON_UTLOST,
             registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
@@ -117,7 +115,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             avtaleId = UUID.randomUUID(),
             sluttdato = LocalDate.of(2025, 7, 6),
             forrigeSluttdato = null,
-            status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST,
+            status = OpsjonLoggStatus.OPSJON_UTLOST,
             registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
@@ -141,7 +139,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             opsjonerRegistrert = listOf(
                 AvtaleDto.OpsjonLoggRegistrert(
                     id = UUID.randomUUID(),
-                    status = OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLOSE_OPSJON,
+                    status = OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON,
                     registrertDato = LocalDate.of(2024, 8, 8),
                     sluttDato = null,
                     forrigeSluttdato = null,
@@ -153,7 +151,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             avtaleId = UUID.randomUUID(),
             sluttdato = LocalDate.of(2027, 7, 6),
             forrigeSluttdato = LocalDate.of(2026, 7, 6),
-            status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST,
+            status = OpsjonLoggStatus.OPSJON_UTLOST,
             registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )
@@ -180,7 +178,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             avtaleId = UUID.randomUUID(),
             sluttdato = LocalDate.of(2025, 7, 6),
             forrigeSluttdato = LocalDate.of(2024, 7, 6),
-            status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST,
+            status = OpsjonLoggStatus.OPSJON_UTLOST,
             registretDato = LocalDate.of(2024, 7, 6),
             registrertAv = NavIdent("M123456"),
         )

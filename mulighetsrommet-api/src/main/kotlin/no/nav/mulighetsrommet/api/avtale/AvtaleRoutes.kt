@@ -7,6 +7,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -64,36 +66,13 @@ data class AvtaleRequest(
 }
 
 @Serializable
-data class OpsjonsmodellData(
-    @Serializable(with = LocalDateSerializer::class)
-    val opsjonMaksVarighet: LocalDate?,
-    val opsjonsmodell: Opsjonsmodell?,
-    val customOpsjonsmodellNavn: String? = null,
-)
-
-@Serializable
-enum class Opsjonsmodell {
-    TO_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-    ANNET,
-    AVTALE_UTEN_OPSJONSMODELL,
-    AVTALE_VALGFRI_SLUTTDATO,
-}
-
-@Serializable
-data class OpsjonLoggRequest(
+data class OpprettOpsjonLoggRequest(
     @Serializable(with = LocalDateSerializer::class)
     val nySluttdato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val forrigeSluttdato: LocalDate?,
-    val status: OpsjonsLoggStatus,
-) {
-    enum class OpsjonsLoggStatus {
-        OPSJON_UTLOST,
-        SKAL_IKKE_UTLOSE_OPSJON,
-    }
-}
+    val status: OpsjonLoggStatus,
+)
 
 @Serializable
 data class SlettOpsjonLoggRequest(
@@ -131,7 +110,7 @@ fun Route.avtaleRoutes() {
             route("{id}/opsjoner") {
                 post {
                     val id: UUID by call.parameters
-                    val request = call.receive<OpsjonLoggRequest>()
+                    val request = call.receive<OpprettOpsjonLoggRequest>()
                     val userId = getNavIdent()
 
                     val opsjonLoggEntry = OpsjonLoggEntry(

@@ -1847,7 +1847,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpsjonLoggRequest"
+              $ref: "#/components/schemas/OpprettOpsjonLoggRequest"
       responses:
         204:
           description: "Lagret ok"
@@ -5473,7 +5473,7 @@ components:
         - AVTALE_UTEN_OPSJONSMODELL
         - AVTALE_VALGFRI_SLUTTDATO
 
-    OpsjonLoggRequest:
+    OpprettOpsjonLoggRequest:
       type: object
       properties:
         nySluttdato:

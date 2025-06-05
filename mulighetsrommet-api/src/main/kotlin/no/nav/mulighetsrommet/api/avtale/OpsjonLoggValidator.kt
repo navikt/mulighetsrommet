@@ -7,6 +7,8 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.responses.FieldError
 
 object OpsjonLoggValidator {
@@ -20,9 +22,9 @@ object OpsjonLoggValidator {
             )
 
         val errors = buildList {
-            if (entry.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST) {
+            if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
                 val skalIkkeUtloseOpsjonerForAvtale =
-                    avtale.opsjonerRegistrert?.any { it.status === OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLOSE_OPSJON }
+                    avtale.opsjonerRegistrert?.any { it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON }
                 if (skalIkkeUtloseOpsjonerForAvtale == true) {
                     add(
                         FieldError.of(

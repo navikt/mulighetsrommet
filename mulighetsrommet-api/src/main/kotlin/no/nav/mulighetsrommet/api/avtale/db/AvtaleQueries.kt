@@ -6,11 +6,11 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo

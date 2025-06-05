@@ -9,6 +9,8 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -284,7 +286,12 @@ class AvtaleValidatorTest : FunSpec({
             ),
         )
         validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(FieldError("/avtaletype", "Offentlig-offentlig samarbeid er ikke tillatt for tiltakstype Oppfølging")),
+            listOf(
+                FieldError(
+                    "/avtaletype",
+                    "Offentlig-offentlig samarbeid er ikke tillatt for tiltakstype Oppfølging",
+                ),
+            ),
         )
         validator.validate(gruppeAmo, null).shouldBeLeft(
             listOf(FieldError("/avtaletype", "Forhåndsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
@@ -474,7 +481,7 @@ class AvtaleValidatorTest : FunSpec({
                     avtaleId = avtaleDbo.id,
                     sluttdato = avtaleDbo.sluttDato?.plusYears(1),
                     forrigeSluttdato = avtaleDbo.sluttDato,
-                    status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLOST,
+                    status = OpsjonLoggStatus.OPSJON_UTLOST,
                     registretDato = LocalDate.of(2024, 7, 6),
                     registrertAv = NavIdent("M123456"),
                 ),

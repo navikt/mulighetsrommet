@@ -6,7 +6,7 @@ import { MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
+import { RegistrerteOpsjoner } from "../opsjoner/RegistrerteOpsjoner";
 import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
 
 interface Props {
@@ -172,7 +172,7 @@ export function AvtaleVarighet({
         </HGrid>
       )}
       {avtale && avtale.opsjonerRegistrert.length > 0 && (
-        <OpsjonerRegistrert readOnly avtale={avtale} />
+        <RegistrerteOpsjoner readOnly avtale={avtale} />
       )}
     </>
   );

@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.avtale.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.avtale.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -59,7 +59,7 @@ class OpsjonLoggQueries(private val session: Session) {
             registretDato = localDate("registrert_dato"),
             sluttdato = localDateOrNull("sluttdato"),
             forrigeSluttdato = localDateOrNull("forrige_sluttdato"),
-            status = OpsjonLoggRequest.OpsjonsLoggStatus.valueOf(string("status")),
+            status = OpsjonLoggStatus.valueOf(string("status")),
             registrertAv = NavIdent(string("registrert_av")),
         )
     }

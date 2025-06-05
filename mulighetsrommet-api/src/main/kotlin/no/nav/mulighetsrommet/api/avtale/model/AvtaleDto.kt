@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.OpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -91,7 +89,7 @@ data class AvtaleDto(
         val sluttDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         val forrigeSluttdato: LocalDate?,
-        val status: OpsjonLoggRequest.OpsjonsLoggStatus,
+        val status: OpsjonLoggStatus,
     )
 
     fun toDbo(): AvtaleDbo {

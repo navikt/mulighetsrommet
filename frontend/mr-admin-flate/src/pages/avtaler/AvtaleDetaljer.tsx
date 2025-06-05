@@ -1,6 +1,6 @@
 import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
-import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
+import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
 import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
@@ -108,7 +108,7 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
         </Bolk>
 
         {avtale.opsjonerRegistrert.length > 0 ? (
-          <OpsjonerRegistrert readOnly avtale={avtale} />
+          <RegistrerteOpsjoner readOnly avtale={avtale} />
         ) : null}
 
         <Separator />

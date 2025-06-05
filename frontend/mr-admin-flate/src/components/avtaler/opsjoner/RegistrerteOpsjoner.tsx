@@ -9,7 +9,7 @@ interface Props {
   readOnly: boolean;
 }
 
-export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
+export function RegistrerteOpsjoner({ avtale, readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
   const mutation = useSlettOpsjon(avtale.id);
 
@@ -23,7 +23,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
     mutation.mutate(
       { id },
       {
-        onSuccess: async () => {
+        onSuccess: () => {
           mutation.reset();
         },
       },
