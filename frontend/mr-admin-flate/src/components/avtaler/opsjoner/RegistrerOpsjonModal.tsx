@@ -59,8 +59,8 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   function sluttDatoErLikEllerPassererMaksVarighet(): boolean {
-    if (avtale?.opsjonsmodellData?.opsjonMaksVarighet && avtale?.sluttDato) {
-      return new Date(avtale?.sluttDato) >= new Date(avtale?.opsjonsmodellData?.opsjonMaksVarighet);
+    if (avtale?.opsjonsmodell?.opsjonMaksVarighet && avtale?.sluttDato) {
+      return new Date(avtale.sluttDato) >= new Date(avtale.opsjonsmodell.opsjonMaksVarighet);
     }
     return false;
   }

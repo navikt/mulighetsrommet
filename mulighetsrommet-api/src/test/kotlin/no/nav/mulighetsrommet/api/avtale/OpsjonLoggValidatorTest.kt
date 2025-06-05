@@ -49,9 +49,9 @@ class OpsjonLoggValidatorTest : FunSpec({
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
-        opsjonsmodellData = OpsjonsmodellData(
+        opsjonsmodell = Opsjonsmodell(
             opsjonMaksVarighet = LocalDate.of(2024, 7, 5).plusYears(5),
-            opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+            type = OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
             customOpsjonsmodellNavn = null,
         ),
         opsjonerRegistrert = emptyList(),
@@ -60,7 +60,7 @@ class OpsjonLoggValidatorTest : FunSpec({
     )
 
     test("Skal kaste en feil hvis opsjonsmodell ikke finnes") {
-        val avtaleUtenOpsjonsmodell = avtale.copy(opsjonsmodellData = null)
+        val avtaleUtenOpsjonsmodell = avtale.copy(opsjonsmodell = null)
         val entry = OpsjonLoggEntry(
             avtaleId = UUID.randomUUID(),
             sluttdato = null,
@@ -70,16 +70,16 @@ class OpsjonLoggValidatorTest : FunSpec({
             registrertAv = NavIdent("M123456"),
         )
         OpsjonLoggValidator.validate(entry, avtaleUtenOpsjonsmodell).shouldBeLeft().shouldContainAll(
-            FieldError.of(OpsjonsmodellData::opsjonsmodell, "Kan ikke registrer opsjon uten en opsjonsmodell"),
+            FieldError.of(Opsjonsmodell::type, "Kan ikke registrer opsjon uten en opsjonsmodell"),
         )
     }
 
     test("Skal kaste en feil hvis status for entry er UTLØST_OPSJON og ny sluttdato er senere enn maks varighet for opsjonsmodellen") {
         val avtale2Pluss1 = avtale.copy(
             sluttDato = LocalDate.of(2024, 7, 5).plusYears(3),
-            opsjonsmodellData = OpsjonsmodellData(
+            opsjonsmodell = Opsjonsmodell(
                 opsjonMaksVarighet = LocalDate.of(2024, 7, 5).plusYears(3),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                type = OpsjonsmodellType.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
             ),
         )
@@ -104,9 +104,9 @@ class OpsjonLoggValidatorTest : FunSpec({
     test("Skal kaste en feil hvis status for entry er UTLØST_OPSJON og forrige sluttdato mangler") {
         val avtale2Pluss1 = avtale.copy(
             sluttDato = LocalDate.of(2024, 7, 5).plusYears(3),
-            opsjonsmodellData = OpsjonsmodellData(
+            opsjonsmodell = Opsjonsmodell(
                 opsjonMaksVarighet = LocalDate.of(2024, 7, 5).plusYears(1),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                type = OpsjonsmodellType.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
             ),
         )
@@ -131,9 +131,9 @@ class OpsjonLoggValidatorTest : FunSpec({
     test("Skal kaste en feil hvis status for entry er UTLØST_OPSJON og det allerede er registrert at det ikke skal utløses opsjon for avtalen") {
         val avtale2Pluss1 = avtale.copy(
             sluttDato = LocalDate.of(2024, 7, 5).plusYears(3),
-            opsjonsmodellData = OpsjonsmodellData(
+            opsjonsmodell = Opsjonsmodell(
                 opsjonMaksVarighet = LocalDate.of(2024, 7, 5).plusYears(3),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                type = OpsjonsmodellType.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
             ),
             opsjonerRegistrert = listOf(
@@ -167,9 +167,9 @@ class OpsjonLoggValidatorTest : FunSpec({
     test("Skal ikke kaste en feil hvis status for entry er UTLØST_OPSJON og ny sluttdato er før enn maks varighet for opsjonsmodellen") {
         val avtale2Pluss1 = avtale.copy(
             sluttDato = LocalDate.of(2024, 7, 5).plusYears(3),
-            opsjonsmodellData = OpsjonsmodellData(
+            opsjonsmodell = Opsjonsmodell(
                 opsjonMaksVarighet = LocalDate.of(2024, 7, 5).plusYears(3),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                type = OpsjonsmodellType.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
             ),
         )

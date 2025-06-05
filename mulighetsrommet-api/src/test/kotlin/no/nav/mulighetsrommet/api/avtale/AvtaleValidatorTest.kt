@@ -10,7 +10,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -70,7 +70,7 @@ class AvtaleValidatorTest : FunSpec({
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -202,8 +202,8 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("Opsjonsdata må være satt hvis ikke avtaletypen er forhåndsgodkjent") {
-        val forhaandsgodkjent = AvtaleFixtures.AFT
+    test("Opsjonsdata må være satt når avtaletypen ikke er forhåndsgodkjent") {
+        val forhaandsgodkjent = AvtaleFixtures.AFT.copy(opsjonsmodell = null)
         val rammeAvtale = AvtaleFixtures.oppfolging.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
         val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
         val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(
@@ -237,7 +237,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("Custom navn for opsjon må være satt hvis opsjonsmodell er ANNET") {
         val rammeAvtale = AvtaleFixtures.oppfolging.copy(
-            opsjonsmodell = Opsjonsmodell.ANNET,
+            opsjonsmodell = OpsjonsmodellType.ANNET,
             opsjonMaksVarighet = LocalDate.now(),
         )
 
@@ -254,12 +254,12 @@ class AvtaleValidatorTest : FunSpec({
         val aft = AvtaleFixtures.AFT.copy(
             avtaletype = Avtaletype.RAMMEAVTALE,
             opsjonMaksVarighet = LocalDate.now(),
-            opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         )
         val vta = AvtaleFixtures.VTA.copy(
             avtaletype = Avtaletype.AVTALE,
             opsjonMaksVarighet = LocalDate.now(),
-            opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         )
         val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(
@@ -467,7 +467,7 @@ class AvtaleValidatorTest : FunSpec({
                 queries.avtale.upsert(
                     avtaleDbo.copy(
                         avtaletype = Avtaletype.RAMMEAVTALE,
-                        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN,
+                        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN,
                         opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
                         startDato = LocalDate.of(2024, 5, 7),
                         sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
@@ -490,7 +490,7 @@ class AvtaleValidatorTest : FunSpec({
             val previous = database.run { queries.avtale.get(avtaleDbo.id) }
             val avtale = avtaleDbo.copy(
                 avtaletype = Avtaletype.AVTALE,
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
                 opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
             )
 

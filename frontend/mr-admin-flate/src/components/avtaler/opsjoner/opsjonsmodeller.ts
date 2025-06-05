@@ -1,64 +1,74 @@
-import { OpsjonsmodellData, OpsjonsmodellKey } from "@mr/api-client-v2";
+import { Avtaletype, OpsjonsmodellType } from "@mr/api-client-v2";
 
-export interface Opsjonsmodell {
-  value: OpsjonsmodellKey;
+export interface TilgjengeligOpsjonsmodell {
+  value: OpsjonsmodellType;
   label: string;
   maksVarighetAar: number | null;
   initialSluttdatoEkstraAar?: number;
   kreverMaksVarighet: boolean;
 }
 
-export const opsjonsmodeller: Opsjonsmodell[] = [
+export function hentGjeldendeOpsjonsmodeller(avtaletype: Avtaletype): TilgjengeligOpsjonsmodell[] {
+  if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
+    return opsjonsmodeller.filter(
+      (modell) => modell.value === OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
+    );
+  }
+
+  if (avtaletype !== Avtaletype.OFFENTLIG_OFFENTLIG) {
+    return opsjonsmodeller.filter(
+      (modell) => modell.value !== OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
+    );
+  }
+
+  return opsjonsmodeller;
+}
+
+export function hentOpsjonsmodell(type: OpsjonsmodellType) {
+  return opsjonsmodeller.find((modell) => modell.value === type);
+}
+
+const opsjonsmodeller: TilgjengeligOpsjonsmodell[] = [
   {
-    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+    value: OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
     label: "2 år + 1 år + 1 år + 1 år",
     maksVarighetAar: 5,
     initialSluttdatoEkstraAar: 2,
     kreverMaksVarighet: true,
   },
   {
-    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN,
+    value: OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN,
     label: "2 år + 1 år + 1 år",
     maksVarighetAar: 4,
     initialSluttdatoEkstraAar: 2,
     kreverMaksVarighet: true,
   },
   {
-    value: OpsjonsmodellKey.TO_PLUSS_EN,
+    value: OpsjonsmodellType.TO_PLUSS_EN,
     label: "2 år + 1 år",
     maksVarighetAar: 3,
     initialSluttdatoEkstraAar: 2,
     kreverMaksVarighet: true,
   },
   {
-    value: OpsjonsmodellKey.ANNET,
+    value: OpsjonsmodellType.ANNET,
     label: "Annen opsjonsmodell",
     maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,
     kreverMaksVarighet: true,
   },
   {
-    value: OpsjonsmodellKey.AVTALE_UTEN_OPSJONSMODELL,
+    value: OpsjonsmodellType.AVTALE_UTEN_OPSJONSMODELL,
     label: "Avtale uten opsjonsmulighet",
     maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,
     kreverMaksVarighet: false,
   },
   {
-    value: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
+    value: OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
     label: "Åpen avtale med valgfri sluttdato",
     maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,
     kreverMaksVarighet: false,
   },
 ];
-
-export function opsjonsmodellTilTekst(
-  opsjonsmodell: OpsjonsmodellData | undefined,
-): string | null | undefined {
-  const opsjonsmodellFunnet = opsjonsmodeller.find(
-    (modell) => modell.value === opsjonsmodell?.opsjonsmodell,
-  );
-
-  return opsjonsmodell?.customOpsjonsmodellNavn || opsjonsmodellFunnet?.label;
-}

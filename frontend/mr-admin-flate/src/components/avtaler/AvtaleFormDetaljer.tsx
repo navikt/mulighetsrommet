@@ -10,7 +10,7 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  OpsjonsmodellKey,
+  OpsjonsmodellType,
   OpsjonStatus,
   Prismodell,
   Tiltakskode,
@@ -29,7 +29,6 @@ import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleFormConst";
-import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
@@ -59,7 +58,7 @@ export function AvtaleFormDetaljer({
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
 
-  const watchedOpsjonsmodell = watch("opsjonsmodellData.opsjonsmodell");
+  const watchedOpsjonsmodellType = watch("opsjonsmodell.type");
 
   function handleChangeTiltakstype(
     currentTiltakskode?: Tiltakskode,
@@ -78,14 +77,14 @@ export function AvtaleFormDetaljer({
 
   function handleChangeAvtaletype(avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
-      setValue("opsjonsmodellData", {
-        opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
+      setValue("opsjonsmodell", {
+        type: OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else if (!watchedOpsjonsmodell) {
-      setValue("opsjonsmodellData", {
-        opsjonsmodell: undefined,
+    } else if (!watchedOpsjonsmodellType) {
+      setValue("opsjonsmodell", {
+        type: undefined,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
@@ -195,10 +194,7 @@ export function AvtaleFormDetaljer({
           ) : null}
         </FormGroup>
 
-        <AvtaleDatoContainer
-          avtale={avtale}
-          opsjonsmodell={opsjonsmodeller.find((m) => m.value === watchedOpsjonsmodell)}
-        />
+        <AvtaleDatoContainer avtale={avtale} />
 
         {okonomiTabEnabled === false && (
           <>

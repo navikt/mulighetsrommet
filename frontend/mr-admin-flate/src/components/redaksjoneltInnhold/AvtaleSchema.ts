@@ -1,6 +1,6 @@
 import {
   Avtaletype,
-  OpsjonsmodellKey,
+  OpsjonsmodellType,
   Personopplysning,
   Prismodell,
   Tiltakskode,
@@ -40,13 +40,13 @@ export const AvtaleSchema = z
         message: "Startdato må være før sluttdato",
         path: ["startDato"],
       }),
-    opsjonsmodellData: z.object({
-      opsjonMaksVarighet: z.string().optional().nullable(),
-      opsjonsmodell: z
-        .nativeEnum(OpsjonsmodellKey, {
+    opsjonsmodell: z.object({
+      type: z
+        .nativeEnum(OpsjonsmodellType, {
           required_error: "Du må velge avtalt mulighet for forlengelse",
         })
         .optional(),
+      opsjonMaksVarighet: z.string().optional().nullable(),
       customOpsjonsmodellNavn: z.string().optional().nullable(),
     }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
@@ -86,22 +86,22 @@ export const AvtaleSchema = z
     }
 
     if (data.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
-      if (!data.opsjonsmodellData.opsjonsmodell) {
+      if (!data.opsjonsmodell.type) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Du må velge avtalt mulighet for forlengelse",
-          path: ["opsjonsmodellData.opsjonsmodell"],
+          path: ["opsjonsmodell.type"],
         });
       }
 
       if (
-        data.opsjonsmodellData.opsjonsmodell === OpsjonsmodellKey.ANNET &&
-        !data.opsjonsmodellData.customOpsjonsmodellNavn
+        data.opsjonsmodell.type === OpsjonsmodellType.ANNET &&
+        !data.opsjonsmodell.customOpsjonsmodellNavn
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Du må gi oppsjonsmodellen et navn",
-          path: ["opsjonsmodellData.customOpsjonsmodellNavn"],
+          path: ["opsjonsmodell.customOpsjonsmodellNavn"],
         });
       }
     }

@@ -5,7 +5,15 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 @Serializable
-enum class Opsjonsmodell {
+data class Opsjonsmodell(
+    val type: OpsjonsmodellType?,
+    @Serializable(with = LocalDateSerializer::class)
+    val opsjonMaksVarighet: LocalDate?,
+    val customOpsjonsmodellNavn: String? = null,
+)
+
+@Serializable
+enum class OpsjonsmodellType {
     TO_PLUSS_EN,
     TO_PLUSS_EN_PLUSS_EN,
     TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
@@ -13,11 +21,3 @@ enum class Opsjonsmodell {
     AVTALE_VALGFRI_SLUTTDATO,
     ANNET,
 }
-
-@Serializable
-data class OpsjonsmodellData(
-    @Serializable(with = LocalDateSerializer::class)
-    val opsjonMaksVarighet: LocalDate?,
-    val opsjonsmodell: Opsjonsmodell?,
-    val customOpsjonsmodellNavn: String? = null,
-)

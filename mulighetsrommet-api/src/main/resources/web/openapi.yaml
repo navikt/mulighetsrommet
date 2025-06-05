@@ -3015,10 +3015,10 @@ components:
           anyOf:
             - type: ["null"]
             - $ref: "#/components/schemas/AmoKategorisering"
-        opsjonsmodellData:
+        opsjonsmodell:
           anyOf:
             - type: ["null"]
-            - $ref: "#/components/schemas/OpsjonsmodellData"
+            - $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
           type: array
           items:
@@ -3045,7 +3045,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
-        - opsjonsmodellData
+        - opsjonsmodell
         - opsjonerRegistrert
         - utdanningslop
         - prismodell
@@ -3119,10 +3119,10 @@ components:
           anyOf:
             - type: "null"
             - $ref: "#/components/schemas/AmoKategorisering"
-        opsjonsmodellData:
+        opsjonsmodell:
           anyOf:
             - type: "null"
-            - $ref: "#/components/schemas/OpsjonsmodellData"
+            - $ref: "#/components/schemas/Opsjonsmodell"
         utdanningslop:
           anyOf:
             - type: "null"
@@ -3150,7 +3150,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
-        - opsjonsmodellData
+        - opsjonsmodell
         - utdanningslop
         - prismodell
 
@@ -5446,24 +5446,24 @@ components:
       required:
         - navn
 
-    OpsjonsmodellData:
+    Opsjonsmodell:
       type: object
       properties:
+        type:
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/OpsjonsmodellType"
         opsjonMaksVarighet:
           type: [string, "null"]
           format: date
-        opsjonsmodell:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/OpsjonsmodellKey"
         customOpsjonsmodellNavn:
           type: [string, "null"]
       required:
+        - type
         - opsjonMaksVarighet
-        - opsjonsmodell
         - customOpsjonsmodellNavn
 
-    OpsjonsmodellKey:
+    OpsjonsmodellType:
       type: string
       enum:
         - TO_PLUSS_EN

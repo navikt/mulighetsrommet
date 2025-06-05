@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellData
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -506,9 +506,9 @@ class AvtaleQueries(private val session: Session) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        val opsjonsmodellData = OpsjonsmodellData(
+        val opsjonsmodell = Opsjonsmodell(
             opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
-            opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
+            type = stringOrNull("opsjonsmodell")?.let { OpsjonsmodellType.valueOf(it) },
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
         )
         val amoKategorisering = stringOrNull("amo_kategorisering_json")
@@ -563,7 +563,7 @@ class AvtaleQueries(private val session: Session) {
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
-            opsjonsmodellData = opsjonsmodellData,
+            opsjonsmodell = opsjonsmodell,
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.registrertDato },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,

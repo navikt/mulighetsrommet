@@ -7,7 +7,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -25,8 +25,10 @@ class AvtaleValidator(
     private val navEnheterService: NavEnhetService,
     private val unleash: UnleashService,
 ) {
-    private val opsjonsmodellerUtenValidering =
-        listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
+    private val opsjonsmodellerUtenValidering = listOf(
+        OpsjonsmodellType.AVTALE_UTEN_OPSJONSMODELL,
+        OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
+    )
 
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<FieldError>, AvtaleDbo> {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
@@ -64,7 +66,7 @@ class AvtaleValidator(
                     add(FieldError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
                 }
 
-                if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
+                if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == OpsjonsmodellType.ANNET) {
                     if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
                         add(
                             FieldError.of(
@@ -85,7 +87,7 @@ class AvtaleValidator(
                 )
             }
 
-            if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
+            if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodell?.type) {
                 add(
                     FieldError.of(
                         AvtaleDbo::opsjonsmodell,
@@ -116,7 +118,7 @@ class AvtaleValidator(
                     ),
                 )
             } else {
-                if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
+                if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.opsjonsmodell != OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(FieldError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
             }

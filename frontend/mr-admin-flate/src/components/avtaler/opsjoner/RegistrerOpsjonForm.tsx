@@ -12,9 +12,9 @@ interface Props {
 }
 
 export function RegistrerOpsjonForm({ avtale }: Props) {
-  const maksVarighetForOpsjon = avtale?.opsjonsmodellData?.opsjonMaksVarighet;
-  const sluttDatoSisteOpsjon = avtale?.opsjonerRegistrert?.at(-1)?.sluttDato;
-  const sluttdato = avtale?.sluttDato;
+  const maksVarighetForOpsjon = avtale.opsjonsmodell?.opsjonMaksVarighet;
+  const sluttDatoSisteOpsjon = avtale.opsjonerRegistrert.at(-1)?.sluttDato;
+  const sluttdato = avtale.sluttDato;
   const { watch, setValue, register, control } = useFormContext<InferredRegistrerOpsjonSchema>();
 
   const watchedOpsjonsvalg = watch("opsjonsvalg");
@@ -27,6 +27,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
         setValue("opsjonsdatoValgt", formaterDatoSomYYYYMMDD(addYear(new Date(sluttdato), 1)));
       }
     }
+
     settNySluttdato();
   }, [setValue, sluttdato, watchedOpsjonsvalg]);
 

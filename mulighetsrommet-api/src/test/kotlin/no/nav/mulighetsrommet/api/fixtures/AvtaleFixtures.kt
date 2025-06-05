@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellData
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
@@ -33,7 +33,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -63,7 +63,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -93,7 +93,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = AmoKategorisering.Studiespesialisering,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -123,7 +123,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -153,7 +153,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -243,7 +243,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -273,7 +273,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
@@ -301,9 +301,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
-        opsjonsmodellData = OpsjonsmodellData(
+        opsjonsmodell = Opsjonsmodell(
             opsjonMaksVarighet = LocalDate.now().plusYears(5),
-            opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            type = OpsjonsmodellType.TO_PLUSS_EN,
             customOpsjonsmodellNavn = null,
         ),
         utdanningslop = null,
@@ -337,7 +337,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
-        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        opsjonsmodell = OpsjonsmodellType.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
         prismodell = null,
