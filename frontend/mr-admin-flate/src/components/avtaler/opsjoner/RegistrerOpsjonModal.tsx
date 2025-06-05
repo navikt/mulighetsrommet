@@ -22,10 +22,8 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   const mutation = useRegistrerOpsjon(avtale.id);
   const form = useForm<InferredRegistrerOpsjonSchema>({
     resolver: zodResolver(RegistrerOpsjonSchema),
-    defaultValues: {},
+    defaultValues: { opsjonsvalg: "1" },
   });
-
-  const { handleSubmit, reset } = form;
 
   const postData: SubmitHandler<InferredRegistrerOpsjonSchema> = async (data): Promise<void> => {
     const request: OpprettOpsjonLoggRequest = {
@@ -53,7 +51,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   function closeAndResetForm() {
-    reset();
+    form.reset();
     mutation.reset();
     modalRef?.current?.close();
   }
@@ -82,7 +80,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       header={{ heading: "Registrer opsjon" }}
     >
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit(postData)}>
+        <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
             <VStack gap="5">
               <BodyLong as="div">
