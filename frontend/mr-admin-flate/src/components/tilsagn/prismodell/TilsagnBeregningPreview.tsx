@@ -78,7 +78,7 @@ function flattendDepsToString(obj: any): string {
     if (!value) {
       return acc;
     }
-    if (typeof value === "object" && value !== null) {
+    if (typeof value === "object") {
       return acc + flattendDepsToString(value); // Recursively flatten nested objects
     }
     return acc + value.toString(); // Keep primitive values
