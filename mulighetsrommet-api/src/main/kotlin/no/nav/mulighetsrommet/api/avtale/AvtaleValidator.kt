@@ -26,8 +26,8 @@ class AvtaleValidator(
     private val unleash: UnleashService,
 ) {
     private val opsjonsmodellerUtenValidering = listOf(
-        OpsjonsmodellType.AVTALE_UTEN_OPSJONSMODELL,
-        OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
+        OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
+        OpsjonsmodellType.VALGFRI_SLUTTDATO,
     )
 
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<FieldError>, AvtaleDbo> {
@@ -118,7 +118,7 @@ class AvtaleValidator(
                     ),
                 )
             } else {
-                if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.opsjonsmodell != OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
+                if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.opsjonsmodell != OpsjonsmodellType.VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(FieldError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
             }

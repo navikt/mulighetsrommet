@@ -10,15 +10,11 @@ export interface TilgjengeligOpsjonsmodell {
 
 export function hentGjeldendeOpsjonsmodeller(avtaletype: Avtaletype): TilgjengeligOpsjonsmodell[] {
   if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
-    return opsjonsmodeller.filter(
-      (modell) => modell.value === OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
-    );
+    return opsjonsmodeller.filter((modell) => modell.value === OpsjonsmodellType.VALGFRI_SLUTTDATO);
   }
 
   if (avtaletype !== Avtaletype.OFFENTLIG_OFFENTLIG) {
-    return opsjonsmodeller.filter(
-      (modell) => modell.value !== OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
-    );
+    return opsjonsmodeller.filter((modell) => modell.value !== OpsjonsmodellType.VALGFRI_SLUTTDATO);
   }
 
   return opsjonsmodeller;
@@ -58,14 +54,14 @@ const opsjonsmodeller: TilgjengeligOpsjonsmodell[] = [
     kreverMaksVarighet: true,
   },
   {
-    value: OpsjonsmodellType.AVTALE_UTEN_OPSJONSMODELL,
+    value: OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
     label: "Avtale uten opsjonsmulighet",
     maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,
     kreverMaksVarighet: false,
   },
   {
-    value: OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
+    value: OpsjonsmodellType.VALGFRI_SLUTTDATO,
     label: "Åpen avtale med valgfri sluttdato",
     maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,

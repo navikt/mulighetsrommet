@@ -78,7 +78,7 @@ export function AvtaleFormDetaljer({
   function handleChangeAvtaletype(avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("opsjonsmodell", {
-        type: OpsjonsmodellType.AVTALE_VALGFRI_SLUTTDATO,
+        type: OpsjonsmodellType.VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
