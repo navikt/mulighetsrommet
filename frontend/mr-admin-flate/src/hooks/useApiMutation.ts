@@ -2,6 +2,7 @@ import { useMutation, UseMutationOptions, UseMutationResult } from "@tanstack/re
 import { ProblemDetail, ValidationError } from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { isValidationError } from "@/utils/Utils";
+import { useCallback, useEffect, useRef } from "react";
 
 interface ApiMutateOptions<TData, TError, TVariables, TContext> {
   onSuccess?: (data: TData, vars: TVariables, ctx: TContext) => void;
@@ -28,28 +29,38 @@ export function useApiMutation<
 } {
   const navigate = useNavigate();
 
-  const mutation = useMutation(options);
+  const { mutate: baseMutate, ...rest } = useMutation(options);
 
-  const safeMutate = (
-    variables: TVariables,
-    mutateOptions?: ApiMutateOptions<TData, TError, TVariables, TContext>,
-  ) => {
-    mutation.mutate(variables, {
-      onSuccess: mutateOptions?.onSuccess ?? options.onSuccess,
-      onError: (error, variables, context) => {
-        if (isValidationError(error) && mutateOptions?.onValidationError) {
-          mutateOptions.onValidationError(error);
-        } else if (mutateOptions?.onError) {
-          mutateOptions?.onError?.(error, variables, context);
-        } else {
-          navigate("/error", { state: { problemDetail: error } });
-        }
-      },
-    });
-  };
+  // Cache latest options (for stable mutate reference)
+  const latestOptionsRef = useRef(options);
+  useEffect(() => {
+    latestOptionsRef.current = options;
+  }, [options]);
+
+  const mutate = useCallback(
+    (
+      variables: TVariables,
+      mutateOptions?: ApiMutateOptions<TData, TError, TVariables, TContext>,
+    ) => {
+      const currentOptions = latestOptionsRef.current;
+      baseMutate(variables, {
+        onSuccess: mutateOptions?.onSuccess ?? currentOptions.onSuccess,
+        onError: (error, variables, context) => {
+          if (isValidationError(error) && mutateOptions?.onValidationError) {
+            mutateOptions.onValidationError(error);
+          } else if (mutateOptions?.onError) {
+            mutateOptions.onError(error, variables, context);
+          } else {
+            navigate("/error", { state: { problemDetail: error } });
+          }
+        },
+      });
+    },
+    [baseMutate, navigate],
+  );
 
   return {
-    ...mutation,
-    mutate: safeMutate,
+    mutate,
+    ...rest,
   };
 }
