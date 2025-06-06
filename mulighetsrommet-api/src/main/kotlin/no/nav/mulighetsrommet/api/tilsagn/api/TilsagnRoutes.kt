@@ -360,7 +360,12 @@ private fun resolveTilsagnDefaults(
 
             val lastDayOfMonth = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
             val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
-            val beregning = TilsagnBeregningFri.Input(linjer = listOf(TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)), prisbetingelser = avtale.prisbetingelser)
+            val beregning = TilsagnBeregningFri.Input(
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
+                ),
+                prisbetingelser = avtale.prisbetingelser,
+            )
 
             TilsagnDefaults(
                 id = null,

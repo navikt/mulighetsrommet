@@ -219,7 +219,7 @@ private fun toDeltakerForKostnadsfordeling(
     person: DeltakerPerson?,
     manedsverk: Double,
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
-    id = deltaker.gjennomforingId,
+    id = deltaker.id,
     navn = person?.navn,
     geografiskEnhet = person?.geografiskEnhet?.navn,
     region = person?.region?.navn,

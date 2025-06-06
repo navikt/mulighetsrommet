@@ -100,7 +100,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                         setAvvisModalOpen(false);
                       }}
                     />
-                    <GodkjennDelutbetalingModal
+                    <AttesterDelutbetalingModal
                       id={`godkjenn-modal-${linje.id}`}
                       handleClose={() => {
                         const modal = document.getElementById(
@@ -135,7 +135,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   );
 }
 
-function GodkjennDelutbetalingModal({
+function AttesterDelutbetalingModal({
   id,
   handleClose,
   onConfirm,
