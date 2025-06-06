@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
-import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -15,7 +15,6 @@ data class AvtaleDbo(
     val arrangor: Arrangor?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
-    val opsjonMaksVarighet: LocalDate?,
     val navEnheter: List<NavEnhetNummer>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
@@ -26,8 +25,7 @@ data class AvtaleDbo(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodell: Opsjonsmodell?,
-    val customOpsjonsmodellNavn: String?,
+    val opsjonsmodell: Opsjonsmodell,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell?,
 ) {

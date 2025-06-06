@@ -23,7 +23,10 @@ import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDateTime
@@ -244,7 +247,6 @@ private fun toAvtaleDbo(
         arrangor = arrangor,
         startDato = startDato,
         sluttDato = sluttDato,
-        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
         avtaletype = avtaletype,
         antallPlasser = null,
         administratorer = administratorer,
@@ -255,8 +257,7 @@ private fun toAvtaleDbo(
         personopplysninger = personopplysninger,
         personvernBekreftet = personvernBekreftet,
         amoKategorisering = amoKategorisering,
-        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
-        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
+        opsjonsmodell = opsjonsmodell,
         utdanningslop = utdanningslop,
         prismodell = prismodell,
     )

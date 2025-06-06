@@ -5,17 +5,15 @@ import { useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "../../skjema/FormGroup";
-import { Opsjonsmodell } from "../opsjoner/opsjonsmodeller";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 
 interface Props {
   avtale?: AvtaleDto;
-  opsjonsmodell?: Opsjonsmodell;
 }
 
-export function AvtaleDatoContainer({ avtale, opsjonsmodell }: Props) {
+export function AvtaleDatoContainer({ avtale }: Props) {
   const { watch } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
-  const avtaletype = watch("avtaletype");
+
   const { startDato } = watch("startOgSluttDato") ?? {};
   // Uten useMemo for sluttDatoFraDato så trigges rerendering av children hver gang sluttdato kalkuleres på nytt ved endring av startdato
   const sluttDatoFraDato = useMemo(
@@ -27,14 +25,16 @@ export function AvtaleDatoContainer({ avtale, opsjonsmodell }: Props) {
     [startDato],
   );
 
-  if (!avtaletype) return null;
+  const avtaletype = watch("avtaletype");
+  if (!avtaletype) {
+    return null;
+  }
 
   return (
     <FormGroup>
       <AvtaleVarighet
         avtale={avtale}
         avtaletype={avtaletype}
-        opsjonsmodell={opsjonsmodell}
         minStartDato={MIN_START_DATO_FOR_AVTALER}
         sluttDatoFraDato={sluttDatoFraDato}
         sluttDatoTilDato={sluttDatoTilDato}

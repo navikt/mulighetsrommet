@@ -3,7 +3,7 @@ import {
   AvtaleDto,
   Avtaletype,
   Opphav,
-  OpsjonsmodellKey,
+  OpsjonsmodellType,
   Prismodell,
 } from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
@@ -74,8 +74,8 @@ export const mockAvtaler: AvtaleDto[] = [
     personopplysninger: [],
     personvernBekreftet: false,
     amoKategorisering: null,
-    opsjonsmodellData: {
-      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+    opsjonsmodell: {
+      type: OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
       opsjonMaksVarighet: "2026-08-02",
       customOpsjonsmodellNavn: null,
     },
@@ -129,8 +129,8 @@ export const mockAvtaler: AvtaleDto[] = [
     personopplysninger: [],
     personvernBekreftet: false,
     amoKategorisering: null,
-    opsjonsmodellData: {
-      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
+    opsjonsmodell: {
+      type: OpsjonsmodellType.TO_PLUSS_EN,
       opsjonMaksVarighet: "2026-08-01",
       customOpsjonsmodellNavn: null,
     },
@@ -179,8 +179,8 @@ export const mockAvtaler: AvtaleDto[] = [
     personopplysninger: [],
     personvernBekreftet: false,
     amoKategorisering: null,
-    opsjonsmodellData: {
-      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
+    opsjonsmodell: {
+      type: OpsjonsmodellType.TO_PLUSS_EN,
       opsjonMaksVarighet: "2025-06-30",
       customOpsjonsmodellNavn: null,
     },
@@ -230,8 +230,8 @@ export const mockAvtaler: AvtaleDto[] = [
     personopplysninger: [],
     personvernBekreftet: false,
     amoKategorisering: null,
-    opsjonsmodellData: {
-      opsjonsmodell: OpsjonsmodellKey.ANNET,
+    opsjonsmodell: {
+      type: OpsjonsmodellType.ANNET,
       opsjonMaksVarighet: "2021-06-30",
       customOpsjonsmodellNavn: "1 år + 6 mnd",
     },
@@ -286,8 +286,8 @@ for (let i = 0; i < x; i++) {
     personopplysninger: [],
     personvernBekreftet: false,
     amoKategorisering: null,
-    opsjonsmodellData: {
-      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
+    opsjonsmodell: {
+      type: OpsjonsmodellType.TO_PLUSS_EN,
       opsjonMaksVarighet: null,
       customOpsjonsmodellNavn: null,
     },

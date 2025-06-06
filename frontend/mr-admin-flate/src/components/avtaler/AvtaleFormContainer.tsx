@@ -105,10 +105,10 @@ export function AvtaleFormContainer({
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
       personvernBekreftet: data.personvernBekreftet,
       amoKategorisering: data.amoKategorisering || null,
-      opsjonsmodellData: {
-        opsjonMaksVarighet: data?.opsjonsmodellData?.opsjonMaksVarighet || null,
-        opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
-        customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
+      opsjonsmodell: {
+        type: data.opsjonsmodell.type,
+        opsjonMaksVarighet: data.opsjonsmodell.opsjonMaksVarighet || null,
+        customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
       },
       utdanningslop: getUtdanningslop(data),
       prismodell: enableTilsagn ? data.prismodell : null,
@@ -137,9 +137,9 @@ export function AvtaleFormContainer({
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
-          opsjonsmodell: "opsjonsmodellData.opsjonsmodell",
-          opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
-          customOpsjonsmodellNavn: "opsjonsmodellData.customOpsjonsmodellNavn",
+          opsjonsmodell: "opsjonsmodell.type",
+          opsjonMaksVarighet: "opsjonsmodellD.opsjonMaksVarighet",
+          customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
           utdanningslop: "utdanningslop.utdanninger",
         };
