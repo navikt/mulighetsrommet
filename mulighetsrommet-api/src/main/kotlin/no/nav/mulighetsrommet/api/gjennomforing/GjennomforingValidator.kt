@@ -12,7 +12,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder.isKursTiltak
 import java.time.LocalDate
 

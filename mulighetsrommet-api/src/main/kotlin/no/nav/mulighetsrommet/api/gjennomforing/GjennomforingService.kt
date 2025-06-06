@@ -51,11 +51,7 @@ class GjennomforingService(
     ): Either<List<FieldError>, GjennomforingDto> = either {
         val previous = get(request.id)
 
-        val status = if (previous != null && previous.status !is GjennomforingStatusDto.Gjennomfores) {
-            previous.status.type
-        } else {
-            GjennomforingStatusMapper.fromSluttDato(sluttDato = request.sluttDato, today = today)
-        }
+        val status = resolveStatus(previous, request, today)
 
         val dbo = validator.validate(GjennomforingDboMapper.fromGjennomforingRequest(request, status), previous)
             .onRight { dbo ->
@@ -193,15 +189,7 @@ class GjennomforingService(
         queries.gjennomforing.setApentForPamelding(id, false)
 
         val dto = getOrError(id)
-        val operation = when (dto.status.type) {
-            GjennomforingStatus.AVSLUTTET,
-            GjennomforingStatus.AVBRUTT,
-            GjennomforingStatus.AVLYST,
-            -> "Gjennomføringen ble ${dto.status.type.name.lowercase()}"
-
-            GjennomforingStatus.GJENNOMFORES ->
-                throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.type}")
-        }
+        val operation = "Gjennomføringen ble ${status.name.lowercase()}"
         logEndring(operation, dto, endretAv)
 
         publishToKafka(dto)
@@ -281,6 +269,17 @@ class GjennomforingService(
             gjennomforing,
             navIdent,
         )
+    }
+
+    private fun resolveStatus(
+        previous: GjennomforingDto?,
+        request: GjennomforingRequest,
+        today: LocalDate,
+    ): GjennomforingStatus {
+        return when (previous?.status) {
+            is GjennomforingStatusDto.Avlyst, is GjennomforingStatusDto.Avbrutt -> previous.status.type
+            else -> GjennomforingStatusMapper.fromSluttDato(sluttDato = request.sluttDato, today = today)
+        }
     }
 
     private fun QueryContext.getOrError(id: UUID): GjennomforingDto {
