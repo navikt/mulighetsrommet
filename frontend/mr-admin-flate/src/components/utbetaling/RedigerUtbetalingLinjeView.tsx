@@ -1,5 +1,5 @@
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
+import { formaterDatoSomYYYYMMDD, subtractDays, utbetalingLinjeCompareFn } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   FieldError,
@@ -70,7 +70,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     const nyeLinjer = genrererUtbetalingLinjer(tilsagn).filter(
       (linje) => !linjerState.find((l) => l.tilsagn.id === linje.tilsagn.id),
     );
-    setLinjerState([...linjerState, ...nyeLinjer].toSorted((m, n) => m.id.localeCompare(n.id)));
+    setLinjerState([...linjerState, ...nyeLinjer].toSorted(utbetalingLinjeCompareFn));
   }
 
   function sendTilGodkjenning() {

@@ -16,6 +16,7 @@ import {
   TilsagnType,
   Tiltakskode,
   TiltakskodeArena,
+  UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
 
@@ -445,4 +446,8 @@ export function navnIdentEllerPlaceholder(agent?: AgentDto): string {
     return "-";
   }
   return navnEllerIdent(agent);
+}
+
+export function utbetalingLinjeCompareFn(linje1: UtbetalingLinje, linje2: UtbetalingLinje): number {
+  return linje1.tilsagn.bestillingsnummer.localeCompare(linje2.tilsagn.bestillingsnummer);
 }
