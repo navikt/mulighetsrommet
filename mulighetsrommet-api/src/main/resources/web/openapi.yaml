@@ -3016,9 +3016,7 @@ components:
             - type: ["null"]
             - $ref: "#/components/schemas/AmoKategorisering"
         opsjonsmodell:
-          anyOf:
-            - type: ["null"]
-            - $ref: "#/components/schemas/Opsjonsmodell"
+          $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
           type: array
           items:
@@ -3120,9 +3118,7 @@ components:
             - type: "null"
             - $ref: "#/components/schemas/AmoKategorisering"
         opsjonsmodell:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/Opsjonsmodell"
+          $ref: "#/components/schemas/Opsjonsmodell"
         utdanningslop:
           anyOf:
             - type: "null"
@@ -5450,9 +5446,7 @@ components:
       type: object
       properties:
         type:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/OpsjonsmodellType"
+          $ref: "#/components/schemas/OpsjonsmodellType"
         opsjonMaksVarighet:
           type: [string, "null"]
           format: date

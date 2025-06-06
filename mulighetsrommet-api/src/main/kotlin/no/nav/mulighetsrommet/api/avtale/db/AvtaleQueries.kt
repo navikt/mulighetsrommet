@@ -6,12 +6,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -243,6 +239,7 @@ class AvtaleQueries(private val session: Session) {
                                arrangor_hovedenhet_id,
                                start_dato,
                                slutt_dato,
+                               opsjonsmodell,
                                arena_ansvarlig_enhet,
                                avtaletype,
                                avbrutt_tidspunkt,
@@ -256,6 +253,7 @@ class AvtaleQueries(private val session: Session) {
                     :arrangor_hovedenhet_id,
                     :start_dato,
                     :slutt_dato,
+                    :opsjonsmodell::opsjonsmodell,
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
                     :avbrutt_tidspunkt,
@@ -268,6 +266,7 @@ class AvtaleQueries(private val session: Session) {
                                            arrangor_hovedenhet_id   = excluded.arrangor_hovedenhet_id,
                                            start_dato               = excluded.start_dato,
                                            slutt_dato               = excluded.slutt_dato,
+                                           opsjonsmodell            = coalesce(avtale.opsjonsmodell, excluded.opsjonsmodell),
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
                                            avtaletype               = excluded.avtaletype,
                                            avbrutt_tidspunkt        = excluded.avbrutt_tidspunkt,
@@ -358,17 +357,6 @@ class AvtaleQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            update avtale
-            set opphav = :opphav::opphav
-            where id = :id::uuid
-        """.trimIndent()
-
-        update(queryOf(query, mapOf("id" to id, "opphav" to opphav.name)))
-    }
-
     fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -449,15 +437,15 @@ class AvtaleQueries(private val session: Session) {
         "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "opsjonMaksVarighet" to opsjonMaksVarighet,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
-        "opsjonsmodell" to opsjonsmodell?.name,
-        "opsjonCustomOpsjonsmodellNavn" to customOpsjonsmodellNavn,
+        "opsjonsmodell" to opsjonsmodell.type.name,
+        "opsjonMaksVarighet" to opsjonsmodell.opsjonMaksVarighet,
+        "opsjonCustomOpsjonsmodellNavn" to opsjonsmodell.customOpsjonsmodellNavn,
         "prismodell" to prismodell?.name,
     )
 
@@ -477,6 +465,10 @@ class AvtaleQueries(private val session: Session) {
             "arrangor_hovedenhet_id" to arrangorId,
             "start_dato" to startDato,
             "slutt_dato" to sluttDato,
+            "opsjonsmodell" to when (avtaletype) {
+                Avtaletype.FORHANDSGODKJENT, Avtaletype.OFFENTLIG_OFFENTLIG -> OpsjonsmodellType.VALGFRI_SLUTTDATO
+                else -> OpsjonsmodellType.INGEN_OPSJONSMULIGHET
+            }.name,
             "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
             "avtaletype" to avtaletype.name,
             "avbrutt_tidspunkt" to avbruttTidspunkt,
@@ -507,8 +499,8 @@ class AvtaleQueries(private val session: Session) {
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
         val opsjonsmodell = Opsjonsmodell(
+            type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
             opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
-            type = stringOrNull("opsjonsmodell")?.let { OpsjonsmodellType.valueOf(it) },
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
         )
         val amoKategorisering = stringOrNull("amo_kategorisering_json")

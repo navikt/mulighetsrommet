@@ -48,7 +48,7 @@ data class AvtaleRequest(
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val opsjonsmodell: Opsjonsmodell?,
+    val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell?,

@@ -78,7 +78,7 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
           Avtalens varighet
         </Heading>
 
-        {opsjonsmodell?.type && avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
+        {avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
           <>
             <Bolk aria-label="Opsjonsmodell">
               <Metadata
@@ -98,14 +98,10 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
             header={avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0)}
             verdi={sluttDato ? formaterDato(sluttDato) : "-"}
           />
-          {opsjonsmodell?.opsjonMaksVarighet ? (
+          {opsjonsmodell.opsjonMaksVarighet ? (
             <Metadata
               header={avtaletekster.maksVarighetLabel}
-              verdi={
-                opsjonsmodell.opsjonMaksVarighet
-                  ? formaterDato(opsjonsmodell.opsjonMaksVarighet)
-                  : "-"
-              }
+              verdi={formaterDato(opsjonsmodell.opsjonMaksVarighet)}
             />
           ) : null}
         </Bolk>

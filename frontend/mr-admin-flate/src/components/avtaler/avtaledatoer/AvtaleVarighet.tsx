@@ -87,7 +87,7 @@ export function AvtaleVarighet({
                 (modell) => modell.value === e.target.value,
               );
               if (opsjonsmodell) {
-                setValue("opsjonsmodell.type", opsjonsmodell?.value);
+                setValue("opsjonsmodell.type", opsjonsmodell.value);
                 setValue("opsjonsmodell.customOpsjonsmodellNavn", undefined);
                 setValue("opsjonsmodell.opsjonMaksVarighet", undefined);
               }

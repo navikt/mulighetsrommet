@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 @Serializable
 data class Opsjonsmodell(
-    val type: OpsjonsmodellType?,
+    val type: OpsjonsmodellType,
     @Serializable(with = LocalDateSerializer::class)
     val opsjonMaksVarighet: LocalDate?,
     val customOpsjonsmodellNavn: String? = null,

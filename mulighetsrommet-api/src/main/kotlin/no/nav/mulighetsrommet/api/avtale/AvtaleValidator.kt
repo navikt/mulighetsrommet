@@ -7,6 +7,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -73,10 +74,8 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.opsjonsmodell == null) {
-                add(FieldError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
-            } else if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT) {
-                if (avtale.opsjonsmodell != OpsjonsmodellType.VALGFRI_SLUTTDATO) {
+            if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+                if (avtale.opsjonsmodell.type != OpsjonsmodellType.VALGFRI_SLUTTDATO) {
                     add(
                         FieldError.of(
                             AvtaleDbo::opsjonsmodell,
@@ -85,23 +84,30 @@ class AvtaleValidator(
                     )
                 }
             } else {
-                if (avtale.opsjonsmodell != OpsjonsmodellType.VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
+                if (avtale.opsjonsmodell.type != OpsjonsmodellType.VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(FieldError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
 
-                if (avtale.opsjonsmodell !in opsjonsmodellerUtenValidering) {
-                    if (avtale.opsjonMaksVarighet == null) {
+                if (avtale.opsjonsmodell.type !in opsjonsmodellerUtenValidering) {
+                    if (avtale.opsjonsmodell.opsjonMaksVarighet == null) {
                         add(
                             FieldError.of(
-                                AvtaleDbo::opsjonMaksVarighet,
                                 "Du må legge inn maks varighet for opsjonen",
+                                AvtaleDbo::opsjonsmodell,
+                                Opsjonsmodell::opsjonMaksVarighet,
                             ),
                         )
                     }
 
-                    if (avtale.opsjonsmodell == OpsjonsmodellType.ANNET) {
-                        if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
-                            add(FieldError.of(AvtaleDbo::customOpsjonsmodellNavn, "Du må beskrive opsjonsmodellen"))
+                    if (avtale.opsjonsmodell.type == OpsjonsmodellType.ANNET) {
+                        if (avtale.opsjonsmodell.customOpsjonsmodellNavn.isNullOrBlank()) {
+                            add(
+                                FieldError.of(
+                                    "Du må beskrive opsjonsmodellen",
+                                    AvtaleDbo::opsjonsmodell,
+                                    Opsjonsmodell::customOpsjonsmodellNavn,
+                                ),
+                            )
                         }
                     }
                 }
@@ -211,7 +217,7 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.opsjonsmodell != currentAvtale.opsjonsmodell?.type) {
+            if (avtale.opsjonsmodell.type != currentAvtale.opsjonsmodell.type) {
                 add(
                     FieldError.of(
                         AvtaleDbo::opsjonsmodell,

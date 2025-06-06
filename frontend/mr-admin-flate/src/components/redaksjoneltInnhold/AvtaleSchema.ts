@@ -41,11 +41,9 @@ export const AvtaleSchema = z
         path: ["startDato"],
       }),
     opsjonsmodell: z.object({
-      type: z
-        .nativeEnum(OpsjonsmodellType, {
-          required_error: "Du må velge avtalt mulighet for forlengelse",
-        })
-        .optional(),
+      type: z.nativeEnum(OpsjonsmodellType, {
+        required_error: "Du må velge avtalt mulighet for forlengelse",
+      }),
       opsjonMaksVarighet: z.string().optional().nullable(),
       customOpsjonsmodellNavn: z.string().optional().nullable(),
     }),

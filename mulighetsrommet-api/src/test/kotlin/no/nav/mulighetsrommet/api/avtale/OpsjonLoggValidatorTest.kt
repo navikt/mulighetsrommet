@@ -59,21 +59,6 @@ class OpsjonLoggValidatorTest : FunSpec({
         prismodell = null,
     )
 
-    test("Skal kaste en feil hvis opsjonsmodell ikke finnes") {
-        val avtaleUtenOpsjonsmodell = avtale.copy(opsjonsmodell = null)
-        val entry = OpsjonLoggEntry(
-            avtaleId = UUID.randomUUID(),
-            sluttdato = null,
-            forrigeSluttdato = null,
-            status = OpsjonLoggStatus.OPSJON_UTLOST,
-            registretDato = LocalDate.of(2024, 7, 6),
-            registrertAv = NavIdent("M123456"),
-        )
-        OpsjonLoggValidator.validate(entry, avtaleUtenOpsjonsmodell).shouldBeLeft().shouldContainAll(
-            FieldError.of(Opsjonsmodell::type, "Kan ikke registrer opsjon uten en opsjonsmodell"),
-        )
-    }
-
     test("Skal kaste en feil hvis status for entry er UTLØST_OPSJON og ny sluttdato er senere enn maks varighet for opsjonsmodellen") {
         val avtale2Pluss1 = avtale.copy(
             sluttDato = LocalDate.of(2024, 7, 5).plusYears(3),

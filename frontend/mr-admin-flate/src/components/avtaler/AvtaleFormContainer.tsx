@@ -106,9 +106,9 @@ export function AvtaleFormContainer({
       personvernBekreftet: data.personvernBekreftet,
       amoKategorisering: data.amoKategorisering || null,
       opsjonsmodell: {
-        type: data?.opsjonsmodell?.type || null,
-        opsjonMaksVarighet: data?.opsjonsmodell?.opsjonMaksVarighet || null,
-        customOpsjonsmodellNavn: data?.opsjonsmodell?.customOpsjonsmodellNavn || null,
+        type: data.opsjonsmodell.type,
+        opsjonMaksVarighet: data.opsjonsmodell.opsjonMaksVarighet || null,
+        customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
       },
       utdanningslop: getUtdanningslop(data),
       prismodell: enableTilsagn ? data.prismodell : null,
