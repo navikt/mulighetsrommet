@@ -437,7 +437,12 @@ class GjennomforingQueries(private val session: Session) {
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf("id" to id, "status" to status.name, "tidspunkt" to tidspunkt, "aarsak" to aarsak?.name)
+        val beskrivelse = when (aarsak) {
+            is AvbruttAarsak.Annet -> aarsak.beskrivelse
+            else -> aarsak?.name
+        }
+
+        val params = mapOf("id" to id, "status" to status.name, "tidspunkt" to tidspunkt, "aarsak" to beskrivelse)
 
         return session.update(queryOf(query, params))
     }

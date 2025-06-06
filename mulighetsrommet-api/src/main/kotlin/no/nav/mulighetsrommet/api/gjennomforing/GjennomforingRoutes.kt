@@ -88,7 +88,7 @@ fun Route.gjennomforingRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AvbrytRequest>()
+                val (aarsak) = call.receive<AvbrytRequest>()
 
                 val gjennomforing = gjennomforinger.get(id) ?: return@put call.respond(
                     HttpStatusCode.NotFound,
@@ -101,9 +101,6 @@ fun Route.gjennomforingRoutes() {
                         message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",
                     )
                 }
-
-                val aarsak = request.aarsak
-                    ?: return@put call.respond(HttpStatusCode.BadRequest, message = "Årsak mangler")
 
                 if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.length > 100) {
                     return@put call.respond(
@@ -389,7 +386,7 @@ data class GjennomforingRequest(
 @Serializable
 data class AvbrytRequest(
     @Serializable(with = AvbruttAarsakSerializer::class)
-    val aarsak: AvbruttAarsak?,
+    val aarsak: AvbruttAarsak,
 )
 
 @Serializable

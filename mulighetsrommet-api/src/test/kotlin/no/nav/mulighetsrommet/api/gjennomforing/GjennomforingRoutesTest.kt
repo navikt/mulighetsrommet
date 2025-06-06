@@ -341,7 +341,7 @@ class GjennomforingRoutesTest : FunSpec({
                     .put("/api/v1/intern/gjennomforinger/${UUID.randomUUID()}/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
-                        setBody(AvbrytRequest(aarsak = null))
+                        setBody(AvbrytRequest(AvbruttAarsak.Feilregistrering))
                     }
 
                 response.status shouldBe HttpStatusCode.NotFound
@@ -363,11 +363,10 @@ class GjennomforingRoutesTest : FunSpec({
                     .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
-                        setBody(AvbrytRequest(aarsak = null))
+                        setBody("{}")
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
-                response.bodyAsText().shouldBe("Årsak mangler")
             }
         }
 
