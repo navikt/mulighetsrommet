@@ -67,7 +67,7 @@ export function DeltakerOversikt({ deltakere }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map((deltaker) => {
+        {sortedData.map((deltaker: DeltakerForKostnadsfordeling) => {
           const { id, navn, foedselsdato, region, geografiskEnhet, manedsverk } = deltaker;
 
           return (

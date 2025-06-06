@@ -6,7 +6,7 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato, formaterPeriode } from "@/utils/Utils";
+import { formaterDato, formaterPeriode, utbetalingLinjeCompareFn } from "@/utils/Utils";
 import { AdminUtbetalingStatus, Rolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
@@ -41,7 +41,7 @@ function useUtbetalingPageData() {
     historikk,
     tilsagn,
     utbetaling: utbetaling.utbetaling,
-    linjer: utbetaling.linjer.toSorted((m, n) => m.id.localeCompare(n.id)),
+    linjer: utbetaling.linjer.toSorted(utbetalingLinjeCompareFn),
     deltakere: utbetaling.deltakere,
   };
 }
