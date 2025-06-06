@@ -92,7 +92,6 @@ data class OpsjonLoggRequest(
     enum class OpsjonsLoggStatus {
         OPSJON_UTLØST,
         SKAL_IKKE_UTLØSE_OPSJON,
-        PÅGÅENDE_OPSJONSPROSESS,
     }
 }
 

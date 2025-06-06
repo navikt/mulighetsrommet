@@ -91,9 +91,7 @@ function formaterStatus(log: OpsjonLoggRegistrert): string {
     return formaterDato(log.sluttDato);
   } else if (log.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON) {
     return "Avklart at opsjon ikke skal utløses";
-  } else if (log.status === OpsjonStatus.PÅGÅENDE_OPSJONSPROSESS) {
-    return "Opsjonsprosessen er pågående";
+  } else {
+    return "";
   }
-
-  return "";
 }
