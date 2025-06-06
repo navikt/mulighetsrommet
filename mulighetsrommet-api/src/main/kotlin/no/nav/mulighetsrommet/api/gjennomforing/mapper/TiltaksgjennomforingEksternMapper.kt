@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 
 object TiltaksgjennomforingEksternMapper {
-    fun toTiltaksgjennomforingV1Dto(dto: GjennomforingDto) = TiltaksgjennomforingEksternV1Dto(
+    fun fromGjennomforingDto(dto: GjennomforingDto) = TiltaksgjennomforingEksternV1Dto(
         id = dto.id,
         tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
             id = dto.tiltakstype.id,

@@ -116,7 +116,7 @@ class InitialLoadGjennomforinger(
     }
 
     private fun publish(dto: GjennomforingDto) {
-        val message = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+        val message = TiltaksgjennomforingEksternMapper.fromGjennomforingDto(dto)
 
         val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.topic,

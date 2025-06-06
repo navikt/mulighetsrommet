@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingStatusMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
@@ -58,7 +57,7 @@ class GjennomforingService(
             GjennomforingStatusMapper.fromSluttDato(sluttDato = request.sluttDato, today = today)
         }
 
-        val dbo = validator.validate(toDbo(request, status), previous)
+        val dbo = validator.validate(GjennomforingDboMapper.fromGjennomforingRequest(request, status), previous)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)
@@ -66,7 +65,7 @@ class GjennomforingService(
             }
             .bind()
 
-        if (previous != null && GjennomforingDboMapper.toTiltaksgjennomforingDbo(previous) == dbo) {
+        if (previous != null && GjennomforingDboMapper.fromGjennomforingDto(previous) == dbo) {
             return@either previous
         }
 
@@ -117,7 +116,7 @@ class GjennomforingService(
 
     fun getEkstern(id: UUID): TiltaksgjennomforingEksternV1Dto? = db.session {
         queries.gjennomforing.get(id)?.let { dto ->
-            TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+            TiltaksgjennomforingEksternMapper.fromGjennomforingDto(dto)
         }
     }
 
@@ -131,7 +130,7 @@ class GjennomforingService(
                 arrangorOrgnr = filter.arrangorOrgnr,
             )
             .let { (totalCount, items) ->
-                val data = items.map { dto -> TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto) }
+                val data = items.map { dto -> TiltaksgjennomforingEksternMapper.fromGjennomforingDto(dto) }
                 PaginatedResponse.of(pagination, totalCount, data)
             }
     }
@@ -324,7 +323,7 @@ class GjennomforingService(
     }
 
     private fun QueryContext.publishToKafka(dto: GjennomforingDto) {
-        val eksternDto = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforingDto(dto)
 
         val record = StoredProducerRecord(
             config.topic,
@@ -335,38 +334,4 @@ class GjennomforingService(
 
         queries.kafkaProducerRecord.storeRecord(record)
     }
-}
-
-private fun toDbo(request: GjennomforingRequest, status: GjennomforingStatus) = request.run {
-    GjennomforingDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstypeId,
-        avtaleId = avtaleId,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        status = status,
-        antallPlasser = antallPlasser,
-        arrangorId = arrangorId,
-        arrangorKontaktpersoner = arrangorKontaktpersoner,
-        administratorer = administratorer,
-        navEnheter = navEnheter,
-        oppstart = oppstart,
-        kontaktpersoner = kontaktpersoner.map {
-            GjennomforingKontaktpersonDbo(
-                navIdent = it.navIdent,
-                navEnheter = it.navEnheter,
-                beskrivelse = it.beskrivelse,
-            )
-        },
-        stedForGjennomforing = stedForGjennomforing,
-        faneinnhold = faneinnhold,
-        beskrivelse = beskrivelse,
-        deltidsprosent = deltidsprosent,
-        estimertVentetidVerdi = estimertVentetid?.verdi,
-        estimertVentetidEnhet = estimertVentetid?.enhet,
-        tilgjengeligForArrangorDato = tilgjengeligForArrangorDato,
-        amoKategorisering = amoKategorisering,
-        utdanningslop = utdanningslop,
-    )
 }
