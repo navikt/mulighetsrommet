@@ -131,9 +131,9 @@ fun Route.tilsagnRoutes() {
                     id = null,
                     gjennomforingId = gjennomforing.id,
                     type = TilsagnType.INVESTERING,
-                    periodeStart = null,
-                    periodeSlutt = null,
-                    kostnadssted = null,
+                    periodeStart = request.periodeStart,
+                    periodeSlutt = request.periodeSlutt,
+                    kostnadssted = request.kostnadssted,
                     beregning = null,
                 )
             }
