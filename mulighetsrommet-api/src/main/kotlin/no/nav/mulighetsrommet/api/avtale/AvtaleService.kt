@@ -1,12 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.mapOrAccumulate
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
-import arrow.core.right
-import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -14,6 +9,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
@@ -27,12 +23,11 @@ import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -46,7 +41,10 @@ class AvtaleService(
     suspend fun upsert(
         request: AvtaleRequest,
         navIdent: NavIdent,
+        today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, AvtaleDto> = either {
+        val previous = get(request.id)
+
         val arrangor = request.arrangor?.let {
             val (arrangor, underenheter) = syncArrangorerFromBrreg(
                 it.hovedenhet,
@@ -58,8 +56,10 @@ class AvtaleService(
                 kontaktpersoner = it.kontaktpersoner,
             )
         }
-        val previous = get(request.id)
-        val dbo = validator.validate(toAvtaleDbo(request, arrangor), previous).bind()
+
+        val status = resolveStatus(request, previous, today)
+
+        val dbo = validator.validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status), previous).bind()
 
         if (previous?.toDbo() == dbo) {
             return@either previous
@@ -108,22 +108,18 @@ class AvtaleService(
         PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> = db.transaction {
-        if (aarsak == null) {
-            return Either.Left(BadRequest(detail = "Årsak mangler"))
-        }
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak): StatusResponse<Unit> = db.transaction {
         val avtale = queries.avtale.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
-        if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
-            return Either.Left(BadRequest(detail = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
-        }
-
-        if (aarsak is AvbruttAarsak.Annet && aarsak.name.isEmpty()) {
+        if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.isBlank()) {
             return Either.Left(BadRequest(detail = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
         }
 
-        if (avtale.status != AvtaleStatusDto.Aktiv) {
-            return Either.Left(BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
+        when (avtale.status) {
+            is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
+
+            is AvtaleStatusDto.Avsluttet, is AvtaleStatusDto.Avbrutt ->
+                return Either.Left(BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
         val (_, gjennomforinger) = queries.gjennomforing.getAll(
@@ -142,14 +138,17 @@ class AvtaleService(
             return Either.Left(BadRequest(message))
         }
 
-        queries.avtale.avbryt(id, LocalDateTime.now(), aarsak)
+        queries.avtale.setStatus(id, AvtaleStatus.AVBRUTT, LocalDateTime.now(), aarsak)
         val dto = getOrError(id)
-        logEndring("Avtale ble avbrutt", dto, navIdent)
+        logEndring("Avtalen ble avbrutt", dto, navIdent)
 
         Either.Right(Unit)
     }
 
-    fun registrerOpsjon(entry: OpsjonLoggEntry): Either<FieldError, AvtaleDto> = db.transaction {
+    fun registrerOpsjon(
+        entry: OpsjonLoggEntry,
+        today: LocalDate = LocalDate.now(),
+    ): Either<FieldError, AvtaleDto> = db.transaction {
         if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
             val avtale = getOrError(entry.avtaleId)
 
@@ -173,8 +172,9 @@ class AvtaleService(
         }
 
         queries.opsjoner.insert(entry)
+
         if (entry.sluttdato != null) {
-            queries.avtale.setSluttDato(entry.avtaleId, entry.sluttdato)
+            updateAvtaleVarighet(entry.avtaleId, entry.sluttdato, today)
         }
 
         val avtale = getOrError(entry.avtaleId)
@@ -186,7 +186,12 @@ class AvtaleService(
         avtale.right()
     }
 
-    fun slettOpsjon(avtaleId: UUID, opsjonId: UUID, slettesAv: NavIdent): Either<FieldError, AvtaleDto> = db.transaction {
+    fun slettOpsjon(
+        avtaleId: UUID,
+        opsjonId: UUID,
+        slettesAv: NavIdent,
+        today: LocalDate = LocalDate.now(),
+    ): Either<FieldError, AvtaleDto> = db.transaction {
         val opsjoner = queries.opsjoner.getByAvtaleId(avtaleId)
 
         val sisteOpsjon = opsjoner.firstOrNull()
@@ -199,8 +204,7 @@ class AvtaleService(
             if (nySluttDato == null) {
                 return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
             }
-
-            queries.avtale.setSluttDato(avtaleId, nySluttDato)
+            updateAvtaleVarighet(avtaleId, nySluttDato, today)
         }
 
         queries.opsjoner.delete(opsjonId)
@@ -260,6 +264,37 @@ class AvtaleService(
             ).nel()
         }
 
+    private fun resolveStatus(
+        request: AvtaleRequest,
+        previous: AvtaleDto?,
+        today: LocalDate,
+    ): AvtaleStatus = if (request.arrangor == null) {
+        AvtaleStatus.UTKAST
+    } else if (previous?.status is AvtaleStatusDto.Avbrutt) {
+        previous.status.type
+    } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+        AvtaleStatus.AKTIV
+    } else {
+        AvtaleStatus.AVSLUTTET
+    }
+
+    private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
+        queries.avtale.setSluttDato(avtaleId, nySluttDato)
+
+        val currentStatus = getOrError(avtaleId).status.type
+        val newStatus = when (currentStatus) {
+            AvtaleStatus.UTKAST, AvtaleStatus.AVBRUTT -> currentStatus
+            AvtaleStatus.AKTIV, AvtaleStatus.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
+                AvtaleStatus.AKTIV
+            } else {
+                AvtaleStatus.AVSLUTTET
+            }
+        }
+        if (newStatus != currentStatus) {
+            queries.avtale.setStatus(avtaleId, newStatus, null, null)
+        }
+    }
+
     private fun QueryContext.getOrError(id: UUID): AvtaleDto {
         val dto = queries.avtale.get(id)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
@@ -297,33 +332,4 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
     }
-}
-
-private fun toAvtaleDbo(
-    request: AvtaleRequest,
-    arrangor: AvtaleDbo.Arrangor?,
-): AvtaleDbo = request.run {
-    AvtaleDbo(
-        id = id,
-        navn = navn,
-        avtalenummer = avtalenummer,
-        sakarkivNummer = sakarkivNummer,
-        tiltakstypeId = tiltakstypeId,
-        arrangor = arrangor,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        avtaletype = avtaletype,
-        antallPlasser = null,
-        administratorer = administratorer,
-        prisbetingelser = prisbetingelser,
-        navEnheter = navEnheter,
-        beskrivelse = beskrivelse,
-        faneinnhold = faneinnhold,
-        personopplysninger = personopplysninger,
-        personvernBekreftet = personvernBekreftet,
-        amoKategorisering = amoKategorisering,
-        opsjonsmodell = opsjonsmodell,
-        utdanningslop = utdanningslop,
-        prismodell = prismodell,
-    )
 }

@@ -114,7 +114,7 @@ class GjennomforingValidatorTest : FunSpec({
 
     fun createValidator() = GjennomforingValidator(database.db)
 
-    test("should fail when avtale does not exist") {
+    test("skal feile når avtale ikke finnes") {
         val unknownAvtaleId = UUID.randomUUID()
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
@@ -124,7 +124,7 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should fail when tiltakstype does not match with avtale") {
+    test("skal feile når tiltakstypen ikke overlapper med avtalen") {
         database.run {
             queries.avtale.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
         }
@@ -134,34 +134,24 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should fail when tiltakstype does not support change of oppstartstype") {
-
+    test("skal ikke kunne sette felles oppsart når tiltaket krever løpende oppstart") {
         createValidator().validate(gjennomforing.copy(oppstart = GjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
             .shouldContainExactlyInAnyOrder(FieldError("/oppstart", "Tiltaket må ha løpende oppstartstype"))
     }
 
-    test("kan ikke opprette på ikke Aktiv avtale") {
-        val id = UUID.randomUUID()
+    test("avtalen må være aktiv") {
         database.run {
-            queries.avtale.upsert(avtale.copy(id = id))
-            queries.avtale.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
+            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVBRUTT, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
         }
-
-        val dbo = gjennomforing.copy(avtaleId = id)
-
-        createValidator().validate(dbo, null).shouldBeLeft(
+        createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
 
-        val id2 = UUID.randomUUID()
         database.run {
-            queries.avtale.upsert(avtale.copy(id = id2, sluttDato = LocalDate.now().minusDays(1)))
+            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVSLUTTET, null, null)
         }
-
-        val dbo2 = gjennomforing.copy(avtaleId = id2)
-
-        createValidator().validate(dbo2, null).shouldBeLeft(
+        createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
     }
@@ -397,7 +387,12 @@ class GjennomforingValidatorTest : FunSpec({
 
         test("skal godta endringer selv om avtale er avbrutt") {
             val previous = database.run {
-                queries.avtale.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
+                queries.avtale.setStatus(
+                    avtale.id,
+                    AvtaleStatus.AVBRUTT,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.BudsjettHensyn,
+                )
                 queries.gjennomforing.get(gjennomforing.id)
             }
 

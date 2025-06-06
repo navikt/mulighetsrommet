@@ -108,6 +108,7 @@ data class AvtaleDto(
             },
             startDato = startDato,
             sluttDato = sluttDato,
+            status = status.type,
             navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
             avtaletype = avtaletype,
             prisbetingelser = prisbetingelser,

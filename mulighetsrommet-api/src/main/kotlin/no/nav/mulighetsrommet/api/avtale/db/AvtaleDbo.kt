@@ -15,6 +15,7 @@ data class AvtaleDbo(
     val arrangor: Arrangor?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
+    val status: AvtaleStatus,
     val navEnheter: List<NavEnhetNummer>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,

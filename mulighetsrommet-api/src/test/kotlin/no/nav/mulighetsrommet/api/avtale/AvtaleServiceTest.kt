@@ -10,12 +10,14 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
@@ -35,6 +37,7 @@ import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleServiceTest : FunSpec({
@@ -118,6 +121,75 @@ class AvtaleServiceTest : FunSpec({
                 )
             }
         }
+
+        test("status blir UTKAST når avtalen lagres uten en arrangør") {
+            val request = AvtaleFixtures.avtaleRequest.copy(arrangor = null)
+
+            avtaleService.upsert(request, bertilNavIdent).shouldBeRight()
+
+            database.run {
+                queries.avtale.get(request.id).shouldNotBeNull().status.type shouldBe AvtaleStatus.UTKAST
+            }
+        }
+
+        test("status blir AKTIV når avtalen lagres med sluttdato i fremtiden") {
+            val today = LocalDate.of(2025, 1, 1)
+
+            val request = AvtaleFixtures.avtaleRequest.copy(
+                startDato = today,
+                sluttDato = today,
+            )
+
+            avtaleService.upsert(request, bertilNavIdent, today).shouldBeRight()
+
+            database.run {
+                queries.avtale.get(request.id).shouldNotBeNull().status.type shouldBe AvtaleStatus.AKTIV
+            }
+        }
+
+        test("status blir AVSLUTTET når avtalen lagres med en sluttdato som er passert") {
+            val today = LocalDate.of(2025, 1, 1)
+            val yesterday = today.minusDays(1)
+
+            val request = AvtaleFixtures.avtaleRequest.copy(
+                startDato = yesterday,
+                sluttDato = yesterday,
+            )
+
+            avtaleService.upsert(request, bertilNavIdent, today).shouldBeRight()
+
+            database.run {
+                queries.avtale.get(request.id).shouldNotBeNull().status.type shouldBe AvtaleStatus.AVSLUTTET
+            }
+        }
+
+        test("status forblir AVBRUTT på en avtale som allerede er AVBRUTT") {
+            val today = LocalDate.of(2025, 1, 1)
+
+            val avtale = AvtaleFixtures.oppfolging
+
+            database.run {
+                queries.avtale.upsert(avtale)
+                queries.avtale.setStatus(
+                    avtale.id,
+                    AvtaleStatus.AVBRUTT,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.Feilregistrering,
+                )
+            }
+
+            val request = AvtaleFixtures.avtaleRequest.copy(
+                id = avtale.id,
+                startDato = today,
+                sluttDato = today,
+            )
+
+            avtaleService.upsert(request, bertilNavIdent, today).shouldBeRight()
+
+            database.run {
+                queries.avtale.get(avtale.id).shouldNotBeNull().status.type shouldBe AvtaleStatus.AVBRUTT
+            }
+        }
     }
 
     context("Avbryte avtale") {
@@ -131,23 +203,47 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = LocalDate.of(2023, 6, 1),
+            val avbruttAvtale = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+            )
+            val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                status = AvtaleStatus.AVSLUTTET,
             )
 
-            database.run { queries.avtale.upsert(avtale) }
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avbruttAvtale, avsluttetAvtale),
+            ) {
+                queries.avtale.setStatus(
+                    avbruttAvtale.id,
+                    AvtaleStatus.AVBRUTT,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.Feilregistrering,
+                )
+            }.initialize(database.db)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
+            avtaleService.avbrytAvtale(avbruttAvtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
             )
+            avtaleService.avbrytAvtale(avsluttetAvtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
+                BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
+            )
+        }
+
+        test("beskrivelse er påkrevd dersom årsaken er Annet") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+            ).initialize(database.db)
+
+            avtaleService.avbrytAvtale(AvtaleFixtures.oppfolging.id, bertilNavIdent, AvbruttAarsak.Annet(""))
+                .shouldBeLeft(
+                    BadRequest(detail = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"),
+                )
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom det finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
-                navn = "Avtale som eksisterer",
             )
             val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
@@ -172,14 +268,9 @@ class AvtaleServiceTest : FunSpec({
         test("Man skal få avbryte dersom det ikke finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
-                navn = "Avtale som eksisterer",
-                startDato = LocalDate.now().minusDays(1),
-                sluttDato = LocalDate.now().plusMonths(1),
             )
             val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.now().minusDays(1),
-                sluttDato = LocalDate.now().minusDays(1),
                 status = GjennomforingStatus.AVBRUTT,
             )
 
@@ -188,20 +279,11 @@ class AvtaleServiceTest : FunSpec({
                 queries.gjennomforing.upsert(oppfolging1)
             }
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
-        }
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Annet(":)")).shouldBeRight()
 
-        test("Skal få avbryte avtale hvis alle sjekkene er ok") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                startDato = LocalDate.now().minusDays(1),
-                sluttDato = LocalDate.now().plusMonths(1),
-            )
-
-            database.run {
-                queries.avtale.upsert(avtale)
+            avtaleService.get(avtale.id).shouldNotBeNull().status.shouldBeTypeOf<AvtaleStatusDto.Avbrutt>().should {
+                it.beskrivelse shouldBe ":)"
             }
-
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering)
         }
     }
 
@@ -237,14 +319,15 @@ class AvtaleServiceTest : FunSpec({
     context("opsjoner") {
         val avtaleService = createAvtaleService()
 
-        val yesterday = LocalDate.now().minusDays(1)
-        val today = LocalDate.now()
-        val tomorrow = LocalDate.now().plusDays(1)
-        val theDayAfterTomorrow = LocalDate.now().plusDays(2)
+        val today = LocalDate.of(2025, 6, 1)
+        val yesterday = today.minusDays(1)
+        val tomorrow = today.plusDays(1)
+        val theDayAfterTomorrow = today.plusDays(2)
 
         val avtale = AvtaleFixtures.oppfolging.copy(
             startDato = yesterday,
             sluttDato = yesterday,
+            status = AvtaleStatus.AVSLUTTET,
             opsjonsmodell = Opsjonsmodell(
                 type = OpsjonsmodellType.TO_PLUSS_EN,
                 opsjonMaksVarighet = theDayAfterTomorrow,
@@ -260,12 +343,12 @@ class AvtaleServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 avtaleId = avtale.id,
                 forrigeSluttdato = yesterday,
-                sluttdato = yesterday.plusMonths(1),
+                sluttdato = today.plusMonths(1),
                 status = OpsjonLoggStatus.OPSJON_UTLOST,
                 registretDato = today,
                 registrertAv = bertilNavIdent,
             )
-            avtaleService.registrerOpsjon(entry).shouldBeLeft(
+            avtaleService.registrerOpsjon(entry, today).shouldBeLeft(
                 FieldError.of(
                     "Ny sluttdato er forbi maks varighet av avtalen",
                     OpsjonLoggEntry::sluttdato,
@@ -287,13 +370,13 @@ class AvtaleServiceTest : FunSpec({
                 registretDato = today,
                 registrertAv = bertilNavIdent,
             )
-            avtaleService.registrerOpsjon(entry).shouldBeRight().should {
+            avtaleService.registrerOpsjon(entry, today).shouldBeRight().should {
                 it.status.type shouldBe AvtaleStatus.AKTIV
                 it.sluttDato shouldBe tomorrow
                 it.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
             }
 
-            avtaleService.slettOpsjon(avtale.id, entry.id, bertilNavIdent).shouldBeRight().should {
+            avtaleService.slettOpsjon(avtale.id, entry.id, bertilNavIdent, today).shouldBeRight().should {
                 it.status.type shouldBe AvtaleStatus.AVSLUTTET
                 it.sluttDato shouldBe yesterday
                 it.opsjonerRegistrert.shouldBeEmpty()
@@ -314,7 +397,7 @@ class AvtaleServiceTest : FunSpec({
                 registretDato = today,
                 registrertAv = bertilNavIdent,
             )
-            avtaleService.registrerOpsjon(entry1).shouldBeRight()
+            avtaleService.registrerOpsjon(entry1, today).shouldBeRight()
 
             val entry2 = OpsjonLoggEntry(
                 id = UUID.randomUUID(),
@@ -325,7 +408,7 @@ class AvtaleServiceTest : FunSpec({
                 registretDato = today,
                 registrertAv = bertilNavIdent,
             )
-            avtaleService.registrerOpsjon(entry2).shouldBeRight()
+            avtaleService.registrerOpsjon(entry2, today).shouldBeRight()
 
             avtaleService.slettOpsjon(avtale.id, entry1.id, bertilNavIdent).shouldBeLeft(
                 FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen"),
@@ -347,7 +430,7 @@ class AvtaleServiceTest : FunSpec({
                 registretDato = today,
                 registrertAv = bertilNavIdent,
             )
-            avtaleService.registrerOpsjon(entry).shouldBeRight()
+            avtaleService.registrerOpsjon(entry, today).shouldBeRight()
 
             val entry2 = OpsjonLoggEntry(
                 id = UUID.randomUUID(),
@@ -358,7 +441,7 @@ class AvtaleServiceTest : FunSpec({
                 registretDato = today,
                 registrertAv = bertilNavIdent,
             )
-            avtaleService.registrerOpsjon(entry2).shouldBeLeft(
+            avtaleService.registrerOpsjon(entry2, today).shouldBeLeft(
                 FieldError.of("Kan ikke utløse flere opsjoner", OpsjonLoggEntry::status),
             )
         }
@@ -377,11 +460,11 @@ class AvtaleServiceTest : FunSpec({
                 registretDato = today,
                 registrertAv = bertilNavIdent,
             )
-            avtaleService.registrerOpsjon(entry).shouldBeRight().should {
+            avtaleService.registrerOpsjon(entry, today).shouldBeRight().should {
                 it.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
             }
 
-            avtaleService.slettOpsjon(avtale.id, entry.id, bertilNavIdent).shouldBeRight().should {
+            avtaleService.slettOpsjon(avtale.id, entry.id, bertilNavIdent, today).shouldBeRight().should {
                 it.opsjonerRegistrert.shouldBeEmpty()
             }
         }
