@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -106,6 +105,30 @@ class AvtaleService(
         )
 
         PaginatedResponse.of(pagination, totalCount, items)
+    }
+
+    fun avsluttAvtale(
+        id: UUID,
+        avsluttetTidspunkt: LocalDateTime,
+        endretAv: Agent,
+    ): Either<FieldError, AvtaleDto> = db.transaction {
+        val avtale = getOrError(id)
+
+        if (avtale.status !is AvtaleStatusDto.Aktiv) {
+            return FieldError.root("Avtalen må være aktiv for å kunne avsluttes").left()
+        }
+
+        val tidspunktForSlutt = avtale.sluttDato?.plusDays(1)?.atStartOfDay()
+        if (tidspunktForSlutt == null || avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+            return FieldError.root("Avtalen kan ikke avsluttes før sluttdato").left()
+        }
+
+        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
+
+        val dto = getOrError(id)
+        logEndring("Avtalen ble avsluttet", dto, endretAv)
+
+        dto.right()
     }
 
     fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak): StatusResponse<Unit> = db.transaction {
@@ -320,7 +343,7 @@ class AvtaleService(
     private fun QueryContext.logEndring(
         operation: String,
         dto: AvtaleDto,
-        endretAv: NavIdent,
+        endretAv: Agent,
     ) {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
