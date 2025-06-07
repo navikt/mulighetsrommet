@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
@@ -150,27 +151,68 @@ class GjennomforingServiceTest : FunSpec({
         }
     }
 
-    context("avslutte gjennomføring") {
-        val gjennomforing = GjennomforingFixtures.AFT1.copy(
-            startDato = LocalDate.of(2023, 7, 1),
-            sluttDato = null,
-        )
-
+    context("avbryte gjennomføring") {
         val service = createService()
 
-        test("publiserer til kafka og skriver til endringshistorikken når gjennomføring avsluttes") {
+        test("blir valideringsfeil hvis gjennomføringen ikke er aktiv") {
+            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+                status = GjennomforingStatus.AVSLUTTET,
+            )
+
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
 
-            service.setAvsluttet(
+            service.avbrytGjennomforing(
                 gjennomforing.id,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,
                 bertilNavIdent,
+            ).shouldBeLeft(
+                FieldError.root("Gjennomføringen er allerede avsluttet"),
+            )
+        }
+
+        test("blir valideringsfeil hvis gjennomføringen forsøkes avbrytes etter at sluttdato er passert") {
+            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = LocalDate.of(2023, 7, 1),
             )
 
-            service.get(gjennomforing.id).shouldNotBeNull().status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>()
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            service.avbrytGjennomforing(
+                gjennomforing.id,
+                LocalDate.of(2023, 7, 2).atStartOfDay(),
+                AvbruttAarsak.Feilregistrering,
+                bertilNavIdent,
+            ).shouldBeLeft(
+                FieldError.root("Gjennomføringen kan ikke avbrytes etter at den er avsluttet"),
+            )
+        }
+
+        test("stenger gjennomføring, publiserer til kafka og skriver til endringshistorikken når gjennomføring avbrytes") {
+            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = null,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            service.avbrytGjennomforing(
+                gjennomforing.id,
+                LocalDate.of(2023, 7, 1).atStartOfDay(),
+                AvbruttAarsak.Feilregistrering,
+                bertilNavIdent,
+            ).shouldBeRight().should {
+                it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>()
+                it.publisert shouldBe false
+                it.apentForPamelding shouldBe false
+            }
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
@@ -183,12 +225,17 @@ class GjennomforingServiceTest : FunSpec({
             }
         }
 
-        test("avpubliserer og stenger gjennomføring for påmelding") {
+        test("stenger gjennomføring og får status avlyst når gjennomføring avbrytes før start") {
+            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = null,
+            )
+
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
 
-            service.setAvsluttet(
+            service.avbrytGjennomforing(
                 gjennomforing.id,
                 LocalDate.of(2023, 6, 1).atStartOfDay(),
                 AvbruttAarsak.Feilregistrering,
@@ -199,6 +246,41 @@ class GjennomforingServiceTest : FunSpec({
                 it.status.shouldBeTypeOf<GjennomforingStatusDto.Avlyst>()
                 it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
+            }
+        }
+    }
+
+    context("avslutte gjennomføring") {
+        val service = createService()
+
+        test("stenger gjennomføring, publiserer til kafka og skriver til endringshistorikken når gjennomføring avsluttes") {
+            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = LocalDate.of(2023, 7, 1),
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            service.avsluttGjennomforing(
+                gjennomforing.id,
+                LocalDate.of(2023, 7, 2).atStartOfDay(),
+                bertilNavIdent,
+            ).shouldBeRight().should {
+                it.status.shouldBeTypeOf<GjennomforingStatusDto.Avsluttet>()
+                it.publisert shouldBe false
+                it.apentForPamelding shouldBe false
+            }
+
+            database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                record.key shouldBe gjennomforing.id.toString().toByteArray()
+
+                queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforing.id)
+                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
+                        it.operation shouldBe "Gjennomføringen ble avsluttet"
+                    }
             }
         }
     }

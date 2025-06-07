@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
-import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -14,7 +11,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingStatusMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
@@ -77,7 +73,6 @@ class GjennomforingService(
                 "Redigerte gjennomføring"
             }
             logEndring(operation, dto, navIdent)
-
             publishToKafka(dto)
 
             dto
@@ -172,27 +167,70 @@ class GjennomforingService(
         logEndring("Endret avtale", dto, navIdent)
     }
 
-    fun setAvsluttet(
+    fun avsluttGjennomforing(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
-        avbruttAarsak: AvbruttAarsak?,
         endretAv: Agent,
-    ): Unit = db.transaction {
+    ): Either<FieldError, GjennomforingDto> = db.transaction {
         val gjennomforing = getOrError(id)
-        val status = GjennomforingStatusMapper.fromAvsluttetTidspunkt(
-            startDato = gjennomforing.startDato,
-            sluttDato = gjennomforing.sluttDato,
-            avsluttetTidspunkt = avsluttetTidspunkt,
-        )
-        queries.gjennomforing.setStatus(id, status, avsluttetTidspunkt, avbruttAarsak)
+
+        if (gjennomforing.status !is GjennomforingStatusDto.Gjennomfores) {
+            return FieldError.root("Gjennomføringen må være aktiv for å kunne avsluttes").left()
+        }
+
+        val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
+        if (tidspunktForSlutt == null || avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+            return FieldError.root("Gjennomføringen kan ikke avsluttes før sluttdato").left()
+        }
+
+        queries.gjennomforing.setStatus(id, GjennomforingStatus.AVSLUTTET, avsluttetTidspunkt, null)
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
         val dto = getOrError(id)
-        val operation = "Gjennomføringen ble ${status.name.lowercase()}"
-        logEndring(operation, dto, endretAv)
-
+        logEndring("Gjennomføringen ble avsluttet", dto, endretAv)
         publishToKafka(dto)
+
+        dto.right()
+    }
+
+    fun avbrytGjennomforing(
+        id: UUID,
+        avbruttTidspunkt: LocalDateTime,
+        avbruttAarsak: AvbruttAarsak,
+        endretAv: Agent,
+    ): Either<FieldError, GjennomforingDto> = db.transaction {
+        val gjennomforing = getOrError(id)
+
+        when (gjennomforing.status) {
+            is GjennomforingStatusDto.Gjennomfores -> Unit
+
+            is GjennomforingStatusDto.Avlyst, is GjennomforingStatusDto.Avbrutt ->
+                return FieldError.root("Gjennomføringen er allerede avbrutt").left()
+
+            is GjennomforingStatusDto.Avsluttet ->
+                return FieldError.root("Gjennomføringen er allerede avsluttet").left()
+        }
+
+        val tidspunktForStart = gjennomforing.startDato.atStartOfDay()
+        val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
+        val status = if (avbruttTidspunkt.isBefore(tidspunktForStart)) {
+            GjennomforingStatus.AVLYST
+        } else if (tidspunktForSlutt == null || avbruttTidspunkt.isBefore(tidspunktForSlutt)) {
+            GjennomforingStatus.AVBRUTT
+        } else {
+            return FieldError.root("Gjennomføringen kan ikke avbrytes etter at den er avsluttet").left()
+        }
+
+        queries.gjennomforing.setStatus(id, status, avbruttTidspunkt, avbruttAarsak)
+        queries.gjennomforing.setPublisert(id, false)
+        queries.gjennomforing.setApentForPamelding(id, false)
+
+        val dto = getOrError(id)
+        logEndring("Gjennomføringen ble avbrutt", dto, endretAv)
+        publishToKafka(dto)
+
+        dto.right()
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, agent: Agent): Unit = db.transaction {
@@ -205,7 +243,6 @@ class GjennomforingService(
             "Stengte for påmelding"
         }
         logEndring(operation, dto, agent)
-
         publishToKafka(dto)
     }
 
@@ -278,7 +315,11 @@ class GjennomforingService(
     ): GjennomforingStatus {
         return when (previous?.status) {
             is GjennomforingStatusDto.Avlyst, is GjennomforingStatusDto.Avbrutt -> previous.status.type
-            else -> GjennomforingStatusMapper.fromSluttDato(sluttDato = request.sluttDato, today = today)
+            else -> if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+                GjennomforingStatus.GJENNOMFORES
+            } else {
+                GjennomforingStatus.AVSLUTTET
+            }
         }
     }
 

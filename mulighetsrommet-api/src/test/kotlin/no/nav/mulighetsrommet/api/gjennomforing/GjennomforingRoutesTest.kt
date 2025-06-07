@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingRoutesTest : FunSpec({
@@ -300,7 +301,7 @@ class GjennomforingRoutesTest : FunSpec({
 
     context("avbryt gjennomføring") {
         val aktivGjennomforingId = UUID.randomUUID()
-        val avsluttetGjennomforingId = UUID.randomUUID()
+        val avbruttGjennomforingId = UUID.randomUUID()
 
         val domain = MulighetsrommetTestDomain(
             ansatte = listOf(ansatt),
@@ -313,11 +314,17 @@ class GjennomforingRoutesTest : FunSpec({
                     status = GjennomforingStatus.GJENNOMFORES,
                 ),
                 GjennomforingFixtures.Oppfolging1.copy(
-                    id = avsluttetGjennomforingId,
-                    status = GjennomforingStatus.AVSLUTTET,
+                    id = avbruttGjennomforingId,
                 ),
             ),
-        )
+        ) {
+            queries.gjennomforing.setStatus(
+                avbruttGjennomforingId,
+                GjennomforingStatus.AVBRUTT,
+                LocalDateTime.now(),
+                AvbruttAarsak.Feilregistrering,
+            )
+        }
 
         beforeAny {
             domain.initialize(database.db)
@@ -325,28 +332,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         afterContainer {
             database.truncateAll()
-        }
-
-        test("not found når gjennomføring ikke finnes") {
-            withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
-
-                val response = client
-                    .put("/api/v1/intern/gjennomforinger/${UUID.randomUUID()}/avbryt") {
-                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                        contentType(ContentType.Application.Json)
-                        setBody(AvbrytRequest(AvbruttAarsak.Feilregistrering))
-                    }
-
-                response.status shouldBe HttpStatusCode.NotFound
-                response.bodyAsText().shouldBe("Gjennomføringen finnes ikke")
-            }
         }
 
         test("bad request når årsak mangler") {
@@ -392,7 +377,7 @@ class GjennomforingRoutesTest : FunSpec({
             }
         }
 
-        test("bad request når gjennomføring allerede er avsluttet") {
+        test("bad request når gjennomføring allerede er avbrutt") {
             withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -403,14 +388,16 @@ class GjennomforingRoutesTest : FunSpec({
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
-                    .put("/api/v1/intern/gjennomforinger/$avsluttetGjennomforingId/avbryt") {
+                    .put("/api/v1/intern/gjennomforinger/$avbruttGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(AvbrytRequest(aarsak = AvbruttAarsak.Feilregistrering))
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
-                response.bodyAsText().shouldBe("Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.")
+                response.body<ValidationError>().errors shouldBe listOf(
+                    FieldError("/", "Gjennomføringen er allerede avbrutt"),
+                )
             }
         }
 
