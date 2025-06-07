@@ -19,10 +19,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -131,41 +128,39 @@ class AvtaleService(
         dto.right()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak): StatusResponse<Unit> = db.transaction {
-        val avtale = queries.avtale.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak): Either<FieldError, AvtaleDto> = db.transaction {
+        val avtale = getOrError(id)
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.isBlank()) {
-            return Either.Left(BadRequest(detail = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
+            return FieldError.root("Beskrivelse er obligatorisk når “Annet” er valgt som årsak").left()
         }
 
         when (avtale.status) {
             is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
-
-            is AvtaleStatusDto.Avsluttet, is AvtaleStatusDto.Avbrutt ->
-                return Either.Left(BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
+            is AvtaleStatusDto.Avbrutt -> return FieldError.root("Avtalen er allerede avbrutt").left()
+            is AvtaleStatusDto.Avsluttet -> return FieldError.root("Avtalen er allerede avsluttet").left()
         }
 
         val (_, gjennomforinger) = queries.gjennomforing.getAll(
             avtaleId = id,
             statuser = listOf(GjennomforingStatus.GJENNOMFORES),
         )
-
         if (gjennomforinger.isNotEmpty()) {
             val message = listOf(
                 "Avtalen har",
                 gjennomforinger.size,
                 if (gjennomforinger.size > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
-                "og kan derfor ikke avbrytes.",
+                "og kan derfor ikke avbrytes",
             ).joinToString(" ")
-
-            return Either.Left(BadRequest(message))
+            return FieldError.root(message).left()
         }
 
         queries.avtale.setStatus(id, AvtaleStatus.AVBRUTT, LocalDateTime.now(), aarsak)
+
         val dto = getOrError(id)
         logEndring("Avtalen ble avbrutt", dto, navIdent)
 
-        Either.Right(Unit)
+        dto.right()
     }
 
     fun registrerOpsjon(
