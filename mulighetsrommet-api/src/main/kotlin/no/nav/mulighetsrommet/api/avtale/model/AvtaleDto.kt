@@ -2,11 +2,8 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -91,60 +88,4 @@ data class AvtaleDto(
         val forrigeSluttdato: LocalDate?,
         val status: OpsjonLoggStatus,
     )
-
-    fun toDbo(): AvtaleDbo {
-        return AvtaleDbo(
-            id = id,
-            navn = navn,
-            tiltakstypeId = tiltakstype.id,
-            avtalenummer = avtalenummer,
-            sakarkivNummer = sakarkivNummer,
-            arrangor = arrangor?.id?.let {
-                AvtaleDbo.Arrangor(
-                    hovedenhet = it,
-                    underenheter = arrangor.underenheter.map { it.id },
-                    kontaktpersoner = arrangor.kontaktpersoner.map { it.id },
-                )
-            },
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = status.type,
-            navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
-            avtaletype = avtaletype,
-            prisbetingelser = prisbetingelser,
-            antallPlasser = antallPlasser,
-            administratorer = administratorer.map { it.navIdent },
-            beskrivelse = null,
-            faneinnhold = null,
-            personopplysninger = personopplysninger,
-            personvernBekreftet = personvernBekreftet,
-            amoKategorisering = amoKategorisering,
-            opsjonsmodell = opsjonsmodell,
-            utdanningslop = utdanningslop?.toDbo(),
-            prismodell = prismodell,
-        )
-    }
-
-    fun toArenaAvtaleDbo(): ArenaAvtaleDbo? {
-        return arrangor?.organisasjonsnummer?.value?.let {
-            ArenaAvtaleDbo(
-                id = id,
-                navn = navn,
-                tiltakstypeId = tiltakstype.id,
-                avtalenummer = avtalenummer,
-                arrangorOrganisasjonsnummer = it,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
-                avtaletype = avtaletype,
-                avslutningsstatus = when (status) {
-                    is AvtaleStatusDto.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
-                    is AvtaleStatusDto.Avbrutt -> Avslutningsstatus.AVBRUTT
-                    is AvtaleStatusDto.Avsluttet -> Avslutningsstatus.AVSLUTTET
-                    is AvtaleStatusDto.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
-                },
-                prisbetingelser = prisbetingelser,
-            )
-        }
-    }
 }

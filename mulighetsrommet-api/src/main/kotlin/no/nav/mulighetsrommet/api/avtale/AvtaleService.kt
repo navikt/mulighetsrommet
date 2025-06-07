@@ -54,10 +54,11 @@ class AvtaleService(
         }
 
         val status = resolveStatus(request, previous, today)
+        val dbo = validator
+            .validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status), previous)
+            .bind()
 
-        val dbo = validator.validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status), previous).bind()
-
-        if (previous?.toDbo() == dbo) {
+        if (previous != null && AvtaleDboMapper.fromAvtaleDto(previous) == dbo) {
             return@either previous
         }
 

@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
@@ -109,7 +110,7 @@ class GenerateValidationReport(
     private suspend fun validateAvtaler(): Map<AvtaleDto, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
-                avtaleValidator.validate(it.toDbo(), it).onLeft { validationErrors ->
+                avtaleValidator.validate(AvtaleDboMapper.fromAvtaleDto(it), it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
             }
