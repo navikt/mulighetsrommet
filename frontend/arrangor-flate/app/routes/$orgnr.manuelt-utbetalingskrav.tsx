@@ -46,6 +46,7 @@ import { FileUploader } from "../components/fileUploader/FileUploader";
 import { internalNavigation } from "../internal-navigation";
 import { tekster } from "../tekster";
 import css from "../root.module.css";
+import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
 
 const MIN_BESKRIVELSE_LENGTH = 10;
 const MAX_BESKRIVELSE_LENGTH = 500;
@@ -272,6 +273,7 @@ export default function ManuellUtbetalingForm() {
   const [periodeStart, setPeriodeStart] = useState<string | undefined>();
   const [periodeSlutt, setPeriodeSlutt] = useState<string | undefined>();
   const [tilskuddstype, setTilskuddstype] = useState<Tilskuddstype | undefined>();
+  const [belop, setBelop] = useState<number | undefined>();
   const { datepickerProps: periodeStartPickerProps, inputProps: periodeStartInputProps } =
     useDatepicker({
       ...datePickerProps((val?: Date | undefined) => setPeriodeStart(val?.toISOString())),
@@ -310,6 +312,7 @@ export default function ManuellUtbetalingForm() {
 
     return [];
   }, [gjennomforingId, periodeStart, periodeSlutt, tilsagn, tilskuddstype]);
+
   return (
     <VStack gap="4" className={css.side}>
       <PageHeader
@@ -427,18 +430,24 @@ export default function ManuellUtbetalingForm() {
             />
           </VStack>
           <Separator />
-          <VStack className="max-w-[50%]">
-            <Heading level="3" spacing size="medium">
+          <VStack gap="4" className="max-w-[50%]">
+            <Heading level="3" size="medium">
               Utbetaling
             </Heading>
             <TextField
               label="Beløp til utbetaling"
               error={errorAt("/belop")}
+              onChange={(e) => {
+                setBelop(Number(e.target.value));
+              }}
               htmlSize={35}
               size="small"
               name="belop"
               id="belop"
             />
+            {belop &&
+              relevanteTilsagn.length === 1 &&
+              relevanteTilsagn.at(0)!.gjenstaendeBelop < belop && <ManglendeMidlerAlert />}
           </VStack>
           <Separator />
           <VStack gap="4">

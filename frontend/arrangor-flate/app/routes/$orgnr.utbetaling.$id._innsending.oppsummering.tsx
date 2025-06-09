@@ -1,6 +1,5 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
-  Alert,
   Button,
   Checkbox,
   ErrorSummary,
@@ -43,6 +42,7 @@ import {
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
+import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -174,13 +174,7 @@ export default function BekreftUtbetaling() {
       </Heading>
       <VStack gap="6">
         {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
-          <Alert variant={"warning"}>
-            <Heading spacing level="4" size="small">
-              Manglende midler
-            </Heading>
-            Det mangler midler på tilsagnet til å dekke hele utbetalingsbeløpet. Nav vil vurdere hva
-            som utbetales. Vennligst ta kontakt med Nav ved spørsmål.
-          </Alert>
+          <ManglendeMidlerAlert />
         )}
         <Definisjonsliste
           title="Innsendingsinformasjon"
