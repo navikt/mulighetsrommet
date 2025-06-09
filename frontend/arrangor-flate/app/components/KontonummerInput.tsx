@@ -36,7 +36,7 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           </VStack>
         </Alert>
       ) : null}
-      <HStack align="end">
+      <HStack gap="2" align="end">
         <TextField
           label="Kontonummer"
           size="small"
