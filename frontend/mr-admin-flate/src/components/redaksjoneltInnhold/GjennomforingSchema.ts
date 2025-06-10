@@ -37,6 +37,7 @@ export const GjennomforingSchema = z
     navEnheter: z.string().array().nonempty({
       message: "Du må velge minst én enhet",
     }),
+    navEnheterAndre: z.string().array(),
     kontaktpersoner: z
       .object({
         navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),

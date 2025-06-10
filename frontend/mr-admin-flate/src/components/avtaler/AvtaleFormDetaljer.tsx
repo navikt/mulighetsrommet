@@ -32,7 +32,6 @@ import {
   getLokaleUnderenheterAsSelectOptions,
   getSpesialUnderenheterAsSelectOptions,
 } from "./AvtaleFormConst";
-import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {

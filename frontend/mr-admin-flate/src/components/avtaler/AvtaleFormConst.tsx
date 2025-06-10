@@ -9,6 +9,7 @@ import {
 } from "@mr/api-client-v2";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import { splitNavEnheterByType } from "../navEnheter/helper";
 
 function getUnderenheterAsSelectOptionsBy(
   navRegioner: (string | undefined)[],
@@ -50,25 +51,6 @@ export function getSpesialUnderenheterAsSelectOptions(
   );
 }
 
-type SplittedNavEnheter = { navKontorEnheter: NavEnhet[]; navAndreEnheter: NavEnhet[] };
-function splitNavEnheterByType(navEnheter: NavEnhet[]): SplittedNavEnheter {
-  const initial = { navKontorEnheter: [], navAndreEnheter: [] };
-  if (!navEnheter.length) return initial;
-  return navEnheter.reduce<SplittedNavEnheter>(
-    (acc, currNavEnhet) => {
-      if (currNavEnhet.type === NavEnhetType.LOKAL) {
-        return { navKontorEnheter: [currNavEnhet, ...acc.navKontorEnheter], navAndreEnheter: acc.navAndreEnheter };
-      } else {
-        return {
-          navKontorEnheter: acc.navKontorEnheter,
-          navAndreEnheter: [currNavEnhet, ...acc.navAndreEnheter],
-        };
-      }
-    },
-    initial,
-  );
-}
-
 export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: AvtaleDto,
@@ -76,9 +58,7 @@ export function defaultAvtaleData(
   const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
 
   const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
-  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(
-    navEnheter || [],
-  );
+  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
     tiltakstype: avtale?.tiltakstype,
