@@ -12,6 +12,7 @@ import {
   Opsjonsvalg,
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
+import { addYear, formaterDatoSomYYYYMMDD } from "@/utils/Utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -27,7 +28,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
 
   const postData: SubmitHandler<InferredRegistrerOpsjonSchema> = async (data): Promise<void> => {
     const request: OpprettOpsjonLoggRequest = {
-      nySluttdato: data.opsjonsdatoValgt || null,
+      nySluttdato: getNesteSluttDato(data.opsjonsvalg, avtale.sluttDato, data.opsjonsdatoValgt),
       forrigeSluttdato: avtale.sluttDato || null,
       status: getStatus(data.opsjonsvalg),
     };
@@ -38,17 +39,6 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       },
     });
   };
-
-  function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
-    switch (opsjonsvalg) {
-      case "1":
-        return OpsjonStatus.OPSJON_UTLOST;
-      case "Annet":
-        return OpsjonStatus.OPSJON_UTLOST;
-      case "Opsjon_skal_ikke_utloses":
-        return OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON;
-    }
-  }
 
   function closeAndResetForm() {
     form.reset();
@@ -133,4 +123,32 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef, avtale }: Moda
       }
     />
   );
+}
+
+function getNesteSluttDato(
+  opsjonsvalg: Opsjonsvalg,
+  avtaleSluttDato?: string | null,
+  customSluttDato?: string | null,
+): string | null {
+  switch (opsjonsvalg) {
+    case "1":
+      return avtaleSluttDato
+        ? formaterDatoSomYYYYMMDD(addYear(new Date(avtaleSluttDato), 1))
+        : null;
+    case "Annet":
+      return customSluttDato || null;
+    case "Opsjon_skal_ikke_utloses":
+      return null;
+  }
+}
+
+function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
+  switch (opsjonsvalg) {
+    case "1":
+      return OpsjonStatus.OPSJON_UTLOST;
+    case "Annet":
+      return OpsjonStatus.OPSJON_UTLOST;
+    case "Opsjon_skal_ikke_utloses":
+      return OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON;
+  }
 }
