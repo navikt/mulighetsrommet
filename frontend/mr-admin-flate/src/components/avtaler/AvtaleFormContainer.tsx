@@ -47,11 +47,12 @@ interface Props {
 export function AvtaleFormContainer({
   onClose,
   onSuccess,
+  tiltakstyper,
   ansatt,
   avtale,
+  enheter,
   redigeringsModus,
   defaultValues,
-  ...props
 }: Props) {
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
@@ -79,7 +80,7 @@ export function AvtaleFormContainer({
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? uuidv4(),
-      navEnheter: data.navEnheter.concat(data.navRegioner),
+      navEnheter: data.navAndreEnheter.concat(data.navEnheter).concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
       sakarkivNummer: data.sakarkivNummer || null,
       arrangor:
@@ -192,9 +193,9 @@ export function AvtaleFormContainer({
             <Box marginBlock="4">
               <AvtaleFormDetaljer
                 avtale={avtale}
-                tiltakstyper={props.tiltakstyper}
+                tiltakstyper={tiltakstyper}
                 ansatt={ansatt}
-                enheter={props.enheter}
+                enheter={enheter}
                 okonomiTabEnabled={enableTilsagn}
               />
             </Box>

@@ -10,16 +10,17 @@ import {
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 
-export function getLokaleUnderenheterAsSelectOptions(
+function getUnderenheterAsSelectOptionsBy(
   navRegioner: (string | undefined)[],
   enheter: NavEnhet[],
+  predicate: (item: NavEnhet) => boolean,
 ) {
   return enheter
     .filter((enhet: NavEnhet) => {
       return (
         enhet.overordnetEnhet != null &&
         navRegioner.includes(enhet?.overordnetEnhet) &&
-        (enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.KO)
+        predicate(enhet)
       );
     })
     .map((enhet: NavEnhet) => ({
@@ -28,19 +29,62 @@ export function getLokaleUnderenheterAsSelectOptions(
     }));
 }
 
+export function getLokaleUnderenheterAsSelectOptions(
+  navRegioner: (string | undefined)[],
+  enheter: NavEnhet[],
+) {
+  return getUnderenheterAsSelectOptionsBy(
+    navRegioner,
+    enheter,
+    (enhet) => enhet.type === NavEnhetType.LOKAL,
+  );
+}
+
+const spesialEnheter = [NavEnhetType.KO, NavEnhetType.ARK];
+export function getSpesialUnderenheterAsSelectOptions(
+  navRegioner: (string | undefined)[],
+  enheter: NavEnhet[],
+) {
+  return getUnderenheterAsSelectOptionsBy(navRegioner, enheter, (enhet) =>
+    spesialEnheter.includes(enhet.type),
+  );
+}
+
+type SplittedNavEnheter = { navKontorEnheter: NavEnhet[]; navAndreEnheter: NavEnhet[] };
+function splitNavEnheterByType(navEnheter: NavEnhet[]): SplittedNavEnheter {
+  const initial = { navKontorEnheter: [], navAndreEnheter: [] };
+  if (!navEnheter.length) return initial;
+  return navEnheter.reduce<SplittedNavEnheter>(
+    (acc, currNavEnhet) => {
+      if (currNavEnhet.type === NavEnhetType.LOKAL) {
+        return { navKontorEnheter: [currNavEnhet, ...acc.navKontorEnheter], navAndreEnheter: acc.navAndreEnheter };
+      } else {
+        return {
+          navKontorEnheter: acc.navKontorEnheter,
+          navAndreEnheter: [currNavEnhet, ...acc.navAndreEnheter],
+        };
+      }
+    },
+    initial,
+  );
+}
+
 export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: AvtaleDto,
 ): DeepPartial<InferredAvtaleSchema> {
   const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
-  const navEnheter =
-    avtale?.kontorstruktur
-      ?.flatMap((struktur) => struktur.kontorer)
-      ?.map((enhet) => enhet.enhetsnummer) ?? [];
+
+  const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
+  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(
+    navEnheter || [],
+  );
+
   return {
     tiltakstype: avtale?.tiltakstype,
     navRegioner,
-    navEnheter,
+    navEnheter: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+    navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,
