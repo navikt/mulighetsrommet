@@ -121,7 +121,7 @@ private suspend fun consumeGjennomforing(
     consumer: ArenaMigreringGjennomforingKafkaProducer,
     gjennomforing: GjennomforingDto,
 ) {
-    val message = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(gjennomforing)
+    val message = TiltaksgjennomforingEksternMapper.fromGjennomforingDto(gjennomforing)
     consumer.consume(gjennomforing.id.toString(), Json.encodeToJsonElement(message))
 }
 

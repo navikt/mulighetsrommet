@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Tiltakskoder.isForhandsgodkjentTiltak
 import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
@@ -88,22 +89,7 @@ fun Route.gjennomforingRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AvbrytRequest>()
-
-                val gjennomforing = gjennomforinger.get(id) ?: return@put call.respond(
-                    HttpStatusCode.NotFound,
-                    message = "Gjennomføringen finnes ikke",
-                )
-
-                if (gjennomforing.status.type != GjennomforingStatus.GJENNOMFORES) {
-                    return@put call.respond(
-                        HttpStatusCode.BadRequest,
-                        message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",
-                    )
-                }
-
-                val aarsak = request.aarsak
-                    ?: return@put call.respond(HttpStatusCode.BadRequest, message = "Årsak mangler")
+                val (aarsak) = call.receive<AvbrytRequest>()
 
                 if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.length > 100) {
                     return@put call.respond(
@@ -119,9 +105,14 @@ fun Route.gjennomforingRoutes() {
                     )
                 }
 
-                gjennomforinger.setAvsluttet(id, LocalDateTime.now(), aarsak, navIdent)
-
-                call.respond(HttpStatusCode.OK)
+                gjennomforinger.avbrytGjennomforing(id, LocalDateTime.now(), aarsak, navIdent)
+                    .onLeft {
+                        val response = ValidationError("Klarte ikke avbryte gjennomføring", listOf(it))
+                        call.respondWithProblemDetail(response)
+                    }
+                    .onRight {
+                        call.respond(HttpStatusCode.OK)
+                    }
             }
 
             put("{id}/tilgjengelig-for-veileder") {
@@ -389,7 +380,7 @@ data class GjennomforingRequest(
 @Serializable
 data class AvbrytRequest(
     @Serializable(with = AvbruttAarsakSerializer::class)
-    val aarsak: AvbruttAarsak?,
+    val aarsak: AvbruttAarsak,
 )
 
 @Serializable

@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
@@ -328,6 +329,33 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.setApentForPamelding(Oppfolging1.id, false)
                 queries.get(Oppfolging1.id).shouldNotBeNull().apentForPamelding shouldBe false
+            }
+        }
+
+        test("oppdater status") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = GjennomforingQueries(session)
+
+                val id = Oppfolging1.id
+                queries.upsert(Oppfolging1)
+
+                val tidspunkt = LocalDate.now().atStartOfDay()
+                queries.setStatus(id, GjennomforingStatus.AVBRUTT, tidspunkt, AvbruttAarsak.Annet(":)"))
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
+                    tidspunkt = tidspunkt,
+                    aarsak = AvbruttAarsak.Annet(":)"),
+                )
+
+                queries.setStatus(id, GjennomforingStatus.AVLYST, tidspunkt, AvbruttAarsak.Feilregistrering)
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
+                    tidspunkt = tidspunkt,
+                    aarsak = AvbruttAarsak.Feilregistrering,
+                )
+
+                queries.setStatus(id, GjennomforingStatus.GJENNOMFORES, tidspunkt, null)
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Gjennomfores
             }
         }
 

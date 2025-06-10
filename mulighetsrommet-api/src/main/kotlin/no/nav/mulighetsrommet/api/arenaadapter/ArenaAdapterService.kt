@@ -142,7 +142,7 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.publishToKafka(dto: GjennomforingDto) {
-        val eksternDto = TiltaksgjennomforingEksternMapper.toTiltaksgjennomforingV1Dto(dto)
+        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforingDto(dto)
 
         val record = StoredProducerRecord(
             config.topic,
