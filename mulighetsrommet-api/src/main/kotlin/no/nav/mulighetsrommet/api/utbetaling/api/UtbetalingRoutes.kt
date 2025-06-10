@@ -83,7 +83,7 @@ fun Route.utbetalingRoutes() {
                                 besluttetAvNavn,
                             ),
                         )
-                    }
+                    }.sortedBy { it.tilsagn.bestillingsnummer }
 
                     val deltakere = when (utbetaling.beregning) {
                         is UtbetalingBeregningForhandsgodkjent -> {
@@ -113,15 +113,6 @@ fun Route.utbetalingRoutes() {
 
                 call.respond(utbetaling)
             }
-        }
-        get("/delutbetalinger") {
-            val id = call.parameters.getOrFail<UUID>("id")
-
-            val delutbetalinger = db.session {
-                queries.delutbetaling.getByUtbetalingId(id)
-            }
-
-            call.respond(delutbetalinger)
         }
 
         get("/historikk") {
