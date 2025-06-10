@@ -242,7 +242,6 @@ fun Route.arrangorflateRoutes() {
                         ),
                         godkjentAvArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
                         createdAt = arrflateUtbetaling.createdAt,
-                        fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
                         gjennomforing = GjennomforingPdf(
                             navn = arrflateUtbetaling.gjennomforing.navn,
                         ),

@@ -1,7 +1,7 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Link, SortState, Table } from "@navikt/ds-react";
 import React, { useState } from "react";
-import { formaterDato, formaterPeriode, useOrgnrFromUrl } from "~/utils";
+import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "~/internal-navigation";
 import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
@@ -72,9 +72,6 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
           <Table.ColumnHeader scope="col">Navn</Table.ColumnHeader>
           <Table.ColumnHeader scope="col">Periode</Table.ColumnHeader>
-          <Table.ColumnHeader scope="col" sortable sortKey="fristForGodkjenning">
-            Frist for godkjenning
-          </Table.ColumnHeader>
           <Table.ColumnHeader
             align="right"
             scope="col"
@@ -92,47 +89,44 @@ export function UtbetalingTable({ utbetalinger }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(
-          ({ id, status, fristForGodkjenning, belop, periode, gjennomforing, tiltakstype }) => {
-            return (
-              <React.Fragment key={id}>
-                <Table.Row>
-                  <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
-                  <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
-                  <Table.DataCell>{formaterPeriode(periode)}</Table.DataCell>
-                  <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
-                  <Table.DataCell align="right">{formaterNOK(belop)}</Table.DataCell>
-                  <Table.DataCell>
-                    <UtbetalingStatusTag status={status} />
-                  </Table.DataCell>
-                  <Table.DataCell />
-                  <Table.DataCell>
-                    {[
-                      ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                      ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
-                    ].includes(status) ? (
-                      <Link
-                        as={ReactRouterLink}
-                        aria-label={`Start innsending for krav om utbetaling for ${gjennomforing.navn}`}
-                        to={internalNavigation(orgnr).innsendingsinformasjon(id)}
-                      >
-                        Start innsending
-                      </Link>
-                    ) : (
-                      <Link
-                        as={ReactRouterLink}
-                        aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
-                        to={internalNavigation(orgnr).detaljer(id)}
-                      >
-                        Detaljer
-                      </Link>
-                    )}
-                  </Table.DataCell>
-                </Table.Row>
-              </React.Fragment>
-            );
-          },
-        )}
+        {sortedData.map(({ id, status, belop, periode, gjennomforing, tiltakstype }) => {
+          return (
+            <React.Fragment key={id}>
+              <Table.Row>
+                <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
+                <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
+                <Table.DataCell>{formaterPeriode(periode)}</Table.DataCell>
+                <Table.DataCell align="right">{formaterNOK(belop)}</Table.DataCell>
+                <Table.DataCell>
+                  <UtbetalingStatusTag status={status} />
+                </Table.DataCell>
+                <Table.DataCell />
+                <Table.DataCell>
+                  {[
+                    ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                    ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
+                  ].includes(status) ? (
+                    <Link
+                      as={ReactRouterLink}
+                      aria-label={`Start innsending for krav om utbetaling for ${gjennomforing.navn}`}
+                      to={internalNavigation(orgnr).innsendingsinformasjon(id)}
+                    >
+                      Start innsending
+                    </Link>
+                  ) : (
+                    <Link
+                      as={ReactRouterLink}
+                      aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
+                      to={internalNavigation(orgnr).detaljer(id)}
+                    >
+                      Detaljer
+                    </Link>
+                  )}
+                </Table.DataCell>
+              </Table.Row>
+            </React.Fragment>
+          );
+        })}
       </Table.Body>
     </Table>
   );

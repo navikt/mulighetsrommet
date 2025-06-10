@@ -19,8 +19,6 @@ data class ArrFlateUtbetaling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: ArrFlateUtbetalingStatus,
-    @Serializable(with = LocalDateSerializer::class)
-    val fristForGodkjenning: LocalDate,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
