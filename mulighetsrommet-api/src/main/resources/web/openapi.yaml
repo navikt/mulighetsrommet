@@ -1836,7 +1836,9 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/opsjoner:
+  /api/v1/intern/avtaler/{id}/opsjoner:
+    parameters:
+      - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Opsjoner
@@ -1845,7 +1847,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpsjonLoggRequest"
+              $ref: "#/components/schemas/OpprettOpsjonLoggRequest"
       responses:
         204:
           description: "Lagret ok"
@@ -3013,10 +3015,8 @@ components:
           anyOf:
             - type: ["null"]
             - $ref: "#/components/schemas/AmoKategorisering"
-        opsjonsmodellData:
-          anyOf:
-            - type: ["null"]
-            - $ref: "#/components/schemas/OpsjonsmodellData"
+        opsjonsmodell:
+          $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
           type: array
           items:
@@ -3043,7 +3043,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
-        - opsjonsmodellData
+        - opsjonsmodell
         - opsjonerRegistrert
         - utdanningslop
         - prismodell
@@ -3117,10 +3117,8 @@ components:
           anyOf:
             - type: "null"
             - $ref: "#/components/schemas/AmoKategorisering"
-        opsjonsmodellData:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/OpsjonsmodellData"
+        opsjonsmodell:
+          $ref: "#/components/schemas/Opsjonsmodell"
         utdanningslop:
           anyOf:
             - type: "null"
@@ -3148,7 +3146,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
-        - opsjonsmodellData
+        - opsjonsmodell
         - utdanningslop
         - prismodell
 
@@ -5444,39 +5442,34 @@ components:
       required:
         - navn
 
-    OpsjonsmodellData:
+    Opsjonsmodell:
       type: object
       properties:
+        type:
+          $ref: "#/components/schemas/OpsjonsmodellType"
         opsjonMaksVarighet:
           type: [string, "null"]
           format: date
-        opsjonsmodell:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/OpsjonsmodellKey"
         customOpsjonsmodellNavn:
           type: [string, "null"]
       required:
+        - type
         - opsjonMaksVarighet
-        - opsjonsmodell
         - customOpsjonsmodellNavn
 
-    OpsjonsmodellKey:
+    OpsjonsmodellType:
       type: string
       enum:
         - TO_PLUSS_EN
         - TO_PLUSS_EN_PLUSS_EN
         - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
         - ANNET
-        - AVTALE_UTEN_OPSJONSMODELL
-        - AVTALE_VALGFRI_SLUTTDATO
+        - INGEN_OPSJONSMULIGHET
+        - VALGFRI_SLUTTDATO
 
-    OpsjonLoggRequest:
+    OpprettOpsjonLoggRequest:
       type: object
       properties:
-        avtaleId:
-          type: string
-          format: uuid
         nySluttdato:
           type: [string, "null"]
           format: date
@@ -5486,7 +5479,6 @@ components:
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
-        - avtaleId
         - nySluttdato
         - forrigeSluttdato
         - status
@@ -5494,9 +5486,8 @@ components:
     OpsjonStatus:
       type: string
       enum:
-        - OPSJON_UTLØST
-        - SKAL_IKKE_UTLØSE_OPSJON
-        - PÅGÅENDE_OPSJONSPROSESS
+        - OPSJON_UTLOST
+        - SKAL_IKKE_UTLOSE_OPSJON
 
     OpsjonLoggRegistrert:
       type: object
@@ -5528,12 +5519,8 @@ components:
         id:
           type: string
           format: uuid
-        avtaleId:
-          type: string
-          format: uuid
       required:
         - id
-        - avtaleId
 
     LagretFilterType:
       type: string

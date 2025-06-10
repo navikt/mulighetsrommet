@@ -7,22 +7,23 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.responses.FieldError
 
 object OpsjonLoggValidator {
     fun validate(entry: OpsjonLoggEntry, avtale: AvtaleDto): Either<List<FieldError>, OpsjonLoggEntry> = either {
-        val opsjonsmodellData = avtale.opsjonsmodellData
-            ?: raise(
-                FieldError.of(
-                    OpsjonsmodellData::opsjonsmodell,
-                    "Kan ikke registrer opsjon uten en opsjonsmodell",
-                ).nel(),
-            )
+        val opsjonsmodell = avtale.opsjonsmodell ?: raise(
+            FieldError.of(
+                Opsjonsmodell::type,
+                "Kan ikke registrer opsjon uten en opsjonsmodell",
+            ).nel(),
+        )
 
         val errors = buildList {
-            if (entry.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST) {
+            if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
                 val skalIkkeUtloseOpsjonerForAvtale =
-                    avtale.opsjonerRegistrert?.any { it.status === OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON }
+                    avtale.opsjonerRegistrert?.any { it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON }
                 if (skalIkkeUtloseOpsjonerForAvtale == true) {
                     add(
                         FieldError.of(
@@ -33,7 +34,7 @@ object OpsjonLoggValidator {
                     return@buildList
                 }
 
-                val maksVarighet = opsjonsmodellData.opsjonMaksVarighet
+                val maksVarighet = opsjonsmodell.opsjonMaksVarighet
                 if (entry.sluttdato != null && entry.sluttdato.isAfter(maksVarighet)) {
                     add(
                         FieldError.of(

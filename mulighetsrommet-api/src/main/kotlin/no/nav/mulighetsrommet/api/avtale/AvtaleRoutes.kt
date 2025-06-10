@@ -7,6 +7,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -46,7 +48,7 @@ data class AvtaleRequest(
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val opsjonsmodellData: OpsjonsmodellData?,
+    val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell?,
@@ -64,46 +66,18 @@ data class AvtaleRequest(
 }
 
 @Serializable
-data class OpsjonsmodellData(
-    @Serializable(with = LocalDateSerializer::class)
-    val opsjonMaksVarighet: LocalDate?,
-    val opsjonsmodell: Opsjonsmodell?,
-    val customOpsjonsmodellNavn: String? = null,
-)
-
-@Serializable
-enum class Opsjonsmodell {
-    TO_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-    ANNET,
-    AVTALE_UTEN_OPSJONSMODELL,
-    AVTALE_VALGFRI_SLUTTDATO,
-}
-
-@Serializable
-data class OpsjonLoggRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
+data class OpprettOpsjonLoggRequest(
     @Serializable(with = LocalDateSerializer::class)
     val nySluttdato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val forrigeSluttdato: LocalDate?,
-    val status: OpsjonsLoggStatus,
-) {
-    enum class OpsjonsLoggStatus {
-        OPSJON_UTLØST,
-        SKAL_IKKE_UTLØSE_OPSJON,
-        PÅGÅENDE_OPSJONSPROSESS,
-    }
-}
+    val status: OpsjonLoggStatus,
+)
 
 @Serializable
 data class SlettOpsjonLoggRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
 )
 
 fun Route.avtaleRoutes() {
@@ -131,6 +105,40 @@ fun Route.avtaleRoutes() {
                     .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
+            }
+
+            route("{id}/opsjoner") {
+                post {
+                    val id: UUID by call.parameters
+                    val request = call.receive<OpprettOpsjonLoggRequest>()
+                    val userId = getNavIdent()
+
+                    val opsjonLoggEntry = OpsjonLoggEntry(
+                        avtaleId = id,
+                        sluttdato = request.nySluttdato,
+                        forrigeSluttdato = request.forrigeSluttdato,
+                        status = request.status,
+                        registretDato = LocalDate.now(),
+                        registrertAv = userId,
+                    )
+                    opsjonLoggService.lagreOpsjonLoggEntry(opsjonLoggEntry)
+
+                    call.respond(HttpStatusCode.OK)
+                }
+
+                delete {
+                    val id: UUID by call.parameters
+                    val request = call.receive<SlettOpsjonLoggRequest>()
+                    val userId = getNavIdent()
+
+                    opsjonLoggService.delete(
+                        opsjonLoggEntryId = request.id,
+                        avtaleId = id,
+                        slettesAv = userId,
+                    )
+
+                    call.respond(HttpStatusCode.OK)
+                }
             }
 
             put("{id}/avbryt") {
@@ -212,37 +220,6 @@ fun Route.avtaleRoutes() {
             val id: UUID by call.parameters
             val historikk = avtaler.getEndringshistorikk(id)
             call.respond(historikk)
-        }
-    }
-
-    route("opsjoner") {
-        authorize(Rolle.AVTALER_SKRIV) {
-            post {
-                val request = call.receive<OpsjonLoggRequest>()
-                val userId = getNavIdent()
-                val opsjonLoggEntry = OpsjonLoggEntry(
-                    avtaleId = request.avtaleId,
-                    sluttdato = request.nySluttdato,
-                    forrigeSluttdato = request.forrigeSluttdato,
-                    status = request.status,
-                    registretDato = LocalDate.now(),
-                    registrertAv = userId,
-                )
-
-                opsjonLoggService.lagreOpsjonLoggEntry(opsjonLoggEntry)
-                call.respond(HttpStatusCode.OK)
-            }
-
-            delete {
-                val request = call.receive<SlettOpsjonLoggRequest>()
-                val userId = getNavIdent()
-                opsjonLoggService.delete(
-                    opsjonLoggEntryId = request.id,
-                    avtaleId = request.avtaleId,
-                    slettesAv = userId,
-                )
-                call.respond(HttpStatusCode.OK)
-            }
         }
     }
 }

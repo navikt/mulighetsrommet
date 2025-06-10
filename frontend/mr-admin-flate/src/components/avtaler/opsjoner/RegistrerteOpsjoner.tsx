@@ -9,9 +9,9 @@ interface Props {
   readOnly: boolean;
 }
 
-export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
+export function RegistrerteOpsjoner({ avtale, readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
-  const mutation = useSlettOpsjon();
+  const mutation = useSlettOpsjon(avtale.id);
 
   function kanSletteOpsjon(opsjon: OpsjonLoggRegistrert): boolean {
     const sisteUtlosteOpsjon = logg.at(-1);
@@ -21,9 +21,9 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
 
   function fjernOpsjon(id: string) {
     mutation.mutate(
-      { id, avtaleId: avtale.id },
+      { id },
       {
-        onSuccess: async () => {
+        onSuccess: () => {
           mutation.reset();
         },
       },
@@ -31,7 +31,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
   }
 
   const opprinneligSluttDato = avtale.opsjonerRegistrert
-    .filter((o) => o.status === OpsjonStatus.OPSJON_UTLØST && !!o.forrigeSluttdato)
+    .filter((o) => o.status === OpsjonStatus.OPSJON_UTLOST && !!o.forrigeSluttdato)
     .sort(
       (a, b) => new Date(a.forrigeSluttdato!).getTime() - new Date(b.forrigeSluttdato!).getTime(),
     )
@@ -87,13 +87,11 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
 }
 
 function formaterStatus(log: OpsjonLoggRegistrert): string {
-  if (log.sluttDato && log.status === OpsjonStatus.OPSJON_UTLØST) {
+  if (log.sluttDato && log.status === OpsjonStatus.OPSJON_UTLOST) {
     return formaterDato(log.sluttDato);
-  } else if (log.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON) {
+  } else if (log.status === OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON) {
     return "Avklart at opsjon ikke skal utløses";
-  } else if (log.status === OpsjonStatus.PÅGÅENDE_OPSJONSPROSESS) {
-    return "Opsjonsprosessen er pågående";
+  } else {
+    return "";
   }
-
-  return "";
 }

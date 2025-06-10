@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.OpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -41,7 +39,7 @@ data class AvtaleDto(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodellData: OpsjonsmodellData?,
+    val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
     val utdanningslop: UtdanningslopDto?,
     val prismodell: Prismodell?,
@@ -91,7 +89,7 @@ data class AvtaleDto(
         val sluttDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         val forrigeSluttdato: LocalDate?,
-        val status: OpsjonLoggRequest.OpsjonsLoggStatus,
+        val status: OpsjonLoggStatus,
     )
 
     fun toDbo(): AvtaleDbo {
@@ -120,9 +118,7 @@ data class AvtaleDto(
             personopplysninger = personopplysninger,
             personvernBekreftet = personvernBekreftet,
             amoKategorisering = amoKategorisering,
-            opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
-            opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
-            customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
+            opsjonsmodell = opsjonsmodell,
             utdanningslop = utdanningslop?.toDbo(),
             prismodell = prismodell,
         )

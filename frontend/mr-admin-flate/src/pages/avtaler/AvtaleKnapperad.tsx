@@ -27,7 +27,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
   const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
 
   function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
-    return !!avtale?.opsjonsmodellData?.opsjonMaksVarighet;
+    return !!avtale.opsjonsmodell.opsjonMaksVarighet;
   }
 
   function dupliserAvtale() {

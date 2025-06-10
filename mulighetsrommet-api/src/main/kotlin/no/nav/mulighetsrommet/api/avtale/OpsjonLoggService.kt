@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.model.NavIdent
@@ -45,7 +46,7 @@ class OpsjonLoggService(
     }
 
     private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleDto): LocalDate? {
-        val utlosteOpsjoner = opsjoner.filter { it.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST }
+        val utlosteOpsjoner = opsjoner.filter { it.status == OpsjonLoggStatus.OPSJON_UTLOST }
             .sortedByDescending { it.forrigeSluttdato }
 
         if (utlosteOpsjoner.isNotEmpty()) {
@@ -74,9 +75,8 @@ class OpsjonLoggService(
 
     private fun getEndringsmeldingstekst(entry: OpsjonLoggEntry): String {
         return when (entry.status) {
-            OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST -> "Opsjon registrert"
-            OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
-            OpsjonLoggRequest.OpsjonsLoggStatus.PÅGÅENDE_OPSJONSPROSESS -> "Registrert at det er en pågående opsjonsprosess"
+            OpsjonLoggStatus.OPSJON_UTLOST -> "Opsjon registrert"
+            OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
         }
     }
 }
