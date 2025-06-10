@@ -83,8 +83,6 @@ data class UtbetalingPdfDto(
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime?,
-    @Serializable(with = LocalDateSerializer::class)
-    val fristForGodkjenning: LocalDate,
     val gjennomforing: GjennomforingPdf,
     val tiltakstype: TiltakstypePdf,
     val beregning: BeregningPdf,

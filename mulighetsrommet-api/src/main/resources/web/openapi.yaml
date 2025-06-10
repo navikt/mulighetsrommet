@@ -6050,9 +6050,6 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
-        fristForGodkjenning:
-          type: string
-          format: date
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6069,7 +6066,6 @@ components:
       required:
         - id
         - status
-        - fristForGodkjenning
         - tiltakstype
         - gjennomforing
         - arrangor
@@ -6092,9 +6088,6 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
-        fristForGodkjenning:
-          type: string
-          format: date
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6120,7 +6113,6 @@ components:
       required:
         - id
         - status
-        - fristForGodkjenning
         - tiltakstype
         - gjennomforing
         - arrangor

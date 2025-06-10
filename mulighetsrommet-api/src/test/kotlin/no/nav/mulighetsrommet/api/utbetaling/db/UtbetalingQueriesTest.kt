@@ -38,7 +38,6 @@ class UtbetalingQueriesTest : FunSpec({
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         beregning = beregning,
         kontonummer = Kontonummer("11111111111"),
         kid = Kid.parseOrThrow("006402710013"),
@@ -59,7 +58,6 @@ class UtbetalingQueriesTest : FunSpec({
 
             queries.get(utbetaling.id).shouldNotBeNull().should {
                 it.id shouldBe utbetaling.id
-                it.fristForGodkjenning shouldBe LocalDate.of(2024, 10, 1)
                 it.tiltakstype shouldBe Utbetaling.Tiltakstype(
                     navn = TiltakstypeFixtures.AFT.navn,
                     tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
@@ -205,7 +203,6 @@ class UtbetalingQueriesTest : FunSpec({
                 val utbetalingForhandsgodkjent = UtbetalingDbo(
                     id = UUID.randomUUID(),
                     gjennomforingId = AFT1.id,
-                    fristForGodkjenning = LocalDate.of(2024, 10, 1),
                     beregning = UtbetalingBeregningForhandsgodkjent(
                         input = UtbetalingBeregningForhandsgodkjent.Input(
                             periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),

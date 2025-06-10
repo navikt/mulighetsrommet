@@ -240,7 +240,6 @@ class UtbetalingService(
 
         return UtbetalingDbo(
             id = utbetalingId,
-            fristForGodkjenning = getFristForGodkjenning(periode.getLastInclusiveDate()),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
             kontonummer = kontonummer,
@@ -274,7 +273,6 @@ class UtbetalingService(
             UtbetalingDbo(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
-                fristForGodkjenning = getFristForGodkjenning(request.periodeSlutt),
                 kontonummer = request.kontonummer,
                 kid = request.kidNummer,
                 beregning = UtbetalingBeregningFri.beregn(
@@ -777,8 +775,6 @@ private fun isRelevantForUtbetalingsperide(
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
-
-private fun getFristForGodkjenning(lastUtbetalingPeriodeDate: LocalDate): LocalDate = lastUtbetalingPeriodeDate.plusMonths(2)
 
 enum class DelutbetalingReturnertAarsak {
     FEIL_BELOP,
