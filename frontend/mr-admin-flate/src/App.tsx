@@ -100,12 +100,10 @@ const routes: RouteObject[] = [
           {
             index: true,
             element: <TiltakstypeInfo />,
-            errorElement: <ErrorPage />,
           },
           {
             path: "avtaler",
             element: <AvtalerForTiltakstypePage />,
-            errorElement: <ErrorPage />,
           },
         ],
       },
@@ -122,12 +120,10 @@ const routes: RouteObject[] = [
           {
             index: true,
             element: <AvtaleInfo />,
-            errorElement: <ErrorPage />,
           },
           {
             path: "gjennomforinger",
             element: <GjennomforingerForAvtalePage />,
-            errorElement: <ErrorPage />,
           },
         ],
       },
@@ -159,82 +155,44 @@ const routes: RouteObject[] = [
           {
             index: true,
             element: <GjennomforingInfo />,
-            errorElement: <ErrorPage />,
           },
-        ],
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/tilsagn",
-        element: <GjennomforingPage />,
-        errorElement: <ErrorPage />,
-        children: [
           {
-            index: true,
-            element: <TilsagnForGjennomforingPage />,
-            errorElement: <ErrorPage />,
+            path: "skjema",
+            element: <GjennomforingFormPage />,
           },
-        ],
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/utbetalinger",
-        element: <GjennomforingPage />,
-        errorElement: <ErrorPage />,
-        children: [
           {
-            index: true,
-            element: <UtbetalingerForGjennomforingContainer />,
-            errorElement: <ErrorPage />,
-          },
-        ],
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/utbetalinger/skjema",
-        element: <GjennomforingPage />,
-        errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
-            element: <OpprettUtbetalingPage />,
-            errorElement: <ErrorPage />,
-          },
-        ],
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/deltakerliste",
-        element: <GjennomforingPage />,
-        errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
+            path: "deltakerliste/*",
             element: <DeltakerlisteContainer />,
-            errorElement: <ErrorPage />,
+          },
+          {
+            path: "tilsagn",
+            element: <TilsagnForGjennomforingPage />,
+          },
+          {
+            path: "tilsagn/opprett-tilsagn",
+            element: <OpprettTilsagnFormPage />,
+          },
+          {
+            path: "tilsagn/:tilsagnId",
+            element: <TilsagnPage />,
+          },
+          {
+            path: "tilsagn/:tilsagnId/rediger-tilsagn",
+            element: <RedigerTilsagnFormPage />,
+          },
+          {
+            path: "utbetalinger",
+            element: <UtbetalingerForGjennomforingContainer />,
+          },
+          {
+            path: "utbetalinger/skjema",
+            element: <OpprettUtbetalingPage />,
+          },
+          {
+            path: "utbetalinger/:utbetalingId",
+            element: <UtbetalingPage />,
           },
         ],
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/skjema",
-        element: <GjennomforingFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
-        element: <OpprettTilsagnFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
-        element: <TilsagnPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-        element: <RedigerTilsagnFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
-        element: <UtbetalingPage />,
-        errorElement: <ErrorPage />,
       },
       {
         path: "arrangorer",
@@ -254,34 +212,28 @@ const routes: RouteObject[] = [
           {
             path: "notifikasjoner",
             element: <NotifikasjonerPage />,
-            errorElement: <ErrorPage />,
             children: [
               {
                 index: true,
                 element: <NotifikasjonerList lest={false} />,
-                errorElement: <ErrorPage />,
               },
               {
                 path: "tidligere",
                 element: <NotifikasjonerList lest={true} />,
-                errorElement: <ErrorPage />,
               },
             ],
           },
           {
             path: "oppgaver",
             element: <OppgaverPage />,
-            errorElement: <ErrorPage />,
             children: [
               {
                 index: true,
                 element: <NotifikasjonerList lest={false} />,
-                errorElement: <ErrorPage />,
               },
               {
                 path: "fullforte",
                 element: <NotifikasjonerList lest={true} />,
-                errorElement: <ErrorPage />,
               },
             ],
           },
