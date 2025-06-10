@@ -36,7 +36,8 @@ function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
       tilsagn: t,
       gjorOppTilsagn: false,
       id: uuidv4(),
-    }));
+    }))
+    .toSorted(utbetalingLinjeCompareFn);
 }
 
 export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Props) {
