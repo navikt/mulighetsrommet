@@ -16,9 +16,12 @@ import { KontonummerInput } from "~/components/KontonummerInput";
 import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../internal-navigation";
 import { errorAt } from "~/utils/validering";
+import { commitSession, getSession } from "~/sessions.server";
 
 type LoaderData = {
   kontonummer?: string;
+  sessionBelop?: string;
+  sessionKid?: string;
 };
 
 export const meta: MetaFunction = () => {
@@ -34,6 +37,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw new Error("Mangler orgnr");
   }
 
+  const session = await getSession(request.headers.get("Cookie"));
+  const sessionBelop = session.get("belop");
+  const sessionKid = session.get("kid");
+
   const [{ data: kontonummer, error: kontonummerError }] = await Promise.all([
     ArrangorflateService.getKontonummer({
       path: { orgnr },
@@ -45,7 +52,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { kontonummer };
+  return { kontonummer, sessionBelop, sessionKid };
 };
 
 interface ActionData {
@@ -54,16 +61,15 @@ interface ActionData {
 
 export async function action({ request }: ActionFunctionArgs) {
   const errors: FieldError[] = [];
-
+  const session = await getSession(request.headers.get("Cookie"));
   const formData = await request.formData();
 
-  const orgnr = formData.get("orgnr")?.toString();
+  const orgnr = session.get("orgnr");
+  if (!orgnr) throw new Error("Mangler orgnr");
+
   const belop = formData.get("belop")?.toString();
   const kontonummer = formData.get("kontonummer")?.toString();
-
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
+  const kid = formData.get("kid")?.toString();
 
   if (!belop) {
     errors.push({
@@ -81,13 +87,19 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
-    return redirect(internalNavigation(orgnr).opprettKravOppsummering);
+    session.set("belop", belop);
+    session.set("kid", kid);
+    return redirect(internalNavigation(orgnr).opprettKravOppsummering, {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   }
 }
 
 export default function ManuellUtbetalingForm() {
   const data = useActionData<ActionData>();
-  const { kontonummer } = useLoaderData<LoaderData>();
+  const { kontonummer, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();
   const revalidator = useRevalidator();
 
@@ -98,9 +110,9 @@ export default function ManuellUtbetalingForm() {
       </Heading>
       <Form method="post">
         <VStack gap="4">
-          <input type="hidden" name="orgnr" value={orgnr} />
           <TextField
             label="Beløp til utbetaling"
+            defaultValue={sessionBelop}
             error={errorAt("/belop", data?.errors)}
             htmlSize={35}
             size="small"
@@ -115,6 +127,7 @@ export default function ManuellUtbetalingForm() {
             />
             <TextField
               label="KID-nummer for utbetaling (valgfritt)"
+              defaultValue={sessionKid}
               size="small"
               name="kid"
               htmlSize={35}
