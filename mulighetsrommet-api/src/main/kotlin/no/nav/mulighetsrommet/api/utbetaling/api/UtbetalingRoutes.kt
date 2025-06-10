@@ -83,7 +83,7 @@ fun Route.utbetalingRoutes() {
                                 besluttetAvNavn,
                             ),
                         )
-                    }
+                    }.sortedBy { it.tilsagn.bestillingsnummer }
 
                     val deltakere = when (utbetaling.beregning) {
                         is UtbetalingBeregningForhandsgodkjent -> {
