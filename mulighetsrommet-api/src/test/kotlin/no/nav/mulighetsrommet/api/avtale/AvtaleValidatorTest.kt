@@ -60,6 +60,7 @@ class AvtaleValidatorTest : FunSpec({
         sakarkivNummer = SakarkivNummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
+        status = AvtaleStatus.AKTIV,
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         avtaletype = Avtaletype.RAMMEAVTALE,
         prisbetingelser = null,
@@ -477,19 +478,18 @@ class AvtaleValidatorTest : FunSpec({
                         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN, startDato.plusYears(4)),
                     ),
                 )
+                queries.opsjoner.insert(
+                    OpsjonLoggEntry(
+                        id = UUID.randomUUID(),
+                        avtaleId = avtaleDbo.id,
+                        sluttdato = avtaleDbo.sluttDato?.plusYears(1),
+                        forrigeSluttdato = avtaleDbo.sluttDato,
+                        status = OpsjonLoggStatus.OPSJON_UTLOST,
+                        registretDato = LocalDate.of(2024, 7, 6),
+                        registrertAv = NavIdent("M123456"),
+                    ),
+                )
             }
-
-            val opsjonLoggService = OpsjonLoggService(database.db)
-            opsjonLoggService.lagreOpsjonLoggEntry(
-                OpsjonLoggEntry(
-                    avtaleId = avtaleDbo.id,
-                    sluttdato = avtaleDbo.sluttDato?.plusYears(1),
-                    forrigeSluttdato = avtaleDbo.sluttDato,
-                    status = OpsjonLoggStatus.OPSJON_UTLOST,
-                    registretDato = LocalDate.of(2024, 7, 6),
-                    registrertAv = NavIdent("M123456"),
-                ),
-            )
 
             val previous = database.run { queries.avtale.get(avtaleDbo.id) }
             val avtale = avtaleDbo.copy(

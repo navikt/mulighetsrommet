@@ -48,8 +48,8 @@ class GjennomforingService(
         val previous = get(request.id)
 
         val status = resolveStatus(previous, request, today)
-
-        val dbo = validator.validate(GjennomforingDboMapper.fromGjennomforingRequest(request, status), previous)
+        val dbo = validator
+            .validate(GjennomforingDboMapper.fromGjennomforingRequest(request, status), previous)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)

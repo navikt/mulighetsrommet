@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -525,9 +526,18 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(
-                    AvtaleFixtures.AFT.copy(administratorer = listOf()),
-                    AvtaleFixtures.gruppeAmo.copy(administratorer = listOf(), sluttDato = LocalDate.now().minusDays(1)),
-                    AvtaleFixtures.VTA.copy(administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                    AvtaleFixtures.AFT.copy(
+                        administratorer = listOf(),
+                        status = AvtaleStatus.AKTIV,
+                    ),
+                    AvtaleFixtures.gruppeAmo.copy(
+                        administratorer = listOf(),
+                        status = AvtaleStatus.AVSLUTTET,
+                    ),
+                    AvtaleFixtures.VTA.copy(
+                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                        status = AvtaleStatus.AKTIV,
+                    ),
                 ),
             ).initialize(database.db)
 
@@ -555,13 +565,20 @@ class OppgaverServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(
-                    AFT1.copy(administratorer = listOf()),
+                    AFT1.copy(
+                        status = GjennomforingStatus.GJENNOMFORES,
+                        administratorer = listOf(),
+                    ),
                     AFT1.copy(
                         id = avsluttetGjennomforing,
                         status = GjennomforingStatus.AVSLUTTET,
                         administratorer = listOf(),
                     ),
-                    AFT1.copy(id = UUID.randomUUID(), administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                    AFT1.copy(
+                        id = UUID.randomUUID(),
+                        status = GjennomforingStatus.GJENNOMFORES,
+                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                    ),
                 ),
             ).initialize(database.db)
 

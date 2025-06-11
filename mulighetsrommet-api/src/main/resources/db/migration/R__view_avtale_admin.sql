@@ -14,6 +14,7 @@ select avtale.id,
        avtale.opphav,
        avtale.avtaletype,
        avtale.avbrutt_tidspunkt,
+       avtale.status,
        avtale.prisbetingelser,
        avtale.antall_plasser,
        avtale.beskrivelse,
@@ -25,12 +26,6 @@ select avtale.id,
        avtale.arena_ansvarlig_enhet                     as arena_nav_enhet_enhetsnummer,
        avtale.prismodell,
        arena_nav_enhet.navn                             as arena_nav_enhet_navn,
-       case
-           when avtale.avbrutt_tidspunkt is not null then 'AVBRUTT'
-           when avtale.slutt_dato is not null and date(now()) > avtale.slutt_dato then 'AVSLUTTET'
-           when arrangor is null then 'UTKAST'
-           else 'AKTIV'
-           end                                          as status,
        tiltakstype.id                                   as tiltakstype_id,
        tiltakstype.navn                                 as tiltakstype_navn,
        tiltakstype.tiltakskode                          as tiltakstype_tiltakskode,

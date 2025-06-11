@@ -37,21 +37,19 @@ class AvtaleQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("CRUD") {
-        val arenaAvtale: ArenaAvtaleDbo = AvtaleFixtures.oppfolging.run {
-            ArenaAvtaleDbo(
-                id = id,
-                navn = navn,
-                tiltakstypeId = tiltakstypeId,
-                avtalenummer = avtalenummer,
-                arrangorOrganisasjonsnummer = "123456789",
-                startDato = startDato,
-                sluttDato = sluttDato,
-                arenaAnsvarligEnhet = "9999",
-                avtaletype = avtaletype,
-                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                prisbetingelser = prisbetingelser,
-            )
-        }
+        val arenaAvtale = ArenaAvtaleDbo(
+            id = UUID.randomUUID(),
+            navn = "Arena-avtale",
+            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+            avtalenummer = "2023#1",
+            arrangorOrganisasjonsnummer = "123456789",
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusMonths(3),
+            arenaAnsvarligEnhet = "9999",
+            avtaletype = Avtaletype.RAMMEAVTALE,
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+            prisbetingelser = "Alt er dyrt",
+        )
 
         val domain = MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -146,6 +144,33 @@ class AvtaleQueriesTest : FunSpec({
                 queries.get(id2).shouldNotBeNull().should {
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                 }
+            }
+        }
+
+        test("oppdater status") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = AvtaleQueries(session)
+
+                val id = AvtaleFixtures.oppfolging.id
+                queries.upsert(AvtaleFixtures.oppfolging)
+
+                val tidspunkt = LocalDate.now().atStartOfDay()
+                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AvbruttAarsak.Annet(":)"))
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
+                    tidspunkt = tidspunkt,
+                    aarsak = AvbruttAarsak.Annet(":)"),
+                )
+
+                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AvbruttAarsak.Feilregistrering)
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
+                    tidspunkt = tidspunkt,
+                    aarsak = AvbruttAarsak.Feilregistrering,
+                )
+
+                queries.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avsluttet
             }
         }
 
@@ -559,12 +584,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 val avtaleAktiv = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
+                    status = AvtaleStatus.AKTIV,
                 )
                 queries.upsert(avtaleAktiv)
 
                 val avtaleAvsluttet = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    sluttDato = LocalDate.now().minusDays(1),
+                    status = AvtaleStatus.AVSLUTTET,
                 )
                 queries.upsert(avtaleAvsluttet)
 
@@ -572,16 +598,22 @@ class AvtaleQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                 )
                 queries.upsert(avtaleAvbrutt)
-                queries.avbryt(avtaleAvbrutt.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
-
-                val avtalePlanlagt = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    startDato = LocalDate.now().plusDays(1),
+                queries.setStatus(
+                    avtaleAvbrutt.id,
+                    AvtaleStatus.AVBRUTT,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.Feilregistrering,
                 )
-                queries.upsert(avtalePlanlagt)
+
+                val avtaleUtkast = AvtaleFixtures.oppfolging.copy(
+                    id = UUID.randomUUID(),
+                    status = AvtaleStatus.UTKAST,
+                )
+                queries.upsert(avtaleUtkast)
 
                 forAll(
-                    row(listOf(AvtaleStatus.AKTIV), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
+                    row(listOf(AvtaleStatus.UTKAST), listOf(avtaleUtkast.id)),
+                    row(listOf(AvtaleStatus.AKTIV), listOf(avtaleAktiv.id)),
                     row(listOf(AvtaleStatus.AVBRUTT), listOf(avtaleAvbrutt.id)),
                     row(listOf(AvtaleStatus.AVSLUTTET), listOf(avtaleAvsluttet.id)),
                     row(
@@ -971,65 +1003,6 @@ class AvtaleQueriesTest : FunSpec({
                 result.items[2].navn shouldBe "Avtale hos Anders"
                 result.items[3].navn shouldBe "Avtale hos Kjetil"
                 result.items[4].navn shouldBe "Avtale hos Ærfuglen Ærle"
-            }
-        }
-    }
-
-    context("Status på avtale") {
-        val domain = MulighetsrommetTestDomain(
-            arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(),
-        )
-
-        val dagensDato = LocalDate.now()
-        val enManedFrem = dagensDato.plusMonths(1)
-        val enManedTilbake = dagensDato.minusMonths(1)
-        val toManederFrem = dagensDato.plusMonths(2)
-        val toManederTilbake = dagensDato.minusMonths(1)
-
-        test("status utleds fra avtalens datoer") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = AvtaleQueries(session)
-
-                forAll(
-                    row(dagensDato, enManedFrem, AvtaleStatusDto.Aktiv),
-                    row(enManedFrem, toManederFrem, AvtaleStatusDto.Aktiv),
-                    row(enManedTilbake, dagensDato, AvtaleStatusDto.Aktiv),
-                    row(toManederTilbake, enManedTilbake, AvtaleStatusDto.Avsluttet),
-                ) { startDato, sluttDato, expectedStatus ->
-                    queries.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
-
-                    queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().status shouldBe expectedStatus
-                }
-            }
-        }
-
-        test("avbrutt-tidspunkt påvirker avtalestatus") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = AvtaleQueries(session)
-
-                forAll(
-                    row(dagensDato, enManedFrem, dagensDato, AvtaleStatus.AVBRUTT),
-                    row(enManedFrem, toManederFrem, dagensDato, AvtaleStatus.AVBRUTT),
-                    row(toManederTilbake, enManedTilbake, dagensDato, AvtaleStatus.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), AvtaleStatus.AVBRUTT),
-                ) { startDato, sluttDato, avbruttDato, expectedStatus ->
-                    queries.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
-
-                    queries.avbryt(
-                        AvtaleFixtures.oppfolging.id,
-                        avbruttDato.atStartOfDay(),
-                        AvbruttAarsak.Annet("Min årsak"),
-                    )
-
-                    queries.get(AvtaleFixtures.oppfolging.id)
-                        .shouldNotBeNull().status.type shouldBe expectedStatus
-                }
             }
         }
     }
