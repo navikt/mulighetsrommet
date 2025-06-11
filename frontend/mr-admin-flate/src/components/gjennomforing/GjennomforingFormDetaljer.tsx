@@ -41,11 +41,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
-import {
-  chooseAllUnderenheterBy,
-  NavEnhetFilterType,
-  splitNavEnheterByType,
-} from "../navEnheter/helper";
+import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -325,17 +321,15 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                 options={regionerOptions}
                 additionalOnChange={(selectedOptions) => {
                   if ((watch("navRegioner")?.length ?? 0) > 1) {
-                    const alleLokaleUnderenheter = chooseAllUnderenheterBy(
+                    const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
                       selectedOptions,
                       enheter,
-                      NavEnhetFilterType.LOKAL,
                     );
                     setValue("navEnheter", alleLokaleUnderenheter as [string, ...string[]]);
                   } else {
-                    const alleLokaleUnderenheter = chooseAllUnderenheterBy(
+                    const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
                       selectedOptions,
                       enheter,
-                      NavEnhetFilterType.LOKAL,
                     );
                     const navEnheter = watch("navEnheter")?.filter((enhet) =>
                       alleLokaleUnderenheter.includes(enhet ?? ""),

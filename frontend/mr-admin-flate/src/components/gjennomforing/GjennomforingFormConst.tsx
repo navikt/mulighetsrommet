@@ -11,7 +11,7 @@ import {
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
 import { isKursTiltak } from "@/utils/Utils";
-import { splitNavEnheterByType, TypeSplittedNavEnheter } from "../navEnheter/helper";
+import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -42,7 +42,7 @@ function defaultNavEnheter(
 ): TypeSplittedNavEnheter {
   if (gjennomforing?.kontorstruktur) {
     return splitNavEnheterByType(
-      gjennomforing.kontorstruktur?.flatMap((struktur) => struktur.kontorer),
+      gjennomforing.kontorstruktur.flatMap((struktur) => struktur.kontorer),
     );
   }
   if (avtale.kontorstruktur.length === 1) {

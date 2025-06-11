@@ -2,54 +2,12 @@ import {
   ArrangorKontaktperson,
   AvtaleDto,
   NavAnsatt,
-  NavEnhet,
-  NavEnhetType,
   Utdanningslop,
   UtdanningslopDbo,
 } from "@mr/api-client-v2";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { splitNavEnheterByType } from "../navEnheter/helper";
-
-function getUnderenheterAsSelectOptionsBy(
-  navRegioner: (string | undefined)[],
-  enheter: NavEnhet[],
-  predicate: (item: NavEnhet) => boolean,
-) {
-  return enheter
-    .filter((enhet: NavEnhet) => {
-      return (
-        enhet.overordnetEnhet != null &&
-        navRegioner.includes(enhet?.overordnetEnhet) &&
-        predicate(enhet)
-      );
-    })
-    .map((enhet: NavEnhet) => ({
-      label: enhet.navn,
-      value: enhet.enhetsnummer,
-    }));
-}
-
-export function getLokaleUnderenheterAsSelectOptions(
-  navRegioner: (string | undefined)[],
-  enheter: NavEnhet[],
-) {
-  return getUnderenheterAsSelectOptionsBy(
-    navRegioner,
-    enheter,
-    (enhet) => enhet.type === NavEnhetType.LOKAL,
-  );
-}
-
-const spesialEnheter = [NavEnhetType.KO, NavEnhetType.ARK];
-export function getSpesialUnderenheterAsSelectOptions(
-  navRegioner: (string | undefined)[],
-  enheter: NavEnhet[],
-) {
-  return getUnderenheterAsSelectOptionsBy(navRegioner, enheter, (enhet) =>
-    spesialEnheter.includes(enhet.type),
-  );
-}
+import { splitNavEnheterByType } from "@/api/enhet/helpers";
 
 export function defaultAvtaleData(
   ansatt: NavAnsatt,

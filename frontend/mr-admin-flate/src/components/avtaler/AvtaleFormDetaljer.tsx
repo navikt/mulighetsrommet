@@ -28,11 +28,11 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
-import {
-  getLokaleUnderenheterAsSelectOptions,
-  getSpesialUnderenheterAsSelectOptions,
-} from "./AvtaleFormConst";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import {
+  getAndreUnderenheterAsSelectOptions,
+  getLokaleUnderenheterAsSelectOptions,
+} from "@/api/enhet/helpers";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -270,7 +270,7 @@ export function AvtaleFormDetaljer({
               label={avtaletekster.navAndreEnheterLabel}
               helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
               {...register("navAndreEnheter")}
-              options={getSpesialUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
+              options={getAndreUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
             />
           </FormGroup>
         </div>
