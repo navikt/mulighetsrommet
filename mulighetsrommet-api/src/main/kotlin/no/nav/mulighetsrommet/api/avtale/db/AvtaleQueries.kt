@@ -416,13 +416,13 @@ class AvtaleQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { it.localDateTime("updated_at") }
     }
 
-    fun oppdaterSluttdato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
+    fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale
             set slutt_dato = ?
             where id = ?::uuid
-            """
+        """
 
         update(queryOf(query, sluttDato, avtaleId))
     }

@@ -5,6 +5,7 @@ import java.time.LocalDate
 import java.util.*
 
 data class OpsjonLoggEntry(
+    val id: UUID,
     val avtaleId: UUID,
     val sluttdato: LocalDate?,
     val forrigeSluttdato: LocalDate?,
