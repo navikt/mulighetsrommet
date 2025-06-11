@@ -19,7 +19,6 @@ object UtbetalingFixtures {
     val utbetaling1 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(1000),
@@ -36,7 +35,6 @@ object UtbetalingFixtures {
     val utbetaling2 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(500),
@@ -53,7 +51,6 @@ object UtbetalingFixtures {
     val utbetaling3 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.VTA1.id,
-        fristForGodkjenning = LocalDate.of(2024, 10, 1),
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(500),

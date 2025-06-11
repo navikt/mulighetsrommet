@@ -52,7 +52,6 @@ fun mapUtbetalingToArrFlateUtbetaling(
             ArrFlateUtbetaling(
                 id = utbetaling.id,
                 status = status,
-                fristForGodkjenning = utbetaling.fristForGodkjenning,
                 godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
                 createdAt = utbetaling.createdAt,
                 tiltakstype = utbetaling.tiltakstype,
@@ -74,7 +73,6 @@ fun mapUtbetalingToArrFlateUtbetaling(
         is UtbetalingBeregningFri -> ArrFlateUtbetaling(
             id = utbetaling.id,
             status = status,
-            fristForGodkjenning = utbetaling.fristForGodkjenning,
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
             createdAt = utbetaling.createdAt,
             tiltakstype = utbetaling.tiltakstype,

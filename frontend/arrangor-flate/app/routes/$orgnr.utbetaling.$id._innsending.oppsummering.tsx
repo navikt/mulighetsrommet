@@ -33,7 +33,6 @@ import { Separator } from "~/components/Separator";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
 import {
-  formaterDato,
   formaterPeriode,
   isValidationError,
   problemDetailResponse,
@@ -186,7 +185,10 @@ export default function BekreftUtbetaling() {
             },
             { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
             { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-            { key: "Frist for innsending", value: formaterDato(utbetaling.fristForGodkjenning) },
+            {
+              key: "Frist for innsending",
+              value: "Kravet må sendes inn senest to måneder etter at tilsagnsperioden går ut.",
+            },
           ]}
         />
         <Separator />
