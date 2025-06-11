@@ -1,11 +1,12 @@
-package no.nav.mulighetsrommet.api.gjennomforing.task
+package no.nav.mulighetsrommet.api.avtale.task
 
+import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -14,9 +15,9 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
-class UpdateGjennomforingStatus(
+class UpdateAvtaleStatus(
     private val db: ApiDatabase,
-    private val gjennomforingService: GjennomforingService,
+    private val service: AvtaleService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -27,32 +28,32 @@ class UpdateGjennomforingStatus(
         }
 
     fun execute(now: LocalDateTime) {
-        logger.info("Oppdaterer status på gjennomføringer som skal avsluttes fra og med dato $now")
+        logger.info("Oppdaterer status på avtaler som skal avsluttes fra og med dato $now")
 
-        val gjennomforinger = getGjennomforingerSomSkalAvsluttes(
+        val avtaler = getAvtalerSomSkalAvsluttes(
             sluttDatoLessThan = now.toLocalDate(),
         )
 
-        gjennomforinger.forEach { id ->
-            logger.info("Avslutter gjennomføring id=$id")
-            gjennomforingService.avsluttGjennomforing(
+        avtaler.forEach { id ->
+            logger.info("Avslutter avtale id=$id")
+            service.avsluttAvtale(
                 id = id,
                 avsluttetTidspunkt = now,
                 endretAv = Tiltaksadministrasjon,
-            )
+            ).getOrElse { throw IllegalStateException(it.detail) }
         }
 
-        logger.info("Oppdaterte status for ${gjennomforinger.size} gjennomføringer")
+        logger.info("Oppdaterte status for ${avtaler.size} avtaler")
     }
 
-    private fun getGjennomforingerSomSkalAvsluttes(
+    private fun getAvtalerSomSkalAvsluttes(
         sluttDatoLessThan: LocalDate,
     ): List<UUID> = db.session {
         @Language("PostgreSQL")
         val query = """
             select id
-            from gjennomforing
-            where status = 'GJENNOMFORES'
+            from avtale
+            where status = 'AKTIV'
               and slutt_dato < :slutt_dato_lt
             order by created_at
         """.trimIndent()

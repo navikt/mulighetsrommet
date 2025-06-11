@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
+import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
@@ -448,6 +449,10 @@ private fun tasks(config: AppConfig) = module {
     single { NotificationTask(get()) }
     single { OppdaterUtbetalingBeregning(get()) }
     single {
+        val updateAvtaleStatus = UpdateAvtaleStatus(
+            get(),
+            get(),
+        )
         val updateGjennomforingStatus = UpdateGjennomforingStatus(
             get(),
             get(),
@@ -490,6 +495,7 @@ private fun tasks(config: AppConfig) = module {
             .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
+                updateAvtaleStatus.task,
                 updateGjennomforingStatus.task,
                 synchronizeNavAnsatte.task,
                 synchronizeUtdanninger.task,

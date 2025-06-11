@@ -79,7 +79,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("forsøker ikke å avslutte gjennomføringer før sluttDato er passert") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 1, 31, 0, 0))
+            task.execute(now = LocalDateTime.of(2023, 1, 31, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -99,7 +99,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("avslutter gjennomføringer når sluttDato er passert") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 2, 1, 0, 0))
+            task.execute(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -134,7 +134,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         test("avslutter gjennomføringer når sluttDato er passert (sluttDato passert med flere dager)") {
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 3, 1, 0, 0))
+            task.execute(now = LocalDateTime.of(2023, 3, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -189,7 +189,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             val task = createTask()
 
-            task.oppdaterGjennomforingStatus(now = LocalDateTime.of(2024, 1, 2, 0, 0))
+            task.execute(now = LocalDateTime.of(2024, 1, 2, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -234,7 +234,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
             }
 
-            createTask().oppdaterGjennomforingStatus(now = LocalDateTime.of(2023, 2, 1, 0, 0))
+            createTask().execute(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {

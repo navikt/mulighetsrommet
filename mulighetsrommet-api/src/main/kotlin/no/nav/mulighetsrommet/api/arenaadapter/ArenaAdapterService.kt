@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -15,6 +16,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
+import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -182,5 +184,28 @@ class ArenaAdapterService(
             dto.id,
             LocalDateTime.now(),
         ) { Json.encodeToJsonElement(dto) }
+    }
+}
+
+private fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
+    return arrangor?.organisasjonsnummer?.value?.let {
+        ArenaAvtaleDbo(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstype.id,
+            avtalenummer = avtalenummer,
+            arrangorOrganisasjonsnummer = it,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+            avtaletype = avtaletype,
+            avslutningsstatus = when (status) {
+                is AvtaleStatusDto.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatusDto.Avbrutt -> Avslutningsstatus.AVBRUTT
+                is AvtaleStatusDto.Avsluttet -> Avslutningsstatus.AVSLUTTET
+                is AvtaleStatusDto.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
+            },
+            prisbetingelser = prisbetingelser,
+        )
     }
 }

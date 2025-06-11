@@ -60,6 +60,7 @@ class AvtaleValidatorTest : FunSpec({
         sakarkivNummer = SakarkivNummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
+        status = AvtaleStatus.AKTIV,
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         avtaletype = Avtaletype.RAMMEAVTALE,
         prisbetingelser = null,

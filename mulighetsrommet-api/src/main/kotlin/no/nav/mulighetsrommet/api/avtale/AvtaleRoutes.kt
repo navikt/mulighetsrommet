@@ -150,8 +150,12 @@ fun Route.avtaleRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<AvbrytRequest>()
-                val response = avtaler.avbrytAvtale(id, navIdent, request.aarsak)
-                call.respondWithStatusResponse(response)
+
+                val result = avtaler.avbrytAvtale(id, navIdent, request.aarsak)
+                    .mapLeft { ValidationError("Klarte ikke avbryte avtale", listOf(it)) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
 
             delete("kontaktperson") {
