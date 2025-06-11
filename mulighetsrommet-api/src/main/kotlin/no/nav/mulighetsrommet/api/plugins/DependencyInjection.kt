@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
-import no.nav.mulighetsrommet.api.avtale.OpsjonLoggService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -401,7 +400,6 @@ private fun services(appConfig: AppConfig) = module {
     single { UnleashService(appConfig.unleash) }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { GjennomforingValidator(get()) }
-    single { OpsjonLoggService(get()) }
     single { LagretFilterService(get()) }
     single {
         TilsagnService(

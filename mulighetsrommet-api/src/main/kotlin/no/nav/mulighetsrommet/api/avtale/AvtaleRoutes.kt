@@ -82,7 +82,6 @@ data class SlettOpsjonLoggRequest(
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
-    val opsjonLoggService: OpsjonLoggService by inject()
 
     route("personopplysninger") {
         get {
@@ -114,6 +113,7 @@ fun Route.avtaleRoutes() {
                     val userId = getNavIdent()
 
                     val opsjonLoggEntry = OpsjonLoggEntry(
+                        id = UUID.randomUUID(),
                         avtaleId = id,
                         sluttdato = request.nySluttdato,
                         forrigeSluttdato = request.forrigeSluttdato,
@@ -121,9 +121,11 @@ fun Route.avtaleRoutes() {
                         registretDato = LocalDate.now(),
                         registrertAv = userId,
                     )
-                    opsjonLoggService.lagreOpsjonLoggEntry(opsjonLoggEntry)
+                    val result = avtaler.registrerOpsjon(opsjonLoggEntry)
+                        .mapLeft { ValidationError("Klarte ikke registrere opsjon", listOf(it)) }
+                        .map { HttpStatusCode.OK }
 
-                    call.respond(HttpStatusCode.OK)
+                    call.respondWithStatusResponse(result)
                 }
 
                 delete {
@@ -131,13 +133,16 @@ fun Route.avtaleRoutes() {
                     val request = call.receive<SlettOpsjonLoggRequest>()
                     val userId = getNavIdent()
 
-                    opsjonLoggService.delete(
-                        opsjonLoggEntryId = request.id,
-                        avtaleId = id,
-                        slettesAv = userId,
-                    )
+                    val result = avtaler
+                        .slettOpsjon(
+                            avtaleId = id,
+                            opsjonId = request.id,
+                            slettesAv = userId,
+                        )
+                        .mapLeft { ValidationError("Klarte ikke slette opsjon", listOf(it)) }
+                        .map { HttpStatusCode.OK }
 
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(result)
                 }
             }
 

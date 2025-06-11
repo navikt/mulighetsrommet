@@ -1,9 +1,11 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -14,6 +16,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
@@ -143,6 +147,67 @@ class AvtaleService(
         logEndring("Avtale ble avbrutt", dto, navIdent)
 
         Either.Right(Unit)
+    }
+
+    fun registrerOpsjon(entry: OpsjonLoggEntry): Either<FieldError, AvtaleDto> = db.transaction {
+        if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
+            val avtale = getOrError(entry.avtaleId)
+
+            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert
+                ?.any { it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON } == true
+            if (skalIkkeUtloseOpsjonerForAvtale) {
+                return FieldError.of(OpsjonLoggEntry::status, "Kan ikke utløse flere opsjoner").left()
+            }
+
+            val maksVarighet = avtale.opsjonsmodell.opsjonMaksVarighet
+            if (entry.sluttdato != null && entry.sluttdato.isAfter(maksVarighet)) {
+                return FieldError.of(
+                    OpsjonLoggEntry::sluttdato,
+                    "Ny sluttdato er forbi maks varighet av avtalen",
+                ).left()
+            }
+
+            if (entry.forrigeSluttdato == null) {
+                return FieldError.of(OpsjonLoggEntry::forrigeSluttdato, "Forrige sluttdato må være satt").left()
+            }
+        }
+
+        queries.opsjoner.insert(entry)
+        if (entry.sluttdato != null) {
+            queries.avtale.setSluttDato(entry.avtaleId, entry.sluttdato)
+        }
+
+        val avtale = getOrError(entry.avtaleId)
+        val operation = when (entry.status) {
+            OpsjonLoggStatus.OPSJON_UTLOST -> "Opsjon registrert"
+            OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
+        }
+        logEndring(operation, avtale, entry.registrertAv)
+        avtale.right()
+    }
+
+    fun slettOpsjon(avtaleId: UUID, opsjonId: UUID, slettesAv: NavIdent): Either<FieldError, AvtaleDto> = db.transaction {
+        val opsjoner = queries.opsjoner.getByAvtaleId(avtaleId)
+
+        val sisteOpsjon = opsjoner.firstOrNull()
+        if (sisteOpsjon == null || sisteOpsjon.id != opsjonId) {
+            return FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen").left()
+        }
+
+        if (sisteOpsjon.status == OpsjonLoggStatus.OPSJON_UTLOST) {
+            val nySluttDato = sisteOpsjon.forrigeSluttdato
+            if (nySluttDato == null) {
+                return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
+            }
+
+            queries.avtale.setSluttDato(avtaleId, nySluttDato)
+        }
+
+        queries.opsjoner.delete(opsjonId)
+
+        val avtale = getOrError(avtaleId)
+        logEndring("Opsjon slettet", avtale, slettesAv)
+        avtale.right()
     }
 
     fun frikobleKontaktpersonFraAvtale(
