@@ -142,7 +142,7 @@ fun Route.avtaleRoutes() {
                         .mapLeft { ValidationError("Klarte ikke slette opsjon", listOf(it)) }
                         .map { HttpStatusCode.OK }
 
-                    call.respond(result)
+                    call.respondWithStatusResponse(result)
                 }
             }
 
