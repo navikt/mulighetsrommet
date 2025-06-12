@@ -189,15 +189,9 @@ fun Route.utbetalingRoutes() {
                     .map { utbetaling ->
                         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
-                        val kostnadssteder =
-                            delutbetalinger.mapNotNull { delutbetaling ->
-                                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-                                if (tilsagn.type != TilsagnType.EKSTRATILSAGN) {
-                                    tilsagn.kostnadssted
-                                } else {
-                                    null
-                                }
-                            }
+                        val kostnadssteder = delutbetalinger.map { delutbetaling ->
+                            queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
+                        }
                         val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
                         val belopUtbetalt = when (status) {
                             AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
