@@ -1,6 +1,5 @@
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
@@ -15,6 +14,7 @@ import { tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
 import { Laster } from "../../../../components/laster/Laster";
 import { aktiveTilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { PiggybankFillIcon } from "@navikt/aksel-icons";
 
 function useHentData() {
   const [searchParams] = useSearchParams();
@@ -75,7 +75,7 @@ export function OpprettTilsagnFormPage() {
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingIkon />
+        <PiggybankFillIcon color="#FFAA33" className="w-10 h-10" />
         <Heading size="large" level="2">
           Opprett tilsagn
         </Heading>

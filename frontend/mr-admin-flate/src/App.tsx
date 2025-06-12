@@ -157,28 +157,12 @@ const routes: RouteObject[] = [
             element: <GjennomforingInfo />,
           },
           {
-            path: "skjema",
-            element: <GjennomforingFormPage />,
-          },
-          {
             path: "deltakerliste/*",
             element: <DeltakerlisteContainer />,
           },
           {
             path: "tilsagn",
             element: <TilsagnForGjennomforingPage />,
-          },
-          {
-            path: "tilsagn/opprett-tilsagn",
-            element: <OpprettTilsagnFormPage />,
-          },
-          {
-            path: "tilsagn/:tilsagnId",
-            element: <TilsagnPage />,
-          },
-          {
-            path: "tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <RedigerTilsagnFormPage />,
           },
           {
             path: "utbetalinger",
@@ -188,11 +172,32 @@ const routes: RouteObject[] = [
             path: "utbetalinger/skjema",
             element: <OpprettUtbetalingPage />,
           },
-          {
-            path: "utbetalinger/:utbetalingId",
-            element: <UtbetalingPage />,
-          },
         ],
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/skjema",
+        element: <GjennomforingFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
+        element: <OpprettTilsagnFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
+        element: <TilsagnPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
+        element: <RedigerTilsagnFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
+        element: <UtbetalingPage />,
+        errorElement: <ErrorPage />,
       },
       {
         path: "arrangorer",

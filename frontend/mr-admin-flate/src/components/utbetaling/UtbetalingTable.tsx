@@ -5,7 +5,7 @@ import {
   formaterPeriodeSlutt,
   formaterPeriodeStart,
 } from "@/utils/Utils";
-import { UtbetalingDto, AdminUtbetalingStatus } from "@mr/api-client-v2";
+import { AdminUtbetalingStatus, UtbetalingKompaktDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -15,17 +15,16 @@ import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 interface Props {
-  utbetalinger: UtbetalingDto[];
+  utbetalinger: UtbetalingKompaktDto[];
 }
 
 interface ScopedSortState extends SortState {
-  orderBy: keyof UtbetalingDto;
+  orderBy: keyof UtbetalingKompaktDto;
 }
 
-interface UtbetalingTabellData extends UtbetalingDto {
+interface UtbetalingTabellData extends UtbetalingKompaktDto {
   periodeStart: string;
   periodeSlutt: string;
-  belop: number;
   status: AdminUtbetalingStatus;
 }
 
@@ -53,7 +52,6 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       ...utbetaling,
       periodeStart: utbetaling.periode.start,
       periodeSlutt: utbetaling.periode.slutt,
-      belop: utbetaling.beregning.belop,
       status: utbetaling.status,
     }))
     .toSorted((a, b) => {
@@ -98,7 +96,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(({ beregning, periode, id, status, kostnadssteder }) => {
+        {sortedData.map(({ belopUtbetalt, periode, id, status, kostnadssteder }) => {
           return (
             <Table.Row key={id}>
               <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
@@ -118,7 +116,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   })),
                 )}
               </Table.DataCell>
-              <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
+              <Table.DataCell align="right">
+                {belopUtbetalt ? formaterNOK(belopUtbetalt) : ""}
+              </Table.DataCell>
               <Table.DataCell align="right">
                 <UtbetalingStatusTag status={status} />
               </Table.DataCell>
