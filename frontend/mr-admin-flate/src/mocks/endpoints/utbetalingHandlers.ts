@@ -1,6 +1,10 @@
-import { UtbetalingDetaljerDto, UtbetalingDto, TilsagnDto } from "@mr/api-client-v2";
+import { UtbetalingDetaljerDto, TilsagnDto, UtbetalingKompaktDto } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
-import { mockUtbetalinger, mockUtbetalingLinjer } from "../fixtures/mock_utbetalinger";
+import {
+  mockUtbetalinger,
+  mockUtbetalingerKompakt,
+  mockUtbetalingLinjer,
+} from "../fixtures/mock_utbetalinger";
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
 export const utbetalingHandlers = [
@@ -25,10 +29,10 @@ export const utbetalingHandlers = [
       });
     },
   ),
-  http.get<PathParams, PathParams, UtbetalingDto[]>(
+  http.get<PathParams, PathParams, UtbetalingKompaktDto[]>(
     "*/api/v1/intern/gjennomforinger/:id/utbetalinger",
     () => {
-      return HttpResponse.json(mockUtbetalinger);
+      return HttpResponse.json(mockUtbetalingerKompakt);
     },
   ),
   http.get<PathParams, TilsagnDto[], TilsagnDto[]>("*/api/v1/intern/utbetaling/:id/tilsagn", () => {

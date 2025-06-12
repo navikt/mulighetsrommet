@@ -2005,7 +2005,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UtbetalingDto"
+                  $ref: "#/components/schemas/UtbetalingKompaktDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -6014,11 +6014,25 @@ components:
           type: string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
-        kostnadssteder:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavEnhet"
-      required: [id, status, periode, beregning, createdAt, tilskuddstype, kostnadssteder]
+      required: [id, status, periode, beregning, createdAt, tilskuddstype]
+
+    UtbetalingKompaktDto:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+          status:
+            $ref: "#/components/schemas/AdminUtbetalingStatus"
+          periode:
+            $ref: "#/components/schemas/Periode"
+          kostnadssteder:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhet"
+          belopUtbetalt:
+            type: [number, "null"]
+        required: [ id, status, periode, kostnadssteder, belopUtbetalt ]
 
     DeltakerForKostnadsfordeling:
       type: object

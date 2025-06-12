@@ -10,7 +10,7 @@ export const utbetalingTekster = {
   },
   beregning: {
     belop: {
-      label: "Totalbeløp",
+      label: "Beløp",
     },
   },
 } as const;

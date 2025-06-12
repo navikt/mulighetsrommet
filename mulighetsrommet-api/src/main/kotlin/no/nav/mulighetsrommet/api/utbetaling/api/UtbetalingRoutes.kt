@@ -12,11 +12,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -56,7 +54,8 @@ fun Route.utbetalingRoutes() {
                     val utbetaling = queries.utbetaling.get(id)
                         ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
 
-                    val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+                    val linjer = delutbetalinger.map { delutbetaling ->
                         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
                             TilsagnDto.fromTilsagn(it)
                         }
@@ -105,7 +104,10 @@ fun Route.utbetalingRoutes() {
                     }
 
                     UtbetalingDetaljerDto(
-                        utbetaling = toUtbetalingDto(utbetaling, emptyList()),
+                        utbetaling = UtbetalingDto.fromUtbetaling(
+                            utbetaling,
+                            AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger),
+                        ),
                         deltakere = deltakere,
                         linjer = linjer,
                     )
@@ -185,18 +187,33 @@ fun Route.utbetalingRoutes() {
             val utbetalinger = db.session {
                 queries.utbetaling.getByGjennomforing(id)
                     .map { utbetaling ->
+                        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+
                         val kostnadssteder =
-                            queries.delutbetaling.getByUtbetalingId(utbetaling.id).mapNotNull { delutbetaling ->
-                                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
-                                    TilsagnDto.fromTilsagn(it)
-                                }
+                            delutbetalinger.mapNotNull { delutbetaling ->
+                                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
                                 if (tilsagn.type != TilsagnType.EKSTRATILSAGN) {
                                     tilsagn.kostnadssted
                                 } else {
                                     null
                                 }
                             }
-                        toUtbetalingDto(utbetaling, kostnadssteder)
+                        val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
+                        val belopUtbetalt = when (status) {
+                            AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
+                                delutbetalinger.sumOf {
+                                    it.belop
+                                }
+                            else -> null
+                        }
+
+                        UtbetalingKompaktDto(
+                            id = utbetaling.id,
+                            status = status,
+                            periode = utbetaling.periode,
+                            kostnadssteder = kostnadssteder,
+                            belopUtbetalt = belopUtbetalt,
+                        )
                     }
             }
 
@@ -217,13 +234,6 @@ private fun toDeltakerForKostnadsfordeling(
     foedselsdato = person?.foedselsdato,
     manedsverk = manedsverk,
 )
-
-private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling, kostnadssteder: List<NavEnhetDbo>?): UtbetalingDto {
-    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-    val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
-
-    return UtbetalingDto.fromUtbetaling(utbetaling, status, kostnadssteder)
-}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
