@@ -37,7 +37,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
               Kostnadssted
             </Table.HeaderCell>
             <Table.HeaderCell scope="col" className="bg-gray-100">
-              Tilgjengelig
+              Gjenstående beløp
             </Table.HeaderCell>
             <Table.HeaderCell scope="col">Gjør opp tilsagn</Table.HeaderCell>
             <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
