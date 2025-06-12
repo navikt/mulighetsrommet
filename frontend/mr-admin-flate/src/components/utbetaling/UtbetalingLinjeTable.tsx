@@ -19,7 +19,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
       <Table>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell colSpan={7} className="bg-gray-100">
+            <Table.HeaderCell colSpan={6} className="bg-gray-100">
               Tilgjengelige tilsagn
             </Table.HeaderCell>
             <Table.HeaderCell colSpan={4}>Utbetalingdetaljer</Table.HeaderCell>
@@ -31,16 +31,13 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
               Type
             </Table.HeaderCell>
             <Table.HeaderCell scope="col" className="bg-gray-100">
-              Periodestart
-            </Table.HeaderCell>
-            <Table.HeaderCell scope="col" className="bg-gray-100">
-              Periodeslutt
+              Periode
             </Table.HeaderCell>
             <Table.HeaderCell scope="col" className="bg-gray-100">
               Kostnadssted
             </Table.HeaderCell>
             <Table.HeaderCell scope="col" className="bg-gray-100">
-              Tilgjengelig
+              Gjenstående beløp
             </Table.HeaderCell>
             <Table.HeaderCell scope="col">Gjør opp tilsagn</Table.HeaderCell>
             <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
@@ -51,7 +48,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
         <Table.Body>
           {linjer.map((linje, i) => renderRow(linje, i))}
           <Table.Row shadeOnHover={false}>
-            <Table.DataCell colSpan={6} className="font-bold">
+            <Table.DataCell colSpan={5} className="font-bold">
               {`${utbetalingTekster.beregning.belop.label}: ${formaterNOK(utbetaling.beregning.belop)}`}
             </Table.DataCell>
             <Table.DataCell className="font-bold" colSpan={2}>

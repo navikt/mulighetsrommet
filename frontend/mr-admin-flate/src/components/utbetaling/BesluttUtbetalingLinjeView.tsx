@@ -83,6 +83,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                       Attester
                     </Button>
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
+                      ingress="Ved å sende en linje i retur vil andre linjer også returneres"
                       open={avvisModalOpen}
                       header="Send i retur med forklaring"
                       buttonLabel="Send i retur"

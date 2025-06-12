@@ -1,9 +1,4 @@
-import {
-  delutbetalingAarsakTilTekst,
-  formaterPeriodeSlutt,
-  formaterPeriodeStart,
-  tilsagnTypeToString,
-} from "@/utils/Utils";
+import { delutbetalingAarsakTilTekst, formaterPeriode, tilsagnTypeToString } from "@/utils/Utils";
 import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
@@ -116,10 +111,7 @@ export function UtbetalingLinjeRow({
         {tilsagnTypeToString(linje.tilsagn.type)}
       </Table.DataCell>
       <Table.DataCell className={grayBgClass}>
-        {formaterPeriodeStart(linje.tilsagn.periode)}
-      </Table.DataCell>
-      <Table.DataCell className={grayBgClass}>
-        {formaterPeriodeSlutt(linje.tilsagn.periode)}
+        {formaterPeriode(linje.tilsagn.periode)}
       </Table.DataCell>
       <Table.DataCell className={grayBgClass}>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={grayBgClass}>
