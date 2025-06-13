@@ -19,6 +19,7 @@ export const avtaletekster = {
   fylkessamarbeidLabel: "Fylkessamarbeid",
   navRegionerLabel: "Nav-regioner",
   navEnheterLabel: "Nav-enheter (kontorer)",
+  navAndreEnheterLabel: "Nav-enheter (andre)",
   ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",

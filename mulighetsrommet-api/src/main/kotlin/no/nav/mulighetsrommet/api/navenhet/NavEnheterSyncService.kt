@@ -43,6 +43,11 @@ val NAV_EGNE_ANSATTE_TIL_FYLKE_MAP = mapOf(
     "1683" to "5700",
 )
 
+val NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP = mapOf(
+    // Nav arbeid og helse Oslo
+    "0396" to "0300",
+)
+
 class NavEnheterSyncService(
     private val db: ApiDatabase,
     private val norg2Client: Norg2Client,
@@ -134,7 +139,7 @@ class NavEnheterSyncService(
 
     private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): NavEnhetNummer? {
         if (!NavEnhetUtils.isRelevantEnhetStatus(enhet.status) ||
-            !listOf(Norg2Type.ALS, Norg2Type.TILTAK, Norg2Type.KO).contains(enhet.type)
+            !listOf(Norg2Type.ALS, Norg2Type.TILTAK, Norg2Type.KO, Norg2Type.ARK).contains(enhet.type)
         ) {
             return null
         }
@@ -186,7 +191,7 @@ class NavEnheterSyncService(
             "1193" to "1100",
             // Nav Tiltak Trøndelag
             "5771" to "5700",
-        ) + NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
+        ) + NAV_EGNE_ANSATTE_TIL_FYLKE_MAP + NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP
 
         val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr.value]
         if (fantFylke == null && enhet.type != Norg2Type.KO) {

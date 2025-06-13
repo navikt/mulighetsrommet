@@ -2,45 +2,27 @@ import {
   ArrangorKontaktperson,
   AvtaleDto,
   NavAnsatt,
-  NavEnhet,
-  NavEnhetType,
   Utdanningslop,
   UtdanningslopDbo,
 } from "@mr/api-client-v2";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-
-export function getLokaleUnderenheterAsSelectOptions(
-  navRegioner: (string | undefined)[],
-  enheter: NavEnhet[],
-) {
-  return enheter
-    .filter((enhet: NavEnhet) => {
-      return (
-        enhet.overordnetEnhet != null &&
-        navRegioner.includes(enhet?.overordnetEnhet) &&
-        (enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.KO)
-      );
-    })
-    .map((enhet: NavEnhet) => ({
-      label: enhet.navn,
-      value: enhet.enhetsnummer,
-    }));
-}
+import { splitNavEnheterByType } from "@/api/enhet/helpers";
 
 export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: AvtaleDto,
 ): DeepPartial<InferredAvtaleSchema> {
   const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
-  const navEnheter =
-    avtale?.kontorstruktur
-      ?.flatMap((struktur) => struktur.kontorer)
-      ?.map((enhet) => enhet.enhetsnummer) ?? [];
+
+  const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
+  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
+
   return {
     tiltakstype: avtale?.tiltakstype,
     navRegioner,
-    navEnheter,
+    navEnheter: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+    navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,
