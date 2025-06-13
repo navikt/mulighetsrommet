@@ -6,6 +6,7 @@ import { internalNavigation } from "../internal-navigation";
 import { formaterPeriode, problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { Alert, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
 
 type LoaderData = {
   utbetaling: ArrFlateUtbetaling;
@@ -77,6 +78,9 @@ export default function TilsagnDetaljerPage() {
               sende inn kravet før Nav har godkjent et tilsagn for utbetalingsperioden. Vennligst ta
               kontakt med Nav.
             </Alert>
+          )}
+          {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
+            <ManglendeMidlerAlert />
           )}
           {tilsagn.map((tilsagn) => (
             <TilsagnDetaljer tilsagn={tilsagn} />

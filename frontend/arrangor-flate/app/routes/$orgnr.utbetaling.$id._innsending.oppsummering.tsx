@@ -41,7 +41,6 @@ import {
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
-import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -141,7 +140,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 };
 
 export default function BekreftUtbetaling() {
-  const { utbetaling, tilsagn } = useLoaderData<BekreftUtbetalingData>();
+  const { utbetaling } = useLoaderData<BekreftUtbetalingData>();
   const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
   const fetcher = useFetcher();
@@ -172,9 +171,6 @@ export default function BekreftUtbetaling() {
         Oppsummering
       </Heading>
       <VStack gap="6">
-        {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
-          <ManglendeMidlerAlert />
-        )}
         <Definisjonsliste
           title="Innsendingsinformasjon"
           headingLevel="3"
