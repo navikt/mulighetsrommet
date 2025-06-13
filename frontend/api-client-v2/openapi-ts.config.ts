@@ -9,6 +9,7 @@ export default defineConfig({
     {
       name: "@hey-api/sdk",
       asClass: true,
+      classNameBuilder: (name: string) => name + 'Service',
     },
     {
       name: "@hey-api/typescript",
