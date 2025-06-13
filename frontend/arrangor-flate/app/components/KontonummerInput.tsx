@@ -40,7 +40,7 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
         <TextField
           label="Kontonummer"
           size="small"
-          description="Kontonummeret hentes automatisk fra Altinn"
+          description="Kontonummeret hentes automatisk"
           error={error}
           name="kontonummer"
           defaultValue={kontonummer}
@@ -55,8 +55,8 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
             Synkroniser kontonummer
           </Button>
           <HelpText>
-            Dersom du har oppdatert kontoregisteret via Altinn kan du trykke på knappen "Synkroniser
-            kontonummer" for å hente kontonummeret på nytt fra Altinn.
+            Dersom du har oppdatert kontoregisteret, kan du trykke på knappen "Synkroniser
+            kontonummer" for å hente kontonummeret på nytt.
           </HelpText>
         </HStack>
       </HStack>
