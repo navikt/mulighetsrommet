@@ -109,7 +109,7 @@ nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.2.1"
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.51.0"
 
-postgresql = "org.postgresql:postgresql:42.7.6"
+postgresql = "org.postgresql:postgresql:42.7.7"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
