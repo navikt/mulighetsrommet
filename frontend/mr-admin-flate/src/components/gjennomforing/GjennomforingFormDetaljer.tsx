@@ -344,7 +344,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                 velgAlle
                 placeholder={"Velg en"}
                 label={gjennomforingTekster.navEnheterKontorerLabel}
-                helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørighet til."
+                helpText={gjennomforingTekster.navEnheterTooltip}
                 {...register("navEnheter")}
                 options={navKontorEnheterOptions}
               />
@@ -354,7 +354,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                 velgAlle
                 placeholder={"Velg en (valgfritt)"}
                 label={gjennomforingTekster.navEnheterAndreLabel}
-                helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilke andre kontorer brukeren har tilhørighet til."
+                helpText={gjennomforingTekster.navEnheterTooltip}
                 {...register("navEnheterAndre")}
                 options={navAndreEnheterOptions}
               />
