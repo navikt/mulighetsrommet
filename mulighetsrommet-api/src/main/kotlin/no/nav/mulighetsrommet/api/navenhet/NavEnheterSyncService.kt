@@ -194,7 +194,7 @@ class NavEnheterSyncService(
         ) + NAV_EGNE_ANSATTE_TIL_FYLKE_MAP + NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP
 
         val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr.value]
-        if (fantFylke == null && enhet.type != Norg2Type.KO) {
+        if (fantFylke == null && enhet.type !in listOf(Norg2Type.KO, Norg2Type.ARK)) {
             slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: ${enhet.enhetNr}. En utvikler må sjekke om enheten skal mappe til et fylke.")
             return null
         }
