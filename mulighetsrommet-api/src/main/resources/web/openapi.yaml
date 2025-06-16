@@ -4069,12 +4069,7 @@ components:
           $ref: "#/components/schemas/NavEnhetStatus"
         type:
           $ref: "#/components/schemas/NavEnhetType"
-      required:
-        - navn
-        - overordnetEnhet
-        - enhetsnummer
-        - status
-        - type
+      required: [navn, overordnetEnhet, enhetsnummer, status, type]
 
     NavRegion:
       type: object
@@ -5997,7 +5992,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         beregning:
-          $ref: "#/components/schemas/UtbetalingKompaktBeregning"
+          $ref: "#/components/schemas/Beregning"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6046,15 +6041,18 @@ components:
           type: string
           format: date
         geografiskEnhet:
-          type: string
+          $ref: "#/components/schemas/NavEnhet"
         region:
-          type: string
+          $ref: "#/components/schemas/NavEnhet"
         manedsverk:
+          type: number
+        belop:
           type: number
       required:
         - id
         - manedsverk
         - navn
+        - belop
 
     ArrFlateUtbetalingKompakt:
       type: object
@@ -6084,14 +6082,6 @@ components:
         - gjennomforing
         - arrangor
         - periode
-        - belop
-
-    UtbetalingKompaktBeregning:
-      type: object
-      properties:
-        belop:
-          type: integer
-      required:
         - belop
 
     ArrFlateUtbetaling:
@@ -6239,6 +6229,33 @@ components:
       oneOf:
         - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
+
+    BeregningForhandsgodkjent:
+      type: object
+      properties:
+        type:
+          const: FORHANDSGODKJENT
+        belop:
+          type: integer
+        sats:
+          type: integer
+      required: [type, belop, sats]
+
+    BeregningFri:
+      type: object
+      properties:
+        belop:
+          type: integer
+        type:
+          const: FRI
+      required: [belop, type]
+
+    Beregning:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/BeregningForhandsgodkjent"
+        - $ref: "#/components/schemas/BeregningFri"
+
 
     UtbetalingStengtPeriode:
       type: object

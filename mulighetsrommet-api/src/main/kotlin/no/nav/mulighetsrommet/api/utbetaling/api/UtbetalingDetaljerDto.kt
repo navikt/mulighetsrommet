@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
@@ -56,8 +57,8 @@ data class DeltakerForKostnadsfordeling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String?,
-    val geografiskEnhet: String?,
-    val region: String?,
+    val geografiskEnhet: NavEnhetDbo?,
+    val region: NavEnhetDbo?,
     @Serializable(with = LocalDateSerializer::class)
     val foedselsdato: LocalDate?,
     val manedsverk: Double,

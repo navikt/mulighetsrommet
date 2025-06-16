@@ -26,6 +26,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2024-01-01T10:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 15000,
     },
     betalingsinformasjon: {
@@ -47,6 +48,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2024-07-01T14:30:00",
     godkjentAvArrangorTidspunkt: "2024-07-02T09:15:00",
     beregning: {
+      type: "FRI",
       belop: 18000,
     },
     betalingsinformasjon: {
@@ -68,6 +70,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 9000,
     },
     betalingsinformasjon: {
@@ -89,6 +92,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 9000,
     },
     betalingsinformasjon: {
@@ -110,6 +114,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 9000,
     },
     betalingsinformasjon: {
