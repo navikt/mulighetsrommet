@@ -18,6 +18,9 @@ export const gjennomforingTekster = {
   ingenAdministratorerSattForGjennomforingenLabel: "Ingen administratorer satt for gjennomføringen",
   tilgjengeligIModiaLabel: "Tilgjengelig i Modia for:",
   navEnheterKontorerLabel: "Nav-enheter (kontorer)",
+  navEnheterAndreLabel: "Nav-enheter (andre)",
+  navEnheterTooltip:
+    "Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilken oppfølgingsenhet brukeren har tilhørighet til.",
   ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   kontaktpersonNav: {
     navnLabel: "Kontaktperson i Nav",

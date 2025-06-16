@@ -28,8 +28,11 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
-import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleFormConst";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import {
+  getAndreUnderenheterAsSelectOptions,
+  getLokaleUnderenheterAsSelectOptions,
+} from "@/api/enhet/helpers";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -42,8 +45,8 @@ interface Props {
 export function AvtaleFormDetaljer({
   tiltakstyper,
   ansatt,
-  enheter,
   avtale,
+  enheter,
   okonomiTabEnabled,
 }: Props) {
   const { data: administratorer } = useAvtaleAdministratorer();
@@ -258,6 +261,16 @@ export function AvtaleFormDetaljer({
               helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
               {...register("navEnheter")}
               options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
+            />
+            <ControlledMultiSelect
+              inputId={"navAndreEnheter"}
+              size="small"
+              velgAlle
+              placeholder="Velg en (valgfritt)"
+              label={avtaletekster.navAndreEnheterLabel}
+              helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
+              {...register("navAndreEnheter")}
+              options={getAndreUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
             />
           </FormGroup>
         </div>

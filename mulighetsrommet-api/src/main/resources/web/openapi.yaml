@@ -4655,6 +4655,7 @@ components:
         - TILTAK
         - ALS
         - KO
+        - ARK
 
     BrregVirksomhet:
       type: object
