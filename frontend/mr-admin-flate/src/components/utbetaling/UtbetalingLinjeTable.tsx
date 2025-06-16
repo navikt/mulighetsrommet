@@ -1,6 +1,6 @@
 import { UtbetalingDto, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { BodyShort, Box, CopyButton, HStack, Table } from "@navikt/ds-react";
+import { Box, CopyButton, HStack, Table } from "@navikt/ds-react";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 export interface Props {
@@ -57,8 +57,12 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
             <Table.DataCell className="font-bold">{formaterNOK(utbetalesTotal)}</Table.DataCell>
             <Table.DataCell className="font-bold" align="right" colSpan={2}>
               <HStack align="center">
-                <CopyButton variant="action" copyText={differanse.toString()} size="small" />
-                <BodyShort weight="semibold">{`Differanse ${formaterNOK(differanse)}`}</BodyShort>
+                <CopyButton
+                  variant="action"
+                  copyText={differanse.toString()}
+                  size="small"
+                  text={`Differanse ${formaterNOK(differanse)}`}
+                />
               </HStack>
             </Table.DataCell>
           </Table.Row>
