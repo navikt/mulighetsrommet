@@ -30,6 +30,7 @@ export function AvtaleListe(props: Props) {
             <Table.DataCell>
               <AvtaleStatusTag status={avtale.status} />
             </Table.DataCell>
+            <Table.DataCell>{props.action(avtale)}</Table.DataCell>
           </Table.Row>
         ))}
       </Table.Body>
