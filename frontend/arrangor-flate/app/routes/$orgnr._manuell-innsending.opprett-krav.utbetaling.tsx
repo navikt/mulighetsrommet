@@ -98,7 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export default function ManuellUtbetalingForm() {
+export default function OpprettKravUtbetaling() {
   const data = useActionData<ActionData>();
   const { kontonummer, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();

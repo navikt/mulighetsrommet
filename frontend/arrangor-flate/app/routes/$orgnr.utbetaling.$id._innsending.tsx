@@ -14,8 +14,6 @@ function useStep(path: string) {
       return 2;
     case "oppsummering":
       return 3;
-    case "kvittering":
-      return 4;
     default:
       return 1;
   }
@@ -54,7 +52,6 @@ export default function UtbetalingLayout() {
               <Stepper.Step>Innsendingsinformasjon</Stepper.Step>
               <Stepper.Step>Beregning</Stepper.Step>
               <Stepper.Step>Oppsummering</Stepper.Step>
-              <Stepper.Step>Bekreftelse</Stepper.Step>
             </Stepper>
           </VStack>
         </Hide>

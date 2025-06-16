@@ -181,7 +181,7 @@ interface ActionData {
   errors: FieldError[];
 }
 
-export default function OpprettKravTilsagn() {
+export default function OpprettKravInnsendingsinformasjon() {
   const {
     orgnr,
     arrangor,

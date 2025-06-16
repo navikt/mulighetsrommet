@@ -33,8 +33,8 @@ import { errorAt } from "~/utils/validering";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Bekreft utbetaling" },
-    { name: "description", content: "Arrangørflate for bekreftelse av krav om utbetaling" },
+    { title: "Manuell innsending" },
+    { name: "description", content: "Manuell innsending av krav om utbetaling" },
   ];
 };
 

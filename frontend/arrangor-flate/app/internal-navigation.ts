@@ -3,7 +3,7 @@ export const internalNavigation = (orgnr: string) => {
     utbetalinger: `/${orgnr}/oversikt`,
     opprettKravInnsendingsinformasjon: `/${orgnr}/opprett-krav/innsendingsinformasjon`,
     opprettKravVedlegg: `/${orgnr}/opprett-krav/vedlegg`,
-    opprettKravUtbetaling: `/${orgnr}/opprett-krav/utbetalingsinformasjon`,
+    opprettKravUtbetaling: `/${orgnr}/opprett-krav/utbetaling`,
     opprettKravOppsummering: `/${orgnr}/opprett-krav/oppsummering`,
     innsendingsinformasjon: (id: string) => `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
     beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,

@@ -8,9 +8,9 @@ import { useEffect, useState } from "react";
 
 function useStep(path: string) {
   switch (path.split("/").pop()) {
-    case "tilsagn":
+    case "innsendingsinformasjon":
       return 1;
-    case "utbetalingsinformasjon":
+    case "utbetaling":
       return 2;
     case "oppsummering":
       return 3;
