@@ -173,6 +173,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "da28997b-c2ba-4f5c-b733-94eb57e57d19",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    godkjentAvArrangorTidspunkt: new Date().toString(),
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -215,6 +216,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "80a49868-0d06-4243-bc39-7ac33fbada88",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    godkjentAvArrangorTidspunkt: new Date().toString(),
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -248,6 +250,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    godkjentAvArrangorTidspunkt: new Date().toString(),
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -281,6 +284,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "87b4425b-8be0-4938-94bc-2ba1ae7beb0e",
     status: ArrFlateUtbetalingStatus.UTBETALT,
+    godkjentAvArrangorTidspunkt: new Date().toString(),
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
