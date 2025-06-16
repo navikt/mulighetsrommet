@@ -1,6 +1,6 @@
 import { compareByKey, formaterDato } from "@/utils/Utils";
 import { DeltakerForKostnadsfordeling } from "@mr/api-client-v2";
-import { CopyButton, HStack, SortState, Table } from "@navikt/ds-react";
+import { CopyButton, HStack, SortState, Table, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 
 interface Props {
@@ -58,7 +58,7 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats }: Props) {
   }
 
   return (
-    <div style={{ height: "400px", display: "flex", flexDirection: "column" }}>
+    <VStack maxHeight="400px">
       <div style={{ overflowY: "auto", flexGrow: 1 }}>
         <Table
           size="small"
@@ -111,6 +111,6 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats }: Props) {
           text={`${totalManedsverk()} × ${sats} = ${totalBelop().toString()}`}
         />
       </HStack>
-    </div>
+    </VStack>
   );
 }
