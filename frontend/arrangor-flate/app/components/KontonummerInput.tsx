@@ -74,7 +74,7 @@ function EndreKontonummerLink() {
       href="https://www.nav.no/arbeidsgiver/endre-kontonummer#hvordan"
       target="_blank"
     >
-      endring av kontonummer for refusjoner fra Nav
+      endring av kontonummer for utbetalinger fra Nav
     </Link>
   );
 }
