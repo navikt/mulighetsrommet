@@ -1,9 +1,11 @@
 import {
   Alert,
+  BodyLong,
   BodyShort,
   Button,
   DatePicker,
   ErrorSummary,
+  GuidePanel,
   Heading,
   HStack,
   Label,
@@ -12,6 +14,8 @@ import {
   UNSAFE_Combobox,
   useDatepicker,
   VStack,
+  Link,
+  TextField,
 } from "@navikt/ds-react";
 import {
   ArrangorflateGjennomforing,
@@ -37,12 +41,13 @@ import { formaterDato, problemDetailResponse } from "~/utils";
 import { internalNavigation } from "../internal-navigation";
 import { errorAt } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { commitSession, getSession } from "~/sessions.server";
+import { commitSession, destroySession, getSession } from "~/sessions.server";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
   tilsagn: ArrangorflateTilsagn[];
   orgnr: string;
+  arrangor: string;
   sessionGjennomforingId?: string;
   sessionTilsagnId?: string;
   sessionPeriodeStart?: string;
@@ -70,6 +75,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const [
     { data: gjennomforinger, error: gjennomforingerError },
     { data: tilsagn, error: tilsagnError },
+    { data: arrangortilganger, error: arrangorError },
   ] = await Promise.all([
     ArrangorflateService.getArrangorflateGjennomforinger({
       path: { orgnr },
@@ -77,6 +83,9 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     }),
     ArrangorflateService.getAllArrangorflateTilsagn({
       path: { orgnr },
+      headers: await apiHeaders(request),
+    }),
+    ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
       headers: await apiHeaders(request),
     }),
   ]);
@@ -87,8 +96,16 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (tilsagnError || !tilsagn) {
     throw problemDetailResponse(tilsagnError);
   }
+  if (!arrangortilganger || arrangorError) {
+    throw problemDetailResponse(arrangorError);
+  }
+
+  const arrangor = arrangortilganger.find((a) => a.organisasjonsnummer === orgnr)?.navn;
+  if (!arrangor) throw new Error("Finner ikke arrangør");
+
   return {
     orgnr,
+    arrangor,
     gjennomforinger,
     tilsagn,
     sessionGjennomforingId,
@@ -103,16 +120,25 @@ export async function action({ request }: ActionFunctionArgs) {
   const errors: FieldError[] = [];
 
   const formData = await request.formData();
-
+  const intent = formData.get("intent");
   const orgnr = formData.get("orgnr")?.toString();
+  if (!orgnr) {
+    throw new Error("Mangler orgnr");
+  }
+
+  if (intent === "cancel") {
+    return redirect(internalNavigation(orgnr).utbetalinger, {
+      headers: {
+        "Set-Cookie": await destroySession(session),
+      },
+    });
+  }
+
   const periodeStart = formData.get("periodeStart")?.toString();
   const periodeSlutt = formData.get("periodeSlutt")?.toString();
   const gjennomforingId = formData.get("gjennomforingId")?.toString();
   const tilsagnId = formData.get("tilsagnId")?.toString();
 
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
   if (!gjennomforingId) {
     errors.push({
       pointer: "/gjennomforingId",
@@ -143,7 +169,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("tilsagnId", tilsagnId);
     session.set("periodeStart", periodeStart);
     session.set("periodeSlutt", periodeSlutt);
-    return redirect(internalNavigation(orgnr).opprettKravVedlegg, {
+    return redirect(internalNavigation(orgnr).opprettKravUtbetaling, {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
@@ -158,6 +184,7 @@ interface ActionData {
 export default function OpprettKravTilsagn() {
   const {
     orgnr,
+    arrangor,
     gjennomforinger,
     tilsagn,
     sessionGjennomforingId,
@@ -199,11 +226,27 @@ export default function OpprettKravTilsagn() {
 
   return (
     <>
-      <Heading size="large" spacing level="2">
-        Tilsagn
-      </Heading>
       <Form method="post">
-        <VStack gap="6" className="max-w-xl">
+        <VStack gap="6">
+          <Heading level="3" size="medium">
+            Innsendingsinformasjon
+          </Heading>
+          <GuidePanel className="mb-2">
+            <BodyLong spacing>
+              I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre
+              krav om utbetaling skal sendes inn via utbetalingene i{" "}
+              <Link as={ReactRouterLink} to={internalNavigation(orgnr).utbetalinger}>
+                Utbetalingsoversikten.
+              </Link>
+            </BodyLong>
+          </GuidePanel>
+          <TextField
+            readOnly
+            label="Arrangør"
+            size="small"
+            value={`${arrangor} - ${orgnr}`}
+            className="max-w-2xl"
+          />
           <input type="hidden" name="orgnr" value={orgnr} />
           <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
           <UNSAFE_Combobox
@@ -233,6 +276,7 @@ export default function OpprettKravTilsagn() {
                 setTilsagnId(undefined);
               }
             }}
+            className="max-w-2xl"
           />
           {gjennomforingId && (
             <>
@@ -266,9 +310,9 @@ export default function OpprettKravTilsagn() {
                 </RadioGroup>
               )}
               {tilsagnId && (
-                <VStack gap="2">
+                <VStack gap="1">
                   <Label size="small">Periode</Label>
-                  <BodyShort textColor="subtle" spacing size="small">
+                  <BodyShort textColor="subtle" size="small">
                     Hvilken periode gjelder kravet for?
                   </BodyShort>
                   <HStack gap="4">
@@ -319,16 +363,13 @@ export default function OpprettKravTilsagn() {
               })}
             </ErrorSummary>
           )}
-          <HStack className="mt-4">
-            <Button
-              as={ReactRouterLink}
-              type="button"
-              variant="tertiary"
-              to={internalNavigation(orgnr).utbetalinger}
-            >
+          <HStack gap="4" className="mt-4">
+            <Button type="submit" variant="tertiary" name="intent" value="cancel">
               Avbryt
             </Button>
-            <Button type="submit">Neste</Button>
+            <Button type="submit" name="intent" value="submit">
+              Neste
+            </Button>
           </HStack>
         </VStack>
       </Form>

@@ -89,6 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
   } else {
     session.set("belop", belop);
     session.set("kid", kid);
+    session.set("kontonummer", kontonummer);
     return redirect(internalNavigation(orgnr).opprettKravOppsummering, {
       headers: {
         "Set-Cookie": await commitSession(session),
@@ -105,7 +106,7 @@ export default function ManuellUtbetalingForm() {
 
   return (
     <>
-      <Heading size="large" spacing level="2">
+      <Heading size="medium" spacing level="3">
         Utbetalingsinformasjon
       </Heading>
       <Form method="post">
@@ -114,7 +115,8 @@ export default function ManuellUtbetalingForm() {
             label="Beløp til utbetaling"
             defaultValue={sessionBelop}
             error={errorAt("/belop", data?.errors)}
-            htmlSize={35}
+            inputMode="numeric"
+            htmlSize={15}
             size="small"
             name="belop"
             id="belop"
@@ -135,12 +137,12 @@ export default function ManuellUtbetalingForm() {
               id="kid"
             />
           </VStack>
-          <HStack>
+          <HStack gap="4">
             <Button
               as={ReactRouterLink}
               type="button"
               variant="tertiary"
-              to={internalNavigation(orgnr).opprettKravVedlegg}
+              to={internalNavigation(orgnr).opprettKravInnsendingsinformasjon}
             >
               Tilbake
             </Button>
