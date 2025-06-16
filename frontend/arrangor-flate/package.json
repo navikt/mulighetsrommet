@@ -15,8 +15,8 @@
     "build": "react-router build",
     "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist",
     "playwright": "cross-env DISABLE_DEKORATOR='true' playwright test ",
-    "playwright:debug": "playwright test --debug",
-    "playwright:open": "playwright test --ui",
+    "playwright:debug": "cross-env DISABLE_DEKORATOR='true' playwright test --debug",
+    "playwright:open": "cross-env DISABLE_DEKORATOR='true' playwright test --ui",
     "playwright:codegen": "playwright codegen playwright.dev",
     "api-client:build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./api-client"
   },

@@ -65,27 +65,25 @@ export default function TilsagnDetaljerPage() {
             ]}
           />
         </Box>
-        <Box>
-          <Heading level="3" spacing size="medium">
-            Tilgjengelige tilsagn
-          </Heading>
-          {tilsagn.length < 1 && (
-            <Alert variant={"warning"}>
-              <Heading spacing level="4" size="small">
-                Tilsagn mangler
-              </Heading>
-              Det finnes ingen godkjente tilsagn tilgjengelig for denne utbetalingen. Dere kan ikke
-              sende inn kravet før Nav har godkjent et tilsagn for utbetalingsperioden. Vennligst ta
-              kontakt med Nav.
-            </Alert>
-          )}
-          {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
-            <ManglendeMidlerAlert />
-          )}
-          {tilsagn.map((tilsagn) => (
-            <TilsagnDetaljer tilsagn={tilsagn} />
-          ))}
-        </Box>
+        <Heading level="3" size="medium">
+          Tilgjengelige tilsagn
+        </Heading>
+        {tilsagn.length < 1 && (
+          <Alert variant={"warning"}>
+            <Heading spacing level="4" size="small">
+              Tilsagn mangler
+            </Heading>
+            Det finnes ingen godkjente tilsagn tilgjengelig for denne utbetalingen. Dere kan ikke
+            sende inn kravet før Nav har godkjent et tilsagn for utbetalingsperioden. Vennligst ta
+            kontakt med Nav.
+          </Alert>
+        )}
+        {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
+          <ManglendeMidlerAlert />
+        )}
+        {tilsagn.map((tilsagn) => (
+          <TilsagnDetaljer tilsagn={tilsagn} />
+        ))}
         {tilsagn.length >= 1 && (
           <HStack gap="4" className="mt-4">
             <Button

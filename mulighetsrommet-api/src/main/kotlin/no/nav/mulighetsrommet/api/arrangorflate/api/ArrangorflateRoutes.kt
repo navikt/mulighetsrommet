@@ -330,13 +330,12 @@ fun Route.arrangorflateRoutes() {
 
 private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCall): ArrangorflateManuellUtbetalingRequest {
     var gjennomforingId: UUID? = null
+    var tilsagnId: UUID? = null
     var periodeStart: String? = null
     var periodeSlutt: String? = null
-    var beskrivelse: String? = null
     var kontonummer: String? = null
     var kidNummer: String? = null
     var belop: Int? = null
-    var tilskuddstype: Tilskuddstype? = null
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
     val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
 
@@ -345,13 +344,12 @@ private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCa
             is PartData.FormItem -> {
                 when (part.name) {
                     "gjennomforingId" -> gjennomforingId = UUID.fromString(part.value)
-                    "beskrivelse" -> beskrivelse = part.value
+                    "tilsagnId" -> tilsagnId = UUID.fromString(part.value)
                     "kontonummer" -> kontonummer = part.value
                     "kidNummer" -> kidNummer = part.value
                     "belop" -> belop = part.value.toInt()
                     "periodeStart" -> periodeStart = part.value
                     "periodeSlutt" -> periodeSlutt = part.value
-                    "tilskuddstype" -> tilskuddstype = Tilskuddstype.valueOf(part.value)
                 }
             }
 
@@ -389,13 +387,13 @@ private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCa
 
     return ArrangorflateManuellUtbetalingRequest(
         gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
+        tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
-        beskrivelse = requireNotNull(beskrivelse) { "Mangler beskrivelse" },
         kontonummer = requireNotNull(kontonummer) { "Mangler kontonummer" },
         kidNummer = kidNummer,
         belop = belop ?: 0,
-        tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
+        tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
         vedlegg = validatedVedlegg,
     )
 }
@@ -428,9 +426,10 @@ data class RelevanteForslag(
 data class ArrangorflateManuellUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val tilsagnId: UUID,
     val periodeStart: String,
     val periodeSlutt: String,
-    val beskrivelse: String,
     val kontonummer: String,
     val kidNummer: String? = null,
     val belop: Int,

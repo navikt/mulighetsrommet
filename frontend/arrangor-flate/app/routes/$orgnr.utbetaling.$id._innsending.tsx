@@ -1,4 +1,4 @@
-import { Heading, Link, Stack, Stepper, VStack } from "@navikt/ds-react";
+import { Heading, Hide, HStack, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Outlet, useLocation } from "react-router";
 import { internalNavigation } from "~/internal-navigation";
 import { Link as ReactRouterLink } from "react-router";
@@ -14,8 +14,6 @@ function useStep(path: string) {
       return 2;
     case "oppsummering":
       return 3;
-    case "kvittering":
-      return 4;
     default:
       return 1;
   }
@@ -36,34 +34,28 @@ export default function UtbetalingLayout() {
       <Link as={ReactRouterLink} to={internalNavigation(orgnr).utbetalinger} className="max-w-max">
         <ChevronLeftIcon /> Tilbake til oversikt
       </Link>
-      <Stack
-        gap={{ xl: "10" }}
-        width="100%"
-        justify="center"
-        direction={{ xs: "column", xl: "row" }}
-        className="xl:max-w-[1920px] xl:mx-auto"
-      >
+      <HStack gap="10" width="100%" justify="center" className="xl:max-w-[1920px] xl:mx-auto">
         <VStack padding="8" flexGrow="2" className="bg-bg-default rounded-lg">
           <Outlet />
         </VStack>
-        <VStack flexGrow="1" className="xl:hidden">
-          <Heading size="medium" spacing level="2" id="stepper-heading" className="max-2xl:hidden">
-            Steg
-          </Heading>
-          <Stepper
-            aria-labelledby="Innsendingssteg"
-            activeStep={activeStep}
-            onStepChange={setActiveStep}
-            interactive={false}
-            className="max-2xl:hidden"
-          >
-            <Stepper.Step>Innsendingsinformasjon</Stepper.Step>
-            <Stepper.Step>Beregning</Stepper.Step>
-            <Stepper.Step>Oppsummering</Stepper.Step>
-            <Stepper.Step>Bekreftelse</Stepper.Step>
-          </Stepper>
-        </VStack>
-      </Stack>
+        <Hide below="xl">
+          <VStack flexGrow="1">
+            <Heading size="medium" spacing level="2" id="stepper-heading">
+              Steg
+            </Heading>
+            <Stepper
+              aria-labelledby="Innsendingssteg"
+              activeStep={activeStep}
+              onStepChange={setActiveStep}
+              interactive={false}
+            >
+              <Stepper.Step>Innsendingsinformasjon</Stepper.Step>
+              <Stepper.Step>Beregning</Stepper.Step>
+              <Stepper.Step>Oppsummering</Stepper.Step>
+            </Stepper>
+          </VStack>
+        </Hide>
+      </HStack>
     </VStack>
   );
 }

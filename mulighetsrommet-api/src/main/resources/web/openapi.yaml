@@ -6582,16 +6582,15 @@ components:
     ArrangorflateManuellUtbetalingRequest:
       type: object
       properties:
-        tilskuddstype:
-          $ref: "#/components/schemas/Tilskuddstype"
         gjennomforingId:
           type: string
           format: UUID
+        tilsagnId:
+            type: string
+            format: UUID
         periodeStart:
           type: string
         periodeSlutt:
-          type: string
-        beskrivelse:
           type: string
         kontonummer:
           type: string
@@ -6605,11 +6604,10 @@ components:
             type: string
             format: binary
       required:
-        - tilskuddstype
         - gjennomforingId
+        - tilsagnId
         - periodeStart
         - periodeSlutt
-        - beskrivelse
         - kontonummer
         - kidNummer
         - belop

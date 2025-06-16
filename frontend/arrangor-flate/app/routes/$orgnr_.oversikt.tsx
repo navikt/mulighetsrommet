@@ -76,9 +76,10 @@ export default function UtbetalingOversikt() {
         <PageHeader title={tekster.bokmal.utbetaling.headingTitle} />
         {opprettManuellUtbetalingToggle && (
           <Button
+            type="button"
             variant="secondary"
             as={ReactRouterLink}
-            to={internalNavigation(orgnr).manueltUtbetalingskrav}
+            to={internalNavigation(orgnr).opprettKravInnsendingsinformasjon}
           >
             {tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
           </Button>

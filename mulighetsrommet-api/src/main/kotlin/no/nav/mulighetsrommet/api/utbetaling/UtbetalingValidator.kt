@@ -243,10 +243,6 @@ object UtbetalingValidator {
                 add(FieldError.of(ArrangorflateManuellUtbetalingRequest::belop, "Beløp må være positivt"))
             }
 
-            if (request.beskrivelse.length < 10) {
-                add(FieldError.of(ArrangorflateManuellUtbetalingRequest::beskrivelse, "Du må beskrive utbetalingen"))
-            }
-
             if (request.vedlegg.isEmpty()) {
                 add(FieldError.of(ArrangorflateManuellUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
             }
@@ -278,10 +274,10 @@ object UtbetalingValidator {
                     periodeStart = start,
                     periodeSlutt = slutt,
                     belop = request.belop,
-                    beskrivelse = request.beskrivelse,
                     kontonummer = kontonummer,
                     kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
                     tilskuddstype = request.tilskuddstype,
+                    beskrivelse = "",
                     vedlegg = request.vedlegg,
                 )
             }

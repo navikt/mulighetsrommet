@@ -31,7 +31,6 @@ export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id, error }: P
     fileType: "Filformatet støttes ikke",
     fileSize: `Filen er større enn ${maxSizeMB} MB`,
   };
-
   return (
     <>
       <VStack gap="6">
