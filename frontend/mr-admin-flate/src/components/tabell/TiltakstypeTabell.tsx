@@ -67,7 +67,7 @@ export function TiltakstypeTabell() {
                 <Table.DataCell aria-label={`Startdato: ${startDato}`}>{startDato}</Table.DataCell>
                 <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>{sluttDato}</Table.DataCell>
                 <Table.DataCell>
-                  <TiltakstypeStatusTag tiltakstype={tiltakstype} />
+                  <TiltakstypeStatusTag status={tiltakstype.status} />
                 </Table.DataCell>
               </Table.Row>
             );

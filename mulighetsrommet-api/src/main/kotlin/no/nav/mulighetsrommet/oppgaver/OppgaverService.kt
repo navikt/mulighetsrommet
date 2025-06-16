@@ -146,7 +146,7 @@ class OppgaverService(val db: ApiDatabase) {
             .getAll(
                 tiltakstypeIder = tiltakstypeIds,
                 navRegioner = regioner.toList(),
-                statuser = listOf(AvtaleStatus.Enum.UTKAST, AvtaleStatus.Enum.AKTIV),
+                statuser = listOf(AvtaleStatus.UTKAST, AvtaleStatus.AKTIV),
             )
             .items
             .flatMap { toOppgaver(it) }
@@ -158,7 +158,7 @@ class OppgaverService(val db: ApiDatabase) {
     ): List<Oppgave> = db.session {
         queries.gjennomforing
             .getOppgaveData(tiltakskoder = tiltakskoder)
-            .filter { navEnheter.isEmpty() || it.navEnhet == null || it.navEnhet.enhetsnummer in navEnheter }
+            .filter { navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter } }
             .flatMap { toOppgaver(it) }
     }
 
@@ -273,17 +273,17 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
         link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
     )
     return when (delutbetaling.status) {
-        DelutbetalingStatus.TIL_GODKJENNING -> {
+        DelutbetalingStatus.TIL_ATTESTERING -> {
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             opprettelse to Oppgave(
                 id = delutbetaling.id,
-                type = OppgaveType.UTBETALING_TIL_GODKJENNING,
+                type = OppgaveType.UTBETALING_TIL_ATTESTERING,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Utbetaling til godkjenning",
-                description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
+                title = "Utbetaling til attestering",
+                description = "Utbetalingen for $gjennomforingsnavn er sendt til attestering",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt,
@@ -367,7 +367,7 @@ private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildLis
             id = data.id,
             type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
             title = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
-            enhet = data.navEnhet?.let {
+            enhet = data.kontorstruktur.firstOrNull()?.region?.let {
                 OppgaveEnhet(
                     nummer = it.enhetsnummer,
                     navn = it.navn,
@@ -379,7 +379,7 @@ private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildLis
                 navn = data.tiltakstypeNavn,
             ),
             link = OppgaveLink(
-                linkText = "Se gjennomforing",
+                linkText = "Se gjennomføring",
                 link = "/gjennomforinger/${data.id}",
             ),
             createdAt = data.updatedAt,

@@ -2,26 +2,24 @@ package no.nav.mulighetsrommet.model
 
 import no.nav.mulighetsrommet.model.Tiltakskode.*
 
-enum class Avtaletype {
-    Avtale,
-    Rammeavtale,
-    Forhaandsgodkjent,
-    OffentligOffentlig, ;
+enum class Avtaletype(val beskrivelse: String) {
+    AVTALE("Avtale"),
+    RAMMEAVTALE("Rammeavtale"),
+    FORHANDSGODKJENT("Forhåndsgodkjent"),
+    OFFENTLIG_OFFENTLIG("Offentlig-offentlig samarbeid"), ;
 
     fun kreverSakarkivNummer(): Boolean {
-        return listOf(Rammeavtale, Avtale).contains(this)
+        return listOf(RAMMEAVTALE, AVTALE).contains(this)
     }
 }
 
-fun allowedAvtaletypes(tiltakskode: Tiltakskode?): List<Avtaletype> = when (tiltakskode) {
+fun allowedAvtaletypes(tiltakskode: Tiltakskode): List<Avtaletype> = when (tiltakskode) {
     ARBEIDSFORBEREDENDE_TRENING, VARIG_TILRETTELAGT_ARBEID_SKJERMET ->
-        listOf(Avtaletype.Forhaandsgodkjent)
+        listOf(Avtaletype.FORHANDSGODKJENT)
 
     AVKLARING, OPPFOLGING, ARBEIDSRETTET_REHABILITERING, JOBBKLUBB, DIGITALT_OPPFOLGINGSTILTAK ->
-        listOf(Avtaletype.Rammeavtale, Avtaletype.Avtale)
+        listOf(Avtaletype.RAMMEAVTALE, Avtaletype.AVTALE)
 
     GRUPPE_ARBEIDSMARKEDSOPPLAERING, GRUPPE_FAG_OG_YRKESOPPLAERING ->
-        listOf(Avtaletype.Rammeavtale, Avtaletype.Avtale, Avtaletype.OffentligOffentlig)
-
-    else -> Avtaletype.entries
+        listOf(Avtaletype.RAMMEAVTALE, Avtaletype.AVTALE, Avtaletype.OFFENTLIG_OFFENTLIG)
 }

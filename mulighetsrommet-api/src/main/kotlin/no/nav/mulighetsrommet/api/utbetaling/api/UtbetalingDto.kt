@@ -1,8 +1,10 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -26,15 +28,27 @@ data class UtbetalingDto(
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
-    val kostnadssteder: List<NavEnhetDbo>,
 ) {
     @Serializable
-    data class Beregning(
-        val belop: Int,
-    )
+    sealed class Beregning {
+        abstract val belop: Int
+
+        @Serializable
+        @SerialName("FORHANDSGODKJENT")
+        data class Forhandsgodkjent(
+            val sats: Int,
+            override val belop: Int,
+        ) : Beregning()
+
+        @Serializable
+        @SerialName("FRI")
+        data class Fri(
+            override val belop: Int,
+        ) : Beregning()
+    }
 
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus, kostnadssteder: List<NavEnhetDbo>?) = UtbetalingDto(
+        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus) = UtbetalingDto(
             id = utbetaling.id,
             status = status,
             periode = utbetaling.periode,
@@ -42,13 +56,18 @@ data class UtbetalingDto(
             betalingsinformasjon = utbetaling.betalingsinformasjon,
             createdAt = utbetaling.createdAt,
             beskrivelse = utbetaling.beskrivelse,
-            beregning = Beregning(
-                belop = utbetaling.beregning.output.belop,
-            ),
+            beregning = when (utbetaling.beregning) {
+                is UtbetalingBeregningForhandsgodkjent -> Beregning.Forhandsgodkjent(
+                    belop = utbetaling.beregning.output.belop,
+                    sats = utbetaling.beregning.input.sats,
+                )
+                is UtbetalingBeregningFri -> Beregning.Fri(
+                    belop = utbetaling.beregning.output.belop,
+                )
+            },
             innsendtAv = formaterInnsendtAv(utbetaling.innsender),
             journalpostId = utbetaling.journalpostId,
             tilskuddstype = utbetaling.tilskuddstype,
-            kostnadssteder = kostnadssteder ?: emptyList(),
         )
 
         private fun formaterInnsendtAv(agent: Agent?): String? {

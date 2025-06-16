@@ -7,6 +7,8 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -24,12 +26,17 @@ class AvtaleValidator(
     private val navEnheterService: NavEnhetService,
     private val unleash: UnleashService,
 ) {
-    private val opsjonsmodellerUtenValidering =
-        listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
+    private val opsjonsmodellerUtenValidering = listOf(
+        OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
+        OpsjonsmodellType.VALGFRI_SLUTTDATO,
+    )
 
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<FieldError>, AvtaleDbo> {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: return FieldError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel().left()
+
+        val tiltakskode = tiltakstype.tiltakskode
+            ?: return FieldError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen mangler tiltalkskode").nel().left()
 
         val errors = buildList {
             if (avtale.navn.length < 5 && currentAvtale?.opphav != ArenaMigrering.Opphav.ARENA) {
@@ -40,58 +47,8 @@ class AvtaleValidator(
                 add(FieldError.of(AvtaleDbo::administratorer, "Du må velge minst én administrator"))
             }
 
-            if (avtale.sluttDato != null) {
-                if (avtale.sluttDato.isBefore(avtale.startDato)) {
-                    add(FieldError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
-                }
-            }
-
-            if (Avtaletype.Forhaandsgodkjent != avtale.avtaletype && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
-                if (avtale.opsjonMaksVarighet == null) {
-                    add(
-                        FieldError.of(
-                            AvtaleDbo::opsjonMaksVarighet,
-                            "Du må legge inn maks varighet for opsjonen",
-                        ),
-                    )
-                }
-
-                if (avtale.opsjonsmodell == null) {
-                    add(FieldError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
-                }
-
-                if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
-                    if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
-                        add(
-                            FieldError.of(
-                                AvtaleDbo::customOpsjonsmodellNavn,
-                                "Du må beskrive opsjonsmodellen",
-                            ),
-                        )
-                    }
-                }
-            }
-
-            if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.avtaletype != currentAvtale.avtaletype) {
-                add(
-                    FieldError.of(
-                        AvtaleDbo::avtaletype,
-                        "Du kan ikke endre avtaletype når opsjoner er registrert",
-                    ),
-                )
-            }
-
-            if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
-                add(
-                    FieldError.of(
-                        AvtaleDbo::opsjonsmodell,
-                        "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
-                    ),
-                )
-            }
-
-            if (avtale.avtaletype.kreverSakarkivNummer() && avtale.sakarkivNummer == null) {
-                add(FieldError.of(AvtaleDbo::sakarkivNummer, "Du må skrive inn saksnummer til avtalesaken"))
+            if (avtale.sluttDato != null && avtale.sluttDato.isBefore(avtale.startDato)) {
+                add(FieldError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
             if (avtale.arrangor?.underenheter?.isEmpty() == true) {
@@ -104,41 +61,80 @@ class AvtaleValidator(
                 )
             }
 
-            if (!allowedAvtaletypes(tiltakstype.tiltakskode).contains(avtale.avtaletype)) {
+            if (avtale.avtaletype.kreverSakarkivNummer() && avtale.sakarkivNummer == null) {
+                add(FieldError.of(AvtaleDbo::sakarkivNummer, "Du må skrive inn saksnummer til avtalesaken"))
+            }
+
+            if (avtale.avtaletype !in allowedAvtaletypes(tiltakskode)) {
                 add(
                     FieldError.of(
                         AvtaleDbo::avtaletype,
-                        "${avtale.avtaletype} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
+                        "${avtale.avtaletype.beskrivelse} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
                     ),
                 )
+            }
+
+            if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+                if (avtale.opsjonsmodell.type != OpsjonsmodellType.VALGFRI_SLUTTDATO) {
+                    add(
+                        FieldError.of(
+                            AvtaleDbo::opsjonsmodell,
+                            "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
+                        ),
+                    )
+                }
             } else {
-                if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
+                if (avtale.opsjonsmodell.type != OpsjonsmodellType.VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(FieldError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
+                }
+
+                if (avtale.opsjonsmodell.type !in opsjonsmodellerUtenValidering) {
+                    if (avtale.opsjonsmodell.opsjonMaksVarighet == null) {
+                        add(
+                            FieldError.of(
+                                "Du må legge inn maks varighet for opsjonen",
+                                AvtaleDbo::opsjonsmodell,
+                                Opsjonsmodell::opsjonMaksVarighet,
+                            ),
+                        )
+                    }
+
+                    if (avtale.opsjonsmodell.type == OpsjonsmodellType.ANNET) {
+                        if (avtale.opsjonsmodell.customOpsjonsmodellNavn.isNullOrBlank()) {
+                            add(
+                                FieldError.of(
+                                    "Du må beskrive opsjonsmodellen",
+                                    AvtaleDbo::opsjonsmodell,
+                                    Opsjonsmodell::customOpsjonsmodellNavn,
+                                ),
+                            )
+                        }
+                    }
                 }
             }
 
-            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, tiltakstype.tiltakskode!!)) {
+            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, tiltakskode)) {
                 if (avtale.prismodell == null) {
                     add(FieldError.of(AvtaleDbo::prismodell, "Du må velge en prismodell"))
-                } else if (avtale.avtaletype == Avtaletype.Forhaandsgodkjent && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
+                } else if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
                     add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen må være forhåndsgodkjent"))
-                } else if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
+                } else if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
                     add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen kan ikke være forhåndsgodkjent"))
                 }
             } else if (avtale.prismodell != null) {
                 add(
                     FieldError.of(
                         AvtaleDbo::prismodell,
-                        "Prismodell kan foreløpig ikke velges for tiltakstypen ${tiltakstype.tiltakskode}",
+                        "Prismodell kan foreløpig ikke velges for tiltakstype ${tiltakstype.navn}",
                     ),
                 )
             }
 
-            if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
+            if (tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
                 add(FieldError.ofPointer("/amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
 
-            if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+            if (tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
                 val utdanninger = avtale.utdanningslop
                 if (utdanninger == null) {
                     add(
@@ -211,6 +207,26 @@ class AvtaleValidator(
         avtale: AvtaleDbo,
         currentAvtale: AvtaleDto,
     ) = db.session {
+        if (currentAvtale.opsjonerRegistrert?.isNotEmpty() == true) {
+            if (avtale.avtaletype != currentAvtale.avtaletype) {
+                add(
+                    FieldError.of(
+                        AvtaleDbo::avtaletype,
+                        "Du kan ikke endre avtaletype når opsjoner er registrert",
+                    ),
+                )
+            }
+
+            if (avtale.opsjonsmodell.type != currentAvtale.opsjonsmodell.type) {
+                add(
+                    FieldError.of(
+                        AvtaleDbo::opsjonsmodell,
+                        "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
+                    ),
+                )
+            }
+        }
+
         val (numGjennomforinger, gjennomforinger) = queries.gjennomforing.getAll(avtaleId = avtale.id)
 
         /**

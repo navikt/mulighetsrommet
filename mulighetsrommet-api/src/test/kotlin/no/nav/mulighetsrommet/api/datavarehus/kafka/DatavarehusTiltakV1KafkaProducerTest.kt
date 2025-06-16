@@ -18,15 +18,13 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val config = DatavarehusTiltakV1KafkaProducer.Config(
-        consumerId = "id",
-        consumerGroupId = "group-id",
-        consumerTopic = "consumer-topic",
         producerTopic = "producer-topic",
     )
 
@@ -85,6 +83,8 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 tilgjengeligForArrangorFraOgMedDato = null,
                 apentForPamelding = true,
                 antallPlasser = 10,
+                opprettetTidspunkt = LocalDateTime.now(),
+                oppdatertTidspunkt = LocalDateTime.now(),
             ),
         )
 

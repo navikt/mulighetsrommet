@@ -26,7 +26,6 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling (
                 id,
                 gjennomforing_id,
-                frist_for_godkjenning,
                 kontonummer,
                 kid,
                 periode,
@@ -38,7 +37,6 @@ class UtbetalingQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                :frist_for_godkjenning,
                 :kontonummer,
                 :kid,
                 :periode::daterange,
@@ -49,7 +47,6 @@ class UtbetalingQueries(private val session: Session) {
                 :godkjent_av_arrangor_tidspunkt
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
-                frist_for_godkjenning = excluded.frist_for_godkjenning,
                 kontonummer = excluded.kontonummer,
                 kid = excluded.kid,
                 periode = excluded.periode,
@@ -63,7 +60,6 @@ class UtbetalingQueries(private val session: Session) {
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "frist_for_godkjenning" to dbo.fristForGodkjenning,
             "kontonummer" to dbo.kontonummer?.value,
             "kid" to dbo.kid?.value,
             "periode" to dbo.periode.toDaterange(),
@@ -284,7 +280,7 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from utbetaling_dto_view
             where arrangor_organisasjonsnummer = ?
-            order by frist_for_godkjenning desc
+            order by periode desc
         """.trimIndent()
 
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetalingDto() }
@@ -324,7 +320,6 @@ class UtbetalingQueries(private val session: Session) {
         val innsender = stringOrNull("innsender")?.toAgent()
         return Utbetaling(
             id = id,
-            fristForGodkjenning = localDate("frist_for_godkjenning"),
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
@@ -343,7 +338,7 @@ class UtbetalingQueries(private val session: Session) {
             beregning = beregning,
             betalingsinformasjon = Utbetaling.Betalingsinformasjon(
                 kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
-                kid = stringOrNull("kid")?.let { Kid(it) },
+                kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
             ),
             journalpostId = stringOrNull("journalpost_id"),
             periode = periode("periode"),

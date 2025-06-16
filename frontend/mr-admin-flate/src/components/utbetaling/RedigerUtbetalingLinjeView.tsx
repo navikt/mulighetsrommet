@@ -1,10 +1,9 @@
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
+import { formaterDatoSomYYYYMMDD, subtractDays, utbetalingLinjeCompareFn } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   FieldError,
   OpprettDelutbetalingerRequest,
-  Prismodell,
   TilsagnDto,
   TilsagnStatus,
   TilsagnType,
@@ -37,7 +36,8 @@ function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
       tilsagn: t,
       gjorOppTilsagn: false,
       id: uuidv4(),
-    }));
+    }))
+    .toSorted(utbetalingLinjeCompareFn);
 }
 
 export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Props) {
@@ -60,7 +60,6 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
-        `&prismodell=${Prismodell.FRI}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${formaterDatoSomYYYYMMDD(subtractDays(utbetaling.periode.slutt, 1))}` +
@@ -72,7 +71,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     const nyeLinjer = genrererUtbetalingLinjer(tilsagn).filter(
       (linje) => !linjerState.find((l) => l.tilsagn.id === linje.tilsagn.id),
     );
-    setLinjerState([...linjerState, ...nyeLinjer].toSorted((m, n) => m.id.localeCompare(n.id)));
+    setLinjerState([...linjerState, ...nyeLinjer].toSorted(utbetalingLinjeCompareFn));
   }
 
   function sendTilGodkjenning() {
@@ -168,7 +167,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
       <VStack align="end" gap="4">
         <HStack>
           <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
-            Send til godkjenning
+            Send til attestering
           </Button>
         </HStack>
         {error.find((f) => f.pointer === "/") && (

@@ -1,7 +1,7 @@
 import { VeilederflateTiltak } from "@mr/api-client-v2";
-import { isTiltakAktivt } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { isTiltakAktivt, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { BodyLong, BodyShort, Heading, HStack, VStack } from "@navikt/ds-react";
-import { GjennomforingStatusTag } from "@mr/frontend-common";
+import { StatusTag } from "@mr/frontend-common";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -19,7 +19,9 @@ export function TiltakHeader({ tiltak }: Props) {
         </Heading>
         <HStack gap={"2"} align="center">
           <Heading size="large">{tiltak.navn}</Heading>
-          {!isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
+          {isTiltakGruppe(tiltak) && !isTiltakAktivt(tiltak) && (
+            <StatusTag variant={"neutral"}>{tiltak.status.beskrivelse}</StatusTag>
+          )}
         </HStack>
       </VStack>
       {beskrivelse && (

@@ -1,6 +1,5 @@
 import { Button, Heading, Modal } from "@navikt/ds-react";
 import React from "react";
-import styles from "./Modal.module.scss";
 
 interface StandardModalModalProps {
   modalOpen: boolean;
@@ -57,7 +56,7 @@ const StandardModal = ({
       <Modal.Body>{children}</Modal.Body>
       {!hideButtons ? (
         <Modal.Footer>
-          <div className={styles.knapperad}>
+          <div className="flex gap-8">
             <Button variant="tertiary" onClick={clickCancel} data-testid="modal_btn-cancel">
               Avbryt
             </Button>

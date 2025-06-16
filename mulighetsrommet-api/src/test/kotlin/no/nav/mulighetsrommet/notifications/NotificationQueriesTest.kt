@@ -101,7 +101,7 @@ class NotificationQueriesTest : FunSpec({
 
     val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
 
-    test("should only set done_at for the specific user when the notification type is NOTIFICATION") {
+    test("should only set read_at for the specific user") {
         database.runAndRollback { session ->
             domain.setup(session)
 
@@ -178,18 +178,22 @@ class NotificationQueriesTest : FunSpec({
             queries.insert(notification2)
 
             queries.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
+                readCount = 0,
                 unreadCount = 2,
             )
             queries.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
+                readCount = 0,
                 unreadCount = 1,
             )
 
             queries.setNotificationReadAt(notification1.id, user1, LocalDateTime.now())
 
             queries.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
+                readCount = 1,
                 unreadCount = 1,
             )
             queries.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
+                readCount = 0,
                 unreadCount = 1,
             )
         }

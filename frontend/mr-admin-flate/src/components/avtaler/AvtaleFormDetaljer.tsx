@@ -10,7 +10,7 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  OpsjonsmodellKey,
+  OpsjonsmodellType,
   OpsjonStatus,
   Prismodell,
   Tiltakskode,
@@ -28,9 +28,11 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
-import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleFormConst";
-import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import {
+  getAndreUnderenheterAsSelectOptions,
+  getLokaleUnderenheterAsSelectOptions,
+} from "@/api/enhet/helpers";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -43,8 +45,8 @@ interface Props {
 export function AvtaleFormDetaljer({
   tiltakstyper,
   ansatt,
-  enheter,
   avtale,
+  enheter,
   okonomiTabEnabled,
 }: Props) {
   const { data: administratorer } = useAvtaleAdministratorer();
@@ -59,7 +61,7 @@ export function AvtaleFormDetaljer({
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
 
-  const watchedOpsjonsmodell = watch("opsjonsmodellData.opsjonsmodell");
+  const watchedOpsjonsmodellType = watch("opsjonsmodell.type");
 
   function handleChangeTiltakstype(
     currentTiltakskode?: Tiltakskode,
@@ -77,21 +79,21 @@ export function AvtaleFormDetaljer({
   }
 
   function handleChangeAvtaletype(avtaletype?: Avtaletype) {
-    if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
-      setValue("opsjonsmodellData", {
-        opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
+    if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
+      setValue("opsjonsmodell", {
+        type: OpsjonsmodellType.VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else if (!watchedOpsjonsmodell) {
-      setValue("opsjonsmodellData", {
-        opsjonsmodell: undefined,
+    } else if (!watchedOpsjonsmodellType) {
+      setValue("opsjonsmodell", {
+        type: undefined,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
     }
 
-    if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+    if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("prismodell", Prismodell.FORHANDSGODKJENT);
     } else {
       setValue("prismodell", null);
@@ -106,7 +108,7 @@ export function AvtaleFormDetaljer({
     }));
 
   const antallOpsjonerUtlost = (
-    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
+    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
   ).length;
 
   return (
@@ -195,10 +197,7 @@ export function AvtaleFormDetaljer({
           ) : null}
         </FormGroup>
 
-        <AvtaleDatoContainer
-          avtale={avtale}
-          opsjonsmodell={opsjonsmodeller.find((m) => m.value === watchedOpsjonsmodell)}
-        />
+        <AvtaleDatoContainer avtale={avtale} />
 
         {okonomiTabEnabled === false && (
           <>
@@ -263,6 +262,16 @@ export function AvtaleFormDetaljer({
               {...register("navEnheter")}
               options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
             />
+            <ControlledMultiSelect
+              inputId={"navAndreEnheter"}
+              size="small"
+              velgAlle
+              placeholder="Velg en (valgfritt)"
+              label={avtaletekster.navAndreEnheterLabel}
+              helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
+              {...register("navAndreEnheter")}
+              options={getAndreUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
+            />
           </FormGroup>
         </div>
         <FormGroup>
@@ -282,9 +291,9 @@ function velgAlleLokaleUnderenheter(
 }
 
 function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
-  const forhaandsgodkjent = {
-    value: Avtaletype.FORHAANDSGODKJENT,
-    label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
+  const forhandsgodkjent = {
+    value: Avtaletype.FORHANDSGODKJENT,
+    label: avtaletypeTilTekst(Avtaletype.FORHANDSGODKJENT),
   };
   const rammeavtale = {
     value: Avtaletype.RAMMEAVTALE,
@@ -301,7 +310,7 @@ function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; la
   switch (tiltakskode) {
     case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
     case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
-      return [forhaandsgodkjent];
+      return [forhandsgodkjent];
     case Tiltakskode.OPPFOLGING:
     case Tiltakskode.JOBBKLUBB:
     case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:

@@ -3,6 +3,7 @@ package no.nav.tiltak.okonomi
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 
@@ -10,7 +11,7 @@ val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 20,
-    ),
+    ) { metricRegistry = Metrics.micrometerRegistry },
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),
@@ -46,7 +47,6 @@ val ApplicationConfigProd = AppConfig(
         enable = true,
     ),
     kafka = KafkaConfig(
-        consumerPropertiesPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("team-mulighetsrommet.tiltaksokonomi.v1"),
         producerPropertiesPreset = KafkaPropertiesPreset.aivenByteProducerProperties("team-mulighetsrommet.tiltaksokonomi.v1"),
         topics = KafkaTopics(
             bestillingStatus = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
@@ -55,8 +55,8 @@ val ApplicationConfigProd = AppConfig(
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
-                consumerGroupId = "tiltaksokonomi.bestilling.v1",
                 topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
+                consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
             ),
         ),
     ),

@@ -7,6 +7,7 @@ import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@/utils/ErrorFallback";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
+import { isOppskrifterEnabled } from "@/apps/modia/features";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -34,19 +35,22 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
       defaultValue="tab1"
       size="small"
       selectionFollowsFocus
-      className={styles.fane_root}
+      className={`row-start-3 max-w-none xl:row-start-[auto] xl:max-w-[auto] mb-8`}
       onChange={(value) => {
         if (value !== "tab5") {
           setOppskriftId(undefined);
         }
       }}
     >
-      <Tabs.List className={styles.fane_liste} id="fane_liste">
+      <Tabs.List
+        className={`${styles.fane_liste} flex flex-row border-b border-border-subtle gap-1.5 xl:justify-start justify-between`}
+        id="fane_liste"
+      >
         {faneoverskrifter.map((fane, index) => (
-          <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className={styles.btn_tab} />
+          <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className="w-fit" />
         ))}
       </Tabs.List>
-      <div className={styles.fane_panel} data-testid="fane_panel">
+      <div className="mt-6" data-testid="fane_panel">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Tabs.Panel value="tab1">
             <TiltakDetaljerFane
@@ -90,15 +94,4 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
       </div>
     </Tabs>
   );
-}
-
-function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
-  if (tiltak.fylker.length < 1) {
-    return true;
-  }
-
-  const fylkerSomIkkeVilHaOppskrifter = [
-    "0800", // Vestfold og Telemark
-  ];
-  return !tiltak.fylker.some((fylke) => fylkerSomIkkeVilHaOppskrifter.includes(fylke));
 }

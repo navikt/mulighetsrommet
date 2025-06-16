@@ -10,6 +10,7 @@ import {
   TotrinnskontrollBesluttetDto,
   TotrinnskontrollTilBeslutningDto,
   UtbetalingDto,
+  UtbetalingKompaktDto,
   UtbetalingLinje,
 } from "@mr/api-client-v2";
 import { mockEnheter } from "./mock_enheter";
@@ -25,6 +26,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2024-01-01T10:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 15000,
     },
     betalingsinformasjon: {
@@ -35,7 +37,6 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z123456",
     journalpostId: "JP123456",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
@@ -43,10 +44,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       start: "2025-01-01",
       slutt: "2025-06-30",
     },
-    status: AdminUtbetalingStatus.TIL_GODKJENNING,
+    status: AdminUtbetalingStatus.TIL_ATTESTERING,
     createdAt: "2024-07-01T14:30:00",
     godkjentAvArrangorTidspunkt: "2024-07-02T09:15:00",
     beregning: {
+      type: "FRI",
       belop: 18000,
     },
     betalingsinformasjon: {
@@ -57,7 +59,6 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Arrangør",
     journalpostId: "JP123457",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
@@ -69,6 +70,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 9000,
     },
     betalingsinformasjon: {
@@ -79,7 +81,6 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "129e4567-e89b-12d3-a456-426614174002",
@@ -91,6 +92,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 9000,
     },
     betalingsinformasjon: {
@@ -101,7 +103,6 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
   },
   {
     id: "130e4567-e89b-12d3-a456-426614174002",
@@ -113,6 +114,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
     beregning: {
+      type: "FRI",
       belop: 9000,
     },
     betalingsinformasjon: {
@@ -123,7 +125,59 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+  },
+];
+
+export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
+  {
+    id: "123e4567-e89b-12d3-a456-426614174000",
+    periode: {
+      start: "2024-01-01",
+      slutt: "2024-06-30",
+    },
+    status: AdminUtbetalingStatus.VENTER_PA_ARRANGOR,
+    belopUtbetalt: null,
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
+  },
+  {
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
+    id: "123e4567-e89b-12d3-a456-426614174001",
+    periode: {
+      start: "2025-01-01",
+      slutt: "2025-06-30",
+    },
+    status: AdminUtbetalingStatus.TIL_ATTESTERING,
+    belopUtbetalt: null,
+  },
+  {
+    id: "123e4567-e89b-12d3-a456-426614174002",
+    periode: {
+      start: "2025-01-01",
+      slutt: "2025-03-31",
+    },
+    status: AdminUtbetalingStatus.RETURNERT,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
+    belopUtbetalt: null,
+  },
+  {
+    id: "129e4567-e89b-12d3-a456-426614174002",
+    periode: {
+      start: "2025-03-01",
+      slutt: "2025-03-31",
+    },
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
+    belopUtbetalt: 13400,
+    status: AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+  },
+  {
+    id: "130e4567-e89b-12d3-a456-426614174002",
+    periode: {
+      start: "2025-06-01",
+      slutt: "2025-06-31",
+    },
+    status: AdminUtbetalingStatus.UTBETALT,
+    kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
+    belopUtbetalt: 290500,
   },
 ];
 
@@ -160,7 +214,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       status: TilsagnStatus.TIL_GODKJENNING,
       bestillingsnummer: "A-2024/123",
     },
-    status: DelutbetalingStatus.TIL_GODKJENNING,
+    status: DelutbetalingStatus.TIL_ATTESTERING,
     belop: 5000,
     gjorOppTilsagn: true,
     opprettelse: {
@@ -314,7 +368,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       bestillingsnummer: "A-2025/123",
     },
 
-    status: DelutbetalingStatus.TIL_GODKJENNING,
+    status: DelutbetalingStatus.TIL_ATTESTERING,
     belop: 3000,
     gjorOppTilsagn: false,
     opprettelse: {

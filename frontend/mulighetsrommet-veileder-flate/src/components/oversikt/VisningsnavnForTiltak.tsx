@@ -1,6 +1,5 @@
 import { BodyShort } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import styles from "./VisningsnavnForTiltak.module.scss";
 import classNames from "classnames";
 
 interface Props {
@@ -11,12 +10,18 @@ interface Props {
 
 export function VisningsnavnForTiltak({ navn, tiltakstypeNavn, noLink = false }: Props): ReactNode {
   return (
-    <div
-      className={classNames(styles.container, {
-        [styles.no_link]: noLink,
-      })}
-    >
-      <BodyShort textColor="default" weight="semibold" size="small">
+    <div>
+      <BodyShort
+        className={classNames(
+          `overflow-hidden overflow-ellipsis whitespace-nowrap text-[#0067c5]`,
+          {
+            "text-[#000000]": noLink,
+          },
+        )}
+        textColor="default"
+        weight="semibold"
+        size="small"
+      >
         {tiltakstypeNavn}
       </BodyShort>
       <BodyShort size="small">{navn}</BodyShort>

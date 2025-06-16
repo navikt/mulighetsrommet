@@ -9,8 +9,9 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
+import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -36,13 +37,15 @@ fun main() {
 }
 
 fun Application.configure(config: AppConfig) {
+    configureMetrics()
+
     val db = Database(config.database)
 
     FlywayMigrationManager(config.flyway).migrate(db)
 
     KafkaMetrics(db)
         .withCountStaleConsumerRecords(minutesSinceCreatedAt = 5)
-        .register(Metrikker.appMicrometerRegistry)
+        .register(Metrics.micrometerRegistry)
 
     configureAuthentication(config.auth)
     configureSerialization()
@@ -51,7 +54,11 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
 
-    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl, config.auth.azure.privateJwk)
+    val cachedTokenProvider = CachedTokenProvider.init(
+        config.auth.azure.audience,
+        config.auth.azure.tokenEndpointUrl,
+        config.auth.azure.privateJwk,
+    )
 
     val tiltakDatadelingClient = TiltakDatadelingClient(
         engine = config.httpClientEngine,
@@ -87,19 +94,12 @@ fun configureKafka(
     config: KafkaConfig,
     db: TiltakshistorikkDatabase,
 ): KafkaConsumerOrchestrator {
-    val consumers = listOf(
-        AmtDeltakerV1KafkaConsumer(
-            config = config.consumers.amtDeltakerV1,
-            db = db,
-        ),
-        SisteTiltaksgjennomforingerV1KafkaConsumer(
-            config = config.consumers.sisteTiltaksgjennomforingerV1,
-            db = db,
-        ),
+    val consumers = mapOf(
+        config.consumers.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(db),
+        config.consumers.sisteTiltaksgjennomforingerV1 to SisteTiltaksgjennomforingerV1KafkaConsumer(db),
     )
 
     return KafkaConsumerOrchestrator(
-        consumerPreset = config.consumerPreset,
         db = db.db,
         consumers = consumers,
     )

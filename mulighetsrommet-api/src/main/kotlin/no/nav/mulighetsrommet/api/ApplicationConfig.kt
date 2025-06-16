@@ -4,9 +4,6 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -14,7 +11,6 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
-import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -51,7 +47,6 @@ data class AppConfig(
     val slack: SlackConfig,
     val pamOntologi: AuthenticatedHttpClientConfig,
     val unleash: UnleashService.Config,
-    val axsys: AuthenticatedHttpClientConfig,
     val pdl: AuthenticatedHttpClientConfig,
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
@@ -81,64 +76,72 @@ data class EntraGroupNavAnsattRolleMapping(
 
 data class KafkaConfig(
     val producerProperties: Properties,
-    val consumerPreset: Properties,
+    val topics: KafkaTopics = KafkaTopics(),
     val clients: KafkaClients,
 )
 
-data class KafkaClients(
-    val dvhGjennomforing: DatavarehusTiltakV1KafkaProducer.Config = DatavarehusTiltakV1KafkaProducer.Config(
-        consumerId = "dvh-gjennomforing-consumer",
-        consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
-        consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-        producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
-    ),
+data class KafkaTopics(
     val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
-    val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config = SisteTiltakstyperV2KafkaProducer.Config(
-        topic = "team-mulighetsrommet.siste-tiltakstyper-v3",
-    ),
-    val gjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
+    val sisteTiltaksgjennomforingerTopic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+    val sisteTiltakstyperTopic: String = "team-mulighetsrommet.siste-tiltakstyper-v3",
+    val arenaMigreringGjennomforingTopic: String = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
+    val datavaehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",
+)
+
+class KafkaClients(
+    getConsumerProperties: (consumerGroupId: String) -> Properties,
+    block: (KafkaClients.() -> Unit)? = null,
+) {
+    var arenaMigreringGjennomforingerConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "arena-migrering-gjennomforinger",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-    ),
-    val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
-        topic = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
-    ),
-    val gjennomforingerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "siste-tiltaksgjennomforinger",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.arena-migrering-gjennomforing.v1"),
+    )
+    var datavarehusGjennomforingerConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "dvh-gjennomforing-consumer",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-    ),
-    val oppdaterUtbetalingForGjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.datavarehus-gjennomforing.v1"),
+    )
+    var oppdaterUtbetalingForGjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "oppdater-utbetaling-for-gjennomforing",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-        consumerGroupId = "mulighetsrommet-api.oppdater-utbetaling-for-gjennomforing.v1",
-    ),
-    val replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.oppdater-utbetaling-for-gjennomforing.v1"),
+    )
+    var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-bestilling-status",
         topic = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
-        consumerGroupId = "mulighetsrommet-api.bestilling-status.v1",
-    ),
-    val replicateFakturaStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.bestilling-status.v1"),
+    )
+    var replicateFakturaStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-faktura-status",
         topic = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
-        consumerGroupId = "mulighetsrommet-api.faktura-status.v1",
-    ),
-    val amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.faktura-status.v1"),
+    )
+    var amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-deltaker",
         topic = "amt.deltaker-v1",
-        consumerGroupId = "mulighetsrommet-api.deltaker.v1",
-    ),
-    val amtVirksomheterV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.deltaker.v1"),
+    )
+    var amtVirksomheterV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-virksomheter",
         topic = "amt.virksomheter-v1",
-    ),
-    val amtArrangorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.amt-virksomheter.v1"),
+    )
+    var amtArrangorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-arrangor-melding",
         topic = "amt.arrangor-melding-v1",
-    ),
-    val amtKoordinatorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.amt-arrangor-melding.v1"),
+    )
+    var amtKoordinatorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-tiltakskoordinators-deltakerliste",
         topic = "amt.tiltakskoordinators-deltakerliste-v1",
-    ),
-)
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.tiltakskoordinators-deltakerliste.v1"),
+    )
+
+    init {
+        block?.invoke(this)
+    }
+}
 
 data class AuthProvider(
     val issuer: String,

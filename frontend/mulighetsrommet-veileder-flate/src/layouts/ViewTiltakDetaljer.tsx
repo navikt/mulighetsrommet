@@ -33,20 +33,25 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.top_wrapper}>{knapperad}</div>
+    <div className="max-w-[1252px] mx-auto my-0">
+      <div className="items-baseline flex justify-between">{knapperad}</div>
       <Suspense fallback={<DetaljerSkeleton />}>
         <>
-          <div className={styles.gjennomforing_detaljer} id="gjennomforing_detaljer">
-            <div className={styles.tiltakstype_header_maksbredde}>
+          <div
+            className="grid grid-rows-[auto_1fr] grid-cols-[auto] xl:grid-cols-[65%_35%] gap-[2rem] p-[2rem] bg-white"
+            id="gjennomforing_detaljer"
+          >
+            <div className="max-w-none xl:max-w-[760px]">
               <TiltakHeader tiltak={tiltak} />
             </div>
             {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
-              <div className={styles.apent_for_innsok_status}>
+              <div className="col-start-2 row-start-auto xl:row-start-1 text-2xl flex justify-end mr-8 text-[2rem]">
                 <PadlockLockedFillIcon title="Tiltaket er stengt for påmelding" />
               </div>
             )}
-            <div className={styles.sidemeny}>
+            <div
+              className={`${styles.sidemeny} mt-0 row-start max-w-none px-[3rem] [grid-row-start:initial] [grid-row-end:initial] [grid-column:initial] xl:h-fit xl:row-start-1 xl:row-end-3 xl:col-start-2 xl:col-span-1 xl:px-0 xl:max-w-[380px] text-text-default flex flex-col gap-[1rem]`}
+            >
               {isTiltakGruppe(tiltak) && tiltak.estimertVentetid && (
                 <EstimertVentetid estimertVentetid={tiltak.estimertVentetid} />
               )}
@@ -66,13 +71,13 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   </Tabs.Panel>
                 ) : null}
               </Tabs>
-              <div className={styles.brukeractions_container}>{brukerActions}</div>
+              <div className="flex flex-col gap-[1rem] mt-[1rem]">{brukerActions}</div>
             </div>
             <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
           </div>
-          <div className={styles.oppskriftContainer}>
+          <div className="bg-white px-4 xl:px-8">
             {oppskriftId && (
-              <div className={styles.oppskrift_border}>
+              <div className="border border-border-subtle">
                 <Oppskrift
                   oppskriftId={oppskriftId}
                   tiltakstypeId={tiltak.tiltakstype.sanityId}

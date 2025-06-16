@@ -21,9 +21,9 @@ data class DeltakerStatus(
         IKKE_AKTUELL("Ikke aktuell"),
         KLADD("Kladd"),
         PABEGYNT_REGISTRERING("Påbegynt registrering"),
-        SOKT_INN("Søkt om plass"),
+        SOKT_INN("Søkt inn"),
         UTKAST_TIL_PAMELDING("Utkast til påmelding"),
-        VENTELISTE("På venteliste"),
+        VENTELISTE("Venteliste"),
         VENTER_PA_OPPSTART("Venter på oppstart"),
         VURDERES("Vurderes"),
     }

@@ -1,6 +1,5 @@
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
@@ -16,6 +15,7 @@ import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
 import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
+import { PiggybankFillIcon } from "@navikt/aksel-icons";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -71,7 +71,7 @@ export function RedigerTilsagnFormPage() {
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingIkon />
+        <PiggybankFillIcon color="#FFAA33" className="w-10 h-10" />
         <Heading size="large" level="2">
           Rediger tilsagn
         </Heading>

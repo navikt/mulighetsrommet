@@ -11,10 +11,8 @@ import no.nav.tiltak.okonomi.FakturaStatus
 import org.slf4j.LoggerFactory
 
 class ReplicateOkonomiFakturaStatus(
-    config: Config,
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
@@ -23,7 +21,8 @@ class ReplicateOkonomiFakturaStatus(
     override suspend fun consume(key: String, message: JsonElement): Unit = db.session {
         logger.info("Konsumerer statusmelding fakturanummer=$key")
 
-        val (fakturanummer, status, fakturaStatusSistOppdatert) = JsonIgnoreUnknownKeys.decodeFromJsonElement<FakturaStatus>(message)
+        val (fakturanummer, status, fakturaStatusSistOppdatert) =
+            JsonIgnoreUnknownKeys.decodeFromJsonElement<FakturaStatus>(message)
 
         queries.delutbetaling.setFakturaStatus(fakturanummer, status, fakturaStatusSistOppdatert)
     }

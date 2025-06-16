@@ -89,7 +89,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Avtalestatus"
+              $ref: "#/components/schemas/AvtaleStatus"
           description: Statuser for avtale
         - in: query
           name: avtaletyper
@@ -198,7 +198,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Avtalestatus"
+              $ref: "#/components/schemas/AvtaleStatus"
           description: Statuser for avtale
         - in: query
           name: navRegioner
@@ -248,7 +248,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Avtalestatus"
+              $ref: "#/components/schemas/AvtaleStatus"
           description: Statuser for avtale
         - in: query
           name: avtaletyper
@@ -1836,7 +1836,9 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/opsjoner:
+  /api/v1/intern/avtaler/{id}/opsjoner:
+    parameters:
+      - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Opsjoner
@@ -1845,7 +1847,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpsjonLoggRequest"
+              $ref: "#/components/schemas/OpprettOpsjonLoggRequest"
       responses:
         204:
           description: "Lagret ok"
@@ -2003,7 +2005,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UtbetalingDto"
+                  $ref: "#/components/schemas/UtbetalingKompaktDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2984,7 +2986,7 @@ components:
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
-          $ref: "#/components/schemas/AvtalestatusResponse"
+          $ref: "#/components/schemas/AvtaleStatusDto"
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         prisbetingelser:
@@ -3013,10 +3015,8 @@ components:
           anyOf:
             - type: ["null"]
             - $ref: "#/components/schemas/AmoKategorisering"
-        opsjonsmodellData:
-          anyOf:
-            - type: ["null"]
-            - $ref: "#/components/schemas/OpsjonsmodellData"
+        opsjonsmodell:
+          $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
           type: array
           items:
@@ -3043,7 +3043,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
-        - opsjonsmodellData
+        - opsjonsmodell
         - opsjonerRegistrert
         - utdanningslop
         - prismodell
@@ -3117,10 +3117,8 @@ components:
           anyOf:
             - type: "null"
             - $ref: "#/components/schemas/AmoKategorisering"
-        opsjonsmodellData:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/OpsjonsmodellData"
+        opsjonsmodell:
+          $ref: "#/components/schemas/Opsjonsmodell"
         utdanningslop:
           anyOf:
             - type: "null"
@@ -3148,7 +3146,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
-        - opsjonsmodellData
+        - opsjonsmodell
         - utdanningslop
         - prismodell
 
@@ -3177,54 +3175,78 @@ components:
     Avtaletype:
       type: string
       enum:
-        - Avtale
-        - Rammeavtale
-        - Forhaandsgodkjent
-        - OffentligOffentlig
+        - AVTALE
+        - RAMMEAVTALE
+        - FORHANDSGODKJENT
+        - OFFENTLIG_OFFENTLIG
 
-    AvtalestatusResponse:
-      oneOf:
-        - $ref: "#/components/schemas/AvtaleIkkeAvbruttStatus"
-        - $ref: "#/components/schemas/AvtaleAvbruttStatus"
-
-    AvtaleIkkeAvbruttStatus:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-            - AKTIV
-            - AVSLUTTET
-            - UTKAST
-      required:
-        - name
-
-    AvtaleAvbruttStatus:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-            - AVBRUTT
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsak:
-          oneOf:
-            - type: string
-            - $ref: "#/components/schemas/AvbrytAvtaleAarsak"
-      required:
-        - name
-        - tidspunkt
-        - aarsak
-
-    Avtalestatus:
+    AvtaleStatus:
       type: string
       enum:
         - AKTIV
         - AVSLUTTET
         - AVBRUTT
         - UTKAST
+
+    AvtaleStatusDto:
+      oneOf:
+        - $ref: "#/components/schemas/AvtaleStatusUtkast"
+        - $ref: "#/components/schemas/AvtaleStatusAktiv"
+        - $ref: "#/components/schemas/AvtaleStatusAvbrutt"
+        - $ref: "#/components/schemas/AvtaleStatusAvsluttet"
+      discriminator:
+        propertyName: type
+        mapping:
+          UTKAST: "#/components/schemas/AvtaleStatusUtkast"
+          AKTIV: "#/components/schemas/AvtaleStatusAktiv"
+          AVBRUTT: "#/components/schemas/AvtaleStatusAvbrutt"
+          AVSLUTTET: "#/components/schemas/AvtaleStatusAvsluttet"
+
+    AvtaleStatusAktiv:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AKTIV
+      required:
+        - type
+
+    AvtaleStatusUtkast:
+      type: object
+      properties:
+        type:
+          type: string
+          const: UTKAST
+      required:
+        - type
+
+    AvtaleStatusAvsluttet:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AVSLUTTET
+      required:
+        - type
+
+    AvtaleStatusAvbrutt:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AVBRUTT
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytAvtaleAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
 
     NotificationStatus:
       type: string
@@ -3251,7 +3273,7 @@ components:
         - TILSAGN_TIL_OPPGJOR
         - TILSAGN_RETURNERT
         - UTBETALING_TIL_BEHANDLING
-        - UTBETALING_TIL_GODKJENNING
+        - UTBETALING_TIL_ATTESTERING
         - UTBETALING_RETURNERT
         - AVTALE_MANGLER_ADMINISTRATOR
         - GJENNOMFORING_MANGLER_ADMINISTRATOR
@@ -3506,28 +3528,70 @@ components:
         - utdanningslop
 
     GjennomforingStatusDto:
+      oneOf:
+        - $ref: "#/components/schemas/GjennomforingStatusGjennomfores"
+        - $ref: "#/components/schemas/GjennomforingStatusAvsluttet"
+        - $ref: "#/components/schemas/GjennomforingStatusAvbrutt"
+        - $ref: "#/components/schemas/GjennomforingStatusAvlyst"
+      discriminator:
+        propertyName: type
+        mapping:
+          GJENNOMFORES: "#/components/schemas/GjennomforingStatusGjennomfores"
+          AVSLUTTET: "#/components/schemas/GjennomforingStatusAvsluttet"
+          AVBRUTT: "#/components/schemas/GjennomforingStatusAvbrutt"
+          AVLYST: "#/components/schemas/GjennomforingStatusAvlyst"
+
+    GjennomforingStatusGjennomfores:
       type: object
       properties:
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
-        avbrutt:
-          type: object
-          properties:
-            tidspunkt:
-              type: string
-              format: date-time
-            aarsak:
-              oneOf:
-                - type: string
-                - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-            beskrivelse:
-              type: string
-          required:
-            - tidspunkt
-            - aarsak
-            - beskrivelse
+        type:
+          const: GJENNOMFORES
       required:
-        - status
+        - type
+
+    GjennomforingStatusAvsluttet:
+      type: object
+      properties:
+        type:
+          const: AVSLUTTET
+      required:
+        - type
+
+    GjennomforingStatusAvbrutt:
+      type: object
+      properties:
+        type:
+          const: AVBRUTT
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
+
+    GjennomforingStatusAvlyst:
+      type: object
+      properties:
+        type:
+          const: AVLYST
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - tidspunkt
+        - aarsak
+        - beskrivelse
 
     GjennomforingStatus:
       type: string
@@ -3547,7 +3611,7 @@ components:
       type: string
       enum:
         - ARENA
-        - MR_ADMIN_FLATE
+        - TILTAKSADMINISTRASJON
 
     ArrangorTil:
       type: string
@@ -4005,12 +4069,7 @@ components:
           $ref: "#/components/schemas/NavEnhetStatus"
         type:
           $ref: "#/components/schemas/NavEnhetType"
-      required:
-        - navn
-        - overordnetEnhet
-        - enhetsnummer
-        - status
-        - type
+      required: [navn, overordnetEnhet, enhetsnummer, status, type]
 
     NavRegion:
       type: object
@@ -4254,7 +4313,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/GjennomforingStatus"
+          $ref: "#/components/schemas/VeilederflateTiltakGruppeStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4304,6 +4363,17 @@ components:
         - personopplysningerSomKanBehandles
         - fylker
 
+    VeilederflateTiltakGruppeStatus:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatus"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - beskrivelse
+
     VeilederflateTiltakEgenRegi:
       type: object
       properties:
@@ -4313,8 +4383,6 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksnummer:
           type: string
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4349,8 +4417,6 @@ components:
           const: "TILTAK_ENKELTPLASS"
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4387,8 +4453,6 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksnummer:
           type: string
-        status:
-          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4586,6 +4650,7 @@ components:
         - TILTAK
         - ALS
         - KO
+        - ARK
 
     BrregVirksomhet:
       type: object
@@ -4680,9 +4745,12 @@ components:
     UserNotificationSummary:
       type: object
       properties:
+        readCount:
+          type: integer
         unreadCount:
           type: integer
       required:
+        - readCount
         - unreadCount
 
     Oppgave:
@@ -4918,12 +4986,8 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet-veilederflate.vis-tilbakemelding
-        - mulighetsrommet.tiltakstype.migrering.deltaker
         - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.migrering.tilsagn
-        - mulighetsrommet.tiltakstype.pamelding-info-komet
-        - mulighetsrommet.admin-flate.deltakerliste
         - arrangorflate.utbetaling.opprett-utbetaling-knapp
 
     PublisertRequest:
@@ -5374,39 +5438,34 @@ components:
       required:
         - navn
 
-    OpsjonsmodellData:
+    Opsjonsmodell:
       type: object
       properties:
+        type:
+          $ref: "#/components/schemas/OpsjonsmodellType"
         opsjonMaksVarighet:
           type: [string, "null"]
           format: date
-        opsjonsmodell:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/OpsjonsmodellKey"
         customOpsjonsmodellNavn:
           type: [string, "null"]
       required:
+        - type
         - opsjonMaksVarighet
-        - opsjonsmodell
         - customOpsjonsmodellNavn
 
-    OpsjonsmodellKey:
+    OpsjonsmodellType:
       type: string
       enum:
         - TO_PLUSS_EN
         - TO_PLUSS_EN_PLUSS_EN
         - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
         - ANNET
-        - AVTALE_UTEN_OPSJONSMODELL
-        - AVTALE_VALGFRI_SLUTTDATO
+        - INGEN_OPSJONSMULIGHET
+        - VALGFRI_SLUTTDATO
 
-    OpsjonLoggRequest:
+    OpprettOpsjonLoggRequest:
       type: object
       properties:
-        avtaleId:
-          type: string
-          format: uuid
         nySluttdato:
           type: [string, "null"]
           format: date
@@ -5416,7 +5475,6 @@ components:
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
-        - avtaleId
         - nySluttdato
         - forrigeSluttdato
         - status
@@ -5424,9 +5482,8 @@ components:
     OpsjonStatus:
       type: string
       enum:
-        - OPSJON_UTLØST
-        - SKAL_IKKE_UTLØSE_OPSJON
-        - PÅGÅENDE_OPSJONSPROSESS
+        - OPSJON_UTLOST
+        - SKAL_IKKE_UTLOSE_OPSJON
 
     OpsjonLoggRegistrert:
       type: object
@@ -5458,12 +5515,8 @@ components:
         id:
           type: string
           format: uuid
-        avtaleId:
-          type: string
-          format: uuid
       required:
         - id
-        - avtaleId
 
     LagretFilterType:
       type: string
@@ -5907,7 +5960,7 @@ components:
         - VENTER_PA_ARRANGOR
         - KLAR_TIL_BEHANDLING
         - RETURNERT
-        - TIL_GODKJENNING
+        - TIL_ATTESTERING
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
 
@@ -5940,7 +5993,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         beregning:
-          $ref: "#/components/schemas/UtbetalingKompaktBeregning"
+          $ref: "#/components/schemas/Beregning"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -5957,11 +6010,25 @@ components:
           type: string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
-        kostnadssteder:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavEnhet"
-      required: [id, status, periode, beregning, createdAt, tilskuddstype, kostnadssteder]
+      required: [id, status, periode, beregning, createdAt, tilskuddstype]
+
+    UtbetalingKompaktDto:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+          status:
+            $ref: "#/components/schemas/AdminUtbetalingStatus"
+          periode:
+            $ref: "#/components/schemas/Periode"
+          kostnadssteder:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhet"
+          belopUtbetalt:
+            type: [number, "null"]
+        required: [ id, status, periode, kostnadssteder, belopUtbetalt ]
 
     DeltakerForKostnadsfordeling:
       type: object
@@ -5975,15 +6042,18 @@ components:
           type: string
           format: date
         geografiskEnhet:
-          type: string
+          $ref: "#/components/schemas/NavEnhet"
         region:
-          type: string
+          $ref: "#/components/schemas/NavEnhet"
         manedsverk:
+          type: number
+        belop:
           type: number
       required:
         - id
         - manedsverk
         - navn
+        - belop
 
     ArrFlateUtbetalingKompakt:
       type: object
@@ -5993,9 +6063,6 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
-        fristForGodkjenning:
-          type: string
-          format: date
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6012,19 +6079,10 @@ components:
       required:
         - id
         - status
-        - fristForGodkjenning
         - tiltakstype
         - gjennomforing
         - arrangor
         - periode
-        - belop
-
-    UtbetalingKompaktBeregning:
-      type: object
-      properties:
-        belop:
-          type: integer
-      required:
         - belop
 
     ArrFlateUtbetaling:
@@ -6035,9 +6093,6 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
-        fristForGodkjenning:
-          type: string
-          format: date
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6063,7 +6118,6 @@ components:
       required:
         - id
         - status
-        - fristForGodkjenning
         - tiltakstype
         - gjennomforing
         - arrangor
@@ -6176,6 +6230,33 @@ components:
       oneOf:
         - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
+
+    BeregningForhandsgodkjent:
+      type: object
+      properties:
+        type:
+          const: FORHANDSGODKJENT
+        belop:
+          type: integer
+        sats:
+          type: integer
+      required: [type, belop, sats]
+
+    BeregningFri:
+      type: object
+      properties:
+        belop:
+          type: integer
+        type:
+          const: FRI
+      required: [belop, type]
+
+    Beregning:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/BeregningForhandsgodkjent"
+        - $ref: "#/components/schemas/BeregningFri"
+
 
     UtbetalingStengtPeriode:
       type: object
@@ -6436,7 +6517,7 @@ components:
     DelutbetalingStatus:
       type: string
       enum:
-        - TIL_GODKJENNING
+        - TIL_ATTESTERING
         - GODKJENT
         - RETURNERT
         - UTBETALT

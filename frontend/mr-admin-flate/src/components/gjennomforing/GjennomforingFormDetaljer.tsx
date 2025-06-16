@@ -41,9 +41,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
-import { getLokaleUnderenheterAsSelectOptions } from "../avtaler/AvtaleFormConst";
-import { MultiValue } from "react-select";
-import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
+import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -116,10 +114,19 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
     .map((struk) => struk.region)
     .map((kontor) => ({ value: kontor.enhetsnummer, label: kontor.navn }));
 
-  const navEnheterOptions = avtale.kontorstruktur
-    .flatMap((struk) => struk.kontorer)
-    .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? ""))
-    .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
+  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(
+    avtale.kontorstruktur
+      .flatMap((struk) => struk.kontorer)
+      .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? "")),
+  );
+  const navKontorEnheterOptions = navKontorEnheter.map((enhet) => ({
+    label: enhet.navn,
+    value: enhet.enhetsnummer,
+  }));
+  const navAndreEnheterOptions = navAndreEnheter.map((enhet) => ({
+    label: enhet.navn,
+    value: enhet.enhetsnummer,
+  }));
 
   const minStartdato = new Date(avtale.startDato);
   const maxSluttdato = addYear(minStartdato, 35);
@@ -337,9 +344,19 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                 velgAlle
                 placeholder={"Velg en"}
                 label={gjennomforingTekster.navEnheterKontorerLabel}
-                helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørighet til."
+                helpText={gjennomforingTekster.navEnheterTooltip}
                 {...register("navEnheter")}
-                options={navEnheterOptions}
+                options={navKontorEnheterOptions}
+              />
+              <ControlledMultiSelect
+                inputId={"navEnheterAndre"}
+                size="small"
+                velgAlle
+                placeholder={"Velg en (valgfritt)"}
+                label={gjennomforingTekster.navEnheterAndreLabel}
+                helpText={gjennomforingTekster.navEnheterTooltip}
+                {...register("navEnheterAndre")}
+                options={navAndreEnheterOptions}
               />
             </FormGroup>
 
@@ -363,7 +380,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                       <div className="flex flex-col gap-4">
                         <SokEtterKontaktperson
                           index={index}
-                          navEnheter={navEnheterOptions}
+                          navEnheter={navKontorEnheterOptions}
                           id={field.id}
                           lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
                         />
@@ -489,12 +506,4 @@ function SokEtterKontaktperson({
       />
     </>
   );
-}
-
-function velgAlleLokaleUnderenheter(
-  selectedOptions: MultiValue<SelectOption<string>>,
-  enheter: NavEnhet[],
-): string[] {
-  const regioner = selectedOptions?.map((option) => option.value);
-  return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }

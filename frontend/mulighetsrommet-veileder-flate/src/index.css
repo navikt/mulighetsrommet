@@ -14,3 +14,6 @@
 :root {
   --filter-width: 320px;
 }
+
+/* Import global styles directly */
+@import "./global-styles.css";

@@ -11,7 +11,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.common.client.pdl.Tema
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -54,7 +53,7 @@ class PdlClient(
             bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header("Behandlingsnummer", VALP_BEHANDLINGSNUMMER)
-            header("Tema", Tema.GEN)
+            header("Tema", "GEN")
             setBody(req)
         }
 

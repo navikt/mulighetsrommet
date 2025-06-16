@@ -59,7 +59,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               linje={linje}
               grayBackground
               knappeColumn={
-                linje?.status === DelutbetalingStatus.TIL_GODKJENNING &&
+                linje?.status === DelutbetalingStatus.TIL_ATTESTERING &&
                 linje?.opprettelse?.kanBesluttes && (
                   <HStack gap="4">
                     <Button
@@ -80,9 +80,10 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                         modal?.showModal();
                       }}
                     >
-                      Godkjenn
+                      Attester
                     </Button>
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
+                      ingress="Ved å sende en linje i retur vil andre linjer også returneres"
                       open={avvisModalOpen}
                       header="Send i retur med forklaring"
                       buttonLabel="Send i retur"
@@ -100,7 +101,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                         setAvvisModalOpen(false);
                       }}
                     />
-                    <GodkjennDelutbetalingModal
+                    <AttesterDelutbetalingModal
                       id={`godkjenn-modal-${linje.id}`}
                       handleClose={() => {
                         const modal = document.getElementById(
@@ -135,7 +136,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   );
 }
 
-function GodkjennDelutbetalingModal({
+function AttesterDelutbetalingModal({
   id,
   handleClose,
   onConfirm,

@@ -6,11 +6,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -43,6 +40,7 @@ class AvtaleQueries(private val session: Session) {
                 arrangor_hovedenhet_id,
                 start_dato,
                 slutt_dato,
+                status,
                 opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
@@ -63,6 +61,7 @@ class AvtaleQueries(private val session: Session) {
                 :arrangor_hovedenhet_id,
                 :start_dato,
                 :slutt_dato,
+                :status::avtale_status,
                 :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
@@ -82,6 +81,7 @@ class AvtaleQueries(private val session: Session) {
                 arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
                 start_dato                  = excluded.start_dato,
                 slutt_dato                  = excluded.slutt_dato,
+                status                      = excluded.status,
                 opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
@@ -242,6 +242,8 @@ class AvtaleQueries(private val session: Session) {
                                arrangor_hovedenhet_id,
                                start_dato,
                                slutt_dato,
+                               status,
+                               opsjonsmodell,
                                arena_ansvarlig_enhet,
                                avtaletype,
                                avbrutt_tidspunkt,
@@ -255,6 +257,8 @@ class AvtaleQueries(private val session: Session) {
                     :arrangor_hovedenhet_id,
                     :start_dato,
                     :slutt_dato,
+                    :status::avtale_status,
+                    :opsjonsmodell::opsjonsmodell,
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
                     :avbrutt_tidspunkt,
@@ -267,6 +271,8 @@ class AvtaleQueries(private val session: Session) {
                                            arrangor_hovedenhet_id   = excluded.arrangor_hovedenhet_id,
                                            start_dato               = excluded.start_dato,
                                            slutt_dato               = excluded.slutt_dato,
+                                           status                   = excluded.status,
+                                           opsjonsmodell            = coalesce(avtale.opsjonsmodell, excluded.opsjonsmodell),
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
                                            avtaletype               = excluded.avtaletype,
                                            avbrutt_tidspunkt        = excluded.avbrutt_tidspunkt,
@@ -294,7 +300,7 @@ class AvtaleQueries(private val session: Session) {
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        statuser: List<AvtaleStatus.Enum> = emptyList(),
+        statuser: List<AvtaleStatus> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<NavEnhetNummer> = emptyList(),
         sortering: String? = null,
@@ -310,7 +316,7 @@ class AvtaleQueries(private val session: Session) {
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { createArrayOfAvtaletype(it) },
-            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
+            "statuser" to statuser.ifEmpty { null }?.let { createArrayOfAvtaleStatus(statuser) },
             "personvern_bekreftet" to personvernBekreftet,
         )
 
@@ -357,27 +363,22 @@ class AvtaleQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            update avtale
-            set opphav = :opphav::opphav
-            where id = :id::uuid
-        """.trimIndent()
-
-        update(queryOf(query, mapOf("id" to id, "opphav" to opphav.name)))
-    }
-
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = with(session) {
+    fun setStatus(id: UUID, status: AvtaleStatus, tidspunkt: LocalDateTime?, aarsak: AvbruttAarsak?): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale set
+                status = :status::avtale_status,
                 avbrutt_tidspunkt = :tidspunkt,
                 avbrutt_aarsak = :aarsak
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)
+        val beskrivelse = when (aarsak) {
+            is AvbruttAarsak.Annet -> aarsak.beskrivelse
+            else -> aarsak?.name
+        }
+
+        val params = mapOf("id" to id, "status" to status.name, "tidspunkt" to tidspunkt, "aarsak" to beskrivelse)
 
         return update(queryOf(query, params))
     }
@@ -427,19 +428,19 @@ class AvtaleQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { it.localDateTime("updated_at") }
     }
 
-    fun oppdaterSluttdato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
+    fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale
             set slutt_dato = ?
             where id = ?::uuid
-            """
+        """
 
         update(queryOf(query, sluttDato, avtaleId))
     }
 
     private fun AvtaleDbo.toSqlParameters() = mapOf(
-        "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
+        "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -448,15 +449,16 @@ class AvtaleQueries(private val session: Session) {
         "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "opsjonMaksVarighet" to opsjonMaksVarighet,
+        "status" to status.name,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
-        "opsjonsmodell" to opsjonsmodell?.name,
-        "opsjonCustomOpsjonsmodellNavn" to customOpsjonsmodellNavn,
+        "opsjonsmodell" to opsjonsmodell.type.name,
+        "opsjonMaksVarighet" to opsjonsmodell.opsjonMaksVarighet,
+        "opsjonCustomOpsjonsmodellNavn" to opsjonsmodell.customOpsjonsmodellNavn,
         "prismodell" to prismodell?.name,
     )
 
@@ -476,6 +478,15 @@ class AvtaleQueries(private val session: Session) {
             "arrangor_hovedenhet_id" to arrangorId,
             "start_dato" to startDato,
             "slutt_dato" to sluttDato,
+            "status" to when (avslutningsstatus) {
+                Avslutningsstatus.IKKE_AVSLUTTET -> AvtaleStatus.AKTIV
+                Avslutningsstatus.AVSLUTTET -> AvtaleStatus.AVSLUTTET
+                Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvtaleStatus.AVBRUTT
+            }.name,
+            "opsjonsmodell" to when (avtaletype) {
+                Avtaletype.FORHANDSGODKJENT, Avtaletype.OFFENTLIG_OFFENTLIG -> OpsjonsmodellType.VALGFRI_SLUTTDATO
+                else -> OpsjonsmodellType.INGEN_OPSJONSMULIGHET
+            }.name,
             "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
             "avtaletype" to avtaletype.name,
             "avbrutt_tidspunkt" to avbruttTidspunkt,
@@ -505,9 +516,9 @@ class AvtaleQueries(private val session: Session) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        val opsjonsmodellData = OpsjonsmodellData(
+        val opsjonsmodell = Opsjonsmodell(
+            type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
             opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
-            opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
         )
         val amoKategorisering = stringOrNull("amo_kategorisering_json")
@@ -541,7 +552,7 @@ class AvtaleQueries(private val session: Session) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
+            status = AvtaleStatusDto.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
             beskrivelse = stringOrNull("beskrivelse"),
@@ -562,7 +573,7 @@ class AvtaleQueries(private val session: Session) {
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
-            opsjonsmodellData = opsjonsmodellData,
+            opsjonsmodell = opsjonsmodell,
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.registrertDato },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
@@ -570,6 +581,10 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 }
+
+fun Session.createArrayOfAvtaleStatus(
+    avtaletypes: List<AvtaleStatus>,
+): Array = createArrayOf("avtale_status", avtaletypes)
 
 fun Session.createArrayOfAvtaletype(
     avtaletypes: List<Avtaletype>,

@@ -11,6 +11,7 @@ import {
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
 import { isKursTiltak } from "@/utils/Utils";
+import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -35,18 +36,19 @@ function defaultNavRegion(
   }
 }
 
-function defaultNavEnheter(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string[] {
+function defaultNavEnheter(
+  avtale: AvtaleDto,
+  gjennomforing?: GjennomforingDto,
+): TypeSplittedNavEnheter {
   if (gjennomforing?.kontorstruktur) {
-    return (
-      gjennomforing.kontorstruktur
-        ?.flatMap((struktur) => struktur.kontorer)
-        ?.map((enhet) => enhet.enhetsnummer) ?? []
+    return splitNavEnheterByType(
+      gjennomforing.kontorstruktur.flatMap((struktur) => struktur.kontorer),
     );
   }
   if (avtale.kontorstruktur.length === 1) {
-    return avtale.kontorstruktur[0].kontorer.map((enhet) => enhet.enhetsnummer);
+    return splitNavEnheterByType(avtale.kontorstruktur[0].kontorer);
   }
-  return [];
+  return { navKontorEnheter: [], navAndreEnheter: [] };
 }
 
 function defaultArrangor(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string | undefined {
@@ -66,11 +68,14 @@ export function defaultGjennomforingData(
   avtale: AvtaleDto,
   gjennomforing?: GjennomforingDto,
 ): DeepPartial<InferredGjennomforingSchema> {
+  const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
+
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
     navRegioner: defaultNavRegion(avtale, gjennomforing),
-    navEnheter: defaultNavEnheter(avtale, gjennomforing),
+    navEnheter: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+    navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
@@ -95,7 +100,7 @@ export function defaultGjennomforingData(
       gjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
     faneinnhold: gjennomforing?.faneinnhold ?? avtale.faneinnhold,
-    opphav: gjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
+    opphav: gjennomforing?.opphav ?? Opphav.TILTAKSADMINISTRASJON,
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,
     estimertVentetid: gjennomforing?.estimertVentetid ?? null,

@@ -1,17 +1,18 @@
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
+import { AvtaleDto, OpprettOpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { OpsjonerRegistrert } from "./OpsjonerRegistrert";
+import { RegistrerteOpsjoner } from "./RegistrerteOpsjoner";
 import { RegistrerOpsjonForm } from "./RegistrerOpsjonForm";
 import {
   InferredRegistrerOpsjonSchema,
   Opsjonsvalg,
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
+import { addYear, formaterDatoSomYYYYMMDD } from "@/utils/Utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -19,19 +20,16 @@ interface Props {
 }
 
 export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
-  const mutation = useRegistrerOpsjon();
+  const mutation = useRegistrerOpsjon(avtale.id);
   const form = useForm<InferredRegistrerOpsjonSchema>({
     resolver: zodResolver(RegistrerOpsjonSchema),
-    defaultValues: {},
+    defaultValues: { opsjonsvalg: "1" },
   });
 
-  const { handleSubmit, reset } = form;
-
   const postData: SubmitHandler<InferredRegistrerOpsjonSchema> = async (data): Promise<void> => {
-    const request: OpsjonLoggRequest = {
-      avtaleId: avtale.id,
-      nySluttdato: data.opsjonsdatoValgt || null,
-      forrigeSluttdato: avtale?.sluttDato || null,
+    const request: OpprettOpsjonLoggRequest = {
+      nySluttdato: getNesteSluttDato(data.opsjonsvalg, avtale.sluttDato, data.opsjonsdatoValgt),
+      forrigeSluttdato: avtale.sluttDato || null,
       status: getStatus(data.opsjonsvalg),
     };
 
@@ -42,26 +40,15 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     });
   };
 
-  function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
-    switch (opsjonsvalg) {
-      case "1":
-        return OpsjonStatus.OPSJON_UTLØST;
-      case "Annet":
-        return OpsjonStatus.OPSJON_UTLØST;
-      case "Opsjon_skal_ikke_utloses":
-        return OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON;
-    }
-  }
-
   function closeAndResetForm() {
-    reset();
+    form.reset();
     mutation.reset();
     modalRef?.current?.close();
   }
 
   function sluttDatoErLikEllerPassererMaksVarighet(): boolean {
-    if (avtale?.opsjonsmodellData?.opsjonMaksVarighet && avtale?.sluttDato) {
-      return new Date(avtale?.sluttDato) >= new Date(avtale?.opsjonsmodellData?.opsjonMaksVarighet);
+    if (avtale?.opsjonsmodell?.opsjonMaksVarighet && avtale?.sluttDato) {
+      return new Date(avtale.sluttDato) >= new Date(avtale.opsjonsmodell.opsjonMaksVarighet);
     }
     return false;
   }
@@ -71,7 +58,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   const avtaleSkalIkkeUtloseOpsjoner = avtale?.opsjonerRegistrert?.some(
-    (opsjon) => opsjon.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON,
+    (opsjon) => opsjon.status === OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON,
   );
 
   return (
@@ -83,7 +70,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       header={{ heading: "Registrer opsjon" }}
     >
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit(postData)}>
+        <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
             <VStack gap="5">
               <BodyLong as="div">
@@ -94,7 +81,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
                 )}
               </BodyLong>
               {avtale.opsjonerRegistrert.length > 0 ? (
-                <OpsjonerRegistrert readOnly={false} avtale={avtale} />
+                <RegistrerteOpsjoner readOnly={false} avtale={avtale} />
               ) : null}
             </VStack>
           </Modal.Body>
@@ -131,9 +118,37 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef, avtale }: Moda
             Du kan ikke registrere flere opsjoner for avtalen. Avtalens sluttdato er samme som maks
             varighet for avtalen.
           </BodyShort>
-          <OpsjonerRegistrert readOnly={false} avtale={avtale} />
+          <RegistrerteOpsjoner readOnly={false} avtale={avtale} />
         </VStack>
       }
     />
   );
+}
+
+function getNesteSluttDato(
+  opsjonsvalg: Opsjonsvalg,
+  avtaleSluttDato?: string | null,
+  customSluttDato?: string | null,
+): string | null {
+  switch (opsjonsvalg) {
+    case "1":
+      return avtaleSluttDato
+        ? formaterDatoSomYYYYMMDD(addYear(new Date(avtaleSluttDato), 1))
+        : null;
+    case "Annet":
+      return customSluttDato || null;
+    case "Opsjon_skal_ikke_utloses":
+      return null;
+  }
+}
+
+function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
+  switch (opsjonsvalg) {
+    case "1":
+      return OpsjonStatus.OPSJON_UTLOST;
+    case "Annet":
+      return OpsjonStatus.OPSJON_UTLOST;
+    case "Opsjon_skal_ikke_utloses":
+      return OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON;
+  }
 }

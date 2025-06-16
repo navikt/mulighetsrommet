@@ -7,14 +7,9 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
-import java.util.Properties
-
-data class Config(
-    val server: ServerConfig,
-    val app: AppConfig,
-)
 
 data class AppConfig(
+    val server: ServerConfig,
     val enableFailedRecordProcessor: Boolean,
     val tasks: TaskConfig,
     val services: ServiceConfig,
@@ -55,7 +50,6 @@ data class ServiceClientConfig(
 )
 
 data class KafkaConfig(
-    val consumerPreset: Properties,
     val consumers: KafkaConsumers,
 )
 

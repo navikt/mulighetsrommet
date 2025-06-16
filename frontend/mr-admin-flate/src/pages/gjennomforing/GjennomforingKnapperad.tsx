@@ -1,5 +1,4 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
@@ -7,55 +6,41 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import {
+  AvtaleDto,
   GjennomforingDto,
   GjennomforingStatus,
   NavAnsatt,
   Opphav,
-  Toggles,
+  Prismodell,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import React, { useRef } from "react";
-import { useFetcher, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
+
 interface Props {
   ansatt: NavAnsatt;
+  avtale?: AvtaleDto;
   gjennomforing: GjennomforingDto;
 }
 
-export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
+export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props) {
   const navigate = useNavigate();
-  const fetcher = useFetcher();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
 
-  const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [gjennomforing.tiltakstype.tiltakskode],
-  );
+  const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 
-  // Add error state handling
-  const publiseringErrored = fetcher.data?.error;
-
-  async function handleClick(e: React.MouseEvent<HTMLInputElement>) {
-    fetcher.submit(
-      { id: gjennomforing.id, publisert: e.currentTarget.checked },
-      {
-        action: `/gjennomforinger/${gjennomforing.id}`,
-        method: "post",
-      },
-    );
-  }
-
-  let gjennomforingPublisert = gjennomforing.publisert;
-  if (!publiseringErrored && fetcher.formData) {
-    gjennomforingPublisert = fetcher.formData.get("publisert") === "true";
+  async function togglePublisert(e: React.MouseEvent<HTMLInputElement>) {
+    setPublisert({ publisert: e.currentTarget.checked });
   }
 
   function dupliserGjennomforing() {
@@ -63,7 +48,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     navigate(`/avtaler/${gjennomforing.avtaleId}/gjennomforinger/skjema`, {
       state: {
         dupliserGjennomforing: {
-          opphav: Opphav.MR_ADMIN_FLATE,
+          opphav: Opphav.TILTAKSADMINISTRASJON,
           avtaleId: gjennomforing.avtaleId,
           beskrivelse: gjennomforing.beskrivelse,
           faneinnhold: gjennomforing.faneinnhold,
@@ -76,18 +61,11 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     <KnapperadContainer>
       <HarSkrivetilgang
         ressurs="Gjennomføring"
-        condition={gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES}
+        condition={gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES}
       >
-        <div>
-          <Switch name="publiser" checked={gjennomforingPublisert} onClick={handleClick}>
-            Publiser
-          </Switch>
-          {publiseringErrored && (
-            <Alert variant="warning" inline>
-              Det oppstod en feil ved publisering. Prøv igjen senere.
-            </Alert>
-          )}
-        </div>
+        <Switch name="publiser" checked={gjennomforing.publisert} onClick={togglePublisert}>
+          Publiser
+        </Switch>
       </HarSkrivetilgang>
 
       <EndringshistorikkPopover>
@@ -99,7 +77,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
             Handlinger
           </Button>
           <Dropdown.Menu>
-            {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
+            {gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES && (
               <>
                 <Dropdown.Menu.GroupedList>
                   <Dropdown.Menu.GroupedList.Item
@@ -119,29 +97,23 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
                   >
                     Rediger gjennomføring
                   </Dropdown.Menu.GroupedList.Item>
-                  {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
-                    <Dropdown.Menu.GroupedList.Item
-                      onClick={() => apentForPameldingModalRef.current?.showModal()}
-                    >
-                      {gjennomforing.apentForPamelding
-                        ? "Steng for påmelding"
-                        : "Åpne for påmelding"}
-                    </Dropdown.Menu.GroupedList.Item>
-                  )}
-                  {enableOkonomi && (
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => apentForPameldingModalRef.current?.showModal()}
+                  >
+                    {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+                  </Dropdown.Menu.GroupedList.Item>
+                  {avtale?.prismodell === Prismodell.FORHANDSGODKJENT && (
                     <Dropdown.Menu.GroupedList.Item
                       onClick={() => registrerStengtModalRef.current?.showModal()}
                     >
                       Registrer stengt hos arrangør
                     </Dropdown.Menu.GroupedList.Item>
                   )}
-                  {gjennomforing.status.status === GjennomforingStatus.GJENNOMFORES && (
-                    <Dropdown.Menu.GroupedList.Item
-                      onClick={() => avbrytModalRef.current?.showModal()}
-                    >
-                      Avbryt gjennomføring
-                    </Dropdown.Menu.GroupedList.Item>
-                  )}
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => avbrytModalRef.current?.showModal()}
+                  >
+                    Avbryt gjennomføring
+                  </Dropdown.Menu.GroupedList.Item>
                 </Dropdown.Menu.GroupedList>
                 <Dropdown.Menu.Divider />
               </>

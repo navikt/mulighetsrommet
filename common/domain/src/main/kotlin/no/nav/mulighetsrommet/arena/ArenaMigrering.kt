@@ -11,6 +11,6 @@ object ArenaMigrering {
 
     enum class Opphav {
         ARENA,
-        MR_ADMIN_FLATE,
+        TILTAKSADMINISTRASJON,
     }
 }

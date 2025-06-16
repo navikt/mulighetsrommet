@@ -11,13 +11,13 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
 val ClientResponseMetricPlugin = createClientPlugin("ClientResponseMetricPlugin") {
     onResponse { response ->
-        Metrikker.clientResponseMetrics(response.call.request.url.host, response.status.value).increment()
+        Metrics.clientResponseMetrics(response.call.request.url.host, response.status.value).increment()
     }
 }
 

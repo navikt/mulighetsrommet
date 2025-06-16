@@ -165,9 +165,7 @@ class BrukerService(
                     add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
                 }
 
-                if (!erUnderOppfolging && gjeldendeVedtak?.innsatsgruppe != null) {
-                    add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
-                } else if (!erUnderOppfolging) {
+                if (!erUnderOppfolging) {
                     add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
                 } else if (gjeldendeVedtak?.innsatsgruppe == null) {
                     add(BrukerVarsel.BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK)

@@ -6,11 +6,20 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato, formaterPeriode } from "@/utils/Utils";
+import { formaterDato, formaterPeriode, utbetalingLinjeCompareFn } from "@/utils/Utils";
 import { AdminUtbetalingStatus, Rolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
-import { Accordion, Alert, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
+import {
+  Accordion,
+  Alert,
+  Button,
+  CopyButton,
+  Heading,
+  HGrid,
+  HStack,
+  VStack,
+} from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
   tilsagnTilUtbetalingQuery,
@@ -20,11 +29,13 @@ import {
 
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
-import { DeltakerOversikt } from "@/components/utbetaling/DeltakerOversikt";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { useState } from "react";
+import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
+import { ForhandsgodkjentBeregningModal } from "./ForhandsgodkjentBeregningModal";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -41,7 +52,7 @@ function useUtbetalingPageData() {
     historikk,
     tilsagn,
     utbetaling: utbetaling.utbetaling,
-    linjer: utbetaling.linjer.toSorted((m, n) => m.id.localeCompare(n.id)),
+    linjer: utbetaling.linjer.toSorted(utbetalingLinjeCompareFn),
     deltakere: utbetaling.deltakere,
   };
 }
@@ -50,6 +61,7 @@ export function UtbetalingPage() {
   const { gjennomforingId } = useParams();
   const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, deltakere } =
     useUtbetalingPageData();
+  const [beregningModalOpen, setBeregningModalOpen] = useState<boolean>(false);
 
   const erSaksbehandlerOkonomi = ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI);
   const brodsmuler: Brodsmule[] = [
@@ -165,14 +177,30 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
-              <Accordion>
-                <Accordion.Item>
-                  <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
-                  <Accordion.Content>
-                    {deltakere.length > 0 && <DeltakerOversikt deltakere={deltakere} />}
-                  </Accordion.Content>
-                </Accordion.Item>
-              </Accordion>
+              {utbetaling.beregning.type === "FORHANDSGODKJENT" && (
+                <Accordion>
+                  <Accordion.Item>
+                    <Accordion.Header>Beregning</Accordion.Header>
+                    <Accordion.Content>
+                      <VStack gap="2">
+                        <ForhandsgodkjentDeltakerTable
+                          deltakere={deltakere}
+                          sats={utbetaling.beregning.sats}
+                        />
+                        <HStack justify="start" align="start">
+                          <Button
+                            variant="tertiary"
+                            size="small"
+                            onClick={() => setBeregningModalOpen(true)}
+                          >
+                            Filtrering
+                          </Button>
+                        </HStack>
+                      </VStack>
+                    </Accordion.Content>
+                  </Accordion.Item>
+                </Accordion>
+              )}
               {tilsagn.every(
                 (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
               ) && (
@@ -196,6 +224,15 @@ export function UtbetalingPage() {
           </VStack>
         </WhitePaddedBox>
       </ContentBox>
+      {utbetaling.beregning.type === "FORHANDSGODKJENT" && (
+        <ForhandsgodkjentBeregningModal
+          heading={`${gjennomforing.navn} ${formaterPeriode(utbetaling.periode)}`}
+          deltakere={deltakere}
+          sats={utbetaling.beregning.sats}
+          modalOpen={beregningModalOpen}
+          onClose={() => setBeregningModalOpen(false)}
+        />
+      )}
     </>
   );
 }

@@ -1,13 +1,16 @@
-import { AvtaleDto, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client-v2";
+import { AvtaleDto, Avtaletype, OpsjonStatus } from "@mr/api-client-v2";
 import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
-import { useFormContext } from "react-hook-form";
+import { FieldError, useFormContext } from "react-hook-form";
 import { MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
-import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
+import { RegistrerteOpsjoner } from "../opsjoner/RegistrerteOpsjoner";
+import {
+  hentGjeldendeOpsjonsmodeller,
+  hentOpsjonsmodell,
+} from "@/components/avtaler/opsjoner/opsjonsmodeller";
 
 interface Props {
   avtale?: AvtaleDto;
@@ -16,7 +19,6 @@ interface Props {
   sluttDatoFraDato: Date;
   sluttDatoTilDato: Date;
   maksAar: number;
-  opsjonsmodell?: Opsjonsmodell;
 }
 
 export function AvtaleVarighet({
@@ -26,7 +28,6 @@ export function AvtaleVarighet({
   sluttDatoFraDato,
   sluttDatoTilDato,
   maksAar,
-  opsjonsmodell,
 }: Props) {
   const {
     register,
@@ -36,8 +37,13 @@ export function AvtaleVarighet({
     control,
   } = useFormContext<InferredAvtaleSchema>();
 
+  const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(avtaletype);
+
+  const opsjonsmodellType = watch("opsjonsmodell.type");
+  const opsjonsmodell = opsjonsmodellType ? hentOpsjonsmodell(opsjonsmodellType) : undefined;
+
   const antallOpsjonerUtlost = (
-    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
+    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
   ).length;
 
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
@@ -55,14 +61,12 @@ export function AvtaleVarighet({
       }
       if (opsjonsmodell.maksVarighetAar) {
         setValue(
-          "opsjonsmodellData.opsjonMaksVarighet",
+          "opsjonsmodell.opsjonMaksVarighet",
           kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
         );
       }
     }
   }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
-
-  const gjeldendeOpsjonsmodeller = hentModeller(avtaletype);
 
   return (
     <>
@@ -71,21 +75,21 @@ export function AvtaleVarighet({
       </Heading>
 
       <HGrid columns={2}>
-        {avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
+        {avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
           <Select
             readOnly={skalIkkeKunneRedigereOpsjoner}
             label="Avtalt mulighet for forlengelse"
             size="small"
             value={opsjonsmodell?.value}
-            error={errors.opsjonsmodellData?.opsjonsmodell?.message}
+            error={(errors.opsjonsmodell?.type as FieldError | undefined)?.message}
             onChange={(e) => {
-              const opsjonsmodell = opsjonsmodeller.find(
+              const opsjonsmodell = gjeldendeOpsjonsmodeller.find(
                 (modell) => modell.value === e.target.value,
               );
               if (opsjonsmodell) {
-                setValue("opsjonsmodellData.opsjonsmodell", opsjonsmodell?.value);
-                setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
-                setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
+                setValue("opsjonsmodell.type", opsjonsmodell.value);
+                setValue("opsjonsmodell.customOpsjonsmodellNavn", undefined);
+                setValue("opsjonsmodell.opsjonMaksVarighet", undefined);
               }
             }}
           >
@@ -104,10 +108,10 @@ export function AvtaleVarighet({
           label="Opsjonsnavn"
           readOnly={readonly}
           hideLabel
-          error={errors.opsjonsmodellData?.customOpsjonsmodellNavn?.message}
+          error={errors.opsjonsmodell?.customOpsjonsmodellNavn?.message}
           placeholder="Beskriv opsjonsmodellen"
           size="small"
-          {...register("opsjonsmodellData.customOpsjonsmodellNavn")}
+          {...register("opsjonsmodell.customOpsjonsmodellNavn")}
         />
       ) : null}
 
@@ -140,7 +144,7 @@ export function AvtaleVarighet({
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            {...register("opsjonsmodellData.opsjonMaksVarighet")}
+            {...register("opsjonsmodell.opsjonMaksVarighet")}
             format={"iso-string"}
             control={control}
           />
@@ -159,7 +163,7 @@ export function AvtaleVarighet({
           <ControlledDateInput
             size="small"
             label={
-              avtaletype === Avtaletype.FORHAANDSGODKJENT
+              avtaletype === Avtaletype.FORHANDSGODKJENT
                 ? avtaletekster.valgfriSluttdatoLabel(avtaletype)
                 : avtaletekster.sluttdatoLabel(false)
             }
@@ -172,7 +176,7 @@ export function AvtaleVarighet({
         </HGrid>
       )}
       {avtale && avtale.opsjonerRegistrert.length > 0 && (
-        <OpsjonerRegistrert readOnly avtale={avtale} />
+        <RegistrerteOpsjoner readOnly avtale={avtale} />
       )}
     </>
   );
@@ -183,23 +187,4 @@ function kalkulerMaksDato(date: Date, addYears: number): Date {
   resultDate.setFullYear(resultDate.getFullYear() + addYears);
   const daysInMilliseconds = 1 * 24 * 60 * 60 * 1000;
   return new Date(resultDate.getTime() - daysInMilliseconds);
-}
-
-function hentModeller(avtaletype: Avtaletype | undefined): Opsjonsmodell[] {
-  if (!avtaletype) {
-    return [];
-  }
-
-  if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
-    return opsjonsmodeller.filter(
-      (modell) => modell.value === OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
-    );
-  }
-
-  if (avtaletype !== Avtaletype.OFFENTLIG_OFFENTLIG) {
-    return opsjonsmodeller.filter(
-      (modell) => modell.value !== OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
-    );
-  }
-  return opsjonsmodeller;
 }

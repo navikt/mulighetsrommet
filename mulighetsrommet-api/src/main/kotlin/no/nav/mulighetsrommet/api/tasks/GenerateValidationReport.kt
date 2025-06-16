@@ -9,8 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -108,7 +110,7 @@ class GenerateValidationReport(
     private suspend fun validateAvtaler(): Map<AvtaleDto, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
-                avtaleValidator.validate(it.toDbo(), it).onLeft { validationErrors ->
+                avtaleValidator.validate(AvtaleDboMapper.fromAvtaleDto(it), it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
             }
@@ -125,7 +127,7 @@ class GenerateValidationReport(
         var rowNumber = 1
         result.forEach { (dto, errors) ->
             errors.forEach { error ->
-                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.enum.name, error)
+                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.type.name, error)
             }
         }
     }
@@ -138,7 +140,8 @@ class GenerateValidationReport(
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items
             }) {
-                gjennomforingValidator.validate(it.toTiltaksgjennomforingDbo(), it).onLeft { validationErrors ->
+                val dbo = GjennomforingDboMapper.fromGjennomforingDto(it)
+                gjennomforingValidator.validate(dbo, it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
             }
@@ -155,7 +158,7 @@ class GenerateValidationReport(
         var rowNumber = 1
         result.forEach { (dto, errors) ->
             errors.forEach { error ->
-                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.status.name, error)
+                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.type.name, error)
             }
         }
     }

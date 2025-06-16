@@ -7,11 +7,15 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder.isKursTiltak
 import java.time.LocalDate
 
@@ -48,7 +52,7 @@ class GjennomforingValidator(
                 )
             }
 
-            if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && next.sluttDato == null) {
+            if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && next.sluttDato == null) {
                 add(
                     FieldError.of(
                         GjennomforingDbo::sluttDato,
@@ -106,7 +110,7 @@ class GjennomforingValidator(
             } ?: false
 
             if (!avtaleHasArrangor) {
-                add(FieldError.of(GjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
+                add(FieldError.of(GjennomforingDbo::arrangorId, "Du må velge en arrangør fra avtalen"))
             }
 
             if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
@@ -292,11 +296,20 @@ class GjennomforingValidator(
             )
         }
 
-        if (avtale.status != AvtaleStatus.AKTIV) {
+        if (avtale.status != AvtaleStatusDto.Aktiv) {
             add(
                 FieldError.of(
                     GjennomforingDbo::avtaleId,
                     "Avtalen må være aktiv for å kunne opprette tiltak",
+                ),
+            )
+        }
+
+        if (gjennomforing.status != GjennomforingStatus.GJENNOMFORES) {
+            add(
+                FieldError.of(
+                    GjennomforingDbo::navn,
+                    "Du kan ikke opprette en gjennomføring som er ${gjennomforing.status.name.lowercase()}",
                 ),
             )
         }
@@ -307,11 +320,11 @@ class GjennomforingValidator(
         previous: GjennomforingDto,
         avtale: AvtaleDto,
     ) {
-        if (previous.status.status != GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type != GjennomforingStatus.GJENNOMFORES) {
             add(
                 FieldError.of(
                     GjennomforingDbo::navn,
-                    "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.status.name.lowercase()}",
+                    "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.type.name.lowercase()}",
                 ),
             )
         }
@@ -325,7 +338,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (previous.status.status == GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type == GjennomforingStatus.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     FieldError.of(

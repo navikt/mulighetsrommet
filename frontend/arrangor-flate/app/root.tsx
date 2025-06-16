@@ -1,5 +1,4 @@
 import { Arrangor, ArrangorflateService } from "api-client";
-import { BodyShort, Box, Heading } from "@navikt/ds-react";
 import {
   isRouteErrorResponse,
   Links,
@@ -22,6 +21,7 @@ import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
 import { problemDetailResponse } from "./utils";
 import css from "./root.module.css";
+import { ErrorPage } from "./components/ErrorPage";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger" }];
 
@@ -102,7 +102,7 @@ export const ErrorBoundary = () => {
         navigate(`/oauth2/login?redirect=${window.location.pathname}`);
       }
       if (error.status === 403) {
-        navigate("/ingen-tilgang"); // Use navigate inside useEffect
+        navigate("/ingen-tilgang");
       }
     }
   }, [error, navigate]);
@@ -110,25 +110,24 @@ export const ErrorBoundary = () => {
   if (isRouteErrorResponse(error)) {
     return (
       <Dokument arrangorer={[]}>
-        <Heading spacing size="large" level="2">
-          {error.status}
-        </Heading>
-        <Box background="bg-default" padding={"10"}>
-          <BodyShort>{error.data.title}</BodyShort>
-          <BodyShort>{error.data.detail}</BodyShort>
-        </Box>
+        <ErrorPage
+          heading={error.status === 404 ? "Siden ble ikke funnet" : `Feil ${error.status}`}
+          body={[error.data.title, error.data.detail]}
+          navigate={navigate}
+        />
       </Dokument>
     );
   } else {
     return (
       <Dokument arrangorer={[]}>
-        <Heading spacing size="large" level="2">
-          Ojsann!
-        </Heading>
-        <Box background="bg-default" padding={"10"}>
-          <BodyShort>Det skjedde en uventet feil.</BodyShort>
-          <BodyShort>Vennligst prøv igjen senere</BodyShort>
-        </Box>
+        <ErrorPage
+          heading="Ojsann! Noe gikk galt"
+          body={[
+            "Det oppstod en uventet feil. Dette er ikke din feil, men vår.",
+            "Vi jobber med å løse problemet. Vennligst prøv igjen senere.",
+          ]}
+          navigate={navigate}
+        />
       </Dokument>
     );
   }

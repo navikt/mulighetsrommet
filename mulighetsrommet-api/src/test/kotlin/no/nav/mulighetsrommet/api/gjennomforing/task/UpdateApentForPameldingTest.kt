@@ -43,8 +43,8 @@ class UpdateApentForPameldingTest : FunSpec({
         }
 
         val service = GjennomforingService(
+            config = GjennomforingService.Config("siste-tiltaksgjennomforinger-topic"),
             db = database.db,
-            gjennomforingKafkaProducer = mockk(relaxed = true),
             validator = mockk(),
             navAnsattService = mockk(relaxed = true),
         )

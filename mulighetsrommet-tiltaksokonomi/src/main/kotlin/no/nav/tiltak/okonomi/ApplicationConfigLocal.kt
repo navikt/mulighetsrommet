@@ -84,12 +84,6 @@ val ApplicationConfigLocal = AppConfig(
         enable = false,
     ),
     kafka = KafkaConfig(
-        consumerPropertiesPreset = KafkaPropertiesBuilder.consumerBuilder()
-            .withBaseProperties()
-            .withConsumerGroupId("tiltaksokonomi.v1")
-            .withBrokerUrl("localhost:29092")
-            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-            .build(),
         producerPropertiesPreset = KafkaPropertiesBuilder.producerBuilder()
             .withBaseProperties()
             .withProducerId("tiltaksokonomi.v1")
@@ -104,6 +98,12 @@ val ApplicationConfigLocal = AppConfig(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
                 topic = "tiltaksokonomi.bestillinger-v1",
+                consumerProperties = KafkaPropertiesBuilder.consumerBuilder()
+                    .withBaseProperties()
+                    .withConsumerGroupId("tiltaksokonomi.v1")
+                    .withBrokerUrl("localhost:29092")
+                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                    .build(),
             ),
         ),
     ),

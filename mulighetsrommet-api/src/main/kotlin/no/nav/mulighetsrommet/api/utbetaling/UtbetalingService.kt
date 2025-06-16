@@ -9,7 +9,6 @@ import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
@@ -78,7 +77,7 @@ class UtbetalingService(
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, avtaletype) ->
                 val utbetaling = when (avtaletype) {
-                    Avtaletype.Forhaandsgodkjent -> createUtbetalingForhandsgodkjent(
+                    Avtaletype.FORHANDSGODKJENT -> createUtbetalingForhandsgodkjent(
                         utbetalingId = UUID.randomUUID(),
                         gjennomforingId = gjennomforingId,
                         periode = periode,
@@ -241,7 +240,6 @@ class UtbetalingService(
 
         return UtbetalingDbo(
             id = utbetalingId,
-            fristForGodkjenning = getFristForGodkjenning(periode.getLastInclusiveDate()),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
             kontonummer = kontonummer,
@@ -257,10 +255,10 @@ class UtbetalingService(
     // TODO: må verifisere at utbetaling ikke kan godkjennes flere ganger
     fun godkjentAvArrangor(
         utbetalingId: UUID,
-        request: GodkjennUtbetaling,
+        kid: Kid?,
     ) = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setKid(utbetalingId, request.kid)
+        queries.utbetaling.setKid(utbetalingId, kid)
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
@@ -275,7 +273,6 @@ class UtbetalingService(
             UtbetalingDbo(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
-                fristForGodkjenning = getFristForGodkjenning(request.periodeSlutt),
                 kontonummer = request.kontonummer,
                 kid = request.kidNummer,
                 beregning = UtbetalingBeregningFri.beregn(
@@ -343,7 +340,7 @@ class UtbetalingService(
         }
 
         logEndring(
-            "Utbetaling sendt til godkjenning",
+            "Utbetaling sendt til attestering",
             getOrError(utbetaling.id),
             navIdent,
         )
@@ -357,7 +354,7 @@ class UtbetalingService(
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
         val delutbetaling = requireNotNull(queries.delutbetaling.get(id))
-        require(delutbetaling.status == DelutbetalingStatus.TIL_GODKJENNING) {
+        require(delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
             "Utbetaling er allerede besluttet"
         }
 
@@ -493,7 +490,7 @@ class UtbetalingService(
             id = id,
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
-            status = DelutbetalingStatus.TIL_GODKJENNING,
+            status = DelutbetalingStatus.TIL_ATTESTERING,
             periode = periode,
             belop = belop,
             gjorOppTilsagn = gjorOppTilsagn,
@@ -778,8 +775,6 @@ private fun isRelevantForUtbetalingsperide(
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
-
-private fun getFristForGodkjenning(lastUtbetalingPeriodeDate: LocalDate): LocalDate = lastUtbetalingPeriodeDate.plusMonths(2)
 
 enum class DelutbetalingReturnertAarsak {
     FEIL_BELOP,

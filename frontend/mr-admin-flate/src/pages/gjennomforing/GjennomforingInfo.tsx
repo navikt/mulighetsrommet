@@ -40,7 +40,7 @@ export function GjennomforingInfo() {
               label="Redaksjonelt innhold"
             />
           </div>
-          <GjennomforingKnapperad ansatt={ansatt} gjennomforing={gjennomforing} />
+          <GjennomforingKnapperad ansatt={ansatt} avtale={avtale} gjennomforing={gjennomforing} />
         </Tabs.List>
         <Tabs.Panel value="detaljer">
           <InlineErrorBoundary>

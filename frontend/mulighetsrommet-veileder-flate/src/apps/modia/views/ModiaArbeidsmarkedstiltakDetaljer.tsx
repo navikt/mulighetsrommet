@@ -16,7 +16,6 @@ import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGru
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
 import {
   PORTEN_URL_FOR_TILBAKEMELDING,
   TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL,
@@ -31,7 +30,6 @@ import {
   NavVeileder,
   Tiltakskode,
   TiltakskodeArena,
-  Toggles,
   VeilederflateTiltakstype,
 } from "@mr/api-client-v2";
 import { TilbakemeldingsLenke } from "@mr/frontend-common";
@@ -39,7 +37,7 @@ import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
-import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
+import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
 
 const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
@@ -49,7 +47,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { data: delMedBrukerInfo } = useDelMedBrukerStatus(fnr, id);
   const { enhet, overordnetEnhet } = useModiaContext();
 
-  const { data: veilederdata } = useVeilederdata();
+  const { data: veileder } = useVeilederdata();
   const { data: brukerdata } = useBrukerdata();
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
   const { data: regioner } = useRegioner();
@@ -113,8 +111,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {isTiltakAktivt(tiltak) ? <PameldingKometApnerSnart tiltak={tiltak} /> : null}
-
             {isTiltakGruppe(tiltak) && isTiltakAktivt(tiltak) ? (
               <PameldingForGruppetiltak
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
@@ -125,7 +121,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             {brukerdata.erUnderOppfolging && isTiltakAktivt(tiltak) ? (
               <DelMedBruker
                 delMedBrukerInfo={delMedBrukerInfo ?? undefined}
-                veiledernavn={resolveName(veilederdata)}
+                veiledernavn={resolveName(veileder)}
                 tiltak={tiltak}
                 bruker={brukerdata}
                 veilederEnhet={enhet}
@@ -165,12 +161,13 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             ) : null}
 
             <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
-            <VisibleWhenToggledOn toggle={Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING}>
+
+            {isTilbakemeldingerEnabled(tiltak) && (
               <TilbakemeldingsLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer, fylke)}
                 tekst="Gi tilbakemelding via Porten"
               />
-            </VisibleWhenToggledOn>
+            )}
           </>
         }
       />

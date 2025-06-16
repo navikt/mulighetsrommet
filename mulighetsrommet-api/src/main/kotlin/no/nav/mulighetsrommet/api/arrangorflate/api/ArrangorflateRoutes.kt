@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -213,11 +212,14 @@ fun Route.arrangorflateRoutes() {
                     request,
                     utbetaling,
                     relevanteForslag,
-                ).onLeft {
-                    return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
-                }
+                )
+                    .onLeft {
+                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                    }
+                    .onRight {
+                        utbetalingService.godkjentAvArrangor(utbetaling.id, it)
+                    }
 
-                utbetalingService.godkjentAvArrangor(utbetaling.id, request)
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -240,7 +242,6 @@ fun Route.arrangorflateRoutes() {
                         ),
                         godkjentAvArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
                         createdAt = arrflateUtbetaling.createdAt,
-                        fristForGodkjenning = arrflateUtbetaling.fristForGodkjenning,
                         gjennomforing = GjennomforingPdf(
                             navn = arrflateUtbetaling.gjennomforing.navn,
                         ),
@@ -411,7 +412,7 @@ data class ArrangorflateGjennomforing(
 @Serializable
 data class GodkjennUtbetaling(
     val digest: String,
-    val kid: Kid?,
+    val kid: String?,
 )
 
 @Serializable

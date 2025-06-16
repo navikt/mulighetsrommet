@@ -12,11 +12,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -30,7 +28,6 @@ import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -57,7 +54,8 @@ fun Route.utbetalingRoutes() {
                     val utbetaling = queries.utbetaling.get(id)
                         ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
 
-                    val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
+                    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+                    val linjer = delutbetalinger.map { delutbetaling ->
                         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
                             TilsagnDto.fromTilsagn(it)
                         }
@@ -84,7 +82,7 @@ fun Route.utbetalingRoutes() {
                                 besluttetAvNavn,
                             ),
                         )
-                    }
+                    }.sortedBy { it.tilsagn.bestillingsnummer }
 
                     val deltakere = when (utbetaling.beregning) {
                         is UtbetalingBeregningForhandsgodkjent -> {
@@ -106,7 +104,10 @@ fun Route.utbetalingRoutes() {
                     }
 
                     UtbetalingDetaljerDto(
-                        utbetaling = toUtbetalingDto(utbetaling, emptyList()),
+                        utbetaling = UtbetalingDto.fromUtbetaling(
+                            utbetaling,
+                            AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger),
+                        ),
                         deltakere = deltakere,
                         linjer = linjer,
                     )
@@ -114,15 +115,6 @@ fun Route.utbetalingRoutes() {
 
                 call.respond(utbetaling)
             }
-        }
-        get("/delutbetalinger") {
-            val id = call.parameters.getOrFail<UUID>("id")
-
-            val delutbetalinger = db.session {
-                queries.delutbetaling.getByUtbetalingId(id)
-            }
-
-            call.respond(delutbetalinger)
         }
 
         get("/historikk") {
@@ -195,18 +187,27 @@ fun Route.utbetalingRoutes() {
             val utbetalinger = db.session {
                 queries.utbetaling.getByGjennomforing(id)
                     .map { utbetaling ->
-                        val kostnadssteder =
-                            queries.delutbetaling.getByUtbetalingId(utbetaling.id).mapNotNull { delutbetaling ->
-                                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
-                                    TilsagnDto.fromTilsagn(it)
+                        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+
+                        val kostnadssteder = delutbetalinger.map { delutbetaling ->
+                            queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
+                        }
+                        val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
+                        val belopUtbetalt = when (status) {
+                            AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
+                                delutbetalinger.sumOf {
+                                    it.belop
                                 }
-                                if (tilsagn.type != TilsagnType.EKSTRATILSAGN) {
-                                    tilsagn.kostnadssted
-                                } else {
-                                    null
-                                }
-                            }
-                        toUtbetalingDto(utbetaling, kostnadssteder)
+                            else -> null
+                        }
+
+                        UtbetalingKompaktDto(
+                            id = utbetaling.id,
+                            status = status,
+                            periode = utbetaling.periode,
+                            kostnadssteder = kostnadssteder,
+                            belopUtbetalt = belopUtbetalt,
+                        )
                     }
             }
 
@@ -220,20 +221,13 @@ private fun toDeltakerForKostnadsfordeling(
     person: DeltakerPerson?,
     manedsverk: Double,
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
-    id = deltaker.gjennomforingId,
+    id = deltaker.id,
     navn = person?.navn,
-    geografiskEnhet = person?.geografiskEnhet?.navn,
-    region = person?.region?.navn,
+    geografiskEnhet = person?.geografiskEnhet,
+    region = person?.region,
     foedselsdato = person?.foedselsdato,
     manedsverk = manedsverk,
 )
-
-private fun QueryContext.toUtbetalingDto(utbetaling: Utbetaling, kostnadssteder: List<NavEnhetDbo>?): UtbetalingDto {
-    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-    val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
-
-    return UtbetalingDto.fromUtbetaling(utbetaling, status, kostnadssteder)
-}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -284,6 +278,6 @@ data class OpprettManuellUtbetalingRequest(
     val periodeSlutt: LocalDate,
     val beskrivelse: String,
     val kontonummer: Kontonummer,
-    val kidNummer: Kid? = null,
+    val kidNummer: String? = null,
     val belop: Int,
 )

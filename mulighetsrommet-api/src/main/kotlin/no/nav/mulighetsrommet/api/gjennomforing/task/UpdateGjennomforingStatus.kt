@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
@@ -22,22 +23,21 @@ class UpdateGjennomforingStatus(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, Daily(LocalTime.MIDNIGHT))
         .execute { _, _ ->
-            oppdaterGjennomforingStatus(LocalDate.now())
+            execute(LocalDateTime.now())
         }
 
-    fun oppdaterGjennomforingStatus(today: LocalDate) {
-        logger.info("Oppdaterer status på gjennomføringer som skal avsluttes fra og med dato $today")
+    fun execute(now: LocalDateTime) {
+        logger.info("Oppdaterer status på gjennomføringer som skal avsluttes fra og med dato $now")
 
         val gjennomforinger = getGjennomforingerSomSkalAvsluttes(
-            sluttDatoLessThan = today,
+            sluttDatoLessThan = now.toLocalDate(),
         )
 
         gjennomforinger.forEach { id ->
             logger.info("Avslutter gjennomføring id=$id")
-            gjennomforingService.setAvsluttet(
+            gjennomforingService.avsluttGjennomforing(
                 id = id,
-                avsluttetTidspunkt = today.atStartOfDay(),
-                avsluttetAarsak = null,
+                avsluttetTidspunkt = now,
                 endretAv = Tiltaksadministrasjon,
             )
         }
@@ -50,15 +50,11 @@ class UpdateGjennomforingStatus(
     ): List<UUID> = db.session {
         @Language("PostgreSQL")
         val query = """
-            select gjennomforing.id,
-                   gjennomforing.slutt_dato,
-                   tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avsluttet_tidspunkt) as current_status
-            from gjennomforing gjennomforing
-                     join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-            where gjennomforing.avsluttet_tidspunkt is null
-              and gjennomforing.slutt_dato < :slutt_dato_lt
-            order by gjennomforing.id
-            limit :limit offset :offset
+            select id
+            from gjennomforing
+            where status = 'GJENNOMFORES'
+              and slutt_dato < :slutt_dato_lt
+            order by created_at
         """.trimIndent()
 
         val params = mapOf(

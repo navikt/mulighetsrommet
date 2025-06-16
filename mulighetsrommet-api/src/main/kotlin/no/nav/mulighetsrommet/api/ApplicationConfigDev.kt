@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -14,6 +15,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -29,20 +31,19 @@ val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
-    ),
+    ) { metricRegistry = Metrics.micrometerRegistry },
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
-        consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-api-kafka-consumer.v1"),
-        clients = KafkaClients(
+        clients = KafkaClients(::aivenDefaultConsumerProperties) {
             amtDeltakerV1 = KafkaTopicConsumer.Config(
                 id = "amt-deltaker",
                 topic = "amt.deltaker-v1",
-                consumerGroupId = "mulighetsrommet-api.deltaker.v2",
-            ),
-        ),
+                consumerProperties = aivenDefaultConsumerProperties("mulighetsrommet-api.deltaker.v2"),
+            )
+        },
     ),
     auth = AuthConfig(
         azure = AuthProvider(
@@ -319,10 +320,6 @@ val ApplicationConfigDev = AppConfig(
         token = System.getenv("UNLEASH_SERVER_API_TOKEN"),
         instanceId = System.getenv("NAIS_CLIENT_ID"),
         environment = "development",
-    ),
-    axsys = AuthenticatedHttpClientConfig(
-        url = "https://axsys.dev-fss-pub.nais.io",
-        scope = "api://dev-fss.org.axsys/.default",
     ),
     pdl = AuthenticatedHttpClientConfig(
         url = "https://pdl-api.dev-fss-pub.nais.io",

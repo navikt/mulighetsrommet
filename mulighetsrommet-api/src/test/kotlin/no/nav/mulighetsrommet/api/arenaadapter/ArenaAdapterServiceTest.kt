@@ -1,17 +1,17 @@
 package no.nav.mulighetsrommet.api.arenaadapter
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
-import kotliquery.Query
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -19,23 +19,22 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.*
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
+
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArenaAdapterService(
-        gjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
         sanityService: SanityService = mockk(relaxed = true),
     ) = ArenaAdapterService(
+        config = ArenaAdapterService.Config(PRODUCER_TOPIC),
         db = database.db,
-        gjennomforingKafkaProducer = gjennomforingKafkaProducer,
         sanityService = sanityService,
         arrangorService = mockk(relaxed = true),
     )
@@ -50,7 +49,7 @@ class ArenaAdapterServiceTest : FunSpec({
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
             arenaAnsvarligEnhet = null,
-            avtaletype = Avtaletype.Rammeavtale,
+            avtaletype = Avtaletype.RAMMEAVTALE,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             prisbetingelser = "💸",
         )
@@ -155,16 +154,12 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not publish egen regi-tiltak to kafka") {
-            val gjennomforingKafkaProducer =
-                mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
-            val service = createArenaAdapterService(
-                gjennomforingKafkaProducer = gjennomforingKafkaProducer,
-            )
+            val service = createArenaAdapterService()
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
-            verify(exactly = 0) {
-                gjennomforingKafkaProducer.publish(any())
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(0)
             }
         }
     }
@@ -256,8 +251,8 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.tiltaksnummer shouldBe "2024#2024"
                     it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
-                    it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
-                    it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                    it.status.type shouldBe GjennomforingStatus.GJENNOMFORES
+                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
                     it.navn shouldBe gjennomforing1.navn
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
@@ -271,9 +266,10 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal ikke overskrive avsluttet_tidspunkt") {
-            val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
-                startDato = LocalDate.now(),
-                sluttDato = LocalDate.now().plusDays(1),
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                startDato = LocalDate.of(2023, 1, 1),
+                sluttDato = LocalDate.of(2023, 4, 1),
+                status = GjennomforingStatus.GJENNOMFORES,
             )
 
             MulighetsrommetTestDomain(
@@ -287,21 +283,18 @@ class ArenaAdapterServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(gjennomforing1),
-            ).initialize(database.db)
-
-            // Setter den til custom avbrutt tidspunkt for å sjekke at den ikke overskrives med en "fake" en
-            val jan2023 = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-            database.run {
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing1.id,
-                    jan2023,
-                    AvbruttAarsak.EndringHosArrangor,
+                gjennomforinger = listOf(gjennomforing),
+            ) {
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing.id,
+                    status = GjennomforingStatus.AVBRUTT,
+                    tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                    aarsak = AvbruttAarsak.EndringHosArrangor,
                 )
-            }
+            }.initialize(database.db)
 
             val arenaDbo = ArenaGjennomforingDbo(
-                id = gjennomforing1.id,
+                id = gjennomforing.id,
                 sanityId = null,
                 navn = "Endet navn",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -321,13 +314,12 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltaksgjennomforing(arenaDbo)
 
-            val avbrutt = database.run {
-                session.single(Query("select avsluttet_tidspunkt, avbrutt_aarsak from gjennomforing where id = '${gjennomforing1.id}'")) {
-                    it.localDateTime("avsluttet_tidspunkt") to it.string("avbrutt_aarsak")
-                }
+            database.run {
+                queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
+                    tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                    aarsak = AvbruttAarsak.EndringHosArrangor,
+                )
             }
-
-            avbrutt shouldBe (jan2023 to "ENDRING_HOS_ARRANGOR")
         }
 
         test("skal publisere til kafka når det er endringer fra Arena") {
@@ -341,11 +333,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
-            val gjennomforingKafkaProducer =
-                mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
-            val service = createArenaAdapterService(
-                gjennomforingKafkaProducer = gjennomforingKafkaProducer,
-            )
+            val service = createArenaAdapterService()
 
             val arenaGjennomforing = ArenaGjennomforingDbo(
                 id = gjennomforing1.id,
@@ -367,13 +355,13 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
-            // Verifiserer at duplikater ikke blir publisert
-            verify(exactly = 1) {
-                gjennomforingKafkaProducer.publish(
-                    match {
-                        it.navn == gjennomforing1.navn
-                    },
-                )
+            database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                record.topic shouldBe PRODUCER_TOPIC
+                record.key shouldBe gjennomforing1.id.toString().toByteArray()
+
+                val decoded = Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(record.value.decodeToString())
+                decoded.id shouldBe gjennomforing1.id
             }
         }
     }

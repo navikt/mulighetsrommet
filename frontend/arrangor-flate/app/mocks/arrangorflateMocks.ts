@@ -78,7 +78,6 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
   {
     id: "da28997b-c2ba-4f5c-b733-94eb57e57d19",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -102,7 +101,6 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
   {
     id: "80a49868-0d06-4243-bc39-7ac33fbada88",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -125,7 +123,6 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
   {
     id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -149,7 +146,6 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
   {
     id: "87b4425b-8be0-4938-94bc-2ba1ae7beb0e",
     status: ArrFlateUtbetalingStatus.UTBETALT,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -177,13 +173,12 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "da28997b-c2ba-4f5c-b733-94eb57e57d19",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "123456789",
+      kid: "0004614992",
     },
     gjennomforing: {
       id: uuid(),
@@ -220,7 +215,6 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "80a49868-0d06-4243-bc39-7ac33fbada88",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -230,7 +224,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "123456789",
+      kid: "0004614992",
     },
     arrangor: {
       id: uuid(),
@@ -254,7 +248,6 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -264,7 +257,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "123456789",
+      kid: "0004614992",
     },
     arrangor: {
       id: uuid(),
@@ -288,7 +281,6 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     id: "87b4425b-8be0-4938-94bc-2ba1ae7beb0e",
     status: ArrFlateUtbetalingStatus.UTBETALT,
-    fristForGodkjenning: "2024-08-01",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -298,7 +290,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
     },
     betalingsinformasjon: {
       kontonummer: "12345678901",
-      kid: "123456789",
+      kid: "0004614992",
     },
     arrangor: {
       id: uuid(),

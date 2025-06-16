@@ -8,7 +8,7 @@ enum class AdminUtbetalingStatus {
     UTBETALT,
     VENTER_PA_ARRANGOR,
     RETURNERT,
-    TIL_GODKJENNING,
+    TIL_ATTESTERING,
     KLAR_TIL_BEHANDLING,
     OVERFORT_TIL_UTBETALING,
     BEHANDLES,
@@ -24,7 +24,7 @@ enum class AdminUtbetalingStatus {
             }
 
             return when (delutbetalinger.getOrNull(0)?.status) {
-                DelutbetalingStatus.TIL_GODKJENNING, DelutbetalingStatus.GODKJENT -> TIL_GODKJENNING
+                DelutbetalingStatus.TIL_ATTESTERING, DelutbetalingStatus.GODKJENT -> TIL_ATTESTERING
                 DelutbetalingStatus.RETURNERT -> RETURNERT
                 DelutbetalingStatus.UTBETALT -> UTBETALT
                 DelutbetalingStatus.BEHANDLES_AV_NAV -> BEHANDLES

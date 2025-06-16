@@ -13,11 +13,9 @@ import java.time.Instant
 import java.util.*
 
 class OppdaterUtbetalingBeregningForGjennomforingConsumer(
-    config: Config,
     private val db: ApiDatabase,
     private val oppdaterUtbetaling: OppdaterUtbetalingBeregning,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {

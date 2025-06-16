@@ -23,7 +23,6 @@ data class VeilederflateInnsatsgruppe(
 sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
     abstract val navn: String
-    abstract val status: GjennomforingStatus
     abstract val beskrivelse: String?
     abstract val faneinnhold: Faneinnhold?
     abstract val kontaktinfo: VeilederflateKontaktinfo
@@ -38,7 +37,6 @@ sealed class VeilederflateTiltak {
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
@@ -48,6 +46,7 @@ data class VeilederflateTiltakGruppe(
     override val enheter: List<NavEnhetNummer>,
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val status: Status,
     val tiltaksnummer: String?,
     val apentForPamelding: Boolean,
     @Serializable(with = LocalDateSerializer::class)
@@ -58,14 +57,19 @@ data class VeilederflateTiltakGruppe(
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<PersonopplysningData>,
-) : VeilederflateTiltak()
+) : VeilederflateTiltak() {
+    @Serializable
+    data class Status(
+        val type: GjennomforingStatus,
+        val beskrivelse: String,
+    )
+}
 
 @Serializable
 @SerialName("TILTAK_ENKELTPLASS_ANSKAFFET")
 data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
@@ -83,7 +87,6 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 data class VeilederflateTiltakEgenRegi(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
@@ -100,7 +103,6 @@ data class VeilederflateTiltakEgenRegi(
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,

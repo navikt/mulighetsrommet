@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -13,6 +14,7 @@ import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -28,14 +30,13 @@ val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
-    ),
+    ) { metricRegistry = Metrics.micrometerRegistry },
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
-        consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-api-kafka-consumer.v1"),
-        clients = KafkaClients(),
+        clients = KafkaClients(::aivenDefaultConsumerProperties),
     ),
     auth = AuthConfig(
         azure = AuthProvider(
@@ -302,10 +303,6 @@ val ApplicationConfigProd = AppConfig(
         token = System.getenv("UNLEASH_SERVER_API_TOKEN"),
         instanceId = System.getenv("NAIS_CLIENT_ID"),
         environment = "production",
-    ),
-    axsys = AuthenticatedHttpClientConfig(
-        url = "https://axsys.prod-fss-pub.nais.io",
-        scope = "api://prod-fss.org.axsys/.default",
     ),
     pdl = AuthenticatedHttpClientConfig(
         url = "https://pdl-api.prod-fss-pub.nais.io",

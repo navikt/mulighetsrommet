@@ -11,7 +11,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -30,6 +29,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingQueriesTest : FunSpec({
@@ -76,7 +75,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
                     it.arenaAnsvarligEnhet shouldBe null
-                    it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatus.GJENNOMFORES
                     it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
@@ -88,12 +87,11 @@ class GjennomforingQueriesTest : FunSpec({
                     )
                     it.kontorstruktur shouldBe listOf(Kontorstruktur(region = Innlandet, kontorer = listOf(Gjovik)))
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
-                    it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.kontaktpersoner shouldBe listOf()
                     it.stedForGjennomforing shouldBe "Oslo"
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null
-                    it.createdAt shouldNotBe null
                 }
 
                 queries.delete(Oppfolging1.id)
@@ -181,7 +179,7 @@ class GjennomforingQueriesTest : FunSpec({
                 val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
-                queries.settilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
+                queries.setTilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
                     it.tilgjengeligForArrangorDato shouldBe LocalDate.now()
                 }
@@ -334,26 +332,30 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
-        test("avpubliseres når gjennomføring blir avsluttet") {
+        test("oppdater status") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
                 val queries = GjennomforingQueries(session)
 
+                val id = Oppfolging1.id
                 queries.upsert(Oppfolging1)
-                queries.setPublisert(Oppfolging1.id, true)
-                queries.setApentForPamelding(Oppfolging1.id, true)
 
-                queries.setAvsluttet(
-                    Oppfolging1.id,
-                    LocalDateTime.now(),
-                    AvbruttAarsak.Feilregistrering,
+                val tidspunkt = LocalDate.now().atStartOfDay()
+                queries.setStatus(id, GjennomforingStatus.AVBRUTT, tidspunkt, AvbruttAarsak.Annet(":)"))
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
+                    tidspunkt = tidspunkt,
+                    aarsak = AvbruttAarsak.Annet(":)"),
                 )
 
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.publisert shouldBe false
-                    it.apentForPamelding shouldBe false
-                }
+                queries.setStatus(id, GjennomforingStatus.AVLYST, tidspunkt, AvbruttAarsak.Feilregistrering)
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
+                    tidspunkt = tidspunkt,
+                    aarsak = AvbruttAarsak.Feilregistrering,
+                )
+
+                queries.setStatus(id, GjennomforingStatus.GJENNOMFORES, tidspunkt, null)
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Gjennomfores
             }
         }
 
@@ -767,64 +769,6 @@ class GjennomforingQueriesTest : FunSpec({
                 items.lastOrNull()?.navn shouldBe expectedLast
 
                 totalCount shouldBe expectedTotalCount
-            }
-        }
-    }
-
-    context("status på gjennomføring") {
-        val dagensDato = LocalDate.of(2024, 6, 1)
-        val enManedFrem = dagensDato.plusMonths(1)
-        val enManedTilbake = dagensDato.minusMonths(1)
-        val toManederFrem = dagensDato.plusMonths(2)
-        val toManederTilbake = dagensDato.minusMonths(2)
-
-        test("status AVLYST, AVBRUTT, AVSLUTTET utledes fra avsluttet-tidspunkt") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.AFT)).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                forAll(
-                    row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), GjennomforingStatus.AVLYST),
-                    row(enManedTilbake, null, enManedTilbake.minusDays(1), GjennomforingStatus.AVLYST),
-                    row(enManedFrem, toManederFrem, dagensDato, GjennomforingStatus.AVLYST),
-                    row(dagensDato, toManederFrem, dagensDato, GjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), GjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedFrem, GjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, null, enManedFrem, GjennomforingStatus.AVBRUTT),
-                    row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), GjennomforingStatus.AVSLUTTET),
-                    row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), GjennomforingStatus.AVSLUTTET),
-                ) { startDato, sluttDato, avbruttDato, expectedStatus ->
-                    queries.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
-
-                    queries.setAvsluttet(
-                        AFT1.id,
-                        avbruttDato.atStartOfDay(),
-                        AvbruttAarsak.Feilregistrering,
-                    )
-
-                    queries.get(AFT1.id).shouldNotBeNull().status.status shouldBe expectedStatus
-                }
-            }
-        }
-
-        test("hvis ikke avsluttet så blir status GJENNOMFORES") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.AFT)).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                forAll(
-                    row(toManederTilbake, enManedTilbake, GjennomforingStatus.GJENNOMFORES),
-                    row(enManedTilbake, null, GjennomforingStatus.GJENNOMFORES),
-                    row(dagensDato, dagensDato, GjennomforingStatus.GJENNOMFORES),
-                    row(enManedFrem, toManederFrem, GjennomforingStatus.GJENNOMFORES),
-                    row(enManedFrem, null, GjennomforingStatus.GJENNOMFORES),
-                ) { startDato, sluttDato, status ->
-                    queries.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
-
-                    queries.get(AFT1.id).shouldNotBeNull().status.status shouldBe status
-                }
             }
         }
     }

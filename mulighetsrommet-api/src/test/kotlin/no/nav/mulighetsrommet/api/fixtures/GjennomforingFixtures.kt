@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
@@ -15,8 +16,9 @@ object GjennomforingFixtures {
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolging.startDato.plusDays(1),
-        sluttDato = AvtaleFixtures.oppfolging.startDato.plusMonths(3),
+        startDato = AvtaleFixtures.oppfolging.startDato,
+        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
@@ -40,8 +42,9 @@ object GjennomforingFixtures {
         navn = "EnkelAmo 1",
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
         arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolging.startDato.plusDays(1),
-        sluttDato = AvtaleFixtures.oppfolging.startDato.plusMonths(3),
+        startDato = AvtaleFixtures.oppfolging.startDato,
+        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
@@ -94,6 +97,7 @@ object GjennomforingFixtures {
         arrangorId = ArrangorFixtures.underenhet2.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = emptyList(),
         navEnheter = emptySet(),
@@ -119,6 +123,7 @@ object GjennomforingFixtures {
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         administratorer = listOf(NavIdent("DD1")),
@@ -144,6 +149,7 @@ object GjennomforingFixtures {
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
@@ -169,6 +175,7 @@ object GjennomforingFixtures {
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
@@ -194,6 +201,7 @@ object GjennomforingFixtures {
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
@@ -219,6 +227,7 @@ object GjennomforingFixtures {
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
+        status = GjennomforingStatus.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
@@ -237,31 +246,6 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val IPS1 = GjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "IPS 1",
-        tiltakstypeId = TiltakstypeFixtures.IPS.id,
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        antallPlasser = 12,
-        administratorer = listOf(NavIdent("DD1")),
-        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
-        oppstart = GjennomforingOppstartstype.FELLES,
-        kontaktpersoner = emptyList(),
-        arrangorKontaktpersoner = emptyList(),
-        stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.IPS.id,
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        utdanningslop = null,
-    )
-
     val ArbeidsrettetRehabilitering = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidsretter Rehabilitering 1",
@@ -269,6 +253,7 @@ object GjennomforingFixtures {
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
+        status = GjennomforingStatus.AVSLUTTET,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),

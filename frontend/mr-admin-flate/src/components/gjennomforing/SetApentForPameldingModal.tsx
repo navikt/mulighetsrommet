@@ -1,7 +1,7 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
 import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingDto } from "@mr/api-client-v2";
-import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
+import { Button, Modal, Switch } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefObject } from "react";
 
@@ -19,11 +19,6 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
       <Modal.Body className="prose">
         <div>
           <p>Her kan du styre om tiltaket skal være åpent for påmelding i Modia.</p>
-
-          <Alert variant={"info"}>
-            For tiltak hvor påmelding fortsatt gjøres i Arena, vil det være mulig å melde på
-            deltakere selv om tiltaket vises som stengt i Modia.
-          </Alert>
 
           <p>Påmelding stenges automatisk av systemet når:</p>
           <ul>

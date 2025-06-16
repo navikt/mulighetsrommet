@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -13,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -298,8 +300,8 @@ class GjennomforingRoutesTest : FunSpec({
     }
 
     context("avbryt gjennomføring") {
-        val avsluttetGjennomforingId = UUID.randomUUID()
         val aktivGjennomforingId = UUID.randomUUID()
+        val avbruttGjennomforingId = UUID.randomUUID()
 
         val domain = MulighetsrommetTestDomain(
             ansatte = listOf(ansatt),
@@ -309,14 +311,16 @@ class GjennomforingRoutesTest : FunSpec({
                     id = aktivGjennomforingId,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now(),
+                    status = GjennomforingStatus.GJENNOMFORES,
                 ),
                 GjennomforingFixtures.Oppfolging1.copy(
-                    id = avsluttetGjennomforingId,
+                    id = avbruttGjennomforingId,
                 ),
             ),
         ) {
-            queries.gjennomforing.setAvsluttet(
-                avsluttetGjennomforingId,
+            queries.gjennomforing.setStatus(
+                avbruttGjennomforingId,
+                GjennomforingStatus.AVBRUTT,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,
             )
@@ -328,28 +332,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         afterContainer {
             database.truncateAll()
-        }
-
-        test("not found når gjennomføring ikke finnes") {
-            withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
-
-                val response = client
-                    .put("/api/v1/intern/gjennomforinger/${UUID.randomUUID()}/avbryt") {
-                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                        contentType(ContentType.Application.Json)
-                        setBody(AvbrytRequest(aarsak = null))
-                    }
-
-                response.status shouldBe HttpStatusCode.NotFound
-                response.bodyAsText().shouldBe("Gjennomføringen finnes ikke")
-            }
         }
 
         test("bad request når årsak mangler") {
@@ -366,11 +348,10 @@ class GjennomforingRoutesTest : FunSpec({
                     .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
-                        setBody(AvbrytRequest(aarsak = null))
+                        setBody("{}")
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
-                response.bodyAsText().shouldBe("Årsak mangler")
             }
         }
 
@@ -396,7 +377,7 @@ class GjennomforingRoutesTest : FunSpec({
             }
         }
 
-        test("bad request når gjennomføring allerede er avsluttet") {
+        test("bad request når gjennomføring allerede er avbrutt") {
             withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -407,14 +388,16 @@ class GjennomforingRoutesTest : FunSpec({
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
-                    .put("/api/v1/intern/gjennomforinger/$avsluttetGjennomforingId/avbryt") {
+                    .put("/api/v1/intern/gjennomforinger/$avbruttGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(AvbrytRequest(aarsak = AvbruttAarsak.Feilregistrering))
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
-                response.bodyAsText().shouldBe("Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.")
+                response.body<ValidationError>().errors shouldBe listOf(
+                    FieldError("/", "Gjennomføringen er allerede avbrutt"),
+                )
             }
         }
 
@@ -439,8 +422,10 @@ class GjennomforingRoutesTest : FunSpec({
 
                 database.run {
                     queries.gjennomforing.get(aktivGjennomforingId).shouldNotBeNull().should {
-                        it.status.status shouldBe GjennomforingStatus.AVBRUTT
-                        it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
+                        it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>().should {
+                            it.type shouldBe GjennomforingStatus.AVBRUTT
+                            it.aarsak shouldBe AvbruttAarsak.Feilregistrering
+                        }
                     }
                 }
             }

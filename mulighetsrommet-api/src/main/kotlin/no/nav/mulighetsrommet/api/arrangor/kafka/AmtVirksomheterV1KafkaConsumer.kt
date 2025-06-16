@@ -12,10 +12,8 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 
 class AmtVirksomheterV1KafkaConsumer(
-    config: Config,
     private val arrangorService: ArrangorService,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    config,
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {

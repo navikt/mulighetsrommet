@@ -1,17 +1,16 @@
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { Tabs } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { OppgaveoversiktIkon } from "@/components/ikoner/OppgaveoversiktIkon";
-import { ulesteNotifikasjonerQuery } from "./notifikasjoner/notifikasjonerQueries";
+import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
 
 export function OppgaveoversiktPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const { data: ulesteNotifikasjoner } = useSuspenseQuery({ ...ulesteNotifikasjonerQuery });
-  const antallNotifikasjoner = ulesteNotifikasjoner.data.pagination.totalCount;
+  const summary = useNotificationSummary();
+  const { unreadCount } = summary.data;
 
   return (
     <main>
@@ -30,7 +29,7 @@ export function OppgaveoversiktPage() {
           />
           <Tabs.Tab
             value="notifikasjoner"
-            label={`Notifikasjoner ${antallNotifikasjoner ? `(${antallNotifikasjoner})` : ""}`}
+            label={unreadCount ? `Notifikasjoner (${unreadCount})` : "Notifikasjoner"}
             onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
             aria-controls="panel"
             data-testid="notifikasjoner"

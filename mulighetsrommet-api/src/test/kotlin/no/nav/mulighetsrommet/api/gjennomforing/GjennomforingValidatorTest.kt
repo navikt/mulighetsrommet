@@ -17,10 +17,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -117,7 +114,7 @@ class GjennomforingValidatorTest : FunSpec({
 
     fun createValidator() = GjennomforingValidator(database.db)
 
-    test("should fail when avtale does not exist") {
+    test("skal feile når avtale ikke finnes") {
         val unknownAvtaleId = UUID.randomUUID()
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
@@ -127,7 +124,7 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should fail when tiltakstype does not match with avtale") {
+    test("skal feile når tiltakstypen ikke overlapper med avtalen") {
         database.run {
             queries.avtale.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
         }
@@ -137,34 +134,24 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should fail when tiltakstype does not support change of oppstartstype") {
-
+    test("skal ikke kunne sette felles oppsart når tiltaket krever løpende oppstart") {
         createValidator().validate(gjennomforing.copy(oppstart = GjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
             .shouldContainExactlyInAnyOrder(FieldError("/oppstart", "Tiltaket må ha løpende oppstartstype"))
     }
 
-    test("kan ikke opprette på ikke Aktiv avtale") {
-        val id = UUID.randomUUID()
+    test("avtalen må være aktiv") {
         database.run {
-            queries.avtale.upsert(avtale.copy(id = id))
-            queries.avtale.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
+            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVBRUTT, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
         }
-
-        val dbo = gjennomforing.copy(avtaleId = id)
-
-        createValidator().validate(dbo, null).shouldBeLeft(
+        createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
 
-        val id2 = UUID.randomUUID()
         database.run {
-            queries.avtale.upsert(avtale.copy(id = id2, sluttDato = LocalDate.now().minusDays(1)))
+            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVSLUTTET, null, null)
         }
-
-        val dbo2 = gjennomforing.copy(avtaleId = id2)
-
-        createValidator().validate(dbo2, null).shouldBeLeft(
+        createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
     }
@@ -176,6 +163,24 @@ class GjennomforingValidatorTest : FunSpec({
 
         createValidator().validate(dbo, null).shouldBeLeft(
             listOf(FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
+        )
+    }
+
+    test("kan ikke bare opprettes med status GJENNOMFORES") {
+        val gjennomfores = gjennomforing.copy(status = GjennomforingStatus.GJENNOMFORES)
+        val avsluttet = gjennomforing.copy(status = GjennomforingStatus.AVSLUTTET)
+        val avbrutt = gjennomforing.copy(status = GjennomforingStatus.AVBRUTT)
+        val avlyst = gjennomforing.copy(status = GjennomforingStatus.AVLYST)
+
+        createValidator().validate(gjennomfores, null).shouldBeRight()
+        createValidator().validate(avsluttet, null).shouldBeLeft(
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avsluttet")),
+        )
+        createValidator().validate(avbrutt, null).shouldBeLeft(
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avbrutt")),
+        )
+        createValidator().validate(avlyst, null).shouldBeLeft(
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avlyst")),
         )
     }
 
@@ -287,7 +292,7 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("should validate fields in the gjennomføring and fields related to the avtale") {
+    test("validerer at datafelter i gjennomføring i henhold til data i avtalen") {
         forAll(
             row(
                 gjennomforing.copy(
@@ -318,14 +323,14 @@ class GjennomforingValidatorTest : FunSpec({
             ),
             row(
                 gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-                listOf(FieldError("/arrangorId", "Du må velge en arrangør for avtalen")),
+                listOf(FieldError("/arrangorId", "Du må velge en arrangør fra avtalen")),
             ),
         ) { input, error ->
             createValidator().validate(input, null).shouldBeLeft(error)
         }
     }
 
-    context("when gjennomføring already exists") {
+    context("når gjennonmføring allerede eksisterer") {
         beforeEach {
             database.run { queries.gjennomforing.upsert(gjennomforing.copy(administratorer = listOf())) }
         }
@@ -345,7 +350,7 @@ class GjennomforingValidatorTest : FunSpec({
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
             val previous = database.run { queries.gjennomforing.get(gjennomforing.id) }
 
-            validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous)
+            validator.validate(gjennomforing.copy(startDato = avtaleStartDato.plusDays(5)), previous)
                 .shouldBeRight()
             validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous)
                 .shouldBeLeft(
@@ -382,19 +387,25 @@ class GjennomforingValidatorTest : FunSpec({
 
         test("skal godta endringer selv om avtale er avbrutt") {
             val previous = database.run {
-                queries.avtale.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
+                queries.avtale.setStatus(
+                    avtale.id,
+                    AvtaleStatus.AVBRUTT,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.BudsjettHensyn,
+                )
                 queries.gjennomforing.get(gjennomforing.id)
             }
 
             validator.validate(gjennomforing, previous).shouldBeRight()
         }
 
-        test("should fail when is avbrutt") {
+        test("skal feile når gjennomføring er avbrutt") {
             val previous = database.run {
-                queries.gjennomforing.setAvsluttet(
-                    gjennomforing.id,
-                    LocalDateTime.now(),
-                    AvbruttAarsak.Feilregistrering,
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing.id,
+                    status = GjennomforingStatus.AVBRUTT,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsak = AvbruttAarsak.Feilregistrering,
                 )
                 queries.gjennomforing.get(gjennomforing.id)
             }
@@ -404,10 +415,14 @@ class GjennomforingValidatorTest : FunSpec({
             )
         }
 
-        test("should fail when is avsluttet") {
+        test("skal feile når gjennomføring er avsluttet") {
             val previous = database.run {
-                queries.gjennomforing.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
-                queries.gjennomforing.setAvsluttet(gjennomforing.id, LocalDateTime.now(), null)
+                queries.gjennomforing.setStatus(
+                    id = gjennomforing.id,
+                    status = GjennomforingStatus.AVSLUTTET,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsak = null,
+                )
                 queries.gjennomforing.get(gjennomforing.id)
             }
 

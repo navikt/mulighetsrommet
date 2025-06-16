@@ -16,6 +16,7 @@ import {
   TilsagnType,
   Tiltakskode,
   TiltakskodeArena,
+  UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
 
@@ -140,7 +141,7 @@ export function avtaletypeTilTekst(
   switch (type) {
     case Avtaletype.AVTALE:
       return "Avtale";
-    case Avtaletype.FORHAANDSGODKJENT:
+    case Avtaletype.FORHANDSGODKJENT:
       return "Forhåndsgodkjent";
     case Avtaletype.RAMMEAVTALE:
       return "Rammeavtale";
@@ -445,4 +446,8 @@ export function navnIdentEllerPlaceholder(agent?: AgentDto): string {
     return "-";
   }
   return navnEllerIdent(agent);
+}
+
+export function utbetalingLinjeCompareFn(linje1: UtbetalingLinje, linje2: UtbetalingLinje): number {
+  return linje1.tilsagn.bestillingsnummer.localeCompare(linje2.tilsagn.bestillingsnummer);
 }

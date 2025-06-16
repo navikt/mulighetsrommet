@@ -1,5 +1,5 @@
 import { StarFillIcon, StarIcon, TrashFillIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, HStack, Radio, RadioGroup, Tooltip } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import styles from "./LagredeFilterOversikt.module.scss";
 import { VarselModal } from "../varsel/VarselModal";
@@ -87,6 +87,10 @@ export function LagredeFilterOversikt({
         >
           <div className={styles.overflow}>
             {filters.map((lagretFilter) => {
+              const defaultFilterLabel = lagretFilter.isDefault
+                ? "Fjern som favoritt"
+                : "Velg som favoritt";
+              const deleteFilterLabel = "Slett filter";
               return (
                 <HStack
                   key={lagretFilter.id}
@@ -99,28 +103,30 @@ export function LagredeFilterOversikt({
                     {lagretFilter.navn}
                   </Radio>
                   <div className={styles.filterActions}>
-                    <Button
-                      icon={lagretFilter.isDefault ? <StarFillIcon /> : <StarIcon />}
-                      iconPosition="right"
-                      aria-label={
-                        lagretFilter.isDefault ? "Fjern som favoritt" : "Velg som favoritt"
-                      }
-                      variant="tertiary"
-                      size="medium"
-                      onClick={() => {
-                        onSetDefaultFilter(lagretFilter.id, !lagretFilter.isDefault);
-                      }}
-                    />
-                    <Button
-                      icon={<TrashFillIcon />}
-                      iconPosition="right"
-                      aria-label="Slett filter"
-                      variant="tertiary-neutral"
-                      size="medium"
-                      onClick={() => {
-                        setFilterForSletting(lagretFilter);
-                      }}
-                    />
+                    <Tooltip content={defaultFilterLabel}>
+                      <Button
+                        icon={lagretFilter.isDefault ? <StarFillIcon /> : <StarIcon />}
+                        iconPosition="right"
+                        aria-label={defaultFilterLabel}
+                        variant="tertiary"
+                        size="medium"
+                        onClick={() => {
+                          onSetDefaultFilter(lagretFilter.id, !lagretFilter.isDefault);
+                        }}
+                      />
+                    </Tooltip>
+                    <Tooltip content={deleteFilterLabel}>
+                      <Button
+                        icon={<TrashFillIcon />}
+                        iconPosition="right"
+                        aria-label={deleteFilterLabel}
+                        variant="tertiary-neutral"
+                        size="medium"
+                        onClick={() => {
+                          setFilterForSletting(lagretFilter);
+                        }}
+                      />
+                    </Tooltip>
                   </div>
                 </HStack>
               );

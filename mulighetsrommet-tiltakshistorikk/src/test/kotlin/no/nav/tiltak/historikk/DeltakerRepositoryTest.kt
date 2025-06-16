@@ -34,6 +34,8 @@ class DeltakerRepositoryTest : FunSpec({
         tilgjengeligForArrangorFraOgMedDato = null,
         apentForPamelding = true,
         antallPlasser = 10,
+        opprettetTidspunkt = LocalDateTime.now(),
+        oppdatertTidspunkt = LocalDateTime.now(),
     )
     val amtDeltaker = AmtDeltakerV1Dto(
         id = UUID.randomUUID(),

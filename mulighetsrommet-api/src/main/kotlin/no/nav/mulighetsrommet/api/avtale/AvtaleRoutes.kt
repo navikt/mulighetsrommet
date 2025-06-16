@@ -7,6 +7,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -46,7 +48,7 @@ data class AvtaleRequest(
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val opsjonsmodellData: OpsjonsmodellData?,
+    val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell?,
@@ -64,51 +66,22 @@ data class AvtaleRequest(
 }
 
 @Serializable
-data class OpsjonsmodellData(
-    @Serializable(with = LocalDateSerializer::class)
-    val opsjonMaksVarighet: LocalDate?,
-    val opsjonsmodell: Opsjonsmodell?,
-    val customOpsjonsmodellNavn: String? = null,
-)
-
-@Serializable
-enum class Opsjonsmodell {
-    TO_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-    ANNET,
-    AVTALE_UTEN_OPSJONSMODELL,
-    AVTALE_VALGFRI_SLUTTDATO,
-}
-
-@Serializable
-data class OpsjonLoggRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
+data class OpprettOpsjonLoggRequest(
     @Serializable(with = LocalDateSerializer::class)
     val nySluttdato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val forrigeSluttdato: LocalDate?,
-    val status: OpsjonsLoggStatus,
-) {
-    enum class OpsjonsLoggStatus {
-        OPSJON_UTLØST,
-        SKAL_IKKE_UTLØSE_OPSJON,
-        PÅGÅENDE_OPSJONSPROSESS,
-    }
-}
+    val status: OpsjonLoggStatus,
+)
 
 @Serializable
 data class SlettOpsjonLoggRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
 )
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
-    val opsjonLoggService: OpsjonLoggService by inject()
 
     route("personopplysninger") {
         get {
@@ -133,12 +106,56 @@ fun Route.avtaleRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
+            route("{id}/opsjoner") {
+                post {
+                    val id: UUID by call.parameters
+                    val request = call.receive<OpprettOpsjonLoggRequest>()
+                    val userId = getNavIdent()
+
+                    val opsjonLoggEntry = OpsjonLoggEntry(
+                        id = UUID.randomUUID(),
+                        avtaleId = id,
+                        sluttdato = request.nySluttdato,
+                        forrigeSluttdato = request.forrigeSluttdato,
+                        status = request.status,
+                        registretDato = LocalDate.now(),
+                        registrertAv = userId,
+                    )
+                    val result = avtaler.registrerOpsjon(opsjonLoggEntry)
+                        .mapLeft { ValidationError("Klarte ikke registrere opsjon", listOf(it)) }
+                        .map { HttpStatusCode.OK }
+
+                    call.respondWithStatusResponse(result)
+                }
+
+                delete {
+                    val id: UUID by call.parameters
+                    val request = call.receive<SlettOpsjonLoggRequest>()
+                    val userId = getNavIdent()
+
+                    val result = avtaler
+                        .slettOpsjon(
+                            avtaleId = id,
+                            opsjonId = request.id,
+                            slettesAv = userId,
+                        )
+                        .mapLeft { ValidationError("Klarte ikke slette opsjon", listOf(it)) }
+                        .map { HttpStatusCode.OK }
+
+                    call.respondWithStatusResponse(result)
+                }
+            }
+
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<AvbrytRequest>()
-                val response = avtaler.avbrytAvtale(id, navIdent, request.aarsak)
-                call.respondWithStatusResponse(response)
+
+                val result = avtaler.avbrytAvtale(id, navIdent, request.aarsak)
+                    .mapLeft { ValidationError("Klarte ikke avbryte avtale", listOf(it)) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
 
             delete("kontaktperson") {
@@ -214,44 +231,13 @@ fun Route.avtaleRoutes() {
             call.respond(historikk)
         }
     }
-
-    route("opsjoner") {
-        authorize(Rolle.AVTALER_SKRIV) {
-            post {
-                val request = call.receive<OpsjonLoggRequest>()
-                val userId = getNavIdent()
-                val opsjonLoggEntry = OpsjonLoggEntry(
-                    avtaleId = request.avtaleId,
-                    sluttdato = request.nySluttdato,
-                    forrigeSluttdato = request.forrigeSluttdato,
-                    status = request.status,
-                    registretDato = LocalDate.now(),
-                    registrertAv = userId,
-                )
-
-                opsjonLoggService.lagreOpsjonLoggEntry(opsjonLoggEntry)
-                call.respond(HttpStatusCode.OK)
-            }
-
-            delete {
-                val request = call.receive<SlettOpsjonLoggRequest>()
-                val userId = getNavIdent()
-                opsjonLoggService.delete(
-                    opsjonLoggEntryId = request.id,
-                    avtaleId = request.avtaleId,
-                    slettesAv = userId,
-                )
-                call.respond(HttpStatusCode.OK)
-            }
-        }
-    }
 }
 
 fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]
     val statuser = call.parameters.getAll("statuser")
-        ?.map { status -> AvtaleStatus.Enum.valueOf(status) }
+        ?.map { status -> AvtaleStatus.valueOf(status) }
         ?: emptyList()
     val avtaletyper = call.parameters.getAll("avtaletyper")
         ?.map { type -> Avtaletype.valueOf(type) }
@@ -277,7 +263,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
 data class AvtaleFilter(
     val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
-    val statuser: List<AvtaleStatus.Enum> = emptyList(),
+    val statuser: List<AvtaleStatus> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
     val navRegioner: List<NavEnhetNummer> = emptyList(),
     val sortering: String? = null,

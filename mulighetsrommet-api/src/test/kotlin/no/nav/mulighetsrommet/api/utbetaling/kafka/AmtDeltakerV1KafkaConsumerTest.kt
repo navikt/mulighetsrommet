@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Prismodell
@@ -42,7 +41,6 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(),
     ): AmtDeltakerV1KafkaConsumer {
         return AmtDeltakerV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             db = database.db,
             relevantDeltakerSluttDatoPeriod = period,
             oppdaterUtbetaling = oppdaterUtbetaling,
@@ -97,7 +95,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
             database.run {
-                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDeltaker(), deltaker2Dbo.toDeltaker())
+                queries.deltaker.getAll()
+                    .shouldContainExactlyInAnyOrder(deltaker1Dbo.toDeltaker(), deltaker2Dbo.toDeltaker())
             }
         }
 

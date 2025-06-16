@@ -3,12 +3,10 @@ import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
   DeltakelseGruppetiltak,
   GruppetiltakDeltakerStatus,
-  Toggles,
   VeilederflateTiltakGruppe,
 } from "@mr/api-client-v2";
 import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { useFeatureToggle } from "@/api/feature-toggles";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { useDeltakelse } from "@/api/queries/useDeltakelse";
 
@@ -23,12 +21,6 @@ export function PameldingForGruppetiltak({
 }: PameldingProps): ReactNode {
   const { data: deltakelse } = useDeltakelse();
   const gjennomforingId = useTiltakIdFraUrl();
-
-  const tiltakskoder = tiltak.tiltakstype.tiltakskode ? [tiltak.tiltakstype.tiltakskode] : [];
-  const { data: deltakelserErMigrert } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_DELTAKER,
-    tiltakskoder,
-  );
 
   if (deltakelse) {
     const vedtakRoute = resolveModiaRoute({
@@ -61,7 +53,7 @@ export function PameldingForGruppetiltak({
     );
   }
 
-  if (!tiltak.apentForPamelding && deltakelserErMigrert) {
+  if (!tiltak.apentForPamelding) {
     return (
       <Alert variant="info">
         <HStack align="center" gap="1">
@@ -71,7 +63,7 @@ export function PameldingForGruppetiltak({
     );
   }
 
-  if (brukerHarRettPaaValgtTiltak && deltakelserErMigrert && tiltak.apentForPamelding) {
+  if (brukerHarRettPaaValgtTiltak && tiltak.apentForPamelding) {
     const opprettDeltakelseRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
       gjennomforingId,

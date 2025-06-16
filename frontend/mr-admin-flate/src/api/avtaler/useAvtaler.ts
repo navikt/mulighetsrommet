@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { useApiQuery, useDebounce } from "@mr/frontend-common";
+import { useApiSuspenseQuery, useDebounce } from "@mr/frontend-common";
 import { AvtalerService, type GetAvtalerData } from "@mr/api-client-v2";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 
@@ -21,7 +21,7 @@ export function useAvtaler(filter: Partial<AvtaleFilterType>) {
     },
   };
 
-  return useApiQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.avtaler(filter.visMineAvtaler, queryFilter),
 
     queryFn: () => {

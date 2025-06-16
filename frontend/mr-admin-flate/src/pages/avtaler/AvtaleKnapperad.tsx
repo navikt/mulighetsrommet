@@ -5,9 +5,9 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { AvtaleDto, NavAnsatt, Opphav } from "@mr/api-client-v2";
+import { AvtaleDto, NavAnsatt, Opphav, AvtaleStatus } from "@mr/api-client-v2";
 import { useRef } from "react";
 import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
@@ -27,7 +27,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
   const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
 
   function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
-    return !!avtale?.opsjonsmodellData?.opsjonMaksVarighet;
+    return !!avtale.opsjonsmodell.opsjonMaksVarighet;
   }
 
   function dupliserAvtale() {
@@ -35,7 +35,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
     navigate(`/avtaler/skjema`, {
       state: {
         dupliserAvtale: {
-          opphav: Opphav.MR_ADMIN_FLATE,
+          opphav: Opphav.TILTAKSADMINISTRASJON,
           tiltakstype: avtale.tiltakstype,
           avtaletype: avtale.avtaletype,
           beskrivelse: avtale.beskrivelse,
@@ -81,7 +81,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
                   Registrer opsjon
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {avtale && avtale.status.name === "AKTIV" && (
+              {avtale.status.type === AvtaleStatus.AKTIV && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     avbrytModalRef.current?.showModal();

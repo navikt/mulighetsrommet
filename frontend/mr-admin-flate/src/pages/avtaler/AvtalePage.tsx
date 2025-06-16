@@ -1,7 +1,6 @@
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { AvtaleStatusTag } from "@/components/statuselementer/AvtaleStatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
@@ -10,6 +9,7 @@ import { Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Laster } from "@/components/laster/Laster";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -26,7 +26,7 @@ export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
 
-  const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
+  const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
   const currentTab = () => {
     if (pathname.includes("gjennomforinger")) {
@@ -45,10 +45,10 @@ export function AvtalePage() {
           <AvtaleIkon />
           <VStack>
             <Heading size="large" level="2">
-              {avtale.navn ?? "..."}
+              {avtale.navn}
             </Heading>
           </VStack>
-          <AvtaleStatusTag avtale={avtale} showAvbruttAarsak />
+          <AvtaleStatusMedAarsakTag status={avtale.status} />
         </div>
       </Header>
       <Tabs value={currentTab()}>

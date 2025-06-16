@@ -2,15 +2,9 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.OpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.serializers.AvtaleStatusSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -31,8 +25,7 @@ data class AvtaleDto(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
-    @Serializable(with = AvtaleStatusSerializer::class)
-    val status: AvtaleStatus,
+    val status: AvtaleStatusDto,
     val prisbetingelser: String?,
     val administratorer: List<Administrator>,
     val antallPlasser: Int?,
@@ -43,7 +36,7 @@ data class AvtaleDto(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodellData: OpsjonsmodellData?,
+    val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
     val utdanningslop: UtdanningslopDto?,
     val prismodell: Prismodell?,
@@ -93,63 +86,6 @@ data class AvtaleDto(
         val sluttDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         val forrigeSluttdato: LocalDate?,
-        val status: OpsjonLoggRequest.OpsjonsLoggStatus,
+        val status: OpsjonLoggStatus,
     )
-
-    fun toDbo(): AvtaleDbo {
-        return AvtaleDbo(
-            id = id,
-            navn = navn,
-            tiltakstypeId = tiltakstype.id,
-            avtalenummer = avtalenummer,
-            sakarkivNummer = sakarkivNummer,
-            arrangor = arrangor?.id?.let {
-                AvtaleDbo.Arrangor(
-                    hovedenhet = it,
-                    underenheter = arrangor.underenheter.map { it.id },
-                    kontaktpersoner = arrangor.kontaktpersoner.map { it.id },
-                )
-            },
-            startDato = startDato,
-            sluttDato = sluttDato,
-            navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
-            avtaletype = avtaletype,
-            prisbetingelser = prisbetingelser,
-            antallPlasser = antallPlasser,
-            administratorer = administratorer.map { it.navIdent },
-            beskrivelse = null,
-            faneinnhold = null,
-            personopplysninger = personopplysninger,
-            personvernBekreftet = personvernBekreftet,
-            amoKategorisering = amoKategorisering,
-            opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
-            opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
-            customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-            utdanningslop = utdanningslop?.toDbo(),
-            prismodell = prismodell,
-        )
-    }
-
-    fun toArenaAvtaleDbo(): ArenaAvtaleDbo? {
-        return arrangor?.organisasjonsnummer?.value?.let {
-            ArenaAvtaleDbo(
-                id = id,
-                navn = navn,
-                tiltakstypeId = tiltakstype.id,
-                avtalenummer = avtalenummer,
-                arrangorOrganisasjonsnummer = it,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
-                avtaletype = avtaletype,
-                avslutningsstatus = when (status) {
-                    is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
-                    is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                    is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-                    is AvtaleStatus.UTKAST -> Avslutningsstatus.IKKE_AVSLUTTET
-                },
-                prisbetingelser = prisbetingelser,
-            )
-        }
-    }
 }

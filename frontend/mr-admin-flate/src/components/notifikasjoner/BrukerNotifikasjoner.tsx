@@ -1,19 +1,20 @@
 import { Heading } from "@navikt/ds-react";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useNotificationSummary } from "@/api/notifikasjoner/useNotificationSummary";
 import { Notifikasjon } from "./Notifikasjon";
+import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
 
 export function BrukerNotifikasjoner() {
   const { data: bruker } = useHentAnsatt();
-  const { data: notificationSummary } = useNotificationSummary();
-  const antallUlesteNotifikasjoner = notificationSummary?.unreadCount || -1;
+  const { data: summary } = useNotificationSummary();
 
-  if (antallUlesteNotifikasjoner <= 0) return null;
+  if (summary.unreadCount === 0) {
+    return null;
+  }
 
   return (
     <div className="mb-4 w-full xl:w-[35%] 2xl:px-0 max-xl:px-4">
       <Heading level="2" size="medium">
-        Hei {bruker?.fornavn}
+        Hei {bruker.fornavn}
       </Heading>
       <Notifikasjon
         href="/oppgaveoversikt/notifikasjoner"

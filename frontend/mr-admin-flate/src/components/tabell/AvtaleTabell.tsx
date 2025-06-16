@@ -8,7 +8,6 @@ import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/
 import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
 import { createRef, useEffect, useState } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
-import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
@@ -25,8 +24,9 @@ interface Props {
 export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
-  const sort = filter.sortering.tableSort;
-  const { data, isLoading } = useAvtaler(filter);
+  const {
+    data: { pagination, data: avtaler },
+  } = useAvtaler(filter);
 
   const link = createRef<HTMLAnchorElement>();
 
@@ -54,6 +54,8 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
     }
   }, [excelUrl, link]);
 
+  const sort = filter.sortering.tableSort;
+
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
     const direction =
@@ -71,12 +73,6 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
-
-  if (!data || isLoading) {
-    return <Laster size="xlarge" tekst="Laster avtaler..." />;
-  }
-
-  const { pagination, data: avtaler } = data;
 
   return (
     <>
@@ -104,7 +100,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
           <Alert variant="info">Fant ingen avtaler</Alert>
         ) : (
           <Table
-            sort={sort!}
+            sort={sort}
             onSortChange={(sortKey) => handleSort(sortKey!)}
             className="bg-white border-separate border-spacing-0 border-t border-gray-200"
           >
@@ -170,7 +166,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
                       {avtale.sluttDato ? formaterDato(avtale.sluttDato) : "-"}
                     </Table.DataCell>
                     <Table.DataCell>
-                      <AvtaleStatusTag avtale={avtale} />
+                      <AvtaleStatusTag status={avtale.status} />
                     </Table.DataCell>
                   </Table.Row>
                 );

@@ -4,8 +4,6 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
-import no.nav.common.client.axsys.AxsysClient
-import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
@@ -18,7 +16,6 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
-import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
@@ -26,8 +23,8 @@ import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
-import no.nav.mulighetsrommet.api.avtale.OpsjonLoggService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
+import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
@@ -45,9 +42,7 @@ import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProd
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -67,7 +62,6 @@ import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -91,7 +85,7 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
 import no.nav.mulighetsrommet.slack.SlackNotifier
@@ -120,7 +114,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             db(appConfig.database),
             kafka(appConfig),
             services(appConfig),
-            tasks(appConfig.tasks),
+            tasks(appConfig),
             slack(appConfig.slack),
         )
     }
@@ -133,7 +127,7 @@ fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
 }
 
 private fun db(config: DatabaseConfig) = module {
-    val database = Database(config.copy { metricRegistry = Metrikker.appMicrometerRegistry })
+    val database = Database(config)
     single<Database>(createdAtStart = true) {
         database
     }
@@ -146,50 +140,39 @@ private fun kafka(appConfig: AppConfig) = module {
     single<KafkaProducerClient<ByteArray, ByteArray?>> {
         KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
             .withProperties(config.producerProperties)
-            .withMetrics(Metrikker.appMicrometerRegistry)
+            .withMetrics(Metrics.micrometerRegistry)
             .build()
     }
-    single {
-        ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
-            get(),
-            config.clients.arenaMigreringTiltaksgjennomforinger,
-        )
-    }
-    single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.clients.gjennomforinger) }
-    single { SisteTiltakstyperV2KafkaProducer(get(), config.clients.tiltakstyper) }
 
     single {
-        val consumers = listOf(
-            DatavarehusTiltakV1KafkaProducer(
-                config = config.clients.dvhGjennomforing,
-                kafkaProducerClient = get(),
-                db = get(),
+        val consumers = mapOf(
+            config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
+                DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavaehusTiltakTopic),
+                get(),
+                get(),
             ),
-            SisteTiltaksgjennomforingerV1KafkaConsumer(
-                config = config.clients.gjennomforingerV1,
-                db = get(),
-                tiltakstyper = get(),
-                arenaAdapterClient = get(),
-                arenaMigreringTiltaksgjennomforingProducer = get(),
+            config.clients.arenaMigreringGjennomforingerConsumer to ArenaMigreringGjennomforingKafkaProducer(
+                ArenaMigreringGjennomforingKafkaProducer.Config(config.topics.arenaMigreringGjennomforingTopic),
+                get(),
+                get(),
+                get(),
+                get(),
             ),
-            AmtDeltakerV1KafkaConsumer(
-                config = config.clients.amtDeltakerV1,
+            config.clients.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(
                 db = get(),
                 oppdaterUtbetaling = get(),
             ),
-            AmtVirksomheterV1KafkaConsumer(config.clients.amtVirksomheterV1, get()),
-            AmtArrangorMeldingV1KafkaConsumer(config.clients.amtArrangorMeldingV1, get()),
-            AmtKoordinatorGjennomforingV1KafkaConsumer(config.clients.amtKoordinatorMeldingV1, get()),
-            ReplicateOkonomiBestillingStatus(config.clients.replicateBestillingStatus, get()),
-            ReplicateOkonomiFakturaStatus(config.clients.replicateFakturaStatus, get()),
-            OppdaterUtbetalingBeregningForGjennomforingConsumer(
-                config.clients.oppdaterUtbetalingForGjennomforing,
+            config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
+            config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
+            config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
+            config.clients.replicateBestillingStatus to ReplicateOkonomiBestillingStatus(get()),
+            config.clients.replicateFakturaStatus to ReplicateOkonomiFakturaStatus(get()),
+            config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(
                 get(),
                 get(),
             ),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
         )
@@ -368,7 +351,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            get(),
+            ArenaAdapterService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -392,7 +375,7 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         GjennomforingService(
-            get(),
+            GjennomforingService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
             get(),
@@ -405,7 +388,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         UtbetalingService(
             UtbetalingService.Config(
-                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
             get(),
             get(),
@@ -415,21 +398,15 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { UnleashService(appConfig.unleash, get()) }
-    single<AxsysClient> {
-        AxsysV2ClientImpl(
-            appConfig.axsys.url,
-        ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
-    }
+    single { UnleashService(appConfig.unleash) }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { GjennomforingValidator(get()) }
-    single { OpsjonLoggService(get()) }
     single { LagretFilterService(get()) }
     single {
         TilsagnService(
             config = TilsagnService.Config(
                 okonomiConfig = appConfig.okonomi,
-                bestillingTopic = appConfig.kafka.clients.okonomiBestillingTopic,
+                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
             db = get(),
             navAnsattService = get(),
@@ -447,33 +424,51 @@ private fun services(appConfig: AppConfig) = module {
     }
 }
 
-private fun tasks(config: TaskConfig) = module {
-    single { GenerateValidationReport(config.generateValidationReport, get(), get(), get()) }
-    single { InitialLoadGjennomforinger(get(), get()) }
-    single { InitialLoadTiltakstyper(get(), get(), get()) }
-    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
-    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
-    single { GenerateUtbetaling(config.generateUtbetaling, get()) }
+private fun tasks(config: AppConfig) = module {
+    val tasks = config.tasks
+    single { GenerateValidationReport(tasks.generateValidationReport, get(), get(), get()) }
+    single {
+        InitialLoadGjennomforinger(
+            InitialLoadGjennomforinger.Config(config.kafka.topics.sisteTiltaksgjennomforingerTopic),
+            get(),
+            get(),
+        )
+    }
+    single {
+        InitialLoadTiltakstyper(
+            InitialLoadTiltakstyper.Config(config.kafka.topics.sisteTiltakstyperTopic),
+            get(),
+            get(),
+            get(),
+        )
+    }
+    single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
+    single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
+    single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { OppdaterUtbetalingBeregning(get()) }
     single {
+        val updateAvtaleStatus = UpdateAvtaleStatus(
+            get(),
+            get(),
+        )
         val updateGjennomforingStatus = UpdateGjennomforingStatus(
             get(),
             get(),
         )
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
-            config.notifySluttdatoForGjennomforingerNarmerSeg,
+            tasks.notifySluttdatoForGjennomforingerNarmerSeg,
             get(),
             get(),
         )
         val notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg(
-            config.notifySluttdatoForAvtalerNarmerSeg,
+            tasks.notifySluttdatoForAvtalerNarmerSeg,
             get(),
             get(),
         )
-        val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
+        val updateApentForPamelding = UpdateApentForPamelding(tasks.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
@@ -500,6 +495,7 @@ private fun tasks(config: TaskConfig) = module {
             .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
+                updateAvtaleStatus.task,
                 updateGjennomforingStatus.task,
                 synchronizeNavAnsatte.task,
                 synchronizeUtdanninger.task,

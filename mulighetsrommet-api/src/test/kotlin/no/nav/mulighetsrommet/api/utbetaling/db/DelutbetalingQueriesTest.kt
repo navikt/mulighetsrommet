@@ -34,7 +34,7 @@ class DelutbetalingQueriesTest : FunSpec({
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
-        status = DelutbetalingStatus.TIL_GODKJENNING,
+        status = DelutbetalingStatus.TIL_ATTESTERING,
         fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         belop = 100,
         gjorOppTilsagn = false,
@@ -55,7 +55,7 @@ class DelutbetalingQueriesTest : FunSpec({
             queries.getByUtbetalingId(UtbetalingFixtures.utbetaling1.id).first().should {
                 it.tilsagnId shouldBe TilsagnFixtures.Tilsagn1.id
                 it.utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
-                it.status shouldBe DelutbetalingStatus.TIL_GODKJENNING
+                it.status shouldBe DelutbetalingStatus.TIL_ATTESTERING
                 it.belop shouldBe 100
                 it.periode shouldBe UtbetalingFixtures.utbetaling1.periode
                 it.lopenummer shouldBe 1

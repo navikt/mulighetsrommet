@@ -1,8 +1,7 @@
 import { Alert, Radio } from "@navikt/ds-react";
 import { AvtaleDto } from "@mr/api-client-v2";
-import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { addDays, addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import { addDays, addYear, formaterDato } from "@/utils/Utils";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
 import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
@@ -12,23 +11,10 @@ interface Props {
 }
 
 export function RegistrerOpsjonForm({ avtale }: Props) {
-  const maksVarighetForOpsjon = avtale?.opsjonsmodellData?.opsjonMaksVarighet;
-  const sluttDatoSisteOpsjon = avtale?.opsjonerRegistrert?.at(-1)?.sluttDato;
-  const sluttdato = avtale?.sluttDato;
-  const { watch, setValue, register, control } = useFormContext<InferredRegistrerOpsjonSchema>();
-
-  const watchedOpsjonsvalg = watch("opsjonsvalg");
-
-  useEffect(() => {
-    function settNySluttdato() {
-      if (watchedOpsjonsvalg === "Opsjon_skal_ikke_utloses") return;
-
-      if (watchedOpsjonsvalg && watchedOpsjonsvalg !== "Annet" && sluttdato) {
-        setValue("opsjonsdatoValgt", formaterDatoSomYYYYMMDD(addYear(new Date(sluttdato), 1)));
-      }
-    }
-    settNySluttdato();
-  }, [setValue, sluttdato, watchedOpsjonsvalg]);
+  const maksVarighetForOpsjon = avtale.opsjonsmodell.opsjonMaksVarighet;
+  const sluttDatoSisteOpsjon = avtale.opsjonerRegistrert.at(-1)?.sluttDato;
+  const sluttdato = avtale.sluttDato;
+  const { watch, register, control } = useFormContext<InferredRegistrerOpsjonSchema>();
 
   if (!maksVarighetForOpsjon || !sluttdato) {
     return (

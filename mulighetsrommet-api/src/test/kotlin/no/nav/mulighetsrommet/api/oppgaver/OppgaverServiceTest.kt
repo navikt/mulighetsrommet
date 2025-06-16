@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.Oppgave
@@ -266,7 +268,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
                 setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, DelutbetalingStatus.RETURNERT)
             }.initialize(database.db)
 
@@ -278,7 +280,7 @@ class OppgaverServiceTest : FunSpec({
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
             )
 
             // Skal se returnert utbetaling når ansatt har saksbehandler-rolle
@@ -335,7 +337,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     UtbetalingFixtures.delutbetaling1,
-                    DelutbetalingStatus.TIL_GODKJENNING,
+                    DelutbetalingStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -367,7 +369,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     UtbetalingFixtures.delutbetaling1,
-                    DelutbetalingStatus.TIL_GODKJENNING,
+                    DelutbetalingStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -380,7 +382,7 @@ class OppgaverServiceTest : FunSpec({
                 row(
                     NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
                     ),
                 ),
                 row(
@@ -396,7 +398,7 @@ class OppgaverServiceTest : FunSpec({
                         setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                     ),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
+                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
                     ),
                 ),
             ) { rolle, expectedOppgaver ->
@@ -524,9 +526,18 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(
-                    AvtaleFixtures.AFT.copy(administratorer = listOf()),
-                    AvtaleFixtures.gruppeAmo.copy(administratorer = listOf(), sluttDato = LocalDate.now().minusDays(1)),
-                    AvtaleFixtures.VTA.copy(administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                    AvtaleFixtures.AFT.copy(
+                        administratorer = listOf(),
+                        status = AvtaleStatus.AKTIV,
+                    ),
+                    AvtaleFixtures.gruppeAmo.copy(
+                        administratorer = listOf(),
+                        status = AvtaleStatus.AVSLUTTET,
+                    ),
+                    AvtaleFixtures.VTA.copy(
+                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                        status = AvtaleStatus.AKTIV,
+                    ),
                 ),
             ).initialize(database.db)
 
@@ -554,17 +565,22 @@ class OppgaverServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(
-                    AFT1.copy(administratorer = listOf()),
+                    AFT1.copy(
+                        status = GjennomforingStatus.GJENNOMFORES,
+                        administratorer = listOf(),
+                    ),
                     AFT1.copy(
                         id = avsluttetGjennomforing,
+                        status = GjennomforingStatus.AVSLUTTET,
                         administratorer = listOf(),
-                        sluttDato = LocalDate.now().minusDays(2),
                     ),
-                    AFT1.copy(id = UUID.randomUUID(), administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+                    AFT1.copy(
+                        id = UUID.randomUUID(),
+                        status = GjennomforingStatus.GJENNOMFORES,
+                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                    ),
                 ),
-            ) {
-                queries.gjennomforing.setAvsluttet(avsluttetGjennomforing, LocalDateTime.now(), null)
-            }.initialize(database.db)
+            ).initialize(database.db)
 
             val service = OppgaverService(database.db)
 

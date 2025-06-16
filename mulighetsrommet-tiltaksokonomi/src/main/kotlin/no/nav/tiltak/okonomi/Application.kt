@@ -4,7 +4,6 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.routing.*
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
@@ -18,9 +17,10 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
+import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
-import no.nav.mulighetsrommet.metrics.Metrikker
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -55,6 +55,8 @@ fun main() {
 }
 
 fun Application.configure(config: AppConfig) {
+    configureMetrics()
+
     val db = Database(config.database)
 
     FlywayMigrationManager(config.flyway).migrate(db)
@@ -62,7 +64,7 @@ fun Application.configure(config: AppConfig) {
     KafkaMetrics(db)
         .withCountStaleConsumerRecords(minutesSinceCreatedAt = 5)
         .withCountStaleProducerRecords(minutesSinceCreatedAt = 1)
-        .register(Metrikker.appMicrometerRegistry)
+        .register(Metrics.micrometerRegistry)
 
     configureAuthentication(config.auth)
     configureSerialization()
@@ -135,11 +137,6 @@ private fun Application.configureKafka(
     db: Database,
     okonomi: OkonomiService,
 ): KafkaConsumerOrchestrator {
-    val bestilling = OkonomiBestillingConsumer(
-        config = config.clients.okonomiBestillingConsumer,
-        okonomi = okonomi,
-    )
-
     val producerClient = KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
         .withProperties(config.producerPropertiesPreset)
         .build()
@@ -169,10 +166,13 @@ private fun Application.configureKafka(
         .withRecordPublisher(QueuedKafkaProducerRecordPublisher(producerClient))
         .build()
 
+    val consumers = mapOf(
+        config.clients.okonomiBestillingConsumer to OkonomiBestillingConsumer(okonomi),
+    )
+
     val kafkaConsumerOrchestrator = KafkaConsumerOrchestrator(
-        consumerPreset = config.consumerPropertiesPreset,
         db = db,
-        consumers = listOf(bestilling),
+        consumers = consumers,
     )
 
     monitor.subscribe(ApplicationStarted) {

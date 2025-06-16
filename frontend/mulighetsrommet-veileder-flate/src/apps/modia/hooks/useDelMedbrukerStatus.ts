@@ -12,7 +12,7 @@ export function useDelMedBrukerStatus(norskIdent: string, gjennomforingId: strin
       if (data && "id" in data) {
         return data;
       } else {
-        return undefined;
+        return null;
       }
     },
     throwOnError: false,

@@ -1,7 +1,7 @@
 import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
-import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
-import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
+import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
+import { hentOpsjonsmodell } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -36,6 +36,7 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
     arrangor,
     amoKategorisering,
     utdanningslop,
+    opsjonsmodell,
   } = avtale;
 
   return (
@@ -77,13 +78,15 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
           Avtalens varighet
         </Heading>
 
-        {avtale?.opsjonsmodellData?.opsjonsmodell &&
-        avtale.avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
+        {avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
           <>
             <Bolk aria-label="Opsjonsmodell">
               <Metadata
                 header={avtaletekster.avtaltForlengelseLabel}
-                verdi={opsjonsmodellTilTekst(avtale?.opsjonsmodellData)}
+                verdi={
+                  opsjonsmodell.customOpsjonsmodellNavn ??
+                  hentOpsjonsmodell(opsjonsmodell.type)?.label
+                }
               />
             </Bolk>
           </>
@@ -95,20 +98,16 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
             header={avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0)}
             verdi={sluttDato ? formaterDato(sluttDato) : "-"}
           />
-          {avtale?.opsjonsmodellData?.opsjonMaksVarighet ? (
+          {opsjonsmodell.opsjonMaksVarighet ? (
             <Metadata
               header={avtaletekster.maksVarighetLabel}
-              verdi={
-                avtale.opsjonsmodellData.opsjonMaksVarighet
-                  ? formaterDato(avtale.opsjonsmodellData.opsjonMaksVarighet)
-                  : "-"
-              }
+              verdi={formaterDato(opsjonsmodell.opsjonMaksVarighet)}
             />
           ) : null}
         </Bolk>
 
         {avtale.opsjonerRegistrert.length > 0 ? (
-          <OpsjonerRegistrert readOnly avtale={avtale} />
+          <RegistrerteOpsjoner readOnly avtale={avtale} />
         ) : null}
 
         <Separator />

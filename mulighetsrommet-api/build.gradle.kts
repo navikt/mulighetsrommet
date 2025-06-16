@@ -98,7 +98,6 @@ dependencies {
     implementation(libs.prometheus.caffeine)
 
     implementation(libs.nav.common.auditLog)
-    implementation(libs.nav.common.client)
 
     // Dependency injection
     implementation(libs.koin.ktor)
@@ -117,7 +116,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.4") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.7") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.8") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
