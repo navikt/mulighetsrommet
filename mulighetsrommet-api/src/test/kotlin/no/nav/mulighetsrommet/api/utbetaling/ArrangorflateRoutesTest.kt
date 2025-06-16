@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.*
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 
 class ArrangorflateRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -345,6 +346,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 url = "/api/v1/intern/arrangorflate/arrangor/$orgnr/utbetaling",
                 formData = formData {
                     append("gjennomforingId", GjennomforingFixtures.AFT1.id.toString())
+                    append("tilsagnId", TilsagnFixtures.Tilsagn1.id.toString())
                     append("beskrivelse", "test beskrivelse")
                     append("kontonummer", "12345678901")
                     append("kidNummer", "123456")
