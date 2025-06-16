@@ -223,8 +223,8 @@ private fun toDeltakerForKostnadsfordeling(
 ): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
     id = deltaker.id,
     navn = person?.navn,
-    geografiskEnhet = person?.geografiskEnhet?.navn,
-    region = person?.region?.navn,
+    geografiskEnhet = person?.geografiskEnhet,
+    region = person?.region,
     foedselsdato = person?.foedselsdato,
     manedsverk = manedsverk,
 )
