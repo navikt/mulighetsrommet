@@ -16,8 +16,9 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
-import { TilleggsInformasjon } from "./TilleggsInformasjon";
+import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
+import { BehandlerInformasjon } from "./BehandlerInformasjon";
 
 interface Props {
   readOnly?: boolean;
@@ -97,8 +98,12 @@ export function UtbetalingLinjeRow({
               </Alert>
             </VStack>
           )}
-
-          <TilleggsInformasjon linje={linje} />
+          <VStack gap="4">
+            <TilsagnInformasjon tilsagn={linje.tilsagn} />
+            {linje.opprettelse && (
+              <BehandlerInformasjon opprettelse={linje.opprettelse} status={linje.status} />
+            )}
+          </VStack>
         </VStack>
       }
     >
