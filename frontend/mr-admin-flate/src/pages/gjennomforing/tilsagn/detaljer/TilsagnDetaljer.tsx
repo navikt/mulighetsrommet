@@ -126,6 +126,10 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             header={tilsagnTekster.belopGjenstaende.label}
             verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
+          <MetadataHorisontal
+            header={tilsagnTekster.belopUtbetalt.label}
+            verdi={formaterNOK(tilsagn.belopUtbetalt)}
+          />
           {beregning.type === "FRI" && (
             <BeregningFriModell id={tilsagn.id} status={tilsagn.status} beregning={beregning} />
           )}

@@ -5,6 +5,9 @@ export const tilsagnTekster = {
   belopGjenstaende: {
     label: "Gjenstående beløp",
   },
+  belopUtbetalt: {
+    label: "Totalt utbetalt"
+  },
   periode: {
     label: "Periode",
     start: {
