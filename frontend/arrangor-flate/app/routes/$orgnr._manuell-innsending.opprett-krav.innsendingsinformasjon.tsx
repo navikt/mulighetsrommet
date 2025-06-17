@@ -211,9 +211,7 @@ export default function OpprettKravInnsendingsinformasjon() {
     inputProps: periodeSluttInputProps,
     setSelected: setSelectedTilDato,
   } = useDatepicker({
-    defaultSelected: sessionPeriodeSlutt
-      ? subtractDays(new Date(sessionPeriodeSlutt), 1)
-      : undefined,
+    defaultSelected: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
   });
 
   const valgtGjennomforing = gjennomforinger.find((g) => g.id === sessionGjennomforingId);
@@ -294,7 +292,10 @@ export default function OpprettKravInnsendingsinformasjon() {
                         new Date(tilsagn.find((t) => t.id === val)?.periode.start ?? ""),
                       );
                       setSelectedTilDato(
-                        new Date(tilsagn.find((t) => t.id === val)?.periode.slutt ?? ""),
+                        subtractDays(
+                          new Date(tilsagn.find((t) => t.id === val)?.periode.slutt ?? ""),
+                          1,
+                        ),
                       );
                     }}
                   >
