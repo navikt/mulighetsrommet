@@ -14,6 +14,10 @@ export function TilsagnInformasjon({ tilsagn }: TilsagnInformasjonProps) {
         header="Totalbeløp på tilsagn"
         verdi={formaterNOK(tilsagn.beregning.output.belop)}
       />
+      <Metadata
+        header="Totalt utbetalt fra tilsagn"
+        verdi={formaterNOK(tilsagn.belopUtbetalt)}
+      />
     </HStack>
   );
 }
