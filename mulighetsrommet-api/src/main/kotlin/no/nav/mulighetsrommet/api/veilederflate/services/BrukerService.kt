@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.navenhet.NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP
 import no.nav.mulighetsrommet.api.navenhet.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -242,7 +243,10 @@ fun getRelevanteEnheterForBruker(
 
     val virtuellOppfolgingsenhet = if (
         oppfolgingsenhet != null &&
-        NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer.value)
+        (
+            NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer.value) ||
+                NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer.value)
+            )
     ) {
         oppfolgingsenhet
     } else {
