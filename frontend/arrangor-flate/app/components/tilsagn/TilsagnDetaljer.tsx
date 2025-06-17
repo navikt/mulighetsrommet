@@ -2,6 +2,7 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateTilsagn } from "api-client";
 import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
+import { tekster } from "~/tekster";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
@@ -38,8 +39,8 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
 
   return (
     <Definisjonsliste
-      className="p-4 border-1 border-border-divider rounded-lg"
-      title={tilsagn.bestillingsnummer}
+      className="p-4 border-1 border-border-divider rounded-lg w-xl"
+      title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} - ${tilsagn.bestillingsnummer}`}
       definitions={[...tilsagnDetaljer, ...beregningDetaljer]}
     />
   );

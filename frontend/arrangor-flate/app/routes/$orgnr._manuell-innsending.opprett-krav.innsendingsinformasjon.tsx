@@ -37,7 +37,7 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { formaterDato, problemDetailResponse } from "~/utils";
+import { formaterDato, problemDetailResponse, subtractDays } from "~/utils";
 import { internalNavigation } from "../internal-navigation";
 import { errorAt } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -240,115 +240,113 @@ export default function OpprettKravInnsendingsinformasjon() {
               </Link>
             </BodyLong>
           </GuidePanel>
-          <TextField
-            readOnly
-            label="Arrangør"
-            size="small"
-            value={`${arrangor} - ${orgnr}`}
-            className="max-w-2xl"
-          />
-          <input type="hidden" name="orgnr" value={orgnr} />
-          <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
-          <UNSAFE_Combobox
-            size="small"
-            label="Velg gjennomføring"
-            description="Hvilken gjennomføring gjelder kravet for?"
-            error={errorAt("/gjennomforingId", data?.errors)}
-            options={gjennomforinger.map((g) => ({
-              label: `${g.navn} - ${formaterDato(g.startDato)} - ${g.sluttDato ? formaterDato(g.sluttDato) : ""}`,
-              value: g.id,
-            }))}
-            selectedOptions={
-              valgtGjennomforing
-                ? [
-                    {
-                      label: `${valgtGjennomforing.navn} - ${formaterDato(valgtGjennomforing.startDato)} - ${valgtGjennomforing.sluttDato ? formaterDato(valgtGjennomforing.sluttDato) : ""}`,
-                      value: valgtGjennomforing.id,
-                    },
-                  ]
-                : undefined
-            }
-            onToggleSelected={(option, isSelected) => {
-              if (isSelected) {
-                setGjennomforingId(option);
-              } else {
-                setGjennomforingId(undefined);
-                setTilsagnId(undefined);
+          <VStack gap="6" className="max-w-2xl">
+            <TextField readOnly label="Arrangør" size="small" value={`${arrangor} - ${orgnr}`} />
+            <input type="hidden" name="orgnr" value={orgnr} />
+            <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
+            <UNSAFE_Combobox
+              size="small"
+              label="Velg gjennomføring"
+              description="Hvilken gjennomføring gjelder kravet for?"
+              error={errorAt("/gjennomforingId", data?.errors)}
+              options={gjennomforinger.map((g) => ({
+                label: `${g.navn} - ${formaterDato(g.startDato)} - ${g.sluttDato ? formaterDato(g.sluttDato) : ""}`,
+                value: g.id,
+              }))}
+              selectedOptions={
+                valgtGjennomforing
+                  ? [
+                      {
+                        label: `${valgtGjennomforing.navn} - ${formaterDato(valgtGjennomforing.startDato)} - ${valgtGjennomforing.sluttDato ? formaterDato(valgtGjennomforing.sluttDato) : ""}`,
+                        value: valgtGjennomforing.id,
+                      },
+                    ]
+                  : undefined
               }
-            }}
-            className="max-w-2xl"
-          />
-          {gjennomforingId && (
-            <>
-              {relevanteTilsagn.length < 1 ? (
-                <Alert variant="warning">
-                  Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
-                </Alert>
-              ) : (
-                <RadioGroup
-                  size="small"
-                  legend="Velg tilsagn"
-                  description="Hvilket tilsagn skal benyttes?"
-                  name="tilsagnId"
-                  defaultValue={tilsagn.find((t) => t.id === sessionTilsagnId)?.id}
-                  error={errorAt("/tilsagnId", data?.errors)}
-                  onChange={(val: string) => {
-                    setTilsagnId(val);
-                    setSelectedFraDato(
-                      new Date(tilsagn.find((t) => t.id === val)?.periode.start ?? ""),
-                    );
-                    setSelectedTilDato(
-                      new Date(tilsagn.find((t) => t.id === val)?.periode.slutt ?? ""),
-                    );
-                  }}
-                >
-                  {relevanteTilsagn.map((tilsagn) => (
-                    <Radio key={tilsagn.id} size="small" value={tilsagn.id}>
-                      <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} />
-                    </Radio>
-                  ))}
-                </RadioGroup>
-              )}
-              {tilsagnId && (
-                <VStack gap="1">
-                  <Label size="small">Periode</Label>
-                  <BodyShort textColor="subtle" size="small">
-                    Hvilken periode gjelder kravet for?
-                  </BodyShort>
-                  <HStack gap="4">
-                    <DatePicker
-                      {...periodeStartPickerProps}
-                      dropdownCaption
-                      id="periodeStartDatepicker"
-                    >
-                      <DatePicker.Input
-                        label="Fra dato"
-                        size="small"
-                        error={errorAt("/periodeStart", data?.errors)}
-                        name="periodeStart"
-                        id="periodeStart"
-                        {...periodeStartInputProps}
-                      />
-                    </DatePicker>
-                    <DatePicker
-                      {...periodeSluttPickerProps}
-                      dropdownCaption
-                      id="periodeSluttDatepicker"
-                    >
-                      <DatePicker.Input
-                        label="Til dato"
-                        size="small"
-                        error={errorAt("/periodeSlutt", data?.errors)}
-                        name="periodeSlutt"
-                        id="periodeSlutt"
-                        {...periodeSluttInputProps}
-                      />
-                    </DatePicker>
-                  </HStack>
-                </VStack>
-              )}
-            </>
-          )}
+              onToggleSelected={(option, isSelected) => {
+                if (isSelected) {
+                  setGjennomforingId(option);
+                } else {
+                  setGjennomforingId(undefined);
+                  setTilsagnId(undefined);
+                }
+              }}
+            />
+            {gjennomforingId && (
+              <>
+                {relevanteTilsagn.length < 1 ? (
+                  <Alert variant="warning">
+                    Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
+                  </Alert>
+                ) : (
+                  <RadioGroup
+                    size="small"
+                    legend="Velg tilsagn"
+                    description="Hvilket tilsagn skal benyttes?"
+                    name="tilsagnId"
+                    defaultValue={tilsagn.find((t) => t.id === sessionTilsagnId)?.id}
+                    error={errorAt("/tilsagnId", data?.errors)}
+                    onChange={(val: string) => {
+                      setTilsagnId(val);
+                      setSelectedFraDato(
+                        new Date(tilsagn.find((t) => t.id === val)?.periode.start ?? ""),
+                      );
+                      setSelectedTilDato(
+                        subtractDays(
+                          new Date(tilsagn.find((t) => t.id === val)?.periode.slutt ?? ""),
+                          1,
+                        ),
+                      );
+                    }}
+                  >
+                    {relevanteTilsagn.map((tilsagn) => (
+                      <Radio key={tilsagn.id} size="small" value={tilsagn.id}>
+                        <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} />
+                      </Radio>
+                    ))}
+                  </RadioGroup>
+                )}
+                {tilsagnId && (
+                  <VStack gap="1">
+                    <Label size="small">Periode</Label>
+                    <BodyShort textColor="subtle" size="small">
+                      Hvilken periode gjelder kravet for?
+                    </BodyShort>
+                    <HStack gap="4">
+                      <DatePicker
+                        {...periodeStartPickerProps}
+                        dropdownCaption
+                        id="periodeStartDatepicker"
+                      >
+                        <DatePicker.Input
+                          label="Fra dato"
+                          size="small"
+                          error={errorAt("/periodeStart", data?.errors)}
+                          name="periodeStart"
+                          id="periodeStart"
+                          {...periodeStartInputProps}
+                        />
+                      </DatePicker>
+                      <DatePicker
+                        {...periodeSluttPickerProps}
+                        dropdownCaption
+                        id="periodeSluttDatepicker"
+                      >
+                        <DatePicker.Input
+                          label="Til dato"
+                          size="small"
+                          error={errorAt("/periodeSlutt", data?.errors)}
+                          name="periodeSlutt"
+                          id="periodeSlutt"
+                          {...periodeSluttInputProps}
+                        />
+                      </DatePicker>
+                    </HStack>
+                  </VStack>
+                )}
+              </>
+            )}
+          </VStack>
           {data?.errors && data.errors.length > 0 && (
             <ErrorSummary ref={errorSummaryRef}>
               {data.errors.map((error: FieldError) => {
