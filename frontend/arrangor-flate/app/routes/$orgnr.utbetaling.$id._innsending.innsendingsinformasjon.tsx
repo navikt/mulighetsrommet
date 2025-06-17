@@ -62,6 +62,10 @@ export default function TilsagnDetaljerPage() {
               { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
               { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
               { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
+              {
+                key: "Frist for innsending",
+                value: "Kravet må sendes inn senest to måneder etter at tilsagnsperioden går ut.",
+              },
             ]}
           />
         </Box>

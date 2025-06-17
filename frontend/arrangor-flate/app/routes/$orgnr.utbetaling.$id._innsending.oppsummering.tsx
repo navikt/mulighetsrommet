@@ -181,10 +181,6 @@ export default function BekreftUtbetaling() {
             },
             { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
             { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-            {
-              key: "Frist for innsending",
-              value: "Kravet må sendes inn senest to måneder etter at tilsagnsperioden går ut.",
-            },
           ]}
         />
         <Separator />
