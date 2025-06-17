@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
-import { BehandlerInformasjon } from "./BehandlerInformasjon";
+import { TilleggsInformasjon } from "./TilleggsInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
@@ -98,7 +98,7 @@ export function UtbetalingLinjeRow({
             </VStack>
           )}
 
-          <BehandlerInformasjon linje={linje} />
+          <TilleggsInformasjon linje={linje} />
         </VStack>
       }
     >
