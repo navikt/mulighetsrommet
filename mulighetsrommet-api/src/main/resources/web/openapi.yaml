@@ -5689,6 +5689,8 @@ components:
           $ref: "#/components/schemas/Periode"
         belopBrukt:
           type: integer
+        belopUtbetalt:
+          type: integer
         belopGjenstaende:
           type: integer
         kostnadssted:
@@ -5704,6 +5706,7 @@ components:
         - type
         - periode
         - belopBrukt
+        - belopUtbetalt
         - belopGjenstaende
         - kostnadssted
         - beregning

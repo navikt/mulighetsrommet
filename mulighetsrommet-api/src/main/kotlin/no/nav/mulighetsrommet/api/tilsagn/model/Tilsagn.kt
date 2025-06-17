@@ -16,6 +16,7 @@ data class Tilsagn(
     val type: TilsagnType,
     val periode: Periode,
     val belopBrukt: Int,
+    val belopUtbetalt: Int,
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,

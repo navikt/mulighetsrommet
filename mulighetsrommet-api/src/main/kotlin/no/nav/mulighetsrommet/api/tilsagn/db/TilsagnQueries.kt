@@ -312,6 +312,7 @@ class TilsagnQueries(private val session: Session) {
                 navn = string("gjennomforing_navn"),
             ),
             belopBrukt = int("belop_brukt"),
+            belopUtbetalt = int("belop_utbetalt"),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
             bestilling = Tilsagn.Bestilling(
