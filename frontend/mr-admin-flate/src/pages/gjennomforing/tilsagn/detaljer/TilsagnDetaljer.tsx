@@ -123,6 +123,10 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             verdi={formaterNOK(beregning.output.belop)}
           />
           <MetadataHorisontal
+            header={tilsagnTekster.belopBrukt.label}
+            verdi={formaterNOK(tilsagn.belopBrukt)}
+          />
+          <MetadataHorisontal
             header={tilsagnTekster.belopGjenstaende.label}
             verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
