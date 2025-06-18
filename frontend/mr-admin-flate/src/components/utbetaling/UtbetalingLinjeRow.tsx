@@ -146,6 +146,7 @@ export function UtbetalingLinjeRow({
       <Table.DataCell>
         <TextField
           size="small"
+          style={{ maxWidth: "6rem" }}
           error={belopError}
           label="Utbetales"
           readOnly={readOnly}
