@@ -98,12 +98,12 @@ export function UtbetalingLinjeRow({
               </Alert>
             </VStack>
           )}
-          <VStack gap="4">
+          <HStack gap="4" justify="space-between">
             <TilsagnInformasjon tilsagn={linje.tilsagn} />
             {linje.opprettelse && (
               <BehandlerInformasjon opprettelse={linje.opprettelse} status={linje.status} />
             )}
-          </VStack>
+          </HStack>
         </VStack>
       }
     >
