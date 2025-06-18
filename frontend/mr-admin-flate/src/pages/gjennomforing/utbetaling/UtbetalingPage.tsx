@@ -35,7 +35,7 @@ import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useState } from "react";
 import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
-import { ForhandsgodkjentBeregningModal } from "./ForhandsgodkjentBeregningModal";
+import { ForhandsgodkjentDeltakerTableModal } from "./ForhandsgodkjentDeltakerTableModal";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -180,20 +180,21 @@ export function UtbetalingPage() {
               {utbetaling.beregning.type === "FORHANDSGODKJENT" && (
                 <Accordion>
                   <Accordion.Item>
-                    <Accordion.Header>Beregning</Accordion.Header>
+                    <Accordion.Header>Deltakere i utbetalingsperiode</Accordion.Header>
                     <Accordion.Content>
                       <VStack gap="2">
                         <ForhandsgodkjentDeltakerTable
+                          maxHeight="30rem"
                           deltakere={deltakere}
                           sats={utbetaling.beregning.sats}
                         />
                         <HStack justify="start" align="start">
                           <Button
-                            variant="tertiary"
+                            variant="secondary"
                             size="small"
                             onClick={() => setBeregningModalOpen(true)}
                           >
-                            Filtrering
+                            Filtreringshjelp
                           </Button>
                         </HStack>
                       </VStack>
@@ -225,8 +226,8 @@ export function UtbetalingPage() {
         </WhitePaddedBox>
       </ContentBox>
       {utbetaling.beregning.type === "FORHANDSGODKJENT" && (
-        <ForhandsgodkjentBeregningModal
-          heading={`${gjennomforing.navn} ${formaterPeriode(utbetaling.periode)}`}
+        <ForhandsgodkjentDeltakerTableModal
+          heading={formaterPeriode(utbetaling.periode)}
           deltakere={deltakere}
           sats={utbetaling.beregning.sats}
           modalOpen={beregningModalOpen}

@@ -141,8 +141,7 @@ class VeilederflateService(
     ): VeilederflateTiltak = db.session {
         return queries.veilderTiltak.get(id)
             ?.let { gjennomforing ->
-                val hentTiltakstyper = hentTiltakstyper()
-                val sanityTiltakstype = hentTiltakstyper
+                val sanityTiltakstype = hentTiltakstyper()
                     .find { it.sanityId == gjennomforing.tiltakstype.sanityId }
                     ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
                 gjennomforing.copy(tiltakstype = sanityTiltakstype)
