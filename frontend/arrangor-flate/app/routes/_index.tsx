@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { redirect } from "react-router";
 import { internalNavigation } from "../internal-navigation";
-import { getCurrentTab } from "../utils/currentTab";
 import { ArrangorflateService } from "api-client";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils";
@@ -14,7 +13,6 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const currentTab = getCurrentTab(request);
   const { data: arrangorer, error } =
     await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
       headers: await apiHeaders(request),
@@ -27,7 +25,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/ingen-tilgang");
   }
 
-  return redirect(
-    `${internalNavigation(arrangorer[0].organisasjonsnummer).utbetalinger}?forside-tab=${currentTab}`,
-  );
+  return redirect(`${internalNavigation(arrangorer[0].organisasjonsnummer).utbetalinger}`);
 }
