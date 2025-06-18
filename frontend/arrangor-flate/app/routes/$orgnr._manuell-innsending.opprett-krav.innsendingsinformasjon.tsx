@@ -67,10 +67,12 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw new Error("Mangler orgnr");
   }
   const session = await getSession(request.headers.get("Cookie"));
-  const sessionGjennomforingId = session.get("gjennomforingId");
-  const sessionTilsagnId = session.get("tilsagnId");
-  const sessionPeriodeStart = session.get("periodeStart");
-  const sessionPeriodeSlutt = session.get("periodeSlutt");
+
+  const validSession = session.get("orgnr") === orgnr;
+  const sessionGjennomforingId = validSession ? session.get("gjennomforingId") : undefined;
+  const sessionTilsagnId = validSession ? session.get("tilsagnId") : undefined;
+  const sessionPeriodeStart = validSession ? session.get("periodeStart") : undefined;
+  const sessionPeriodeSlutt = validSession ? session.get("periodeSlutt") : undefined;
 
   const [
     { data: gjennomforinger, error: gjennomforingerError },
