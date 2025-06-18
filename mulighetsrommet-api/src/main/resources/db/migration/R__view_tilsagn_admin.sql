@@ -43,4 +43,4 @@ from tilsagn
          inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
          inner join arrangor on arrangor.id = gjennomforing.arrangor_id
          inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-         inner join tilsagn_totalt_utbetalt on tilsagn_totalt_utbetalt.tilsagn_id = tilsagn.id
+         left outer join tilsagn_totalt_utbetalt on tilsagn_totalt_utbetalt.tilsagn_id = tilsagn.id
