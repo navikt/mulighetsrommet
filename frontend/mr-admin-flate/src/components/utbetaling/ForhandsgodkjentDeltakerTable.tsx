@@ -53,11 +53,11 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: heig
   }
 
   function totalBelop() {
-    return Math.round(totalManedsverk() * sats);
+    return Math.round(roundNdecimals(totalManedsverk(), 5) * sats);
   }
 
-  function round2decimals(n: number): number {
-    return Math.round(n * 100) / 100;
+  function roundNdecimals(num: number, N: number) {
+    return Number(num.toFixed(N));
   }
 
   return (
@@ -96,15 +96,17 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: heig
                   <Table.DataCell>{formaterDato(foedselsdato) ?? "-"}</Table.DataCell>
                   <Table.DataCell>{region?.navn ?? "-"}</Table.DataCell>
                   <Table.DataCell>{geografiskEnhet?.navn ?? "-"}</Table.DataCell>
-                  <Table.DataCell>{round2decimals(manedsverk)}</Table.DataCell>
-                  <Table.DataCell align="right">{round2decimals(manedsverk * sats)}</Table.DataCell>
+                  <Table.DataCell>{roundNdecimals(manedsverk, 2)}</Table.DataCell>
+                  <Table.DataCell align="right">
+                    {roundNdecimals(manedsverk * sats, 2)}
+                  </Table.DataCell>
                 </Table.Row>
               );
             })}
           </Table.Body>
           <Table.Row className="sticky bottom-0 bg-white z-10">
             <Table.DataCell colSpan={4} />
-            <Table.DataCell>{round2decimals(totalManedsverk())}</Table.DataCell>
+            <Table.DataCell>{roundNdecimals(totalManedsverk(), 2)}</Table.DataCell>
             <Table.DataCell>
               <HStack justify="end">
                 <CopyButton
@@ -119,9 +121,7 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: heig
         </Table>
       </div>
       <HStack className="pt-4" align="start" justify="end">
-        <BodyShort>
-          {`Beregning: ${round2decimals(totalManedsverk())} × ${sats} = ${totalBelop()}`}
-        </BodyShort>
+        <BodyShort>{`Beregning: ${totalManedsverk()} × ${sats} = ${totalBelop()}`}</BodyShort>
       </HStack>
     </VStack>
   );
