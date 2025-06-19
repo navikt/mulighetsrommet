@@ -121,7 +121,7 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: heig
         </Table>
       </div>
       <HStack className="pt-4" align="start" justify="end">
-        <BodyShort>{`Beregning: ${totalManedsverk()} × ${sats} = ${totalBelop()}`}</BodyShort>
+        <BodyShort>{`Beregning: ${roundNdecimals(totalManedsverk(), 5)} × ${sats} = ${totalBelop()}`}</BodyShort>
       </HStack>
     </VStack>
   );
