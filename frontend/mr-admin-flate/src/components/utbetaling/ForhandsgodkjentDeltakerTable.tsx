@@ -49,13 +49,15 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: heig
     });
 
   function totalManedsverk() {
-    return (
-      Math.round(sortedData.reduce((sum, deltaker) => sum + deltaker.manedsverk, 0) * 100) / 100
-    );
+    return sortedData.reduce((sum, deltaker) => sum + deltaker.manedsverk, 0);
   }
 
   function totalBelop() {
-    return Math.round(totalManedsverk() * sats * 100) / 100;
+    return Math.round(totalManedsverk() * sats);
+  }
+
+  function round2decimals(n: number): number {
+    return Math.round(n * 100) / 100;
   }
 
   return (
@@ -94,17 +96,15 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: heig
                   <Table.DataCell>{formaterDato(foedselsdato) ?? "-"}</Table.DataCell>
                   <Table.DataCell>{region?.navn ?? "-"}</Table.DataCell>
                   <Table.DataCell>{geografiskEnhet?.navn ?? "-"}</Table.DataCell>
-                  <Table.DataCell>{manedsverk}</Table.DataCell>
-                  <Table.DataCell align="right">
-                    {Math.round(manedsverk * sats * 100) / 100}
-                  </Table.DataCell>
+                  <Table.DataCell>{round2decimals(manedsverk)}</Table.DataCell>
+                  <Table.DataCell align="right">{round2decimals(manedsverk * sats)}</Table.DataCell>
                 </Table.Row>
               );
             })}
           </Table.Body>
           <Table.Row className="sticky bottom-0 bg-white z-10">
             <Table.DataCell colSpan={4} />
-            <Table.DataCell>{totalManedsverk()}</Table.DataCell>
+            <Table.DataCell>{round2decimals(totalManedsverk())}</Table.DataCell>
             <Table.DataCell>
               <HStack justify="end">
                 <CopyButton
@@ -120,7 +120,7 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: heig
       </div>
       <HStack className="pt-4" align="start" justify="end">
         <BodyShort>
-          {`Beregning: ${totalManedsverk()} × ${sats} = ${totalBelop().toString()}`}
+          {`Beregning: ${round2decimals(totalManedsverk())} × ${sats} = ${totalBelop()}`}
         </BodyShort>
       </HStack>
     </VStack>
