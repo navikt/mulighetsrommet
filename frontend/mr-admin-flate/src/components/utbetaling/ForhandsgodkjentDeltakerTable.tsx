@@ -1,17 +1,18 @@
 import { compareByKey, formaterDato } from "@/utils/Utils";
 import { DeltakerForKostnadsfordeling } from "@mr/api-client-v2";
-import { CopyButton, HStack, SortState, Table, VStack } from "@navikt/ds-react";
+import { BodyShort, CopyButton, HStack, SortState, Table, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 
 interface Props {
   deltakere: DeltakerForKostnadsfordeling[];
   sats: number;
+  maxHeight: string;
 }
 interface ScopedSortState extends SortState {
   orderBy: keyof DeltakerForKostnadsfordeling;
 }
 
-export function ForhandsgodkjentDeltakerTable({ deltakere, sats }: Props) {
+export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: height }: Props) {
   const [sort, setSort] = useState<ScopedSortState>();
 
   const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
@@ -58,8 +59,8 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats }: Props) {
   }
 
   return (
-    <VStack maxHeight="400px">
-      <div style={{ overflowY: "auto", flexGrow: 1 }}>
+    <VStack>
+      <div className={`max-h-[${height}] overflow-y-scroll`}>
         <Table
           size="small"
           sort={sort}
@@ -93,7 +94,7 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats }: Props) {
                   <Table.DataCell>{formaterDato(foedselsdato) ?? "-"}</Table.DataCell>
                   <Table.DataCell>{region?.navn ?? "-"}</Table.DataCell>
                   <Table.DataCell>{geografiskEnhet?.navn ?? "-"}</Table.DataCell>
-                  <Table.DataCell align="right">{manedsverk}</Table.DataCell>
+                  <Table.DataCell>{manedsverk}</Table.DataCell>
                   <Table.DataCell align="right">
                     {Math.round(manedsverk * sats * 100) / 100}
                   </Table.DataCell>
@@ -101,15 +102,26 @@ export function ForhandsgodkjentDeltakerTable({ deltakere, sats }: Props) {
               );
             })}
           </Table.Body>
+          <Table.Row className="sticky bottom-0 bg-white z-10">
+            <Table.DataCell colSpan={4} />
+            <Table.DataCell>{totalManedsverk()}</Table.DataCell>
+            <Table.DataCell>
+              <HStack justify="end">
+                <CopyButton
+                  variant="action"
+                  copyText={totalBelop().toString()}
+                  size="small"
+                  text={totalBelop().toString()}
+                />
+              </HStack>
+            </Table.DataCell>
+          </Table.Row>
         </Table>
       </div>
-      <HStack align="start" justify="end">
-        <CopyButton
-          variant="action"
-          copyText={totalBelop().toString()}
-          size="small"
-          text={`${totalManedsverk()} × ${sats} = ${totalBelop().toString()}`}
-        />
+      <HStack className="pt-4" align="start" justify="end">
+        <BodyShort>
+          {`Beregning: ${totalManedsverk()} × ${sats} = ${totalBelop().toString()}`}
+        </BodyShort>
       </HStack>
     </VStack>
   );

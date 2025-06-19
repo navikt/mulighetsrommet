@@ -1,15 +1,24 @@
+import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
 import { DeltakerForKostnadsfordeling, NavEnhet, NavRegion } from "@mr/api-client-v2";
-import { ForhandsgodkjentDeltakerTable } from "./ForhandsgodkjentDeltakerTable";
-import { useMemo, useState } from "react";
-import { HGrid } from "@navikt/ds-react";
 import { NavEnhetFilter } from "@mr/frontend-common";
+import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
+import { useMemo, useState } from "react";
 
 interface Props {
+  modalOpen: boolean;
+  onClose: () => void;
   deltakere: DeltakerForKostnadsfordeling[];
   sats: number;
+  heading: string;
 }
 
-export function FilterableForhandsgodkjentDeltakerTable({ deltakere, sats }: Props) {
+export function ForhandsgodkjentDeltakerTableModal({
+  heading,
+  sats,
+  deltakere,
+  modalOpen,
+  onClose,
+}: Props) {
   const [navEnheter, setNavEnheter] = useState<NavEnhet[]>([]);
 
   const unikeEnheter = Array.from(
@@ -57,15 +66,41 @@ export function FilterableForhandsgodkjentDeltakerTable({ deltakere, sats }: Pro
   }
 
   return (
-    <HGrid columns="0.2fr 1fr" gap="2" align="start">
-      <NavEnhetFilter
-        navEnheter={navEnheter}
-        setNavEnheter={(enheter: string[]) => {
-          setNavEnheter(unikeEnheter.filter((enhet) => enheter.includes(enhet.enhetsnummer)));
-        }}
-        regioner={regioner()}
-      />
-      <ForhandsgodkjentDeltakerTable sats={sats} deltakere={filteredDeltakere} />
-    </HGrid>
+    <Modal
+      open={modalOpen}
+      onClose={onClose}
+      aria-label="modal"
+      width="80rem"
+      className="h-[60rem]"
+    >
+      <Modal.Header closeButton>
+        <Heading size="medium">Deltakere i utbetalingsperiode</Heading>
+      </Modal.Header>
+      <Modal.Body>
+        <VStack>
+          <HGrid columns="20% 1fr" gap="2" align="start">
+            <VStack>
+              <NavEnhetFilter
+                navEnheter={navEnheter}
+                setNavEnheter={(enheter: string[]) => {
+                  setNavEnheter(
+                    unikeEnheter.filter((enhet) => enheter.includes(enhet.enhetsnummer)),
+                  );
+                }}
+                regioner={regioner()}
+              />
+            </VStack>
+            <VStack>
+              <Heading size="small">{heading}</Heading>
+              <ForhandsgodkjentDeltakerTable
+                maxHeight="50rem"
+                sats={sats}
+                deltakere={filteredDeltakere}
+              />
+            </VStack>
+          </HGrid>
+        </VStack>
+      </Modal.Body>
+    </Modal>
   );
 }
