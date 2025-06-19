@@ -189,16 +189,18 @@ fun Route.utbetalingRoutes() {
                     .map { utbetaling ->
                         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
-                        val kostnadssteder = delutbetalinger.map { delutbetaling ->
-                            queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
-                        }
                         val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
-                        val belopUtbetalt = when (status) {
+                        val (belopUtbetalt, kostnadssteder) = when (status) {
                             AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
-                                delutbetalinger.sumOf {
-                                    it.belop
-                                }
-                            else -> null
+                                Pair(
+                                    delutbetalinger.sumOf {
+                                        it.belop
+                                    },
+                                    delutbetalinger.map { delutbetaling ->
+                                        queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
+                                    }.distinct(),
+                                )
+                            else -> (null to emptyList())
                         }
 
                         UtbetalingKompaktDto(
