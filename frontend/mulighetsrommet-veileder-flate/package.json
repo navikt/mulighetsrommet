@@ -60,7 +60,7 @@
     "@mr/eslint-config-react-app": "workspace:*",
     "@playwright/test": "1.53.0",
     "@tailwindcss/typography": "0.5.16",
-    "@types/node": "22.15.30",
+    "@types/node": "24.0.3",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
     "@vitejs/plugin-react": "4.5.1",
