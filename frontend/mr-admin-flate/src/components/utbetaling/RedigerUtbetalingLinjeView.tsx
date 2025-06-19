@@ -12,8 +12,17 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
-import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { FileCheckmarkIcon, InformationSquareFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import {
+  ActionMenu,
+  Alert,
+  BodyShort,
+  Button,
+  Heading,
+  HStack,
+  Modal,
+  VStack,
+} from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -21,6 +30,7 @@ import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -46,6 +56,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     linjer.length === 0 ? genrererUtbetalingLinjer(tilsagn) : linjer,
   );
 
+  const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<FieldError[]>([]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -110,6 +121,10 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     setLinjerState([...remaining]);
   }
 
+  function utbetalesTotal(): number {
+    return linjerState.reduce((acc, d) => acc + d.belop, 0);
+  }
+
   return (
     <>
       <VStack>
@@ -166,7 +181,17 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
       </VStack>
       <VStack align="end" gap="4">
         <HStack>
-          <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
+          <Button
+            size="small"
+            type="button"
+            onClick={() => {
+              if (utbetalesTotal() < utbetaling.beregning.belop) {
+                setMindreBelopModalOpen(true);
+              } else {
+                sendTilGodkjenning();
+              }
+            }}
+          >
             Send til attestering
           </Button>
         </HStack>
@@ -176,6 +201,13 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
           </Alert>
         )}
       </VStack>
+      <MindreBelopModal
+        open={mindreBelopModalOpen}
+        handleClose={() => setMindreBelopModalOpen(false)}
+        onConfirm={() => sendTilGodkjenning()}
+        belopUtbetaling={utbetalesTotal()}
+        belopInnsendt={utbetaling.beregning.belop}
+      />
     </>
   );
 }
@@ -187,4 +219,47 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
     case Tilskuddstype.TILTAK_INVESTERINGER:
       return TilsagnType.INVESTERING;
   }
+}
+
+function MindreBelopModal({
+  open,
+  handleClose,
+  onConfirm,
+  belopInnsendt,
+  belopUtbetaling,
+}: {
+  open: boolean;
+  handleClose: () => void;
+  onConfirm: () => void;
+  belopInnsendt: number;
+  belopUtbetaling: number;
+}) {
+  return (
+    <Modal
+      open={open}
+      className="text-left"
+      onClose={handleClose}
+      header={{
+        heading: "Beløpet er mindre enn innsendt",
+        icon: <InformationSquareFillIcon />,
+      }}
+    >
+      <Modal.Body>
+        <BodyShort>
+          Beløpet du er i ferd med å sende til attestering er mindre en beløpet på utbetalingen. Er
+          du sikker?
+        </BodyShort>
+        <BodyShort>Beløp til attestering: {formaterNOK(belopUtbetaling)}</BodyShort>
+        <BodyShort>Innsendt beløp: {formaterNOK(belopInnsendt)}</BodyShort>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary" onClick={onConfirm}>
+          Ja, send til attestering
+        </Button>
+        <Button variant="secondary" onClick={handleClose}>
+          Avbryt
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
 }
