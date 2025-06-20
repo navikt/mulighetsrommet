@@ -71,7 +71,6 @@ const tilAnnuleringAarsaker = [
 }));
 
 export function TilsagnPage() {
-  const { gjennomforingId } = useParams();
   const {
     ansatt,
     gjennomforing,
@@ -115,8 +114,8 @@ export function TilsagnPage() {
     },
   ];
 
-  function navigerTilTilsagnTabell() {
-    navigate(`/gjennomforinger/${gjennomforingId}/tilsagn`);
+  function navigerTilbake() {
+    navigate(-1);
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {
@@ -128,7 +127,7 @@ export function TilsagnPage() {
         },
       },
       {
-        onSuccess: navigerTilTilsagnTabell,
+        onSuccess: navigerTilbake,
         onValidationError: (error: ValidationError) => {
           setError(error.errors);
         },
@@ -143,7 +142,7 @@ export function TilsagnPage() {
         aarsaker: request.aarsaker,
         forklaring: request.forklaring || null,
       },
-      { onSuccess: navigerTilTilsagnTabell },
+      { onSuccess: navigerTilbake },
     );
   }
 
@@ -154,12 +153,12 @@ export function TilsagnPage() {
         aarsaker: request.aarsaker,
         forklaring: request.forklaring || null,
       },
-      { onSuccess: navigerTilTilsagnTabell },
+      { onSuccess: navigerTilbake },
     );
   }
 
   function slettTilsagn() {
-    slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
+    slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilbake });
   }
   if (!tilsagn) {
     return <Laster tekst="Laster tilsagn..." />;
