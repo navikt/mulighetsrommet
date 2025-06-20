@@ -25,29 +25,19 @@ import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/
 type OppgaverSorting = "nyeste" | "eldste";
 
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
-  if (sorting === "nyeste") {
-    return oppgaver.sort((a, b) => {
-      const aDate = new Date(a.createdAt);
-      const bDate = new Date(b.createdAt);
+  return oppgaver.sort((a, b) => {
+    const aDate = new Date(a.createdAt);
+    const bDate = new Date(b.createdAt);
 
-      return bDate.getTime() - aDate.getTime();
-    });
-  }
-  if (sorting === "eldste") {
-    return oppgaver.sort((a, b) => {
-      const aDate = new Date(a.createdAt);
-      const bDate = new Date(b.createdAt);
-
-      return aDate.getTime() - bDate.getTime();
-    });
-  }
-
-  return oppgaver;
+    return sorting === "nyeste"
+      ? bDate.getTime() - aDate.getTime()
+      : aDate.getTime() - bDate.getTime();
+  });
 }
 
 export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
-  const [, setTagsHeight] = useState(0);
+  const [tagsHeight, setTagsHeight] = useState(0);
 
   const {
     filter,
@@ -101,10 +91,11 @@ export function OppgaverPage() {
         buttons={null}
         table={
           <>
-            <ToolbarContainer tagsHeight={0} filterOpen={filterOpen}>
+            <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
               <ToolbarMeny>
                 <BodyShort weight="semibold">Viser {sortedOppgaver.length} oppgaver</BodyShort>
                 <Select
+                  size="small"
                   label={"Sortering"}
                   onChange={(e) => {
                     setSorting(e.target.value as OppgaverSorting);

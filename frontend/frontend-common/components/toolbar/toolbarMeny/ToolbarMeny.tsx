@@ -1,6 +1,10 @@
-import styles from "./ToolbarMeny.module.scss";
+import { HStack } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 
 export function ToolbarMeny(props: PropsWithChildren) {
-  return <div className={styles.toolbar_meny}>{props.children}</div>;
+  return (
+    <HStack align="center" justify="space-between" className="pb-2 px-4">
+      {props.children}
+    </HStack>
+  );
 }
