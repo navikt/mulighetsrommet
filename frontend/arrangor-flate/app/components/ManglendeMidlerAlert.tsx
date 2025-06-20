@@ -6,7 +6,8 @@ export function ManglendeMidlerAlert() {
       <Heading spacing level="4" size="small">
         Manglende midler
       </Heading>
-      Det mangler midler på tilsagnet til å dekke hele utbetalingsbeløpet. Nav vil vurdere hva som
+      Det er ikke nok midler igjen på tilsagnet til å dekke hele utbetalingsbeløpet. Dere kan sende
+      inn kravet, men det vil i etterkant behandles av Nav som vil vurdere om hele beløpet skal
       utbetales. Vennligst ta kontakt med Nav ved spørsmål.
     </Alert>
   );
