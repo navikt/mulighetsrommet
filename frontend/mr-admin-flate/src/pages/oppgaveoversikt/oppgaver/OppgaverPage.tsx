@@ -8,7 +8,7 @@ import {
   useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { HStack, Select, VStack } from "@navikt/ds-react";
+import { BodyShort, Select, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
@@ -19,6 +19,8 @@ import {
   oppgaverFilterStateAtom,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
+import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -98,18 +100,21 @@ export function OppgaverPage() {
         }
         buttons={null}
         table={
-          <VStack gap="2" className="mr-2">
-            <HStack justify="end">
-              <Select
-                label={"Sortering"}
-                onChange={(e) => {
-                  setSorting(e.target.value as OppgaverSorting);
-                }}
-              >
-                <option value="nyeste">Nyeste</option>
-                <option value="eldste">Eldste</option>
-              </Select>
-            </HStack>
+          <>
+            <ToolbarContainer tagsHeight={0} filterOpen={filterOpen}>
+              <ToolbarMeny>
+                <BodyShort weight="semibold">Viser {sortedOppgaver.length} oppgaver</BodyShort>
+                <Select
+                  label={"Sortering"}
+                  onChange={(e) => {
+                    setSorting(e.target.value as OppgaverSorting);
+                  }}
+                >
+                  <option value="nyeste">Nyeste</option>
+                  <option value="eldste">Eldste</option>
+                </Select>
+              </ToolbarMeny>
+            </ToolbarContainer>
             <VStack gap="2">
               {sortedOppgaver.map((o) => {
                 return <Oppgave key={o.id} oppgave={o} />;
@@ -118,7 +123,7 @@ export function OppgaverPage() {
                 <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
               )}
             </VStack>
-          </VStack>
+          </>
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}

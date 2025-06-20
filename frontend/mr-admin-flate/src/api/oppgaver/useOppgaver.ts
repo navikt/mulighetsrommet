@@ -1,10 +1,10 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { OppgaverService } from "@mr/api-client-v2";
-import { useApiQuery } from "@mr/frontend-common";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
 
 export function useOppgaver(filter: OppgaverFilterType) {
-  return useApiQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.oppgaver({ ...filter }),
     queryFn: () =>
       OppgaverService.getOppgaver({
