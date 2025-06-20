@@ -552,6 +552,29 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
+        test("søk på lopenummer") {
+            database.runAndRollback { session ->
+                MulighetsrommetTestDomain(
+                    arrangorer = listOf(
+                        ArrangorFixtures.hovedenhet,
+                        ArrangorFixtures.underenhet1,
+                    ),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
+                    gjennomforinger = listOf(
+                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
+                    ),
+                ).setup(session)
+
+                val queries = GjennomforingQueries(session)
+                val lopenummer = queries.get(Oppfolging1.id)!!.lopenummer
+
+                queries.getAll(search = lopenummer).should {
+                    it.items.size shouldBe 1
+                    it.items[0].id shouldBe Oppfolging1.id
+                }
+            }
+        }
+
         test("skal migreres henter kun der tiltakstypen har egen tiltakskode") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
