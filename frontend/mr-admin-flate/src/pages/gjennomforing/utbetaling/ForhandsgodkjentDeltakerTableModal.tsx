@@ -74,7 +74,7 @@ export function ForhandsgodkjentDeltakerTableModal({
       className="h-[60rem]"
     >
       <Modal.Header closeButton>
-        <Heading size="medium">Deltakere i utbetalingsperiode</Heading>
+        <Heading size="medium">Deltakere i utbetalingsperioden</Heading>
       </Modal.Header>
       <Modal.Body>
         <VStack>

@@ -180,7 +180,7 @@ export function UtbetalingPage() {
               {utbetaling.beregning.type === "FORHANDSGODKJENT" && (
                 <Accordion>
                   <Accordion.Item>
-                    <Accordion.Header>Deltakere i utbetalingsperiode</Accordion.Header>
+                    <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
                     <Accordion.Content>
                       <VStack gap="2">
                         <ForhandsgodkjentDeltakerTable
