@@ -12,6 +12,7 @@ interface Props {
 export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
   const tilsagnDetaljer: Definition[] = [
     ...(ekstraDefinisjoner || []),
+    { key: "Tilsagnstype", value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type) },
     {
       key: "Tilsagnsperiode",
       value: formaterPeriode(tilsagn.periode),
