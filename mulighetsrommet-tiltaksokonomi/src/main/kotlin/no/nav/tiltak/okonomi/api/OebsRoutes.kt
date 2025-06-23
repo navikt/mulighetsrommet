@@ -8,7 +8,10 @@ import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.api.serializers.OebsLocalDateTimeSerializer
 import no.nav.tiltak.okonomi.plugins.AuthProvider
@@ -32,17 +35,21 @@ fun Routing.oebsRoutes(
         okonomiService.logKvittering(request)
 
         val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsBestillingKvittering>>(request)
+
+        var error: ProblemDetail? = null
+
         kvitteringer.forEach { kvittering ->
             val bestilling = okonomiService.hentBestilling(kvittering.bestillingsNummer)
-                ?: throw StatusException(
-                    HttpStatusCode.NotFound,
-                    "Fant ikke bestilling med bestillingsNummer: ${kvittering.bestillingsNummer}",
-                )
-
-            okonomiService.mottaBestillingKvittering(bestilling, kvittering)
+            if (bestilling == null) {
+                error = NotFound("Fant ikke bestilling med bestillingsNummer: ${kvittering.bestillingsNummer}")
+            } else {
+                okonomiService.mottaBestillingKvittering(bestilling, kvittering)
+            }
         }
 
-        call.respond(HttpStatusCode.OK)
+        error?.let {
+            call.respondWithProblemDetail(it)
+        } ?: call.respond(HttpStatusCode.OK)
     }
 
     post<Kvittering.Faktura> {
