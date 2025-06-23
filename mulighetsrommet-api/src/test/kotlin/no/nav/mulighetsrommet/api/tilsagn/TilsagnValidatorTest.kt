@@ -2,13 +2,28 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto.*
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import java.time.LocalDate
 import java.util.UUID
 
 class TilsagnValidatorTest : FunSpec({
-
     context("validate Tilsagn") {
+        test("Arrangør slettet") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1,
+                previous = null,
+                minimumTilsagnPeriodeStart = LocalDate.of(2025, 1, 1),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = true,
+                tiltakstypeNavn = "AFT",
+            ) shouldBeLeft listOf(
+                FieldError.root("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg"),
+            )
+        }
+
         context("TilsagnBeregningFri.Input") {
             test("should return field error if linjer is empty") {
                 val input = TilsagnBeregningFri.Input(linjer = emptyList(), prisbetingelser = null)

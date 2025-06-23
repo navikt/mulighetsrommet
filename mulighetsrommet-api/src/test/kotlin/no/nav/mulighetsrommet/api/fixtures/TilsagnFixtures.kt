@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -113,6 +114,26 @@ object TilsagnFixtures {
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(2500),
+        ),
+    )
+
+    val TilsagnRequest1 = TilsagnRequest(
+        id = UUID.randomUUID(),
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        type = TilsagnType.TILSAGN,
+        periodeStart = LocalDate.of(2025, 1, 1),
+        periodeSlutt = LocalDate.of(2025, 1, 31),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        beregning = TilsagnBeregningFri.Input(
+            listOf(
+                TilsagnBeregningFri.InputLinje(
+                    id = UUID.randomUUID(),
+                    beskrivelse = "1000",
+                    belop = 1000,
+                    antall = 1,
+                ),
+            ),
+            prisbetingelser = null,
         ),
     )
 }

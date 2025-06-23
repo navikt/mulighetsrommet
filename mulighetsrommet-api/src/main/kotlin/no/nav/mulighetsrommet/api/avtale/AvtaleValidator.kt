@@ -246,6 +246,16 @@ class AvtaleValidator(
                 )
             }
 
+            val earliestGjennomforingStartDato = gjennomforinger.minBy { it.startDato }.startDato
+            if (earliestGjennomforingStartDato.isBefore(avtale.startDato)) {
+                add(
+                    FieldError.of(
+                        AvtaleDbo::startDato,
+                        "Startdato kan ikke være etter startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: ${earliestGjennomforingStartDato.formaterDatoTilEuropeiskDatoformat()}",
+                    ),
+                )
+            }
+
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
 
@@ -264,16 +274,6 @@ class AvtaleValidator(
                             "Arrangøren ${arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                             AvtaleDbo::arrangor,
                             AvtaleDbo.Arrangor::underenheter,
-                        ),
-                    )
-                }
-
-                if (gjennomforing.startDato.isBefore(avtale.startDato)) {
-                    val gjennomforingsStartDato = gjennomforing.startDato.formaterDatoTilEuropeiskDatoformat()
-                    add(
-                        FieldError.of(
-                            AvtaleDbo::startDato,
-                            "Startdato kan ikke være etter startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
                         ),
                     )
                 }

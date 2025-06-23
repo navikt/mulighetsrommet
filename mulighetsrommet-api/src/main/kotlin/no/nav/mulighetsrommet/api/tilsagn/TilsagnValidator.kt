@@ -7,25 +7,61 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.time.LocalDate
 
 object TilsagnValidator {
     fun validate(
-        next: TilsagnDbo,
+        next: TilsagnRequest,
         previous: Tilsagn?,
-    ): Either<List<FieldError>, TilsagnDbo> = either {
-        if (previous != null && previous.status != TilsagnStatus.RETURNERT) {
-            return FieldError
-                .of(Tilsagn::id, "Tilsagnet kan ikke endres.")
-                .nel()
-                .left()
-        }
-
+        tiltakstypeNavn: String,
+        gjennomforingSluttDato: LocalDate?,
+        arrangorSlettet: Boolean,
+        minimumTilsagnPeriodeStart: LocalDate?,
+    ): Either<List<FieldError>, TilsagnRequest> = either {
         val errors = buildList {
-            if (next.periode.start.year != next.periode.getLastInclusiveDate().year) {
+            if (minimumTilsagnPeriodeStart == null) {
+                add(
+                    FieldError
+                        .of(
+                            "Tilsagn for tiltakstype $tiltakstypeNavn er ikke støttet enda",
+                            TilsagnRequest::periodeStart,
+                        ),
+                )
+            } else if (next.periodeStart < minimumTilsagnPeriodeStart) {
+                add(
+                    FieldError
+                        .of(
+                            "Minimum startdato for tilsagn til $tiltakstypeNavn er ${minimumTilsagnPeriodeStart.formaterDatoTilEuropeiskDatoformat()}",
+                            TilsagnRequest::periodeStart,
+                        ),
+                )
+            } else if (gjennomforingSluttDato !== null && next.periodeSlutt > gjennomforingSluttDato) {
+                add(
+                    FieldError.of(
+                        "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
+                        TilsagnRequest::periodeSlutt,
+                    ),
+                )
+            }
+            if (arrangorSlettet) {
+                add(
+                    FieldError
+                        .root(
+                            "Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg",
+                        ),
+                )
+            }
+            if (previous != null && previous.status != TilsagnStatus.RETURNERT) {
+                return FieldError
+                    .of(Tilsagn::id, "Tilsagnet kan ikke endres.")
+                    .nel()
+                    .left()
+            }
+            if (next.periodeStart.year != next.periodeSlutt.year) {
                 add(
                     FieldError.of(
                         TilsagnRequest::periodeSlutt,

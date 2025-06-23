@@ -181,7 +181,7 @@ class TilsagnServiceTest : FunSpec({
         test("tilsagnet kan ikke starte før konfigurert minimum dato for tilsagn") {
             val invalidRequest = request.copy(
                 periodeStart = LocalDate.of(2024, 12, 1),
-                periodeSlutt = LocalDate.of(2025, 1, 31),
+                periodeSlutt = LocalDate.of(2024, 12, 31),
             )
 
             service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(

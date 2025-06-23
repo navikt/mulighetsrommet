@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -46,41 +45,9 @@ class TilsagnService(
     )
 
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
-        val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
-            ?: return FieldError
-                .of("Tiltaksgjennomforingen finnes ikke", TilsagnRequest::gjennomforingId)
-                .nel()
-                .left()
-
-        val minTilsagnCreationDate =
-            config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
-        if (minTilsagnCreationDate == null) {
-            return FieldError
-                .of(
-                    "Tilsagn for tiltakstype ${gjennomforing.tiltakstype.navn} er ikke støttet enda",
-                    TilsagnRequest::periodeStart,
-                )
-                .nel()
-                .left()
-        } else if (request.periodeStart < minTilsagnCreationDate) {
-            return FieldError
-                .of(
-                    "Minimum startdato for tilsagn til ${gjennomforing.tiltakstype.navn} er ${minTilsagnCreationDate.formaterDatoTilEuropeiskDatoformat()}",
-                    TilsagnRequest::periodeStart,
-                )
-                .nel()
-                .left()
-        } else if (gjennomforing.sluttDato !== null && request.periodeSlutt > gjennomforing.sluttDato) {
-            return FieldError
-                .of(
-                    "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
-                    TilsagnRequest::periodeSlutt,
-                )
-                .nel()
-                .left()
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(request.gjennomforingId)) {
+            "Tiltaksgjennomforingen finnes ikke"
         }
-
-        val previous = queries.tilsagn.get(request.id)
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -95,7 +62,24 @@ class TilsagnService(
             besluttetTidspunkt = null,
         )
 
-        validateTilsagnBeregningInput(gjennomforing, request.beregning)
+        val previous = queries.tilsagn.get(request.id)
+        return TilsagnValidator.validate(
+            next = request,
+            previous = previous,
+            gjennomforingSluttDato = gjennomforing.sluttDato,
+            tiltakstypeNavn = gjennomforing.tiltakstype.navn,
+            arrangorSlettet = gjennomforing.arrangor.slettet,
+            minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+        )
+            .flatMap {
+                when (request.beregning) {
+                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
+                        gjennomforing.tiltakstype.tiltakskode,
+                        request.beregning,
+                    )
+                    else -> request.beregning.right()
+                }
+            }
             .flatMap { beregnTilsagn(it) }
             .map { beregning ->
                 val lopenummer = previous?.lopenummer
@@ -116,9 +100,6 @@ class TilsagnService(
                     belopBrukt = 0,
                     beregning = beregning,
                 )
-            }
-            .flatMap { dbo ->
-                TilsagnValidator.validate(dbo, previous)
             }
             .map { dbo ->
                 queries.tilsagn.upsert(dbo)
