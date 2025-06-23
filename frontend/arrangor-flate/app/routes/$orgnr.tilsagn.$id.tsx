@@ -49,7 +49,6 @@ export default function TilsagnDetaljerPage() {
           { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
           { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
           { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
-          { key: "Tilsagnstype", value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type) },
         ]}
       />
     </VStack>
