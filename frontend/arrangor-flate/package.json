@@ -18,11 +18,10 @@
     "playwright:debug": "cross-env DISABLE_DEKORATOR='true' playwright test --debug",
     "playwright:open": "cross-env DISABLE_DEKORATOR='true' playwright test --ui",
     "playwright:codegen": "playwright codegen playwright.dev",
-    "api-client:build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./api-client"
+    "api-client:build": "openapi-ts"
   },
   "dependencies": {
     "@axe-core/playwright": "4.10.2",
-    "@hey-api/client-fetch": "0.11.0",
     "@mjackson/form-data-parser": "0.9.1",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.23.1",
@@ -55,7 +54,7 @@
     "winston": "3.17.0"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.69.1",
+    "@hey-api/openapi-ts": "0.76.0",
     "@playwright/test": "1.53.1",
     "@react-router/dev": "7.6.2",
     "@react-router/fs-routes": "7.6.2",
