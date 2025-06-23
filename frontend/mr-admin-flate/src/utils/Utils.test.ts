@@ -134,6 +134,6 @@ describe("formaterDatoSomYYYYMMDD()", () => {
     expect(formaterDatoSomYYYYMMDD(null, fallback)).toBe(fallback);
   });
   test("undefined to fallback", () => {
-    expect(formaterDatoSomYYYYMMDD(null, fallback)).toBe(fallback);
+    expect(formaterDatoSomYYYYMMDD(undefined, fallback)).toBe(fallback);
   });
 });
