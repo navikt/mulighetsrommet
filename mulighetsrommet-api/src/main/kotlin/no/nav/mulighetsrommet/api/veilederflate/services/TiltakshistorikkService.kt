@@ -222,7 +222,7 @@ class TiltakshistorikkService(
 
     private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? = retryOnException {
         arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
-            log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
+            log.warn("Klarte ikke hente arrangørs hovedenhet: $orgnr. BrregError: $error")
             null
         }, { virksomhet ->
             virksomhet.overordnetEnhet?.let { getArrangorHovedenhetNavn(it) } ?: virksomhet.navn
@@ -231,7 +231,7 @@ class TiltakshistorikkService(
 
     private suspend fun getArrangorNavn(orgnr: Organisasjonsnummer): String? = retryOnException {
         arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
-            log.warn("Klarte ikke hente hente arrangør. BrregError: $error")
+            log.warn("Klarte ikke hente hente arrangør: $orgnr. BrregError: $error")
             null
         }, { virksomhet ->
             virksomhet.navn
