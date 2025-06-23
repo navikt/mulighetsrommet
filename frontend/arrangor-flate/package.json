@@ -23,8 +23,7 @@
   "dependencies": {
     "@axe-core/playwright": "4.10.2",
     "@hey-api/client-fetch": "0.11.0",
-    "@mjackson/file-storage": "^0.7.0",
-    "@mjackson/form-data-parser": "^0.9.1",
+    "@mjackson/form-data-parser": "0.9.1",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.23.1",
     "@navikt/ds-css": "7.23.1",
