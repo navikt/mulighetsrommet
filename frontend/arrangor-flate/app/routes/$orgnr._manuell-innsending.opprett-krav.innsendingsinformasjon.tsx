@@ -42,7 +42,7 @@ import { internalNavigation } from "../internal-navigation";
 import { errorAt } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { formaterDatoSomYYYYMMDD } from "~/utils/date";
+import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];

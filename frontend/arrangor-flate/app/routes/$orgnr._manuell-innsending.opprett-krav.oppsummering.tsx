@@ -30,7 +30,7 @@ import { formaterPeriode, isValidationError, problemDetailResponse } from "~/uti
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt } from "~/utils/validering";
-import { formaterDatoSomYYYYMMDD } from "~/utils/date";
+import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 export const meta: MetaFunction = () => {
   return [
