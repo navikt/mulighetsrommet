@@ -14,7 +14,8 @@ export function formaterDatoSomYYYYMMDD(
   }
 
   if (yyyyMMddFormat.test(dato)) {
-    return dato;
+    const [year, month, day] = dato.split("-").map(Number);
+    return dateToyyyyMMdd(new Date(year, month-1, day), fallback)
   }
 
   if (ddMMyyyyFormat.test(dato)) {

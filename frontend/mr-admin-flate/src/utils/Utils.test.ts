@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { capitalizeEveryWord, kalkulerStatusBasertPaaFraOgTilDato } from "./Utils";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   test("Skal returnere status 'Aktiv' når nå er større eller lik fra-dato og nå er mindre eller lik til-dato", () => {
@@ -105,5 +106,34 @@ describe("Json pointer", () => {
 
   test("only slash", () => {
     expect(jsonPointerToFieldPath("/")).toBe("");
+  });
+});
+
+describe("formaterDatoSomYYYYMMDD()", () => {
+  const fallback = "<fallbackDate>";
+
+  test("valid dd.MM.yyyy to yyyy-MM-dd", () => {
+    expect(formaterDatoSomYYYYMMDD("31.12.2024", fallback)).toBe("2024-12-31");
+  });
+  test("invalid dd.MM.yyyy to fallback", () => {
+    expect(formaterDatoSomYYYYMMDD("31.02.202", fallback)).toBe(fallback);
+  });
+  test("valid yyyy-MM-dd to yyyy-MM-dd", () => {
+    expect(formaterDatoSomYYYYMMDD("2024-12-31", fallback)).toBe("2024-12-31");
+  });
+  test("invalid yyyy-MM-dd to fallback", () => {
+    expect(formaterDatoSomYYYYMMDD("2024-12-3", fallback)).toBe(fallback);
+  });
+  test("valid date to yyyy-MM-dd", () => {
+    expect(formaterDatoSomYYYYMMDD(new Date(2024, 12 - 1, 31), fallback)).toBe("2024-12-31");
+  });
+  test("invalid datestring to fallback", () => {
+    expect(formaterDatoSomYYYYMMDD(new Date("31.12.2024"), fallback)).toBe(fallback);
+  });
+  test("null to fallback", () => {
+    expect(formaterDatoSomYYYYMMDD(null, fallback)).toBe(fallback);
+  });
+  test("undefined to fallback", () => {
+    expect(formaterDatoSomYYYYMMDD(null, fallback)).toBe(fallback);
   });
 });

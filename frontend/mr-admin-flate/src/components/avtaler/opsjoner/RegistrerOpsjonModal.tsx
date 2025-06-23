@@ -2,6 +2,7 @@ import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, OpprettOpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
+import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -12,7 +13,7 @@ import {
   Opsjonsvalg,
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
-import { addYear, formaterDatoSomYYYYMMDD } from "@/utils/Utils";
+import { addYear } from "@/utils/Utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
