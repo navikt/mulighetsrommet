@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto.*
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import java.time.LocalDate
 import java.util.UUID
@@ -20,7 +21,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = true,
                 tiltakstypeNavn = "AFT",
             ) shouldBeLeft listOf(
-                FieldError.root("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg"),
+                FieldError.of(TilsagnRequest::id, "Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg"),
             )
         }
 
