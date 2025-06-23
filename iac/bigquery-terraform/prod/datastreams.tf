@@ -43,7 +43,10 @@ module "mr_api_datastream" {
         { table = "tilsagn" },
         { table = "delutbetaling" },
         { table = "utbetaling" },
-        { table = "del_med_bruker", columns = ["id", "tiltakstype_navn", "delt_fra_fylke", "delt_fra_enhet", "created_at"] }
+        {
+          table   = "del_med_bruker",
+          columns = ["id", "tiltakstype_navn", "delt_fra_fylke", "delt_fra_enhet", "created_at"]
+        }
       ]
     }
   ]
@@ -67,12 +70,16 @@ module "mr_api_datastream" {
     },
     {
       role          = "roles/bigquery.metadataViewer"
+      user_by_email = "nada-metabase@nada-prod-6977.iam.gserviceaccount.com"
+    },
+    {
+      role          = "roles/bigquery.metadataViewer"
       user_by_email = "effekt-j6bp@knada-gcp.iam.gserviceaccount.com"
     },
     {
       role          = "roles/bigquery.metadataViewer"
-      user_by_email = "nada-metabase@nada-prod-6977.iam.gserviceaccount.com"
-    }
+      user_by_email = "brum-dev-service-bq@brum-dev-b72f.iam.gserviceaccount.com"
+    },
   ]
 
   authorized_views = [
