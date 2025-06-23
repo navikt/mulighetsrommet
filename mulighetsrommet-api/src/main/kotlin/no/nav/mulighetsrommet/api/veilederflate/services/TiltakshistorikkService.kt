@@ -4,6 +4,7 @@ import arrow.core.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
@@ -219,8 +220,8 @@ class TiltakshistorikkService(
             }
     }
 
-    private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? {
-        return arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
+    private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? = retryOnException {
+        arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
             log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
             null
         }, { virksomhet ->
@@ -228,13 +229,31 @@ class TiltakshistorikkService(
         })
     }
 
-    private suspend fun getArrangorNavn(orgnr: Organisasjonsnummer): String? {
-        return arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
+    private suspend fun getArrangorNavn(orgnr: Organisasjonsnummer): String? = retryOnException {
+        arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
             log.warn("Klarte ikke hente hente arrangør. BrregError: $error")
             null
         }, { virksomhet ->
             virksomhet.navn
         })
+    }
+
+    private suspend fun <T> retryOnException(
+        times: Int = 3,
+        initialDelay: Long = 50,
+        block: suspend () -> T,
+    ): T {
+        repeat(times - 1) { attempt ->
+            val nextDelay = initialDelay * (attempt + 1)
+            try {
+                return block()
+            } catch (e: Exception) {
+                log.info("Exception oppsto under forsøk ${attempt + 1} av $times, venter $nextDelay ms før nytt forsøk. Feilmelding: ${e.message}")
+                delay(nextDelay)
+            }
+        }
+
+        return block()
     }
 }
 
