@@ -136,6 +136,8 @@ class DelutbetalingQueriesTest : FunSpec({
                     besluttelse = Besluttelse.GODKJENT,
                     besluttetAv = Tiltaksadministrasjon,
                     besluttetTidspunkt = LocalDateTime.now(),
+                    besluttetAvNavn = null,
+                    behandletAvNavn = null,
                 ),
             )
             queries.upsert(
@@ -149,6 +151,8 @@ class DelutbetalingQueriesTest : FunSpec({
                     behandletTidspunkt = LocalDateTime.now(),
                     besluttelse = Besluttelse.AVVIST,
                     besluttetAv = Arena,
+                    besluttetAvNavn = null,
+                    behandletAvNavn = null,
                     besluttetTidspunkt = LocalDateTime.now(),
                 ),
             )

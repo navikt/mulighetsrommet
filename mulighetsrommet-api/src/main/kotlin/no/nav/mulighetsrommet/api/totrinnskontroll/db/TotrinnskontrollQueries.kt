@@ -73,8 +73,13 @@ class TotrinnskontrollQueries(private val session: Session) {
     fun get(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll? {
         @Language("PostgreSQL")
         val query = """
-            select *
+            select
+                totrinnskontroll.*,
+                nav_ansatt_behandlet.fornavn || ' ' || nav_ansatt_behandlet.etternavn AS behandlet_av_navn,
+                nav_ansatt_besluttet.fornavn || ' ' || nav_ansatt_besluttet.etternavn AS besluttet_av_navn
             from totrinnskontroll
+                left join nav_ansatt nav_ansatt_behandlet on behandlet_av = nav_ansatt_behandlet.nav_ident
+                left join nav_ansatt nav_ansatt_besluttet on besluttet_av = nav_ansatt_besluttet.nav_ident
             where entity_id = :entity_id::uuid and type = :type::totrinnskontroll_type
             order by behandlet_tidspunkt desc
             limit 1
@@ -91,8 +96,13 @@ class TotrinnskontrollQueries(private val session: Session) {
     fun getAll(entityId: UUID): List<Totrinnskontroll> {
         @Language("PostgreSQL")
         val query = """
-            select *
+            select
+                totrinnskontroll.*,
+                nav_ansatt_behandlet.fornavn || ' ' || nav_ansatt_behandlet.etternavn AS behandlet_av_navn,
+                nav_ansatt_besluttet.fornavn || ' ' || nav_ansatt_besluttet.etternavn AS besluttet_av_navn
             from totrinnskontroll
+                left join nav_ansatt nav_ansatt_behandlet on behandlet_av = nav_ansatt_behandlet.nav_ident
+                left join nav_ansatt nav_ansatt_besluttet on besluttet_av = nav_ansatt_besluttet.nav_ident
             where entity_id = :entity_id::uuid
             order by behandlet_tidspunkt desc
         """.trimIndent()
@@ -116,6 +126,8 @@ class TotrinnskontrollQueries(private val session: Session) {
             besluttetAv = stringOrNull("besluttet_av")?.toAgent(),
             besluttetTidspunkt = localDateTimeOrNull("besluttet_tidspunkt"),
             besluttelse = stringOrNull("besluttelse")?.let { Besluttelse.valueOf(it) },
+            besluttetAvNavn = stringOrNull("besluttet_av_navn"),
+            behandletAvNavn = stringOrNull("behandlet_av_navn"),
         )
     }
 }

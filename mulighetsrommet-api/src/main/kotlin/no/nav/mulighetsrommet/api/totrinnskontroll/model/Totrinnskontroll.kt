@@ -17,12 +17,14 @@ data class Totrinnskontroll(
     val type: Type,
     @Serializable(with = AgentSerializer::class)
     val behandletAv: Agent,
+    val behandletAvNavn: String?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val behandletTidspunkt: LocalDateTime,
     val aarsaker: List<String>,
     val forklaring: String?,
     @Serializable(with = AgentSerializer::class)
     val besluttetAv: Agent?,
+    val besluttetAvNavn: String?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime?,
     val besluttelse: Besluttelse?,
