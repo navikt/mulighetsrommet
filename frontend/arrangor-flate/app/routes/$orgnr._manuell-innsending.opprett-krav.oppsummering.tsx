@@ -30,6 +30,7 @@ import { formaterPeriode, isValidationError, problemDetailResponse } from "~/uti
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt } from "~/utils/validering";
+import { formaterDatoSomYYYYMMDD } from "~/utils/date";
 
 export const meta: MetaFunction = () => {
   return [
@@ -261,24 +262,4 @@ export default function OpprettKravOppsummering() {
       </VStack>
     </>
   );
-}
-
-function formaterDatoSomYYYYMMDD(dato: string | Date | null, fallback = ""): string {
-  if (!dato) return fallback;
-
-  let dateObj: Date;
-  if (typeof dato === "string") {
-    const [day, month, year] = dato.split(".").map(Number);
-    dateObj = new Date(year, month - 1, day);
-  } else {
-    dateObj = dato;
-  }
-
-  if (isNaN(dateObj.getTime())) return fallback;
-
-  const year = dateObj.getFullYear();
-  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const day = String(dateObj.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
 }

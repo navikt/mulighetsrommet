@@ -42,6 +42,7 @@ import { internalNavigation } from "../internal-navigation";
 import { errorAt } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
+import { formaterDatoSomYYYYMMDD } from "~/utils/date";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -169,8 +170,8 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
-    session.set("periodeStart", periodeStart);
-    session.set("periodeSlutt", periodeSlutt);
+    session.set("periodeStart", formaterDatoSomYYYYMMDD(periodeStart));
+    session.set("periodeSlutt", formaterDatoSomYYYYMMDD(periodeSlutt));
     return redirect(internalNavigation(orgnr).opprettKravUtbetaling, {
       headers: {
         "Set-Cookie": await commitSession(session),
