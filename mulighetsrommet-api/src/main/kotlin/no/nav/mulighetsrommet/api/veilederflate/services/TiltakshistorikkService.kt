@@ -257,7 +257,7 @@ class TiltakshistorikkService(
     }
 }
 
-fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
+private fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
     return Deltakelse.DeltakelseGruppetiltak(
         id = deltakerId,
         gjennomforingId = deltakerlisteId,

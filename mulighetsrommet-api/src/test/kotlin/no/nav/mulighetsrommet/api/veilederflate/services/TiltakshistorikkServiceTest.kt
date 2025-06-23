@@ -289,13 +289,14 @@ class TiltakshistorikkServiceTest : FunSpec({
             AccessType.OBO("token"),
         )
 
+        val expectedDeltakelseUtenStartdato = deltakelseOppfolging.copy(
+            id = deltakelseOppfolgingUtenStartdato.deltakerId,
+            periode = Deltakelse.Periode(null, null),
+            status = Deltakelse.DeltakelseGruppetiltak.Status(DeltakerStatus.Type.KLADD, "Kladd", null),
+        )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(
-                deltakelseOppfolgingUtenStartdato.toDeltakelse(),
-                deltakelseOppfolging,
-                deltakelseAvklaring,
-            ),
+            aktive = listOf(expectedDeltakelseUtenStartdato, deltakelseOppfolging, deltakelseAvklaring),
             historiske = emptyList(),
         )
     }
