@@ -5,7 +5,7 @@ import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Alert, Button, Heading, HStack, TextField } from "@navikt/ds-react";
+import { Alert, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -41,7 +41,11 @@ export function TilsagnForm(props: Props) {
     },
   });
 
-  const { handleSubmit, setError } = form;
+  const {
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = form;
 
   const postData: SubmitHandler<InferredTilsagn> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
@@ -93,14 +97,21 @@ export function TilsagnForm(props: Props) {
             </div>
           </div>
         </div>
-        <HStack gap="2" justify={"end"}>
-          <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
-            Avbryt
-          </Button>
-          <Button size="small" type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
-          </Button>
-        </HStack>
+        <VStack gap="2">
+          <HStack gap="2" justify={"end"}>
+            <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
+              Avbryt
+            </Button>
+            <Button size="small" type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
+            </Button>
+          </HStack>
+          {errors.id?.message && (
+            <Alert className="self-end" variant="error" size="small">
+              {errors.id?.message}
+            </Alert>
+          )}
+        </VStack>
       </form>
     </FormProvider>
   );

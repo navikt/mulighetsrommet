@@ -50,7 +50,8 @@ object TilsagnValidator {
             if (arrangorSlettet) {
                 add(
                     FieldError
-                        .root(
+                        .of(
+                            TilsagnRequest::id,
                             "Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg",
                         ),
                 )
