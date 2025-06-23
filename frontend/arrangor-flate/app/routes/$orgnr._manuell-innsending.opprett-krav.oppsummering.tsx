@@ -34,8 +34,8 @@ import { formaterDatoSomYYYYMMDD } from "~/utils/date";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Manuell innsending" },
-    { name: "description", content: "Manuell innsending av krav om utbetaling" },
+    { title: "Opprett utbetalingskrav" },
+    { name: "description", content: "Manuell opprettelse av utbetalingskrav" },
   ];
 };
 
@@ -183,7 +183,7 @@ export default function OpprettKravOppsummering() {
 
   return (
     <>
-      <Heading level="3" spacing size="medium">
+      <Heading level="3" spacing size="large">
         Oppsummering
       </Heading>
       <VStack gap="6">

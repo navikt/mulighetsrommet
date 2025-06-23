@@ -39,9 +39,6 @@ export default function UtbetalingLayout() {
         >
           <ChevronLeftIcon /> Tilbake til oversikt
         </Link>
-        <Heading size="large" spacing level="2">
-          Manuelt utbetalingskrav
-        </Heading>
         <HStack gap="10" width="100%" justify="center" wrap={false}>
           <VStack padding="8" flexGrow="2" className="bg-bg-default rounded-lg ">
             <Outlet />
@@ -57,7 +54,7 @@ export default function UtbetalingLayout() {
                 onStepChange={setActiveStep}
                 interactive={false}
               >
-                <Stepper.Step>Tilsagn</Stepper.Step>
+                <Stepper.Step>Innsendingsinformasjon</Stepper.Step>
                 <Stepper.Step>Utbetalingsinformasjon</Stepper.Step>
                 <Stepper.Step>Oppsummering</Stepper.Step>
               </Stepper>
