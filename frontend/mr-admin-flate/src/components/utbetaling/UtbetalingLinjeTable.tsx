@@ -49,7 +49,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
           {linjer.map((linje, i) => renderRow(linje, i))}
           <Table.Row shadeOnHover={false}>
             <Table.DataCell colSpan={5} className="font-bold">
-              {`${utbetalingTekster.beregning.belop.label}: ${formaterNOK(utbetaling.beregning.belop)}`}
+              {`${utbetalingTekster.beregning.utbetales.label}: ${formaterNOK(utbetaling.beregning.belop)}`}
             </Table.DataCell>
             <Table.DataCell className="font-bold" colSpan={2}>
               {formaterNOK(totalGjenstaendeBelop)}

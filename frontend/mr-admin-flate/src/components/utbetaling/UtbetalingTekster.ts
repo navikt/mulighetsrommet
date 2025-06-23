@@ -12,5 +12,8 @@ export const utbetalingTekster = {
     belop: {
       label: "Beløp",
     },
+    utbetales: {
+      label: "Utbetales",
+    },
   },
 } as const;
