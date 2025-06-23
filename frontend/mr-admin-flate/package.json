@@ -34,7 +34,7 @@
     "@tanstack/react-query-devtools": "5.81.2",
     "@types/is-url": "1.2.32",
     "classnames": "2.5.1",
-    "dequal": "^2.0.3",
+    "dequal": "2.0.3",
     "highcharts": "12.3.0",
     "highcharts-react-official": "3.2.2",
     "is-hotkey": "0.2.0",

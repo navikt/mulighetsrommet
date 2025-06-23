@@ -107,11 +107,8 @@ importers:
       '@hey-api/client-fetch':
         specifier: 0.11.0
         version: 0.11.0(@hey-api/openapi-ts@0.69.1(typescript@5.8.3))
-      '@mjackson/file-storage':
-        specifier: ^0.7.0
-        version: 0.7.0
       '@mjackson/form-data-parser':
-        specifier: ^0.9.1
+        specifier: 0.9.1
         version: 0.9.1
       '@mr/frontend-common':
         specifier: workspace:*
@@ -413,7 +410,7 @@ importers:
         specifier: 2.5.1
         version: 2.5.1
       dequal:
-        specifier: ^2.0.3
+        specifier: 2.0.3
         version: 2.0.3
       highcharts:
         specifier: 12.3.0
@@ -661,7 +658,7 @@ importers:
         specifier: 2.5.1
         version: 2.5.1
       dequal:
-        specifier: ^2.0.3
+        specifier: 2.0.3
         version: 2.0.3
       jotai:
         specifier: 2.12.5
@@ -2149,17 +2146,11 @@ packages:
       '@types/react': '>=16'
       react: '>=16'
 
-  '@mjackson/file-storage@0.7.0':
-    resolution: {integrity: sha512-M1v2PvE/b7bIAQZOdiqnjh9WcyuEqRcIJrdHdZj/6ixjNER+V2jkTFUdKTt/2XTEpbgRhERO/G8C/sjK05tewA==}
-
   '@mjackson/form-data-parser@0.9.1':
     resolution: {integrity: sha512-GQqet5qTAm8LfUOsMdfdInqnOBpuDO5GK/y7tBgpXs+DQhJY9Rf1fxMuFXiXczoNMRu8UIG5/RFSBDeaF1bbrw==}
 
   '@mjackson/headers@0.11.1':
     resolution: {integrity: sha512-uXXhd4rtDdDwkqAuGef1nuafkCa1NlTmEc1Jzc0NL4YiA1yON1NFXuqJ3hOuKvNKQwkiDwdD+JJlKVyz4dunFA==}
-
-  '@mjackson/lazy-file@3.4.0':
-    resolution: {integrity: sha512-zQ/b3hEpHI7YQJjPeEKo1U9DVmLV7bNKFFYJbG20TM4bCug2u1CoBZ5IHlaIrI6oq6HuYs1FpqdtKSQyjWAN7g==}
 
   '@mjackson/multipart-parser@0.10.1':
     resolution: {integrity: sha512-cHMD6+ErH/DrEfC0N6Ru/+1eAdavxdV0C35PzSb5/SD7z3XoaDMc16xPJcb8CahWjSpqHY+Too9sAb6/UNuq7A==}
@@ -2182,6 +2173,9 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.23.1':
     resolution: {integrity: sha512-0QFNtFJ0OH0H0ZX032l6k5D408a4hFZjnzhRtCkYMyiE5TkbuGOXGNjbK6RIwyVBt0pTJe4TTadJYt/hS3e4pA==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.23.1/a93920602f7a93ced02906c4580da331fbf24a1f}
@@ -2197,6 +2191,9 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@3.8.0':
     resolution: {integrity: sha512-5CDsv3wop9eIw2YNBCJRr0w6PwwkoTiHzZQXn1+5YZnsksCkHJAFsfKSbRle6zgsD+XRBnc/TPOP0nvNly7NWg==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.8.0/fc6862d934adfbefa382220614af18160688cd1e}
@@ -6254,10 +6251,6 @@ packages:
   motion-utils@12.18.1:
     resolution: {integrity: sha512-az26YDU4WoDP0ueAkUtABLk2BIxe28d8NH1qWT8jPGhPyf44XTdDUh8pDk9OPphaSrR9McgpcJlgwSOIw/sfkA==}
 
-  mrmime@2.0.1:
-    resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
-    engines: {node: '>=10'}
-
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
 
@@ -10222,19 +10215,11 @@ snapshots:
       '@types/react': 19.0.3
       react: 19.0.0
 
-  '@mjackson/file-storage@0.7.0':
-    dependencies:
-      '@mjackson/lazy-file': 3.4.0
-
   '@mjackson/form-data-parser@0.9.1':
     dependencies:
       '@mjackson/multipart-parser': 0.10.1
 
   '@mjackson/headers@0.11.1': {}
-
-  '@mjackson/lazy-file@3.4.0':
-    dependencies:
-      mrmime: 2.0.1
 
   '@mjackson/multipart-parser@0.10.1':
     dependencies:
@@ -10261,11 +10246,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.23.1
       '@navikt/ds-tokens': 7.23.1
-      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.7.0(react@19.0.0)
+    optionalDependencies:
+      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
@@ -10279,6 +10265,7 @@ snapshots:
       html-react-parser: 5.2.5(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 26.1.0
+    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@3.8.0':
@@ -15206,8 +15193,6 @@ snapshots:
       motion-utils: 12.18.1
 
   motion-utils@12.18.1: {}
-
-  mrmime@2.0.1: {}
 
   ms@2.0.0: {}
 
