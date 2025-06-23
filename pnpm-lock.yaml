@@ -47,17 +47,17 @@ importers:
         specifier: 11.14.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(react@19.0.0)
       '@rjsf/chakra-ui':
-        specifier: 5.24.11
-        version: 5.24.11(nt2qtiupcbssj2h335aqlnhayy)
+        specifier: 5.24.12
+        version: 5.24.12(7h23yc7mmfebrnbvh3moesn3yq)
       '@rjsf/core':
-        specifier: 5.24.11
-        version: 5.24.11(@rjsf/utils@5.24.11(react@19.0.0))(react@19.0.0)
+        specifier: 5.24.12
+        version: 5.24.12(@rjsf/utils@5.24.12(react@19.0.0))(react@19.0.0)
       '@rjsf/utils':
-        specifier: 5.24.11
-        version: 5.24.11(react@19.0.0)
+        specifier: 5.24.12
+        version: 5.24.12(react@19.0.0)
       '@rjsf/validator-ajv8':
-        specifier: 5.24.11
-        version: 5.24.11(@rjsf/utils@5.24.11(react@19.0.0))
+        specifier: 5.24.12
+        version: 5.24.12(@rjsf/utils@5.24.12(react@19.0.0))
       framer-motion:
         specifier: 12.18.1
         version: 12.18.1(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -2490,8 +2490,8 @@ packages:
       react: ^18 || ^19
       react-dom: ^18 || ^19
 
-  '@rjsf/chakra-ui@5.24.11':
-    resolution: {integrity: sha512-Mkfh4wBwS78721vPr31c3nYvAmrmeg2rlYCKIpeQ8xDSNTrd0JyoCEG5GSZP4kzNbPQ6DAWX6FVjmLN0l4iaxg==}
+  '@rjsf/chakra-ui@5.24.12':
+    resolution: {integrity: sha512-zL1+K8uMvX/NX9Ax52vNPuMcCzR+rX+Y+SVv+lN25g926jIwAzbK7mYdIp1/1ahZ4MuE5Ed4kbAwaeMZnPbwLA==}
     engines: {node: '>=14'}
     peerDependencies:
       '@chakra-ui/icons': '>=1.1.1'
@@ -2503,21 +2503,21 @@ packages:
       framer-motion: '>=5.6.0'
       react: ^16.14.0 || >=17
 
-  '@rjsf/core@5.24.11':
-    resolution: {integrity: sha512-iSO8IIrsBREQZPPVb6AdtnQBclDcU0YK8cnF9oqS/mV+Qk/r8kU6On0X8j/lj8setGBdFJKDFA0hdJkNquQI1Q==}
+  '@rjsf/core@5.24.12':
+    resolution: {integrity: sha512-OWVdC501n3Io0hplgpnkzArpcUSiImMgLQhk6/EI8wu2xbvk5fTiM7YAVlAObpAD3z3LRrAwhjnmh9L4k/FWmQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@rjsf/utils': ^5.24.x
       react: ^16.14.0 || >=17
 
-  '@rjsf/utils@5.24.11':
-    resolution: {integrity: sha512-2OyQM4Eum67jr4GJly6eflZhD8qoWkl7brCvCZ10z+pW6dgsGEusqRvTioK0L7thWJ5LwbJ2i4SFqJjiChZGxA==}
+  '@rjsf/utils@5.24.12':
+    resolution: {integrity: sha512-fDwQB0XkjZjpdFUz5UAnuZj8nnbxDbX5tp+jTOjjJKw2TMQ9gFFYCQ12lSpdhezA2YgEGZfxyYTGW0DKDL5Drg==}
     engines: {node: '>=14'}
     peerDependencies:
       react: ^16.14.0 || >=17
 
-  '@rjsf/validator-ajv8@5.24.11':
-    resolution: {integrity: sha512-x6pZojVPVFB1bVk3e8GvStyDXJN8ufa3Aoz4wx+UJRSdh7J4Iud+jaATPxyrjhLIuxsQhUy7ed39/4iP+YYZ/Q==}
+  '@rjsf/validator-ajv8@5.24.12':
+    resolution: {integrity: sha512-IMXdCjvDNdvb+mDgZC3AlAtr0pjYKq5s0GcLECjG5PuiX7Ib4JaDQHZY5ZJdKblMfgzhsn8AAOi573jXAt7BHQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@rjsf/utils': ^5.24.x
@@ -5989,8 +5989,8 @@ packages:
   map-or-similar@1.5.0:
     resolution: {integrity: sha512-0aF7ZmVon1igznGI4VS30yugpduQW3y3GkcgGJOp7d8x8QrizhigUxjI/m2UojsXXto+jLAH3KSz+xOJTiORjg==}
 
-  markdown-to-jsx@7.7.6:
-    resolution: {integrity: sha512-/PWFFoKKMidk4Ut06F5hs5sluq1aJ0CGvUJWsnCK6hx/LPM8vlhvKAxtGHJ+U+V2Il2wmnfO6r81ICD3xZRVaw==}
+  markdown-to-jsx@7.7.8:
+    resolution: {integrity: sha512-e+5bQJ30iIyJUV4tH/3wuBjpE5muLXsuBBi30N9t3B9O+UomC1Ocdqu7uD3X4YqtPrNLz+6QwHJaD7CXURBi+w==}
     engines: {node: '>= 10'}
     peerDependencies:
       react: '>= 0.14.0'
@@ -10669,13 +10669,13 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
-  '@rjsf/chakra-ui@5.24.11(nt2qtiupcbssj2h335aqlnhayy)':
+  '@rjsf/chakra-ui@5.24.12(7h23yc7mmfebrnbvh3moesn3yq)':
     dependencies:
       '@chakra-ui/icons': 2.2.4(@chakra-ui/react@2.10.9(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(framer-motion@12.18.1(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       '@chakra-ui/react': 2.10.9(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(framer-motion@12.18.1(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@chakra-ui/system': 2.6.2(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(react@19.0.0))(react@19.0.0)
-      '@rjsf/core': 5.24.11(@rjsf/utils@5.24.11(react@19.0.0))(react@19.0.0)
-      '@rjsf/utils': 5.24.11(react@19.0.0)
+      '@rjsf/core': 5.24.12(@rjsf/utils@5.24.12(react@19.0.0))(react@19.0.0)
+      '@rjsf/utils': 5.24.12(react@19.0.0)
       chakra-react-select: 5.0.5(@chakra-ui/react@2.10.9(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(framer-motion@12.18.1(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@emotion/react@11.14.0(@types/react@19.0.3)(react@19.0.0))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       framer-motion: 12.18.1(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
@@ -10685,17 +10685,17 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@rjsf/core@5.24.11(@rjsf/utils@5.24.11(react@19.0.0))(react@19.0.0)':
+  '@rjsf/core@5.24.12(@rjsf/utils@5.24.12(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@rjsf/utils': 5.24.11(react@19.0.0)
+      '@rjsf/utils': 5.24.12(react@19.0.0)
       lodash: 4.17.21
       lodash-es: 4.17.21
-      markdown-to-jsx: 7.7.6(react@19.0.0)
+      markdown-to-jsx: 7.7.8(react@19.0.0)
       nanoid: 3.3.11
       prop-types: 15.8.1
       react: 19.0.0
 
-  '@rjsf/utils@5.24.11(react@19.0.0)':
+  '@rjsf/utils@5.24.12(react@19.0.0)':
     dependencies:
       json-schema-merge-allof: 0.8.1
       jsonpointer: 5.0.1
@@ -10704,9 +10704,9 @@ snapshots:
       react: 19.0.0
       react-is: 18.3.1
 
-  '@rjsf/validator-ajv8@5.24.11(@rjsf/utils@5.24.11(react@19.0.0))':
+  '@rjsf/validator-ajv8@5.24.12(@rjsf/utils@5.24.12(react@19.0.0))':
     dependencies:
-      '@rjsf/utils': 5.24.11(react@19.0.0)
+      '@rjsf/utils': 5.24.12(react@19.0.0)
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
       lodash: 4.17.21
@@ -14820,7 +14820,7 @@ snapshots:
 
   map-or-similar@1.5.0: {}
 
-  markdown-to-jsx@7.7.6(react@19.0.0):
+  markdown-to-jsx@7.7.8(react@19.0.0):
     dependencies:
       react: 19.0.0
 
