@@ -410,7 +410,7 @@ importers:
         specifier: 2.5.1
         version: 2.5.1
       dequal:
-        specifier: ^2.0.3
+        specifier: 2.0.3
         version: 2.0.3
       highcharts:
         specifier: 12.3.0
@@ -658,7 +658,7 @@ importers:
         specifier: 2.5.1
         version: 2.5.1
       dequal:
-        specifier: ^2.0.3
+        specifier: 2.0.3
         version: 2.0.3
       jotai:
         specifier: 2.12.5
