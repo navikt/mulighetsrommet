@@ -18,19 +18,19 @@ const forsidekortData: ForsideKortProps[] = [
         <BellDotFillIcon title="Oppgaveoversikt" className="text-white w-12 h-12" />
       </div>
     ),
-    url: "oppgaveoversikt/oppgaver",
+    url: "/oppgaveoversikt/oppgaver",
     tekst: "Her finner du en oversikt over enhetens oppgaver",
   },
   {
     navn: "Avtaler",
     ikon: <AvtaleIkon inkluderBakgrunn aria-label="Avtaler" />,
-    url: "avtaler",
+    url: "/avtaler",
     tekst: "Her finner du informasjon om avtaler for gruppetiltak",
   },
   {
     navn: "Gjennomføringer",
     ikon: <GjennomforingIkon inkluderBakgrunn aria-label="Gjennomføringer for gruppetiltak" />,
-    url: "gjennomforinger",
+    url: "/gjennomforinger",
     tekst: "Her finner du informasjon om Gjennomføringer for gruppetiltak",
   },
   {
