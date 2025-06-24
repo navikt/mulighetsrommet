@@ -24,6 +24,8 @@ fun QueryContext.setTilGodkjenning(
         besluttelse = null,
         besluttetAv = null,
         besluttetTidspunkt = null,
+        besluttetAvNavn = null,
+        behandletAvNavn = null,
     ),
 )
 
@@ -46,6 +48,8 @@ fun QueryContext.setGodkjent(
         besluttelse = Besluttelse.GODKJENT,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
+        besluttetAvNavn = null,
+        behandletAvNavn = null,
     ),
 )
 
@@ -68,5 +72,7 @@ fun QueryContext.setAvvist(
         besluttelse = Besluttelse.AVVIST,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
+        besluttetAvNavn = null,
+        behandletAvNavn = null,
     ),
 )

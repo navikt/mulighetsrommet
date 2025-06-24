@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -25,7 +24,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -42,7 +40,6 @@ fun Route.tilsagnRoutes() {
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
     val gjennomforinger: GjennomforingService by inject()
-    val totrinnskontrollService: TotrinnskontrollService by inject()
 
     route("tilsagn") {
         get {
@@ -74,13 +71,22 @@ fun Route.tilsagnRoutes() {
                         val kostnadssted = tilsagn.kostnadssted.enhetsnummer
 
                         val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
-                            getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
+                            TotrinnskontrollDto.fromTotrinnskontroll(
+                                it,
+                                kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
+                            )
                         }
                         val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
-                            getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
+                            TotrinnskontrollDto.fromTotrinnskontroll(
+                                it,
+                                kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
+                            )
                         }
                         val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
-                            getTotrinnskontrollForAnsatt(it, kostnadssted, ansatt, totrinnskontrollService)
+                            TotrinnskontrollDto.fromTotrinnskontroll(
+                                it,
+                                kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
+                            )
                         }
                         TilsagnDetaljerDto(
                             tilsagn = TilsagnDto.fromTilsagn(tilsagn),
@@ -416,18 +422,4 @@ private fun resolveEkstraTilsagnDefaults(
             beregning = null,
         )
     }
-}
-
-private fun getTotrinnskontrollForAnsatt(
-    totrinnskontroll: Totrinnskontroll,
-    kostnadssted: NavEnhetNummer,
-    ansatt: NavAnsatt,
-    totrinnskontrollService: TotrinnskontrollService,
-): TotrinnskontrollDto {
-    return TotrinnskontrollDto.fromTotrinnskontroll(
-        totrinnskontroll,
-        kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
-        behandletAvNavn = totrinnskontrollService.getBehandletAvNavn(totrinnskontroll),
-        besluttetAvNavn = totrinnskontrollService.getBesluttetAvNavn(totrinnskontroll),
-    )
 }

@@ -63,7 +63,6 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.totrinnskontroll.service.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
@@ -415,7 +414,6 @@ private fun services(appConfig: AppConfig) = module {
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
     single { ArrangorFlateService(get(), get(), get()) }
-    single { TotrinnskontrollService(get()) }
     single {
         ClamAvClient(
             baseUrl = appConfig.clamav.url,

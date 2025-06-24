@@ -513,6 +513,8 @@ class UtbetalingService(
                 besluttelse = null,
                 besluttetAv = null,
                 besluttetTidspunkt = null,
+                behandletAvNavn = null,
+                besluttetAvNavn = null,
             ),
         )
     }

@@ -14,7 +14,6 @@ sealed class TotrinnskontrollDto {
     abstract val behandletTidspunkt: LocalDateTime
     abstract val aarsaker: List<String>
     abstract val forklaring: String?
-    abstract val kanBesluttes: Boolean
 
     @Serializable
     @SerialName("TIL_BESLUTNING")
@@ -24,7 +23,7 @@ sealed class TotrinnskontrollDto {
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
         override val forklaring: String?,
-        override val kanBesluttes: Boolean,
+        val kanBesluttes: Boolean,
     ) : TotrinnskontrollDto()
 
     @Serializable
@@ -39,19 +38,15 @@ sealed class TotrinnskontrollDto {
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
         val besluttelse: Besluttelse,
-    ) : TotrinnskontrollDto() {
-        override val kanBesluttes = false
-    }
+    ) : TotrinnskontrollDto()
 
     companion object {
         fun fromTotrinnskontroll(
             totrinnskontroll: Totrinnskontroll,
             kanBesluttes: Boolean,
-            behandletAvNavn: String?,
-            besluttetAvNavn: String?,
         ) = when {
             totrinnskontroll.besluttetAv == null -> TilBeslutning(
-                behandletAv = toAgentDto(totrinnskontroll.behandletAv, behandletAvNavn),
+                behandletAv = toAgentDto(totrinnskontroll.behandletAv, totrinnskontroll.behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
@@ -59,11 +54,11 @@ sealed class TotrinnskontrollDto {
             )
 
             else -> Besluttet(
-                behandletAv = toAgentDto(totrinnskontroll.behandletAv, behandletAvNavn),
+                behandletAv = toAgentDto(totrinnskontroll.behandletAv, totrinnskontroll.behandletAvNavn),
                 behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
                 aarsaker = totrinnskontroll.aarsaker,
                 forklaring = totrinnskontroll.forklaring,
-                besluttetAv = toAgentDto(totrinnskontroll.besluttetAv, besluttetAvNavn),
+                besluttetAv = toAgentDto(totrinnskontroll.besluttetAv, totrinnskontroll.besluttetAvNavn),
                 besluttetTidspunkt = checkNotNull(totrinnskontroll.besluttetTidspunkt),
                 besluttelse = checkNotNull(totrinnskontroll.besluttelse),
             )

@@ -60,6 +60,8 @@ class TilsagnService(
             besluttelse = null,
             besluttetAv = null,
             besluttetTidspunkt = null,
+            besluttetAvNavn = null,
+            behandletAvNavn = null,
         )
 
         val previous = queries.tilsagn.get(request.id)
@@ -327,6 +329,8 @@ class TilsagnService(
                 besluttelse = null,
                 besluttetAv = null,
                 besluttetTidspunkt = null,
+                besluttetAvNavn = null,
+                behandletAvNavn = null,
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
@@ -433,6 +437,8 @@ class TilsagnService(
                 besluttelse = null,
                 besluttetAv = null,
                 besluttetTidspunkt = null,
+                besluttetAvNavn = null,
+                behandletAvNavn = null,
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
