@@ -6,10 +6,7 @@ import { FilterAction, FilterState } from "@/filter/filter-state";
 export function useFilterState<T extends object>(
   filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
 ) {
-  const [{
-    
-    
-    filter, defaultFilter }, dispatch] = useAtom(filterStateAtom);
+  const [{ filter, defaultFilter }, dispatch] = useAtom(filterStateAtom);
 
   const resetToDefault = useCallback(() => {
     dispatch({ type: "RESET_TO_DEFAULT" });
