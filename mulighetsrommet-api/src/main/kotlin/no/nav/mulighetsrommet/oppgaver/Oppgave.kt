@@ -13,6 +13,7 @@ data class Oppgave(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val type: OppgaveType,
+    val navn: String,
     val enhet: OppgaveEnhet?,
     val title: String,
     val description: String? = null,

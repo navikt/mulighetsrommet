@@ -4761,6 +4761,8 @@ components:
           format: uuid
         type:
           $ref: "#/components/schemas/OppgaveType"
+        navn:
+          type: string
         title:
           type: string
         description:
@@ -4786,6 +4788,7 @@ components:
           $ref: "#/components/schemas/OppgaveIcon"
       required:
         - type
+        - navn
         - title
         - tiltakstype
         - link
