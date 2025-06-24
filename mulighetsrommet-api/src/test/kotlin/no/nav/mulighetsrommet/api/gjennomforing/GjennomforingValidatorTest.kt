@@ -318,8 +318,21 @@ class GjennomforingValidatorTest : FunSpec({
                 listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
             ),
             row(
-                gjennomforing.copy(navEnheter = setOf(NavEnhetNummer("0401"))),
+                gjennomforing.copy(
+                    navEnheter = setOf(
+                        NavEnhetNummer("0400"),
+                        NavEnhetNummer("0502"),
+                        NavEnhetNummer("0401"),
+                    ),
+                ),
                 listOf(FieldError("/navEnheter", "Nav-enhet 0401 mangler i avtalen")),
+            ),
+            row(
+                gjennomforing.copy(navEnheter = setOf()),
+                listOf(
+                    FieldError("/navEnheter", "Du må velge minst én Nav-region fra avtalen"),
+                    FieldError("/navEnheter", "Du må velge minst én Nav-enhet fra avtalen"),
+                ),
             ),
             row(
                 gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),

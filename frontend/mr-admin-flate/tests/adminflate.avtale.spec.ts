@@ -19,7 +19,7 @@ const fyllInnAvtale = async (page: Page) => {
   await page.click("input#navRegioner");
   await page.keyboard.press("Enter");
 
-  await page.click("input#navEnheter");
+  await page.click("input#navKontorer");
   await page.keyboard.press("Enter");
 };
 

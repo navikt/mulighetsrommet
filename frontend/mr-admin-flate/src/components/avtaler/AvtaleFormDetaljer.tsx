@@ -238,28 +238,28 @@ export function AvtaleFormDetaljer({
                     selectedOptions,
                     enheter,
                   );
-                  setValue("navEnheter", alleLokaleUnderenheter as [string, ...string[]]);
+                  setValue("navKontorer", alleLokaleUnderenheter as [string, ...string[]]);
                 } else {
                   const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
                     selectedOptions,
                     enheter,
                   );
-                  const navEnheter = watch("navEnheter")?.filter((enhet) =>
+                  const navKontorer = watch("navKontorer")?.filter((enhet) =>
                     alleLokaleUnderenheter.includes(enhet ?? ""),
                   );
-                  setValue("navEnheter", navEnheter as [string, ...string[]]);
+                  setValue("navKontorer", navKontorer as [string, ...string[]]);
                 }
               }}
               options={navRegionerOptions}
             />
             <ControlledMultiSelect
-              inputId={"navEnheter"}
+              inputId={"navKontorer"}
               size="small"
               velgAlle
               placeholder="Velg en"
               label={avtaletekster.navEnheterLabel}
               helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
-              {...register("navEnheter")}
+              {...register("navKontorer")}
               options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
             />
             <ControlledMultiSelect

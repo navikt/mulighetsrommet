@@ -87,22 +87,27 @@ class GjennomforingValidator(
                 }
             }
 
-            if (next.navEnheter.isEmpty()) {
-                add(FieldError.of(GjennomforingDbo::navEnheter, "Du må velge minst ett Nav-kontor"))
+            val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
+            if (avtaleRegioner.intersect(next.navEnheter).isEmpty()) {
+                add(
+                    FieldError.of(
+                        GjennomforingDbo::navEnheter,
+                        "Du må velge minst én Nav-region fra avtalen",
+                    ),
+                )
             }
 
-            val avtaleNavEnheter = avtale.kontorstruktur.flatMap {
-                it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer
+            val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
+            if (avtaleNavKontorer.intersect(next.navEnheter).isEmpty()) {
+                add(
+                    FieldError.of(
+                        GjennomforingDbo::navEnheter,
+                        "Du må velge minst én Nav-enhet fra avtalen",
+                    ),
+                )
             }
-            next.navEnheter.forEach { enhetsnummer ->
-                if (!avtaleNavEnheter.contains(enhetsnummer)) {
-                    add(
-                        FieldError.of(
-                            GjennomforingDbo::navEnheter,
-                            "Nav-enhet $enhetsnummer mangler i avtalen",
-                        ),
-                    )
-                }
+            next.navEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
+                add(FieldError.of(GjennomforingDbo::navEnheter, "Nav-enhet $enhetsnummer mangler i avtalen"))
             }
 
             val avtaleHasArrangor = avtale.arrangor?.underenheter?.any {

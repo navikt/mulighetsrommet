@@ -80,7 +80,7 @@ export function AvtaleFormContainer({
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? uuidv4(),
-      navEnheter: data.navAndreEnheter.concat(data.navEnheter).concat(data.navRegioner),
+      navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navAndreEnheter),
       avtalenummer: avtale?.avtalenummer || null,
       sakarkivNummer: data.sakarkivNummer || null,
       arrangor:
