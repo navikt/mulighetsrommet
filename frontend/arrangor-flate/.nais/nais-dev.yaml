@@ -10,6 +10,7 @@ spec:
   port: 3000
   ingresses:
     - https://arrangor-utbetaling.intern.dev.nav.no
+    - https://arrangor-utbetaling.ansatt.dev.nav.no
   replicas:
     min: 1
     max: 2
