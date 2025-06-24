@@ -62,10 +62,12 @@ fun Route.utbetalingRoutes() {
                             .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
                         val tilsagnOpprettelse = queries.totrinnskontroll
                             .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+
                         val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
                             Rolle.ATTESTANT_UTBETALING,
                             setOf(tilsagn.kostnadssted.enhetsnummer),
                         ) &&
+                            opprettelse.behandletAv != ansatt.navIdent &&
                             tilsagnOpprettelse.besluttetAv != ansatt.navIdent
 
                         UtbetalingLinje(
