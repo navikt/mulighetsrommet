@@ -13,9 +13,10 @@ import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomfo
 import { aktiveTilsagnQuery, tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
-import { formaterDatoSomYYYYMMDD, subtractDays } from "@/utils/Utils";
+import { subtractDays } from "@/utils/Utils";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
+import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
