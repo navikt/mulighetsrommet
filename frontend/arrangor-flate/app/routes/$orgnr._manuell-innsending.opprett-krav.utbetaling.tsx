@@ -26,8 +26,8 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Manuell innsending" },
-    { name: "description", content: "Manuell innsending av krav om utbetaling" },
+    { title: "Opprett utbetalingskrav" },
+    { name: "description", content: "Manuell opprettelse av utbetalingskrav" },
   ];
 };
 
@@ -106,7 +106,7 @@ export default function OpprettKravUtbetaling() {
 
   return (
     <>
-      <Heading size="medium" spacing level="3">
+      <Heading size="large" spacing level="3">
         Utbetalingsinformasjon
       </Heading>
       <Form method="post">
