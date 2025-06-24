@@ -73,7 +73,7 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
       </EndringshistorikkPopover>
       <HarSkrivetilgang ressurs="Gjennomføring">
         <Dropdown>
-          <Button size="small" as={Dropdown.Toggle}>
+          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
             Handlinger
           </Button>
           <Dropdown.Menu>

@@ -21,6 +21,7 @@ import {
   Heading,
   HStack,
   Modal,
+  Spacer,
   VStack,
 } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -129,10 +130,11 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
   return (
     <>
       <VStack>
-        <HStack justify="space-between">
+        <HStack align="end">
           <Heading spacing size="medium" level="2">
             Utbetalingslinjer
           </Heading>
+          <Spacer />
           <ActionMenu>
             <ActionMenu.Trigger>
               <Button variant="secondary" size="small">

@@ -32,7 +32,7 @@ export function UtbetalingerForGjennomforingContainer() {
       <KnapperadContainer>
         <HarSkrivetilgang ressurs="Økonomi">
           <Dropdown>
-            <Button size="small" as={Dropdown.Toggle}>
+            <Button size="small" variant="secondary" as={Dropdown.Toggle}>
               Handlinger
             </Button>
             <Dropdown.Menu>
