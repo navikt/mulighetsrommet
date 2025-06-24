@@ -100,6 +100,12 @@ EOF
       },
       {
         mode        = "NULLABLE"
+        name        = "status"
+        type        = "STRING"
+        description = "Status til avtalen. Dette kan være en av følgende verdier: 'UTKAST', 'AKTIV', 'AVBRUTT', 'AVSLUTTET'."
+      },
+      {
+        mode        = "NULLABLE"
         name        = "avbrutt_tidspunkt"
         type        = "TIMESTAMP"
         description = "Indikerer om avtalen har blitt avbrutt eller ikke."
@@ -174,6 +180,12 @@ module "mr_api_gjennomforing_view" {
         name        = "oppdatert_tidspunkt"
         type        = "TIMESTAMP"
         description = "Tidspunktet som gjennomføringen sist ble oppdatert (i databasen)."
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "status"
+        type        = "STRING"
+        description = "Status til gjennomføringen. Dette kan være en av følgende verdier: 'GJENNOMFORES', 'AVLYST', 'AVBRUTT', 'AVSLUTTET'."
       },
       {
         mode        = "NULLABLE"
@@ -345,4 +357,3 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
 WHERE delt_fra_fylke IS NOT NULL
 EOF
 }
-
