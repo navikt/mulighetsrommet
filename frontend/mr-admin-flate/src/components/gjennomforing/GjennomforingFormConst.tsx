@@ -74,7 +74,7 @@ export function defaultGjennomforingData(
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
     navRegioner: defaultNavRegion(avtale, gjennomforing),
-    navEnheter: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+    navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,

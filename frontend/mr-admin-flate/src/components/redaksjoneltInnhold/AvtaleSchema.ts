@@ -28,7 +28,7 @@ export const AvtaleSchema = z
     arrangorUnderenheter: z.array(z.string()).optional(),
     arrangorKontaktpersoner: z.string().uuid().array().optional(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
-    navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
+    navKontorer: z.string().array(),
     navAndreEnheter: z.string().array(),
     startOgSluttDato: z
       .object({

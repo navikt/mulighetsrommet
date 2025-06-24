@@ -33,6 +33,7 @@ class AvtaleValidatorTest : FunSpec({
         navEnheter = listOf(
             NavEnhetFixtures.IT,
             NavEnhetFixtures.Oslo,
+            NavEnhetFixtures.Sagene,
             NavEnhetFixtures.Innlandet,
             NavEnhetFixtures.Gjovik,
         ),
@@ -157,11 +158,30 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(dbo2, null).shouldBeRight()
     }
 
+    test("skal validere at Nav-fylke og Nav-enheter er påkrevd") {
+        val validator = createValidator()
+
+        val dbo = avtaleDbo.copy(
+            navEnheter = listOf(),
+        )
+
+        validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            listOf(
+                FieldError("/navEnheter", "Du må velge minst én Nav-region"),
+                FieldError("/navEnheter", "Du må velge minst én Nav-enhet"),
+            ),
+        )
+    }
+
     test("skal validere at Nav-enheter må være koblet til Nav-fylke") {
         val validator = createValidator()
 
         val dbo = avtaleDbo.copy(
-            navEnheter = listOf(NavEnhetNummer("0300"), NavEnhetNummer("0502")),
+            navEnheter = listOf(
+                NavEnhetFixtures.Oslo.enhetsnummer,
+                NavEnhetFixtures.Sagene.enhetsnummer,
+                NavEnhetFixtures.Gjovik.enhetsnummer,
+            ),
         )
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -547,13 +567,16 @@ class AvtaleValidatorTest : FunSpec({
                     avtaler = listOf(avtaleDbo),
                     gjennomforinger = listOf(
                         gjennomforing.copy(
-                            navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+                            navEnheter = setOf(
+                                NavEnhetFixtures.Innlandet.enhetsnummer,
+                                NavEnhetFixtures.Gjovik.enhetsnummer,
+                            ),
                         ),
                     ),
                 ).initialize(database.db)
 
                 val dbo = avtaleDbo.copy(
-                    navEnheter = listOf(NavEnhetNummer("0400")),
+                    navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Sagene.enhetsnummer),
                 )
 
                 val previous = database.run { queries.avtale.get(avtaleDbo.id) }
@@ -570,7 +593,6 @@ class AvtaleValidatorTest : FunSpec({
         ).initialize(database.db)
 
         val dbo = avtaleDbo.copy(
-            navEnheter = listOf(NavEnhetNummer("0400")),
             administratorer = listOf(NavIdent("DD1")),
         )
 

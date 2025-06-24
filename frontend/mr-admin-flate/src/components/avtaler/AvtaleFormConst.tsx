@@ -21,7 +21,7 @@ export function defaultAvtaleData(
   return {
     tiltakstype: avtale?.tiltakstype,
     navRegioner,
-    navEnheter: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+    navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",

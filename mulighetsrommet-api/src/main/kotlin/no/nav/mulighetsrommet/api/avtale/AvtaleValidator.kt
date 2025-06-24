@@ -330,15 +330,12 @@ class AvtaleValidator(
             add(FieldError.of(AvtaleDbo::navEnheter, "Du må velge minst én Nav-region"))
         }
 
-        navEnheter.forEach { enhet ->
-            if (!actualNavEnheter.containsKey(enhet)) {
-                add(
-                    FieldError.of(
-                        AvtaleDbo::navEnheter,
-                        "Nav-enheten $enhet passer ikke i avtalens kontorstruktur",
-                    ),
-                )
-            }
+        if (!actualNavEnheter.any { it.value.type != Norg2Type.FYLKE }) {
+            add(FieldError.of(AvtaleDbo::navEnheter, "Du må velge minst én Nav-enhet"))
+        }
+
+        navEnheter.filterNot { actualNavEnheter.containsKey(it) }.forEach { enhet ->
+            add(FieldError.of(AvtaleDbo::navEnheter, "Nav-enheten $enhet passer ikke i avtalens kontorstruktur"))
         }
     }
 

@@ -88,7 +88,7 @@ export function GjennomforingFormContainer({
       id: gjennomforing?.id || uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
-      navEnheter: data.navRegioner.concat(data.navEnheter).concat(data.navEnheterAndre),
+      navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
       navn: data.navn,
       startDato: data.startOgSluttDato.startDato,
       sluttDato: data.startOgSluttDato.sluttDato || null,

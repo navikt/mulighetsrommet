@@ -329,27 +329,27 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                       selectedOptions,
                       enheter,
                     );
-                    setValue("navEnheter", alleLokaleUnderenheter as [string, ...string[]]);
+                    setValue("navKontorer", alleLokaleUnderenheter as [string, ...string[]]);
                   } else {
                     const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
                       selectedOptions,
                       enheter,
                     );
-                    const navEnheter = watch("navEnheter")?.filter((enhet) =>
+                    const navKontorer = watch("navKontorer")?.filter((enhet) =>
                       alleLokaleUnderenheter.includes(enhet ?? ""),
                     );
-                    setValue("navEnheter", navEnheter as [string, ...string[]]);
+                    setValue("navKontorer", navKontorer as [string, ...string[]]);
                   }
                 }}
               />
               <ControlledMultiSelect
-                inputId={"navEnheter"}
+                inputId={"navKontorer"}
                 size="small"
                 velgAlle
                 placeholder={"Velg en"}
                 label={gjennomforingTekster.navEnheterKontorerLabel}
                 helpText={gjennomforingTekster.navEnheterKontorerTooltip}
-                {...register("navEnheter")}
+                {...register("navKontorer")}
                 options={navKontorEnheterOptions}
               />
               <ControlledMultiSelect
@@ -474,7 +474,7 @@ function SokEtterKontaktperson({
     return alleredeValgt ? [...alleredeValgt, ...options] : options;
   };
 
-  const valgteNavKontorer = watch("navEnheter");
+  const valgteNavKontorer = watch("navKontorer");
   const valgteNavEnheterAndre = watch("navEnheterAndre");
   const valgteNavEnheter = valgteNavKontorer.concat(valgteNavEnheterAndre);
 
