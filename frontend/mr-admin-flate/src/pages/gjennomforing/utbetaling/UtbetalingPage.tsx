@@ -33,7 +33,7 @@ import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbet
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
 import { ForhandsgodkjentDeltakerTableModal } from "./ForhandsgodkjentDeltakerTableModal";
 
@@ -45,6 +45,11 @@ function useUtbetalingPageData() {
   const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
   const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
   const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
+
+  // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
+  useEffect(() => {
+    window.scrollTo(0, 0); // Reset scroll position to the top
+  }, []);
 
   return {
     gjennomforing,
@@ -183,11 +188,13 @@ export function UtbetalingPage() {
                     <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
                     <Accordion.Content>
                       <VStack gap="2">
-                        <ForhandsgodkjentDeltakerTable
-                          maxHeight="30rem"
-                          deltakere={deltakere}
-                          sats={utbetaling.beregning.sats}
-                        />
+                        {
+                          <ForhandsgodkjentDeltakerTable
+                            maxHeight="30rem"
+                            deltakere={deltakere}
+                            sats={utbetaling.beregning.sats}
+                          />
+                        }
                         <HStack justify="start" align="start">
                           <Button
                             variant="secondary"
