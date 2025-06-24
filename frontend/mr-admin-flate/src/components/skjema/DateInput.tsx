@@ -1,6 +1,6 @@
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
 import { forwardRef, useEffect, useState } from "react";
-import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
+import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   label: string;

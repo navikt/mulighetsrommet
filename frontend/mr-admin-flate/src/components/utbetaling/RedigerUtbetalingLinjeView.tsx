@@ -1,5 +1,5 @@
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { formaterDatoSomYYYYMMDD, subtractDays, utbetalingLinjeCompareFn } from "@/utils/Utils";
+import { subtractDays, utbetalingLinjeCompareFn } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   FieldError,
@@ -31,6 +31,7 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 export interface Props {
   utbetaling: UtbetalingDto;

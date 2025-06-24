@@ -6,8 +6,9 @@ import { GjennomforingDto, TilsagnBeregningForhandsgodkjent } from "@mr/api-clie
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { addDays, formaterDatoSomYYYYMMDD } from "@/utils/Utils";
+import { addDays } from "@/utils/Utils";
 import { tilsagnTekster } from "../TilsagnTekster";
+import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 type ForhandsgodkjentTilsagn = InferredTilsagn & { beregning: TilsagnBeregningForhandsgodkjent };
 
