@@ -52,7 +52,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
       </EndringshistorikkPopover>
       <HarSkrivetilgang ressurs="Avtale">
         <Dropdown>
-          <Button size="small" as={Dropdown.Toggle}>
+          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
             Handlinger
           </Button>
           <Dropdown.Menu>

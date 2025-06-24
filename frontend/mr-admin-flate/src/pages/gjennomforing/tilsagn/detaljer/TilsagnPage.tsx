@@ -176,7 +176,7 @@ export function TilsagnPage() {
       {visHandlingerMeny ? (
         <ActionMenu>
           <ActionMenu.Trigger>
-            <Button variant="primary" size="small">
+            <Button variant="secondary" size="small">
               Handlinger
             </Button>
           </ActionMenu.Trigger>
