@@ -10,6 +10,7 @@ spec:
   port: 8080
   ingresses:
     - https://tiltaksadministrasjon.intern.nav.no
+    - https://tiltaksadministrasjon.ansatt.nav.no
   replicas:
     min: 2
     max: 3
