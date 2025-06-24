@@ -114,11 +114,15 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
     .map((struk) => struk.region)
     .map((kontor) => ({ value: kontor.enhetsnummer, label: kontor.navn }));
 
-  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(
-    avtale.kontorstruktur
-      .flatMap((struk) => struk.kontorer)
-      .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? "")),
-  );
+  const navEnheter = avtale.kontorstruktur
+    .flatMap((struk) => struk.kontorer)
+    .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? ""));
+  const navEnheterOptions = navEnheter.map((enhet) => ({
+    label: enhet.navn,
+    value: enhet.enhetsnummer,
+  }));
+
+  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter);
   const navKontorEnheterOptions = navKontorEnheter.map((enhet) => ({
     label: enhet.navn,
     value: enhet.enhetsnummer,
@@ -344,7 +348,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                 velgAlle
                 placeholder={"Velg en"}
                 label={gjennomforingTekster.navEnheterKontorerLabel}
-                helpText={gjennomforingTekster.navEnheterTooltip}
+                helpText={gjennomforingTekster.navEnheterKontorerTooltip}
                 {...register("navEnheter")}
                 options={navKontorEnheterOptions}
               />
@@ -354,7 +358,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                 velgAlle
                 placeholder={"Velg en (valgfritt)"}
                 label={gjennomforingTekster.navEnheterAndreLabel}
-                helpText={gjennomforingTekster.navEnheterTooltip}
+                helpText={gjennomforingTekster.navEnheterAndreTooltip}
                 {...register("navEnheterAndre")}
                 options={navAndreEnheterOptions}
               />
@@ -380,7 +384,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
                       <div className="flex flex-col gap-4">
                         <SokEtterKontaktperson
                           index={index}
-                          navEnheter={navKontorEnheterOptions}
+                          navEnheter={navEnheterOptions}
                           id={field.id}
                           lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
                         />
@@ -470,7 +474,9 @@ function SokEtterKontaktperson({
     return alleredeValgt ? [...alleredeValgt, ...options] : options;
   };
 
-  const valgteNavEnheter = watch("navEnheter");
+  const valgteNavKontorer = watch("navEnheter");
+  const valgteNavEnheterAndre = watch("navEnheterAndre");
+  const valgteNavEnheter = valgteNavKontorer.concat(valgteNavEnheterAndre);
 
   return (
     <>

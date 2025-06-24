@@ -18,9 +18,11 @@ export const gjennomforingTekster = {
   ingenAdministratorerSattForGjennomforingenLabel: "Ingen administratorer satt for gjennomføringen",
   tilgjengeligIModiaLabel: "Tilgjengelig i Modia for:",
   navEnheterKontorerLabel: "Nav-enheter (kontorer)",
-  navEnheterAndreLabel: "Nav-enheter (andre)",
-  navEnheterTooltip:
+  navEnheterKontorerTooltip:
     "Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilken oppfølgingsenhet brukeren har tilhørighet til.",
+  navEnheterAndreLabel: "Nav-enheter (andre)",
+  navEnheterAndreTooltip:
+    "Bestemmer hvilke andre Nav-enheter (spesialenheter, etc.) som gjennomføringen skal kunne vises for i Modia. Det er ofte ikke behov for å velge noen av disse, men det finnes unntak der dette kan være aktuelt. Dette kan velges hvis tiltaket kun er tilgjengelig for brukere ved en spesiell oppfølgingsenhet (f.eks. egne ansatte), eller om tiltaket kun er relevant for brukergrupper som følges opp av ansatte ved andre spesialenheter som ikke nødvendigvis er kategorisert som en oppfølgingsenhet.",
   ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   kontaktpersonNav: {
     navnLabel: "Kontaktperson i Nav",

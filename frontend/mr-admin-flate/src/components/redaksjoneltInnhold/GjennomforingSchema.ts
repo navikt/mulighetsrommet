@@ -34,9 +34,7 @@ export const GjennomforingSchema = z
     navRegioner: z.string().array().nonempty({
       message: "Du må velge minst én region",
     }),
-    navEnheter: z.string().array().nonempty({
-      message: "Du må velge minst én enhet",
-    }),
+    navEnheter: z.string().array(),
     navEnheterAndre: z.string().array(),
     kontaktpersoner: z
       .object({
