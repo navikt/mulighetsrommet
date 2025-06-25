@@ -73,7 +73,7 @@ fun Route.maamRoutes() {
                     tilsagn.initialLoadOpprettBestilling(bestillingsnummer)
                 }
 
-                call.respond(HttpStatusCode.OK)
+                call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Republiserte ${bestillinger.size} tilsagn"))
             }
 
             post("sync-navansatte") {
@@ -83,7 +83,7 @@ fun Route.maamRoutes() {
 
             post("sync-utdanning") {
                 synchronizeUtdanninger.syncUtdanninger()
-                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisering av utdanning.no OK"))
+                call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Synkronisering av utdanning.no OK"))
             }
 
             post("sync-arrangorer") {
@@ -94,13 +94,14 @@ fun Route.maamRoutes() {
                     .map { Organisasjonsnummer(it.trim()) }
                     .forEach { arrangor.syncArrangorFromBrreg(it) }
 
-                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisert! :)"))
+                call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Synkronisert! :)"))
             }
 
             post("generate-utbetaling") {
                 val (month) = call.receive<GenerateUtbetalingRequest>()
-                generateUtbetaling.runTask(month)
-                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Generering av utbetaling OK"))
+                val utbetalinger = generateUtbetaling.runTask(month)
+                val response = ExecutedTaskResponse("Genererte ${utbetalinger.size} utbetalinger for måned $month")
+                call.respond(HttpStatusCode.OK, response)
             }
         }
 
@@ -150,6 +151,6 @@ data class ScheduleTaskResponse(
 )
 
 @Serializable
-data class GeneralTaskResponse(
-    val id: String,
+data class ExecutedTaskResponse(
+    val message: String,
 )
