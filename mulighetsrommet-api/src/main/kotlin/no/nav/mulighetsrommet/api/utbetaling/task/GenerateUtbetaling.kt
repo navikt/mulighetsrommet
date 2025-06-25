@@ -6,6 +6,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.LocalDate
 
@@ -33,8 +34,11 @@ class GenerateUtbetaling(
             runTask(month)
         }
 
-    suspend fun runTask(month: Int) {
-        if (config.disabled) return
-        utbetalingService.genererUtbetalingForMonth(month)
+    suspend fun runTask(month: Int): List<Utbetaling> {
+        if (config.disabled) {
+            return listOf()
+        }
+
+        return utbetalingService.genererUtbetalingForMonth(month)
     }
 }

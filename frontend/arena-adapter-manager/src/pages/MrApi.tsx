@@ -91,7 +91,7 @@ export function MrApi() {
 
         <RunTask
           base={ApiBase.MR_API}
-          task="initial-load-tilsagn"
+          task="republish-opprett-bestilling"
           input={{
             type: "object",
             title: 'Resend "Opprett bestilling" basert på bestillingsnummer',
@@ -103,6 +103,23 @@ export function MrApi() {
               },
             },
             required: ["bestillingsnummer"],
+          }}
+        />
+
+        <RunTask
+          base={ApiBase.MR_API}
+          task="republish-opprett-faktura"
+          input={{
+            type: "object",
+            title: 'Resend "Opprett faktura" basert på fakturanummer',
+            properties: {
+              fakturanummer: {
+                title: "Fakturanummer til delutbetaling",
+                description: "Flere fakturanummer kan separeres med et komma (,)",
+                type: "string",
+              },
+            },
+            required: ["fakturanummer"],
           }}
         />
 

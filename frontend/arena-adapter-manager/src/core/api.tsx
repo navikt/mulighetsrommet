@@ -112,7 +112,8 @@ export type MrApiTask =
   | "generate-validation-report"
   | "initial-load-tiltakstyper"
   | "initial-load-gjennomforinger"
-  | "initial-load-tilsagn"
+  | "republish-opprett-bestilling"
+  | "republish-opprett-faktura"
   | "sync-navansatte"
   | "sync-utdanning"
   | "generate-utbetaling"
@@ -129,7 +130,12 @@ export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   })
     .then(parseJson)
     .then((response) => {
-      return toast.success(`Scheduled task '${task}': ${response.id}`);
+      if ("id" in response) {
+        return toast.success(`Scheduled task '${task}': ${response.id}`);
+      }
+
+      const message = "message" in response ? response.message : "OK";
+      return toast.success(`Executed task '${task}': ${message}`);
     })
     .catch((error) => {
       toastError(`Failed to execute task '${task}'`, error);

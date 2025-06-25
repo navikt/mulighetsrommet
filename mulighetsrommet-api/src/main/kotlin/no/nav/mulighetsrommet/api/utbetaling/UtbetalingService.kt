@@ -388,6 +388,12 @@ class UtbetalingService(
         Unit.right()
     }
 
+    fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
+        val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
+        publishOpprettFaktura(delutbetaling)
+        delutbetaling
+    }
+
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
         periode: Periode,
     ): List<Pair<UUID, Avtaletype>> {
@@ -540,7 +546,7 @@ class UtbetalingService(
         )
         val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
         if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
-            val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId))
+            val utbetaling = getOrError(delutbetaling.utbetalingId)
             queries.delutbetaling.setStatusForDelutbetalingerForBetaling(
                 delutbetaling.utbetalingId,
                 DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -553,28 +559,29 @@ class UtbetalingService(
         utbetaling: Utbetaling,
         delutbetalinger: List<Delutbetaling>,
     ) {
-        require(delutbetalinger.isNotEmpty())
-        delutbetalinger.forEach {
-            val tilsagn = queries.tilsagn.getOrError(it.tilsagnId)
+        delutbetalinger.forEach { delutbetaling ->
+            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
+                // TODO: kan dette egentlig skje? Hva om den første delutbetalingen godkjennes, men den neste returneres?
                 returnerDelutbetaling(
-                    it,
+                    delutbetaling,
                     listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
                     null,
                     Tiltaksadministrasjon,
                 )
                 return@godkjennUtbetaling
             }
-            queries.tilsagn.setBruktBelop(tilsagn.id, tilsagn.belopBrukt + it.belop)
-            if (it.gjorOppTilsagn) {
-                tilsagnService.gjorOppAutomatisk(it.tilsagnId, this)
+
+            queries.tilsagn.setBruktBelop(tilsagn.id, tilsagn.belopBrukt + delutbetaling.belop)
+            if (delutbetaling.gjorOppTilsagn) {
+                tilsagnService.gjorOppAutomatisk(delutbetaling.tilsagnId, this)
             }
-            storeOpprettFaktura(it, tilsagn, utbetaling.betalingsinformasjon)
+            publishOpprettFaktura(delutbetaling)
         }
 
         logEndring(
             "Overført til utbetaling",
-            getOrError(delutbetalinger[0].utbetalingId),
+            getOrError(utbetaling.id),
             Tiltaksadministrasjon,
         )
     }
@@ -688,21 +695,22 @@ class UtbetalingService(
         }
     }
 
-    private fun QueryContext.storeOpprettFaktura(
-        delutbetaling: Delutbetaling,
-        tilsagn: Tilsagn,
-        betalingsinformasjon: Utbetaling.Betalingsinformasjon,
-    ) {
-        require(delutbetaling.status == DelutbetalingStatus.GODKJENT)
+    private fun QueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
+        check(delutbetaling.status == DelutbetalingStatus.GODKJENT) {
+            "Delutbetaling må være godkjent for "
+        }
 
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-        log.info("Sender delutbetaling med utbetalingId: ${delutbetaling.utbetalingId} tilsagnId: ${delutbetaling.tilsagnId} på kafka")
+        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == Besluttelse.GODKJENT) {
+            "Delutbetaling id=${delutbetaling.id} må være besluttet godkjent for å sendes til økonomi"
+        }
 
-        val kontonummer = requireNotNull(betalingsinformasjon.kontonummer) {
+        val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
+        val kontonummer = checkNotNull(utbetaling.betalingsinformasjon.kontonummer) {
             "Kontonummer mangler for utbetaling med id=${delutbetaling.utbetalingId}"
         }
-        requireNotNull(opprettelse.besluttetTidspunkt)
-        requireNotNull(opprettelse.besluttetAv)
+
+        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
 
         val beskrivelse = """
             Tiltakstype: ${tilsagn.tiltakstype.navn}
@@ -715,7 +723,7 @@ class UtbetalingService(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
                 kontonummer = kontonummer,
-                kid = betalingsinformasjon.kid,
+                kid = utbetaling.betalingsinformasjon.kid,
             ),
             belop = delutbetaling.belop,
             periode = delutbetaling.periode,
@@ -737,6 +745,8 @@ class UtbetalingService(
     }
 
     private fun QueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+        log.info("Lagrer faktura for delutbeatling med bestillingsnummer=$bestillingsnummer for publisering på kafka")
+
         val record = StoredProducerRecord(
             config.bestillingTopic,
             bestillingsnummer.toByteArray(),
@@ -747,11 +757,11 @@ class UtbetalingService(
     }
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
-        return requireNotNull(queries.utbetaling.get(id)) { "Utbetaling med id=$id finnes ikke" }
+        return queries.utbetaling.getOrError(id)
     }
 }
 
-fun fakturanummer(bestillingsnummer: String, lopenummer: Int): String = "$bestillingsnummer-$lopenummer"
+private fun fakturanummer(bestillingsnummer: String, lopenummer: Int): String = "$bestillingsnummer-$lopenummer"
 
 private fun isRelevantForUtbetalingsperide(
     deltaker: Deltaker,

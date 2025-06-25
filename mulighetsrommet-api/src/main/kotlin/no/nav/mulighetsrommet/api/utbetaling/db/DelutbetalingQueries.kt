@@ -205,6 +205,32 @@ class DelutbetalingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 
+    fun getOrError(fakturanummer: String): Delutbetaling {
+        return checkNotNull(get(fakturanummer)) { "Delutbetaling med fakturanummer $fakturanummer finnes ikke" }
+    }
+
+    fun get(fakturanummer: String): Delutbetaling? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                tilsagn_id,
+                utbetaling_id,
+                status,
+                belop,
+                gjor_opp_tilsagn,
+                periode,
+                lopenummer,
+                fakturanummer,
+                faktura_status,
+                faktura_status_sist_oppdatert
+            from delutbetaling
+            where fakturanummer = ?
+        """.trimIndent()
+
+        return session.single(queryOf(query, fakturanummer)) { it.toDelutbetalingDto() }
+    }
+
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """

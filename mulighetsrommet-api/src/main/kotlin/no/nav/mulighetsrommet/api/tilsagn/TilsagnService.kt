@@ -186,7 +186,7 @@ class TilsagnService(
         }
     }
 
-    fun initialLoadOpprettBestilling(bestillingsnummer: String): Tilsagn = db.transaction {
+    fun republishOpprettBestilling(bestillingsnummer: String): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(bestillingsnummer)
         publishOpprettBestilling(tilsagn)
         tilsagn
