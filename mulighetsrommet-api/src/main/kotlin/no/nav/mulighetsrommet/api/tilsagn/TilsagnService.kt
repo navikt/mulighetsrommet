@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -496,20 +495,6 @@ class TilsagnService(
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
-    }
-
-    private fun validateTilsagnBeregningInput(
-        gjennomforing: GjennomforingDto,
-        input: TilsagnBeregningInput,
-    ): Either<List<FieldError>, TilsagnBeregningInput> {
-        return when (input) {
-            is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
-                gjennomforing.tiltakstype.tiltakskode,
-                input,
-            )
-
-            else -> TilsagnValidator.validateBeregningInput(input)
-        }
     }
 
     private fun QueryContext.storeOpprettBestilling(tilsagn: Tilsagn, opprettelse: Totrinnskontroll) {
