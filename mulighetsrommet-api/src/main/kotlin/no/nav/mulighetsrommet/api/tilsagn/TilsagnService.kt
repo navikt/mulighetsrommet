@@ -168,18 +168,15 @@ class TilsagnService(
             TilsagnStatus.TIL_OPPGJOR -> {
                 when (besluttelse) {
                     BesluttTilsagnRequest.GodkjentTilsagnRequest -> {
-                        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+                        val oppgjor =
+                            queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
                         if (oppgjor.behandletAv == navIdent) {
                             return ValidationError(errors = listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))).left()
                         }
 
-                        gjorOppTilsagn(tilsagn, navIdent)
-                            .also {
-                                // Ved manuell oppgjør må vi sende melding til OeBS, det trenger vi ikke
-                                // når vi gjør opp på en delutbetaling.
-                                storeGjorOppBestilling(it)
-                            }
-                            .right()
+                        val oppgjortTilsagn = gjorOppTilsagn(tilsagn, navIdent)
+                        publishGjorOppBestilling(oppgjortTilsagn)
+                        oppgjortTilsagn.right()
                     }
 
                     is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisOppgjor(tilsagn, besluttelse, navIdent)
@@ -204,10 +201,10 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(besluttetOpprettelse)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        storeOpprettBestilling(tilsagn, besluttetOpprettelse)
-
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn godkjent", dto, besluttetAv)
+        publishOpprettBestilling(dto)
+
         dto.right()
     }
 
@@ -255,10 +252,10 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(besluttetAnnullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
 
-        storeAnnullerBestilling(tilsagn, besluttetAnnullering)
-
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)
+        publishAnnullerBestilling(dto)
+
         return dto.right()
     }
 
@@ -493,8 +490,9 @@ class TilsagnService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
     }
 
-    private fun QueryContext.storeOpprettBestilling(tilsagn: Tilsagn, opprettelse: Totrinnskontroll) {
-        require(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null) {
+    private fun QueryContext.publishOpprettBestilling(tilsagn: Tilsagn) {
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
@@ -538,8 +536,9 @@ class TilsagnService(
         storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
     }
 
-    private fun QueryContext.storeAnnullerBestilling(tilsagn: Tilsagn, annullering: Totrinnskontroll) {
-        require(annullering.besluttetAv != null && annullering.besluttetTidspunkt != null) {
+    private fun QueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
+        val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+        check(annullering.besluttetAv != null && annullering.besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet annullert for å sendes som annullert til økonomi"
         }
 
@@ -557,10 +556,10 @@ class TilsagnService(
         )
     }
 
-    private fun QueryContext.storeGjorOppBestilling(tilsagn: Tilsagn) {
+    private fun QueryContext.publishGjorOppBestilling(tilsagn: Tilsagn) {
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-        require(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
-            "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å sende null melding til økonomi"
+        check(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
+            "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å kunne sendes til økonomi"
         }
 
         val faktura = GjorOppBestilling(
