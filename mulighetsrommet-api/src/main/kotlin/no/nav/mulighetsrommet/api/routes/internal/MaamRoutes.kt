@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
@@ -25,7 +26,8 @@ import java.util.*
 
 fun Route.maamRoutes() {
     val arrangor: ArrangorService by inject()
-    val tilsagn: TilsagnService by inject()
+    val tilsagnService: TilsagnService by inject()
+    val utbetalingService: UtbetalingService by inject()
 
     val generateValidationReport: GenerateValidationReport by inject()
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
@@ -65,15 +67,28 @@ fun Route.maamRoutes() {
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }
 
-            post("initial-load-tilsagn") {
-                val params = call.receive<InitialLoadTilsagnRequest>()
+            post("republish-opprett-bestilling") {
+                val params = call.receive<RepublishOpprettBestillingRequest>()
 
                 val bestillinger = params.bestillingsnummer.split(",").map { it.trim() }
-                bestillinger.forEach { bestillingsnummer ->
-                    tilsagn.republishOpprettBestilling(bestillingsnummer)
+                val tilsagn = bestillinger.map { bestillingsnummer ->
+                    tilsagnService.republishOpprettBestilling(bestillingsnummer)
                 }
 
-                call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Republiserte ${bestillinger.size} tilsagn"))
+                val response = ExecutedTaskResponse("Republiserte ${tilsagn.size} tilsagn til økonomi")
+                call.respond(HttpStatusCode.OK, response)
+            }
+
+            post("republish-opprett-faktura") {
+                val params = call.receive<RepublishOpprettFakturaRequest>()
+
+                val fakturaer = params.fakturanummer.split(",").map { it.trim() }
+                val delutbetalinger = fakturaer.map { fakturanummer ->
+                    utbetalingService.republishFaktura(fakturanummer)
+                }
+
+                val response = ExecutedTaskResponse("Republiserte ${delutbetalinger.size} fakturaer til økonomi")
+                call.respond(HttpStatusCode.OK, response)
             }
 
             post("sync-navansatte") {
@@ -135,8 +150,13 @@ data class StartInitialLoadTiltaksgjennomforingRequest(
 )
 
 @Serializable
-data class InitialLoadTilsagnRequest(
+data class RepublishOpprettBestillingRequest(
     val bestillingsnummer: String,
+)
+
+@Serializable
+data class RepublishOpprettFakturaRequest(
+    val fakturanummer: String,
 )
 
 @Serializable

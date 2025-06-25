@@ -243,6 +243,10 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun getOrError(id: UUID): Utbetaling {
+        return checkNotNull(get(id)) { "Utbetaling med id $id finnes ikke" }
+    }
+
     fun get(id: UUID): Utbetaling? {
         @Language("PostgreSQL")
         val utbetalingQuery = """
