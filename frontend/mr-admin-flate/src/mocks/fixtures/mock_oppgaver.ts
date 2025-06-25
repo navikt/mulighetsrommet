@@ -3,6 +3,7 @@ import { Oppgave, OppgaveIcon, OppgaveType, Tiltakskode } from "@mr/api-client-v
 export const mockOppgaver: Oppgave[] = [
   {
     type: OppgaveType.TILSAGN_TIL_ANNULLERING,
+    navn: "Tilsagn til annullering",
     title: "Tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter annullering",
     tiltakstype: {
@@ -18,6 +19,7 @@ export const mockOppgaver: Oppgave[] = [
   },
   {
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
+    navn: "Tilsagn til godkjenning",
     title: "Send tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
     tiltakstype: {
@@ -33,6 +35,7 @@ export const mockOppgaver: Oppgave[] = [
   },
   {
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
+    navn: "Tilsagn til godkjenning",
     title: "Send tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
     tiltakstype: {
@@ -48,6 +51,7 @@ export const mockOppgaver: Oppgave[] = [
   },
   {
     type: OppgaveType.UTBETALING_TIL_ATTESTERING,
+    navn: "Utbetaling til attestering",
     title: "Utbetaling til godkjenning",
     description: `Utbetaling for <gjennomføringsnavn> er sendt til godkjenning`,
     tiltakstype: {

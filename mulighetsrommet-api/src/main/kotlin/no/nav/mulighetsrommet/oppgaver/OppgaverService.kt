@@ -198,11 +198,12 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             opprettelse to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_GODKJENNING,
+                navn = OppgaveType.TILSAGN_TIL_GODKJENNING.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Tilsagn til godkjenning",
-                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til godkjenning",
+                title = tilsagn.gjennomforing.navn,
+                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er sendt til godkjenning",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt,
@@ -216,11 +217,12 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             opprettelse to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
+                navn = OppgaveType.TILSAGN_RETURNERT.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Tilsagn returnert",
-                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} ble returnert av beslutter",
+                title = tilsagn.gjennomforing.navn,
+                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er returnert av beslutter",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.besluttetTidspunkt,
@@ -233,11 +235,12 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             annullering to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
+                navn = OppgaveType.TILSAGN_TIL_ANNULLERING.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Tilsagn til annullering",
-                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til annullering",
+                title = tilsagn.gjennomforing.navn,
+                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er sendt til annullering",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = annullering.behandletTidspunkt,
@@ -250,11 +253,12 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn): Pair<Totrinnskontroll, Opp
             tilOppgjor to Oppgave(
                 id = tilsagn.id,
                 type = OppgaveType.TILSAGN_TIL_OPPGJOR,
+                navn = OppgaveType.TILSAGN_TIL_OPPGJOR.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Tilsagn til oppgjør",
-                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til oppgjør",
+                title = tilsagn.gjennomforing.navn,
+                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er klar til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = tilOppgjor.behandletTidspunkt,
@@ -279,11 +283,12 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
             opprettelse to Oppgave(
                 id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_TIL_ATTESTERING,
+                navn = OppgaveType.UTBETALING_TIL_ATTESTERING.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Utbetaling til attestering",
-                description = "Utbetalingen for $gjennomforingsnavn er sendt til attestering",
+                title = gjennomforingsnavn,
+                description = "Utbetaling for perioden ${delutbetaling.periode.formatPeriode()} er klar til attestering",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt,
@@ -297,11 +302,12 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
             opprettelse to Oppgave(
                 id = delutbetaling.id,
                 type = OppgaveType.UTBETALING_RETURNERT,
+                navn = OppgaveType.UTBETALING_RETURNERT.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = "Utbetaling returnert",
-                description = "Utbetaling for $gjennomforingsnavn ble returnert av attestant",
+                title = gjennomforingsnavn,
+                description = "Utbetaling for perioden ${delutbetaling.periode.formatPeriode()} er returnert av attestant",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
@@ -316,9 +322,10 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Pair<
 private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
     id = utbetaling.id,
     type = OppgaveType.UTBETALING_TIL_BEHANDLING,
+    navn = OppgaveType.UTBETALING_TIL_BEHANDLING.navn,
     enhet = null,
-    title = "Utbetaling klar til behandling",
-    description = "Innsendt utbetaling for ${utbetaling.gjennomforing.navn} er klar til behandling",
+    title = utbetaling.gjennomforing.navn,
+    description = "Utbetaling for perioden ${utbetaling.periode.formatPeriode()} er klar til behandling",
     tiltakstype = OppgaveTiltakstype(
         tiltakskode = utbetaling.tiltakstype.tiltakskode,
         navn = utbetaling.tiltakstype.navn,
@@ -338,14 +345,15 @@ private fun QueryContext.toOppgaver(avtale: AvtaleDto): List<Oppgave> = buildLis
             Oppgave(
                 id = avtale.id,
                 type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
-                title = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
+                navn = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
+                title = avtale.navn,
                 enhet = avtale.kontorstruktur.firstOrNull()?.region?.let {
                     OppgaveEnhet(
                         nummer = it.enhetsnummer,
                         navn = it.navn,
                     )
                 },
-                description = """Avtalen "${avtale.navn}" mangler administrator. Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
+                description = """Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
                 tiltakstype = OppgaveTiltakstype(
                     tiltakskode = avtale.tiltakstype.tiltakskode,
                     navn = avtale.tiltakstype.navn,
@@ -366,14 +374,15 @@ private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildLis
         Oppgave(
             id = data.id,
             type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
-            title = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
+            navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
+            title = data.navn,
             enhet = data.kontorstruktur.firstOrNull()?.region?.let {
                 OppgaveEnhet(
                     nummer = it.enhetsnummer,
                     navn = it.navn,
                 )
             },
-            description = """Gjennomføringen "${data.navn}" mangler administrator. Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
+            description = """Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
             tiltakstype = OppgaveTiltakstype(
                 tiltakskode = data.tiltakskode,
                 navn = data.tiltakstypeNavn,

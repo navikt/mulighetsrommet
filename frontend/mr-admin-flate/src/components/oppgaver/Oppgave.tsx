@@ -11,14 +11,13 @@ interface OppgaveProps {
 
 export function Oppgave({ oppgave }: OppgaveProps) {
   const { title, description, link, createdAt, oppgaveIcon } = oppgave;
-
   return (
     <Box background="bg-default" padding="4" data-testid="oppgaver">
       <HStack gap="2">
         <BodyShort>{oppgave.tiltakstype.navn}</BodyShort>
         <Spacer />
         <OppgaveEnhetTag enhet={oppgave.enhet} />
-        <OppgaveStatus type={oppgave.type} label={oppgave.title} icon={icon(oppgaveIcon)} />
+        <OppgaveStatus type={oppgave.type} label={oppgave.navn} icon={icon(oppgaveIcon)} />
       </HStack>
       <Heading size="medium" spacing>
         {title}
