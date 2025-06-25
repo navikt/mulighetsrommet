@@ -489,10 +489,6 @@ class TilsagnService(
         queries.notifications.insert(notice)
     }
 
-    fun getAll() = db.session {
-        queries.tilsagn.getAll()
-    }
-
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
     }
