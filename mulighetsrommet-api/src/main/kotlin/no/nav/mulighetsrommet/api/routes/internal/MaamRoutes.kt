@@ -70,7 +70,7 @@ fun Route.maamRoutes() {
 
                 val bestillinger = params.bestillingsnummer.split(",").map { it.trim() }
                 bestillinger.forEach { bestillingsnummer ->
-                    tilsagn.initialLoadOpprettBestilling(bestillingsnummer)
+                    tilsagn.republishOpprettBestilling(bestillingsnummer)
                 }
 
                 call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Republiserte ${bestillinger.size} tilsagn"))
