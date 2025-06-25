@@ -112,6 +112,7 @@ export type MrApiTask =
   | "generate-validation-report"
   | "initial-load-tiltakstyper"
   | "initial-load-gjennomforinger"
+  | "initial-load-tilsagn"
   | "sync-navansatte"
   | "sync-utdanning"
   | "generate-utbetaling"

@@ -189,7 +189,15 @@ class TilsagnQueries(private val session: Session) {
                     :antall
                 )
         """.trimIndent()
-        val paramCollection = linjer.map { mapOf("id" to it.id, "tilsagn_id" to tilsagnId, "beskrivelse" to it.beskrivelse, "belop" to it.belop, "antall" to it.antall) }
+        val paramCollection = linjer.map {
+            mapOf(
+                "id" to it.id,
+                "tilsagn_id" to tilsagnId,
+                "beskrivelse" to it.beskrivelse,
+                "belop" to it.belop,
+                "antall" to it.antall,
+            )
+        }
 
         batchPreparedNamedStatement(query, paramCollection)
     }
@@ -221,18 +229,34 @@ class TilsagnQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, gjennomforingId)) { it.int("lopenummer") }
     }
 
+    fun getOrError(id: UUID): Tilsagn {
+        return checkNotNull(get(id)) { "Tilsagn med id $id finnes ikke" }
+    }
+
     fun get(id: UUID): Tilsagn? {
         @Language("PostgreSQL")
         val query = """
-            select * from tilsagn_admin_dto_view
-            where id = :id::uuid
+            select *
+            from tilsagn_admin_dto_view
+            where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("id" to id))) { it.toTilsagnDto() }
+        return session.single(queryOf(query, id)) { it.toTilsagnDto() }
     }
 
-    fun getOrError(id: UUID): Tilsagn {
-        return checkNotNull(get(id)) { "Tilsagn med id $id finnes ikke" }
+    fun getOrError(bestillingsnummer: String): Tilsagn {
+        return checkNotNull(get(bestillingsnummer)) { "Tilsagn med bestillingsnummer $bestillingsnummer finnes ikke" }
+    }
+
+    fun get(bestillingsnummer: String): Tilsagn? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from tilsagn_admin_dto_view
+            where bestillingsnummer = ?
+        """.trimIndent()
+
+        return session.single(queryOf(query, bestillingsnummer)) { it.toTilsagnDto() }
     }
 
     fun getAll(

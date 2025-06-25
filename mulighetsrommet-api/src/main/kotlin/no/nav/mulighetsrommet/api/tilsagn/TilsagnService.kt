@@ -78,6 +78,7 @@ class TilsagnService(
                         gjennomforing.tiltakstype.tiltakskode,
                         request.beregning,
                     )
+
                     else -> request.beregning.right()
                 }
             }
@@ -183,6 +184,12 @@ class TilsagnService(
                 }
             }
         }
+    }
+
+    fun initialLoadOpprettBestilling(bestillingsnummer: String): Tilsagn = db.transaction {
+        val tilsagn = queries.tilsagn.getOrError(bestillingsnummer)
+        publishOpprettBestilling(tilsagn)
+        tilsagn
     }
 
     private fun godkjennTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): StatusResponse<Tilsagn> = db.transaction {
@@ -496,23 +503,19 @@ class TilsagnService(
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
+        val gjennomforing = checkNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
             "Fant ikke gjennomforing for tilsagn"
         }
 
-        val avtale = requireNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
+        val avtale = checkNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
             "Gjennomføring ${gjennomforing.id} mangler avtale"
         }
 
-        val arrangor = requireNotNull(
-            avtale.arrangor?.let {
-                OpprettBestilling.Arrangor(
-                    hovedenhet = avtale.arrangor.organisasjonsnummer,
-                    underenhet = gjennomforing.arrangor.organisasjonsnummer,
-                )
-            },
-        ) {
-            "Avtale ${avtale.id} mangler arrangør"
+        val arrangor = checkNotNull(avtale.arrangor) { "Avtale ${avtale.id} mangler arrangør" }.let {
+            OpprettBestilling.Arrangor(
+                hovedenhet = avtale.arrangor.organisasjonsnummer,
+                underenhet = gjennomforing.arrangor.organisasjonsnummer,
+            )
         }
 
         val bestilling = OpprettBestilling(
