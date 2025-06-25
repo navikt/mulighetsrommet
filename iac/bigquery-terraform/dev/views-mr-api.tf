@@ -75,6 +75,12 @@ module "mr_api_avtale_view" {
       },
       {
         mode        = "NULLABLE"
+        name        = "status"
+        type        = "STRING"
+        description = "Status til avtalen. Dette kan være en av følgende verdier: 'UTKAST', 'AKTIV', 'AVBRUTT', 'AVSLUTTET'."
+      },
+      {
+        mode        = "NULLABLE"
         name        = "avtaletype"
         type        = "STRING"
         description = <<EOF
@@ -100,12 +106,6 @@ EOF
       },
       {
         mode        = "NULLABLE"
-        name        = "status"
-        type        = "STRING"
-        description = "Status til avtalen. Dette kan være en av følgende verdier: 'UTKAST', 'AKTIV', 'AVBRUTT', 'AVSLUTTET'."
-      },
-      {
-        mode        = "NULLABLE"
         name        = "avbrutt_tidspunkt"
         type        = "TIMESTAMP"
         description = "Indikerer om avtalen har blitt avbrutt eller ikke."
@@ -118,6 +118,7 @@ SELECT
   tiltakstype_id,
   start_dato,
   slutt_dato,
+  status,
   avtaletype,
   created_at as opprettet_tidspunkt,
   updated_at as oppdatert_tidspunkt,
@@ -171,6 +172,12 @@ module "mr_api_gjennomforing_view" {
       },
       {
         mode        = "NULLABLE"
+        name        = "status"
+        type        = "STRING"
+        description = "Status til gjennomføringen. Dette kan være en av følgende verdier: 'GJENNOMFORES', 'AVLYST', 'AVBRUTT', 'AVSLUTTET'."
+      },
+      {
+        mode        = "NULLABLE"
         name        = "opprettet_tidspunkt"
         type        = "TIMESTAMP"
         description = "Tidspunktet som gjennomføringen ble opprettet (i databasen). Merk at dette tidspunktet ofte ikke samsvarer med når gjennomføringen initielt ble opprettet (gjelder bl.a. for alle gjennomføringer som har blitt overført fra Arena)."
@@ -180,12 +187,6 @@ module "mr_api_gjennomforing_view" {
         name        = "oppdatert_tidspunkt"
         type        = "TIMESTAMP"
         description = "Tidspunktet som gjennomføringen sist ble oppdatert (i databasen)."
-      },
-      {
-        mode        = "NULLABLE"
-        name        = "status"
-        type        = "STRING"
-        description = "Status til gjennomføringen. Dette kan være en av følgende verdier: 'GJENNOMFORES', 'AVLYST', 'AVBRUTT', 'AVSLUTTET'."
       },
       {
         mode        = "NULLABLE"
@@ -203,6 +204,7 @@ SELECT
   tiltaksnummer,
   start_dato,
   slutt_dato,
+  status,
   created_at as opprettet_tidspunkt,
   updated_at as oppdatert_tidspunkt,
   avsluttet_tidspunkt
