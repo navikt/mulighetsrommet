@@ -18,7 +18,6 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
@@ -237,7 +236,10 @@ class TilsagnServiceTest : FunSpec({
         test("genererer løpenummer og bestillingsnummer") {
             val domain2 = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID())),
+                gjennomforinger = listOf(
+                    GjennomforingFixtures.AFT1,
+                    GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID()),
+                ),
             ).initialize(database.db)
 
             val tilsagn2 = UUID.randomUUID()
@@ -252,7 +254,11 @@ class TilsagnServiceTest : FunSpec({
                 ansatt1,
             ).shouldBeRight()
             service.upsert(
-                request.copy(id = tilsagn3, gjennomforingId = domain2.gjennomforinger[1].id, beregning = beregningFri()),
+                request.copy(
+                    id = tilsagn3,
+                    gjennomforingId = domain2.gjennomforinger[1].id,
+                    beregning = beregningFri(),
+                ),
                 ansatt1,
             ).shouldBeRight()
 
@@ -319,7 +325,9 @@ class TilsagnServiceTest : FunSpec({
 
             service.slettTilsagn(request.id, ansatt1).shouldBeRight()
 
-            service.getAll() shouldHaveSize 0
+            database.run {
+                queries.tilsagn.getAll() shouldHaveSize 0
+            }
         }
 
         test("skal sende notifikasjon til behandletAv når besluttetAv sletter tilsagn") {

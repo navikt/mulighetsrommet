@@ -26,60 +26,6 @@ export function MrApi() {
           Starter en initial load av alle relevante tiltakstyper.
         </RunTask>
 
-        <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
-          Synkroniserer Nav-ansatte fra relevante AD-grupper.
-        </RunTask>
-
-        <RunTask base={ApiBase.MR_API} task={"sync-utdanning"}>
-          Synkroniserer data fra utdanning.no.
-        </RunTask>
-
-        <RunTask
-          base={ApiBase.MR_API}
-          task={"sync-arrangorer"}
-          input={{
-            type: "object",
-            required: ["organisasjonsnummer"],
-            properties: {
-              organisasjonsnummer: {
-                title: "Organisasjonsnummer til arrangør som skal synkroniseres med Brreg",
-                description: "Flere organisasjonsnummer kan separeres med et komma (,)",
-                type: "string",
-              },
-            },
-          }}
-        />
-
-        <RunTask
-          base={ApiBase.MR_API}
-          task={"generate-utbetaling"}
-          input={{
-            type: "object",
-            required: ["month"],
-            properties: {
-              month: {
-                type: "number",
-                title: "Velg måned",
-                description: "Velg måneden det skal genereres utbetaling for",
-                oneOf: [
-                  { const: 1, title: "Januar" },
-                  { const: 2, title: "Februar" },
-                  { const: 3, title: "Mars" },
-                  { const: 4, title: "April" },
-                  { const: 5, title: "Mai" },
-                  { const: 6, title: "Juni" },
-                  { const: 7, title: "Juli" },
-                  { const: 8, title: "August" },
-                  { const: 9, title: "September" },
-                  { const: 10, title: "Oktober" },
-                  { const: 11, title: "November" },
-                  { const: 12, title: "Desember" },
-                ],
-              },
-            },
-          }}
-        />
-
         <RunTask
           base={ApiBase.MR_API}
           task="initial-load-gjennomforinger"
@@ -138,6 +84,77 @@ export function MrApi() {
                   },
                 },
                 required: ["id", "bekreftelse"],
+              },
+            },
+          }}
+        />
+
+        <RunTask
+          base={ApiBase.MR_API}
+          task="initial-load-tilsagn"
+          input={{
+            type: "object",
+            title: 'Resend "Opprett bestilling" basert på bestillingsnummer',
+            properties: {
+              bestillingsnummer: {
+                title: "Bestillingsnummer til tilsagn",
+                description: "Flere bestillingsnummere kan separeres med et komma (,)",
+                type: "string",
+              },
+            },
+            required: ["bestillingsnummer"],
+          }}
+        />
+
+        <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
+          Synkroniserer Nav-ansatte fra relevante AD-grupper.
+        </RunTask>
+
+        <RunTask base={ApiBase.MR_API} task={"sync-utdanning"}>
+          Synkroniserer data fra utdanning.no.
+        </RunTask>
+
+        <RunTask
+          base={ApiBase.MR_API}
+          task={"sync-arrangorer"}
+          input={{
+            type: "object",
+            required: ["organisasjonsnummer"],
+            properties: {
+              organisasjonsnummer: {
+                title: "Organisasjonsnummer til arrangør som skal synkroniseres med Brreg",
+                description: "Flere organisasjonsnummer kan separeres med et komma (,)",
+                type: "string",
+              },
+            },
+          }}
+        />
+
+        <RunTask
+          base={ApiBase.MR_API}
+          task={"generate-utbetaling"}
+          input={{
+            type: "object",
+            required: ["month"],
+            properties: {
+              month: {
+                type: "number",
+                title: "Velg måned",
+                description: "Velg måneden det skal genereres utbetaling for",
+                oneOf: [
+                  { const: 1, title: "Januar" },
+                  { const: 2, title: "Februar" },
+                  { const: 3, title: "Mars" },
+                  { const: 4, title: "April" },
+                  { const: 5, title: "Mai" },
+                  { const: 6, title: "Juni" },
+                  { const: 7, title: "Juli" },
+                  { const: 8, title: "August" },
+                  { const: 9, title: "September" },
+                  { const: 10, title: "Oktober" },
+                  { const: 11, title: "November" },
+                  { const: 12, title: "Desember" },
+                ],
               },
             },
           }}

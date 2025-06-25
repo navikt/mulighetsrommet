@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -24,6 +25,7 @@ import java.util.*
 
 fun Route.maamRoutes() {
     val arrangor: ArrangorService by inject()
+    val tilsagn: TilsagnService by inject()
 
     val generateValidationReport: GenerateValidationReport by inject()
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
@@ -61,6 +63,17 @@ fun Route.maamRoutes() {
                 val taskId = initialLoadTiltakstyper.schedule()
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
+            }
+
+            post("initial-load-tilsagn") {
+                val params = call.receive<InitialLoadTilsagnRequest>()
+
+                val bestillinger = params.bestillingsnummer.split(",").map { it.trim() }
+                bestillinger.forEach { bestillingsnummer ->
+                    tilsagn.initialLoadOpprettBestilling(bestillingsnummer)
+                }
+
+                call.respond(HttpStatusCode.OK)
             }
 
             post("sync-navansatte") {
@@ -118,6 +131,11 @@ data class StartInitialLoadTiltaksgjennomforingRequest(
     val id: String? = null,
     val tiltakstyper: List<Tiltakskode>? = null,
     val opphav: ArenaMigrering.Opphav? = null,
+)
+
+@Serializable
+data class InitialLoadTilsagnRequest(
+    val bestillingsnummer: String,
 )
 
 @Serializable

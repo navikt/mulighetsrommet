@@ -777,10 +777,3 @@ private fun isRelevantForUtbetalingsperide(
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
-
-enum class DelutbetalingReturnertAarsak {
-    FEIL_BELOP,
-    FEIL_ANNET,
-    TILSAGN_FEIL_STATUS,
-    PROPAGERT_RETUR,
-}
