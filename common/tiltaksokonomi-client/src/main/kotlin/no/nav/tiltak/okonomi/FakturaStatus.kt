@@ -14,6 +14,8 @@ data class FakturaStatus(
 
 enum class FakturaStatusType {
     SENDT,
-    UTBETALT,
+    IKKE_BETALT,
+    DELVIS_BETALT,
+    FULLT_BETALT,
     FEILET,
 }

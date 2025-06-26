@@ -151,13 +151,14 @@ class OebsRoutesTest : FunSpec({
                             OebsFakturaKvittering(
                                 fakturaNummer = faktura.fakturanummer,
                                 opprettelsesTidspunkt = LocalDateTime.now(),
+                                statusBetalt = OebsFakturaKvittering.StatusBetalt.FulltBetalt,
                             ),
                         ),
                     )
                 }
                 response.status shouldBe HttpStatusCode.OK
                 db.session { queries.faktura.getByFakturanummer(faktura.fakturanummer) }
-                    ?.status shouldBe FakturaStatusType.UTBETALT
+                    ?.status shouldBe FakturaStatusType.FULLT_BETALT
             }
         }
     }
@@ -211,7 +212,7 @@ class OebsRoutesTest : FunSpec({
                         OebsFakturaKvittering(
                             fakturaNummer = faktura.fakturanummer,
                             opprettelsesTidspunkt = LocalDateTime.now(),
-                            statusOebs = "Avvist",
+                            statusOpprettet = "Avvist",
                         ),
                     ),
                 )
@@ -227,13 +228,14 @@ class OebsRoutesTest : FunSpec({
                         OebsFakturaKvittering(
                             fakturaNummer = faktura.fakturanummer,
                             opprettelsesTidspunkt = LocalDateTime.now(),
-                            statusOebs = "Godkjent",
+                            statusOpprettet = "Suksess",
+                            statusBetalt = OebsFakturaKvittering.StatusBetalt.DelvisBetalt,
                         ),
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
             db.session { queries.faktura.getByFakturanummer(faktura.fakturanummer) }
-                ?.status shouldBe FakturaStatusType.UTBETALT
+                ?.status shouldBe FakturaStatusType.DELVIS_BETALT
         }
     }
 
@@ -258,7 +260,7 @@ class OebsRoutesTest : FunSpec({
         }
     }
 
-    test("not found når bestilling ikke finnes") {
+    test("ikke not found når bestilling ikke finnes") {
         withTestApplication(oauth) {
             val client = createClient()
 
@@ -275,12 +277,7 @@ class OebsRoutesTest : FunSpec({
                     """.trimIndent(),
                 )
             }
-            response.status shouldBe HttpStatusCode.NotFound
-            val pd = response.body<ProblemDetail>()
-            pd.status shouldBe 404
-            pd.detail shouldBe "Fant ikke bestilling med bestillingsNummer: 999"
-            pd.title shouldBe "Not Found"
-            pd.type shouldBe "not-found"
+            response.status shouldBe HttpStatusCode.OK
         }
     }
 

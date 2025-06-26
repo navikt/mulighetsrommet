@@ -246,6 +246,11 @@ class OkonomiService(
             } else {
                 queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.AKTIV)
             }
+            queries.bestilling.setFeilmelding(
+                bestilling.bestillingsnummer,
+                feilKode = null,
+                feilMelding = null,
+            )
         } else {
             queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FEILET)
             queries.bestilling.setFeilmelding(
@@ -263,7 +268,17 @@ class OkonomiService(
         kvittering: OebsFakturaKvittering,
     ) = db.transaction {
         if (kvittering.isSuccess()) {
-            queries.faktura.setStatus(faktura.fakturanummer, FakturaStatusType.UTBETALT)
+            queries.faktura.setStatus(
+                faktura.fakturanummer,
+                requireNotNull(kvittering.statusBetalt?.toFakturaStatusType()) {
+                    "Manglet statusBetalt på suksess faktura kvittering: ${faktura.fakturanummer}"
+                },
+            )
+            queries.faktura.setFeilmelding(
+                faktura.fakturanummer,
+                feilKode = null,
+                feilMelding = null,
+            )
         } else {
             queries.faktura.setStatus(faktura.fakturanummer, FakturaStatusType.FEILET)
             queries.faktura.setFeilmelding(
@@ -373,7 +388,5 @@ private fun venterPaaKvittering(bestilling: Bestilling, fakturaer: List<Faktura>
         -> {}
     }
 
-    // TODO: Når vi får kvittering på faktura også
-    // return fakturaer.any { it.status == FakturaStatusType.SENDT }
-    return false
+    return fakturaer.any { it.status == FakturaStatusType.SENDT }
 }
