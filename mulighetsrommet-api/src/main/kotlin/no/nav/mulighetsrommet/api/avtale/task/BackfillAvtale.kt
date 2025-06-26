@@ -7,13 +7,15 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.Prismodell
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 class BackfillAvtale(
@@ -59,8 +61,7 @@ class BackfillAvtale(
         }
 
         if (arrangorHovedenhet == null) {
-            logger.warn("Arrangør med orgnr $orgnr har ikke en overordnet enhet i Brønnøysundregistrene. Kan ikke opprette avtale for gjennomføring id=$gjennomforingId")
-            return
+            logger.warn("Fant ikke overordnet enhet for $orgnr. Slettet dato=${arrangor.slettetDato}")
         }
 
         val avtale = AvtaleDbo(
@@ -69,18 +70,16 @@ class BackfillAvtale(
             tiltakstypeId = gjennomforing.tiltakstype.id,
             avtalenummer = null,
             sakarkivNummer = null,
-            arrangor = AvtaleDbo.Arrangor(
-                hovedenhet = arrangorHovedenhet.id,
-                underenheter = listOf(gjennomforing.arrangor.id),
-                kontaktpersoner = listOf(),
-            ),
+            arrangor = arrangorHovedenhet?.let {
+                AvtaleDbo.Arrangor(
+                    hovedenhet = it.id,
+                    underenheter = listOf(gjennomforing.arrangor.id),
+                    kontaktpersoner = listOf(),
+                )
+            },
             startDato = gjennomforing.startDato,
             sluttDato = gjennomforing.sluttDato,
-            status = when (gjennomforing.status.type) {
-                GjennomforingStatus.GJENNOMFORES -> AvtaleStatus.AKTIV
-                GjennomforingStatus.AVSLUTTET -> AvtaleStatus.AVSLUTTET
-                GjennomforingStatus.AVLYST, GjennomforingStatus.AVBRUTT -> AvtaleStatus.AVBRUTT
-            },
+            status = AvtaleStatus.AKTIV,
             navEnheter = listOf(),
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             prisbetingelser = null,
@@ -101,6 +100,29 @@ class BackfillAvtale(
 
         logger.info("Oppretter avtale for gjennomføring uten avtale avtaleId=${avtale.id}, gjennomforingId=${gjennomforing.id}")
         queries.avtale.upsert(avtale)
+        when (gjennomforing.status) {
+            is GjennomforingStatusDto.Gjennomfores -> {
+                queries.avtale.setStatus(
+                    avtale.id,
+                    if (arrangorHovedenhet == null) AvtaleStatus.UTKAST else AvtaleStatus.AKTIV,
+                    null,
+                    null,
+                )
+            }
+
+            is GjennomforingStatusDto.Avsluttet -> {
+                queries.avtale.setStatus(avtale.id, AvtaleStatus.AVSLUTTET, null, null)
+            }
+
+            is GjennomforingStatusDto.Avlyst, is GjennomforingStatusDto.Avbrutt -> {
+                queries.avtale.setStatus(
+                    avtale.id,
+                    AvtaleStatus.AVBRUTT,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.Annet("Gjennomføring er avbrutt"),
+                )
+            }
+        }
         queries.gjennomforing.setAvtaleId(gjennomforing.id, avtale.id)
     }
 
