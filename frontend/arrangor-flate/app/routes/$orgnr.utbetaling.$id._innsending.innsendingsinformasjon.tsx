@@ -4,9 +4,10 @@ import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { internalNavigation } from "../internal-navigation";
 import { formaterPeriode, problemDetailResponse, useOrgnrFromUrl } from "../utils";
-import { Alert, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
+import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 
 type LoaderData = {
   utbetaling: ArrFlateUtbetaling;
@@ -72,16 +73,7 @@ export default function TilsagnDetaljerPage() {
         <Heading level="3" size="medium">
           Tilgjengelige tilsagn
         </Heading>
-        {tilsagn.length < 1 && (
-          <Alert variant={"warning"}>
-            <Heading spacing level="4" size="small">
-              Tilsagn mangler
-            </Heading>
-            Det finnes ingen godkjente tilsagn tilgjengelig for denne utbetalingen. Dere kan ikke
-            sende inn kravet før Nav har godkjent et tilsagn for utbetalingsperioden. Vennligst ta
-            kontakt med Nav.
-          </Alert>
-        )}
+        {tilsagn.length < 1 && <UtbetalingManglendeTilsagnAlert />}
         {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
           <ManglendeMidlerAlert />
         )}
