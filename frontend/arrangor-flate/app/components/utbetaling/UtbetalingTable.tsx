@@ -1,11 +1,10 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, Link, SortState, Table } from "@navikt/ds-react";
+import { Alert, SortState, Table } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
-import { internalNavigation } from "~/internal-navigation";
-import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "api-client";
+import { ArrFlateUtbetalingKompakt } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
-import { Link as ReactRouterLink } from "react-router";
+import { UtbetalingTextLink } from "./UtbetalingTextLink";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
@@ -60,6 +59,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       </Alert>
     );
   }
+
   return (
     <Table
       aria-label="Utbetalinger"
@@ -102,26 +102,12 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 </Table.DataCell>
                 <Table.DataCell />
                 <Table.DataCell>
-                  {[
-                    ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                    ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
-                  ].includes(status) ? (
-                    <Link
-                      as={ReactRouterLink}
-                      aria-label={`Start innsending for krav om utbetaling for ${gjennomforing.navn}`}
-                      to={internalNavigation(orgnr).innsendingsinformasjon(id)}
-                    >
-                      Start innsending
-                    </Link>
-                  ) : (
-                    <Link
-                      as={ReactRouterLink}
-                      aria-label={`Detaljer for krav om utbetaling for ${gjennomforing.navn}`}
-                      to={internalNavigation(orgnr).detaljer(id)}
-                    >
-                      Detaljer
-                    </Link>
-                  )}
+                  <UtbetalingTextLink
+                    orgnr={orgnr}
+                    status={status}
+                    gjennomforingNavn={gjennomforing.navn}
+                    utbetalingId={id}
+                  />
                 </Table.DataCell>
               </Table.Row>
             </React.Fragment>
