@@ -33,7 +33,7 @@ export function UtbetalingTextLink({
         <Link
           as={ReactRouterLink}
           aria-label={`Se innsending for krav om utbetaling for ${gjennomforingNavn}`}
-          to={internalNavigation(orgnr).innsendingsinformasjon(utbetalingId)}
+          to={internalNavigation(orgnr).beregning(utbetalingId)}
         >
           Se hvorfor
         </Link>

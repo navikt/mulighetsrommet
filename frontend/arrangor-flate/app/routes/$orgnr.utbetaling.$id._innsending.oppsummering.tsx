@@ -41,6 +41,7 @@ import {
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
+import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -140,7 +141,7 @@ export const action: ActionFunction = async ({ params, request }) => {
 };
 
 export default function BekreftUtbetaling() {
-  const { utbetaling } = useLoaderData<BekreftUtbetalingData>();
+  const { utbetaling, tilsagn } = useLoaderData<BekreftUtbetalingData>();
   const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
   const fetcher = useFetcher();
@@ -164,6 +165,8 @@ export default function BekreftUtbetaling() {
   if (data?.errors) {
     errorSummaryRef.current?.focus();
   }
+
+  const harTilsagn = tilsagn.length > 0;
 
   return (
     <>
@@ -217,14 +220,16 @@ export default function BekreftUtbetaling() {
               id="kid"
             />
             <Separator />
-            <Checkbox
-              name="bekreftelse"
-              value="bekreftet"
-              error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
-              id="bekreftelse"
-            >
-              {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
-            </Checkbox>
+            {harTilsagn && (
+              <Checkbox
+                name="bekreftelse"
+                value="bekreftet"
+                error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
+                id="bekreftelse"
+              >
+                {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
+              </Checkbox>
+            )}
             <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
             <input type="hidden" name="orgnr" value={orgnr} />
             {data?.errors && data.errors.length > 0 && (
@@ -241,6 +246,7 @@ export default function BekreftUtbetaling() {
                 })}
               </ErrorSummary>
             )}
+            {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
             <HStack gap="4">
               <Button
                 as={ReactRouterLink}
@@ -250,7 +256,7 @@ export default function BekreftUtbetaling() {
               >
                 Tilbake
               </Button>
-              <Button type="submit">Bekreft og send inn</Button>
+              {harTilsagn && <Button type="submit">Bekreft og send inn</Button>}
             </HStack>
           </VStack>
         </Form>
