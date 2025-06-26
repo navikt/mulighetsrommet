@@ -16,10 +16,14 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Respo
     });
   }
 
+  const url = new URL(request.url);
+  const filename = url.searchParams.get("filename") ?? "kvittering.pdf";
+
   return new Response(kvittering, {
     status: 200,
     headers: {
       contentType: "application/pdf",
+      "Content-Disposition": `attachment; filename="${filename}"`,
     },
   });
 };
