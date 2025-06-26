@@ -8,14 +8,13 @@ import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.api.serializers.OebsLocalDateTimeSerializer
 import no.nav.tiltak.okonomi.plugins.AuthProvider
 import no.nav.tiltak.okonomi.service.OkonomiService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 @Resource("$API_BASE_PATH/kvittering")
@@ -30,26 +29,21 @@ class Kvittering {
 fun Routing.oebsRoutes(
     okonomiService: OkonomiService,
 ) = authenticate(AuthProvider.AZURE_AD_OEBS_API.name) {
+    val log: Logger = LoggerFactory.getLogger(javaClass)
+
     post<Kvittering.Bestilling> {
         val request = call.receive<String>()
         okonomiService.logKvittering(request)
 
         val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsBestillingKvittering>>(request)
 
-        var error: ProblemDetail? = null
-
         kvitteringer.forEach { kvittering ->
-            val bestilling = okonomiService.hentBestilling(kvittering.bestillingsNummer)
-            if (bestilling == null) {
-                error = NotFound("Fant ikke bestilling med bestillingsNummer: ${kvittering.bestillingsNummer}")
-            } else {
-                okonomiService.mottaBestillingKvittering(bestilling, kvittering)
-            }
+            okonomiService.hentBestilling(kvittering.bestillingsNummer)?.let {
+                okonomiService.mottaBestillingKvittering(it, kvittering)
+            } ?: log.info("Fant ikke bestilling til kvittering med bestillingnummer ${kvittering.bestillingsNummer}")
         }
 
-        error?.let {
-            call.respondWithProblemDetail(it)
-        } ?: call.respond(HttpStatusCode.OK)
+        call.respond(HttpStatusCode.OK)
     }
 
     post<Kvittering.Faktura> {
@@ -58,20 +52,13 @@ fun Routing.oebsRoutes(
 
         val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsFakturaKvittering>>(request)
 
-        var error: ProblemDetail? = null
-
         kvitteringer.forEach { kvittering ->
-            val faktura = okonomiService.hentFaktura(kvittering.fakturaNummer)
-            if (faktura == null) {
-                error = NotFound("Fant ikke faktura med fakturanummer: ${kvittering.fakturaNummer}")
-            } else {
-                okonomiService.mottaFakturaKvittering(faktura, kvittering)
-            }
+            okonomiService.hentFaktura(kvittering.fakturaNummer)?.let {
+                okonomiService.mottaFakturaKvittering(it, kvittering)
+            } ?: log.info("Fant ikke faktura til kvittering med fakturanummer ${kvittering.fakturaNummer}")
         }
 
-        error?.let {
-            call.respondWithProblemDetail(it)
-        } ?: call.respond(HttpStatusCode.OK)
+        call.respond(HttpStatusCode.OK)
     }
 }
 

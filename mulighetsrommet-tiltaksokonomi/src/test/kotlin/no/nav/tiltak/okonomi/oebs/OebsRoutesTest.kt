@@ -260,7 +260,7 @@ class OebsRoutesTest : FunSpec({
         }
     }
 
-    test("not found når bestilling ikke finnes") {
+    test("ikke not found når bestilling ikke finnes") {
         withTestApplication(oauth) {
             val client = createClient()
 
@@ -277,12 +277,7 @@ class OebsRoutesTest : FunSpec({
                     """.trimIndent(),
                 )
             }
-            response.status shouldBe HttpStatusCode.NotFound
-            val pd = response.body<ProblemDetail>()
-            pd.status shouldBe 404
-            pd.detail shouldBe "Fant ikke bestilling med bestillingsNummer: 999"
-            pd.title shouldBe "Not Found"
-            pd.type shouldBe "not-found"
+            response.status shouldBe HttpStatusCode.OK
         }
     }
 
