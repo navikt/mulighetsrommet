@@ -246,6 +246,11 @@ class OkonomiService(
             } else {
                 queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.AKTIV)
             }
+            queries.bestilling.setFeilmelding(
+                bestilling.bestillingsnummer,
+                feilKode = null,
+                feilMelding = null,
+            )
         } else {
             queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FEILET)
             queries.bestilling.setFeilmelding(
