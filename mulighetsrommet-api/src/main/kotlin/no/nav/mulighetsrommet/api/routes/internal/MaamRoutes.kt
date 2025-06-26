@@ -7,6 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.task.BackfillAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -35,6 +36,7 @@ fun Route.maamRoutes() {
     val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
+    val backfillAvtale: BackfillAvtale by inject()
 
     route("/api/intern/maam") {
         route("/tasks") {
@@ -117,6 +119,11 @@ fun Route.maamRoutes() {
                 val utbetalinger = generateUtbetaling.runTask(month)
                 val response = ExecutedTaskResponse("Genererte ${utbetalinger.size} utbetalinger for måned $month")
                 call.respond(HttpStatusCode.OK, response)
+            }
+
+            post("backfill-avtale") {
+                backfillAvtale.execute()
+                call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Fullført"))
             }
         }
 

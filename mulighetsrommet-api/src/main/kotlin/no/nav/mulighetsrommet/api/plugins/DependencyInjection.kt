@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
+import no.nav.mulighetsrommet.api.avtale.task.BackfillAvtale
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -218,6 +219,9 @@ private fun services(appConfig: AppConfig) = module {
         privateJwk = appConfig.auth.maskinporten.privateJwk,
     )
 
+    single {
+        BackfillAvtale(get(), get())
+    }
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
