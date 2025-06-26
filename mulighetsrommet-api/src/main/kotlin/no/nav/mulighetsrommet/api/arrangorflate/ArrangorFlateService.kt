@@ -117,7 +117,10 @@ class ArrangorFlateService(
                 id = delutbetaling.id,
                 belop = delutbetaling.belop,
                 status = when (delutbetaling.faktura.status) {
-                    FakturaStatusType.UTBETALT -> DelutbetalingStatus.UTBETALT
+                    FakturaStatusType.DELVIS_BETALT,
+                    FakturaStatusType.FULLT_BETALT,
+                    FakturaStatusType.IKKE_BETALT,
+                    -> DelutbetalingStatus.UTBETALT
                     FakturaStatusType.SENDT -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                     FakturaStatusType.FEILET -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                     null -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING

@@ -233,7 +233,7 @@ class OkonomiServiceTest : FunSpec({
                 val faktura = Faktura.fromOpprettFaktura(
                     createOpprettFaktura("5", "5-1"),
                     bestilling.linjer,
-                ).copy(status = FakturaStatusType.UTBETALT)
+                ).copy(status = FakturaStatusType.FULLT_BETALT)
                 queries.faktura.insertFaktura(faktura)
             }
 
@@ -378,7 +378,7 @@ class OkonomiServiceTest : FunSpec({
             db.session {
                 val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
                 val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer).copy(
-                    status = FakturaStatusType.UTBETALT,
+                    status = FakturaStatusType.FULLT_BETALT,
                 )
                 queries.faktura.insertFaktura(faktura)
             }
@@ -387,7 +387,7 @@ class OkonomiServiceTest : FunSpec({
 
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
                 it.fakturanummer shouldBe "B1-F3"
-                it.status shouldBe FakturaStatusType.UTBETALT
+                it.status shouldBe FakturaStatusType.FULLT_BETALT
             }
 
             db.session { getLatestRecord() }.should {

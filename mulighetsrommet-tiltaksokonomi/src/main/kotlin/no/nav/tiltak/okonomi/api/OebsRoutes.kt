@@ -9,10 +9,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.api.serializers.OebsLocalDateTimeSerializer
 import no.nav.tiltak.okonomi.plugins.AuthProvider
 import no.nav.tiltak.okonomi.service.OkonomiService
@@ -57,16 +57,21 @@ fun Routing.oebsRoutes(
         okonomiService.logKvittering(request)
 
         val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsFakturaKvittering>>(request)
+
+        var error: ProblemDetail? = null
+
         kvitteringer.forEach { kvittering ->
             val faktura = okonomiService.hentFaktura(kvittering.fakturaNummer)
-                ?: throw StatusException(
-                    HttpStatusCode.NotFound,
-                    "Fant ikke faktura med fakturaNummer: ${kvittering.fakturaNummer}",
-                )
-
-            okonomiService.mottaFakturaKvittering(faktura, kvittering)
+            if (faktura == null) {
+                error = NotFound("Fant ikke faktura med fakturanummer: ${kvittering.fakturaNummer}")
+            } else {
+                okonomiService.mottaFakturaKvittering(faktura, kvittering)
+            }
         }
-        call.respond(HttpStatusCode.OK)
+
+        error?.let {
+            call.respondWithProblemDetail(it)
+        } ?: call.respond(HttpStatusCode.OK)
     }
 }
 
@@ -89,9 +94,23 @@ data class OebsFakturaKvittering(
     val fakturaNummer: String,
     @Serializable(with = OebsLocalDateTimeSerializer::class)
     val opprettelsesTidspunkt: LocalDateTime,
-    val statusOebs: String? = null,
+    val statusOpprettet: String? = null,
+    val statusBetalt: StatusBetalt? = null,
     val feilMelding: String? = null,
     val feilKode: String? = null,
 ) {
-    fun isSuccess(): Boolean = statusOebs != "Avvist" && feilKode == null && feilMelding == null
+    fun isSuccess(): Boolean = statusOpprettet != "Avvist" && feilKode == null && feilMelding == null
+
+    enum class StatusBetalt {
+        IkkeBetalt,
+        DelvisBetalt,
+        FulltBetalt,
+        ;
+
+        fun toFakturaStatusType(): FakturaStatusType = when (this) {
+            IkkeBetalt -> FakturaStatusType.IKKE_BETALT
+            DelvisBetalt -> FakturaStatusType.DELVIS_BETALT
+            FulltBetalt -> FakturaStatusType.FULLT_BETALT
+        }
+    }
 }

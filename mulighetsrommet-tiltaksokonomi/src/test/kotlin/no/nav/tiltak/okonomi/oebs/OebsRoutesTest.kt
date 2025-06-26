@@ -151,13 +151,14 @@ class OebsRoutesTest : FunSpec({
                             OebsFakturaKvittering(
                                 fakturaNummer = faktura.fakturanummer,
                                 opprettelsesTidspunkt = LocalDateTime.now(),
+                                statusBetalt = OebsFakturaKvittering.StatusBetalt.FulltBetalt,
                             ),
                         ),
                     )
                 }
                 response.status shouldBe HttpStatusCode.OK
                 db.session { queries.faktura.getByFakturanummer(faktura.fakturanummer) }
-                    ?.status shouldBe FakturaStatusType.UTBETALT
+                    ?.status shouldBe FakturaStatusType.FULLT_BETALT
             }
         }
     }
@@ -211,7 +212,7 @@ class OebsRoutesTest : FunSpec({
                         OebsFakturaKvittering(
                             fakturaNummer = faktura.fakturanummer,
                             opprettelsesTidspunkt = LocalDateTime.now(),
-                            statusOebs = "Avvist",
+                            statusOpprettet = "Avvist",
                         ),
                     ),
                 )
@@ -227,13 +228,14 @@ class OebsRoutesTest : FunSpec({
                         OebsFakturaKvittering(
                             fakturaNummer = faktura.fakturanummer,
                             opprettelsesTidspunkt = LocalDateTime.now(),
-                            statusOebs = "Godkjent",
+                            statusOpprettet = "Suksess",
+                            statusBetalt = OebsFakturaKvittering.StatusBetalt.DelvisBetalt,
                         ),
                     ),
                 )
             }.status shouldBe HttpStatusCode.OK
             db.session { queries.faktura.getByFakturanummer(faktura.fakturanummer) }
-                ?.status shouldBe FakturaStatusType.UTBETALT
+                ?.status shouldBe FakturaStatusType.DELVIS_BETALT
         }
     }
 
