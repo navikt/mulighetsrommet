@@ -161,12 +161,6 @@ class GjennomforingService(
             }
     }
 
-    fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): Unit = db.transaction {
-        queries.gjennomforing.setAvtaleId(id, avtaleId)
-        val dto = getOrError(id)
-        logEndring("Endret avtale", dto, navIdent)
-    }
-
     fun avsluttGjennomforing(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
