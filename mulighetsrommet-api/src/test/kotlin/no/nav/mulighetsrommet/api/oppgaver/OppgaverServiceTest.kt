@@ -5,6 +5,7 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSingleElement
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -352,6 +353,52 @@ class OppgaverServiceTest : FunSpec({
                     NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                 ),
             ).shouldBeEmpty()
+        }
+
+        test("Skal ikke hente oppgaver som ansatt selv har besluttet tilsagnet") {
+            val service = OppgaverService(database.db)
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+            ) {
+                setTilsagnStatus(
+                    TilsagnFixtures.Tilsagn1,
+                    TilsagnStatus.GODKJENT,
+                    besluttetAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+                setDelutbetalingStatus(
+                    UtbetalingFixtures.delutbetaling1,
+                    DelutbetalingStatus.TIL_ATTESTERING,
+                    behandletAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ),
+            ).shouldBeEmpty()
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.FetterAnton.navIdent,
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ),
+            ).shouldHaveSize(1)
         }
 
         test("Skal bare se oppgaver for kostandssteder som overlapper med ansattes roller") {
