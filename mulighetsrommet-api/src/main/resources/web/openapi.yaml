@@ -5995,6 +5995,8 @@ components:
           type: string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
+        type:
+          type: [string, "null"]
       required: [id, status, periode, beregning, createdAt, tilskuddstype]
 
     UtbetalingKompaktDto:

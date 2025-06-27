@@ -18,6 +18,7 @@ import {
   Heading,
   HGrid,
   HStack,
+  Tag,
   VStack,
 } from "@navikt/ds-react";
 import { useParams } from "react-router";
@@ -81,6 +82,7 @@ export function UtbetalingPage() {
     },
     { tittel: "Utbetaling" },
   ];
+
   return (
     <>
       <title>Utbetalinger</title>
@@ -116,6 +118,11 @@ export function UtbetalingPage() {
                       header="Utbetalingsperiode"
                       verdi={formaterPeriode(utbetaling.periode)}
                     />
+                    { utbetaling.type && <MetadataHorisontal
+                      header="Type"
+                      verdi={utbetalingsType(utbetaling.type)}
+                    />
+                    }
                     <MetadataHorisontal
                       header="Dato innsendt"
                       verdi={formaterDato(
@@ -243,4 +250,13 @@ export function UtbetalingPage() {
       )}
     </>
   );
+}
+
+function utbetalingsType(type: string) {
+  if (type === "KORRIGERING") {
+    return (<HStack gap="2"><span>Korrigering</span><Tag variant="neutral" size="small">KOR</Tag></HStack>)
+  }
+  if (type === "INVESTERING") {
+    return (<HStack gap="2"><span>Investering</span><Tag variant="neutral" size="small">INV</Tag></HStack>)
+  }
 }

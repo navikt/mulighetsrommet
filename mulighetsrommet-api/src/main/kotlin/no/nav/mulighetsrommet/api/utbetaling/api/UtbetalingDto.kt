@@ -28,6 +28,7 @@ data class UtbetalingDto(
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
+    val type: UtbetalingsType?,
 ) {
     @Serializable
     sealed class Beregning {
@@ -47,28 +48,50 @@ data class UtbetalingDto(
         ) : Beregning()
     }
 
+    @Serializable
+    enum class UtbetalingsType {
+        KORRIGERING,
+        INVESTERING,
+    }
+
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus) = UtbetalingDto(
-            id = utbetaling.id,
-            status = status,
-            periode = utbetaling.periode,
-            godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-            betalingsinformasjon = utbetaling.betalingsinformasjon,
-            createdAt = utbetaling.createdAt,
-            beskrivelse = utbetaling.beskrivelse,
-            beregning = when (utbetaling.beregning) {
-                is UtbetalingBeregningForhandsgodkjent -> Beregning.Forhandsgodkjent(
-                    belop = utbetaling.beregning.output.belop,
-                    sats = utbetaling.beregning.input.sats,
-                )
-                is UtbetalingBeregningFri -> Beregning.Fri(
-                    belop = utbetaling.beregning.output.belop,
-                )
-            },
-            innsendtAv = formaterInnsendtAv(utbetaling.innsender),
-            journalpostId = utbetaling.journalpostId,
-            tilskuddstype = utbetaling.tilskuddstype,
-        )
+        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus): UtbetalingDto {
+            val utbetalingsType = when (utbetaling.innsender) {
+                is NavIdent -> {
+                    UtbetalingsType.KORRIGERING
+                }
+
+                is Arrangor -> {
+                    UtbetalingsType.INVESTERING
+                }
+
+                else -> {
+                    null
+                }
+            }
+            return UtbetalingDto(
+                id = utbetaling.id,
+                status = status,
+                periode = utbetaling.periode,
+                godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+                betalingsinformasjon = utbetaling.betalingsinformasjon,
+                createdAt = utbetaling.createdAt,
+                beskrivelse = utbetaling.beskrivelse,
+                beregning = when (utbetaling.beregning) {
+                    is UtbetalingBeregningForhandsgodkjent -> Beregning.Forhandsgodkjent(
+                        belop = utbetaling.beregning.output.belop,
+                        sats = utbetaling.beregning.input.sats,
+                    )
+                    is UtbetalingBeregningFri -> Beregning.Fri(
+                        belop = utbetaling.beregning.output.belop,
+                    )
+                },
+                innsendtAv = formaterInnsendtAv(utbetaling.innsender),
+                journalpostId = utbetaling.journalpostId,
+                tilskuddstype = utbetaling.tilskuddstype,
+                type = utbetalingsType,
+            )
+        }
 
         private fun formaterInnsendtAv(agent: Agent?): String? {
             return when (agent) {
