@@ -708,24 +708,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/gjennomforinger/{id}/avtale:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    put:
-      tags:
-        - Gjennomforinger
-      operationId: setAvtaleForGjennomforing
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SetAvtaleForGjennomforingRequest"
-      responses:
-        200:
-          description: "Gjennomføring ble oppdatert med avtale"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"

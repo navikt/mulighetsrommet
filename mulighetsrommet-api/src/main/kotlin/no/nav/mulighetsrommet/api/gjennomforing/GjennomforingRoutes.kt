@@ -12,7 +12,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -25,7 +24,6 @@ import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskoder.isForhandsgodkjentTiltak
 import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -38,7 +36,6 @@ import java.util.*
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
     val gjennomforinger: GjennomforingService by inject()
-    val avtaler: AvtaleService by inject()
 
     route("gjennomforinger") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
@@ -49,41 +46,6 @@ fun Route.gjennomforingRoutes() {
                 val result = gjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                 call.respondWithStatusResponse(result)
-            }
-
-            put("{id}/avtale") {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val navIdent = getNavIdent()
-                val request = call.receive<SetAvtaleForGjennomforingRequest>()
-
-                val gjennomforing = gjennomforinger.get(id) ?: return@put call.respond(
-                    HttpStatusCode.NotFound,
-                    message = "Gjennomføringen finnes ikke",
-                )
-
-                if (!isForhandsgodkjentTiltak(gjennomforing.tiltakstype.tiltakskode)) {
-                    return@put call.respond(
-                        HttpStatusCode.BadRequest,
-                        message = "Avtale kan bare settes for gjennomføringer av type AFT eller VTA",
-                    )
-                }
-
-                val avtaleId = request.avtaleId?.also {
-                    val avtale = avtaler.get(it) ?: return@put call.respond(
-                        HttpStatusCode.BadRequest,
-                        message = "Avtale med id=$it finnes ikke",
-                    )
-                    if (gjennomforing.tiltakstype.id != avtale.tiltakstype.id) {
-                        return@put call.respond(
-                            HttpStatusCode.BadRequest,
-                            message = "Gjennomføringen må ha samme tiltakstype som avtalen",
-                        )
-                    }
-                }
-
-                gjennomforinger.setAvtale(gjennomforing.id, avtaleId, navIdent)
-
-                call.respond(HttpStatusCode.OK)
             }
 
             put("{id}/avbryt") {
@@ -381,12 +343,6 @@ data class GjennomforingRequest(
 data class AvbrytRequest(
     @Serializable(with = AvbruttAarsakSerializer::class)
     val aarsak: AvbruttAarsak,
-)
-
-@Serializable
-data class SetAvtaleForGjennomforingRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID? = null,
 )
 
 @Serializable
