@@ -171,37 +171,31 @@ class TilsagnService(
 
             TilsagnStatus.TIL_GODKJENNING -> {
                 when (besluttelse) {
-                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> godkjennTilsagn(tilsagn, navIdent)
-                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> returnerTilsagn(tilsagn, besluttelse, navIdent)
+                    BesluttTilsagnRequest.Godkjent -> godkjennTilsagn(tilsagn, navIdent).onRight {
+                        publishOpprettBestilling(it)
+                    }
+
+                    is BesluttTilsagnRequest.Avvist -> returnerTilsagn(tilsagn, besluttelse, navIdent)
                 }
             }
 
             TilsagnStatus.TIL_ANNULLERING -> {
                 when (besluttelse) {
-                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> annullerTilsagn(tilsagn, navIdent)
-                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisAnnullering(
-                        tilsagn,
-                        besluttelse,
-                        navIdent,
-                    )
+                    BesluttTilsagnRequest.Godkjent -> annullerTilsagn(tilsagn, navIdent).onRight {
+                        publishAnnullerBestilling(it)
+                    }
+
+                    is BesluttTilsagnRequest.Avvist -> avvisAnnullering(tilsagn, besluttelse, navIdent)
                 }
             }
 
             TilsagnStatus.TIL_OPPGJOR -> {
                 when (besluttelse) {
-                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> {
-                        val oppgjor =
-                            queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-                        if (oppgjor.behandletAv == navIdent) {
-                            return FieldError.of("Du kan ikke beslutte oppgjør du selv har opprettet").nel().left()
-                        }
-
-                        val oppgjortTilsagn = gjorOppTilsagn(tilsagn, navIdent)
-                        publishGjorOppBestilling(oppgjortTilsagn)
-                        oppgjortTilsagn.right()
+                    BesluttTilsagnRequest.Godkjent -> gjorOppTilsagn(tilsagn, navIdent).onRight {
+                        publishGjorOppBestilling(it)
                     }
 
-                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> avvisOppgjor(tilsagn, besluttelse, navIdent)
+                    is BesluttTilsagnRequest.Avvist -> avvisOppgjor(tilsagn, besluttelse, navIdent)
                 }
             }
         }
@@ -216,10 +210,15 @@ class TilsagnService(
     fun gjorOppAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
         var tilsagn = queryContext.queries.tilsagn.getOrError(id)
         tilsagn = queryContext.setTilOppgjort(tilsagn, Tiltaksadministrasjon, emptyList(), null)
-        return queryContext.gjorOppTilsagn(tilsagn, Tiltaksadministrasjon)
+        return queryContext.gjorOppTilsagn(tilsagn, Tiltaksadministrasjon).getOrElse {
+            throw IllegalStateException(it.first().detail)
+        }
     }
 
-    private fun godkjennTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
+    private fun QueryContext.godkjennTilsagn(
+        tilsagn: Tilsagn,
+        besluttetAv: NavIdent,
+    ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_GODKJENNING} for å godkjennes")
                 .nel()
@@ -241,41 +240,70 @@ class TilsagnService(
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn godkjent", dto, besluttetAv)
-        publishOpprettBestilling(dto)
-
-        dto.right()
+        return dto.right()
     }
 
-    private fun returnerTilsagn(
+    private fun QueryContext.returnerTilsagn(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
+        besluttelse: BesluttTilsagnRequest.Avvist,
         besluttetAv: NavIdent,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction {
+    ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_GODKJENNING} for å returneres")
                 .nel()
                 .left()
         }
 
-        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         if (besluttelse.aarsaker.isEmpty()) {
             return FieldError.of("Årsaker er påkrevd").nel().left()
         }
 
-        queries.totrinnskontroll.upsert(
-            opprettelse.copy(
-                besluttetAv = besluttetAv,
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.AVVIST,
-                aarsaker = besluttelse.aarsaker.map { it.name },
-                forklaring = besluttelse.forklaring,
-            ),
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        val avvistOpprettelse = opprettelse.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = besluttelse.aarsaker.map { it.name },
+            forklaring = besluttelse.forklaring,
         )
+        queries.totrinnskontroll.upsert(avvistOpprettelse)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn returnert", dto, besluttetAv)
-        dto.right()
+        return dto.right()
+    }
+
+    private fun QueryContext.setTilAnnullering(
+        tilsagn: Tilsagn,
+        behandletAv: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Tilsagn {
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Kan bare annullere godkjente tilsagn"
+        }
+
+        val totrinnskontroll = Totrinnskontroll(
+            id = UUID.randomUUID(),
+            entityId = tilsagn.id,
+            behandletAv = behandletAv,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+            type = Totrinnskontroll.Type.ANNULLER,
+            behandletTidspunkt = LocalDateTime.now(),
+            besluttelse = null,
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            besluttetAvNavn = null,
+            behandletAvNavn = null,
+        )
+        queries.totrinnskontroll.upsert(totrinnskontroll)
+        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
+
+        val dto = queries.tilsagn.getOrError(tilsagn.id)
+        logEndring("Sendt til annullering", dto, behandletAv)
+        return dto
     }
 
     private fun QueryContext.annullerTilsagn(
@@ -303,14 +331,12 @@ class TilsagnService(
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, besluttetAv)
-        publishAnnullerBestilling(dto)
-
         return dto.right()
     }
 
     private fun QueryContext.avvisAnnullering(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
+        besluttelse: BesluttTilsagnRequest.Avvist,
         besluttetAv: NavIdent,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
@@ -320,16 +346,14 @@ class TilsagnService(
         }
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-
-        queries.totrinnskontroll.upsert(
-            annullering.copy(
-                besluttetAv = besluttetAv,
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.AVVIST,
-                aarsaker = besluttelse.aarsaker.map { it.name },
-                forklaring = besluttelse.forklaring,
-            ),
+        val avvistAnnullering = annullering.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = besluttelse.aarsaker.map { it.name },
+            forklaring = besluttelse.forklaring,
         )
+        queries.totrinnskontroll.upsert(avvistAnnullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
         if (annullering.behandletAv is NavIdent) {
@@ -351,22 +375,21 @@ class TilsagnService(
             "Kan bare gjøre opp godkjente tilsagn"
         }
 
-        queries.totrinnskontroll.upsert(
-            Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = tilsagn.id,
-                behandletAv = agent,
-                aarsaker = aarsaker,
-                forklaring = forklaring,
-                type = Totrinnskontroll.Type.GJOR_OPP,
-                behandletTidspunkt = LocalDateTime.now(),
-                besluttelse = null,
-                besluttetAv = null,
-                besluttetTidspunkt = null,
-                besluttetAvNavn = null,
-                behandletAvNavn = null,
-            ),
+        val totrinnskontroll = Totrinnskontroll(
+            id = UUID.randomUUID(),
+            entityId = tilsagn.id,
+            behandletAv = agent,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+            type = Totrinnskontroll.Type.GJOR_OPP,
+            behandletTidspunkt = LocalDateTime.now(),
+            besluttelse = null,
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            besluttetAvNavn = null,
+            behandletAvNavn = null,
         )
+        queries.totrinnskontroll.upsert(totrinnskontroll)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
@@ -377,45 +400,51 @@ class TilsagnService(
     private fun QueryContext.gjorOppTilsagn(
         tilsagn: Tilsagn,
         besluttetAv: Agent,
-    ): Tilsagn {
-        require(tilsagn.status == TilsagnStatus.TIL_OPPGJOR)
+    ): Either<List<FieldError>, Tilsagn> {
+        if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal godkjennes")
+                .nel()
+                .left()
+        }
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+        if (besluttetAv is NavIdent && oppgjor.behandletAv == besluttetAv) {
+            return FieldError.of("Du kan ikke beslutte oppgjør du selv har opprettet").nel().left()
+        }
 
-        queries.totrinnskontroll.upsert(
-            oppgjor.copy(
-                besluttetAv = besluttetAv,
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.GODKJENT,
-            ),
+        val godkjentOppgjor = oppgjor.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
         )
+        queries.totrinnskontroll.upsert(godkjentOppgjor)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Tilsagn oppgjort", dto, besluttetAv)
-        return dto
+        return dto.right()
     }
 
     private fun avvisOppgjor(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
+        besluttelse: BesluttTilsagnRequest.Avvist,
         besluttetAv: NavIdent,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
-            return FieldError.of("Tilsagnet har ikke status TIL_OPPGJOR").nel().left()
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal avvises")
+                .nel()
+                .left()
         }
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
-
-        queries.totrinnskontroll.upsert(
-            oppgjor.copy(
-                besluttetAv = besluttetAv,
-                besluttetTidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.AVVIST,
-                aarsaker = besluttelse.aarsaker.map { it.name },
-                forklaring = besluttelse.forklaring,
-            ),
+        val avvistOppgjor = oppgjor.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = besluttelse.aarsaker.map { it.name },
+            forklaring = besluttelse.forklaring,
         )
+        queries.totrinnskontroll.upsert(avvistOppgjor)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
         if (oppgjor.behandletAv is NavIdent) {
@@ -425,39 +454,6 @@ class TilsagnService(
         val dto = queries.tilsagn.getOrError(tilsagn.id)
         logEndring("Oppgjør avvist", dto, besluttetAv)
         return dto.right()
-    }
-
-    private fun QueryContext.setTilAnnullering(
-        tilsagn: Tilsagn,
-        behandletAv: Agent,
-        aarsaker: List<String>,
-        forklaring: String?,
-    ): Tilsagn {
-        require(tilsagn.status == TilsagnStatus.GODKJENT) {
-            "Kan bare annullere godkjente tilsagn"
-        }
-
-        queries.totrinnskontroll.upsert(
-            Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = tilsagn.id,
-                behandletAv = behandletAv,
-                aarsaker = aarsaker,
-                forklaring = forklaring,
-                type = Totrinnskontroll.Type.ANNULLER,
-                behandletTidspunkt = LocalDateTime.now(),
-                besluttelse = null,
-                besluttetAv = null,
-                besluttetTidspunkt = null,
-                besluttetAvNavn = null,
-                behandletAvNavn = null,
-            ),
-        )
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
-
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Sendt til annullering", dto, behandletAv)
-        return dto
     }
 
     private fun QueryContext.sendNotifikasjonOmAvvistAnnullering(

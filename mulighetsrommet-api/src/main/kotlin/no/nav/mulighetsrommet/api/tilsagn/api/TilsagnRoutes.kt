@@ -279,13 +279,13 @@ sealed class BesluttTilsagnRequest(
 ) {
     @Serializable
     @SerialName("GODKJENT")
-    data object GodkjentTilsagnRequest : BesluttTilsagnRequest(
+    data object Godkjent : BesluttTilsagnRequest(
         besluttelse = Besluttelse.GODKJENT,
     )
 
     @Serializable
     @SerialName("AVVIST")
-    data class AvvistTilsagnRequest(
+    data class Avvist(
         val aarsaker: List<TilsagnStatusAarsak>,
         val forklaring: String?,
     ) : BesluttTilsagnRequest(
