@@ -183,6 +183,10 @@ class DelutbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 
+    fun getOrError(id: UUID): Delutbetaling {
+        return checkNotNull(get(id)) { "Delutbetaling med id $id finnes ikke" }
+    }
+
     fun get(id: UUID): Delutbetaling? {
         @Language("PostgreSQL")
         val query = """

@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
@@ -16,8 +15,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.StatusResponse
-import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -34,7 +31,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -59,7 +55,7 @@ class UtbetalingService(
         val bestillingTopic: String,
     )
 
-    private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun genererUtbetalingForMonth(month: Int): List<Utbetaling> = db.transaction {
         val currentYear = LocalDate.now().year
@@ -249,57 +245,49 @@ class UtbetalingService(
     fun opprettDelutbetalinger(
         request: OpprettDelutbetalingerRequest,
         navIdent: NavIdent,
-    ): StatusResponse<Unit> = db.transaction {
-        val utbetaling = queries.utbetaling.get(request.utbetalingId)
-            ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val utbetaling = getOrError(request.utbetalingId)
 
-        val delutbetalinger = UtbetalingValidator.validateOpprettDelutbetalinger(
-            utbetaling,
-            request.delutbetalinger.map { req ->
-                val previous = queries.delutbetaling.get(req.id)
-                val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
-                UtbetalingValidator.OpprettDelutbetaling(
-                    id = req.id,
-                    gjorOppTilsagn = req.gjorOppTilsagn,
-                    previous = previous,
-                    tilsagn = tilsagn,
-                    belop = req.belop,
-                )
-            },
-        )
-            .getOrElse {
-                return@opprettDelutbetalinger ValidationError(errors = it).left()
-            }
-
-        // Slett de som ikke er med i requesten
-        queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-            .filter { it.id !in request.delutbetalinger.map { it.id } }
-            .forEach {
-                require(it.status == DelutbetalingStatus.RETURNERT) {
-                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
-                }
-                queries.delutbetaling.delete(it.id)
-            }
-
-        delutbetalinger.forEach {
-            upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
+        val opprettDelutbetalinger = request.delutbetalinger.map { req ->
+            val previous = queries.delutbetaling.get(req.id)
+            val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
+            UtbetalingValidator.OpprettDelutbetaling(
+                id = req.id,
+                gjorOppTilsagn = req.gjorOppTilsagn,
+                previous = previous,
+                tilsagn = tilsagn,
+                belop = req.belop,
+            )
         }
+        UtbetalingValidator
+            .validateOpprettDelutbetalinger(utbetaling, opprettDelutbetalinger)
+            .map { delutbetalinger ->
+                // Slett de som ikke er med i requesten
+                queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+                    .filter { it.id !in request.delutbetalinger.map { it.id } }
+                    .forEach {
+                        require(it.status == DelutbetalingStatus.RETURNERT) {
+                            "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
+                        }
+                        queries.delutbetaling.delete(it.id)
+                    }
 
-        logEndring(
-            "Utbetaling sendt til attestering",
-            getOrError(utbetaling.id),
-            navIdent,
-        )
+                delutbetalinger.forEach {
+                    upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
+                }
 
-        return Unit.right()
+                val dto = getOrError(utbetaling.id)
+                logEndring("Utbetaling sendt til attestering", dto, navIdent)
+                dto
+            }
     }
 
     fun besluttDelutbetaling(
         id: UUID,
         request: BesluttDelutbetalingRequest,
         navIdent: NavIdent,
-    ): StatusResponse<Unit> = db.transaction {
-        val delutbetaling = requireNotNull(queries.delutbetaling.get(id))
+    ): Either<List<FieldError>, Delutbetaling> = db.transaction {
+        val delutbetaling = queries.delutbetaling.getOrError(id)
         require(delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
             "Utbetaling er allerede besluttet"
         }
@@ -307,7 +295,7 @@ class UtbetalingService(
         val kostnadssted = queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
         if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})"))).left()
+            return listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})")).left()
         }
 
         when (request) {
@@ -318,20 +306,20 @@ class UtbetalingService(
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
                 val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
                 if (navIdent == opprettelse.behandletAv) {
-                    return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
+                    return listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet")).left()
                 }
 
                 val tilsagnOpprettelse =
                     queries.totrinnskontroll.getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
                 if (navIdent == tilsagnOpprettelse.besluttetAv) {
-                    return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
+                    return listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet")).left()
                 }
 
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
 
-        Unit.right()
+        queries.delutbetaling.getOrError(id).right()
     }
 
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {

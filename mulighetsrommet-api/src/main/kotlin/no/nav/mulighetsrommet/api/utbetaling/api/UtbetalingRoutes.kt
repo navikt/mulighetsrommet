@@ -163,6 +163,9 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = utbetalingService.opprettDelutbetalinger(request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
                 call.respondWithStatusResponse(result)
             }
         }
@@ -173,7 +176,11 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<BesluttDelutbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                call.respondWithStatusResponse(utbetalingService.besluttDelutbetaling(id, request, navIdent))
+                val result = utbetalingService.besluttDelutbetaling(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
         }
     }
@@ -181,7 +188,7 @@ fun Route.utbetalingRoutes() {
     route("/gjennomforinger/{id}/utbetalinger") {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
-            call.respond(service.getByGjennomforing(id))
+            call.respond(utbetalingService.getByGjennomforing(id))
         }
     }
 }

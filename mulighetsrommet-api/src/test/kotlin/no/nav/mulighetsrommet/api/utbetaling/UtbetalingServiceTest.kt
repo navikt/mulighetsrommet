@@ -5,7 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -559,14 +558,12 @@ class UtbetalingServiceTest : FunSpec({
                 id = delutbetaling1.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError.root(
-                    "Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (Nav Innlandet)",
-                )
-            }
+            ) shouldBeLeft listOf(
+                FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (Nav Innlandet)"),
+            )
         }
 
-        test("skal ikke kunne opprette delutbetaling hvis den er godkjent") {
+        test("skal ikke kunne opprette delutbetaling hvis utbetalingen allerede er godkjent") {
             val domain = MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -598,23 +595,20 @@ class UtbetalingServiceTest : FunSpec({
             service.opprettDelutbetalinger(
                 request = opprettRequest,
                 navIdent = domain.ansatte[0].navIdent,
-            )
+            ).shouldBeRight()
 
             service.besluttDelutbetaling(
                 id = delutbetaling.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeRight()
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
 
             service.opprettDelutbetalinger(
                 request = opprettRequest,
                 navIdent = domain.ansatte[0].navIdent,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError(
-                    "/0",
-                    "Utbetaling kan ikke endres fordi den har status: OVERFORT_TIL_UTBETALING",
-                )
-            }
+            ) shouldBeLeft listOf(
+                FieldError("/0", "Utbetaling kan ikke endres fordi den har status: OVERFORT_TIL_UTBETALING"),
+            )
         }
 
         test("returnering av delutbetaling setter den i RETURNERT status") {
@@ -654,9 +648,7 @@ class UtbetalingServiceTest : FunSpec({
                     forklaring = null,
                 ),
                 navIdent = domain.ansatte[0].navIdent,
-            ).shouldBeRight()
-            database.run { queries.delutbetaling.get(delutbetaling.id) }
-                .shouldNotBeNull().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
         }
 
         test("sletting av delutbetaling skjer ikke ved valideringsfeil") {
@@ -696,13 +688,12 @@ class UtbetalingServiceTest : FunSpec({
                     forklaring = null,
                 ),
                 navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeRight()
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+
             service.opprettDelutbetalinger(
                 request = OpprettDelutbetalingerRequest(utbetaling1.id, emptyList()),
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeLeft()
-            database.run { queries.delutbetaling.get(delutbetaling.id) }
-                .shouldNotBeNull().status shouldBe DelutbetalingStatus.RETURNERT
         }
 
         test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {
@@ -835,9 +826,9 @@ class UtbetalingServiceTest : FunSpec({
                     listOf(DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 100)),
                 ),
                 domain.ansatte[0].navIdent,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError("/", "Kan ikke utbetale mer enn innsendt beløp")
-            }
+            ) shouldBeLeft listOf(
+                FieldError.of("Kan ikke utbetale mer enn innsendt beløp"),
+            )
 
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(
@@ -848,9 +839,9 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 domain.ansatte[0].navIdent,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError("/", "Kan ikke utbetale mer enn innsendt beløp")
-            }
+            ) shouldBeLeft listOf(
+                FieldError.of("Kan ikke utbetale mer enn innsendt beløp"),
+            )
         }
 
         test("ny send til godkjenning sletter rader som ikke er med") {
@@ -896,6 +887,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
+
             service.besluttDelutbetaling(
                 delutbetalingId2,
                 BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
@@ -903,7 +895,8 @@ class UtbetalingServiceTest : FunSpec({
                     forklaring = null,
                 ),
                 domain.ansatte[1].navIdent,
-            ).shouldBeRight()
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
@@ -960,6 +953,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
+
             service.besluttDelutbetaling(
                 delutbetalingId2,
                 BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
@@ -967,7 +961,8 @@ class UtbetalingServiceTest : FunSpec({
                     forklaring = null,
                 ),
                 domain.ansatte[1].navIdent,
-            ).shouldBeRight()
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
@@ -1026,12 +1021,13 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[1].navIdent,
             ).shouldBeRight()
+
             service.besluttDelutbetaling(
                 delutbetalingId1,
                 BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 domain.ansatte[0].navIdent,
-            ).shouldBeRight()
-            database.run { queries.delutbetaling.get(delutbetalingId1) }?.status shouldBe DelutbetalingStatus.GODKJENT
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.GODKJENT
+
             service.besluttDelutbetaling(
                 delutbetalingId2,
                 BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
@@ -1039,8 +1035,8 @@ class UtbetalingServiceTest : FunSpec({
                     forklaring = null,
                 ),
                 domain.ansatte[0].navIdent,
-            ).shouldBeRight()
-            database.run { queries.delutbetaling.get(delutbetalingId1) }?.status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+
             database.run {
                 queries.totrinnskontroll.getOrError(
                     delutbetalingId1,
@@ -1100,7 +1096,7 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 domain.ansatte[0].navIdent,
-            )
+            ).shouldBeRight()
 
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(
@@ -1115,7 +1111,7 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 domain.ansatte[0].navIdent,
-            )
+            ).shouldBeRight()
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
@@ -1162,11 +1158,13 @@ class UtbetalingServiceTest : FunSpec({
                 id = delutbetaling1.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight()
-            val opprettelse =
-                database.run { queries.totrinnskontroll.getOrError(delutbetaling1.id, Totrinnskontroll.Type.OPPRETT) }
-            opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
-            opprettelse.besluttelse shouldBe Besluttelse.AVVIST
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+
+            database.run {
+                val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling1.id, Totrinnskontroll.Type.OPPRETT)
+                opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
+                opprettelse.besluttelse shouldBe Besluttelse.AVVIST
+            }
         }
     }
 
@@ -1255,8 +1253,9 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
-            delutbetalinger shouldHaveSize 0
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
+            }
         }
 
         test("ingen automatisk utbetaling hvis ingen tilsagn") {
@@ -1270,8 +1269,9 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
-            delutbetalinger shouldHaveSize 0
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
+            }
         }
 
         test("ingen automatisk utbetaling hvis flere tilsagn") {
@@ -1289,8 +1289,9 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
-            delutbetalinger shouldHaveSize 0
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
+            }
         }
 
         test("ingen automatisk utbetaling hvis tilsagn ikke har nok penger") {
@@ -1324,8 +1325,9 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
-            delutbetalinger shouldHaveSize 0
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
+            }
         }
 
         test("ingen automatisk utbetaling når prismodell er fri") {
@@ -1349,8 +1351,9 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, kid = null)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
-            delutbetalinger shouldHaveSize 0
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
+            }
         }
 
         test("Tilsagn skal oppgjøres automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
@@ -1418,10 +1421,6 @@ class UtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
-                    NavAnsattFixture.MikkeMus,
-                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
-                )
-                setRoller(
                     NavAnsattFixture.DonaldDuck,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
@@ -1446,9 +1445,9 @@ class UtbetalingServiceTest : FunSpec({
                 id = delutbetaling.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet")
-            }
+            ) shouldBeLeft listOf(
+                FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet"),
+            )
         }
 
         test("kan ikke beslutte utbetaling når man har besluttet tilsagnet") {
@@ -1460,10 +1459,6 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT, besluttetAv = NavAnsattFixture.DonaldDuck.navIdent)
-                setRoller(
-                    NavAnsattFixture.MikkeMus,
-                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
-                )
                 setRoller(
                     NavAnsattFixture.DonaldDuck,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
@@ -1489,9 +1484,9 @@ class UtbetalingServiceTest : FunSpec({
                 id = delutbetaling.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet")
-            }
+            ) shouldBeLeft listOf(
+                FieldError.of("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"),
+            )
         }
     }
 })
