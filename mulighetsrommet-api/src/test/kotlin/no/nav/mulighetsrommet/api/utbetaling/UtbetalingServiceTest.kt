@@ -971,7 +971,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError("/", "Kan ikke utbetale mer enn totalbeløpet")
+                it.errors shouldContain FieldError("/", "Kan ikke utbetale mer enn innsendt beløp")
             }
 
             service.opprettDelutbetalinger(
@@ -984,7 +984,7 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldContain FieldError("/", "Kan ikke utbetale mer enn totalbeløpet")
+                it.errors shouldContain FieldError("/", "Kan ikke utbetale mer enn innsendt beløp")
             }
         }
 
