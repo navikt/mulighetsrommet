@@ -42,6 +42,7 @@ import { Definisjonsliste } from "../components/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
+import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -198,6 +199,7 @@ export default function BekreftUtbetaling() {
             ...getBeregningDetaljer(utbetaling.beregning),
           ]}
         />
+        <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         <Separator />
         <Heading size="medium" level="3">
           Betalingsinformasjon
@@ -247,6 +249,7 @@ export default function BekreftUtbetaling() {
               </ErrorSummary>
             )}
             {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
+
             <HStack gap="4">
               <Button
                 as={ReactRouterLink}

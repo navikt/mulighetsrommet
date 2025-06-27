@@ -1,6 +1,22 @@
 import { Alert, Heading } from "@navikt/ds-react";
+import { ArrangorflateTilsagn } from "api-client";
 
-export function ManglendeMidlerAlert() {
+interface ManglendeMidlerAlertProps {
+  belopTilUtbetaling: number;
+  tilsagn: ArrangorflateTilsagn[];
+}
+
+export function ManglendeMidlerAlert({ belopTilUtbetaling, tilsagn }: ManglendeMidlerAlertProps) {
+  if (tilsagn.length === 0) {
+    return null;
+  }
+  const gjenstaendeTotalt = tilsagn.reduce<number>((acc, { gjenstaendeBelop }) => {
+    return acc + gjenstaendeBelop;
+  }, 0);
+  if (gjenstaendeTotalt >= belopTilUtbetaling) {
+    return null;
+  }
+
   return (
     <Alert variant={"warning"}>
       <Heading spacing level="4" size="small">
