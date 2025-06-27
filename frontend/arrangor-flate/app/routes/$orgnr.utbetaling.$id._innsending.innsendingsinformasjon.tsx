@@ -47,6 +47,8 @@ export default function TilsagnDetaljerPage() {
   const { utbetaling, tilsagn } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();
 
+  const harTilsagn = tilsagn.length > 0;
+
   return (
     <>
       <Heading level="2" spacing size="large">
@@ -73,14 +75,12 @@ export default function TilsagnDetaljerPage() {
         <Heading level="3" size="medium">
           Tilgjengelige tilsagn
         </Heading>
-        {tilsagn.length < 1 && <UtbetalingManglendeTilsagnAlert />}
-        {tilsagn.length === 1 && tilsagn.at(0)!.gjenstaendeBelop < utbetaling.beregning.belop && (
-          <ManglendeMidlerAlert />
-        )}
+        {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
+        <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         {tilsagn.map((tilsagn) => (
           <TilsagnDetaljer tilsagn={tilsagn} />
         ))}
-        {tilsagn.length >= 1 && (
+        {harTilsagn && (
           <HStack gap="4" className="mt-4">
             <Button
               as={ReactRouterLink}
