@@ -40,6 +40,7 @@ export function AvtaleKnapperad({ ansatt, avtale }: Props) {
           avtaletype: avtale.avtaletype,
           beskrivelse: avtale.beskrivelse,
           faneinnhold: avtale.faneinnhold,
+          opsjonsmodell: avtale.opsjonsmodell,
         },
       },
     });
