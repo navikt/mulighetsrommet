@@ -8,4 +8,15 @@ enum class TilsagnStatus {
     ANNULLERT,
     TIL_OPPGJOR,
     OPPGJORT,
+    ;
+
+    fun navn(): String = when (this) {
+        TIL_GODKJENNING -> "til godkjenning"
+        GODKJENT -> "godkjent"
+        RETURNERT -> "returnert"
+        TIL_ANNULLERING -> "til annullering"
+        ANNULLERT -> "annullert"
+        TIL_OPPGJOR -> "til oppgjør"
+        OPPGJORT -> "oppgjort"
+    }
 }
