@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
 import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -36,7 +37,8 @@ import java.util.*
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
-    val service: UtbetalingService by inject()
+    val utbetalingService: UtbetalingService by inject()
+    val deltakerService: DeltakerService by inject()
 
     route("/utbetaling/{id}") {
         authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
@@ -87,7 +89,7 @@ fun Route.utbetalingRoutes() {
                                 .associateBy { it.id }
 
                             val deltakerPersoner =
-                                service.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
+                                deltakerService.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
 
                             utbetaling.beregning.output.deltakelser.map {
                                 val deltaker = deltakereById.getValue(it.deltakelseId)
@@ -147,7 +149,7 @@ fun Route.utbetalingRoutes() {
                     .onLeft {
                         return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                     }
-                    .onRight { service.opprettManuellUtbetaling(it, navIdent) }
+                    .onRight { utbetalingService.opprettManuellUtbetaling(it, navIdent) }
 
                 call.respond(request)
             }
@@ -160,7 +162,7 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<OpprettDelutbetalingerRequest>()
                 val navIdent = getNavIdent()
 
-                val result = service.opprettDelutbetalinger(request, navIdent)
+                val result = utbetalingService.opprettDelutbetalinger(request, navIdent)
                 call.respondWithStatusResponse(result)
             }
         }
@@ -171,7 +173,7 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<BesluttDelutbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                call.respondWithStatusResponse(service.besluttDelutbetaling(id, request, navIdent))
+                call.respondWithStatusResponse(utbetalingService.besluttDelutbetaling(id, request, navIdent))
             }
         }
     }
