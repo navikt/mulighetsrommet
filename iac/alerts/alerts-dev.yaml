@@ -36,7 +36,7 @@ spec:
               '{{ $labels.container }}' har restartet flere ganger. Sjekk loggene for å finne ut hva som er galt.
           labels:
             namespace: team-mulighetsrommet
-            severity: danger
+            severity: critical
 
     - name: Feilrate
       rules:
