@@ -5,14 +5,14 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.LocalDate
 
 class GenerateUtbetaling(
     private val config: Config,
-    private val utbetalingService: UtbetalingService,
+    private val utbetalinger: GenererUtbetalingService,
 ) {
     data class Config(
         val disabled: Boolean = false,
@@ -39,6 +39,6 @@ class GenerateUtbetaling(
             return listOf()
         }
 
-        return utbetalingService.genererUtbetalingForMonth(month)
+        return utbetalinger.genererUtbetalingForMonth(month)
     }
 }

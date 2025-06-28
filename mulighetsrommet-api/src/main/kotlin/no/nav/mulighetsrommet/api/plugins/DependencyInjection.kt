@@ -65,6 +65,7 @@ import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
+import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
@@ -389,12 +390,12 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
+    single { GenererUtbetalingService(get(), get()) }
     single {
         UtbetalingService(
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
-            get(),
             get(),
             get(),
             get(),
