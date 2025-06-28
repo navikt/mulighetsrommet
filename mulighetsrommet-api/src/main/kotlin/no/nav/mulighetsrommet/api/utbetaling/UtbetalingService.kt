@@ -198,7 +198,7 @@ class UtbetalingService(
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
-    ) = db.transaction {
+    ): AutomatiskUtbetalingResult = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
         val dto = getOrError(utbetalingId)
@@ -354,11 +354,9 @@ class UtbetalingService(
         }
     }
 
-    // TODO: returner årsak til hvorfor utbetaling ikke ble utført slik at dette kan assertes i tester
-    private fun QueryContext.automatiskUtbetaling(utbetalingId: UUID): Boolean {
-        val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
-            "Fant ikke utbetaling med id=$utbetalingId"
-        }
+    private fun QueryContext.automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {
+        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> {
                 log.debug(
@@ -366,11 +364,12 @@ class UtbetalingService(
                     utbetaling.beregning.javaClass,
                     utbetalingId,
                 )
-                return false
+                return AutomatiskUtbetalingResult.FEIL_PRISMODELL
             }
 
             is UtbetalingBeregningForhandsgodkjent -> {}
         }
+
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,
             statuser = listOf(TilsagnStatus.GODKJENT),
@@ -383,30 +382,30 @@ class UtbetalingService(
                 relevanteTilsagn.size,
                 utbetalingId,
             )
-            return false
+            return AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN
         }
+
         val tilsagn = relevanteTilsagn[0]
         if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.belop) {
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
-            return false
+            return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
-        val gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
+
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling = utbetaling,
             tilsagn = tilsagn,
             id = delutbetalingId,
             belop = utbetaling.beregning.output.belop,
-            gjorOppTilsagn = gjorOppTilsagn,
+            gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
-        val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
-        godkjennDelutbetaling(
-            delutbetaling,
-            Tiltaksadministrasjon,
-        )
+
+        val delutbetaling = queries.delutbetaling.getOrError(delutbetalingId)
+        godkjennDelutbetaling(delutbetaling, Tiltaksadministrasjon)
         log.debug("Automatisk behandling av utbetaling gjennomført. DelutbetalingId: {}", delutbetalingId)
-        return true
+
+        return AutomatiskUtbetalingResult.GODKJENT
     }
 
     private fun QueryContext.upsertDelutbetaling(
@@ -478,14 +477,15 @@ class UtbetalingService(
                 forklaring = null,
             ),
         )
-        val alleDelutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
-        if (alleDelutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
-            val utbetaling = getOrError(delutbetaling.utbetalingId)
+
+        val utbetaling = getOrError(delutbetaling.utbetalingId)
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
+        if (delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             queries.delutbetaling.setStatusForDelutbetalingerForBetaling(
                 delutbetaling.utbetalingId,
                 DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
             )
-            godkjennUtbetaling(utbetaling, alleDelutbetalinger)
+            godkjennUtbetaling(utbetaling, delutbetalinger)
         }
     }
 
@@ -503,7 +503,7 @@ class UtbetalingService(
                     null,
                     Tiltaksadministrasjon,
                 )
-                return@godkjennUtbetaling
+                return
             }
 
             queries.tilsagn.setBruktBelop(tilsagn.id, tilsagn.belopBrukt + delutbetaling.belop)
@@ -513,11 +513,7 @@ class UtbetalingService(
             publishOpprettFaktura(delutbetaling)
         }
 
-        logEndring(
-            "Overført til utbetaling",
-            getOrError(utbetaling.id),
-            Tiltaksadministrasjon,
-        )
+        logEndring("Overført til utbetaling", utbetaling, Tiltaksadministrasjon)
     }
 
     private fun QueryContext.returnerDelutbetaling(

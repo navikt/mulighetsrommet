@@ -1179,6 +1179,21 @@ class UtbetalingServiceTest : FunSpec({
             ),
         )
 
+        val tilsagnBeregning = TilsagnBeregningFri(
+            input = TilsagnBeregningFri.Input(
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "Beskrivelse",
+                        belop = 1500,
+                        antall = 1,
+                    ),
+                ),
+                prisbetingelser = null,
+            ),
+            output = TilsagnBeregningFri.Output(1500),
+        )
+
         test("utbetales automatisk når det finnes et enkelt tilsagn med nok midler og det er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -1186,19 +1201,8 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     Tilsagn1.copy(
-                        beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(
-                                linjer = listOf(
-                                    TilsagnBeregningFri.InputLinje(
-                                        id = UUID.randomUUID(),
-                                        beskrivelse = "Beskrivelse",
-                                        belop = 1500,
-                                        antall = 1,
-                                    ),
-                                ),
-                                prisbetingelser = null,
-                            ),
-                            output = TilsagnBeregningFri.Output(1000),
+                        beregning = tilsagnBeregning.copy(
+                            output = tilsagnBeregning.output.copy(belop = 1000),
                         ),
                     ),
                 ),
@@ -1208,7 +1212,10 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null)
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.GODKJENT,
+            )
 
             database.run {
                 val delutbetaling = queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldHaveSize(1).first()
@@ -1221,7 +1228,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
-                    it.belopBrukt shouldBe it.beregning.output.belop
+                    it.belopBrukt shouldBe 1000
                 }
                 Json.decodeFromString<OkonomiBestillingMelding>(
                     queries.kafkaProducerRecord.getRecords(50).first().value.decodeToString(),
@@ -1251,7 +1258,10 @@ class UtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null)
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
+            )
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
@@ -1267,7 +1277,10 @@ class UtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null)
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
+            )
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
@@ -1287,7 +1300,10 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null)
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
+            )
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
@@ -1301,18 +1317,7 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     Tilsagn1.copy(
-                        beregning = TilsagnBeregningFri(
-                            input = TilsagnBeregningFri.Input(
-                                linjer = listOf(
-                                    TilsagnBeregningFri.InputLinje(
-                                        id = UUID.randomUUID(),
-                                        beskrivelse = "Beskrivelse",
-                                        belop = 1500,
-                                        antall = 1,
-                                    ),
-                                ),
-                                prisbetingelser = null,
-                            ),
+                        beregning = tilsagnBeregning.copy(
                             output = TilsagnBeregningFri.Output(belop = 1),
                         ),
                     ),
@@ -1323,7 +1328,10 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null)
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.IKKE_NOK_PENGER,
+            )
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
@@ -1349,14 +1357,16 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null)
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.FEIL_PRISMODELL,
+            )
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
             }
         }
 
-        test("Tilsagn skal oppgjøres automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
+        test("Tilsagn gjøres ikke opp hvis det varer lengre enn utbetalingsperioden") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1367,14 +1377,44 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 utbetalinger = listOf(
-                    utbetaling1Forhandsgodkjent.copy(
+                    utbetaling1.copy(
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                         beregning = getForhandsgodkjentBeregning(
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             belop = 100,
                         ),
                     ),
-                    utbetaling2.copy(
+                ),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.GODKJENT,
+            )
+
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).first().should {
+                    it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+                    it.gjorOppTilsagn shouldBe false
+                }
+            }
+        }
+
+        test("Tilsagn gjøres opp automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(
+                    Tilsagn1.copy(
+                        periode = Periode(LocalDate.of(2025, 1, 4), LocalDate.of(2025, 3, 1)),
+                    ),
+                ),
+                utbetalinger = listOf(
+                    utbetaling1.copy(
                         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
                         beregning = getForhandsgodkjentBeregning(
                             periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
@@ -1389,17 +1429,12 @@ class UtbetalingServiceTest : FunSpec({
             val tilsagnService: TilsagnService = mockk(relaxed = true)
             val service = createUtbetalingService(tilsagnService = tilsagnService)
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null)
-            database.run {
-                queries.delutbetaling.getByUtbetalingId(utbetaling1Id).first().should {
-                    it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                    it.gjorOppTilsagn shouldBe false
-                }
-            }
+            service.godkjentAvArrangor(utbetaling1.id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.GODKJENT,
+            )
 
-            service.godkjentAvArrangor(utbetaling2.id, kid = null)
             database.run {
-                queries.delutbetaling.getByUtbetalingId(utbetaling2.id).first().should {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1.id).first().should {
                     it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                     it.gjorOppTilsagn shouldBe true
                 }
@@ -1410,6 +1445,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
     }
+
     context("totrinnskontroll regler") {
         test("kan ikke beslutte egen utbetaling") {
             MulighetsrommetTestDomain(
