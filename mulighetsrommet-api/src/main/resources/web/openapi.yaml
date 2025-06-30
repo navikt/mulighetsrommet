@@ -5995,6 +5995,8 @@ components:
           type: string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
+        type:
+          $ref: "#/components/schemas/UtbetalingType"
       required: [id, status, periode, beregning, createdAt, tilskuddstype]
 
     UtbetalingKompaktDto:
@@ -6013,7 +6015,15 @@ components:
               $ref: "#/components/schemas/NavEnhet"
           belopUtbetalt:
             type: [number, "null"]
+          type:
+            $ref: "#/components/schemas/UtbetalingType"
         required: [ id, status, periode, kostnadssteder, belopUtbetalt ]
+
+    UtbetalingType:
+      type: string
+      enum:
+        - KORRIGERING
+        - INVESTERING
 
     DeltakerForKostnadsfordeling:
       type: object

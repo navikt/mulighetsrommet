@@ -30,8 +30,11 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.api.AdminUtbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingKompaktDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -195,6 +198,38 @@ class UtbetalingService(
                 val dto = getOrError(utbetaling.id)
                 logEndring("Utbetaling beregning oppdatert", dto, Tiltaksadministrasjon)
             }
+    }
+
+    fun getByGjennomforing(id: UUID): List<UtbetalingKompaktDto> = db.session {
+        val utbetalinger =
+            queries.utbetaling.getByGjennomforing(id)
+                .map { utbetaling ->
+                    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+
+                    val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
+                    val (belopUtbetalt, kostnadssteder) = when (status) {
+                        AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
+                            Pair(
+                                delutbetalinger.sumOf {
+                                    it.belop
+                                },
+                                delutbetalinger.map { delutbetaling ->
+                                    queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
+                                }.distinct(),
+                            )
+                        else -> (null to emptyList())
+                    }
+
+                    UtbetalingKompaktDto(
+                        id = utbetaling.id,
+                        status = status,
+                        periode = utbetaling.periode,
+                        kostnadssteder = kostnadssteder,
+                        belopUtbetalt = belopUtbetalt,
+                        type = UtbetalingType.fromUtbetaling(utbetaling),
+                    )
+                }
+        return utbetalinger
     }
 
     suspend fun createUtbetalingForhandsgodkjent(

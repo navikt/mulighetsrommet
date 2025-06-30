@@ -7,12 +7,13 @@ import {
 } from "@/utils/Utils";
 import { AdminUtbetalingStatus, UtbetalingKompaktDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { SortState, Table } from "@navikt/ds-react";
+import { HelpText, HStack, SortState, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
+import { UtbetalingTypeTag } from "./UtbetalingTypeTag";
 
 interface Props {
   utbetalinger: UtbetalingKompaktDto[];
@@ -69,6 +70,8 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       }
     });
 
+  const harUtbetalingsType = sortedData.some((utbetaling) => utbetaling.type);
+
   return (
     <Table
       sort={sort}
@@ -93,10 +96,25 @@ export function UtbetalingTable({ utbetalinger }: Props) {
             Status
           </TableColumnHeader>
           <TableColumnHeader></TableColumnHeader>
+          <TableColumnHeader align="right" sortKey="type" sortable hidden={!harUtbetalingsType}>
+            <HStack gap="2">
+              Type
+              <HelpText title="Hva betyr forkortelsene?">
+                <VStack gap="1" className="text-left">
+                  <div>
+                    <b>KOR:</b> Korrigering - manuelt opprettet i Tiltaksadministrasjon
+                  </div>
+                  <div>
+                    <b>INV:</b> Investering - manuelt opprettet utbetalingskrav fra Arrangør
+                  </div>
+                </VStack>
+              </HelpText>
+            </HStack>
+          </TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(({ belopUtbetalt, periode, id, status, kostnadssteder }) => {
+        {sortedData.map(({ belopUtbetalt, periode, id, status, kostnadssteder, type }) => {
           return (
             <Table.Row key={id}>
               <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
@@ -134,6 +152,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   </Link>
                 )}
               </Table.DataCell>
+              {harUtbetalingsType && (
+                <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
+              )}
             </Table.Row>
           );
         })}

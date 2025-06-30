@@ -36,6 +36,7 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect, useState } from "react";
 import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
 import { ForhandsgodkjentDeltakerTableModal } from "./ForhandsgodkjentDeltakerTableModal";
+import { UtbetalingTypeTag } from "@/components/utbetaling/UtbetalingTypeTag";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -81,6 +82,7 @@ export function UtbetalingPage() {
     },
     { tittel: "Utbetaling" },
   ];
+
   return (
     <>
       <title>Utbetalinger</title>
@@ -116,6 +118,12 @@ export function UtbetalingPage() {
                       header="Utbetalingsperiode"
                       verdi={formaterPeriode(utbetaling.periode)}
                     />
+                    {utbetaling.type && (
+                      <MetadataHorisontal
+                        header="Type"
+                        verdi={<UtbetalingTypeTag type={utbetaling.type} />}
+                      />
+                    )}
                     <MetadataHorisontal
                       header="Dato innsendt"
                       verdi={formaterDato(

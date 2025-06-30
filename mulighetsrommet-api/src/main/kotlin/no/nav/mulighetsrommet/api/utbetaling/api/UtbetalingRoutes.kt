@@ -179,37 +179,7 @@ fun Route.utbetalingRoutes() {
     route("/gjennomforinger/{id}/utbetalinger") {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
-
-            val utbetalinger = db.session {
-                queries.utbetaling.getByGjennomforing(id)
-                    .map { utbetaling ->
-                        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-
-                        val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
-                        val (belopUtbetalt, kostnadssteder) = when (status) {
-                            AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
-                                Pair(
-                                    delutbetalinger.sumOf {
-                                        it.belop
-                                    },
-                                    delutbetalinger.map { delutbetaling ->
-                                        queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
-                                    }.distinct(),
-                                )
-                            else -> (null to emptyList())
-                        }
-
-                        UtbetalingKompaktDto(
-                            id = utbetaling.id,
-                            status = status,
-                            periode = utbetaling.periode,
-                            kostnadssteder = kostnadssteder,
-                            belopUtbetalt = belopUtbetalt,
-                        )
-                    }
-            }
-
-            call.respond(utbetalinger)
+            call.respond(service.getByGjennomforing(id))
         }
     }
 }
