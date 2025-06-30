@@ -1552,6 +1552,14 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+                setRoller(
+                    NavAnsattFixture.DonaldDuck,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -1587,6 +1595,14 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT, besluttetAv = NavAnsattFixture.DonaldDuck.navIdent)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+                setRoller(
+                    NavAnsattFixture.DonaldDuck,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
             }.initialize(database.db)
 
             val service = createUtbetalingService()

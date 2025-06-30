@@ -313,9 +313,8 @@ export function TilsagnPage() {
               oppgjor={tilOppgjor}
               meny={handlingsMeny}
             />
-
             <HStack gap="2" justify={"end"}>
-              {opprettelse.kanBesluttes && (
+              {opprettelse.type === "TIL_BESLUTNING" && (
                 <>
                   <Button
                     variant="secondary"
@@ -325,16 +324,18 @@ export function TilsagnPage() {
                   >
                     Send i retur
                   </Button>
-                  <Button
-                    size="small"
-                    type="button"
-                    onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                  >
-                    Godkjenn tilsagn
-                  </Button>
+                  {opprettelse.kanBesluttes && (
+                    <Button
+                      size="small"
+                      type="button"
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                    >
+                      Godkjenn tilsagn
+                    </Button>
+                  )}
                 </>
               )}
-              {annullering?.kanBesluttes && (
+              {annullering?.type === "TIL_BESLUTNING" && (
                 <>
                   <Button
                     variant="secondary"
@@ -344,17 +345,19 @@ export function TilsagnPage() {
                   >
                     Avslå annullering
                   </Button>
-                  <Button
-                    size="small"
-                    variant="danger"
-                    type="button"
-                    onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                  >
-                    Bekreft annullering
-                  </Button>
+                  {annullering?.kanBesluttes && (
+                    <Button
+                      size="small"
+                      variant="danger"
+                      type="button"
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                    >
+                      Bekreft annullering
+                    </Button>
+                  )}
                 </>
               )}
-              {tilOppgjor?.kanBesluttes && (
+              {tilOppgjor?.type === "TIL_BESLUTNING" && (
                 <>
                   <Button
                     variant="secondary"
@@ -364,14 +367,16 @@ export function TilsagnPage() {
                   >
                     Avslå oppgjør
                   </Button>
-                  <Button
-                    size="small"
-                    variant="danger"
-                    type="button"
-                    onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
-                  >
-                    Bekreft oppgjør
-                  </Button>
+                  {tilOppgjor?.kanBesluttes && (
+                    <Button
+                      size="small"
+                      variant="danger"
+                      type="button"
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                    >
+                      Bekreft oppgjør
+                    </Button>
+                  )}
                 </>
               )}
             </HStack>

@@ -59,8 +59,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               linje={linje}
               grayBackground
               knappeColumn={
-                linje?.status === DelutbetalingStatus.TIL_ATTESTERING &&
-                linje?.opprettelse?.kanBesluttes && (
+                linje?.status === DelutbetalingStatus.TIL_ATTESTERING && (
                   <HStack gap="4">
                     <Button
                       variant="secondary"
@@ -70,18 +69,20 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                     >
                       Send i retur
                     </Button>
-                    <Button
-                      size="small"
-                      type="button"
-                      onClick={() => {
-                        const modal = document.getElementById(
-                          `godkjenn-modal-${linje.id}`,
-                        ) as HTMLDialogElement;
-                        modal?.showModal();
-                      }}
-                    >
-                      Attester
-                    </Button>
+                    {linje?.opprettelse?.kanBesluttes && (
+                      <Button
+                        size="small"
+                        type="button"
+                        onClick={() => {
+                          const modal = document.getElementById(
+                            `godkjenn-modal-${linje.id}`,
+                          ) as HTMLDialogElement;
+                          modal?.showModal();
+                        }}
+                      >
+                        Attester
+                      </Button>
+                    )}
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
                       ingress="Ved å sende en linje i retur vil andre linjer også returneres"
                       open={avvisModalOpen}

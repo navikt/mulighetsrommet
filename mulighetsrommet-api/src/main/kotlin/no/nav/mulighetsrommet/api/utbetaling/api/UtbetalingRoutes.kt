@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.DelutbetalingReturnertAarsak
@@ -76,10 +76,7 @@ fun Route.utbetalingRoutes() {
                             belop = delutbetaling.belop,
                             status = delutbetaling.status,
                             tilsagn = tilsagn,
-                            opprettelse = TotrinnskontrollDto.fromTotrinnskontroll(
-                                opprettelse,
-                                kanBesluttesAvAnsatt,
-                            ),
+                            opprettelse = opprettelse.toDto(kanBesluttesAvAnsatt),
                         )
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 

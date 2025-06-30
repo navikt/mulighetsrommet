@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.*
@@ -39,31 +41,28 @@ sealed class TotrinnskontrollDto {
         val besluttetTidspunkt: LocalDateTime,
         val besluttelse: Besluttelse,
     ) : TotrinnskontrollDto()
+}
 
-    companion object {
-        fun fromTotrinnskontroll(
-            totrinnskontroll: Totrinnskontroll,
-            kanBesluttes: Boolean,
-        ) = when {
-            totrinnskontroll.besluttetAv == null -> TilBeslutning(
-                behandletAv = toAgentDto(totrinnskontroll.behandletAv, totrinnskontroll.behandletAvNavn),
-                behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
-                aarsaker = totrinnskontroll.aarsaker,
-                forklaring = totrinnskontroll.forklaring,
-                kanBesluttes = kanBesluttes,
-            )
+fun Totrinnskontroll.toDto(
+    kanBesluttes: Boolean,
+) = when {
+    besluttetAv == null -> TilBeslutning(
+        behandletAv = toAgentDto(behandletAv, behandletAvNavn),
+        behandletTidspunkt = behandletTidspunkt,
+        aarsaker = aarsaker,
+        forklaring = forklaring,
+        kanBesluttes = kanBesluttes,
+    )
 
-            else -> Besluttet(
-                behandletAv = toAgentDto(totrinnskontroll.behandletAv, totrinnskontroll.behandletAvNavn),
-                behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
-                aarsaker = totrinnskontroll.aarsaker,
-                forklaring = totrinnskontroll.forklaring,
-                besluttetAv = toAgentDto(totrinnskontroll.besluttetAv, totrinnskontroll.besluttetAvNavn),
-                besluttetTidspunkt = checkNotNull(totrinnskontroll.besluttetTidspunkt),
-                besluttelse = checkNotNull(totrinnskontroll.besluttelse),
-            )
-        }
-    }
+    else -> Besluttet(
+        behandletAv = toAgentDto(behandletAv, behandletAvNavn),
+        behandletTidspunkt = behandletTidspunkt,
+        aarsaker = aarsaker,
+        forklaring = forklaring,
+        besluttetAv = toAgentDto(besluttetAv, besluttetAvNavn),
+        besluttetTidspunkt = checkNotNull(besluttetTidspunkt),
+        besluttelse = checkNotNull(besluttelse),
+    )
 }
 
 fun toAgentDto(agent: Agent, navAnsattNavn: String?) = when (agent) {

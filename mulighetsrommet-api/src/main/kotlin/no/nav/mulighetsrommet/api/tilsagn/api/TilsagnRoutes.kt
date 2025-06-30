@@ -15,13 +15,14 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -71,23 +72,15 @@ fun Route.tilsagnRoutes() {
                         val kostnadssted = tilsagn.kostnadssted.enhetsnummer
 
                         val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
-                            TotrinnskontrollDto.fromTotrinnskontroll(
-                                it,
-                                kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
-                            )
+                            it.toDto(kanBeslutteTilsagn(it, ansatt, kostnadssted))
                         }
                         val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
-                            TotrinnskontrollDto.fromTotrinnskontroll(
-                                it,
-                                kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
-                            )
+                            it.toDto(kanBeslutteTilsagn(it, ansatt, kostnadssted))
                         }
                         val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
-                            TotrinnskontrollDto.fromTotrinnskontroll(
-                                it,
-                                kanBesluttes = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
-                            )
+                            it.toDto(kanBeslutteTilsagn(it, ansatt, kostnadssted))
                         }
+
                         TilsagnDetaljerDto(
                             tilsagn = TilsagnDto.fromTilsagn(tilsagn),
                             opprettelse = opprettelse,
@@ -422,4 +415,9 @@ private fun resolveEkstraTilsagnDefaults(
             beregning = null,
         )
     }
+}
+
+fun kanBeslutteTilsagn(totrinnskontroll: Totrinnskontroll, ansatt: NavAnsatt, kostnadssted: NavEnhetNummer): Boolean {
+    return totrinnskontroll.behandletAv != ansatt.navIdent &&
+        ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
 }
