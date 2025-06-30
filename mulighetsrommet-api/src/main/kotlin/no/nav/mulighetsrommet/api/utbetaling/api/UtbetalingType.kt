@@ -13,7 +13,7 @@ enum class UtbetalingType {
     ;
 
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingType? = when {
+        fun from(utbetaling: Utbetaling): UtbetalingType? = when {
             utbetaling.innsender is NavIdent && utbetaling.tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD -> {
                 KORRIGERING
             }

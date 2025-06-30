@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
@@ -66,6 +67,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                     deltakelser = deltakelser,
                 ),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
+                type = UtbetalingType.from(utbetaling),
                 linjer = linjer,
             )
         }
@@ -84,6 +86,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 digest = beregning.getDigest(),
             ),
             betalingsinformasjon = utbetaling.betalingsinformasjon,
+            type = UtbetalingType.from(utbetaling),
             linjer = linjer,
         )
     }

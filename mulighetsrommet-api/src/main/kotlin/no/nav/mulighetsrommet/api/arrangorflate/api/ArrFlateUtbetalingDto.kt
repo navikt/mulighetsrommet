@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -29,6 +30,7 @@ data class ArrFlateUtbetaling(
     val beregning: Beregning,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val periode: Periode,
+    val type: UtbetalingType?,
     val linjer: List<ArrangorUtbetalingLinje>,
 )
 
