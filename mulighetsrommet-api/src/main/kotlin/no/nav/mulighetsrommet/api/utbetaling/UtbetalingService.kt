@@ -176,14 +176,14 @@ class UtbetalingService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Delutbetaling> = db.transaction {
         val delutbetaling = queries.delutbetaling.getOrError(id)
-        require(delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
-            "Utbetaling er allerede besluttet"
+        if (delutbetaling.status != DelutbetalingStatus.TIL_ATTESTERING) {
+            return listOf(FieldError.of("Utbetaling er ikke satt til attestering")).left()
         }
 
         val kostnadssted = queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
         if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
-            return listOf(FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})")).left()
+            return listOf(FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")).left()
         }
 
         when (request) {
