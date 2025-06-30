@@ -246,6 +246,16 @@ class UtbetalingService(
             return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
 
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetalingId)
+        if (delutbetalinger.isNotEmpty()) {
+            log.debug(
+                "Avbryter automatisk utbetaling. Delutbetalinger allerede opprettet: {}. UtbetalingId: {}",
+                delutbetalinger.size,
+                utbetalingId,
+            )
+            return AutomatiskUtbetalingResult.DELUTBETALINGER_ALLEREDE_OPPRETTET
+        }
+
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling = utbetaling,

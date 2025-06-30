@@ -723,6 +723,26 @@ class UtbetalingServiceTest : FunSpec({
             output = TilsagnBeregningFri.Output(1500),
         )
 
+        test("utbetales ikke automatisk hvis det allerede finnes en delutbetaling når arrangør godkjenner") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
+                delutbetalinger = listOf(delutbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+                AutomatiskUtbetalingResult.DELUTBETALINGER_ALLEREDE_OPPRETTET,
+            )
+        }
+
         test("utbetales automatisk når det finnes et enkelt tilsagn med nok midler og det er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
