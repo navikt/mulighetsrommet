@@ -28,7 +28,7 @@ data class UtbetalingDto(
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
-    val type: UtbetalingsType?,
+    val type: UtbetalingType?,
 ) {
     @Serializable
     sealed class Beregning {
@@ -48,27 +48,8 @@ data class UtbetalingDto(
         ) : Beregning()
     }
 
-    @Serializable
-    enum class UtbetalingsType {
-        KORRIGERING,
-        INVESTERING,
-    }
-
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus): UtbetalingDto {
-            val utbetalingsType = when (utbetaling.innsender) {
-                is NavIdent -> {
-                    UtbetalingsType.KORRIGERING
-                }
-
-                is Arrangor -> {
-                    UtbetalingsType.INVESTERING
-                }
-
-                else -> {
-                    null
-                }
-            }
             return UtbetalingDto(
                 id = utbetaling.id,
                 status = status,
@@ -89,7 +70,7 @@ data class UtbetalingDto(
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,
-                type = utbetalingsType,
+                type = UtbetalingType.fromUtbetaling(utbetaling),
             )
         }
 

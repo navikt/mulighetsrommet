@@ -18,7 +18,6 @@ import {
   Heading,
   HGrid,
   HStack,
-  Tag,
   VStack,
 } from "@navikt/ds-react";
 import { useParams } from "react-router";
@@ -37,6 +36,7 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect, useState } from "react";
 import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
 import { ForhandsgodkjentDeltakerTableModal } from "./ForhandsgodkjentDeltakerTableModal";
+import { UtbetalingTypeTag } from "@/components/utbetaling/UtbetalingTypeTag";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -118,11 +118,12 @@ export function UtbetalingPage() {
                       header="Utbetalingsperiode"
                       verdi={formaterPeriode(utbetaling.periode)}
                     />
-                    { utbetaling.type && <MetadataHorisontal
-                      header="Type"
-                      verdi={utbetalingsType(utbetaling.type)}
-                    />
-                    }
+                    {utbetaling.type && (
+                      <MetadataHorisontal
+                        header="Type"
+                        verdi={<UtbetalingTypeTag type={utbetaling.type} />}
+                      />
+                    )}
                     <MetadataHorisontal
                       header="Dato innsendt"
                       verdi={formaterDato(
@@ -250,13 +251,4 @@ export function UtbetalingPage() {
       )}
     </>
   );
-}
-
-function utbetalingsType(type: string) {
-  if (type === "KORRIGERING") {
-    return (<HStack gap="2"><span>Korrigering</span><Tag variant="neutral" size="small">KOR</Tag></HStack>)
-  }
-  if (type === "INVESTERING") {
-    return (<HStack gap="2"><span>Investering</span><Tag variant="neutral" size="small">INV</Tag></HStack>)
-  }
 }
