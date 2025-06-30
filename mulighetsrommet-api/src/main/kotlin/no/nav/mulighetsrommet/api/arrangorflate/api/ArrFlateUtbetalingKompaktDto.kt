@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -20,6 +21,7 @@ data class ArrFlateUtbetalingKompaktDto(
     val arrangor: Utbetaling.Arrangor,
     val periode: Periode,
     val belop: Int,
+    val type: UtbetalingType? = null,
 ) {
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling, status: ArrFlateUtbetalingStatus) = ArrFlateUtbetalingKompaktDto(
@@ -31,6 +33,7 @@ data class ArrFlateUtbetalingKompaktDto(
             arrangor = utbetaling.arrangor,
             periode = utbetaling.periode,
             belop = utbetaling.beregning.output.belop,
+            type = UtbetalingType.from(utbetaling),
         )
     }
 }

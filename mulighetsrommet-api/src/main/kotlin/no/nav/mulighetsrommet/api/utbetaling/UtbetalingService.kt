@@ -226,7 +226,7 @@ class UtbetalingService(
                         periode = utbetaling.periode,
                         kostnadssteder = kostnadssteder,
                         belopUtbetalt = belopUtbetalt,
-                        type = UtbetalingType.fromUtbetaling(utbetaling),
+                        type = UtbetalingType.from(utbetaling),
                     )
                 }
         return utbetalinger

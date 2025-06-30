@@ -36,7 +36,7 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect, useState } from "react";
 import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
 import { ForhandsgodkjentDeltakerTableModal } from "./ForhandsgodkjentDeltakerTableModal";
-import { UtbetalingTypeText } from "@/components/utbetaling/UtbetalingTypeTag";
+import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();

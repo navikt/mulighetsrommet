@@ -6071,6 +6071,8 @@ components:
           $ref: "#/components/schemas/Periode"
         belop:
           type: number
+        type:
+          $ref: "#/components/schemas/UtbetalingType"
       required:
         - id
         - status
@@ -6106,6 +6108,8 @@ components:
           $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
           $ref: "#/components/schemas/Periode"
+        type:
+          $ref: "#/components/schemas/UtbetalingType"
         linjer:
           type: array
           items:

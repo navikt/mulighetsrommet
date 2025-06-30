@@ -1,5 +1,9 @@
-import { UtbetalingType } from "@mr/api-client-v2";
 import { HStack, Tag } from "@navikt/ds-react";
+
+enum UtbetalingType {
+    KORRIGERING = 'KORRIGERING',
+    INVESTERING = 'INVESTERING'
+}
 
 interface UtbetalingsTypeTagProps {
   type: UtbetalingType;
@@ -14,13 +18,14 @@ export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
 }
 
 interface UtbetalingsTypeProps {
+  text?: String
   type: UtbetalingType;
 }
 
-export function UtbetalingTypeText({ type }: UtbetalingsTypeProps) {
+export function UtbetalingTypeText({ text, type }: UtbetalingsTypeProps) {
   return (
     <HStack gap="2">
-      {visningsNavn(type)}
+      {text || visningsNavn(type)}
       <UtbetalingTypeTag type={type} />
     </HStack>
   );

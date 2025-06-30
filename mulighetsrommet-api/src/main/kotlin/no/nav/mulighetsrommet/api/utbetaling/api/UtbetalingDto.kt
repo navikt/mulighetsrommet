@@ -70,7 +70,7 @@ data class UtbetalingDto(
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,
-                type = UtbetalingType.fromUtbetaling(utbetaling),
+                type = UtbetalingType.from(utbetaling),
             )
         }
 
