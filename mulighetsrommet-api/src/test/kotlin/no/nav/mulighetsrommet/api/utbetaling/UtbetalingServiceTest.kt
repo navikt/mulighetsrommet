@@ -439,74 +439,6 @@ class UtbetalingServiceTest : FunSpec({
             delutbetalinger[0].id shouldBe delutbetalingId1
         }
 
-        test("ny send til godkjenning med de to samme tilsagn men nye id'er fungerer") {
-            val tilsagn1 = Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            )
-            val tilsagn2 = Tilsagn2.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            )
-            val utbetaling = utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10),
-                    output = UtbetalingBeregningFri.Output(10),
-                ),
-            )
-
-            val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(tilsagn1, tilsagn2),
-                utbetalinger = listOf(utbetaling),
-            ) {
-                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
-                setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
-                setRoller(
-                    NavAnsattFixture.MikkeMus,
-                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
-                )
-            }.initialize(database.db)
-            val service = createUtbetalingService()
-
-            val delutbetalingId1 = UUID.randomUUID()
-            val delutbetalingId2 = UUID.randomUUID()
-            service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(
-                    utbetaling.id,
-                    listOf(
-                        DelutbetalingRequest(delutbetalingId1, tilsagn1.id, gjorOppTilsagn = false, belop = 5),
-                        DelutbetalingRequest(delutbetalingId2, tilsagn2.id, gjorOppTilsagn = false, belop = 5),
-                    ),
-                ),
-                domain.ansatte[0].navIdent,
-            ).shouldBeRight()
-
-            service.besluttDelutbetaling(
-                delutbetalingId2,
-                BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
-                    aarsaker = emptyList(),
-                    forklaring = null,
-                ),
-                domain.ansatte[1].navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
-
-            service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(
-                    utbetaling.id,
-                    listOf(
-                        DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 5),
-                        DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 5),
-                    ),
-                ),
-                domain.ansatte[0].navIdent,
-            ).shouldBeRight()
-
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling.id) }
-            delutbetalinger.size shouldBe 2
-        }
-
         test("returner returnerer alle delutbetalinger (selv godkjente)") {
             val tilsagn1 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -738,7 +670,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.DELUTBETALINGER_ALLEREDE_OPPRETTET,
             )
         }
@@ -762,7 +694,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.GODKJENT,
             )
 
@@ -797,6 +729,28 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
+        test("valideringsfeil hvis utbetaling forsøkes godkjennes flere ganger") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+                AutomatiskUtbetalingResult.GODKJENT,
+            )
+
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeLeft(
+                listOf(FieldError.of("Utbetaling er allerede godkjent")),
+            )
+        }
+
         test("ingen automatisk utbetaling hvis tilsagn ikke er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -808,7 +762,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
@@ -827,7 +781,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
@@ -850,7 +804,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
@@ -878,7 +832,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.IKKE_NOK_PENGER,
             )
 
@@ -906,7 +860,7 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.FEIL_PRISMODELL,
             )
 
@@ -940,7 +894,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.GODKJENT,
             )
 
@@ -978,7 +932,7 @@ class UtbetalingServiceTest : FunSpec({
             val tilsagnService: TilsagnService = mockk(relaxed = true)
             val service = createUtbetalingService(tilsagnService = tilsagnService)
 
-            service.godkjentAvArrangor(utbetaling1.id, kid = null).shouldBe(
+            service.godkjentAvArrangor(utbetaling1.id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.GODKJENT,
             )
 

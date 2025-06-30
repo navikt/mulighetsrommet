@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -75,21 +76,23 @@ class UtbetalingService(
         }
     }
 
-    // TODO: må verifisere at utbetaling ikke kan godkjennes flere ganger
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
-    ): AutomatiskUtbetalingResult = db.transaction {
+    ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
+        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        if (utbetaling.innsender != null) {
+            return FieldError.of("Utbetaling er allerede godkjent").nel().left()
+        }
+
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
+        logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
 
-        val dto = getOrError(utbetalingId)
-        logEndring("Utbetaling sendt inn", dto, Arrangor)
-
-        automatiskUtbetaling(utbetalingId).also { result ->
-            log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $result")
-        }
+        automatiskUtbetaling(utbetalingId)
+            .also { log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $it") }
+            .right()
     }
 
     fun opprettManuellUtbetaling(
@@ -180,7 +183,7 @@ class UtbetalingService(
         val kostnadssted = queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
         if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
-            return listOf(FieldError.root("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})")).left()
+            return listOf(FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attstant ved tilsagnets kostnadssted (${kostnadssted.navn})")).left()
         }
 
         when (request) {
@@ -191,13 +194,13 @@ class UtbetalingService(
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
                 val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
                 if (navIdent == opprettelse.behandletAv) {
-                    return listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet")).left()
+                    return listOf(FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet")).left()
                 }
 
                 val tilsagnOpprettelse =
                     queries.totrinnskontroll.getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
                 if (navIdent == tilsagnOpprettelse.besluttetAv) {
-                    return listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet")).left()
+                    return listOf(FieldError.of("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet")).left()
                 }
 
                 godkjennDelutbetaling(delutbetaling, navIdent)
