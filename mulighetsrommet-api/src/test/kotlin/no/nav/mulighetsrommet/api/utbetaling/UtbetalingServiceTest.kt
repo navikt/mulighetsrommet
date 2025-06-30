@@ -635,6 +635,77 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
+        test("løpenummer og fakturanummer beholdes ved returnering og godkjenning av delutbetaling for samme tilsagn") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val delutbetaling1 = DelutbetalingRequest(UUID.randomUUID(), Tilsagn1.id, gjorOppTilsagn = false, belop = 5)
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1)),
+                NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight()
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetaling1.id).should {
+                    it.id shouldBe delutbetaling1.id
+                    it.lopenummer shouldBe 1
+                    it.faktura.fakturanummer shouldBe "A-2025/1-1-1"
+                }
+            }
+
+            service.besluttDelutbetaling(
+                delutbetaling1.id,
+                BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(aarsaker = emptyList(), forklaring = null),
+                NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1)),
+                NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight()
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetaling1.id).should {
+                    it.id shouldBe delutbetaling1.id
+                    it.lopenummer shouldBe 1
+                    it.faktura.fakturanummer shouldBe "A-2025/1-1-1"
+                }
+            }
+
+            service.besluttDelutbetaling(
+                delutbetaling1.id,
+                BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(aarsaker = emptyList(), forklaring = null),
+                NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+
+            val delutbetaling2 = DelutbetalingRequest(UUID.randomUUID(), Tilsagn1.id, gjorOppTilsagn = false, belop = 5)
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling2)),
+                NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight()
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetaling2.id).should {
+                    it.id shouldBe delutbetaling2.id
+                    it.lopenummer shouldBe 1
+                    it.faktura.fakturanummer shouldBe "A-2025/1-1-1"
+                }
+            }
+        }
+
         test("delutbetaling blir returnert hvis tilsagn har endret status") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),

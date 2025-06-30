@@ -46,15 +46,15 @@ class DelutbetalingQueries(private val session: Session) {
                 :fakturanummer,
                 :faktura_status,
                 :faktura_status_sist_oppdatert::date
-            ) on conflict (utbetaling_id, tilsagn_id) do update set
-                status                  = excluded.status,
-                belop                   = excluded.belop,
-                gjor_opp_tilsagn        = excluded.gjor_opp_tilsagn,
-                periode                 = delutbetaling.periode,
-                lopenummer              = delutbetaling.lopenummer,
-                fakturanummer           = delutbetaling.fakturanummer,
-                faktura_status          = delutbetaling.faktura_status,
-                faktura_status_sist_oppdatert   = excluded.faktura_status_sist_oppdatert
+            ) on conflict (id) do update set
+                status                        = excluded.status,
+                belop                         = excluded.belop,
+                gjor_opp_tilsagn              = excluded.gjor_opp_tilsagn,
+                periode                       = excluded.periode,
+                lopenummer                    = excluded.lopenummer,
+                fakturanummer                 = excluded.fakturanummer,
+                faktura_status                = excluded.faktura_status,
+                faktura_status_sist_oppdatert = excluded.faktura_status_sist_oppdatert
         """.trimIndent()
 
         val params = mapOf(

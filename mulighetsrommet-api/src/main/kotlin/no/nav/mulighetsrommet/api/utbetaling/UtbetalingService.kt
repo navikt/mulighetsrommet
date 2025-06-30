@@ -152,12 +152,12 @@ class UtbetalingService(
             .map { delutbetalinger ->
                 // Slett de som ikke er med i requesten
                 queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-                    .filter { it.id !in request.delutbetalinger.map { it.id } }
-                    .forEach {
-                        require(it.status == DelutbetalingStatus.RETURNERT) {
-                            "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${it.status}"
+                    .filter { delutbetaling -> delutbetaling.id !in request.delutbetalinger.map { it.id } }
+                    .forEach { delutbetaling ->
+                        require(delutbetaling.status == DelutbetalingStatus.RETURNERT) {
+                            "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${delutbetaling.status}"
                         }
-                        queries.delutbetaling.delete(it.id)
+                        queries.delutbetaling.delete(delutbetaling.id)
                     }
 
                 delutbetalinger.forEach {
@@ -279,7 +279,14 @@ class UtbetalingService(
             "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
 
-        val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
+        val delutbetaling = queries.delutbetaling.get(id)
+
+        val lopenummer = delutbetaling?.lopenummer
+            ?: queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
+
+        val fakturanummer = delutbetaling?.faktura?.fakturanummer
+            ?: "${tilsagn.bestilling.bestillingsnummer}-$lopenummer"
+
         val dbo = DelutbetalingDbo(
             id = id,
             utbetalingId = utbetaling.id,
@@ -289,7 +296,7 @@ class UtbetalingService(
             belop = belop,
             gjorOppTilsagn = gjorOppTilsagn,
             lopenummer = lopenummer,
-            fakturanummer = fakturanummer(tilsagn.bestilling.bestillingsnummer, lopenummer),
+            fakturanummer = fakturanummer,
             fakturaStatus = null,
             fakturaStatusSistOppdatert = LocalDateTime.now(),
         )
@@ -498,5 +505,3 @@ class UtbetalingService(
         return queries.utbetaling.getOrError(id)
     }
 }
-
-private fun fakturanummer(bestillingsnummer: String, lopenummer: Int): String = "$bestillingsnummer-$lopenummer"
