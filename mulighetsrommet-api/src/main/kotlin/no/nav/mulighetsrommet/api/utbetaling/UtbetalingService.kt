@@ -82,10 +82,14 @@ class UtbetalingService(
     ): AutomatiskUtbetalingResult = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
+        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
+
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
-        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
-        automatiskUtbetaling(utbetalingId)
+
+        automatiskUtbetaling(utbetalingId).also { result ->
+            log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $result")
+        }
     }
 
     fun opprettManuellUtbetaling(
@@ -214,11 +218,6 @@ class UtbetalingService(
 
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> {
-                log.debug(
-                    "Avbryter automatisk utbetaling. Prismodell {} er ikke egnet for automatisk utbetaling. UtbetalingId: {}",
-                    utbetaling.beregning.javaClass,
-                    utbetalingId,
-                )
                 return AutomatiskUtbetalingResult.FEIL_PRISMODELL
             }
 
@@ -232,27 +231,16 @@ class UtbetalingService(
             periodeIntersectsWith = utbetaling.periode,
         )
         if (relevanteTilsagn.size != 1) {
-            log.debug(
-                "Avbryter automatisk utbetaling. Feil antall tilsagn: {}. UtbetalingId: {}",
-                relevanteTilsagn.size,
-                utbetalingId,
-            )
             return AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN
         }
 
         val tilsagn = relevanteTilsagn[0]
         if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.belop) {
-            log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
 
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetalingId)
         if (delutbetalinger.isNotEmpty()) {
-            log.debug(
-                "Avbryter automatisk utbetaling. Delutbetalinger allerede opprettet: {}. UtbetalingId: {}",
-                delutbetalinger.size,
-                utbetalingId,
-            )
             return AutomatiskUtbetalingResult.DELUTBETALINGER_ALLEREDE_OPPRETTET
         }
 
@@ -268,7 +256,6 @@ class UtbetalingService(
 
         val delutbetaling = queries.delutbetaling.getOrError(delutbetalingId)
         godkjennDelutbetaling(delutbetaling, Tiltaksadministrasjon)
-        log.debug("Automatisk behandling av utbetaling gjennomført. DelutbetalingId: {}", delutbetalingId)
 
         return AutomatiskUtbetalingResult.GODKJENT
     }
