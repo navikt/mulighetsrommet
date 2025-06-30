@@ -358,17 +358,6 @@ class UtbetalingService(
             "Utbetaling er allerede besluttet"
         }
 
-        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-        if (navIdent == opprettelse.behandletAv) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
-        }
-
-        val tilsagnOpprettelse =
-            queries.totrinnskontroll.getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
-        if (navIdent == tilsagnOpprettelse.besluttetAv) {
-            return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
-        }
-
         val kostnadssted = queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
         val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
         if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
@@ -381,6 +370,17 @@ class UtbetalingService(
             }
 
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
+                val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+                if (navIdent == opprettelse.behandletAv) {
+                    return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling du selv har opprettet"))).left()
+                }
+
+                val tilsagnOpprettelse =
+                    queries.totrinnskontroll.getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
+                if (navIdent == tilsagnOpprettelse.besluttetAv) {
+                    return ValidationError(errors = listOf(FieldError.root("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"))).left()
+                }
+
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
