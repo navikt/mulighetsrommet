@@ -4,7 +4,7 @@ import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 import { PageHeader } from "../components/PageHeader";
-import { internalNavigation } from "../internal-navigation";
+import { pathByOrgnr } from "../pathByOrgnr";
 import { tekster } from "../tekster";
 import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { VStack } from "@navikt/ds-react";
@@ -39,7 +39,7 @@ export default function TilsagnDetaljerPage() {
         title={tekster.bokmal.tilsagn.detaljer.headingTitle}
         tilbakeLenke={{
           navn: tekster.bokmal.tilsagn.detaljer.tilbakeLenke,
-          url: internalNavigation(orgnr).utbetalinger,
+          url: pathByOrgnr(orgnr).utbetalinger,
         }}
       />
       <TilsagnDetaljer

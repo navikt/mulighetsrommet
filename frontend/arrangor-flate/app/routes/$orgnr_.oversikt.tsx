@@ -13,7 +13,7 @@ import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
 import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { PageHeader } from "../components/PageHeader";
 import { useTabState } from "../hooks/useTabState";
-import { internalNavigation } from "../internal-navigation";
+import { pathByOrgnr } from "../pathByOrgnr";
 import { toggleIsEnabled } from "../services/featureToggle/featureToggleService";
 import { tekster } from "../tekster";
 import css from "../root.module.css";
@@ -79,7 +79,7 @@ export default function UtbetalingOversikt() {
             type="button"
             variant="secondary"
             as={ReactRouterLink}
-            to={internalNavigation(orgnr).opprettKravInnsendingsinformasjon}
+            to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
           >
             {tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
           </Button>

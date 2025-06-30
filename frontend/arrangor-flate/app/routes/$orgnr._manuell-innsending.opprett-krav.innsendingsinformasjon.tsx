@@ -38,7 +38,7 @@ import {
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { formaterDato, problemDetailResponse, subtractDays } from "~/utils";
-import { internalNavigation } from "../internal-navigation";
+import { pathByOrgnr } from "../pathByOrgnr";
 import { errorAt } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
@@ -130,7 +130,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "cancel") {
-    return redirect(internalNavigation(orgnr).utbetalinger, {
+    return redirect(pathByOrgnr(orgnr).utbetalinger, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },
@@ -172,7 +172,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("tilsagnId", tilsagnId);
     session.set("periodeStart", formaterDatoSomYYYYMMDD(periodeStart));
     session.set("periodeSlutt", formaterDatoSomYYYYMMDD(periodeSlutt));
-    return redirect(internalNavigation(orgnr).opprettKravUtbetaling, {
+    return redirect(pathByOrgnr(orgnr).opprettKravUtbetaling, {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
@@ -238,7 +238,7 @@ export default function OpprettKravInnsendingsinformasjon() {
             <BodyLong spacing>
               I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre
               krav om utbetaling skal sendes inn via utbetalingene i{" "}
-              <Link as={ReactRouterLink} to={internalNavigation(orgnr).utbetalinger}>
+              <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
                 Utbetalingsoversikten.
               </Link>
             </BodyLong>

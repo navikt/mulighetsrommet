@@ -1,6 +1,6 @@
 import { Heading, Hide, HStack, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Outlet, useLocation } from "react-router";
-import { internalNavigation } from "~/internal-navigation";
+import { pathByOrgnr } from "~/pathByOrgnr";
 import { Link as ReactRouterLink } from "react-router";
 import { useOrgnrFromUrl } from "~/utils";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
@@ -31,7 +31,7 @@ export default function UtbetalingLayout() {
 
   return (
     <VStack gap="4" width="100%" className="bg-bg-subtle flex-1 px-10 pt-4 pb-10">
-      <Link as={ReactRouterLink} to={internalNavigation(orgnr).utbetalinger} className="max-w-max">
+      <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger} className="max-w-max">
         <ChevronLeftIcon /> Tilbake til oversikt
       </Link>
       <HStack gap="10" width="100%" justify="center" className="xl:max-w-[1920px] xl:mx-auto">

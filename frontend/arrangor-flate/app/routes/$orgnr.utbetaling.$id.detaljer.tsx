@@ -12,7 +12,7 @@ import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { Definisjonsliste } from "../components/Definisjonsliste";
-import { internalNavigation } from "../internal-navigation";
+import { pathByOrgnr } from "../pathByOrgnr";
 import { tekster } from "../tekster";
 import { formaterDato, formaterPeriode, problemDetailResponse } from "../utils";
 import { getBeregningDetaljer } from "../utils/beregning";
@@ -99,7 +99,7 @@ export default function UtbetalingDetaljerSide() {
           title="Detaljer"
           tilbakeLenke={{
             navn: tekster.bokmal.tilbakeTilOversikt,
-            url: internalNavigation(utbetaling.arrangor.organisasjonsnummer).utbetalinger,
+            url: pathByOrgnr(utbetaling.arrangor.organisasjonsnummer).utbetalinger,
           }}
         />
         <Spacer />

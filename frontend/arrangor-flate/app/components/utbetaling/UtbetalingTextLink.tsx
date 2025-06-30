@@ -1,7 +1,7 @@
 import { Link } from "@navikt/ds-react";
 import { ArrFlateUtbetalingStatus } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
-import { internalNavigation } from "~/internal-navigation";
+import { pathByOrgnr } from "~/pathByOrgnr";
 
 interface UtbetalingTextLinkProps {
   status: ArrFlateUtbetalingStatus;
@@ -22,7 +22,7 @@ export function UtbetalingTextLink({
         <Link
           as={ReactRouterLink}
           aria-label={`Start innsending for krav om utbetaling for ${gjennomforingNavn}`}
-          to={internalNavigation(orgnr).innsendingsinformasjon(utbetalingId)}
+          to={pathByOrgnr(orgnr).innsendingsinformasjon(utbetalingId)}
         >
           Start innsending
         </Link>
@@ -33,7 +33,7 @@ export function UtbetalingTextLink({
         <Link
           as={ReactRouterLink}
           aria-label={`Se innsending for krav om utbetaling for ${gjennomforingNavn}`}
-          to={internalNavigation(orgnr).beregning(utbetalingId)}
+          to={pathByOrgnr(orgnr).beregning(utbetalingId)}
         >
           Se hvorfor
         </Link>
@@ -44,7 +44,7 @@ export function UtbetalingTextLink({
         <Link
           as={ReactRouterLink}
           aria-label={`Detaljer for krav om utbetaling for ${gjennomforingNavn}`}
-          to={internalNavigation(orgnr).detaljer(utbetalingId)}
+          to={pathByOrgnr(orgnr).detaljer(utbetalingId)}
         >
           Detaljer
         </Link>

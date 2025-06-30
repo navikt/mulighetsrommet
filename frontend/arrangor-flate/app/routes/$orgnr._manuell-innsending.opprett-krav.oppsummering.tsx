@@ -17,7 +17,7 @@ import {
   useLoaderData,
   redirect,
 } from "react-router";
-import { internalNavigation } from "~/internal-navigation";
+import { pathByOrgnr } from "~/pathByOrgnr";
 import { ArrangorflateService, ArrangorflateTilsagn, FieldError } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
@@ -167,7 +167,7 @@ export const action: ActionFunction = async ({ request }) => {
       throw problemDetailResponse(error);
     }
   } else {
-    return redirect(`${internalNavigation(orgnr!).kvittering(utbetalingId)}`, {
+    return redirect(`${pathByOrgnr(orgnr!).kvittering(utbetalingId)}`, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },
@@ -251,7 +251,7 @@ export default function OpprettKravOppsummering() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={internalNavigation(orgnr).opprettKravUtbetaling}
+                to={pathByOrgnr(orgnr).opprettKravUtbetaling}
               >
                 Tilbake
               </Button>

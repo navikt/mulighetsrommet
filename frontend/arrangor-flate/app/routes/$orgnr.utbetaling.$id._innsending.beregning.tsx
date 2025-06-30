@@ -28,7 +28,7 @@ import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { internalNavigation } from "~/internal-navigation";
+import { pathByOrgnr } from "~/pathByOrgnr";
 import { Environment, getEnvironment } from "~/services/environment";
 import {
   formaterDato,
@@ -130,14 +130,14 @@ export default function UtbetalingBeregning() {
             as={ReactRouterLink}
             type="button"
             variant="tertiary"
-            to={internalNavigation(orgnr).innsendingsinformasjon(utbetaling.id)}
+            to={pathByOrgnr(orgnr).innsendingsinformasjon(utbetaling.id)}
           >
             Tilbake
           </Button>
           <Button
             as={ReactRouterLink}
             className="justify-self-end"
-            to={internalNavigation(orgnr).oppsummering(utbetaling.id)}
+            to={pathByOrgnr(orgnr).oppsummering(utbetaling.id)}
           >
             Neste
           </Button>
