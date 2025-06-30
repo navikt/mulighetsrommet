@@ -1,10 +1,11 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, SortState, Table } from "@navikt/ds-react";
+import { Alert, HelpText, HStack, SortState, Table, VStack } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { ArrFlateUtbetalingKompakt } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { UtbetalingTextLink } from "./UtbetalingTextLink";
+import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
@@ -60,6 +61,8 @@ export function UtbetalingTable({ utbetalinger }: Props) {
     );
   }
 
+  const harUtbetalingsType = sortedData.some((utbetaling) => utbetaling.type);
+
   return (
     <Table
       aria-label="Utbetalinger"
@@ -86,10 +89,25 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           </Table.ColumnHeader>
           <Table.ColumnHeader scope="col" className="w-10"></Table.ColumnHeader>
           <Table.ColumnHeader scope="col"></Table.ColumnHeader>
+          <Table.ColumnHeader align="right" hidden={!harUtbetalingsType}>
+            <HStack gap="2">
+              Type
+              <HelpText title="Hva betyr forkortelsene?">
+                <VStack gap="1" className="text-left">
+                  <div>
+                    <b>KOR:</b> Korrigering - opprettet av NAV
+                  </div>
+                  <div>
+                    <b>INV:</b> Investering - utbetalingskrav fra deg
+                  </div>
+                </VStack>
+              </HelpText>
+            </HStack>
+          </Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(({ id, status, belop, periode, gjennomforing, tiltakstype }) => {
+        {sortedData.map(({ id, status, belop, periode, gjennomforing, tiltakstype, type }) => {
           return (
             <React.Fragment key={id}>
               <Table.Row>
@@ -109,6 +127,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                     utbetalingId={id}
                   />
                 </Table.DataCell>
+                {harUtbetalingsType && (
+                  <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
+                )}
               </Table.Row>
             </React.Fragment>
           );

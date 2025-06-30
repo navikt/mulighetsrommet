@@ -33,7 +33,7 @@ data class ArrFlateUtbetalingKompaktDto(
             arrangor = utbetaling.arrangor,
             periode = utbetaling.periode,
             belop = utbetaling.beregning.output.belop,
-            type = UtbetalingType.from(utbetaling)
+            type = UtbetalingType.from(utbetaling),
         )
     }
 }

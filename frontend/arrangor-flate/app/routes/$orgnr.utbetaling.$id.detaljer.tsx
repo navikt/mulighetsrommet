@@ -1,7 +1,7 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Box, Heading, Spacer, HStack, VStack, Link } from "@navikt/ds-react";
-import { ArrangorflateService, ArrFlateUtbetaling } from "api-client";
+import { ArrangorflateService, ArrFlateUtbetaling, ArrFlateUtbetalingStatus, UtbetalingType } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
@@ -12,6 +12,7 @@ import { tekster } from "../tekster";
 import { formaterDato, formaterPeriode, problemDetailResponse } from "../utils";
 import { getBeregningDetaljer } from "../utils/beregning";
 import css from "../root.module.css";
+import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
@@ -71,6 +72,18 @@ export default function UtbetalingDetaljerSide() {
 
   const innsendtTidspunkt = getTimestamp(utbetaling);
 
+  const innsendingHeader = (type: UtbetalingType | undefined) => {
+    if (type === UtbetalingType.KORRIGERING) {
+      return <UtbetalingTypeText type={type} text={"Korrigering"} />
+    }
+    if (type === UtbetalingType.INVESTERING) {
+      return <UtbetalingTypeText type={type} text={"Utbetaling for investering"} />
+    }
+    return "Innsending"
+  }
+
+  const visNedlastingAvKvittering = [ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING, ArrFlateUtbetalingStatus.UTBETALT].includes(utbetaling.status)
+
   return (
     <VStack gap="4" className={css.side}>
       <HStack gap="2" className="max-w-[1250px]" align="end" justify="space-between">
@@ -82,16 +95,16 @@ export default function UtbetalingDetaljerSide() {
           }}
         />
         <Spacer />
-        <Link
+        {visNedlastingAvKvittering && <Link
           href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=utbetaling-${formaterDato(utbetaling.periode.start)}.pdf`}
           target="_blank"
         >
           <FilePdfIcon />
           Last ned som PDF (Åpner i ny fane)
-        </Link>
+        </Link>}
       </HStack>
       <Heading level="2" size="medium">
-        Innsending
+        {innsendingHeader(utbetaling.type)}
       </Heading>
       <Definisjonsliste
         definitions={[
