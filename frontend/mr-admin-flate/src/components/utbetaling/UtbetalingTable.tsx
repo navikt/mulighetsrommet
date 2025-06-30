@@ -96,7 +96,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
             Status
           </TableColumnHeader>
           <TableColumnHeader></TableColumnHeader>
-          <TableColumnHeader align="right" sortKey="type" sortable hidden={!harUtbetalingsType}>
+          <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsType}>
             <HStack gap="2">
               Type
               <HelpText title="Hva betyr forkortelsene?">
@@ -153,7 +153,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 )}
               </Table.DataCell>
               {harUtbetalingsType && (
-                <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
+                <Table.DataCell align="left">
+                  {type && <UtbetalingTypeTag type={type} />}
+                </Table.DataCell>
               )}
             </Table.Row>
           );
