@@ -342,11 +342,20 @@ class UtbetalingService(
 
         val utbetaling = getOrError(delutbetaling.utbetalingId)
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
+
+        delutbetalinger.forEach { delutbetaling ->
+            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+            if (tilsagn.status != TilsagnStatus.GODKJENT) {
+                return returnerDelutbetaling(
+                    delutbetaling,
+                    listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
+                    null,
+                    Tiltaksadministrasjon,
+                )
+            }
+        }
+
         if (delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
-            queries.delutbetaling.setStatusForDelutbetalingerForBetaling(
-                delutbetaling.utbetalingId,
-                DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-            )
             godkjennUtbetaling(utbetaling, delutbetalinger)
         }
     }
@@ -355,19 +364,13 @@ class UtbetalingService(
         utbetaling: Utbetaling,
         delutbetalinger: List<Delutbetaling>,
     ) {
+        queries.delutbetaling.setStatusForDelutbetalingerForBetaling(
+            utbetaling.id,
+            DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+        )
+
         delutbetalinger.forEach { delutbetaling ->
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-            if (tilsagn.status != TilsagnStatus.GODKJENT) {
-                // TODO: kan dette egentlig skje? Hva om den første delutbetalingen godkjennes, men den neste returneres?
-                returnerDelutbetaling(
-                    delutbetaling,
-                    listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
-                    null,
-                    Tiltaksadministrasjon,
-                )
-                return
-            }
-
             queries.tilsagn.setBruktBelop(tilsagn.id, tilsagn.belopBrukt + delutbetaling.belop)
             if (delutbetaling.gjorOppTilsagn) {
                 tilsagnService.gjorOppAutomatisk(delutbetaling.tilsagnId, this)

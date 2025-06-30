@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.delutbetaling1
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.delutbetaling2
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
@@ -706,17 +707,29 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("delutbetaling blir returnert hvis tilsagn har endret status") {
+        test("alle delutbetalinger blir returnert hvis tilsagn ikke har godkjent-status når delutbetaling blir godkjent") {
+            val tilsagn1 = Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                bestillingsnummer = "A-2025/1-1",
+            )
+
+            val tilsagn2 = Tilsagn2.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                bestillingsnummer = "A-2025/1-2",
+            )
+
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
+                tilsagn = listOf(tilsagn1, tilsagn2),
                 utbetalinger = listOf(utbetaling1),
-                delutbetalinger = listOf(delutbetaling1),
+                delutbetalinger = listOf(delutbetaling1, delutbetaling2),
             ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.OPPGJORT)
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(tilsagn2, TilsagnStatus.OPPGJORT)
                 setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
+                setDelutbetalingStatus(delutbetaling2, DelutbetalingStatus.TIL_ATTESTERING)
                 setRoller(
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
@@ -732,9 +745,25 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             database.run {
-                val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling1.id, Totrinnskontroll.Type.OPPRETT)
-                opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
-                opprettelse.besluttelse shouldBe Besluttelse.AVVIST
+                queries.delutbetaling.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
+                    first.id shouldBe delutbetaling2.id
+                    first.status shouldBe DelutbetalingStatus.RETURNERT
+
+                    second.id shouldBe delutbetaling1.id
+                    second.status shouldBe DelutbetalingStatus.RETURNERT
+                }
+
+                queries.totrinnskontroll.getOrError(delutbetaling1.id, Totrinnskontroll.Type.OPPRETT).should {
+                    it.besluttetAv shouldBe Tiltaksadministrasjon
+                    it.besluttelse shouldBe Besluttelse.AVVIST
+                }
+
+                queries.totrinnskontroll.getOrError(delutbetaling2.id, Totrinnskontroll.Type.OPPRETT).should {
+                    it.besluttetAv shouldBe Tiltaksadministrasjon
+                    it.besluttelse shouldBe Besluttelse.AVVIST
+                }
+
+                queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
             }
         }
 
