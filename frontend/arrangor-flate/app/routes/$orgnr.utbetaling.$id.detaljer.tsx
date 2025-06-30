@@ -1,7 +1,12 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Box, Heading, Spacer, HStack, VStack, Link } from "@navikt/ds-react";
-import { ArrangorflateService, ArrFlateUtbetaling, ArrFlateUtbetalingStatus, UtbetalingType } from "api-client";
+import {
+  ArrangorflateService,
+  ArrFlateUtbetaling,
+  ArrFlateUtbetalingStatus,
+  UtbetalingType,
+} from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
@@ -74,15 +79,18 @@ export default function UtbetalingDetaljerSide() {
 
   const innsendingHeader = (type: UtbetalingType | undefined) => {
     if (type === UtbetalingType.KORRIGERING) {
-      return <UtbetalingTypeText type={type} text={"Korrigering"} />
+      return <UtbetalingTypeText type={type} text={"Korrigering"} />;
     }
     if (type === UtbetalingType.INVESTERING) {
-      return <UtbetalingTypeText type={type} text={"Utbetaling for investering"} />
+      return <UtbetalingTypeText type={type} text={"Utbetaling for investering"} />;
     }
-    return "Innsending"
-  }
+    return "Innsending";
+  };
 
-  const visNedlastingAvKvittering = [ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING, ArrFlateUtbetalingStatus.UTBETALT].includes(utbetaling.status)
+  const visNedlastingAvKvittering = [
+    ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+    ArrFlateUtbetalingStatus.UTBETALT,
+  ].includes(utbetaling.status);
 
   return (
     <VStack gap="4" className={css.side}>
@@ -95,13 +103,15 @@ export default function UtbetalingDetaljerSide() {
           }}
         />
         <Spacer />
-        {visNedlastingAvKvittering && <Link
-          href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=utbetaling-${formaterDato(utbetaling.periode.start)}.pdf`}
-          target="_blank"
-        >
-          <FilePdfIcon />
-          Last ned som PDF (Åpner i ny fane)
-        </Link>}
+        {visNedlastingAvKvittering && (
+          <Link
+            href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=utbetaling-${formaterDato(utbetaling.periode.start)}.pdf`}
+            target="_blank"
+          >
+            <FilePdfIcon />
+            Last ned som PDF (Åpner i ny fane)
+          </Link>
+        )}
       </HStack>
       <Heading level="2" size="medium">
         {innsendingHeader(utbetaling.type)}

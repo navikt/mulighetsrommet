@@ -13,7 +13,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
-import { UtbetalingTypeTag } from "./UtbetalingTypeTag";
+import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 
 interface Props {
   utbetalinger: UtbetalingKompaktDto[];
