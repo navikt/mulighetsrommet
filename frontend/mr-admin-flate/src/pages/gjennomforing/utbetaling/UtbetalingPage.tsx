@@ -36,7 +36,7 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect, useState } from "react";
 import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
 import { ForhandsgodkjentDeltakerTableModal } from "./ForhandsgodkjentDeltakerTableModal";
-import { UtbetalingTypeTag } from "@/components/utbetaling/UtbetalingTypeTag";
+import { UtbetalingTypeText } from "@/components/utbetaling/UtbetalingTypeTag";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -121,7 +121,7 @@ export function UtbetalingPage() {
                     {utbetaling.type && (
                       <MetadataHorisontal
                         header="Type"
-                        verdi={<UtbetalingTypeTag type={utbetaling.type} />}
+                        verdi={<UtbetalingTypeText type={utbetaling.type} />}
                       />
                     )}
                     <MetadataHorisontal
