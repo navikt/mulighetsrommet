@@ -166,6 +166,7 @@ fun Route.tilsagnRoutes() {
                 val navIdent = getNavIdent()
 
                 service.tilAnnulleringRequest(id, navIdent, request)
+
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -182,7 +183,12 @@ fun Route.tilsagnRoutes() {
             delete("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                call.respondWithStatusResponse(service.slettTilsagn(id, navIdent))
+
+                val result = service.slettTilsagn(id, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
         }
 
@@ -192,7 +198,11 @@ fun Route.tilsagnRoutes() {
                 val request = call.receive<BesluttTilsagnRequest>()
                 val navIdent = getNavIdent()
 
-                call.respondWithStatusResponse(service.beslutt(id, request, navIdent))
+                val result = service.beslutt(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
         }
     }
@@ -269,13 +279,13 @@ sealed class BesluttTilsagnRequest(
 ) {
     @Serializable
     @SerialName("GODKJENT")
-    data object GodkjentTilsagnRequest : BesluttTilsagnRequest(
+    data object Godkjent : BesluttTilsagnRequest(
         besluttelse = Besluttelse.GODKJENT,
     )
 
     @Serializable
     @SerialName("AVVIST")
-    data class AvvistTilsagnRequest(
+    data class Avvist(
         val aarsaker: List<TilsagnStatusAarsak>,
         val forklaring: String?,
     ) : BesluttTilsagnRequest(

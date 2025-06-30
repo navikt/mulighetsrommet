@@ -170,7 +170,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest)
+                    setBody(BesluttDelutbetalingRequest.Godkjent)
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
@@ -193,7 +193,7 @@ class UtbetalingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
+                        BesluttDelutbetalingRequest.Godkjent,
                     )
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized

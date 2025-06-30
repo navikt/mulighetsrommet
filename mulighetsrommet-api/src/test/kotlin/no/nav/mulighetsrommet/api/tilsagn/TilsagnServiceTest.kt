@@ -1,11 +1,9 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import arrow.core.left
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -24,7 +22,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
@@ -35,7 +32,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -294,7 +290,10 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
-            service.slettTilsagn(request.id, ansatt1) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+            service.slettTilsagn(
+                request.id,
+                ansatt1,
+            ) shouldBeLeft listOf(FieldError.of("Kan ikke slette tilsagn som er godkjent"))
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {
@@ -303,11 +302,14 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.slettTilsagn(request.id, ansatt1) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+            service.slettTilsagn(
+                request.id,
+                ansatt1,
+            ) shouldBeLeft listOf(FieldError.of("Kan ikke slette tilsagn som er godkjent"))
         }
 
         test("kan slette tilsagn når det er returnert") {
@@ -316,7 +318,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 request.id,
-                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                BesluttTilsagnRequest.Avvist(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
@@ -336,7 +338,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 request.id,
-                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                BesluttTilsagnRequest.Avvist(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
@@ -357,7 +359,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 request.id,
-                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                BesluttTilsagnRequest.Avvist(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
@@ -365,6 +367,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(request.id, ansatt1).shouldBeRight()
+
             verify(exactly = 0) { navAnsattService.getNavAnsattByNavIdent(any()) }
             database.run {
                 queries.notifications.getAll().size shouldBe 0
@@ -385,11 +388,11 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt1,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
-                it.errors shouldContain FieldError.root("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)")
-            }
+            ) shouldBeLeft listOf(
+                FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
+            )
         }
 
         test("kan ikke beslutte når ansatt bare har beslutter-rolle ved andre kostnadssteder") {
@@ -405,11 +408,11 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt1,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
-                it.errors shouldContain FieldError.root("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)")
-            }
+            ) shouldBeLeft listOf(
+                FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
+            )
         }
 
         test("kan ikke beslutte egne opprettelser") {
@@ -418,11 +421,9 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt1,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>().should {
-                it.errors shouldContain FieldError.root("Du kan ikke beslutte et tilsagn du selv har opprettet")
-            }
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte et tilsagn du selv har opprettet"))
         }
 
         test("kan ikke beslutte to ganger") {
@@ -431,15 +432,15 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
-            ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status GODKJENT").left()
+            ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke besluttes fordi det har status GODKJENT"))
         }
 
         test("godkjent tilsagn trigger melding til økonomi") {
@@ -448,7 +449,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -480,7 +481,7 @@ class TilsagnServiceTest : FunSpec({
             service.beslutt(
                 id = request.id,
                 navIdent = ansatt2,
-                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                besluttelse = BesluttTilsagnRequest.Avvist(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
@@ -507,7 +508,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -534,7 +535,7 @@ class TilsagnServiceTest : FunSpec({
             service.beslutt(
                 id = request.id,
                 navIdent = ansatt2,
-                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                besluttelse = BesluttTilsagnRequest.Avvist(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
@@ -558,7 +559,7 @@ class TilsagnServiceTest : FunSpec({
             service.beslutt(
                 id = request.id,
                 navIdent = ansatt1,
-                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                besluttelse = BesluttTilsagnRequest.Avvist(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
@@ -586,7 +587,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -611,7 +612,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
@@ -632,7 +633,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -654,7 +655,7 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
@@ -673,7 +674,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1).shouldBeRight()
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt2,
             ).shouldBeRight()
             service.tilAnnulleringRequest(
@@ -686,11 +687,9 @@ class TilsagnServiceTest : FunSpec({
             )
             service.beslutt(
                 id = request.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
                 navIdent = ansatt1,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte annullering du selv har opprettet"))
-            }
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte annullering du selv har opprettet"))
             database.run { queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_ANNULLERING }
         }
     }
@@ -698,14 +697,63 @@ class TilsagnServiceTest : FunSpec({
     context("Gjør opp tilsagn") {
         val service = createTilsagnService()
 
-        test("totrinnskontroll kreves for oppgjør av tilsagn") {
+        test("kan ikke gjøre opp egen") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt2,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.tilGjorOppRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
+            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt1,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte oppgjør du selv har opprettet"))
+
+            database.run {
+                queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            }
+        }
+
+        test("kan avvise eget oppgjør") {
+            service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt2,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.tilGjorOppRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
+            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt1,
+                besluttelse = BesluttTilsagnRequest.Avvist(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+        }
+
+        test("oppgjort tilsagn trigger melding til økonomi") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.beslutt(
                 id = request.id,
                 navIdent = ansatt2,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
             val bestillingsnummer = database.run { queries.tilsagn.getOrError(request.id).bestilling.bestillingsnummer }
 
@@ -729,7 +777,7 @@ class TilsagnServiceTest : FunSpec({
             service.beslutt(
                 id = request.id,
                 navIdent = ansatt2,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
             ).shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
@@ -752,53 +800,6 @@ class TilsagnServiceTest : FunSpec({
                 }
         }
 
-        test("kan ikke gjøre opp egen") {
-            service.upsert(request, ansatt1)
-                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
-            service.beslutt(
-                id = request.id,
-                navIdent = ansatt2,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-
-            service.tilGjorOppRequest(
-                id = request.id,
-                navIdent = ansatt1,
-                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
-            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
-            service.beslutt(
-                id = request.id,
-                navIdent = ansatt1,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
-                it.errors shouldBe listOf(FieldError.root("Du kan ikke beslutte oppgjør du selv har opprettet"))
-            }
-            database.run { queries.tilsagn.getOrError(request.id).status shouldBe TilsagnStatus.TIL_OPPGJOR }
-        }
-
-        test("kan avvise eget oppgjør") {
-            service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
-            service.beslutt(
-                id = request.id,
-                navIdent = ansatt2,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-
-            service.tilGjorOppRequest(
-                id = request.id,
-                navIdent = ansatt1,
-                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
-            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
-            service.beslutt(
-                id = request.id,
-                navIdent = ansatt1,
-                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = null,
-                ),
-            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-        }
-
         test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -806,10 +807,10 @@ class TilsagnServiceTest : FunSpec({
             service.beslutt(
                 id = request.id,
                 navIdent = ansatt2,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                besluttelse = BesluttTilsagnRequest.Godkjent,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            database.db.session {
+            database.run {
                 service.gjorOppAutomatisk(id = request.id, this)
             }.status shouldBe TilsagnStatus.OPPGJORT
 
@@ -819,6 +820,9 @@ class TilsagnServiceTest : FunSpec({
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.besluttelse shouldBe Besluttelse.GODKJENT
                 }
+
+                // Verifiser at det ikke blir sendt oppgjør-melding til økonomi ved automatisk oppgjør
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
             }
         }
     }
