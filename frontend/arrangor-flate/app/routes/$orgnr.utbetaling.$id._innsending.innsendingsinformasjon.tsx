@@ -2,7 +2,7 @@ import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "
 import { LoaderFunction, useLoaderData, Link as ReactRouterLink } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { internalNavigation } from "../internal-navigation";
+import { pathByOrgnr } from "../pathByOrgnr";
 import { formaterPeriode, problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
@@ -86,14 +86,14 @@ export default function TilsagnDetaljerPage() {
               as={ReactRouterLink}
               type="button"
               variant="tertiary"
-              to={internalNavigation(orgnr).utbetalinger}
+              to={pathByOrgnr(orgnr).utbetalinger}
             >
               Avbryt
             </Button>
             <Button
               as={ReactRouterLink}
               aria-label="Neste"
-              to={internalNavigation(orgnr).beregning(utbetaling.id)}
+              to={pathByOrgnr(orgnr).beregning(utbetaling.id)}
             >
               Neste
             </Button>

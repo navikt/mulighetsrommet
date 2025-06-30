@@ -1,4 +1,4 @@
-export const internalNavigation = (orgnr: string) => {
+export const pathByOrgnr = (orgnr: string) => {
   return {
     utbetalinger: `/${orgnr}/oversikt`,
     opprettKravInnsendingsinformasjon: `/${orgnr}/opprett-krav/innsendingsinformasjon`,

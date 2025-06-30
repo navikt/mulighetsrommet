@@ -31,7 +31,7 @@ import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
 import { Separator } from "~/components/Separator";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
-import { internalNavigation } from "~/internal-navigation";
+import { pathByOrgnr } from "~/pathByOrgnr";
 import {
   formaterPeriode,
   isValidationError,
@@ -138,7 +138,7 @@ export const action: ActionFunction = async ({ params, request }) => {
       throw problemDetailResponse(error);
     }
   }
-  return redirect(internalNavigation(orgnr).kvittering(id));
+  return redirect(pathByOrgnr(orgnr).kvittering(id));
 };
 
 export default function BekreftUtbetaling() {
@@ -255,7 +255,7 @@ export default function BekreftUtbetaling() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={internalNavigation(orgnr).beregning(utbetaling.id)}
+                to={pathByOrgnr(orgnr).beregning(utbetaling.id)}
               >
                 Tilbake
               </Button>

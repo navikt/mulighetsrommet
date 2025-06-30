@@ -14,7 +14,7 @@ import {
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
 import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { internalNavigation } from "../internal-navigation";
+import { pathByOrgnr } from "../pathByOrgnr";
 import { errorAt } from "~/utils/validering";
 import { commitSession, getSession } from "~/sessions.server";
 
@@ -90,7 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("belop", belop);
     session.set("kid", kid);
     session.set("kontonummer", kontonummer);
-    return redirect(internalNavigation(orgnr).opprettKravOppsummering, {
+    return redirect(pathByOrgnr(orgnr).opprettKravOppsummering, {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
@@ -142,7 +142,7 @@ export default function OpprettKravUtbetaling() {
               as={ReactRouterLink}
               type="button"
               variant="tertiary"
-              to={internalNavigation(orgnr).opprettKravInnsendingsinformasjon}
+              to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
             >
               Tilbake
             </Button>

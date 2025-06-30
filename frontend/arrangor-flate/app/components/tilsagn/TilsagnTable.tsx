@@ -1,7 +1,7 @@
 import { ArrangorflateTilsagn, TilsagnType } from "api-client";
 import { Alert, Table } from "@navikt/ds-react";
 import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
-import { internalNavigation } from "../../internal-navigation";
+import { pathByOrgnr } from "../../pathByOrgnr";
 import { LinkWithTabState } from "../LinkWithTabState";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 
@@ -53,7 +53,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                     <LinkWithTabState
                       aria-label={`Detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
                       className="hover:underline font-bold no-underline"
-                      to={internalNavigation(orgnr).tilsagn(tilsagn.id)}
+                      to={pathByOrgnr(orgnr).tilsagn(tilsagn.id)}
                     >
                       Detaljer
                     </LinkWithTabState>

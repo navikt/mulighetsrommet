@@ -1,7 +1,7 @@
 import { Select } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import { Arrangor } from "api-client";
-import { internalNavigation } from "~/internal-navigation";
+import { pathByOrgnr } from "~/pathByOrgnr";
 
 interface Props {
   arrangorer: Arrangor[];
@@ -20,7 +20,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
       hideLabel
       name="orgnr"
       onChange={(e) => {
-        navigate(internalNavigation(e.target.value).utbetalinger);
+        navigate(pathByOrgnr(e.target.value).utbetalinger);
       }}
       className="w-80"
     >

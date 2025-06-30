@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { redirect } from "react-router";
-import { internalNavigation } from "../internal-navigation";
+import { pathByOrgnr } from "../pathByOrgnr";
 import { ArrangorflateService } from "api-client";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils";
@@ -25,5 +25,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/ingen-tilgang");
   }
 
-  return redirect(`${internalNavigation(arrangorer[0].organisasjonsnummer).utbetalinger}`);
+  return redirect(`${pathByOrgnr(arrangorer[0].organisasjonsnummer).utbetalinger}`);
 }

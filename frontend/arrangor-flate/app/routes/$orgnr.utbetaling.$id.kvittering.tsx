@@ -9,7 +9,7 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
-import { internalNavigation } from "~/internal-navigation";
+import { pathByOrgnr } from "~/pathByOrgnr";
 import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { tekster } from "../tekster";
 
@@ -63,7 +63,7 @@ export default function UtbetalingKvittering() {
           title={tekster.bokmal.utbetaling.kvittering.headingTitle}
           tilbakeLenke={{
             navn: tekster.bokmal.tilbakeTilOversikt,
-            url: internalNavigation(orgnr).utbetalinger,
+            url: pathByOrgnr(orgnr).utbetalinger,
           }}
         />
         <Alert variant="success">{tekster.bokmal.utbetaling.kvittering.successMelding}</Alert>
@@ -83,7 +83,7 @@ export default function UtbetalingKvittering() {
               {id && (
                 <BodyLong>
                   {tekster.bokmal.utbetaling.kvittering.statusLenkeIntro}{" "}
-                  <Link as={ReactRouterLink} to={internalNavigation(orgnr).detaljer(id)}>
+                  <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).detaljer(id)}>
                     {tekster.bokmal.utbetaling.kvittering.statusLenkeTekst.toLowerCase()}
                   </Link>
                 </BodyLong>
