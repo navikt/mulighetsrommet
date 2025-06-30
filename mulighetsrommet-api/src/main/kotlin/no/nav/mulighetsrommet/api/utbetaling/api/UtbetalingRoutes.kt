@@ -24,10 +24,10 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -214,13 +214,13 @@ sealed class BesluttDelutbetalingRequest(
 ) {
     @Serializable
     @SerialName("GODKJENT")
-    data object GodkjentDelutbetalingRequest : BesluttDelutbetalingRequest(
+    data object Godkjent : BesluttDelutbetalingRequest(
         besluttelse = Besluttelse.GODKJENT,
     )
 
     @Serializable
     @SerialName("AVVIST")
-    data class AvvistDelutbetalingRequest(
+    data class Avvist(
         val aarsaker: List<DelutbetalingReturnertAarsak>,
         val forklaring: String?,
     ) : BesluttDelutbetalingRequest(

@@ -187,11 +187,17 @@ class UtbetalingService(
         }
 
         when (request) {
-            is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
+            is BesluttDelutbetalingRequest.Avvist -> {
+                if (request.aarsaker.isEmpty()) {
+                    return listOf(FieldError.of("Du må velge minst én årsak")).left()
+                } else if (DelutbetalingReturnertAarsak.FEIL_ANNET in request.aarsaker && request.forklaring.isNullOrBlank()) {
+                    return listOf(FieldError.of("Du må skrive en forklaring når du velger 'Annet'")).left()
+                }
+
                 returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
             }
 
-            is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
+            is BesluttDelutbetalingRequest.Godkjent -> {
                 val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
                 if (navIdent == opprettelse.behandletAv) {
                     return listOf(FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet")).left()
