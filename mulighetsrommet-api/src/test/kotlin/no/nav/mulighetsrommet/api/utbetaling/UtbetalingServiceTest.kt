@@ -36,16 +36,15 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.LocalDate
 import java.util.*
@@ -68,6 +67,70 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
     )
+
+    context("opprett utbetaling") {
+        val opprettUtbetaling = UtbetalingValidator.OpprettUtbetaling(
+            id = UUID.randomUUID(),
+            gjennomforingId = AFT1.id,
+            periodeStart = LocalDate.of(2025, 1, 1),
+            periodeSlutt = LocalDate.of(2025, 1, 31),
+            beskrivelse = "Arrangør trenger penger",
+            kontonummer = Kontonummer("12345678901"),
+            kidNummer = null,
+            belop = 10,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            vedlegg = listOf(),
+        )
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+            ).initialize(database.db)
+        }
+
+        test("utbetaling blir opprettet med fri-beregning") {
+            val service = createUtbetalingService()
+
+            val utbetaling = service.opprettUtbetaling(
+                request = opprettUtbetaling,
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            )
+
+            utbetaling.id.shouldNotBeNull()
+            utbetaling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFri>()
+            utbetaling.beregning.input.belop shouldBe 10
+            utbetaling.beregning.output.belop shouldBe 10
+        }
+
+        test("utbetaling blir ikke journalført når den blir opprettet av Nav-ansatt") {
+            val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
+
+            val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
+
+            service.opprettUtbetaling(
+                request = opprettUtbetaling,
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            )
+
+            verify(exactly = 0) { journalforUtbetaling.schedule(any(), any(), any(), any()) }
+        }
+
+        test("utbetaling blir journalført når den blir opprettet av Arrangør") {
+            val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
+
+            val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
+
+            val utbetaling = service.opprettUtbetaling(
+                request = opprettUtbetaling,
+                agent = Arrangor,
+            )
+
+            verify(exactly = 1) { journalforUtbetaling.schedule(utbetaling.id, any(), any(), any()) }
+        }
+    }
 
     context("når utbetaling blir behandlet") {
         test("skal ikke kunne beslutte delutbetaling når ansatt mangler attestant-rolle") {

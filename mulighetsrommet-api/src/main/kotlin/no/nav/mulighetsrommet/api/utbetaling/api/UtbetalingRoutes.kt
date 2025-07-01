@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
-import arrow.core.left
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -144,13 +143,11 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<OpprettUtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                UtbetalingValidator.validateOpprettUtbetalingRequest(utbetalingId, request)
-                    .onLeft {
-                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
-                    }
-                    .onRight { utbetalingService.opprettUtbetaling(it, navIdent) }
+                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(utbetalingId, request)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { utbetalingService.opprettUtbetaling(it, navIdent) }
 
-                call.respond(request)
+                call.respondWithStatusResponse(result)
             }
         }
     }

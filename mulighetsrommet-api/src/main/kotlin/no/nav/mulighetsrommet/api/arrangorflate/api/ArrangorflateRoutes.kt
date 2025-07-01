@@ -138,7 +138,8 @@ fun Route.arrangorflateRoutes() {
                         return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                     }
                     .onRight {
-                        call.respondText(utbetalingService.opprettUtbetaling(it, Arrangor).toString())
+                        val utbetaling = utbetalingService.opprettUtbetaling(it, Arrangor)
+                        call.respondText(utbetaling.id.toString())
                     }
             }
 

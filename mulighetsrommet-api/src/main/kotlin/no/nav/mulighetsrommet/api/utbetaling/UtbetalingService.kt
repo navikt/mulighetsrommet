@@ -95,10 +95,11 @@ class UtbetalingService(
             .right()
     }
 
+    // TODO: valider at utbetaling ikke finnes fra før av (kun opprett, ikke update)
     fun opprettUtbetaling(
         request: UtbetalingValidator.OpprettUtbetaling,
         agent: Agent,
-    ): UUID = db.transaction {
+    ): Utbetaling = db.transaction {
         queries.utbetaling.upsert(
             UtbetalingDbo(
                 id = request.id,
@@ -124,10 +125,20 @@ class UtbetalingService(
                 },
             ),
         )
+
         val dto = getOrError(request.id)
         logEndring("Utbetaling sendt inn", dto, agent)
-        journalforUtbetaling.schedule(dto.id, Instant.now(), session as TransactionalSession, request.vedlegg)
-        dto.id
+
+        if (agent is Arrangor) {
+            journalforUtbetaling.schedule(
+                utbetalingId = dto.id,
+                startTime = Instant.now(),
+                tx = session as TransactionalSession,
+                vedlegg = request.vedlegg,
+            )
+        }
+
+        dto
     }
 
     fun opprettDelutbetalinger(
