@@ -21,7 +21,7 @@ export function Header({ arrangorer }: Props) {
             className="text-text-default no-underline"
             to="/"
           >
-            Utbetalinger
+            Tilsagn og utbetalinger
           </Heading>
         </HStack>
         <Arrangorvelger arrangorer={arrangorer} />
