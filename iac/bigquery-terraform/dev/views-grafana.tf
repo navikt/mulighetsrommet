@@ -172,3 +172,46 @@ ORDER BY
   created_date
 EOF
 }
+
+module "grafana_tilsagn_feilet_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "tilsagn_feilet_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "bestillingsnummer"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "type"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "status"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "bestilling_status"
+        type = "STRING"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  bestillingsnummer,
+  type,
+  status,
+  bestilling_status
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilsagn`
+WHERE
+  bestilling_status = 'FEILET'
+EOF
+}
