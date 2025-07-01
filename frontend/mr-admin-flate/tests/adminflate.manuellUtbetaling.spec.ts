@@ -5,13 +5,15 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
+const korreksjonsKnappTekst = "Opprette korreksjon på utbetaling"
+
 test.describe("Manuell utbetaling", () => {
-  test("Kan navigere til og klikke på opprett manuell utbetaling", async ({ page }) => {
+  test(`Kan navigere til og klikke på ${korreksjonsKnappTekst}`, async ({ page }) => {
     await page.getByRole("link", { name: "Gjennomføringer" }).nth(0).click();
     await page.locator("table").getByRole("cell").first().click();
     await page.getByRole("tab", { name: "Utbetalinger" }).click();
     await page.getByRole("button", { name: "Handlinger" }).click();
-    await page.getByRole("button", { name: "Opprett manuell utbetaling" }).click();
+    await page.getByRole("button", { name: korreksjonsKnappTekst }).click();
     await expect(page).toHaveURL(/.*\/skjema$/);
   });
 
@@ -20,7 +22,7 @@ test.describe("Manuell utbetaling", () => {
     await page.locator("table").getByRole("cell").first().click();
     await page.getByRole("tab", { name: "Utbetalinger" }).click();
     await page.getByRole("button", { name: "Handlinger" }).click();
-    await page.getByRole("button", { name: "Opprett manuell utbetaling" }).click();
+    await page.getByRole("button", { name: korreksjonsKnappTekst }).click();
     await page.getByRole("button", { name: "Opprett" }).click();
     await expect(page.getByText("Du må sette startdato for perioden")).toBeVisible();
     await expect(page.getByText("Du må sette sluttdato for perioden")).toBeVisible();
@@ -33,7 +35,7 @@ test.describe("Manuell utbetaling", () => {
     await page.locator("table").getByRole("cell").first().click();
     await page.getByRole("tab", { name: "Utbetalinger" }).click();
     await page.getByRole("button", { name: "Handlinger" }).click();
-    await page.getByRole("button", { name: "Opprett manuell utbetaling" }).click();
+    await page.getByRole("button", { name: korreksjonsKnappTekst }).click();
     await page.getByLabel("Periodestart").fill("01.01.2025");
     await page.getByLabel("Periodeslutt").fill("31.01.2025");
     await page.getByLabel("beløp").fill("100");
