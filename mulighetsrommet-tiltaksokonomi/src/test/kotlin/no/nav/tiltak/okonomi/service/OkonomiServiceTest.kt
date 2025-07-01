@@ -4,6 +4,7 @@ import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -14,10 +15,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
-import no.nav.mulighetsrommet.brreg.BrregAdresse
-import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
-import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.kafka.toStoredProducerRecord
@@ -30,6 +28,7 @@ import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language
@@ -46,10 +45,11 @@ class OkonomiServiceTest : FunSpec({
         initializeData(db)
     }
 
-    val leverandor = BrregHovedenhetDto(
+    val arrangorHovedenhet = BrregHovedenhetDto(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Tiltaksarrangør AS",
+        overordnetEnhet = null,
         postadresse = null,
         forretningsadresse = BrregAdresse(
             landkode = "NO",
@@ -57,6 +57,12 @@ class OkonomiServiceTest : FunSpec({
             poststed = "OSLO",
             adresse = listOf("Gateveien 1"),
         ),
+    )
+    val arrangorUnderenhet = BrregUnderenhetDto(
+        organisasjonsnummer = Organisasjonsnummer("234567891"),
+        organisasjonsform = "BEDR",
+        navn = "Tiltaksarrangør Underenhet",
+        overordnetEnhet = Organisasjonsnummer("123456789"),
     )
 
     val brreg: BrregClient = mockk()
@@ -70,7 +76,9 @@ class OkonomiServiceTest : FunSpec({
 
     context("opprett bestilling") {
         test("feiler når oebs svarer med feil") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns arrangorHovedenhet.right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
+
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
             val opprettBestilling = createOpprettBestilling("1")
@@ -80,7 +88,9 @@ class OkonomiServiceTest : FunSpec({
         }
 
         test("feiler når kontering mangler for bestilling") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns arrangorHovedenhet.right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
+
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             val opprettBestilling = createOpprettBestilling("2").copy(
@@ -91,52 +101,136 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
+        test("feiler når underenhet er slettet") {
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns SlettetBrregUnderenhetDto(
+                organisasjonsnummer = Organisasjonsnummer("234567891"),
+                organisasjonsform = "BEDR",
+                navn = "Tiltaksarrangør Underenhet",
+                slettetDato = LocalDate.of(2025, 1, 1),
+            ).right()
+
+            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+
+            val opprettBestilling = createOpprettBestilling("3")
+
+            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
+                it.message shouldBe "Underenhet med orgnr 234567891 er slettet"
+            }
+        }
+
         test("feiler når hovedenhet er slettet") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns SlettetBrregHovedenhetDto(
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns SlettetBrregHovedenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Tiltaksarrangør AS",
                 slettetDato = LocalDate.of(2025, 1, 1),
             ).right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
+
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettBestilling = createOpprettBestilling("3").copy(
-                arrangor = OpprettBestilling.Arrangor(
-                    hovedenhet = Organisasjonsnummer("123456789"),
-                    underenhet = Organisasjonsnummer("234567891"),
-                ),
-            )
+            val opprettBestilling = createOpprettBestilling("3")
+
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
-                it.message shouldBe "Hovedenhet med orgnr ${opprettBestilling.arrangor.hovedenhet} er slettet"
+                it.message shouldBe "Hovedenhet med orgnr 123456789 er slettet"
             }
         }
 
         test("feiler når leverandør mangler adresse") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns BrregHovedenhetDto(
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns BrregHovedenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Tiltaksarrangør AS",
+                overordnetEnhet = null,
                 postadresse = null,
                 forretningsadresse = null,
             ).right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
+
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettBestilling = createOpprettBestilling("3").copy(
-                arrangor = OpprettBestilling.Arrangor(
-                    hovedenhet = Organisasjonsnummer("123456789"),
-                    underenhet = Organisasjonsnummer("234567891"),
-                ),
-            )
+            val opprettBestilling = createOpprettBestilling("3")
+
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke utlede adresse for leverandør 123456789"
             }
         }
 
-        test("nuf uten postnummer feiler ikke") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns BrregHovedenhetDto(
+        test("oppretter bestilling med hovedenhet hentet fra brreg") {
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns arrangorHovedenhet.right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
+
+            val mockEngine = createMockEngine {
+                post(OebsPoApClient.BESTILLING_ENDPOINT) {
+                    val melding = it.decodeRequestBody<OebsBestillingMelding>()
+
+                    melding.selger.organisasjonsNummer shouldBe "123456789"
+                    melding.selger.organisasjonsNavn shouldBe "Tiltaksarrangør AS"
+                    melding.selger.adresse shouldContain OebsBestillingMelding.Selger.Adresse(
+                        gateNavn = "Gateveien 1",
+                        by = "OSLO",
+                        postNummer = "0170",
+                        landsKode = "NO",
+                    )
+                    melding.selger.bedriftsNummer shouldBe "234567891"
+
+                    respondOk()
+                }
+            }
+
+            val service = createOkonomiService(oebsClient(mockEngine))
+
+            val opprettBestilling = createOpprettBestilling("11")
+
+            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+                it.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
+                it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
+            }
+        }
+
+        test("oppretter bestilling med øverste organisasjonsledd hentet fra brreg") {
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("345678912")) } returns arrangorHovedenhet.copy(
+                organisasjonsnummer = Organisasjonsnummer("345678912"),
+                organisasjonsform = "STAT",
+                navn = "Tiltaksarrangør Øverste Organisasjonsledd",
+            ).right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns BrregHovedenhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
+                organisasjonsform = "ORGL",
+                navn = "Tiltaksarrangør Organisasjonsledd",
+                overordnetEnhet = Organisasjonsnummer("345678912"),
+                postadresse = null,
+                forretningsadresse = null,
+            ).right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
+
+            val mockEngine = createMockEngine {
+                post(OebsPoApClient.BESTILLING_ENDPOINT) {
+                    val melding = it.decodeRequestBody<OebsBestillingMelding>()
+
+                    melding.selger.organisasjonsNummer shouldBe "345678912"
+                    melding.selger.organisasjonsNavn shouldBe "Tiltaksarrangør Øverste Organisasjonsledd"
+
+                    respondOk()
+                }
+            }
+
+            val service = createOkonomiService(oebsClient(mockEngine))
+
+            val opprettBestilling = createOpprettBestilling("3")
+
+            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+                it.arrangorHovedenhet shouldBe Organisasjonsnummer("345678912")
+                it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
+            }
+        }
+
+        test("tillater at postnummer mangler for utenlandske bedrifter") {
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("920238076")) } returns BrregHovedenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("920238076"),
                 organisasjonsform = "NUF",
                 navn = "BOREALIS DESTINATION MANAGEMENT NUF",
+                overordnetEnhet = null,
                 postadresse = null,
                 forretningsadresse = BrregAdresse(
                     landkode = "DK",
@@ -145,15 +239,38 @@ class OkonomiServiceTest : FunSpec({
                     adresse = listOf("Gateveien 1"),
                 ),
             ).right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.copy(
+                overordnetEnhet = Organisasjonsnummer("920238076"),
+            ).right()
 
-            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+            val mockEngine = createMockEngine {
+                post(OebsPoApClient.BESTILLING_ENDPOINT) {
+                    val melding = it.decodeRequestBody<OebsBestillingMelding>()
+
+                    melding.selger.adresse shouldContain OebsBestillingMelding.Selger.Adresse(
+                        gateNavn = "Gateveien 1",
+                        by = "Mariehamn",
+                        postNummer = null,
+                        landsKode = "DK",
+                    )
+
+                    respondOk()
+                }
+            }
+
+            val service = createOkonomiService(oebsClient(mockEngine))
 
             val opprettBestilling = createOpprettBestilling("1")
-            service.opprettBestilling(opprettBestilling).shouldBeRight()
+            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+                it.arrangorHovedenhet shouldBe Organisasjonsnummer("920238076")
+                it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
+            }
         }
 
         test("skal opprette bestilling hos oebs og lagrer utgående melding om status for bestilling") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns arrangorHovedenhet.right()
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
+
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             val opprettBestilling = createOpprettBestilling("1")
@@ -177,7 +294,10 @@ class OkonomiServiceTest : FunSpec({
         test("svarer med eksisterende bestilling og lagrer utgående melding når bestillingsnummer allerede er kjent") {
             val opprettBestilling = createOpprettBestilling("10")
             db.session {
-                val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling).copy(
+                val bestilling = Bestilling.fromOpprettBestilling(
+                    opprettBestilling,
+                    arrangorHovedenhet.organisasjonsnummer,
+                ).copy(
                     status = BestillingStatusType.OPPGJORT,
                 )
                 queries.bestilling.insertBestilling(bestilling)
@@ -209,13 +329,10 @@ class OkonomiServiceTest : FunSpec({
 
         test("annullering feiler når bestilling er oppgjort") {
             db.session {
-                val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling("4")).copy(
-                    status = BestillingStatusType.OPPGJORT,
-                )
+                val bestilling = createBestilling("4", status = BestillingStatusType.OPPGJORT)
                 queries.bestilling.insertBestilling(bestilling)
             }
 
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             val annullerBestilling = createAnnullerBestilling("4")
@@ -226,8 +343,7 @@ class OkonomiServiceTest : FunSpec({
 
         test("annullering feiler når det finnes fakturaer for bestilling") {
             db.session {
-                val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling("5"))
-                    .copy(status = BestillingStatusType.AKTIV)
+                val bestilling = createBestilling("5", status = BestillingStatusType.AKTIV)
                 queries.bestilling.insertBestilling(bestilling)
 
                 val faktura = Faktura.fromOpprettFaktura(
@@ -237,7 +353,6 @@ class OkonomiServiceTest : FunSpec({
                 queries.faktura.insertFaktura(faktura)
             }
 
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             val annullerBestilling = createAnnullerBestilling("5")
@@ -246,15 +361,12 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling("6"))
-            .copy(status = BestillingStatusType.AKTIV)
-
+        val bestilling = createBestilling("6", status = BestillingStatusType.AKTIV)
         db.session {
             queries.bestilling.insertBestilling(bestilling)
         }
 
         test("annullering feiler når oebs svarer med feilkoder") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
             val annullerBestilling = createAnnullerBestilling("6")
@@ -264,11 +376,10 @@ class OkonomiServiceTest : FunSpec({
         }
 
         test("annullering feiler når bestilling ikke er aktiv ennå") {
-            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("87"))
+            val bestilling2 = createBestilling("87")
             db.session {
                 queries.bestilling.insertBestilling(bestilling2)
             }
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
             val annullerBestilling = createAnnullerBestilling("87")
@@ -278,7 +389,6 @@ class OkonomiServiceTest : FunSpec({
         }
 
         test("annullering av bestilling lagrer utgående melding om status for bestilling") {
-            coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             val annullerBestilling = createAnnullerBestilling("6")
@@ -319,8 +429,7 @@ class OkonomiServiceTest : FunSpec({
         val bestillingsnummer = "B1"
 
         db.session {
-            val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
-                .copy(status = BestillingStatusType.AKTIV)
+            val bestilling = createBestilling(bestillingsnummer, status = BestillingStatusType.AKTIV)
             queries.bestilling.insertBestilling(bestilling)
         }
 
@@ -343,7 +452,7 @@ class OkonomiServiceTest : FunSpec({
         }
 
         test("feiler når bestilling ikke er aktiv ennå") {
-            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("876"))
+            val bestilling2 = createBestilling("876")
             db.session {
                 queries.bestilling.insertBestilling(bestilling2)
             }
@@ -398,10 +507,8 @@ class OkonomiServiceTest : FunSpec({
     }
 
     context("gjør opp bestilling") {
-        val bestilling1 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B2"))
-            .copy(status = BestillingStatusType.AKTIV)
-        val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling("B3"))
-            .copy(status = BestillingStatusType.AKTIV)
+        val bestilling1 = createBestilling("B2", status = BestillingStatusType.AKTIV)
+        val bestilling2 = createBestilling("B3", status = BestillingStatusType.AKTIV)
 
         db.session {
             queries.bestilling.insertBestilling(bestilling1)
@@ -534,10 +641,7 @@ private fun createOpprettBestilling(bestillingsnummer: String) = OpprettBestilli
     bestillingsnummer = bestillingsnummer,
     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-    arrangor = OpprettBestilling.Arrangor(
-        hovedenhet = Organisasjonsnummer("123456789"),
-        underenhet = Organisasjonsnummer("234567891"),
-    ),
+    arrangor = Organisasjonsnummer("234567891"),
     avtalenummer = null,
     belop = 1000,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -547,6 +651,37 @@ private fun createOpprettBestilling(bestillingsnummer: String) = OpprettBestilli
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
 )
+
+private fun createBestilling(
+    bestillingsnummer: String,
+    status: BestillingStatusType = BestillingStatusType.SENDT,
+): Bestilling {
+    return Bestilling(
+        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        arrangorHovedenhet = Organisasjonsnummer("234567891"),
+        arrangorUnderenhet = Organisasjonsnummer("123456789"),
+        kostnadssted = NavEnhetNummer("0400"),
+        bestillingsnummer = bestillingsnummer,
+        avtalenummer = null,
+        belop = 1000,
+        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        status = status,
+        opprettelse = Bestilling.Totrinnskontroll(
+            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+        ),
+        annullering = null,
+        linjer = listOf(
+            Bestilling.Linje(
+                linjenummer = 1,
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                belop = 1000,
+            ),
+        ),
+    )
+}
 
 private fun createAnnullerBestilling(bestillingsnummer: String) = AnnullerBestilling(
     bestillingsnummer = bestillingsnummer,

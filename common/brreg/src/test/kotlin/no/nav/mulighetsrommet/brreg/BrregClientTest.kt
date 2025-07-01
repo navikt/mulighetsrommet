@@ -39,6 +39,7 @@ class BrregClientTest : FunSpec({
                         poststed = "OSLO",
                         adresse = listOf("Lørenfaret 1C"),
                     ),
+                    overordnetEnhet = Organisasjonsnummer("932384469"),
                 ),
             )
         }
@@ -115,6 +116,7 @@ class BrregClientTest : FunSpec({
                     poststed = "OSLO",
                     adresse = listOf("Lørenfaret 1C"),
                 ),
+                overordnetEnhet = Organisasjonsnummer("932384469"),
             )
         }
 
@@ -215,6 +217,7 @@ class BrregClientTest : FunSpec({
                     poststed = "OSLO",
                     adresse = listOf("Lørenfaret 1C"),
                 ),
+                overordnetEnhet = Organisasjonsnummer("932384469"),
             )
         }
 

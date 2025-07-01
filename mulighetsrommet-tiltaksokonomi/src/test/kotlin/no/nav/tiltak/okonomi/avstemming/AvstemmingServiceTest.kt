@@ -32,10 +32,7 @@ class AvstemmingServiceTest : FunSpec({
             bestillingsnummer = "1",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            arrangor = OpprettBestilling.Arrangor(
-                hovedenhet = Organisasjonsnummer("123456789"),
-                underenhet = Organisasjonsnummer("234567891"),
-            ),
+            arrangor = Organisasjonsnummer("234567891"),
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -45,6 +42,7 @@ class AvstemmingServiceTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
         ),
+        Organisasjonsnummer("123456789"),
     )
 
     val faktura = Faktura.fromOpprettFaktura(
@@ -87,7 +85,10 @@ class AvstemmingServiceTest : FunSpec({
             val tidspunkt = LocalDateTime.now()
             avstemmingService.dailyAvstemming(server.port)
 
-            val fileContent = server.getFileContent("${sftpClient.properties.directory}/${dailyAvstemmingFilename(tidspunkt)}", UTF_8)
+            val fileContent = server.getFileContent(
+                "${sftpClient.properties.directory}/${dailyAvstemmingFilename(tidspunkt)}",
+                UTF_8,
+            )
             fileContent.isEmpty() shouldBe false
             fileContent.lines().size shouldBe 2
             fileContent.lines() shouldContain bestilling.toDailyCSVRad()

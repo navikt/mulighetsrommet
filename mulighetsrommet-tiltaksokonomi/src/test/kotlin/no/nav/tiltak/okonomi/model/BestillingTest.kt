@@ -14,10 +14,7 @@ class BestillingTest : FunSpec({
             bestillingsnummer = "2025/1",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            arrangor = OpprettBestilling.Arrangor(
-                hovedenhet = Organisasjonsnummer("123456789"),
-                underenhet = Organisasjonsnummer("234567891"),
-            ),
+            arrangor = Organisasjonsnummer("234567891"),
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -28,8 +25,10 @@ class BestillingTest : FunSpec({
             kostnadssted = NavEnhetNummer("0400"),
         )
 
+        val hovedenhet = Organisasjonsnummer("123456789")
+
         test("felter utledes fra OpprettBestilling") {
-            val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
+            val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, hovedenhet)
 
             bestilling.status shouldBe BestillingStatusType.SENDT
             bestilling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
@@ -45,6 +44,7 @@ class BestillingTest : FunSpec({
         test("utleder bestillingslinjer for hver måned i bestillingens periode") {
             val bestilling1 = Bestilling.fromOpprettBestilling(
                 opprettBestilling.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1))),
+                hovedenhet,
             )
             bestilling1.linjer shouldBe listOf(
                 Bestilling.Linje(
@@ -61,6 +61,7 @@ class BestillingTest : FunSpec({
 
             val bestilling2 = Bestilling.fromOpprettBestilling(
                 opprettBestilling.copy(periode = Periode(LocalDate.of(2025, 7, 15), LocalDate.of(2025, 8, 15))),
+                hovedenhet,
             )
             bestilling2.linjer shouldBe listOf(
                 Bestilling.Linje(

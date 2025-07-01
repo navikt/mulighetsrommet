@@ -38,10 +38,7 @@ class OebsRoutesTest : FunSpec({
             bestillingsnummer = "1",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            arrangor = OpprettBestilling.Arrangor(
-                hovedenhet = Organisasjonsnummer("123456789"),
-                underenhet = Organisasjonsnummer("234567891"),
-            ),
+            arrangor = Organisasjonsnummer("234567891"),
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -51,6 +48,7 @@ class OebsRoutesTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
         ),
+        Organisasjonsnummer("123456789"),
     )
     val faktura = Faktura.fromOpprettFaktura(
         OpprettFaktura(

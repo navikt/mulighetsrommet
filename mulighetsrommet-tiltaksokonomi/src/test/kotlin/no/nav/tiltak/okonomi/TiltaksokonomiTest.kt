@@ -13,7 +13,10 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.api.Bestilling
 import no.nav.tiltak.okonomi.api.Faktura
@@ -100,10 +103,7 @@ class TiltaksokonomiTest : FunSpec({
                             bestillingsnummer = bestillingsnummer,
                             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                            arrangor = OpprettBestilling.Arrangor(
-                                hovedenhet = Organisasjonsnummer("123456789"),
-                                underenhet = Organisasjonsnummer("234567891"),
-                            ),
+                            arrangor = Organisasjonsnummer("234567891"),
                             avtalenummer = "2025/1234",
                             belop = 1000,
                             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -182,6 +182,22 @@ private fun MockEngineBuilder.mockBrregHovedenhet() {
                     "kommune": "OSLO",
                     "kommunenummer": "0301"
                 }
+            }
+        """.trimIndent()
+        respondJson(brregResponse)
+    }
+
+    get("https://data.brreg.no/enhetsregisteret/api/enheter/234567891") {
+        @Language("json")
+        val brregResponse = """
+            {
+                "organisasjonsnummer": "234567891",
+                "navn": "Tiltaksarrangør Underenhet",
+                "organisasjonsform": {
+                    "kode": "BEDR",
+                    "beskrivelse": "Underenhet til næringsdrivende og offentlig forvaltning"
+                },
+                "overordnetEnhet": "123456789"
             }
         """.trimIndent()
         respondJson(brregResponse)

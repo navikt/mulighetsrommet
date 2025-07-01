@@ -38,12 +38,15 @@ data class Bestilling(
     )
 
     companion object {
-        fun fromOpprettBestilling(bestilling: OpprettBestilling): Bestilling {
+        fun fromOpprettBestilling(
+            bestilling: OpprettBestilling,
+            arrangorHovedenhet: Organisasjonsnummer,
+        ): Bestilling {
             val perioder = divideBelopByMonthsInPeriode(bestilling.periode, bestilling.belop)
             return Bestilling(
                 tiltakskode = bestilling.tiltakskode,
-                arrangorHovedenhet = bestilling.arrangor.hovedenhet,
-                arrangorUnderenhet = bestilling.arrangor.underenhet,
+                arrangorHovedenhet = arrangorHovedenhet,
+                arrangorUnderenhet = bestilling.arrangor,
                 kostnadssted = bestilling.kostnadssted,
                 bestillingsnummer = bestilling.bestillingsnummer,
                 avtalenummer = bestilling.avtalenummer,

@@ -34,6 +34,7 @@ class ArrangorServiceTest : FunSpec({
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Testbedriften AS",
+        overordnetEnhet = null,
         postadresse = null,
         forretningsadresse = null,
     )

@@ -6,10 +6,8 @@ import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
-import no.nav.mulighetsrommet.brreg.BrregAdresse
-import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
-import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.*
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.api.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
@@ -57,37 +55,31 @@ class OkonomiService(
             )
             ?: return OpprettBestillingError("Kontering for bestilling $bestillingsnummer mangler").left()
 
-        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
-
-        return brreg.getHovedenhet(bestilling.arrangorHovedenhet)
-            .mapLeft { OpprettBestillingError("Klarte ikke hente hovedenhet ${bestilling.arrangorHovedenhet} fra Brreg: $it") }
-            .flatMap {
-                when (it) {
-                    is BrregHovedenhetDto -> it.right()
-
-                    is SlettetBrregHovedenhetDto -> {
-                        OpprettBestillingError("Hovedenhet med orgnr ${bestilling.arrangorHovedenhet} er slettet").left()
-                    }
-                }
-            }
+        return getHovedenhet(opprettBestilling.arrangor)
             .flatMap { hovedenhet ->
                 getLeverandorAdresse(hovedenhet).map { adresse ->
                     OebsBestillingMelding.Selger(
                         organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
                         organisasjonsNavn = hovedenhet.navn,
                         adresse = adresse,
-                        bedriftsNummer = bestilling.arrangorUnderenhet.value,
+                        bedriftsNummer = opprettBestilling.arrangor.value,
                     )
                 }
             }
             .flatMap { selger ->
+                val bestilling = Bestilling.fromOpprettBestilling(
+                    bestilling = opprettBestilling,
+                    arrangorHovedenhet = Organisasjonsnummer(selger.organisasjonsNummer),
+                )
                 val melding = OebsMeldingMapper.toOebsBestillingMelding(bestilling, kontering, selger)
                 log.info("Sender bestilling $bestillingsnummer til oebs")
-                oebs.sendBestilling(melding).mapLeft {
-                    OpprettBestillingError("Klarte ikke sende bestilling $bestillingsnummer til oebs", it)
-                }
+                oebs.sendBestilling(melding)
+                    .mapLeft {
+                        OpprettBestillingError("Klarte ikke sende bestilling $bestillingsnummer til oebs", it)
+                    }
+                    .map { bestilling }
             }
-            .map {
+            .map { bestilling ->
                 log.info("Lagrer bestilling $bestillingsnummer")
                 queries.bestilling.insertBestilling(bestilling)
                 publishBestilling(bestillingsnummer)
@@ -295,6 +287,21 @@ class OkonomiService(
         queries.kvittering.insert(kvitteringJson)
     }
 
+    private suspend fun getHovedenhet(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, BrregHovedenhetDto> {
+        return brreg.getBrregEnhet(organisasjonsnummer)
+            .mapLeft { error ->
+                OpprettBestillingError("Klarte ikke utlede hovedenhet for $organisasjonsnummer fra Brreg: $error")
+            }
+            .flatMap { enhet ->
+                when (enhet) {
+                    is BrregHovedenhetDto -> enhet.overordnetEnhet?.let { getHovedenhet(it) } ?: enhet.right()
+                    is BrregUnderenhetDto -> getHovedenhet(enhet.overordnetEnhet)
+                    is SlettetBrregHovedenhetDto -> OpprettBestillingError("Hovedenhet med orgnr ${organisasjonsnummer.value} er slettet").left()
+                    is SlettetBrregUnderenhetDto -> OpprettBestillingError("Underenhet med orgnr ${enhet.organisasjonsnummer.value} er slettet").left()
+                }
+            }
+    }
+
     private fun QueryContext.setBestillingOppgjort(bestillingsnummer: String) {
         log.info("Setter bestilling $bestillingsnummer til oppgjort")
         queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.OPPGJORT)
@@ -365,6 +372,7 @@ private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adress
             postNummer = it.postnummer ?: return null,
             landsKode = it.landkode ?: return null,
         )
+
         null -> null
         else -> OebsBestillingMelding.Selger.Adresse(
             gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
@@ -385,7 +393,7 @@ private fun venterPaaKvittering(bestilling: Bestilling, fakturaer: List<Faktura>
         BestillingStatusType.ANNULLERT,
         BestillingStatusType.OPPGJORT,
         BestillingStatusType.FEILET,
-        -> {}
+        -> Unit
     }
 
     return fakturaer.any { it.status == FakturaStatusType.SENDT }

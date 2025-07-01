@@ -542,13 +542,6 @@ class TilsagnService(
             "Gjennomføring ${gjennomforing.id} mangler avtale"
         }
 
-        val arrangor = checkNotNull(avtale.arrangor) { "Avtale ${avtale.id} mangler arrangør" }.let {
-            OpprettBestilling.Arrangor(
-                hovedenhet = avtale.arrangor.organisasjonsnummer,
-                underenhet = gjennomforing.arrangor.organisasjonsnummer,
-            )
-        }
-
         val bestilling = OpprettBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             tilskuddstype = when (tilsagn.type) {
@@ -556,7 +549,7 @@ class TilsagnService(
                 else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
             },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = arrangor,
+            arrangor = gjennomforing.arrangor.organisasjonsnummer,
             kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.belop,

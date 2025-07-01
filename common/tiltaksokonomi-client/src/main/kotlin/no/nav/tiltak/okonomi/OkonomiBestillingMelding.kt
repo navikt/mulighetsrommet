@@ -38,7 +38,7 @@ data class OpprettBestilling(
     val bestillingsnummer: String,
     val tilskuddstype: Tilskuddstype,
     val tiltakskode: Tiltakskode,
-    val arrangor: Arrangor,
+    val arrangor: Organisasjonsnummer,
     val kostnadssted: NavEnhetNummer,
     val avtalenummer: String?,
     val belop: Int,
@@ -49,13 +49,7 @@ data class OpprettBestilling(
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,
-) {
-    @Serializable
-    data class Arrangor(
-        val hovedenhet: Organisasjonsnummer,
-        val underenhet: Organisasjonsnummer,
-    )
-}
+)
 
 enum class Tilskuddstype {
     TILTAK_DRIFTSTILSKUDD,
