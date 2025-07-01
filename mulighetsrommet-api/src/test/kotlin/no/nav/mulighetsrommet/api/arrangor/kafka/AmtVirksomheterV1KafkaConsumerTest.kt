@@ -49,6 +49,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             organisasjonsform = "AS",
             navn = amtVirksomhet.navn,
+            overordnetEnhet = null,
             postadresse = null,
             forretningsadresse = null,
         )

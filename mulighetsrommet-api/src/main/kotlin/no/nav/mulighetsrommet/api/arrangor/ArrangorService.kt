@@ -199,6 +199,7 @@ private fun toBrregHovedenhet(arrangor: ArrangorDto): BrregHovedenhet = when {
         organisasjonsnummer = arrangor.organisasjonsnummer,
         organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
         navn = arrangor.navn,
+        overordnetEnhet = null,
         postadresse = null,
         forretningsadresse = null,
     )

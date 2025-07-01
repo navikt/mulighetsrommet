@@ -45,6 +45,7 @@ data class BrregHovedenhetDto(
     override val navn: String,
     override val postadresse: BrregAdresse?,
     override val forretningsadresse: BrregAdresse?,
+    val overordnetEnhet: Organisasjonsnummer?,
 ) : BrregHovedenhet()
 
 @Serializable

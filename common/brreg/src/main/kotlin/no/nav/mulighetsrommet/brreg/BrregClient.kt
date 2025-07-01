@@ -72,6 +72,7 @@ class BrregClient(
                         organisasjonsnummer = it.organisasjonsnummer,
                         organisasjonsform = it.organisasjonsform.kode,
                         navn = it.navn,
+                        overordnetEnhet = it.overordnetEnhet,
                         postadresse = it.postadresse?.toBrregAdresse(),
                         forretningsadresse = it.forretningsadresse?.toBrregAdresse(),
                     )
@@ -114,6 +115,7 @@ class BrregClient(
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
+                overordnetEnhet = enhet.overordnetEnhet,
                 postadresse = enhet.postadresse?.toBrregAdresse(),
                 forretningsadresse = enhet.forretningsadresse?.toBrregAdresse(),
             )
