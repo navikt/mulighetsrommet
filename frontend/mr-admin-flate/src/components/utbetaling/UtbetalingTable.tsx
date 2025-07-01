@@ -95,7 +95,6 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <TableColumnHeader sortKey="status" sortable align="right">
             Status
           </TableColumnHeader>
-          <TableColumnHeader></TableColumnHeader>
           <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsType}>
             <HStack gap="2">
               Type
@@ -111,6 +110,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
               </HelpText>
             </HStack>
           </TableColumnHeader>
+          <TableColumnHeader></TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -140,6 +140,11 @@ export function UtbetalingTable({ utbetalinger }: Props) {
               <Table.DataCell align="right">
                 <UtbetalingStatusTag status={status} />
               </Table.DataCell>
+              {harUtbetalingsType && (
+                <Table.DataCell align="left">
+                  {type && <UtbetalingTypeTag type={type} />}
+                </Table.DataCell>
+              )}
               <Table.DataCell>
                 {status !== AdminUtbetalingStatus.VENTER_PA_ARRANGOR && (
                   <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
@@ -152,11 +157,6 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                   </Link>
                 )}
               </Table.DataCell>
-              {harUtbetalingsType && (
-                <Table.DataCell align="left">
-                  {type && <UtbetalingTypeTag type={type} />}
-                </Table.DataCell>
-              )}
             </Table.Row>
           );
         })}
