@@ -87,9 +87,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <Table.ColumnHeader scope="col" className="min-w-44" sortable sortKey="status">
             Status
           </Table.ColumnHeader>
-          <Table.ColumnHeader scope="col" className="w-10"></Table.ColumnHeader>
-          <Table.ColumnHeader scope="col"></Table.ColumnHeader>
-          <Table.ColumnHeader align="right" hidden={!harUtbetalingsType}>
+          <Table.ColumnHeader scope="col" align="left" hidden={!harUtbetalingsType}>
             <HStack gap="2">
               Type
               <HelpText title="Hva betyr forkortelsene?">
@@ -104,6 +102,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
               </HelpText>
             </HStack>
           </Table.ColumnHeader>
+          <Table.ColumnHeader scope="col"></Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -118,7 +117,11 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 <Table.DataCell>
                   <UtbetalingStatusTag status={status} />
                 </Table.DataCell>
-                <Table.DataCell />
+                {harUtbetalingsType && (
+                  <Table.DataCell align="left">
+                    {type && <UtbetalingTypeTag type={type} />}
+                  </Table.DataCell>
+                )}
                 <Table.DataCell>
                   <UtbetalingTextLink
                     orgnr={orgnr}
@@ -127,9 +130,6 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                     utbetalingId={id}
                   />
                 </Table.DataCell>
-                {harUtbetalingsType && (
-                  <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
-                )}
               </Table.Row>
             </React.Fragment>
           );
