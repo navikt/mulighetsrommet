@@ -111,8 +111,8 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError("/startDato", "Startdato må være før sluttdato"),
-                FieldError("/navEnheter", "Du må velge minst én Nav-region"),
-                FieldError("/arrangor/underenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
+                FieldError("/navRegioner", "Du må velge minst én Nav-region"),
+                FieldError("/arrangorUnderenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
     }
@@ -167,8 +167,8 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
-                FieldError("/navEnheter", "Du må velge minst én Nav-region"),
-                FieldError("/navEnheter", "Du må velge minst én Nav-enhet"),
+                FieldError("/navRegioner", "Du må velge minst én Nav-region"),
+                FieldError("/navKontorer", "Du må velge minst én Nav-enhet"),
             ),
         )
     }
@@ -186,7 +186,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
-                FieldError("/navEnheter", "Nav-enheten 0502 passer ikke i avtalens kontorstruktur"),
+                FieldError("/navKontorer", "Nav-enheten 0502 passer ikke i avtalens kontorstruktur"),
             ),
         )
     }
