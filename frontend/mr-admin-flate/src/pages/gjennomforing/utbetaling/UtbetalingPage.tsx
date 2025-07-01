@@ -157,7 +157,7 @@ export function UtbetalingPage() {
                     />
                     <MetadataHorisontal
                       header="KID (valgfritt)"
-                      verdi={utbetaling.betalingsinformasjon?.kid || "Ikke oppgitt"}
+                      verdi={utbetaling.betalingsinformasjon?.kid || "-"}
                     />
                   </VStack>
                   {utbetaling.journalpostId ? (

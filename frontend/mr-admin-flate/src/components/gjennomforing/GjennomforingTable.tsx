@@ -170,9 +170,11 @@ export function GjennomforingTable({
                           aria-label={`Enheter: ${gjennomforing.kontorstruktur
                             .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
                             .join(", ")}`}
-                          title={`Enheter: ${gjennomforing.kontorstruktur
-                            .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
-                            .join(", ")}`}
+                          title={`Enheter: ${
+                            gjennomforing.kontorstruktur
+                              .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
+                              .join(", ") ?? "-"
+                          }`}
                         >
                           {formaterNavEnheter(
                             gjennomforing.kontorstruktur.flatMap((struktur) =>
@@ -189,7 +191,7 @@ export function GjennomforingTable({
                         <Table.DataCell
                           aria-label={`Tiltaksnummer: ${gjennomforing.tiltaksnummer}`}
                         >
-                          {gjennomforing.tiltaksnummer}
+                          {gjennomforing.tiltaksnummer ?? "-"}
                         </Table.DataCell>
                       </SkjulKolonne>
 
