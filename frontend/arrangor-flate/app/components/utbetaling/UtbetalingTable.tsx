@@ -93,10 +93,10 @@ export function UtbetalingTable({ utbetalinger }: Props) {
               <HelpText title="Hva betyr forkortelsene?">
                 <VStack gap="1" className="text-left">
                   <div>
-                    <b>KOR:</b> Korrigering - opprettet av NAV
+                    <b>KOR:</b> Korrigering opprettet av NAV
                   </div>
                   <div>
-                    <b>INV:</b> Investering - utbetalingskrav fra deg
+                    <b>INV:</b> Utbetaling for investering
                   </div>
                 </VStack>
               </HelpText>
