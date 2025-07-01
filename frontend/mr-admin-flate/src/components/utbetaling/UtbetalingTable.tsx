@@ -101,10 +101,10 @@ export function UtbetalingTable({ utbetalinger }: Props) {
               <HelpText title="Hva betyr forkortelsene?">
                 <VStack gap="1" className="text-left">
                   <div>
-                    <b>KOR:</b> Korrigering - manuelt opprettet i Tiltaksadministrasjon
+                    <b>KOR:</b> Korreksjon på utbetaling
                   </div>
                   <div>
-                    <b>INV:</b> Investering - manuelt opprettet utbetalingskrav fra Arrangør
+                    <b>INV:</b> Utbetaling for investering
                   </div>
                 </VStack>
               </HelpText>

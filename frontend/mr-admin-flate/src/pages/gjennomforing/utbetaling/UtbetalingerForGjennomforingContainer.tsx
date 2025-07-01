@@ -42,7 +42,7 @@ export function UtbetalingerForGjennomforingContainer() {
                     navigate(`skjema`);
                   }}
                 >
-                  Opprett manuell utbetaling
+                  Opprette korreksjon på utbetaling
                 </Dropdown.Menu.GroupedList.Item>
               </Dropdown.Menu.GroupedList>
             </Dropdown.Menu>
