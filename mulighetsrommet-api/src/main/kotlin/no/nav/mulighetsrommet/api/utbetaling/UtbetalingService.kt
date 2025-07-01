@@ -95,8 +95,8 @@ class UtbetalingService(
             .right()
     }
 
-    fun opprettManuellUtbetaling(
-        request: UtbetalingValidator.ValidatedManuellUtbetalingRequest,
+    fun opprettUtbetaling(
+        request: UtbetalingValidator.OpprettUtbetaling,
         agent: Agent,
     ): UUID = db.transaction {
         queries.utbetaling.upsert(

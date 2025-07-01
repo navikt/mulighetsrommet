@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -142,14 +141,14 @@ fun Route.utbetalingRoutes() {
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             post("/opprett-utbetaling") {
                 val utbetalingId = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<OpprettManuellUtbetalingRequest>()
+                val request = call.receive<OpprettUtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                UtbetalingValidator.validateManuellUtbetalingskrav(utbetalingId, request)
+                UtbetalingValidator.validateOpprettUtbetalingRequest(utbetalingId, request)
                     .onLeft {
                         return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                     }
-                    .onRight { utbetalingService.opprettManuellUtbetaling(it, navIdent) }
+                    .onRight { utbetalingService.opprettUtbetaling(it, navIdent) }
 
                 call.respond(request)
             }
@@ -246,7 +245,7 @@ data class OpprettDelutbetalingerRequest(
 )
 
 @Serializable
-data class OpprettManuellUtbetalingRequest(
+data class OpprettUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     @Serializable(with = LocalDateSerializer::class)

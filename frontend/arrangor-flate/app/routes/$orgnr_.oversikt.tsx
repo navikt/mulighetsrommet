@@ -11,11 +11,11 @@ import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
 import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { PageHeader } from "../components/PageHeader";
-import { useTabState } from "../hooks/useTabState";
-import { pathByOrgnr } from "../pathByOrgnr";
-import { toggleIsEnabled } from "../services/featureToggle/featureToggleService";
-import { tekster } from "../tekster";
+import { PageHeader } from "~/components/PageHeader";
+import { useTabState } from "~/hooks/useTabState";
+import { pathByOrgnr } from "~/pathByOrgnr";
+import { toggleIsEnabled } from "~/services/featureToggle/featureToggleService";
+import { tekster } from "~/tekster";
 import css from "../root.module.css";
 
 export const meta: MetaFunction = () => {
@@ -33,7 +33,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Mangler orgnr");
   }
 
-  const opprettManuellUtbetalingToggle = await toggleIsEnabled({
+  const opprettKravOmUtbetalingToggle = await toggleIsEnabled({
     orgnr,
     feature: Toggles.ARRANGORFLATE_UTBETALING_OPPRETT_UTBETALING_KNAPP,
     tiltakskoder: [],
@@ -58,12 +58,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (tilsagnError || !tilsagn) {
     throw problemDetailResponse(tilsagnError);
   }
-  return { utbetalinger, tilsagn, opprettManuellUtbetalingToggle };
+  return { utbetalinger, tilsagn, opprettKravOmUtbetalingToggle };
 }
 
 export default function UtbetalingOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
-  const { utbetalinger, tilsagn, opprettManuellUtbetalingToggle } = useLoaderData<typeof loader>();
+  const { utbetalinger, tilsagn, opprettKravOmUtbetalingToggle } = useLoaderData<typeof loader>();
   const historiske: ArrFlateUtbetalingKompakt[] = utbetalinger.filter(
     (k) => k.status === ArrFlateUtbetalingStatus.UTBETALT,
   );
@@ -74,7 +74,7 @@ export default function UtbetalingOversikt() {
     <Box className={css.side}>
       <div className="flex justify-between sm:flex-row sm:p-1">
         <PageHeader title={tekster.bokmal.utbetaling.headingTitle} />
-        {opprettManuellUtbetalingToggle && (
+        {opprettKravOmUtbetalingToggle && (
           <Button
             type="button"
             variant="secondary"

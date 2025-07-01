@@ -2092,12 +2092,12 @@ paths:
     post:
       tags:
         - Utbetaling
-      operationId: opprettManuellUtbetaling
+      operationId: opprettUtbetaling
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpprettManuellUtbetalingRequest"
+              $ref: "#/components/schemas/OpprettUtbetalingRequest"
       responses:
         200:
           description: OK
@@ -2307,15 +2307,15 @@ paths:
         - Arrangorflate
       parameters:
         - $ref: "#/components/parameters/OrgnrParam"
-      operationId: opprettArrangorflateManuellUtbetaling
+      operationId: opprettKravOmUtbetaling
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/ArrangorflateManuellUtbetalingRequest"
+              $ref: "#/components/schemas/OpprettKravOmUtbetalingRequest"
       responses:
         200:
-          description: Lag manuell utbetaling
+          description: Opprett utbetaling
           content:
             text/plain:
               schema:
@@ -6578,7 +6578,7 @@ components:
         - TILTAK_DRIFTSTILSKUDD
         - TILTAK_INVESTERINGER
 
-    ArrangorflateManuellUtbetalingRequest:
+    OpprettKravOmUtbetalingRequest:
       type: object
       properties:
         gjennomforingId:
@@ -6612,7 +6612,7 @@ components:
         - belop
         - vedlegg
 
-    OpprettManuellUtbetalingRequest:
+    OpprettUtbetalingRequest:
       type: object
       properties:
         gjennomforingId:

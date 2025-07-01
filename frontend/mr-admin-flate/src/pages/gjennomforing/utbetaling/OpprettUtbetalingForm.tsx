@@ -1,26 +1,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  GjennomforingDto,
-  OpprettManuellUtbetalingRequest,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { GjennomforingDto, OpprettUtbetalingRequest, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
+  Alert,
   Button,
   Heading,
   HStack,
+  Link,
   Textarea,
   TextField,
   VStack,
-  Link,
-  Alert,
 } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
 import { addYear } from "@/utils/Utils";
-import { useOpprettManuellUtbetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
+import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
@@ -85,7 +81,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
 
   const { register, formState, handleSubmit, setError, control } = form;
 
-  const mutation = useOpprettManuellUtbetaling(utbetalingId.current);
+  const mutation = useOpprettUtbetaling(utbetalingId.current);
 
   function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
@@ -102,7 +98,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
         onValidationError: (error: ValidationError) => {
           error.errors.forEach((error) => {
             const name = jsonPointerToFieldPath(error.pointer) as keyof Omit<
-              OpprettManuellUtbetalingRequest,
+              OpprettUtbetalingRequest,
               "gjennomforingId"
             >;
             setError(name, { type: "custom", message: error.detail });

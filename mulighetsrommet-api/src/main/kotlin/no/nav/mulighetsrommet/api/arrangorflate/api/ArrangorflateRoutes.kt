@@ -126,19 +126,19 @@ fun Route.arrangorflateRoutes() {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                 requireTilgangHosArrangor(orgnr)
-                val request = receiveArrangorflateManuellUtbetalingRequest(call)
+                val request = receiveOpprettKravOmUtbetalingRequest(call)
 
                 // Scan vedlegg for virus
                 if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
                     throw StatusException(HttpStatusCode.BadRequest, "Virus funnet i minst ett vedlegg")
                 }
 
-                UtbetalingValidator.validateArrangorflateManuellUtbetalingskrav(request)
+                UtbetalingValidator.validateOpprettKravOmUtbetaling(request)
                     .onLeft {
                         return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                     }
                     .onRight {
-                        call.respondText(utbetalingService.opprettManuellUtbetaling(it, Arrangor).toString())
+                        call.respondText(utbetalingService.opprettUtbetaling(it, Arrangor).toString())
                     }
             }
 
@@ -328,7 +328,7 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCall): ArrangorflateManuellUtbetalingRequest {
+private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {
     var gjennomforingId: UUID? = null
     var tilsagnId: UUID? = null
     var periodeStart: String? = null
@@ -385,7 +385,7 @@ private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCa
         v
     }
 
-    return ArrangorflateManuellUtbetalingRequest(
+    return OpprettKravOmUtbetalingRequest(
         gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
         tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
@@ -423,7 +423,7 @@ data class RelevanteForslag(
 )
 
 @Serializable
-data class ArrangorflateManuellUtbetalingRequest(
+data class OpprettKravOmUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     @Serializable(with = UUIDSerializer::class)
