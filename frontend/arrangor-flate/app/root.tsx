@@ -23,7 +23,7 @@ import { problemDetailResponse } from "./utils";
 import css from "./root.module.css";
 import { ErrorPage } from "./components/ErrorPage";
 
-export const meta: MetaFunction = () => [{ title: "Utbetalinger" }];
+export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { data: arrangortilganger, error } =

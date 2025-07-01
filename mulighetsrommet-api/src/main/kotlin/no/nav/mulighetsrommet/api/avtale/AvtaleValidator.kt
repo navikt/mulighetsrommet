@@ -53,10 +53,9 @@ class AvtaleValidator(
 
             if (avtale.arrangor?.underenheter?.isEmpty() == true) {
                 add(
-                    FieldError.of(
+                    FieldError.ofPointer(
+                        "/arrangorUnderenheter",
                         "Du må velge minst én underenhet for tiltaksarrangør",
-                        AvtaleDbo::arrangor,
-                        AvtaleDbo.Arrangor::underenheter,
                     ),
                 )
             }
@@ -327,15 +326,15 @@ class AvtaleValidator(
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
-            add(FieldError.of(AvtaleDbo::navEnheter, "Du må velge minst én Nav-region"))
+            add(FieldError.ofPointer("/navRegioner", "Du må velge minst én Nav-region"))
         }
 
         if (!actualNavEnheter.any { it.value.type != Norg2Type.FYLKE }) {
-            add(FieldError.of(AvtaleDbo::navEnheter, "Du må velge minst én Nav-enhet"))
+            add(FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet"))
         }
 
         navEnheter.filterNot { actualNavEnheter.containsKey(it) }.forEach { enhet ->
-            add(FieldError.of(AvtaleDbo::navEnheter, "Nav-enheten $enhet passer ikke i avtalens kontorstruktur"))
+            add(FieldError.ofPointer("/navKontorer", "Nav-enheten $enhet passer ikke i avtalens kontorstruktur"))
         }
     }
 

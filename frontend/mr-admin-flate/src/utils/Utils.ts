@@ -200,7 +200,7 @@ export function formaterNavEnheter(
     enhetsnummer: string;
   }[],
 ) {
-  if (navEnheter.length < 1) return "";
+  if (navEnheter.length < 1) return "-";
 
   const forsteEnhet = navEnheter.shift();
 
