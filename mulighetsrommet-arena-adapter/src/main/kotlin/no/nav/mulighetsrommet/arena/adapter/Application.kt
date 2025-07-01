@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.metrics.Metrics
 import org.koin.ktor.ext.inject
 import java.time.Instant
+import kotlin.time.Duration.Companion.seconds
 
 fun main() {
     val config = when (NaisEnv.current()) {
@@ -33,8 +34,14 @@ fun main() {
 
     embeddedServer(
         Netty,
-        port = config.server.port,
-        host = config.server.host,
+        configure = {
+            connector {
+                port = config.server.port
+                host = config.server.host
+            }
+            shutdownGracePeriod = 5.seconds.inWholeMilliseconds
+            shutdownTimeout = 10.seconds.inWholeMilliseconds
+        },
         module = { configure(config) },
     ).start(wait = true)
 }

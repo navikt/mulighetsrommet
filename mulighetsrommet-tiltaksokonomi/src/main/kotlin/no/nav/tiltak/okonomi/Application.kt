@@ -38,6 +38,7 @@ import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
 import no.nav.tiltak.okonomi.plugins.configureSerialization
 import no.nav.tiltak.okonomi.service.OkonomiService
+import kotlin.time.Duration.Companion.seconds
 
 fun main() {
     val config = when (NaisEnv.current()) {
@@ -48,8 +49,14 @@ fun main() {
 
     embeddedServer(
         Netty,
-        port = config.server.port,
-        host = config.server.host,
+        configure = {
+            connector {
+                port = config.server.port
+                host = config.server.host
+            }
+            shutdownGracePeriod = 5.seconds.inWholeMilliseconds
+            shutdownTimeout = 10.seconds.inWholeMilliseconds
+        },
         module = { configure(config) },
     ).start(wait = true)
 }
