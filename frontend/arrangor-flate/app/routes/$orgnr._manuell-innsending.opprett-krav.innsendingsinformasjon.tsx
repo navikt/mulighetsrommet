@@ -9,13 +9,13 @@ import {
   Heading,
   HStack,
   Label,
+  Link,
   Radio,
   RadioGroup,
+  TextField,
   UNSAFE_Combobox,
   useDatepicker,
   VStack,
-  Link,
-  TextField,
 } from "@navikt/ds-react";
 import {
   ArrangorflateGjennomforing,
@@ -26,19 +26,19 @@ import {
 } from "api-client";
 import { useMemo, useRef, useState } from "react";
 import {
+  ActionFunctionArgs,
+  Form,
+  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
+  redirect,
   useActionData,
   useLoaderData,
-  Link as ReactRouterLink,
-  ActionFunctionArgs,
-  redirect,
-  Form,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { formaterDato, problemDetailResponse, subtractDays } from "~/utils";
-import { pathByOrgnr } from "../pathByOrgnr";
+import { pathByOrgnr } from "~/pathByOrgnr";
 import { errorAt } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
@@ -57,8 +57,11 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Opprett utbetalingskrav" },
-    { name: "description", content: "Manuell opprettelse av utbetalingskrav" },
+    { title: "Opprett krav om utbetaling" },
+    {
+      name: "description",
+      content: "Velg tilsagn for å opprette et krav om utbetaling",
+    },
   ];
 };
 

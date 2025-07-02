@@ -336,7 +336,7 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("manuell utbetalingskrav med vedlegg") {
+    test("opprett krav om utbetaling (med vedlegg)") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val client = createClient {
                 install(ContentNegotiation) { json() }

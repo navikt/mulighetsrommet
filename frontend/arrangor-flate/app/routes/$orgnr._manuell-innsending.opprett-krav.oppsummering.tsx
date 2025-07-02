@@ -34,8 +34,11 @@ import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Opprett utbetalingskrav" },
-    { name: "description", content: "Manuell opprettelse av utbetalingskrav" },
+    { title: "Opprett krav om utbetaling" },
+    {
+      name: "description",
+      content: "Last opp vedlegg for å opprette et krav om utbetaling",
+    },
   ];
 };
 

@@ -26,8 +26,11 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Opprett utbetalingskrav" },
-    { name: "description", content: "Manuell opprettelse av utbetalingskrav" },
+    { title: "Opprett krav om utbetaling" },
+    {
+      name: "description",
+      content: "Fyll ut betalingsinformasjon for å opprette et krav om utbetaling",
+    },
   ];
 };
 
