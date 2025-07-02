@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.util.*
 
 class UtbetalingValidatorTest : FunSpec({
-    test("Skal validere manuell utbetaling") {
+    test("Skal validere forespørsel om oppretting av utbetaling") {
         val request = OpprettUtbetalingRequest(
             gjennomforingId = UUID.randomUUID(),
             periodeStart = LocalDate.now(),
@@ -26,7 +26,7 @@ class UtbetalingValidatorTest : FunSpec({
         result.shouldBeRight()
     }
 
-    test("Periodeslutt må være etter periodestart for manuell utbetaling") {
+    test("Periodeslutt må være etter periodestart") {
         val request = OpprettUtbetalingRequest(
             gjennomforingId = UUID.randomUUID(),
             periodeStart = LocalDate.now().plusDays(5),
@@ -48,7 +48,7 @@ class UtbetalingValidatorTest : FunSpec({
         )
     }
 
-    test("Beløp må være større enn kroner 0 for manuell utbetaling") {
+    test("Beløp må være større enn kroner 0") {
         val request = OpprettUtbetalingRequest(
             gjennomforingId = UUID.randomUUID(),
             periodeStart = LocalDate.now(),
@@ -67,7 +67,7 @@ class UtbetalingValidatorTest : FunSpec({
         )
     }
 
-    test("Beskrivelse må være mer enn 10 tegn for manuell utbetaling") {
+    test("Beskrivelse må være mer enn 10 tegn") {
         val request = OpprettUtbetalingRequest(
             gjennomforingId = UUID.randomUUID(),
             periodeStart = LocalDate.now(),

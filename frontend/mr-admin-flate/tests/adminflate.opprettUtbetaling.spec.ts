@@ -5,10 +5,10 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-const korreksjonsKnappTekst = "Opprette korreksjon på utbetaling"
+const korreksjonsKnappTekst = "Opprette korreksjon på utbetaling";
 
 test.describe("Manuell utbetaling", () => {
-  test(`Kan navigere til og klikke på ${korreksjonsKnappTekst}`, async ({ page }) => {
+  test("Kan navigere til skjema for å opprette utbetalinger", async ({ page }) => {
     await page.getByRole("link", { name: "Gjennomføringer" }).nth(0).click();
     await page.locator("table").getByRole("cell").first().click();
     await page.getByRole("tab", { name: "Utbetalinger" }).click();
@@ -17,7 +17,7 @@ test.describe("Manuell utbetaling", () => {
     await expect(page).toHaveURL(/.*\/skjema$/);
   });
 
-  test("Manuell utbetalingsform validerer", async ({ page }) => {
+  test("Skjema for opprett utbetalinger validerer", async ({ page }) => {
     await page.getByRole("link", { name: "Gjennomføringer" }).nth(0).click();
     await page.locator("table").getByRole("cell").first().click();
     await page.getByRole("tab", { name: "Utbetalinger" }).click();
@@ -30,7 +30,7 @@ test.describe("Manuell utbetaling", () => {
     await expect(page.getByText("Begrunnelsen er for kort (minimum 10 tegn)")).toBeVisible();
   });
 
-  test("Manuell utbetalingsform sender bruker til kostnadsfordeling", async ({ page }) => {
+  test("Skjema for opprett utbetalinger sender bruker til kostnadsfordeling", async ({ page }) => {
     await page.getByRole("link", { name: "Gjennomføringer" }).nth(0).click();
     await page.locator("table").getByRole("cell").first().click();
     await page.getByRole("tab", { name: "Utbetalinger" }).click();
@@ -41,7 +41,7 @@ test.describe("Manuell utbetaling", () => {
     await page.getByLabel("beløp").fill("100");
     await page
       .getByLabel("Begrunnelse for utbetaling")
-      .fill("Må lage en manuell utbetaling pga. investeringstilsagn");
+      .fill("Må lage en utbetaling pga. investeringstilsagn");
     const kontonummerForArrangor = await page.getByLabel("kontonummer").inputValue();
     await expect(kontonummerForArrangor).toBe("12345678910");
     await expect(
