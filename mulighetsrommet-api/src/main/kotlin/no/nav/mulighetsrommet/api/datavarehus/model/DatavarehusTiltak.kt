@@ -104,7 +104,7 @@ data class DatavarehusTiltakYrkesfagDto(
             @Serializable(with = UUIDSerializer::class)
             val id: UUID,
             val navn: String,
-            val sluttkompetanse: Sluttkompetanse,
+            val sluttkompetanse: Sluttkompetanse?,
             @Serializable(with = LocalDateTimeSerializer::class)
             val opprettetTidspunkt: LocalDateTime,
             @Serializable(with = LocalDateTimeSerializer::class)
