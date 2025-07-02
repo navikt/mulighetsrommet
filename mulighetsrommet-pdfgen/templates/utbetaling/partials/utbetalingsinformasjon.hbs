@@ -7,10 +7,12 @@
                 <td>{{ iso_to_nor_date utbetaling.periodeStart }} - {{ iso_to_nor_date utbetaling.periodeSlutt }}
                 </td>
             </tr>
+            {{#if utbetaling.beregning.antallManedsverk }}
             <tr>
                 <th>Antall månedsverk:</th>
-                <td>{{ utbetaling.beregning.antallManedsverk }}</td>
+                <td>{{utbetaling.beregning.antallManedsverk}}</td>
             </tr>
+            {{/if}}
             <tr>
                 <th>Beløp til utbetaling:</th>
                 <td>{{ currency_no utbetaling.beregning.belop }} kr</td>

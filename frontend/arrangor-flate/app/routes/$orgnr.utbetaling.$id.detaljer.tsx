@@ -118,12 +118,12 @@ export default function UtbetalingDetaljerSide() {
       </Heading>
       <Definisjonsliste
         definitions={[
-          { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
-          { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
           {
             key: innsendtTidspunkt.title,
             value: innsendtTidspunkt.value,
           },
+          { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+          { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
         ]}
       />
       <Definisjonsliste
