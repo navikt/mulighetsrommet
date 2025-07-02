@@ -34,6 +34,7 @@ object UtbetalingValidator {
     fun validateOpprettDelutbetalinger(
         utbetaling: Utbetaling,
         opprettDelutbetalinger: List<OpprettDelutbetaling>,
+        begrunnelse: String?,
     ): Either<List<FieldError>, List<OpprettDelutbetaling>> = either {
         val errors = buildList {
             val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop }
@@ -41,6 +42,13 @@ object UtbetalingValidator {
                 add(
                     FieldError.root(
                         "Kan ikke utbetale mer enn innsendt beløp",
+                    ),
+                )
+            }
+            if (totalBelopUtbetales < utbetaling.beregning.output.belop && begrunnelse == null) {
+                add(
+                    FieldError.root(
+                        "Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp",
                     ),
                 )
             }

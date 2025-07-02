@@ -5990,13 +5990,15 @@ components:
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
         beskrivelse:
-          type: [string, "null"]
+          type: string
         innsendtAv:
           type: string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
         type:
           $ref: "#/components/schemas/UtbetalingType"
+        begrunnelseMindreBetalt:
+          type: string
       required: [id, status, periode, beregning, createdAt, tilskuddstype]
 
     UtbetalingKompaktDto:
@@ -6570,7 +6572,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DelutbetalingRequest"
-      required: [delutbetalinger, utbetalingId]
+        begrunnelseMindreBetalt:
+          type: [string, "null"]
+      required: [delutbetalinger, utbetalingId, begrunnelse]
 
     Tilskuddstype:
       type: string

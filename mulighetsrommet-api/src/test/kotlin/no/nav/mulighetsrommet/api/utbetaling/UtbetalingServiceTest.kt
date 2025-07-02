@@ -100,9 +100,10 @@ class UtbetalingServiceTest : FunSpec({
 
             utbetaling.id.shouldNotBeNull()
             utbetaling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFri>()
-            utbetaling.beregning.input.belop shouldBe 10
-            utbetaling.beregning.output.belop shouldBe 10
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFri>().should {
+                it.input.belop shouldBe 10
+                it.output.belop shouldBe 10
+            }
         }
 
         test("utbetaling kan ikke endres hvis den først har blitt opprettet") {
@@ -198,17 +199,53 @@ class UtbetalingServiceTest : FunSpec({
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
                 delutbetalinger = listOf(delutbetaling),
+                begrunnelseMindreBetalt = "begrunnelse",
             )
             service.opprettDelutbetalinger(
                 request = opprettRequest,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-            )
+            ).shouldBeRight()
             service.besluttDelutbetaling(
                 id = delutbetaling.id,
                 request = BesluttDelutbetalingRequest.Godkjent,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ) shouldBeLeft listOf(
                 FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet"),
+            )
+        }
+
+        test("begrunnelseMindreBeløp er påkrevd hvis mindre beløp") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.DonaldDuck,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            val delutbetaling = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                gjorOppTilsagn = false,
+                belop = 100,
+            )
+            val opprettRequest = OpprettDelutbetalingerRequest(
+                utbetalingId = utbetaling1.id,
+                delutbetalinger = listOf(delutbetaling),
+                begrunnelseMindreBetalt = null,
+            )
+            service.opprettDelutbetalinger(
+                request = opprettRequest,
+                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+            ) shouldBeLeft listOf(
+                FieldError.root("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
             )
         }
 
@@ -237,11 +274,12 @@ class UtbetalingServiceTest : FunSpec({
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
                 delutbetalinger = listOf(delutbetaling),
+                begrunnelseMindreBetalt = "begrunnelse",
             )
             service.opprettDelutbetalinger(
                 request = opprettRequest,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            )
+            ).shouldBeRight()
             service.besluttDelutbetaling(
                 id = delutbetaling.id,
                 request = BesluttDelutbetalingRequest.Godkjent,
@@ -272,6 +310,7 @@ class UtbetalingServiceTest : FunSpec({
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
                 delutbetalinger = listOf(delutbetaling),
+                begrunnelseMindreBetalt = "begrunnelse",
             )
 
             service.opprettDelutbetalinger(
@@ -318,6 +357,7 @@ class UtbetalingServiceTest : FunSpec({
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
                 delutbetalinger = listOf(delutbetaling),
+                begrunnelseMindreBetalt = "begrunnelse",
             )
             service.opprettDelutbetalinger(
                 request = opprettRequest,
@@ -355,6 +395,7 @@ class UtbetalingServiceTest : FunSpec({
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
                 delutbetalinger = listOf(delutbetaling),
+                begrunnelseMindreBetalt = "begrunnelse",
             )
             service.opprettDelutbetalinger(
                 request = opprettRequest,
@@ -368,7 +409,7 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             service.opprettDelutbetalinger(
-                request = OpprettDelutbetalingerRequest(utbetaling1.id, emptyList()),
+                request = OpprettDelutbetalingerRequest(utbetaling1.id, emptyList(), begrunnelseMindreBetalt = "begrunnelse"),
                 navIdent = domain.ansatte[0].navIdent,
             ) shouldBeLeft listOf(
                 FieldError.of("Utbetalingslinjer mangler"),
@@ -423,6 +464,7 @@ class UtbetalingServiceTest : FunSpec({
                     delutbetalinger = listOf(
                         DelutbetalingRequest(delutbetaling1.id, Tilsagn1.id, gjorOppTilsagn = false, belop = 100),
                     ),
+                    begrunnelseMindreBetalt = "begrunnelse",
                 ),
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
@@ -455,6 +497,7 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetalinger = listOf(
                     DelutbetalingRequest(UUID.randomUUID(), Tilsagn1.id, gjorOppTilsagn = false, belop = 100),
                 ),
+                begrunnelseMindreBetalt = "begrunnelse",
             )
 
             shouldThrow<IllegalArgumentException> {
@@ -497,6 +540,7 @@ class UtbetalingServiceTest : FunSpec({
                 OpprettDelutbetalingerRequest(
                     utbetaling.id,
                     listOf(DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 100)),
+                    begrunnelseMindreBetalt = null,
                 ),
                 domain.ansatte[0].navIdent,
             ) shouldBeLeft listOf(
@@ -510,6 +554,7 @@ class UtbetalingServiceTest : FunSpec({
                         DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 7),
                         DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 5),
                     ),
+                    begrunnelseMindreBetalt = null,
                 ),
                 domain.ansatte[0].navIdent,
             ) shouldBeLeft listOf(
@@ -551,7 +596,7 @@ class UtbetalingServiceTest : FunSpec({
             val delutbetaling1 = DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 5)
             val delutbetaling2 = DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 5)
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1, delutbetaling2)),
+                OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1, delutbetaling2), begrunnelseMindreBetalt = null),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
@@ -562,7 +607,7 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1)),
+                OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1), begrunnelseMindreBetalt = "begrunnelse"),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
@@ -605,7 +650,7 @@ class UtbetalingServiceTest : FunSpec({
             val delutbetaling1 = DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 5)
             val delutbetaling2 = DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 5)
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1, delutbetaling2)),
+                OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1, delutbetaling2), begrunnelseMindreBetalt = null),
                 domain.ansatte[1].navIdent,
             ).shouldBeRight()
 
@@ -674,6 +719,7 @@ class UtbetalingServiceTest : FunSpec({
                         DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 50),
                         DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, gjorOppTilsagn = false, belop = 50),
                     ),
+                    begrunnelseMindreBetalt = "begrunnelse",
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
@@ -684,6 +730,7 @@ class UtbetalingServiceTest : FunSpec({
                     listOf(
                         DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, gjorOppTilsagn = false, belop = 100),
                     ),
+                    begrunnelseMindreBetalt = "begrunnelse",
                 ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
@@ -729,7 +776,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val delutbetaling1 = DelutbetalingRequest(UUID.randomUUID(), Tilsagn1.id, gjorOppTilsagn = false, belop = 5)
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1)),
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1), begrunnelseMindreBetalt = "begrunnelse"),
                 NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
@@ -748,7 +795,7 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1)),
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1), begrunnelseMindreBetalt = "begrunnelse"),
                 NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
@@ -768,7 +815,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val delutbetaling2 = DelutbetalingRequest(UUID.randomUUID(), Tilsagn1.id, gjorOppTilsagn = false, belop = 5)
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling2)),
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling2), begrunnelseMindreBetalt = "begrunnelse"),
                 NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
@@ -866,6 +913,7 @@ class UtbetalingServiceTest : FunSpec({
                 setRoller(
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+
                 )
             }.initialize(database.db)
 
@@ -874,7 +922,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val delutbetaling = DelutbetalingRequest(UUID.randomUUID(), tilsagn.id, gjorOppTilsagn = false, belop = 10)
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling)),
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling), begrunnelseMindreBetalt = null),
                 NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
@@ -922,6 +970,7 @@ class UtbetalingServiceTest : FunSpec({
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
+                begrunnelseMindreBetalt = "begrunnelse",
             )
             service.opprettDelutbetalinger(
                 request = opprettRequest,

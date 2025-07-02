@@ -162,7 +162,7 @@ class UtbetalingService(
             )
         }
         UtbetalingValidator
-            .validateOpprettDelutbetalinger(utbetaling, opprettDelutbetalinger)
+            .validateOpprettDelutbetalinger(utbetaling, opprettDelutbetalinger, request.begrunnelseMindreBetalt)
             .map { delutbetalinger ->
                 // Slett de som ikke er med i requesten
                 queries.delutbetaling.getByUtbetalingId(utbetaling.id)
@@ -176,6 +176,9 @@ class UtbetalingService(
 
                 delutbetalinger.forEach {
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
+                }
+                if (request.begrunnelseMindreBetalt != null) {
+                    queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
                 }
 
                 val dto = getOrError(utbetaling.id)

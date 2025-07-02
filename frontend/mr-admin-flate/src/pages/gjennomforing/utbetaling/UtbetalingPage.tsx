@@ -144,6 +144,12 @@ export function UtbetalingPage() {
                         verdi={utbetaling.beskrivelse}
                       />
                     )}
+                    {utbetaling.begrunnelseMindreBetalt && (
+                      <MetadataHorisontal
+                        header="Begrunnelse for mindre betalt"
+                        verdi={utbetaling.begrunnelseMindreBetalt}
+                      />
+                    )}
                   </VStack>
                 </VStack>
                 <VStack gap="4">

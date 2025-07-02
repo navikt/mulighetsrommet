@@ -243,6 +243,17 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setBegrunnelseMindreBetalt(id: UUID, begrunnelse: String) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling set
+                begrunnelse_mindre_betalt = :begrunnelse
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id, "begrunnelse" to begrunnelse)))
+    }
+
     fun getOrError(id: UUID): Utbetaling {
         return checkNotNull(get(id)) { "Utbetaling med id $id finnes ikke" }
     }
