@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -108,14 +107,14 @@ class DatavarehusTiltakQueries(private val session: Session) {
             group by utdanning.id;
         """.trimIndent()
 
-        val utdanninger = list(queryOf(utdanningerQuery, id)) {
+        val utdanninger = list(queryOf(utdanningerQuery, id)) { row ->
             DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                id = it.uuid("id"),
-                navn = it.string("navn"),
-                sluttkompetanse = Utdanning.Sluttkompetanse.valueOf(it.string("sluttkompetanse")),
-                opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
-                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
-                nusKoder = it.array<String>("nus_koder").toList(),
+                id = row.uuid("id"),
+                navn = row.string("navn"),
+                sluttkompetanse = row.stringOrNull("sluttkompetanse")?.let { Utdanning.Sluttkompetanse.valueOf(it) },
+                opprettetTidspunkt = row.localDateTime("opprettet_tidspunkt"),
+                oppdatertTidspunkt = row.localDateTime("oppdatert_tidspunkt"),
+                nusKoder = row.array<String>("nus_koder").toList(),
             )
         }
 
