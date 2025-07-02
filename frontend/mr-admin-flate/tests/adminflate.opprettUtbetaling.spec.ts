@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-const korreksjonsKnappTekst = "Opprette korreksjon på utbetaling";
+const korreksjonsKnappTekst = "Opprett korreksjon på utbetaling"
 
 test.describe("Manuell utbetaling", () => {
   test("Kan navigere til skjema for å opprette utbetalinger", async ({ page }) => {
