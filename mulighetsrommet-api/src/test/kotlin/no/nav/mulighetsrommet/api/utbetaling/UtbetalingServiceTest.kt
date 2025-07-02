@@ -96,13 +96,29 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = service.opprettUtbetaling(
                 request = opprettUtbetaling,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
-            )
+            ).shouldBeRight()
 
             utbetaling.id.shouldNotBeNull()
             utbetaling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFri>()
             utbetaling.beregning.input.belop shouldBe 10
             utbetaling.beregning.output.belop shouldBe 10
+        }
+
+        test("utbetaling kan ikke endres hvis den først har blitt opprettet") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                request = opprettUtbetaling.copy(belop = 5),
+                agent = Arrangor,
+            ).shouldBeRight()
+
+            service.opprettUtbetaling(
+                request = opprettUtbetaling.copy(belop = 10),
+                agent = Arrangor,
+            ) shouldBeLeft listOf(
+                FieldError.of("Utbetalingen er allerede opprettet"),
+            )
         }
 
         test("utbetaling blir ikke journalført når den blir opprettet av Nav-ansatt") {
@@ -113,7 +129,7 @@ class UtbetalingServiceTest : FunSpec({
             service.opprettUtbetaling(
                 request = opprettUtbetaling,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
-            )
+            ).shouldBeRight()
 
             verify(exactly = 0) { journalforUtbetaling.schedule(any(), any(), any(), any()) }
         }
@@ -126,7 +142,7 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = service.opprettUtbetaling(
                 request = opprettUtbetaling,
                 agent = Arrangor,
-            )
+            ).shouldBeRight()
 
             verify(exactly = 1) { journalforUtbetaling.schedule(utbetaling.id, any(), any(), any()) }
         }

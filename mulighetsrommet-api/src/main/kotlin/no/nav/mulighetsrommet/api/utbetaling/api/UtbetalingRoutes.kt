@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
+import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -144,8 +145,9 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = UtbetalingValidator.validateOpprettUtbetalingRequest(utbetalingId, request)
-                    .mapLeft { ValidationError(errors = it) }
-                    .map { utbetalingService.opprettUtbetaling(it, navIdent) }
+                    .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
+                    .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
+                    .map { HttpStatusCode.Created }
 
                 call.respondWithStatusResponse(result)
             }

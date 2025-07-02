@@ -95,11 +95,14 @@ class UtbetalingService(
             .right()
     }
 
-    // TODO: valider at utbetaling ikke finnes fra før av (kun opprett, ikke update)
     fun opprettUtbetaling(
         request: UtbetalingValidator.OpprettUtbetaling,
         agent: Agent,
-    ): Utbetaling = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        if (queries.utbetaling.get(request.id) != null) {
+            return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
+        }
+
         queries.utbetaling.upsert(
             UtbetalingDbo(
                 id = request.id,
@@ -138,7 +141,7 @@ class UtbetalingService(
             )
         }
 
-        dto
+        dto.right()
     }
 
     fun opprettDelutbetalinger(

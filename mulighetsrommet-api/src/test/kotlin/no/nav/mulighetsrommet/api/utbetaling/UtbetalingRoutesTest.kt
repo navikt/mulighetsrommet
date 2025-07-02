@@ -124,7 +124,7 @@ class UtbetalingRoutesTest : FunSpec({
             }
         }
 
-        test("Skal returnere 200 ok med saksbehandler-tilgang") {
+        test("Skal returnere 201 med saksbehandler-tilgang") {
             withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -150,7 +150,7 @@ class UtbetalingRoutesTest : FunSpec({
                         ),
                     )
                 }
-                response.status shouldBe HttpStatusCode.OK
+                response.status shouldBe HttpStatusCode.Created
             }
         }
     }

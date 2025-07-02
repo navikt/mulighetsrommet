@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import io.ktor.http.*
@@ -29,6 +30,7 @@ import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -134,11 +136,11 @@ fun Route.arrangorflateRoutes() {
                 }
 
                 UtbetalingValidator.validateOpprettKravOmUtbetaling(request)
-                    .onLeft {
-                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                    .flatMap { utbetalingService.opprettUtbetaling(it, Arrangor) }
+                    .onLeft { errors ->
+                        call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
                     }
-                    .onRight {
-                        val utbetaling = utbetalingService.opprettUtbetaling(it, Arrangor)
+                    .onRight { utbetaling ->
                         call.respondText(utbetaling.id.toString())
                     }
             }

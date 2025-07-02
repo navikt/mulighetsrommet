@@ -2099,8 +2099,8 @@ paths:
             schema:
               $ref: "#/components/schemas/OpprettUtbetalingRequest"
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
         default:
           $ref: "#/components/responses/ProblemDetail"
 
