@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
-import arrow.core.left
+import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -142,16 +141,15 @@ fun Route.utbetalingRoutes() {
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             post("/opprett-utbetaling") {
                 val utbetalingId = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<OpprettManuellUtbetalingRequest>()
+                val request = call.receive<OpprettUtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                UtbetalingValidator.validateManuellUtbetalingskrav(utbetalingId, request)
-                    .onLeft {
-                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
-                    }
-                    .onRight { utbetalingService.opprettManuellUtbetaling(it, navIdent) }
+                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(utbetalingId, request)
+                    .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
+                    .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
+                    .map { HttpStatusCode.Created }
 
-                call.respond(request)
+                call.respondWithStatusResponse(result)
             }
         }
     }
@@ -246,7 +244,7 @@ data class OpprettDelutbetalingerRequest(
 )
 
 @Serializable
-data class OpprettManuellUtbetalingRequest(
+data class OpprettUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     @Serializable(with = LocalDateSerializer::class)

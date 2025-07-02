@@ -95,10 +95,14 @@ class UtbetalingService(
             .right()
     }
 
-    fun opprettManuellUtbetaling(
-        request: UtbetalingValidator.ValidatedManuellUtbetalingRequest,
+    fun opprettUtbetaling(
+        request: UtbetalingValidator.OpprettUtbetaling,
         agent: Agent,
-    ): UUID = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        if (queries.utbetaling.get(request.id) != null) {
+            return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
+        }
+
         queries.utbetaling.upsert(
             UtbetalingDbo(
                 id = request.id,
@@ -124,10 +128,20 @@ class UtbetalingService(
                 },
             ),
         )
+
         val dto = getOrError(request.id)
         logEndring("Utbetaling sendt inn", dto, agent)
-        journalforUtbetaling.schedule(dto.id, Instant.now(), session as TransactionalSession, request.vedlegg)
-        dto.id
+
+        if (agent is Arrangor) {
+            journalforUtbetaling.schedule(
+                utbetalingId = dto.id,
+                startTime = Instant.now(),
+                tx = session as TransactionalSession,
+                vedlegg = request.vedlegg,
+            )
+        }
+
+        dto.right()
     }
 
     fun opprettDelutbetalinger(

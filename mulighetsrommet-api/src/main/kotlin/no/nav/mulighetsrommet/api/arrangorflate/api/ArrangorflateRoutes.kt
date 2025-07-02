@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import io.ktor.http.*
@@ -29,6 +30,7 @@ import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -126,19 +128,20 @@ fun Route.arrangorflateRoutes() {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                 requireTilgangHosArrangor(orgnr)
-                val request = receiveArrangorflateManuellUtbetalingRequest(call)
+                val request = receiveOpprettKravOmUtbetalingRequest(call)
 
                 // Scan vedlegg for virus
                 if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
                     throw StatusException(HttpStatusCode.BadRequest, "Virus funnet i minst ett vedlegg")
                 }
 
-                UtbetalingValidator.validateArrangorflateManuellUtbetalingskrav(request)
-                    .onLeft {
-                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                UtbetalingValidator.validateOpprettKravOmUtbetaling(request)
+                    .flatMap { utbetalingService.opprettUtbetaling(it, Arrangor) }
+                    .onLeft { errors ->
+                        call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
                     }
-                    .onRight {
-                        call.respondText(utbetalingService.opprettManuellUtbetaling(it, Arrangor).toString())
+                    .onRight { utbetaling ->
+                        call.respondText(utbetaling.id.toString())
                     }
             }
 
@@ -328,7 +331,7 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCall): ArrangorflateManuellUtbetalingRequest {
+private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {
     var gjennomforingId: UUID? = null
     var tilsagnId: UUID? = null
     var periodeStart: String? = null
@@ -385,7 +388,7 @@ private suspend fun receiveArrangorflateManuellUtbetalingRequest(call: RoutingCa
         v
     }
 
-    return ArrangorflateManuellUtbetalingRequest(
+    return OpprettKravOmUtbetalingRequest(
         gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
         tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
@@ -423,7 +426,7 @@ data class RelevanteForslag(
 )
 
 @Serializable
-data class ArrangorflateManuellUtbetalingRequest(
+data class OpprettKravOmUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     @Serializable(with = UUIDSerializer::class)

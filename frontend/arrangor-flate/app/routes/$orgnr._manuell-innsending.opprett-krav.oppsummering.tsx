@@ -8,14 +8,14 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
-  Link as ReactRouterLink,
   ActionFunction,
   Form,
+  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
+  redirect,
   useActionData,
   useLoaderData,
-  redirect,
 } from "react-router";
 import { pathByOrgnr } from "~/pathByOrgnr";
 import { ArrangorflateService, ArrangorflateTilsagn, FieldError } from "api-client";
@@ -144,21 +144,20 @@ export const action: ActionFunction = async ({ request }) => {
     return { errors };
   }
 
-  const { error, data: utbetalingId } =
-    await ArrangorflateService.opprettArrangorflateManuellUtbetaling({
-      path: { orgnr: orgnr! },
-      body: {
-        belop: belop!,
-        gjennomforingId: gjennomforingId!,
-        tilsagnId: tilsagnId!,
-        periodeStart: formaterDatoSomYYYYMMDD(periodeStart!),
-        periodeSlutt: formaterDatoSomYYYYMMDD(periodeSlutt!),
-        kontonummer: kontonummer!,
-        kidNummer: kid || null,
-        vedlegg: vedlegg,
-      },
-      headers: await apiHeaders(request),
-    });
+  const { error, data: utbetalingId } = await ArrangorflateService.opprettKravOmUtbetaling({
+    path: { orgnr: orgnr! },
+    body: {
+      belop: belop!,
+      gjennomforingId: gjennomforingId!,
+      tilsagnId: tilsagnId!,
+      periodeStart: formaterDatoSomYYYYMMDD(periodeStart!),
+      periodeSlutt: formaterDatoSomYYYYMMDD(periodeSlutt!),
+      kontonummer: kontonummer!,
+      kidNummer: kid || null,
+      vedlegg: vedlegg,
+    },
+    headers: await apiHeaders(request),
+  });
 
   if (error) {
     if (isValidationError(error)) {

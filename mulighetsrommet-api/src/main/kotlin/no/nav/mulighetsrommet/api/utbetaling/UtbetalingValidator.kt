@@ -4,13 +4,13 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateManuellUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.RelevanteForslag
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -99,43 +99,43 @@ object UtbetalingValidator {
         return errors.takeIf { it.isNotEmpty() }?.left() ?: opprettDelutbetalinger.right()
     }
 
-    fun validateManuellUtbetalingskrav(
+    fun validateOpprettUtbetalingRequest(
         id: UUID,
-        request: OpprettManuellUtbetalingRequest,
-    ): Either<List<FieldError>, ValidatedManuellUtbetalingRequest> {
+        request: OpprettUtbetalingRequest,
+    ): Either<List<FieldError>, OpprettUtbetaling> {
         val errors = buildList {
             if (request.periodeSlutt.isBefore(request.periodeStart)) {
                 add(
                     FieldError.of(
-                        OpprettManuellUtbetalingRequest::periodeSlutt,
+                        OpprettUtbetalingRequest::periodeSlutt,
                         "Periodeslutt må være etter periodestart",
                     ),
                 )
             }
 
             if (request.belop < 1) {
-                add(FieldError.of(OpprettManuellUtbetalingRequest::belop, "Beløp må være positivt"))
+                add(FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt"))
             }
 
             if (request.beskrivelse.length < 10) {
-                add(FieldError.of(OpprettManuellUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse"))
+                add(FieldError.of(OpprettUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse"))
             }
 
             if (request.kontonummer.value.length != 11) {
-                add(FieldError.of(OpprettManuellUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn"))
+                add(FieldError.of(OpprettUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn"))
             }
 
             if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
                 add(
                     FieldError.of(
-                        OpprettManuellUtbetalingRequest::kidNummer,
+                        OpprettUtbetalingRequest::kidNummer,
                         "Ugyldig kid",
                     ),
                 )
             }
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: ValidatedManuellUtbetalingRequest(
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: OpprettUtbetaling(
             id = id,
             gjennomforingId = request.gjennomforingId,
             periodeStart = request.periodeStart,
@@ -149,7 +149,7 @@ object UtbetalingValidator {
         ).right()
     }
 
-    data class ValidatedManuellUtbetalingRequest(
+    data class OpprettUtbetaling(
         val id: UUID,
         val gjennomforingId: UUID,
         val periodeStart: LocalDate,
@@ -162,17 +162,17 @@ object UtbetalingValidator {
         val vedlegg: List<Vedlegg>,
     )
 
-    fun validateArrangorflateManuellUtbetalingskrav(
-        request: ArrangorflateManuellUtbetalingRequest,
-    ): Either<List<FieldError>, ValidatedManuellUtbetalingRequest> {
-        var validated: ValidatedManuellUtbetalingRequest? = null
+    fun validateOpprettKravOmUtbetaling(
+        request: OpprettKravOmUtbetalingRequest,
+    ): Either<List<FieldError>, OpprettUtbetaling> {
+        var validated: OpprettUtbetaling? = null
         val errors = buildList {
             val start = try {
                 LocalDate.parse(request.periodeStart)
             } catch (t: DateTimeParseException) {
                 add(
                     FieldError.of(
-                        ArrangorflateManuellUtbetalingRequest::periodeStart,
+                        OpprettKravOmUtbetalingRequest::periodeStart,
                         "Dato må være på formatet 'yyyy-mm-dd'",
                     ),
                 )
@@ -183,7 +183,7 @@ object UtbetalingValidator {
             } catch (t: DateTimeParseException) {
                 add(
                     FieldError.of(
-                        ArrangorflateManuellUtbetalingRequest::periodeSlutt,
+                        OpprettKravOmUtbetalingRequest::periodeSlutt,
                         "Dato må være på formatet 'yyyy-mm-dd'",
                     ),
                 )
@@ -193,18 +193,18 @@ object UtbetalingValidator {
             if (slutt != null && start != null && slutt.isBefore(start)) {
                 add(
                     FieldError.of(
-                        ArrangorflateManuellUtbetalingRequest::periodeStart,
+                        OpprettKravOmUtbetalingRequest::periodeStart,
                         "Periodeslutt må være etter periodestart",
                     ),
                 )
             }
 
             if (request.belop < 1) {
-                add(FieldError.of(ArrangorflateManuellUtbetalingRequest::belop, "Beløp må være positivt"))
+                add(FieldError.of(OpprettKravOmUtbetalingRequest::belop, "Beløp må være positivt"))
             }
 
             if (request.vedlegg.isEmpty()) {
-                add(FieldError.of(ArrangorflateManuellUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
+                add(FieldError.of(OpprettKravOmUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
             }
 
             val kontonummer = try {
@@ -212,7 +212,7 @@ object UtbetalingValidator {
             } catch (e: IllegalArgumentException) {
                 add(
                     FieldError.of(
-                        ArrangorflateManuellUtbetalingRequest::kontonummer,
+                        OpprettKravOmUtbetalingRequest::kontonummer,
                         "Ugyldig kontonummer",
                     ),
                 )
@@ -221,14 +221,14 @@ object UtbetalingValidator {
             if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
                 add(
                     FieldError.of(
-                        ArrangorflateManuellUtbetalingRequest::kidNummer,
+                        OpprettKravOmUtbetalingRequest::kidNummer,
                         "Ugyldig kid",
                     ),
                 )
             }
 
             if (start != null && slutt != null && kontonummer != null) {
-                validated = ValidatedManuellUtbetalingRequest(
+                validated = OpprettUtbetaling(
                     id = UUID.randomUUID(),
                     gjennomforingId = request.gjennomforingId,
                     periodeStart = start,
