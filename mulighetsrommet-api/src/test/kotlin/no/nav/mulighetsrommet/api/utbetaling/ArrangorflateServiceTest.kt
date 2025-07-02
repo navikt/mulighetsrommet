@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -65,7 +65,7 @@ class ArrangorflateServiceTest : FunSpec({
         Triple(utbetalingDto, deltakere, personerByNorskIdent) to status
     }
 
-    fun verifyForhandsgodkjentBeregning(beregning: Beregning.Forhandsgodkjent, expectedBelop: Int, expectedManedsverk: Double, expectedDeltakelserCount: Int) {
+    fun verifyForhandsgodkjentBeregning(beregning: Beregning.AvtaltPrisPerManedsverk, expectedBelop: Int, expectedManedsverk: Double, expectedDeltakelserCount: Int) {
         beregning.antallManedsverk shouldBe expectedManedsverk
         beregning.belop shouldBe expectedBelop
         beregning.deltakelser shouldHaveSize expectedDeltakelserCount
@@ -104,7 +104,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
 
-        result.beregning.shouldBeInstanceOf<UtbetalingBeregningForhandsgodkjent>().should {
+        result.beregning.shouldBeInstanceOf<UtbetalingBeregningAvtaltPrisPerManedsverk>().should {
             it.output.belop shouldBe 10000
         }
     }
@@ -169,7 +169,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
 
-        result.beregning.shouldBeInstanceOf<Beregning.Forhandsgodkjent> {
+        result.beregning.shouldBeInstanceOf<Beregning.AvtaltPrisPerManedsverk> {
             verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
         }
     }

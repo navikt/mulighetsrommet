@@ -1,5 +1,15 @@
-import { Alert, Box, HGrid, HStack, Select, Textarea, TextField, VStack } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
+import {
+  Alert,
+  Box,
+  Button,
+  HGrid,
+  HStack,
+  Select,
+  Textarea,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client-v2";
 import { Metadata } from "@/components/detaljside/Metadata";
@@ -8,6 +18,8 @@ import { FormGroup } from "@/components/skjema/FormGroup";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { DateInput } from "@/components/skjema/DateInput";
 import { useEffect } from "react";
+import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -31,8 +43,9 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
         <SelectPrismodell options={resolvePrismodellOptions(avtaletype)} />
 
         {prismodell === Prismodell.FORHANDSGODKJENT && (
-          <ForhandsgodkjentAvtalePrismodell tiltakstype={tiltakstype.tiltakskode} />
+          <ForhandsgodkjentPrisPerManedsverk tiltakstype={tiltakstype.tiltakskode} />
         )}
+        {prismodell === Prismodell.AVTALT_SATS_PER_MANED && <AvtaltPrisPerManedsverk />}
         {prismodell === Prismodell.FRI && <PrisBetingelser />}
       </FormGroup>
     </HGrid>
@@ -87,7 +100,7 @@ function resolvePrismodellOptions(avtaletype: Avtaletype): Option[] {
   if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
     return [toOption(Prismodell.FORHANDSGODKJENT)];
   } else {
-    return [toOption(Prismodell.FRI)];
+    return [toOption(Prismodell.FRI), toOption(Prismodell.AVTALT_SATS_PER_MANED)];
   }
 }
 
@@ -99,7 +112,7 @@ interface ForhandsgodkjentAvtalePrismodellProps {
   tiltakstype: Tiltakskode;
 }
 
-function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtalePrismodellProps) {
+function ForhandsgodkjentPrisPerManedsverk({ tiltakstype }: ForhandsgodkjentAvtalePrismodellProps) {
   const { data: satser } = useForhandsgodkjenteSatser(tiltakstype);
 
   if (!satser) return null;
@@ -150,6 +163,93 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
           </HStack>
         </Box>
       ))}
+    </VStack>
+  );
+}
+
+function AvtaltPrisPerManedsverk() {
+  const { control, register, watch } = useFormContext<InferredAvtaleSchema>();
+
+  const { fields, append, remove } = useFieldArray({
+    name: "satser",
+    control,
+  });
+
+  const { startDato, sluttDato } = watch("startOgSluttDato");
+
+  return (
+    <VStack gap="4">
+      {fields.map((field, index) => (
+        <Box
+          padding="4"
+          borderColor="border-subtle"
+          borderRadius="large"
+          borderWidth="1"
+          key={field.periodeStart}
+        >
+          <HStack key={field.periodeStart} gap="4">
+            <Select readOnly label="Valuta" size="small">
+              <option value={undefined}>{field.valuta}</option>
+            </Select>
+
+            <TextField
+              label={avtaletekster.prismodell.pris.label}
+              size="small"
+              type="number"
+              {...register(`satser.${index}.pris`, {
+                shouldUnregister: true,
+                valueAsNumber: true,
+              })}
+            />
+
+            <ControlledDateInput
+              label={avtaletekster.prismodell.periodeStart.label}
+              fromDate={new Date(startDato)}
+              toDate={sluttDato ? new Date(sluttDato) : new Date()}
+              format={"iso-string"}
+              size="small"
+              {...register(`satser.${index}.periodeStart`, {
+                shouldUnregister: true,
+              })}
+              control={control}
+            />
+
+            <ControlledDateInput
+              size="small"
+              label={avtaletekster.prismodell.periodeSlutt.label}
+              fromDate={new Date(startDato)}
+              toDate={sluttDato ? new Date(sluttDato) : new Date()}
+              format={"iso-string"}
+              {...register(`satser.${index}.periodeSlutt`, {
+                shouldUnregister: true,
+              })}
+              control={control}
+            />
+
+            <Button
+              className="mt-2 ml-auto"
+              variant="tertiary"
+              size="small"
+              type="button"
+              onClick={() => remove(index)}
+            >
+              <XMarkIcon fontSize="1.5rem" aria-label="Fjern periode" />
+            </Button>
+          </HStack>
+        </Box>
+      ))}
+      <Button
+        className="mt-2 ml-auto"
+        variant="tertiary"
+        size="small"
+        type="button"
+        onClick={() => append({ periodeStart: "", periodeSlutt: "", pris: 0, valuta: "NOK" })}
+      >
+        <div className="flex items-center gap-2">
+          <PlusIcon aria-label="Legg til ny periode" />
+          Legg til ny periode
+        </div>
+      </Button>
     </VStack>
   );
 }

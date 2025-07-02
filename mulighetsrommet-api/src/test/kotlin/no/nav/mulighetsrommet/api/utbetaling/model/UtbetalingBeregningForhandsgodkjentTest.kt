@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningForhandsgodkjent
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerManedsverk
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.*
@@ -29,7 +29,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 100,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 1.0),
@@ -45,7 +45,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 100,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 1.0),
@@ -61,7 +61,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 25,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.25),
@@ -78,7 +78,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 75,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.75),
@@ -100,7 +100,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 150,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 1.0),
@@ -124,7 +124,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 100,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.75),
@@ -134,9 +134,9 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                 ),
             ) { deltakelser, expectedBeregning ->
                 val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningForhandsgodkjent.Input(periode, 100, setOf(), deltakelser)
+                val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(periode, 100, setOf(), deltakelser)
 
-                val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
+                val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
 
                 beregning.output shouldBe expectedBeregning
             }
@@ -161,7 +161,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 50,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.5),
@@ -178,7 +178,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 50,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.5),
@@ -202,7 +202,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningForhandsgodkjent.Output(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                         belop = 50,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.375),
@@ -212,9 +212,9 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                 ),
             ) { stengt, deltakelser, expectedBeregning ->
                 val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningForhandsgodkjent.Input(periode, 100, stengt, deltakelser)
+                val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(periode, 100, stengt, deltakelser)
 
-                val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
+                val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
 
                 beregning.output shouldBe expectedBeregning
             }
@@ -228,7 +228,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
 
-            val input = UtbetalingBeregningForhandsgodkjent.Input(
+            val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
                 periode = Periode(periodeStart, periodeSlutt),
                 sats = 100,
                 stengt = setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
@@ -249,9 +249,9 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
+            val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningForhandsgodkjent.Output(
+            beregning.output shouldBe UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
                     DeltakelseManedsverk(deltakerId1, 0.38333),
@@ -277,11 +277,11 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                 ),
             )
             val periode = Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1))
-            val input = UtbetalingBeregningForhandsgodkjent.Input(periode, 100, stengt, deltakelser)
+            val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(periode, 100, stengt, deltakelser)
 
-            val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
+            val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningForhandsgodkjent.Output(
+            beregning.output shouldBe UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
                     DeltakelseManedsverk(deltakerId1, 0.5),
@@ -291,8 +291,8 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
 
         test("rundes opp til slutt") {
             // 5/31 * 20205 = 3258.87
-            UtbetalingBeregningForhandsgodkjent.beregn(
-                UtbetalingBeregningForhandsgodkjent.Input(
+            UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(
+                UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
                     periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
                     20205,
                     emptySet(),
@@ -310,8 +310,8 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
             (2..31).forEach {
                 val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, it))
 
-                val utbetaling = UtbetalingBeregningForhandsgodkjent.beregn(
-                    UtbetalingBeregningForhandsgodkjent.Input(
+                val utbetaling = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(
+                    UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
                         periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
                         20205,
                         emptySet(),
@@ -324,8 +324,8 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                     ),
                 )
 
-                val tilsagn = TilsagnBeregningForhandsgodkjent.beregn(
-                    TilsagnBeregningForhandsgodkjent.Input(
+                val tilsagn = TilsagnBeregningAvtaltPrisPerManedsverk.beregn(
+                    TilsagnBeregningAvtaltPrisPerManedsverk.Input(
                         periode = periode,
                         sats = 20205,
                         antallPlasser = 1,

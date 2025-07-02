@@ -6,11 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -72,6 +68,7 @@ class AvtaleValidatorTest : FunSpec({
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
         prismodell = Prismodell.FRI,
+        satser = listOf(),
     )
 
     beforeEach {

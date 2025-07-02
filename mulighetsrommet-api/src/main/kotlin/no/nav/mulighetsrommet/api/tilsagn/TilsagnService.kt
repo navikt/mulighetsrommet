@@ -71,7 +71,8 @@ class TilsagnService(
         )
             .flatMap {
                 when (request.beregning) {
-                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
+                    // TODO: valider basert på avtalens satser
+                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> TilsagnValidator.validateForhandsgodkjentSats(
                         gjennomforing.tiltakstype.tiltakskode,
                         request.beregning,
                     )
@@ -148,8 +149,8 @@ class TilsagnService(
         return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
-                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnBeregningForhandsgodkjent.beregn(input)
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
+                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> TilsagnBeregningAvtaltPrisPerManedsverk.beregn(input)
                 }
             }
     }

@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.avtale.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -77,8 +78,8 @@ object TilsagnValidator {
 
     fun validateForhandsgodkjentSats(
         tiltakskode: Tiltakskode,
-        input: TilsagnBeregningForhandsgodkjent.Input,
-    ): Either<List<FieldError>, TilsagnBeregningForhandsgodkjent.Input> = either {
+        input: TilsagnBeregningAvtaltPrisPerManedsverk.Input,
+    ): Either<List<FieldError>, TilsagnBeregningAvtaltPrisPerManedsverk.Input> = either {
         val errors = buildList {
             val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periode.start)
             if (satsPeriodeStart == null) {
@@ -115,18 +116,18 @@ object TilsagnValidator {
 
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregningInput> = either {
         return when (input) {
-            is TilsagnBeregningForhandsgodkjent.Input -> validateAFTTilsagnBeregningInput(input)
             is TilsagnBeregningFri.Input -> validateBeregningFriInput(input)
+            is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> validateBeregningAvtaltPrisPerManedsverkInput(input)
         }
     }
 
-    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningForhandsgodkjent.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
+    private fun validateBeregningAvtaltPrisPerManedsverkInput(input: TilsagnBeregningAvtaltPrisPerManedsverk.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
                 add(
                     FieldError.of(
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
-                        TilsagnBeregningForhandsgodkjent.Input::periode,
+                        TilsagnBeregningAvtaltPrisPerManedsverk.Input::periode,
                         Periode::slutt,
                     ),
                 )
@@ -135,7 +136,7 @@ object TilsagnValidator {
                 add(
                     FieldError.of(
                         "Antall plasser kan ikke være 0",
-                        TilsagnBeregningForhandsgodkjent.Input::antallPlasser,
+                        TilsagnBeregningAvtaltPrisPerManedsverk.Input::antallPlasser,
                     ),
                 )
             }
@@ -146,7 +147,12 @@ object TilsagnValidator {
 
     private fun validateBeregningFriInput(input: TilsagnBeregningFri.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         if (input.linjer.isEmpty()) {
-            return listOf(FieldError.ofPointer(pointer = "beregning/linjer", detail = "Du må legge til en linje")).left()
+            return listOf(
+                FieldError.ofPointer(
+                    pointer = "beregning/linjer",
+                    detail = "Du må legge til en linje",
+                ),
+            ).left()
         }
         val errors = buildList {
             input.linjer.forEachIndexed { index, linje ->

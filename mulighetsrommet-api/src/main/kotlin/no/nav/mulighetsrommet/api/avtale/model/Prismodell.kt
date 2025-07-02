@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 enum class Prismodell {
-    FORHANDSGODKJENT,
     FRI,
+    FORHANDSGODKJENT,
+    AVTALT_SATS_PER_MANED,
 }

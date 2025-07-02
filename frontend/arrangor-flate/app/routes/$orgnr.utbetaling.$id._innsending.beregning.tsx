@@ -16,7 +16,7 @@ import {
 } from "@navikt/ds-react";
 import {
   ArrangorflateService,
-  ArrFlateBeregningForhandsgodkjent,
+  ArrFlateBeregningAvtaltPrisPerManedsverk,
   ArrFlateUtbetaling,
   Periode,
   RelevanteForslag,
@@ -103,7 +103,7 @@ export default function UtbetalingBeregning() {
   const { utbetaling, deltakerlisteUrl, relevanteForslag } = useLoaderData<LoaderData>();
 
   let beregning = null;
-  if (utbetaling.beregning.type === "FORHANDSGODKJENT") {
+  if (utbetaling.beregning.type === "AVTALT_PRIS_PER_MANEDSVERK") {
     beregning = (
       <ForhandsgodkjentBeregning
         periode={utbetaling.periode}
@@ -154,7 +154,7 @@ function ForhandsgodkjentBeregning({
   deltakerlisteUrl,
 }: {
   periode: Periode;
-  beregning: ArrFlateBeregningForhandsgodkjent;
+  beregning: ArrFlateBeregningAvtaltPrisPerManedsverk;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 }) {
@@ -278,7 +278,7 @@ function ForhandsgodkjentBeregning({
                           <ExclamationmarkTriangleIcon fontSize="1.5rem" />
                         </Tooltip>
                       )}
-                      {person.navn}
+                      {person?.navn}
                     </HStack>
                   </Table.DataCell>
                   <Table.DataCell>{fodselsdato}</Table.DataCell>

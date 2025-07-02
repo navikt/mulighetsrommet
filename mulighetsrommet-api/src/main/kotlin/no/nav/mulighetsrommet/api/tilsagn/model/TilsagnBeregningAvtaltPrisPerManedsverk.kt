@@ -13,14 +13,14 @@ import kotlin.streams.asSequence
 private const val CALCULATION_PRECISION = 20
 
 @Serializable
-@SerialName("FORHANDSGODKJENT")
-data class TilsagnBeregningForhandsgodkjent(
+@SerialName("AVTALT_PRIS_PER_MANEDSVERK")
+data class TilsagnBeregningAvtaltPrisPerManedsverk(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
 
     @Serializable
-    @SerialName("FORHANDSGODKJENT")
+    @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
     data class Input(
         val periode: Periode,
         val sats: Int,
@@ -28,13 +28,13 @@ data class TilsagnBeregningForhandsgodkjent(
     ) : TilsagnBeregningInput()
 
     @Serializable
-    @SerialName("FORHANDSGODKJENT")
+    @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
     data class Output(
         override val belop: Int,
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningForhandsgodkjent {
+        fun beregn(input: Input): TilsagnBeregningAvtaltPrisPerManedsverk {
             val (periode, sats, antallPlasser) = input
 
             val output = periode.start.datesUntil(periode.slutt)
@@ -42,7 +42,11 @@ data class TilsagnBeregningForhandsgodkjent(
                 .groupBy { it.month }
                 .map { (_, datesInMonth) ->
                     val fractionOfMonth = datesInMonth.size.toBigDecimal()
-                        .divide(datesInMonth[0].lengthOfMonth().toBigDecimal(), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+                        .divide(
+                            datesInMonth[0].lengthOfMonth().toBigDecimal(),
+                            CALCULATION_PRECISION,
+                            RoundingMode.HALF_UP,
+                        )
 
                     val value = fractionOfMonth
                         .multiply(sats.toBigDecimal())
@@ -54,7 +58,7 @@ data class TilsagnBeregningForhandsgodkjent(
                 .reduce { acc: Int, s: Int -> addExact(acc, s) }
                 .let { Output(it) }
 
-            return TilsagnBeregningForhandsgodkjent(input, output)
+            return TilsagnBeregningAvtaltPrisPerManedsverk(input, output)
         }
     }
 }

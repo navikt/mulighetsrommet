@@ -36,7 +36,11 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
         </Bolk>
 
         {prismodell === Prismodell.FORHANDSGODKJENT && (
-          <ForhandsgodkjentAvtalePrismodell avtale={avtale} />
+          <ForhandsgodkjentPrisPerManedsverk avtale={avtale} />
+        )}
+
+        {prismodell === Prismodell.AVTALT_SATS_PER_MANED && (
+          <AvtaltPrisPerManedsverk avtale={avtale} />
         )}
       </VStack>
     </TwoColumnGrid>
@@ -47,10 +51,47 @@ interface ForhandsgodkjentAvtalePrismodellProps {
   avtale: AvtaleDto;
 }
 
-function ForhandsgodkjentAvtalePrismodell({ avtale }: ForhandsgodkjentAvtalePrismodellProps) {
+function ForhandsgodkjentPrisPerManedsverk({ avtale }: ForhandsgodkjentAvtalePrismodellProps) {
   const { data: satser } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
 
   if (!satser) return null;
+
+  return (
+    <VStack gap="4">
+      {satser.map((sats) => (
+        <Box
+          padding="4"
+          borderColor="border-subtle"
+          borderRadius="large"
+          borderWidth="1"
+          key={sats.periodeStart}
+        >
+          <HStack gap="4">
+            <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+
+            <Metadata
+              header={avtaletekster.prismodell.pris.label}
+              verdi={formaterTall(sats.pris)}
+            />
+
+            <Metadata
+              header={avtaletekster.prismodell.periodeStart.label}
+              verdi={formaterDato(sats.periodeStart)}
+            />
+
+            <Metadata
+              header={avtaletekster.prismodell.periodeSlutt.label}
+              verdi={formaterDato(sats.periodeSlutt)}
+            />
+          </HStack>
+        </Box>
+      ))}
+    </VStack>
+  );
+}
+
+function AvtaltPrisPerManedsverk({ avtale }: ForhandsgodkjentAvtalePrismodellProps) {
+  const satser = avtale.satser;
 
   return (
     <VStack gap="4">

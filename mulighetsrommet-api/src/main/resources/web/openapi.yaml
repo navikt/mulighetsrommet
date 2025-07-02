@@ -2259,6 +2259,30 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/avtaler/{id}/satser:
+    get:
+      tags:
+        - Avtaler
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      operationId: getAvtalteSatser
+      responses:
+        200:
+          description: Avtalte satser for avtale
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaltSatsDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/prismodell/satser:
     get:
       tags:
@@ -2270,7 +2294,6 @@ paths:
           schema:
             $ref: "#/components/schemas/Tiltakskode"
             type: string
-            format: uuid
       operationId: getForhandsgodkjenteSatser
       responses:
         200:
@@ -2280,7 +2303,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AvtaltSats"
+                  $ref: "#/components/schemas/AvtaltSatsDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -3009,6 +3032,10 @@ components:
             - $ref: "#/components/schemas/Utdanningslop"
         prismodell:
           $ref: "#/components/schemas/Prismodell"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsDto"
       required:
         - id
         - tiltakstype
@@ -3027,6 +3054,7 @@ components:
         - opsjonerRegistrert
         - utdanningslop
         - prismodell
+        - satser
 
     AvtaleRequest:
       type: object
@@ -3105,6 +3133,10 @@ components:
             - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodell:
           $ref: "#/components/schemas/Prismodell"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsDto"
       required:
         - id
         - navn
@@ -3127,12 +3159,14 @@ components:
         - opsjonsmodell
         - utdanningslop
         - prismodell
+        - satser
 
     Prismodell:
       type: string
       enum:
-        - FORHANDSGODKJENT
         - FRI
+        - FORHANDSGODKJENT
+        - AVTALT_SATS_PER_MANED
 
     EmbeddedTiltakstype:
       type: object
@@ -5792,38 +5826,38 @@ components:
 
     TilsagnBeregning:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjent"
+        - $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverk"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
+        - $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkInput"
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkOutput"
         - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
 
-    TilsagnBeregningForhandsgodkjent:
+    TilsagnBeregningAvtaltPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: AVTALT_PRIS_PER_MANEDSVERK
         input:
-          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
+          $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkInput"
         output:
-          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
+          $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkOutput"
       required:
         - type
         - input
         - output
 
-    TilsagnBeregningForhandsgodkjentInput:
+    TilsagnBeregningAvtaltPrisPerManedsverkInput:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: AVTALT_PRIS_PER_MANEDSVERK
         periode:
           $ref: "#/components/schemas/Periode"
         sats:
@@ -5836,11 +5870,11 @@ components:
         - sats
         - antallPlasser
 
-    TilsagnBeregningForhandsgodkjentOutput:
+    TilsagnBeregningAvtaltPrisPerManedsverkOutput:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: AVTALT_PRIS_PER_MANEDSVERK
         belop:
           type: integer
       required:
@@ -5907,7 +5941,7 @@ components:
         - type
         - belop
 
-    AvtaltSats:
+    AvtaltSatsDto:
       type: object
       properties:
         periodeStart:
@@ -5974,7 +6008,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         beregning:
-          $ref: "#/components/schemas/Beregning"
+          $ref: "#/components/schemas/UtbetalingBeregning"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6181,11 +6215,17 @@ components:
         - navn
         - slettet
 
-    ArrFlateBeregningForhandsgodkjent:
+    ArrFlateBeregning:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/ArrFlateBeregningAvtaltPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrFlateBeregningFri"
+
+    ArrFlateBeregningAvtaltPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: AVTALT_PRIS_PER_MANEDSVERK
         belop:
           type: integer
         antallManedsverk:
@@ -6222,24 +6262,24 @@ components:
         - type
         - digest
 
-    ArrFlateBeregning:
+    UtbetalingBeregning:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
-        - $ref: "#/components/schemas/ArrFlateBeregningFri"
+        - $ref: "#/components/schemas/UtbetalingBeregningAvtaltPrisPerManedsverk"
+        - $ref: "#/components/schemas/UtbetalingBeregningFri"
 
-    BeregningForhandsgodkjent:
+    UtbetalingBeregningAvtaltPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: AVTALT_PRIS_PER_MANEDSVERK
         belop:
           type: integer
         sats:
           type: integer
       required: [type, belop, sats]
 
-    BeregningFri:
+    UtbetalingBeregningFri:
       type: object
       properties:
         belop:
@@ -6247,12 +6287,6 @@ components:
         type:
           const: FRI
       required: [belop, type]
-
-    Beregning:
-      type: object
-      oneOf:
-        - $ref: "#/components/schemas/BeregningForhandsgodkjent"
-        - $ref: "#/components/schemas/BeregningFri"
 
     UtbetalingStengtPeriode:
       type: object
@@ -6301,7 +6335,6 @@ components:
         - sistePeriodeDeltakelsesprosent
         - perioder
         - manedsverk
-        - person
 
     UtbetalingDeltakelsePeriode:
       type: object

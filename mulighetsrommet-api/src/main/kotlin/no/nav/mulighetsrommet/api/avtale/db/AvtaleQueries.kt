@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -229,6 +230,27 @@ class AvtaleQueries(private val session: Session) {
             }
             batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
+
+        @Language("PostgreSQL")
+        val deleteSatser = """
+            delete from avtale_sats
+            where avtale_id = ?::uuid
+        """.trimIndent()
+        execute(queryOf(deleteSatser, avtale.id))
+
+        @Language("PostgreSQL")
+        val insertSats = """
+            insert into avtale_sats (avtale_id, periode, sats)
+            values (:avtale_id::uuid, :periode::daterange, :sats)
+        """.trimIndent()
+        val satser = avtale.satser.map {
+            mapOf(
+                "avtale_id" to avtale.id,
+                "periode" to it.periode.toDaterange(),
+                "sats" to it.sats,
+            )
+        }
+        batchPreparedNamedStatement(insertSats, satser)
     }
 
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) = withTransaction(session) {
@@ -553,6 +575,10 @@ class AvtaleQueries(private val session: Session) {
             )
         }
 
+        val satser = stringOrNull("satser_json")
+            ?.let { Json.decodeFromString<List<AvtaltSats>>(it) }
+            ?: emptyList()
+
         return AvtaleDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -588,6 +614,14 @@ class AvtaleQueries(private val session: Session) {
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
             prismodell = Prismodell.valueOf(string("prismodell")),
+            satser = satser.map {
+                AvtaltSatsDto(
+                    periodeStart = it.periode.start,
+                    periodeSlutt = it.periode.getLastInclusiveDate(),
+                    pris = it.sats,
+                    valuta = "NOK",
+                )
+            },
         )
     }
 }

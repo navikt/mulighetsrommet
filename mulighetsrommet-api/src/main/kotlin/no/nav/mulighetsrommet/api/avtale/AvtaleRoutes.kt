@@ -6,10 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -53,6 +50,7 @@ data class AvtaleRequest(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell,
+    val satser: List<AvtaltSatsDto>,
 ) {
 
     @Serializable
@@ -93,6 +91,25 @@ fun Route.avtaleRoutes() {
                     .map { it.toPersonopplysningData() },
             )
         }
+    }
+
+    get("/prismodell/satser") {
+        val tiltakstype: Tiltakskode by call.queryParameters
+
+        val satser = ForhandsgodkjenteSatser.satser(tiltakstype).map {
+            AvtaltSatsDto(
+                periodeStart = it.periode.start,
+                periodeSlutt = it.periode.getLastInclusiveDate(),
+                pris = it.sats,
+                valuta = "NOK",
+            )
+        }
+
+        if (satser.isEmpty()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
+        }
+
+        call.respond(satser)
     }
 
     route("avtaler") {
@@ -224,6 +241,15 @@ fun Route.avtaleRoutes() {
             avtaler.get(id)
                 ?.let { call.respond(it) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
+        }
+
+        get("{id}/satser") {
+            val id: UUID by call.parameters
+
+            val avtale = avtaler.get(id)
+                ?: return@get call.respond(HttpStatusCode.NotFound, "Avtale med id $id finnes ikke")
+
+            call.respond(avtale.satser)
         }
 
         get("{id}/historikk") {

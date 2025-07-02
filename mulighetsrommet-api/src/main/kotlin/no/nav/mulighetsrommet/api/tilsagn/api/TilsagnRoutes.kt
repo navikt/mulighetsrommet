@@ -12,6 +12,8 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -28,8 +30,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -206,25 +206,6 @@ fun Route.tilsagnRoutes() {
             }
         }
     }
-
-    get("/prismodell/satser") {
-        val tiltakstype: Tiltakskode by call.queryParameters
-
-        val satser = ForhandsgodkjenteSatser.satser(tiltakstype).map {
-            AvtaltSats(
-                periodeStart = it.periode.start,
-                periodeSlutt = it.periode.getLastInclusiveDate(),
-                pris = it.belop,
-                valuta = "NOK",
-            )
-        }
-
-        if (satser.isEmpty()) {
-            return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
-        }
-
-        call.respond(satser)
-    }
 }
 
 @Serializable
@@ -299,16 +280,6 @@ data class TilAnnulleringRequest(
     val forklaring: String?,
 )
 
-@Serializable
-data class AvtaltSats(
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
-    val pris: Int,
-    val valuta: String,
-)
-
 private fun resolveTilsagnDefaults(
     config: OkonomiConfig,
     avtale: AvtaleDto?,
@@ -340,7 +311,43 @@ private fun resolveTilsagnDefaults(
             val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
             val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
                 ?.let { sats ->
-                    TilsagnBeregningForhandsgodkjent.Input(
+                    TilsagnBeregningAvtaltPrisPerManedsverk.Input(
+                        periode = periode,
+                        sats = sats,
+                        antallPlasser = gjennomforing.antallPlasser,
+                    )
+                }
+
+            TilsagnDefaults(
+                id = null,
+                gjennomforingId = gjennomforing.id,
+                type = TilsagnType.TILSAGN,
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
+                beregning = beregning,
+            )
+        }
+
+        Prismodell.AVTALT_SATS_PER_MANED -> {
+            val periodeStart = listOfNotNull(
+                config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+                gjennomforing.startDato,
+                tilsagn?.periode?.slutt,
+            ).max()
+
+            val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(1).minusDays(1)
+            val lastDayOfYear = periodeStart.withMonth(12).withDayOfMonth(31)
+            val periodeSlutt = listOfNotNull(
+                gjennomforing.sluttDato,
+                forhandsgodkjentTilsagnPeriodeSlutt,
+                lastDayOfYear,
+            ).filter { it > periodeStart }.min()
+
+            val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+            val beregning = AvtalteSatser.findSats(avtale, periode)
+                ?.let { sats ->
+                    TilsagnBeregningAvtaltPrisPerManedsverk.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = gjennomforing.antallPlasser,

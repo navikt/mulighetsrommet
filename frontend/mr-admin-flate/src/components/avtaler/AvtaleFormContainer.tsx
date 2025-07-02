@@ -113,6 +113,7 @@ export function AvtaleFormContainer({
       },
       utdanningslop: getUtdanningslop(data),
       prismodell: data.prismodell ?? Prismodell.FRI,
+      satser: data.satser,
     };
 
     mutation.mutate(requestBody, {

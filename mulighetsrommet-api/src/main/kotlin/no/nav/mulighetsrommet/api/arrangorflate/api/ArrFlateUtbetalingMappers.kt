@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.math.BigDecimal
@@ -17,8 +17,8 @@ fun mapUtbetalingToArrFlateUtbetaling(
     personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person>,
     linjer: List<ArrangorUtbetalingLinje>,
 ): ArrFlateUtbetaling {
-    return when (val beregning = utbetaling.beregning) {
-        is UtbetalingBeregningForhandsgodkjent -> {
+    val beregning = when (val beregning = utbetaling.beregning) {
+        is UtbetalingBeregningAvtaltPrisPerManedsverk -> {
             val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
             val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
@@ -50,44 +50,33 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()
 
-            ArrFlateUtbetaling(
-                id = utbetaling.id,
-                status = status,
-                godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-                createdAt = utbetaling.createdAt,
-                tiltakstype = utbetaling.tiltakstype,
-                gjennomforing = utbetaling.gjennomforing,
-                arrangor = utbetaling.arrangor,
-                periode = utbetaling.periode,
-                beregning = Beregning.Forhandsgodkjent(
-                    stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
-                    antallManedsverk = antallManedsverk,
-                    belop = beregning.output.belop,
-                    digest = beregning.getDigest(),
-                    deltakelser = deltakelser,
-                ),
-                betalingsinformasjon = utbetaling.betalingsinformasjon,
-                type = UtbetalingType.from(utbetaling),
-                linjer = linjer,
+            Beregning.AvtaltPrisPerManedsverk(
+                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                antallManedsverk = antallManedsverk,
+                belop = beregning.output.belop,
+                digest = beregning.getDigest(),
+                deltakelser = deltakelser,
             )
         }
 
-        is UtbetalingBeregningFri -> ArrFlateUtbetaling(
-            id = utbetaling.id,
-            status = status,
-            godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-            createdAt = utbetaling.createdAt,
-            tiltakstype = utbetaling.tiltakstype,
-            gjennomforing = utbetaling.gjennomforing,
-            arrangor = utbetaling.arrangor,
-            periode = utbetaling.periode,
-            beregning = Beregning.Fri(
-                belop = beregning.output.belop,
-                digest = beregning.getDigest(),
-            ),
-            betalingsinformasjon = utbetaling.betalingsinformasjon,
-            type = UtbetalingType.from(utbetaling),
-            linjer = linjer,
+        is UtbetalingBeregningFri -> Beregning.Fri(
+            belop = beregning.output.belop,
+            digest = beregning.getDigest(),
         )
     }
+
+    return ArrFlateUtbetaling(
+        id = utbetaling.id,
+        status = status,
+        godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+        createdAt = utbetaling.createdAt,
+        tiltakstype = utbetaling.tiltakstype,
+        gjennomforing = utbetaling.gjennomforing,
+        arrangor = utbetaling.arrangor,
+        periode = utbetaling.periode,
+        beregning = beregning,
+        betalingsinformasjon = utbetaling.betalingsinformasjon,
+        type = UtbetalingType.from(utbetaling),
+        linjer = linjer,
+    )
 }

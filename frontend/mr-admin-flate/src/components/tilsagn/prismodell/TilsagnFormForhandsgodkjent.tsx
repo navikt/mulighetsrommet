@@ -1,8 +1,8 @@
-import { useFindForhandsgodkjentSats } from "@/api/tilsagn/useFindForhandsgodkjentSats";
+import { useFindAvtaltSats } from "@/api/tilsagn/useFindAvtaltSats";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
-import { GjennomforingDto, TilsagnBeregningForhandsgodkjent } from "@mr/api-client-v2";
+import { GjennomforingDto, TilsagnBeregningAvtaltPrisPerManedsverk } from "@mr/api-client-v2";
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -10,7 +10,9 @@ import { addDays } from "@/utils/Utils";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
-type ForhandsgodkjentTilsagn = InferredTilsagn & { beregning: TilsagnBeregningForhandsgodkjent };
+type ForhandsgodkjentTilsagn = InferredTilsagn & {
+  beregning: TilsagnBeregningAvtaltPrisPerManedsverk;
+};
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -41,7 +43,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   const periodeStart = watch("periodeStart");
   const periodeSlutt = watch("periodeSlutt");
 
-  const sats = useFindForhandsgodkjentSats(gjennomforing.tiltakstype.tiltakskode, periodeStart);
+  const sats = useFindAvtaltSats(gjennomforing.avtaleId!, periodeStart);
 
   useEffect(() => {
     // FIXME: Satt til 0 for at validering og beregning ikke skal stoppe opp. Kan det gjøres på en bedre måte?

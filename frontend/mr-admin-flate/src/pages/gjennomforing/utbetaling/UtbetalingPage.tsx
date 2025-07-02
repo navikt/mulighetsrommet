@@ -196,7 +196,7 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
-              {utbetaling.beregning.type === "FORHANDSGODKJENT" && (
+              {utbetaling.beregning.type === "AVTALT_PRIS_PER_MANEDSVERK" && (
                 <Accordion>
                   <Accordion.Item>
                     <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
@@ -246,7 +246,7 @@ export function UtbetalingPage() {
           </VStack>
         </WhitePaddedBox>
       </ContentBox>
-      {utbetaling.beregning.type === "FORHANDSGODKJENT" && (
+      {utbetaling.beregning.type === "AVTALT_PRIS_PER_MANEDSVERK" && (
         <ForhandsgodkjentDeltakerTableModal
           heading={formaterPeriode(utbetaling.periode)}
           deltakere={deltakere}

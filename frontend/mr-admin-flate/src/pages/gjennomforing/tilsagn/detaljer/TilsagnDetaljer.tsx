@@ -57,7 +57,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
                 header={tilsagnTekster.periode.start.label}
                 verdi={formaterPeriodeStart(periode)}
               />
-              {beregning.type === "FORHANDSGODKJENT" && (
+              {beregning.type === "AVTALT_PRIS_PER_MANEDSVERK" && (
                 <MetadataHorisontal
                   header={tilsagnTekster.antallPlasser.label}
                   verdi={beregning.input.antallPlasser}
@@ -77,7 +77,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
                 header={tilsagnTekster.periode.slutt.label}
                 verdi={formaterPeriodeSlutt(periode)}
               />
-              {beregning.type === "FORHANDSGODKJENT" && (
+              {beregning.type === "AVTALT_PRIS_PER_MANEDSVERK" && (
                 <MetadataHorisontal
                   header={tilsagnTekster.sats.label}
                   verdi={formaterNOK(beregning.input.sats)}

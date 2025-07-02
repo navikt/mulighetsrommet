@@ -118,13 +118,13 @@ class TilsagnQueriesTest : FunSpec({
 
                 val queries = TilsagnQueries(session)
 
-                val beregning = TilsagnBeregningForhandsgodkjent(
-                    input = TilsagnBeregningForhandsgodkjent.Input(
+                val beregning = TilsagnBeregningAvtaltPrisPerManedsverk(
+                    input = TilsagnBeregningAvtaltPrisPerManedsverk.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
                     ),
-                    output = TilsagnBeregningForhandsgodkjent.Output(1000),
+                    output = TilsagnBeregningAvtaltPrisPerManedsverk.Output(1000),
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 

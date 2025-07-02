@@ -46,6 +46,7 @@ export function defaultAvtaleData(
     opsjonsmodell: avtale?.opsjonsmodell,
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     prismodell: avtale?.prismodell ?? null,
+    satser: avtale?.satser ?? [],
   };
 }
 

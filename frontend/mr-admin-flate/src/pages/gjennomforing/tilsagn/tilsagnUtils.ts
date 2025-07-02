@@ -1,15 +1,15 @@
 import { navnEllerIdent } from "@/utils/Utils";
 import {
   AgentDto,
-  TilsagnBeregningForhandsgodkjent,
+  TilsagnBeregningAvtaltPrisPerManedsverk,
   TilsagnBeregningFri,
   TilsagnDto,
 } from "@mr/api-client-v2";
 
-export function isTilsagnForhandsgodkjent(
+export function isTilsagnAvtaltPrisPerManedsverk(
   tilsagn: TilsagnDto,
-): tilsagn is TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent } {
-  return tilsagn.beregning.type === "FORHANDSGODKJENT";
+): tilsagn is TilsagnDto & { beregning: TilsagnBeregningAvtaltPrisPerManedsverk } {
+  return tilsagn.beregning.type === "AVTALT_PRIS_PER_MANEDSVERK";
 }
 
 export function isTilsagnFri(

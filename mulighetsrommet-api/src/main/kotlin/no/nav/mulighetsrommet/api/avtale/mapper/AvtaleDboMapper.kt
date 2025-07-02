@@ -3,7 +3,9 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.Periode
 
 object AvtaleDboMapper {
     fun fromAvtaleDto(dto: AvtaleDto) = AvtaleDbo(
@@ -37,6 +39,12 @@ object AvtaleDboMapper {
         opsjonsmodell = dto.opsjonsmodell,
         utdanningslop = dto.utdanningslop?.toDbo(),
         prismodell = dto.prismodell,
+        satser = dto.satser.map {
+            AvtaltSats(
+                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                sats = it.pris,
+            )
+        },
     )
 
     fun fromAvtaleRequest(
@@ -66,5 +74,11 @@ object AvtaleDboMapper {
         opsjonsmodell = request.opsjonsmodell,
         utdanningslop = request.utdanningslop,
         prismodell = request.prismodell,
+        satser = request.satser.map {
+            AvtaltSats(
+                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                sats = it.pris,
+            )
+        },
     )
 }

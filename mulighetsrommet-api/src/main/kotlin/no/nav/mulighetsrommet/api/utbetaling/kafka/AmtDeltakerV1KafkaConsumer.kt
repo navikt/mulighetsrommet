@@ -6,6 +6,7 @@ import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -68,7 +68,7 @@ class AmtDeltakerV1KafkaConsumer(
 
         when (prismodell) {
             Prismodell.FRI -> return false
-            Prismodell.FORHANDSGODKJENT -> Unit
+            Prismodell.FORHANDSGODKJENT, Prismodell.AVTALT_SATS_PER_MANED -> Unit
         }
 
         if (
@@ -97,7 +97,7 @@ private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell?): 
     val deltakelsesprosent = when (prismodell) {
         // Hvis deltakelsesprosent mangler for forhåndsgodkjente tiltak så skal det antas å være 100%
         Prismodell.FORHANDSGODKJENT -> deltaker.prosentStilling?.toDouble() ?: 100.0
-        Prismodell.FRI, null -> null
+        else -> null
     }
     return DeltakerDbo(
         id = deltaker.id,

@@ -4,7 +4,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -13,7 +12,10 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.sql.Array
@@ -35,7 +37,7 @@ class TilsagnQueries(private val session: Session) {
                 type,
                 belop_brukt,
                 belop_beregnet,
-                prismodell,
+                beregning_type,
                 datastream_periode_start,
                 datastream_periode_slutt
             ) values (
@@ -50,7 +52,7 @@ class TilsagnQueries(private val session: Session) {
                 :type::tilsagn_type,
                 :belop_brukt,
                 :belop_beregnet,
-                :prismodell::prismodell,
+                :beregning_type::tilsagn_beregning_type,
                 :datastream_periode_start,
                 :datastream_periode_slutt
             )
@@ -65,7 +67,7 @@ class TilsagnQueries(private val session: Session) {
                 type                                    = excluded.type,
                 belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
-                prismodell                              = excluded.prismodell,
+                beregning_type                          = excluded.beregning_type,
                 datastream_periode_start                = excluded.datastream_periode_start,
                 datastream_periode_slutt                = excluded.datastream_periode_slutt
         """.trimIndent()
@@ -82,9 +84,9 @@ class TilsagnQueries(private val session: Session) {
             "type" to dbo.type.name,
             "belop_brukt" to dbo.belopBrukt,
             "belop_beregnet" to dbo.beregning.output.belop,
-            "prismodell" to when (dbo.beregning) {
-                is TilsagnBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT
-                is TilsagnBeregningFri -> Prismodell.FRI
+            "beregning_type" to when (dbo.beregning) {
+                is TilsagnBeregningFri -> TilsagnBeregningType.FRI
+                is TilsagnBeregningAvtaltPrisPerManedsverk -> TilsagnBeregningType.AVTALT_PRIS_PER_MANEDSVERK
             }.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
@@ -93,22 +95,24 @@ class TilsagnQueries(private val session: Session) {
         execute(queryOf(query, params))
 
         when (dbo.beregning) {
-            is TilsagnBeregningForhandsgodkjent -> {
-                check(dbo.periode == dbo.beregning.input.periode) {
-                    "Tilsagnsperiode og beregningsperiode må være lik"
-                }
-                upsertTilsagnBeregningForhandsgodkjent(dbo.id, dbo.beregning)
-            }
-
             is TilsagnBeregningFri -> {
                 upsertTilsagnBeregningFri(dbo.id, dbo.beregning)
+            }
+
+            is TilsagnBeregningAvtaltPrisPerManedsverk -> {
+                upsertTilsagnBeregningAvtaltPrisPerManedsverk(
+                    dbo.id,
+                    dbo.beregning.input.sats,
+                    dbo.beregning.input.antallPlasser,
+                )
             }
         }
     }
 
-    private fun TransactionalSession.upsertTilsagnBeregningForhandsgodkjent(
+    private fun TransactionalSession.upsertTilsagnBeregningAvtaltPrisPerManedsverk(
         id: UUID,
-        beregning: TilsagnBeregningForhandsgodkjent,
+        sats: Int,
+        antallPlasser: Int,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -128,8 +132,8 @@ class TilsagnQueries(private val session: Session) {
 
         val params = mapOf(
             "tilsagn_id" to id,
-            "sats" to beregning.input.sats,
-            "antall_plasser" to beregning.input.antallPlasser,
+            "sats" to sats,
+            "antall_plasser" to antallPlasser,
         )
 
         execute(queryOf(query, params))
@@ -323,7 +327,7 @@ class TilsagnQueries(private val session: Session) {
     private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
 
-        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
+        val beregning = getBeregning(id, TilsagnBeregningType.valueOf(string("beregning_type")))
 
         return Tilsagn(
             id = uuid("id"),
@@ -361,14 +365,14 @@ class TilsagnQueries(private val session: Session) {
         )
     }
 
-    private fun getBeregning(id: UUID, prismodell: Prismodell): TilsagnBeregning {
-        return when (prismodell) {
-            Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
-            Prismodell.FRI -> getBeregningFri(id)
+    private fun getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
+        return when (beregning) {
+            TilsagnBeregningType.FRI -> getBeregningFri(id)
+            TilsagnBeregningType.AVTALT_PRIS_PER_MANEDSVERK -> getBeregningForhandsgodkjent(id)
         }
     }
 
-    private fun getBeregningForhandsgodkjent(id: UUID): TilsagnBeregningForhandsgodkjent {
+    private fun getBeregningForhandsgodkjent(id: UUID): TilsagnBeregningAvtaltPrisPerManedsverk {
         @Language("PostgreSQL")
         val query = """
             select tilsagn.periode, tilsagn.belop_beregnet, beregning.sats, beregning.antall_plasser
@@ -377,13 +381,13 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
-            TilsagnBeregningForhandsgodkjent(
-                input = TilsagnBeregningForhandsgodkjent.Input(
+            TilsagnBeregningAvtaltPrisPerManedsverk(
+                input = TilsagnBeregningAvtaltPrisPerManedsverk.Input(
                     periode = row.periode("periode"),
                     sats = row.int("sats"),
                     antallPlasser = row.int("antall_plasser"),
                 ),
-                output = TilsagnBeregningForhandsgodkjent.Output(
+                output = TilsagnBeregningAvtaltPrisPerManedsverk.Output(
                     belop = row.int("belop_beregnet"),
                 ),
             )

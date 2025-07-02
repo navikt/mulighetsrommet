@@ -18,7 +18,7 @@ private const val CALCULATION_PRECISION = 20
 private const val OUTPUT_PRECISION = 5
 
 @Serializable
-data class UtbetalingBeregningForhandsgodkjent(
+data class UtbetalingBeregningAvtaltPrisPerManedsverk(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
@@ -38,7 +38,7 @@ data class UtbetalingBeregningForhandsgodkjent(
     ) : UtbetalingBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): UtbetalingBeregningForhandsgodkjent {
+        fun beregn(input: Input): UtbetalingBeregningAvtaltPrisPerManedsverk {
             val totalDuration = input.periode.getDurationInDays().toBigDecimal()
 
             val manedsverk = input.deltakelser
@@ -60,7 +60,7 @@ data class UtbetalingBeregningForhandsgodkjent(
                 deltakelser = manedsverk,
             )
 
-            return UtbetalingBeregningForhandsgodkjent(input, output)
+            return UtbetalingBeregningAvtaltPrisPerManedsverk(input, output)
         }
 
         private fun calculateManedsverk(

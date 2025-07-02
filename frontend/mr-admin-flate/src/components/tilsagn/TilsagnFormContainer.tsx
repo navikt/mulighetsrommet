@@ -28,26 +28,30 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  switch (defaults.beregning?.type ?? avtale.prismodell) {
-    case Prismodell.FORHANDSGODKJENT:
+  const beregning = defaults.beregning?.type ?? getTilsagnBeregningType(avtale.prismodell);
+  switch (beregning) {
+    case "AVTALT_PRIS_PER_MANEDSVERK":
       return (
         <TilsagnFormForhandsgodkjent
           defaultValues={{
             ...defaults,
-            beregning: { ...defaults.beregning, type: "FORHANDSGODKJENT" },
+            beregning: {
+              ...defaults.beregning,
+              type: "AVTALT_PRIS_PER_MANEDSVERK",
+            },
           }}
           {...props}
         />
       );
-    case Prismodell.FRI:
+    case "FRI":
       return (
         <TilsagnFormFri
           defaultValues={{
             ...defaults,
             beregning: {
               ...defaults.beregning,
-              type: "FRI",
               prisbetingelser: avtale.prisbetingelser,
+              type: "FRI",
             },
           }}
           {...props}
@@ -62,4 +66,18 @@ function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: Ti
   return type === TilsagnType.TILSAGN
     ? gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer)
     : [];
+}
+
+function getTilsagnBeregningType(
+  prismodell: Prismodell | undefined | null,
+): "FRI" | "AVTALT_PRIS_PER_MANEDSVERK" | undefined {
+  switch (prismodell) {
+    case Prismodell.FORHANDSGODKJENT:
+    case Prismodell.AVTALT_SATS_PER_MANED:
+      return "AVTALT_PRIS_PER_MANEDSVERK";
+    case Prismodell.FRI:
+      return "FRI";
+    default:
+      return undefined;
+  }
 }
