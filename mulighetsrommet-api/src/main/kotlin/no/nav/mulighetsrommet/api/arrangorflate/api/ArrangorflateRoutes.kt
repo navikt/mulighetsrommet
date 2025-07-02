@@ -276,6 +276,7 @@ fun Route.arrangorflateRoutes() {
                                 statusSistOppdatert = it.statusSistOppdatert,
                             )
                         },
+                        type = arrflateUtbetaling.type,
                     ),
                 )
 

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.*
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -129,6 +130,7 @@ class JournalforUtbetaling(
                             statusSistOppdatert = it.statusSistOppdatert,
                         )
                     },
+                    type = UtbetalingType.from(utbetaling),
                 ),
             )
         }

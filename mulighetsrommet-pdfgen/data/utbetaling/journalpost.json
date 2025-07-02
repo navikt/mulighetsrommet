@@ -1,6 +1,7 @@
 {
   "utbetaling": {
     "status": "Overført til utbetaling",
+    "type": null,
     "periodeStart": "2024-01-01",
     "periodeSlutt": "2024-01-29",
     "arrangor": {

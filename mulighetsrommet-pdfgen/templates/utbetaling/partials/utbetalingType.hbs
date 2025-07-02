@@ -1,0 +1,9 @@
+{{#eq utbetaling.type "KORRIGERING"}}
+  <h4>Korrigering</h4>
+{{else}}
+  {{#eq utbetaling.type "INVESTERING"}}
+    <h4>Utbetaling for investering</h4>
+    {{else}}
+    <h4>Innsending</h4>
+  {{/eq}}
+{{/eq}}

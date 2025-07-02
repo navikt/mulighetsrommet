@@ -10,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
@@ -87,6 +88,7 @@ data class UtbetalingPdfDto(
     val tiltakstype: TiltakstypePdf,
     val beregning: BeregningPdf,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
+    val type: UtbetalingType?,
     val linjer: List<UtbetalingslinjerPdfDto>?,
 )
 

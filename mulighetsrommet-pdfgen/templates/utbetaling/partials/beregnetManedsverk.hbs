@@ -1,6 +1,7 @@
-<div class="block">
+{{#if utbetaling.beregning.deltakelser.length}}
+  <div class="block">
     <h4>Beregnet månedsverk</h4>
-    {{#if utbetaling.beregning.deltakelser.length}}
+
     <table class="deltaker-liste">
         <thead>
             <tr>
@@ -19,5 +20,5 @@
             {{/each}}
         </tbody>
     </table>
-    {{/if}}
 </div>
+{{/if}}

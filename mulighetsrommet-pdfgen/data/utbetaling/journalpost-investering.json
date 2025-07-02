@@ -1,7 +1,7 @@
 {
   "utbetaling": {
     "status": "Overført til utbetaling",
-    "type": null,
+    "type": "INVESTERING",
     "periodeStart": "2024-01-01",
     "periodeSlutt": "2024-01-29",
     "arrangor": {
@@ -10,6 +10,7 @@
     },
     "godkjentArrangorTidspunkt": "2025-06-15T10:00:00",
     "createdAt": "2025-05-13T10:00:00",
+    "fristForGodkjenning": "2024-03-01",
     "gjennomforing": {
       "navn": "Arbeidsforberedende gjennomføring"
     },
@@ -17,45 +18,10 @@
       "navn": "Arbeidsforberedende trening"
     },
     "beregning": {
-      "antallManedsverk": 2.3,
+      "antallManedsverk": null,
       "belop": 44000,
-      "deltakelser": [
-        {
-          "startDato": "2024-01-01",
-          "sluttDato": "2024-01-29",
-          "perioder": [
-            {
-              "periode": {
-                "start": "2024-01-01",
-                "slutt": "2024-01-29"
-              },
-              "deltakelsesprosent": 100
-            }
-          ],
-          "manedsverk": 1.0,
-          "person": {
-            "navn": "Ola Nordmann",
-            "fodselsdato": "1990-01-01",
-            "fodselsaar": 1990
-          }
-        }
-      ],
-      "stengt": [
-        {
-          "periode": {
-            "start": "2025-04-17",
-            "slutt": "2025-04-21"
-          },
-          "beskrivelse": "Påskeferie"
-        },
-        {
-          "periode": {
-            "start": "2025-07-10",
-            "slutt": "2025-07-31"
-          },
-          "beskrivelse": "Sommerferie"
-        }
-      ]
+      "deltakelser": [],
+      "stengt": []
     },
     "betalingsinformasjon": {
       "kontonummer": "12312312312",

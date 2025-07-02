@@ -8,8 +8,12 @@
             </tr>
             <tr>
                 <th>KID-nummer:</th>
-                <td>{{#if utbetaling.betalingsinformasjon.kid}}{{ utbetaling.betalingsinformasjon.kid }}{{else}}Ikke
-                    oppgitt{{/if}}</td>
+                <td>
+                  {{#if utbetaling.betalingsinformasjon.kid}}
+                    {{ utbetaling.betalingsinformasjon.kid }}
+                  {{else}}
+                    -
+                  {{/if}}</td>
             </tr>
         </tbody>
     </table>
