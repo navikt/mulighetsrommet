@@ -391,8 +391,9 @@ class UtbetalingService(
 
         delutbetalinger.forEach { delutbetaling ->
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-            queries.tilsagn.setBruktBelop(tilsagn.id, tilsagn.belopBrukt + delutbetaling.belop)
-            if (delutbetaling.gjorOppTilsagn) {
+            val benyttetBelop = tilsagn.belopBrukt + delutbetaling.belop
+            queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
+            if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.belop) {
                 tilsagnService.gjorOppAutomatisk(delutbetaling.tilsagnId, this)
             }
             publishOpprettFaktura(delutbetaling)

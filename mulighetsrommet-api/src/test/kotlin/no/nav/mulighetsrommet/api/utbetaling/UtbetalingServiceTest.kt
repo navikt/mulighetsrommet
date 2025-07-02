@@ -61,7 +61,7 @@ class UtbetalingServiceTest : FunSpec({
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
     ) = UtbetalingService(
         config = UtbetalingService.Config(
-            bestillingTopic = "topic",
+            bestillingTopic = "bestilling-topic",
         ),
         db = database.db,
         tilsagnService = tilsagnService,
@@ -517,7 +517,7 @@ class UtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("ny send til godkjenning sletter rader som ikke er med") {
+        test("ved ny innsending til godkjenning skal delutbetalinger som ikke er inkludert i forespørselen slettes fra databasen") {
             val tilsagn1 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
@@ -781,7 +781,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("alle delutbetalinger blir returnert hvis tilsagn ikke har godkjent-status når delutbetaling blir godkjent") {
+        test("alle delutbetalinger blir returnert hvis tilsagn ikke har godkjent-status når delutbetaling blir forsøkt godkjent") {
             val tilsagn1 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 bestillingsnummer = "A-2025/1-1",
@@ -838,6 +838,54 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
+            }
+        }
+
+        test("tilsagn blir oppgjort når utbetaling benytter resten av tilsagnsbeløpet") {
+            val tilsagn = Tilsagn1.copy(
+                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1)),
+                beregning = getTilsagnBeregning(belop = 10),
+            )
+
+            val utbetaling = utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                beregning = UtbetalingBeregningFri(
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn),
+                utbetalinger = listOf(utbetaling),
+            ) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+            }.initialize(database.db)
+
+            val tilsagnService: TilsagnService = mockk(relaxed = true)
+            val service = createUtbetalingService(tilsagnService)
+
+            val delutbetaling = DelutbetalingRequest(UUID.randomUUID(), tilsagn.id, gjorOppTilsagn = false, belop = 10)
+            service.opprettDelutbetalinger(
+                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling)),
+                NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight()
+
+            service.besluttDelutbetaling(
+                id = delutbetaling.id,
+                request = BesluttDelutbetalingRequest.Godkjent,
+                navIdent = NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+
+            verify(exactly = 1) {
+                tilsagnService.gjorOppAutomatisk(Tilsagn1.id, any())
             }
         }
 
@@ -930,21 +978,6 @@ class UtbetalingServiceTest : FunSpec({
             ),
         )
 
-        val tilsagnBeregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
-                linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(
-                        id = UUID.randomUUID(),
-                        beskrivelse = "Beskrivelse",
-                        belop = 1500,
-                        antall = 1,
-                    ),
-                ),
-                prisbetingelser = null,
-            ),
-            output = TilsagnBeregningFri.Output(1500),
-        )
-
         test("utbetales ikke automatisk hvis det allerede finnes en delutbetaling når arrangør godkjenner") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -972,9 +1005,7 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     Tilsagn1.copy(
-                        beregning = tilsagnBeregning.copy(
-                            output = tilsagnBeregning.output.copy(belop = 1000),
-                        ),
+                        beregning = getTilsagnBeregning(belop = 1000),
                     ),
                 ),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
@@ -1111,9 +1142,7 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     Tilsagn1.copy(
-                        beregning = tilsagnBeregning.copy(
-                            output = TilsagnBeregningFri.Output(belop = 1),
-                        ),
+                        beregning = getTilsagnBeregning(belop = 1),
                     ),
                 ),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
@@ -1259,4 +1288,16 @@ private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = Utbetal
         belop = belop,
         deltakelser = setOf(),
     ),
+)
+
+fun getTilsagnBeregning(belop: Int) = TilsagnBeregningFri(
+    input = TilsagnBeregningFri.Input(
+        linjer = listOf(
+            TilsagnBeregningFri.InputLinje(UUID.randomUUID(), "Beskrivelse", 1500, 1),
+        ),
+        prisbetingelser = null,
+    ),
+    output = TilsagnBeregningFri.Output(1500),
+).copy(
+    output = TilsagnBeregningFri.Output(belop),
 )
