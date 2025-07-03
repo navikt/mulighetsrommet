@@ -241,6 +241,7 @@ data class OpprettDelutbetalingerRequest(
     @Serializable(with = UUIDSerializer::class)
     val utbetalingId: UUID,
     val delutbetalinger: List<DelutbetalingRequest>,
+    val begrunnelseMindreBetalt: String?,
 )
 
 @Serializable

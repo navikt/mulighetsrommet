@@ -104,6 +104,24 @@ class UtbetalingQueriesTest : FunSpec({
         }
     }
 
+    test("set godkjent av arrangør") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = UtbetalingQueries(session)
+
+            queries.upsert(utbetaling.copy(innsender = null))
+
+            queries.get(utbetaling.id)
+                .shouldNotBeNull().innsender shouldBe null
+
+            queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
+
+            queries.get(utbetaling.id)
+                .shouldNotBeNull().innsender shouldBe Arrangor
+        }
+    }
+
     test("set journalpost id") {
         database.runAndRollback { session ->
             domain.setup(session)

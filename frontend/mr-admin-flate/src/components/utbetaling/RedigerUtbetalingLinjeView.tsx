@@ -22,10 +22,11 @@ import {
   HStack,
   Modal,
   Spacer,
+  Textarea,
   VStack,
 } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { ChangeEventHandler, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
@@ -60,6 +61,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
 
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<FieldError[]>([]);
+  const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -100,6 +102,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     const body: OpprettDelutbetalingerRequest = {
       utbetalingId: utbetaling.id,
       delutbetalinger: delutbetalingReq,
+      begrunnelseMindreBetalt,
     };
 
     setError([]);
@@ -207,7 +210,11 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
       <MindreBelopModal
         open={mindreBelopModalOpen}
         handleClose={() => setMindreBelopModalOpen(false)}
-        onConfirm={() => sendTilGodkjenning()}
+        onConfirm={() => {
+          setMindreBelopModalOpen(false);
+          sendTilGodkjenning();
+        }}
+        begrunnelseOnChange={(e) => setBegrunnelseMindreBetalt(e.target.value)}
         belopUtbetaling={utbetalesTotal()}
         belopInnsendt={utbetaling.beregning.belop}
       />
@@ -230,12 +237,14 @@ function MindreBelopModal({
   onConfirm,
   belopInnsendt,
   belopUtbetaling,
+  begrunnelseOnChange,
 }: {
   open: boolean;
   handleClose: () => void;
   onConfirm: () => void;
   belopInnsendt: number;
   belopUtbetaling: number;
+  begrunnelseOnChange: ChangeEventHandler<HTMLTextAreaElement>;
 }) {
   return (
     <Modal
@@ -248,12 +257,17 @@ function MindreBelopModal({
       }}
     >
       <Modal.Body>
-        <BodyShort>
-          Beløpet du er i ferd med å sende til attestering er mindre en beløpet på utbetalingen. Er
-          du sikker?
-        </BodyShort>
-        <BodyShort>Beløp til attestering: {formaterNOK(belopUtbetaling)}</BodyShort>
-        <BodyShort>Innsendt beløp: {formaterNOK(belopInnsendt)}</BodyShort>
+        <VStack gap="2">
+          <VStack>
+            <BodyShort>
+              Beløpet du er i ferd med å sende til attestering er mindre en beløpet på utbetalingen.
+              Er du sikker?
+            </BodyShort>
+            <BodyShort>Beløp til attestering: {formaterNOK(belopUtbetaling)}</BodyShort>
+            <BodyShort>Innsendt beløp: {formaterNOK(belopInnsendt)}</BodyShort>
+          </VStack>
+          <Textarea label="Begrunnelse" onChange={begrunnelseOnChange} />
+        </VStack>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="primary" onClick={onConfirm}>
