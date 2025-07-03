@@ -7,9 +7,9 @@ export function getBeregningDetaljer(beregning: ArrFlateBeregning): Definition[]
     case "FORHANDSGODKJENT":
       return [
         { key: "Antall månedsverk", value: String(beregning.antallManedsverk) },
-        { key: "Beløp til utbetaling", value: formaterNOK(beregning.belop) },
+        { key: "Beløp", value: formaterNOK(beregning.belop) },
       ];
     case "FRI":
-      return [{ key: "Beløp til utbetaling", value: formaterNOK(beregning.belop) }];
+      return [{ key: "Beløp", value: formaterNOK(beregning.belop) }];
   }
 }
