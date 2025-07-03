@@ -80,6 +80,10 @@ module "mr_api_datastream" {
       role          = "roles/bigquery.metadataViewer"
       user_by_email = "brum-dev-service-bq@brum-dev-b72f.iam.gserviceaccount.com"
     },
+    {
+      role          = "roles/bigquery.metadataViewer"
+      user_by_email = "bigqueryloader@teamoppfolging-prod-47fb.iam.gserviceaccount.com"
+    },
   ]
 
   authorized_views = [
