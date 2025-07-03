@@ -4,24 +4,31 @@ drop view if exists view_utbetaling_beregning_forhandsgodkjent;
 
 create view view_utbetaling_beregning_forhandsgodkjent as
 with stengt_periode as (select utbetaling_id,
-                               jsonb_agg(jsonb_build_object(
-                                       'periode', jsonb_build_object(
-                                           'start', lower(periode),
-                                           'slutt', upper(periode)
-                                        ),
-                                       'beskrivelse', beskrivelse
-                                         )) as stengt
+                               jsonb_agg(
+                                       jsonb_build_object(
+                                               'periode',
+                                               jsonb_build_object(
+                                                       'start', lower(periode),
+                                                       'slutt', upper(periode)
+                                               ),
+                                               'beskrivelse', beskrivelse
+                                       )
+                               ) as stengt
                         from utbetaling_stengt_hos_arrangor
                         group by utbetaling_id),
      deltakelse_periode as (select utbetaling_id,
                                    deltakelse_id,
-                                   jsonb_agg(jsonb_build_object(
-                                           'periode', jsonb_build_object(
-                                               'start', lower(periode),
-                                               'slutt', upper(periode)
-                                            ),
-                                           'deltakelsesprosent', deltakelsesprosent
-                                             )) as perioder
+                                   jsonb_agg(
+                                           jsonb_build_object(
+                                                   'periode',
+                                                   jsonb_build_object(
+                                                           'start', lower(periode),
+                                                           'slutt', upper(periode)
+                                                   ),
+                                                   'deltakelsesprosent',
+                                                   deltakelsesprosent
+                                           )
+                                   ) as perioder
                             from utbetaling_deltakelse_periode
                             group by utbetaling_id, deltakelse_id),
      deltakelse_perioder as (select utbetaling_id,
@@ -38,10 +45,10 @@ with stengt_periode as (select utbetaling_id,
                                                 )) as deltakelser
                                from utbetaling_deltakelse_manedsverk
                                group by utbetaling_id)
-select beregning.utbetaling_id,
-       beregning.belop,
-       beregning.sats,
+select utbetaling.id,
        utbetaling.periode,
+       utbetaling.belop_beregnet,
+       beregning.sats,
        coalesce(stengt_periode.stengt, '[]'::jsonb)             as stengt_json,
        coalesce(deltakelse_perioder.deltakelser, '[]'::jsonb)   as perioder_json,
        coalesce(deltakelse_manedsverk.deltakelser, '[]'::jsonb) as manedsverk_json
