@@ -559,15 +559,13 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
   },
 ];
 
-const arrangorer: Arrangor[] = [
-  {
-    id: uuid(),
-    organisasjonsnummer: "123456789",
-    organisasjonsform: "AS",
-    navn: "Fretex",
-    overordnetEnhet: null,
-  },
-];
+const arrangorMock: Arrangor = {
+  id: uuid(),
+  organisasjonsnummer: "123456789",
+  organisasjonsform: "AS",
+  navn: "Arrangør",
+  overordnetEnhet: null,
+};
 
 const mockRelevanteForslag: RelevanteForslag[] = [
   {
@@ -579,6 +577,8 @@ const mockRelevanteForslag: RelevanteForslag[] = [
     antallRelevanteForslag: 0,
   },
 ];
+
+const mockKontonumre: string[] = ["35466090326", "47656509208", "94234241219", "20104034676"];
 
 export const arrangorflateHandlers = [
   http.get<PathParams, ArrFlateUtbetaling[]>(
@@ -622,6 +622,9 @@ export const arrangorflateHandlers = [
     },
   ),
   http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
-    HttpResponse.json(arrangorer),
+    HttpResponse.json([arrangorMock]),
   ),
+  http.get<PathParams, string>("*/api/:id/sync-kontonummer", () => {
+    HttpResponse.text(mockKontonumre[Math.floor(Math.random() * mockKontonumre.length)]);
+  }),
 ];

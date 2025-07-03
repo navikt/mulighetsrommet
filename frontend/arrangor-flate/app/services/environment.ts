@@ -2,6 +2,7 @@ export enum Environment {
   DevGcp = "dev-gcp",
   ProdGcp = "prod-gcp",
   Lokalt = "lokalt",
+  Demo = "demo",
 }
 
 const erHosKlient = () => typeof document !== "undefined";
@@ -17,6 +18,8 @@ const getServerEnvironment = () => {
     return Environment.DevGcp;
   } else if (clusterName === Environment.ProdGcp) {
     return Environment.ProdGcp;
+  } else if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+    return Environment.Demo;
   } else {
     return Environment.Lokalt;
   }
@@ -29,6 +32,8 @@ const getClientEnvironment = (window: Window) => {
     return Environment.DevGcp;
   } else if (href.includes("nav.no")) {
     return Environment.ProdGcp;
+  } else if ((window as any)["isDemo"] === "true") {
+    return Environment.Demo;
   } else {
     return Environment.Lokalt;
   }
