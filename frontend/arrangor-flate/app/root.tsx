@@ -22,6 +22,8 @@ import { apiHeaders } from "./auth/auth.server";
 import { problemDetailResponse } from "./utils";
 import css from "./root.module.css";
 import { ErrorPage } from "./components/ErrorPage";
+import { Environment, getEnvironment } from "./services/environment";
+import { Alert, Heading } from "@navikt/ds-react";
 
 export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
 
@@ -43,19 +45,21 @@ export const loader: LoaderFunction = async ({ request }) => {
   return {
     dekorator,
     arrangortilganger,
+    env: getEnvironment(),
   };
 };
 
 export type LoaderData = {
   dekorator: DekoratorElements | null;
   arrangortilganger: Arrangor[];
+  env: Environment;
 };
 
 function App() {
-  const { dekorator, arrangortilganger } = useLoaderData<LoaderData>();
+  const { dekorator, arrangortilganger, env } = useLoaderData<LoaderData>();
 
   return (
-    <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger}>
+    <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger} env={env}>
       <Outlet />
     </Dokument>
   );
@@ -65,10 +69,12 @@ function Dokument({
   dekorator,
   children,
   arrangorer,
+  env,
 }: {
   dekorator?: DekoratorElements;
   children: ReactNode;
   arrangorer: Arrangor[];
+  env: Environment;
 }) {
   useInjectDecoratorScript(dekorator?.scripts);
   return (
@@ -81,15 +87,43 @@ function Dokument({
         {dekorator && parse(dekorator.head)}
       </head>
       <body>
-        {dekorator && parse(dekorator.header)}
+        <DekoratorHeader dekorator={dekorator} env={env} />
         <Header arrangorer={arrangorer} />
         <main className={css.main}>{children}</main>
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.isDemo = ${JSON.stringify(env === Environment.Demo)}`,
+          }}
+        />
         <Scripts />
         {dekorator && parse(dekorator.footer)}
       </body>
     </html>
   );
+}
+
+function DekoratorHeader({ dekorator, env }: { dekorator?: DekoratorElements; env: Environment }) {
+  if (env === Environment.Demo) {
+    return (
+      <Alert fullWidth variant="warning" className="max-w-1920">
+        <Heading spacing size="small" level="3">
+          Demo Arrangørflate
+        </Heading>
+        Denne demoen er ment for NAV-ansatte som vil ha et overblikk av hvilke muligheter
+        tiltaksarrangører har i våre flater.
+        <br />
+        Applikasjonsansvarlige:{" "}
+        <a href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">Team Valp</a>
+        <br />
+        <b>OBS!</b> Demoen inneholder ikke ekte data og kan til tider være ustabil.
+      </Alert>
+    );
+  }
+  if (dekorator) {
+    return parse(dekorator.header);
+  }
+  return null;
 }
 
 export const ErrorBoundary = () => {

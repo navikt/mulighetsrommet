@@ -6,13 +6,12 @@ import { Environment, getEnvironment } from "~/services/environment";
 const loginUrl = "/oauth2/login";
 
 export async function apiHeaders(request: Request): Promise<Record<string, string>> {
-  const token =
-    getEnvironment() === Environment.Lokalt
-      ? process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN
-      : await oboExchange(
-          request,
-          `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
-        );
+  const token = [Environment.Lokalt, Environment.Demo].includes(getEnvironment())
+    ? process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN
+    : await oboExchange(
+        request,
+        `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
+      );
 
   return {
     Accept: "application/json",
@@ -48,7 +47,7 @@ export async function oboExchange(request: Request, audience: string) {
 }
 
 export async function checkValidToken(request: Request) {
-  if (getEnvironment() === Environment.Lokalt) return;
+  if ([Environment.Lokalt, Environment.Demo].includes(getEnvironment())) return;
   const token = getToken(request);
 
   if (!token) {

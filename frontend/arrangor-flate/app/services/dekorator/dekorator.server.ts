@@ -25,7 +25,7 @@ export const fetchDekorator = async (env: Environment): Promise<DekoratorElement
   const decorator = await fetchDecoratorHtml({
     env: env === Environment.ProdGcp ? "prod" : "dev",
     params: {
-      simple: false,
+      simple: env === Environment.Demo,
       simpleFooter: true,
       chatbot: false,
       context: "samarbeidspartner",
