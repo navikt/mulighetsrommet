@@ -90,6 +90,7 @@ data class UtbetalingPdfDto(
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val type: UtbetalingType?,
     val linjer: List<UtbetalingslinjerPdfDto>?,
+    val totaltUtbetalt: Int? = linjer?.fold(0) { acc, linje -> acc + linje.belop },
 )
 
 @Serializable
