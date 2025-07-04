@@ -21,7 +21,7 @@ const TilsagnBeregningFriInputLinje = z.object({
 
 export const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.literal("AVTALT_PRIS_PER_MANEDSVERK"),
+    type: z.literal("PRIS_PER_MANEDSVERK"),
     sats: z.number({
       invalid_type_error: "Sats mangler",
       required_error: "Sats er påkrevd",

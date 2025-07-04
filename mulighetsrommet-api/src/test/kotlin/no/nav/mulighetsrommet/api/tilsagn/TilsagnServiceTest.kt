@@ -27,11 +27,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -214,7 +210,7 @@ class TilsagnServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val beregningAvtaltPrisPerManedsverk = TilsagnBeregningAvtaltPrisPerManedsverk.Input(
+            val beregning = TilsagnBeregningPrisPerManedsverk.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 sats = 1_000,
                 antallPlasser = 10,
@@ -222,7 +218,7 @@ class TilsagnServiceTest : FunSpec({
 
             val invalidRequest1 = request.copy(
                 gjennomforingId = GjennomforingFixtures.AFT1.id,
-                beregning = beregningAvtaltPrisPerManedsverk,
+                beregning = beregning,
             )
             service.upsert(invalidRequest1, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(
@@ -233,18 +229,7 @@ class TilsagnServiceTest : FunSpec({
 
             val invalidRequest2 = request.copy(
                 gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id,
-                beregning = beregningAvtaltPrisPerManedsverk,
-            )
-            service.upsert(invalidRequest2, ansatt1).shouldBeLeft() shouldBe listOf(
-                FieldError(
-                    pointer = "/sats",
-                    detail = "Sats må være være stemme med avtalt sats for perioden",
-                ),
-            )
-
-            val invalidRequest3 = request.copy(
-                gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id,
-                beregning = beregningAvtaltPrisPerManedsverk.copy(),
+                beregning = beregning,
             )
             service.upsert(invalidRequest2, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(

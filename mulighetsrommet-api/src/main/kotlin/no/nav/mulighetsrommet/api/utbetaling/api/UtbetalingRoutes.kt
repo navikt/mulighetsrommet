@@ -82,7 +82,7 @@ fun Route.utbetalingRoutes() {
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 
                     val deltakere = when (utbetaling.beregning) {
-                        is UtbetalingBeregningAvtaltPrisPerManedsverk -> {
+                        is UtbetalingBeregningPrisPerManedsverk -> {
                             val deltakereById = queries.deltaker
                                 .getAll(gjennomforingId = utbetaling.gjennomforing.id)
                                 .associateBy { it.id }

@@ -8,11 +8,12 @@ interface Props {
   sats: number;
   maxHeight: string;
 }
+
 interface ScopedSortState extends SortState {
   orderBy: keyof DeltakerForKostnadsfordeling;
 }
 
-export function ForhandsgodkjentDeltakerTable({ deltakere, sats, maxHeight: height }: Props) {
+export function PrisPerManedsverkTable({ deltakere, sats, maxHeight: height }: Props) {
   const [sort, setSort] = useState<ScopedSortState>();
 
   const handleSort = (sortKey: ScopedSortState["orderBy"]) => {

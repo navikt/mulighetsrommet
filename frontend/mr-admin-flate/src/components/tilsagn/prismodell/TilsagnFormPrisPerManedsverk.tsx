@@ -2,7 +2,7 @@ import { useFindAvtaltSats } from "@/api/tilsagn/useFindAvtaltSats";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
-import { GjennomforingDto, TilsagnBeregningAvtaltPrisPerManedsverk } from "@mr/api-client-v2";
+import { GjennomforingDto, TilsagnBeregningPrisPerManedsverk } from "@mr/api-client-v2";
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -10,19 +10,19 @@ import { addDays } from "@/utils/Utils";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
-type ForhandsgodkjentTilsagn = InferredTilsagn & {
-  beregning: TilsagnBeregningAvtaltPrisPerManedsverk;
+type TilsagnPrisPerManedsverk = InferredTilsagn & {
+  beregning: TilsagnBeregningPrisPerManedsverk;
 };
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: DeepPartial<ForhandsgodkjentTilsagn>;
+  defaultValues: DeepPartial<TilsagnPrisPerManedsverk>;
   regioner: string[];
 }
 
-export function TilsagnFormForhandsgodkjent(props: Props) {
+export function TilsagnFormPrisPerManedsverk(props: Props) {
   return (
     <TilsagnForm
       {...props}
@@ -38,7 +38,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     watch,
     setValue,
     formState: { errors },
-  } = useFormContext<ForhandsgodkjentTilsagn>();
+  } = useFormContext<TilsagnPrisPerManedsverk>();
 
   const periodeStart = watch("periodeStart");
   const periodeSlutt = watch("periodeSlutt");
@@ -86,7 +86,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
 }
 
 function BeregningOutputPreview() {
-  const { watch } = useFormContext<ForhandsgodkjentTilsagn>();
+  const { watch } = useFormContext<TilsagnPrisPerManedsverk>();
   const values = watch("beregning");
   return <TilsagnBeregningPreview input={values} />;
 }

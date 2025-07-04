@@ -77,8 +77,8 @@ object TilsagnValidator {
 
     fun validateAvtaltSats(
         avtale: AvtaleDto,
-        input: TilsagnBeregningAvtaltPrisPerManedsverk.Input,
-    ): Either<List<FieldError>, TilsagnBeregningAvtaltPrisPerManedsverk.Input> = either {
+        input: TilsagnBeregningPrisPerManedsverk.Input,
+    ): Either<List<FieldError>, TilsagnBeregningPrisPerManedsverk.Input> = either {
         val errors = buildList {
             val satsPeriodeStart = AvtalteSatser.findSats(avtale, input.periode.start)
             if (satsPeriodeStart == null) {
@@ -113,7 +113,7 @@ object TilsagnValidator {
                 add(
                     FieldError.of(
                         "Sats må være være stemme med avtalt sats for perioden",
-                        TilsagnBeregningAvtaltPrisPerManedsverk.Input::sats,
+                        TilsagnBeregningPrisPerManedsverk.Input::sats,
                     ),
                 )
             }
@@ -125,17 +125,17 @@ object TilsagnValidator {
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregningInput> = either {
         return when (input) {
             is TilsagnBeregningFri.Input -> validateBeregningFriInput(input)
-            is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> validateBeregningAvtaltPrisPerManedsverkInput(input)
+            is TilsagnBeregningPrisPerManedsverk.Input -> validateBeregningPrisPerManedsverkInput(input)
         }
     }
 
-    private fun validateBeregningAvtaltPrisPerManedsverkInput(input: TilsagnBeregningAvtaltPrisPerManedsverk.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
+    private fun validateBeregningPrisPerManedsverkInput(input: TilsagnBeregningPrisPerManedsverk.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
                 add(
                     FieldError.of(
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
-                        TilsagnBeregningAvtaltPrisPerManedsverk.Input::periode,
+                        TilsagnBeregningPrisPerManedsverk.Input::periode,
                         Periode::slutt,
                     ),
                 )
@@ -144,7 +144,7 @@ object TilsagnValidator {
                 add(
                     FieldError.of(
                         "Antall plasser kan ikke være 0",
-                        TilsagnBeregningAvtaltPrisPerManedsverk.Input::antallPlasser,
+                        TilsagnBeregningPrisPerManedsverk.Input::antallPlasser,
                     ),
                 )
             }

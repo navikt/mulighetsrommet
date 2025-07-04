@@ -104,7 +104,7 @@ class ArrangorFlateService(
         val status = getArrFlateUtbetalingStatus(utbetaling)
         val deltakere = when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> emptyList()
-            is UtbetalingBeregningAvtaltPrisPerManedsverk -> {
+            is UtbetalingBeregningPrisPerManedsverk -> {
                 queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
             }
         }
@@ -230,7 +230,7 @@ class ArrangorFlateService(
 fun DeltakerForslag.relevantForDeltakelse(
     utbetaling: Utbetaling,
 ): Boolean = when (utbetaling.beregning) {
-    is UtbetalingBeregningAvtaltPrisPerManedsverk -> relevantForDeltakelse(
+    is UtbetalingBeregningPrisPerManedsverk -> relevantForDeltakelse(
         utbetaling.beregning.input.deltakelser,
         utbetaling.beregning.input.periode,
     )

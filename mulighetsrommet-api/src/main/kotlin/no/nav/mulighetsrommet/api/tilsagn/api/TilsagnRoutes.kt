@@ -310,7 +310,7 @@ private fun resolveTilsagnDefaults(
             val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
             val beregning = AvtalteSatser.findSats(avtale, periode)
                 ?.let { sats ->
-                    TilsagnBeregningAvtaltPrisPerManedsverk.Input(
+                    TilsagnBeregningPrisPerManedsverk.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = gjennomforing.antallPlasser,
@@ -346,7 +346,7 @@ private fun resolveTilsagnDefaults(
             val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
             val beregning = AvtalteSatser.findSats(avtale, periode)
                 ?.let { sats ->
-                    TilsagnBeregningAvtaltPrisPerManedsverk.Input(
+                    TilsagnBeregningPrisPerManedsverk.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = gjennomforing.antallPlasser,

@@ -72,7 +72,7 @@ class TilsagnService(
             .flatMap {
                 when (request.beregning) {
                     // TODO: valider basert på avtalens satser
-                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> {
+                    is TilsagnBeregningPrisPerManedsverk.Input -> {
                         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
                         TilsagnValidator.validateAvtaltSats(avtale, request.beregning)
                     }
@@ -150,7 +150,7 @@ class TilsagnService(
             .map {
                 when (input) {
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
-                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> TilsagnBeregningAvtaltPrisPerManedsverk.beregn(
+                    is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(
                         input,
                     )
                 }

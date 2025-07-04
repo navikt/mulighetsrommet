@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.math.BigDecimal
@@ -18,7 +18,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
     linjer: List<ArrangorUtbetalingLinje>,
 ): ArrFlateUtbetaling {
     val beregning = when (val beregning = utbetaling.beregning) {
-        is UtbetalingBeregningAvtaltPrisPerManedsverk -> {
+        is UtbetalingBeregningPrisPerManedsverk -> {
             val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
             val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
@@ -50,7 +50,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()
 
-            Beregning.AvtaltPrisPerManedsverk(
+            Beregning.PrisPerManedsverk(
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,

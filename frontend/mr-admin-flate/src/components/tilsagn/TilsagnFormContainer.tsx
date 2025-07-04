@@ -1,6 +1,12 @@
-import { TilsagnFormForhandsgodkjent } from "@/components/tilsagn/prismodell/TilsagnFormForhandsgodkjent";
+import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/prismodell/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/prismodell/TilsagnFormFri";
-import { AvtaleDto, GjennomforingDto, Prismodell, TilsagnType } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  GjennomforingDto,
+  Prismodell,
+  TilsagnBeregningType,
+  TilsagnType,
+} from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
@@ -30,20 +36,20 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
 
   const beregning = defaults.beregning?.type ?? getTilsagnBeregningType(avtale.prismodell);
   switch (beregning) {
-    case "AVTALT_PRIS_PER_MANEDSVERK":
+    case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
       return (
-        <TilsagnFormForhandsgodkjent
+        <TilsagnFormPrisPerManedsverk
           defaultValues={{
             ...defaults,
             beregning: {
               ...defaults.beregning,
-              type: "AVTALT_PRIS_PER_MANEDSVERK",
+              type: TilsagnBeregningType.PRIS_PER_MANEDSVERK,
             },
           }}
           {...props}
         />
       );
-    case "FRI":
+    case TilsagnBeregningType.FRI:
       return (
         <TilsagnFormFri
           defaultValues={{
@@ -51,7 +57,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
             beregning: {
               ...defaults.beregning,
               prisbetingelser: avtale.prisbetingelser,
-              type: "FRI",
+              type: TilsagnBeregningType.FRI,
             },
           }}
           {...props}
@@ -70,13 +76,13 @@ function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: Ti
 
 function getTilsagnBeregningType(
   prismodell: Prismodell | undefined | null,
-): "FRI" | "AVTALT_PRIS_PER_MANEDSVERK" | undefined {
+): TilsagnBeregningType | undefined {
   switch (prismodell) {
     case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
     case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
-      return "AVTALT_PRIS_PER_MANEDSVERK";
+      return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
     case Prismodell.ANNEN_AVTALT_PRIS:
-      return "FRI";
+      return TilsagnBeregningType.FRI;
     default:
       return undefined;
   }

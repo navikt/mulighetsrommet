@@ -1,5 +1,5 @@
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
-import { isTilsagnAvtaltPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
+import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { compareByKey, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
 import { TilsagnDto, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
@@ -135,5 +135,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
 }
 
 function getAntallPlasser(tilsagn: TilsagnDto) {
-  return isTilsagnAvtaltPrisPerManedsverk(tilsagn) ? tilsagn.beregning.input.antallPlasser : null;
+  return isBeregningPrisPerManedsverk(tilsagn.beregning)
+    ? tilsagn.beregning.input.antallPlasser
+    : null;
 }

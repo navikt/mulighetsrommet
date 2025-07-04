@@ -13,14 +13,14 @@ import kotlin.streams.asSequence
 private const val CALCULATION_PRECISION = 20
 
 @Serializable
-@SerialName("AVTALT_PRIS_PER_MANEDSVERK")
-data class TilsagnBeregningAvtaltPrisPerManedsverk(
+@SerialName("PRIS_PER_MANEDSVERK")
+data class TilsagnBeregningPrisPerManedsverk(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
 
     @Serializable
-    @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
+    @SerialName("PRIS_PER_MANEDSVERK")
     data class Input(
         val periode: Periode,
         val sats: Int,
@@ -28,13 +28,13 @@ data class TilsagnBeregningAvtaltPrisPerManedsverk(
     ) : TilsagnBeregningInput()
 
     @Serializable
-    @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
+    @SerialName("PRIS_PER_MANEDSVERK")
     data class Output(
         override val belop: Int,
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningAvtaltPrisPerManedsverk {
+        fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
             val (periode, sats, antallPlasser) = input
 
             val output = periode.start.datesUntil(periode.slutt)
@@ -58,7 +58,7 @@ data class TilsagnBeregningAvtaltPrisPerManedsverk(
                 .reduce { acc: Int, s: Int -> addExact(acc, s) }
                 .let { Output(it) }
 
-            return TilsagnBeregningAvtaltPrisPerManedsverk(input, output)
+            return TilsagnBeregningPrisPerManedsverk(input, output)
         }
     }
 }

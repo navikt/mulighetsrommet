@@ -5824,40 +5824,46 @@ components:
         - TILSAGN_FEIL_STATUS
         - PROPAGERT_RETUR
 
+    TilsagnBeregningType:
+      type: string
+      enum:
+        - FRI
+        - PRIS_PER_MANEDSVERK
+
     TilsagnBeregning:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverk"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
         - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
 
-    TilsagnBeregningAvtaltPrisPerManedsverk:
+    TilsagnBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: AVTALT_PRIS_PER_MANEDSVERK
+          const: PRIS_PER_MANEDSVERK
         input:
-          $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkInput"
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         output:
-          $ref: "#/components/schemas/TilsagnBeregningAvtaltPrisPerManedsverkOutput"
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
       required:
         - type
         - input
         - output
 
-    TilsagnBeregningAvtaltPrisPerManedsverkInput:
+    TilsagnBeregningPrisPerManedsverkInput:
       type: object
       properties:
         type:
-          const: AVTALT_PRIS_PER_MANEDSVERK
+          const: PRIS_PER_MANEDSVERK
         periode:
           $ref: "#/components/schemas/Periode"
         sats:
@@ -5870,11 +5876,11 @@ components:
         - sats
         - antallPlasser
 
-    TilsagnBeregningAvtaltPrisPerManedsverkOutput:
+    TilsagnBeregningPrisPerManedsverkOutput:
       type: object
       properties:
         type:
-          const: AVTALT_PRIS_PER_MANEDSVERK
+          const: PRIS_PER_MANEDSVERK
         belop:
           type: integer
       required:
@@ -6218,14 +6224,14 @@ components:
     ArrFlateBeregning:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningAvtaltPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
 
-    ArrFlateBeregningAvtaltPrisPerManedsverk:
+    ArrFlateBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: AVTALT_PRIS_PER_MANEDSVERK
+          const: PRIS_PER_MANEDSVERK
         belop:
           type: integer
         antallManedsverk:
@@ -6262,17 +6268,23 @@ components:
         - type
         - digest
 
+    UtbetalingBeregningType:
+      type: string
+      enum:
+        - FRI
+        - PRIS_PER_MANEDSVERK
+
     UtbetalingBeregning:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/UtbetalingBeregningAvtaltPrisPerManedsverk"
+        - $ref: "#/components/schemas/UtbetalingBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/UtbetalingBeregningFri"
 
-    UtbetalingBeregningAvtaltPrisPerManedsverk:
+    UtbetalingBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: AVTALT_PRIS_PER_MANEDSVERK
+          const: PRIS_PER_MANEDSVERK
         belop:
           type: integer
         sats:

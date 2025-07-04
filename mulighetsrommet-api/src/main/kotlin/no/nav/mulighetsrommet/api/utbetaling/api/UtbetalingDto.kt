@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -36,8 +36,8 @@ data class UtbetalingDto(
         abstract val belop: Int
 
         @Serializable
-        @SerialName("AVTALT_PRIS_FOR_DELTAKER_PER_MANED")
-        data class AvtaltPrisForDeltakerPerManed(
+        @SerialName("PRIS_PER_MANEDSVERK")
+        data class PrisPerManedsverk(
             val sats: Int,
             override val belop: Int,
         ) : Beregning()
@@ -61,12 +61,7 @@ data class UtbetalingDto(
                 beskrivelse = utbetaling.beskrivelse,
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 beregning = when (utbetaling.beregning) {
-                    is UtbetalingBeregningAvtaltPrisPerManedsverk -> Beregning.AvtaltPrisForDeltakerPerManed(
-                        belop = utbetaling.beregning.output.belop,
-                        sats = utbetaling.beregning.input.sats,
-                    )
-
-                    is UtbetalingBeregningAvtaltPrisPerManedsverk -> Beregning.AvtaltPrisForDeltakerPerManed(
+                    is UtbetalingBeregningPrisPerManedsverk -> Beregning.PrisPerManedsverk(
                         belop = utbetaling.beregning.output.belop,
                         sats = utbetaling.beregning.input.sats,
                     )

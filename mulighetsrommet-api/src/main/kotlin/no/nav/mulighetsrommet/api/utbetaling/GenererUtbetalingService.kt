@@ -72,7 +72,7 @@ class GenererUtbetalingService(
                 val nyttKrav = when (gjeldendeKrav.beregning) {
                     is UtbetalingBeregningFri -> null
 
-                    is UtbetalingBeregningAvtaltPrisPerManedsverk -> when (prismodell) {
+                    is UtbetalingBeregningPrisPerManedsverk -> when (prismodell) {
                         Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> createUtbetalingForhandsgodkjent(
                             utbetalingId = gjeldendeKrav.id,
                             gjennomforingId = gjeldendeKrav.gjennomforing.id,
@@ -109,13 +109,13 @@ class GenererUtbetalingService(
         val sats = getAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelser(gjennomforingId, periode)
-        val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
+        val input = UtbetalingBeregningPrisPerManedsverk.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
-        val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
+        val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
         val kontonummer = getKontonummer(gjennomforing)
@@ -143,13 +143,13 @@ class GenererUtbetalingService(
         val sats = getAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserAnskaffet(gjennomforingId, periode)
-        val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
+        val input = UtbetalingBeregningPrisPerManedsverk.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
-        val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
+        val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
         val kontonummer = getKontonummer(gjennomforing)

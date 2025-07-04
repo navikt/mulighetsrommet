@@ -34,9 +34,10 @@ import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect, useState } from "react";
-import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
-import { ForhandsgodkjentDeltakerTableModal } from "./ForhandsgodkjentDeltakerTableModal";
+import { PrisPerManedsverkTable } from "@/components/utbetaling/PrisPerManedsverkTable";
+import { PrisPerManedsverkTableModal } from "./PrisPerManedsverkTableModal";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
+import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/utbetaling/utbetalingUtils";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -196,14 +197,14 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
-              {utbetaling.beregning.type === "AVTALT_PRIS_PER_MANEDSVERK" && (
+              {isBeregningPrisPerManedsverk(utbetaling.beregning) && (
                 <Accordion>
                   <Accordion.Item>
                     <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
                     <Accordion.Content>
                       <VStack gap="2">
                         {
-                          <ForhandsgodkjentDeltakerTable
+                          <PrisPerManedsverkTable
                             maxHeight="30rem"
                             deltakere={deltakere}
                             sats={utbetaling.beregning.sats}
@@ -246,8 +247,8 @@ export function UtbetalingPage() {
           </VStack>
         </WhitePaddedBox>
       </ContentBox>
-      {utbetaling.beregning.type === "AVTALT_PRIS_PER_MANEDSVERK" && (
-        <ForhandsgodkjentDeltakerTableModal
+      {isBeregningPrisPerManedsverk(utbetaling.beregning) && (
+        <PrisPerManedsverkTableModal
           heading={formaterPeriode(utbetaling.periode)}
           deltakere={deltakere}
           sats={utbetaling.beregning.sats}

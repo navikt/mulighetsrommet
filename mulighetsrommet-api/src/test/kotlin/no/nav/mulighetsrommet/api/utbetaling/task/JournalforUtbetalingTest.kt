@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -42,14 +42,14 @@ class JournalforUtbetalingTest : FunSpec({
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        beregning = UtbetalingBeregningAvtaltPrisPerManedsverk(
-            input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
+        beregning = UtbetalingBeregningPrisPerManedsverk(
+            input = UtbetalingBeregningPrisPerManedsverk.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 stengt = setOf(),
                 deltakelser = emptySet(),
             ),
-            output = UtbetalingBeregningAvtaltPrisPerManedsverk.Output(
+            output = UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 0,
                 deltakelser = emptySet(),
             ),

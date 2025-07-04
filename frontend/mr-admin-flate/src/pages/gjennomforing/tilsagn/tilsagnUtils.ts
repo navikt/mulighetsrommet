@@ -1,22 +1,16 @@
-import { navnEllerIdent } from "@/utils/Utils";
 import {
-  AgentDto,
-  TilsagnBeregningAvtaltPrisPerManedsverk,
+  TilsagnBeregning,
   TilsagnBeregningFri,
-  TilsagnDto,
+  TilsagnBeregningPrisPerManedsverk,
+  TilsagnBeregningType,
 } from "@mr/api-client-v2";
 
-export function isTilsagnAvtaltPrisPerManedsverk(
-  tilsagn: TilsagnDto,
-): tilsagn is TilsagnDto & { beregning: TilsagnBeregningAvtaltPrisPerManedsverk } {
-  return tilsagn.beregning.type === "AVTALT_PRIS_PER_MANEDSVERK";
+export function isBeregningFri(beregning: TilsagnBeregning): beregning is TilsagnBeregningFri {
+  return beregning.type === TilsagnBeregningType.FRI;
 }
 
-export function isTilsagnFri(
-  tilsagn: TilsagnDto,
-): tilsagn is TilsagnDto & { beregning: TilsagnBeregningFri } {
-  return tilsagn.beregning.type === "FRI";
+export function isBeregningPrisPerManedsverk(
+  beregning: TilsagnBeregning,
+): beregning is TilsagnBeregningPrisPerManedsverk {
+  return beregning.type === TilsagnBeregningType.PRIS_PER_MANEDSVERK;
 }
-
-export const navnIdentEllerPlaceholder = (agent?: AgentDto) =>
-  agent ? navnEllerIdent(agent) : "-";

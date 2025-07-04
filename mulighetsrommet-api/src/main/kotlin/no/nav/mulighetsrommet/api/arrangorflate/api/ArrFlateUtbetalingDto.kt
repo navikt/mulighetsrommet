@@ -40,8 +40,8 @@ sealed class Beregning {
     abstract val digest: String
 
     @Serializable
-    @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
-    data class AvtaltPrisPerManedsverk(
+    @SerialName("PRIS_PER_MANEDSVERK")
+    data class PrisPerManedsverk(
         val antallManedsverk: Double,
         override val belop: Int,
         override val digest: String,

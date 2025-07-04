@@ -4,7 +4,7 @@ import { Definition } from "~/components/Definisjonsliste";
 
 export function getBeregningDetaljer(beregning: ArrFlateBeregning): Definition[] {
   switch (beregning.type) {
-    case "AVTALT_PRIS_PER_MANEDSVERK":
+    case "PRIS_PER_MANEDSVERK":
       return [
         { key: "Antall månedsverk", value: String(beregning.antallManedsverk) },
         { key: "Beløp", value: formaterNOK(beregning.belop) },

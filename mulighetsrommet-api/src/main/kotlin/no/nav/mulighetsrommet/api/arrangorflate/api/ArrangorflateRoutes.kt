@@ -259,7 +259,7 @@ fun Route.arrangorflateRoutes() {
                                 stengt = emptyList(),
                             )
 
-                            is Beregning.AvtaltPrisPerManedsverk -> BeregningPdf(
+                            is Beregning.PrisPerManedsverk -> BeregningPdf(
                                 antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
                                 belop = arrflateUtbetaling.beregning.belop,
                                 deltakelser = emptyList(),

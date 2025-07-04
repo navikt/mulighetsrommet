@@ -47,11 +47,11 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
   );
 }
 
-interface ForhandsgodkjentAvtalePrismodellProps {
+interface PrisPerManedsverkProps {
   avtale: AvtaleDto;
 }
 
-function ForhandsgodkjentPrisPerManedsverk({ avtale }: ForhandsgodkjentAvtalePrismodellProps) {
+function ForhandsgodkjentPrisPerManedsverk({ avtale }: PrisPerManedsverkProps) {
   const { data: satser } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
 
   if (!satser) return null;
@@ -90,7 +90,7 @@ function ForhandsgodkjentPrisPerManedsverk({ avtale }: ForhandsgodkjentAvtalePri
   );
 }
 
-function AvtaltPrisPerManedsverk({ avtale }: ForhandsgodkjentAvtalePrismodellProps) {
+function AvtaltPrisPerManedsverk({ avtale }: PrisPerManedsverkProps) {
   const satser = avtale.satser;
 
   return (
