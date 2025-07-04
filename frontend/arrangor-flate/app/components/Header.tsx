@@ -11,7 +11,7 @@ interface Props {
 export function Header({ arrangorer }: Props) {
   return (
     <header className="border-b-4 border-red-100">
-      <HStack justify="space-between" padding="8" className="max-w-[2500px] w-[90%] m-auto">
+      <HStack justify="space-between" padding="8" className="max-w-[1920px] w-[90%] m-auto">
         <HStack gap="8">
           <HeaderIcon />
           <Heading
