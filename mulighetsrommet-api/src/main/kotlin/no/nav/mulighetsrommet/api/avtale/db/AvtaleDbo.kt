@@ -28,7 +28,7 @@ data class AvtaleDbo(
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: Prismodell?,
+    val prismodell: Prismodell,
 ) {
     data class Arrangor(
         val hovedenhet: UUID,

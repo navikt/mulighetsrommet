@@ -13,11 +13,14 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
-import no.nav.mulighetsrommet.database.*
+import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
@@ -248,6 +251,7 @@ class AvtaleQueries(private val session: Session) {
                                avtaletype,
                                avbrutt_tidspunkt,
                                avbrutt_aarsak,
+                               prismodell,
                                prisbetingelser,
                                opphav)
             values (:id::uuid,
@@ -263,6 +267,7 @@ class AvtaleQueries(private val session: Session) {
                     :avtaletype::avtaletype,
                     :avbrutt_tidspunkt,
                     :avbrutt_aarsak,
+                    :prismodell::prismodell,
                     :prisbetingelser,
                     :opphav::opphav)
             on conflict (id) do update set navn                     = excluded.navn,
@@ -277,6 +282,7 @@ class AvtaleQueries(private val session: Session) {
                                            avtaletype               = excluded.avtaletype,
                                            avbrutt_tidspunkt        = excluded.avbrutt_tidspunkt,
                                            avbrutt_aarsak           = excluded.avbrutt_aarsak,
+                                           prismodell               = coalesce(avtale.prismodell, excluded.prismodell),
                                            prisbetingelser          = excluded.prisbetingelser,
                                            antall_plasser           = excluded.antall_plasser,
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
@@ -459,7 +465,7 @@ class AvtaleQueries(private val session: Session) {
         "opsjonsmodell" to opsjonsmodell.type.name,
         "opsjonMaksVarighet" to opsjonsmodell.opsjonMaksVarighet,
         "opsjonCustomOpsjonsmodellNavn" to opsjonsmodell.customOpsjonsmodellNavn,
-        "prismodell" to prismodell?.name,
+        "prismodell" to prismodell.name,
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
@@ -491,6 +497,10 @@ class AvtaleQueries(private val session: Session) {
             "avtaletype" to avtaletype.name,
             "avbrutt_tidspunkt" to avbruttTidspunkt,
             "avbrutt_aarsak" to if (avbruttTidspunkt != null) "AVBRUTT_I_ARENA" else null,
+            "prismodell" to when (avtaletype) {
+                Avtaletype.FORHANDSGODKJENT -> Prismodell.FORHANDSGODKJENT
+                else -> Prismodell.FRI
+            }.name,
             "prisbetingelser" to prisbetingelser,
         )
     }
@@ -577,7 +587,7 @@ class AvtaleQueries(private val session: Session) {
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.registrertDato },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
-            prismodell = stringOrNull("prismodell")?.let { Prismodell.valueOf(it) },
+            prismodell = Prismodell.valueOf(string("prismodell")),
         )
     }
 }

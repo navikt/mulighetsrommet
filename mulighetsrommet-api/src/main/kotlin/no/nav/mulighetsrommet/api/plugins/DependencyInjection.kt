@@ -403,7 +403,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { DeltakerService(get(), get(), get()) }
     single { UnleashService(appConfig.unleash) }
-    single { AvtaleValidator(get(), get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get()) }
     single { GjennomforingValidator(get()) }
     single { LagretFilterService(get()) }
     single {
