@@ -12,7 +12,7 @@ interface Props {
 export function PageHeader({ title, tilbakeLenke }: Props) {
   return (
     <div className="flex flex-col relative gap-1">
-      <Heading level="2" size="large" className="mb-3" data-testid="header">
+      <Heading level="2" size="large" className="mb-3" id="innsending-table-header">
         {title}
       </Heading>
       {tilbakeLenke ? (

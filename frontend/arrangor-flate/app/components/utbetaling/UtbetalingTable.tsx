@@ -1,5 +1,5 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, HelpText, HStack, SortState, Table, VStack } from "@navikt/ds-react";
+import { Alert, HelpText, HStack, SortState, Table } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { ArrFlateUtbetalingKompakt } from "api-client";
@@ -65,16 +65,34 @@ export function UtbetalingTable({ utbetalinger }: Props) {
 
   return (
     <Table
-      aria-label="Utbetalinger"
+      aria-describedby="innsending-table-header"
       zebraStripes
       sort={sort}
       onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
     >
       <Table.Header>
         <Table.Row>
-          <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
           <Table.ColumnHeader scope="col">Navn</Table.ColumnHeader>
           <Table.ColumnHeader scope="col">Periode</Table.ColumnHeader>
+          <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
+          <Table.ColumnHeader
+            scope="col"
+            align="left"
+            hidden={!harUtbetalingsType}
+            aria-label="Type"
+          >
+            <HStack gap="2">
+              Type
+              <HelpText title="Hva betyr forkortelsene?">
+                <p>
+                  <b>KOR:</b> Korrigering opprettet av NAV
+                </p>
+                <p>
+                  <b>INV:</b> Utbetaling for investering
+                </p>
+              </HelpText>
+            </HStack>
+          </Table.ColumnHeader>
           <Table.ColumnHeader
             align="right"
             scope="col"
@@ -87,22 +105,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <Table.ColumnHeader scope="col" className="min-w-44" sortable sortKey="status">
             Status
           </Table.ColumnHeader>
-          <Table.ColumnHeader scope="col" align="left" hidden={!harUtbetalingsType}>
-            <HStack gap="2">
-              Type
-              <HelpText title="Hva betyr forkortelsene?">
-                <VStack gap="1" className="text-left">
-                  <div>
-                    <b>KOR:</b> Korrigering opprettet av NAV
-                  </div>
-                  <div>
-                    <b>INV:</b> Utbetaling for investering
-                  </div>
-                </VStack>
-              </HelpText>
-            </HStack>
-          </Table.ColumnHeader>
-          <Table.ColumnHeader scope="col"></Table.ColumnHeader>
+          <Table.ColumnHeader scope="col" aria-label="Handlinger"></Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -110,18 +113,16 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           return (
             <React.Fragment key={id}>
               <Table.Row>
-                <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
-                <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
+                <Table.HeaderCell>{gjennomforing.navn}</Table.HeaderCell>
                 <Table.DataCell>{formaterPeriode(periode)}</Table.DataCell>
+                <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
+                {harUtbetalingsType && (
+                  <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
+                )}
                 <Table.DataCell align="right">{formaterNOK(belop)}</Table.DataCell>
                 <Table.DataCell>
                   <UtbetalingStatusTag status={status} />
                 </Table.DataCell>
-                {harUtbetalingsType && (
-                  <Table.DataCell align="left">
-                    {type && <UtbetalingTypeTag type={type} />}
-                  </Table.DataCell>
-                )}
                 <Table.DataCell>
                   <UtbetalingTextLink
                     orgnr={orgnr}

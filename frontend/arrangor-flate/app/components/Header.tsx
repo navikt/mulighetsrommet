@@ -14,14 +14,10 @@ export function Header({ arrangorer }: Props) {
       <HStack justify="space-between" padding="8" className="max-w-[1920px] w-[90%] m-auto">
         <HStack gap="8">
           <HeaderIcon />
-          <Heading
-            size="xlarge"
-            textColor="default"
-            as={Link}
-            className="text-text-default no-underline"
-            to="/"
-          >
-            Tilsagn og utbetalinger
+          <Heading size="xlarge">
+            <Link to="/" className="text-text-default no-underline">
+              Tilsagn og utbetalinger
+            </Link>
           </Heading>
         </HStack>
         <Arrangorvelger arrangorer={arrangorer} />

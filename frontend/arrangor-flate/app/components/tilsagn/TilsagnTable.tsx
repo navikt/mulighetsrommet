@@ -26,29 +26,29 @@ export function TilsagnTable({ tilsagn }: Props) {
         <Table zebraStripes>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
-              <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
-              <Table.HeaderCell scope="col">Tilsagnsnummer</Table.HeaderCell>
-              <Table.HeaderCell scope="col">Tilsagnstype</Table.HeaderCell>
-              <Table.HeaderCell scope="col">Periode</Table.HeaderCell>
-              <Table.HeaderCell scope="col">Status</Table.HeaderCell>
-              <Table.HeaderCell scope="col" className="w-10"></Table.HeaderCell>
-              <Table.HeaderCell scope="col"></Table.HeaderCell>
+              <Table.ColumnHeader scope="col">Navn</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Periode</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Tilsagnsnummer</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Tilsagnstype</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col" className="min-w-44">
+                Status
+              </Table.ColumnHeader>
+              <Table.ColumnHeader scope="col" aria-label="handlinger"></Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {tilsagn.map((tilsagn, i) => {
               return (
                 <Table.Row key={i}>
+                  <Table.HeaderCell>{tilsagn.gjennomforing.navn}</Table.HeaderCell>
+                  <Table.DataCell>{formaterPeriode(tilsagn.periode)}</Table.DataCell>
                   <Table.DataCell>{tilsagn.tiltakstype.navn}</Table.DataCell>
-                  <Table.DataCell>{tilsagn.gjennomforing.navn}</Table.DataCell>
                   <Table.DataCell>{tilsagn.bestillingsnummer}</Table.DataCell>
                   <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
-                  <Table.DataCell>{formaterPeriode(tilsagn.periode)}</Table.DataCell>
                   <Table.DataCell>
                     <TilsagnStatusTag data={tilsagn.status} />
                   </Table.DataCell>
-                  <Table.DataCell />
                   <Table.DataCell>
                     <LinkWithTabState
                       aria-label={`Detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}

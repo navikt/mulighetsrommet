@@ -1,6 +1,13 @@
 export function HeaderIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="56"
+      height="56"
+      viewBox="0 0 96 96"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
       <g clipPath="url(#clip0_1317_4666)">
         <rect x="90" y="29" width="64" height="12" transform="rotate(-180 90 29)" fill="#f9d2cc" />
         <rect x="78" y="57" width="64" height="12" transform="rotate(-180 78 57)" fill="#f9d2cc" />
