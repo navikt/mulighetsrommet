@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle

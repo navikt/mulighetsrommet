@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.model
+package no.nav.mulighetsrommet.api.avtale.model
 
 enum class Prismodell {
     FORHANDSGODKJENT,

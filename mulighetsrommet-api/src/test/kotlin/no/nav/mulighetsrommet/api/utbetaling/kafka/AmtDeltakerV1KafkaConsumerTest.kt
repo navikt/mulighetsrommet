@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
