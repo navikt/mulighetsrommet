@@ -72,10 +72,10 @@ class TilsagnService(
             .flatMap {
                 when (request.beregning) {
                     // TODO: valider basert på avtalens satser
-                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> TilsagnValidator.validateForhandsgodkjentSats(
-                        gjennomforing.tiltakstype.tiltakskode,
-                        request.beregning,
-                    )
+                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> {
+                        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
+                        TilsagnValidator.validateAvtaltSats(avtale, request.beregning)
+                    }
 
                     else -> request.beregning.right()
                 }
@@ -150,7 +150,9 @@ class TilsagnService(
             .map {
                 when (input) {
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
-                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> TilsagnBeregningAvtaltPrisPerManedsverk.beregn(input)
+                    is TilsagnBeregningAvtaltPrisPerManedsverk.Input -> TilsagnBeregningAvtaltPrisPerManedsverk.beregn(
+                        input,
+                    )
                 }
             }
     }
@@ -212,6 +214,7 @@ class TilsagnService(
         var tilsagn = queryContext.queries.tilsagn.getOrError(id)
         tilsagn = queryContext.setTilOppgjort(tilsagn, Tiltaksadministrasjon, emptyList(), null)
         return queryContext.gjorOppTilsagn(tilsagn, Tiltaksadministrasjon).getOrElse {
+            // TODO returner valideringsfeil i stedet for å kaste exception
             throw IllegalStateException(it.first().detail)
         }
     }

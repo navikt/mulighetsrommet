@@ -6,7 +6,6 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -107,40 +106,19 @@ class GenererUtbetalingService(
     ): UtbetalingDbo = db.session {
         val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
 
-        val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
-            ?: throw IllegalStateException("Sats mangler for periode $periode")
-
+        val sats = getAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-
         val deltakelser = resolveDeltakelser(gjennomforingId, periode)
-
         val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
-
         val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
-
-        val kontonummer = when (
-            val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-            )
-        ) {
-            is Either.Left -> {
-                log.error(
-                    "Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}",
-                    result.value,
-                )
-                null
-            }
-
-            is Either.Right -> Kontonummer(result.value.kontonr)
-        }
-
+        val kontonummer = getKontonummer(gjennomforing)
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforingId,
@@ -161,27 +139,42 @@ class GenererUtbetalingService(
         periode: Periode,
     ): UtbetalingDbo = db.session {
         val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
-        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
 
-        val sats = AvtalteSatser.findSats(avtale, periode)
-            ?: throw IllegalStateException("Sats mangler for periode $periode")
-
+        val sats = getAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-
         val deltakelser = resolveDeltakelserAnskaffet(gjennomforingId, periode)
-
         val input = UtbetalingBeregningAvtaltPrisPerManedsverk.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
-
         val beregning = UtbetalingBeregningAvtaltPrisPerManedsverk.beregn(input)
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
+        val kontonummer = getKontonummer(gjennomforing)
+        return UtbetalingDbo(
+            id = utbetalingId,
+            gjennomforingId = gjennomforingId,
+            beregning = beregning,
+            kontonummer = kontonummer,
+            kid = forrigeKrav?.betalingsinformasjon?.kid,
+            periode = periode,
+            innsender = null,
+            beskrivelse = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            godkjentAvArrangorTidspunkt = null,
+        )
+    }
 
-        val kontonummer = when (
+    private fun QueryContext.getAvtaltSats(gjennomforing: GjennomforingDto, periode: Periode): Int {
+        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
+        return AvtalteSatser.findSats(avtale, periode)
+            ?: throw IllegalStateException("Sats mangler for periode $periode")
+    }
+
+    private suspend fun getKontonummer(gjennomforing: GjennomforingDto): Kontonummer? {
+        return when (
             val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             )
@@ -196,19 +189,6 @@ class GenererUtbetalingService(
 
             is Either.Right -> Kontonummer(result.value.kontonr)
         }
-
-        return UtbetalingDbo(
-            id = utbetalingId,
-            gjennomforingId = gjennomforingId,
-            beregning = beregning,
-            kontonummer = kontonummer,
-            kid = forrigeKrav?.betalingsinformasjon?.kid,
-            periode = periode,
-            innsender = null,
-            beskrivelse = null,
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            godkjentAvArrangorTidspunkt = null,
-        )
     }
 
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(

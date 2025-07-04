@@ -5,13 +5,12 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.avtale.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 
 object TilsagnValidator {
@@ -76,12 +75,12 @@ object TilsagnValidator {
         return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()
     }
 
-    fun validateForhandsgodkjentSats(
-        tiltakskode: Tiltakskode,
+    fun validateAvtaltSats(
+        avtale: AvtaleDto,
         input: TilsagnBeregningAvtaltPrisPerManedsverk.Input,
     ): Either<List<FieldError>, TilsagnBeregningAvtaltPrisPerManedsverk.Input> = either {
         val errors = buildList {
-            val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periode.start)
+            val satsPeriodeStart = AvtalteSatser.findSats(avtale, input.periode.start)
             if (satsPeriodeStart == null) {
                 add(
                     FieldError.of(
@@ -91,7 +90,7 @@ object TilsagnValidator {
                 )
             }
 
-            val satsPeriodeSlutt = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periode.getLastInclusiveDate())
+            val satsPeriodeSlutt = AvtalteSatser.findSats(avtale, input.periode.getLastInclusiveDate())
             if (satsPeriodeSlutt == null) {
                 add(
                     FieldError.of(
@@ -106,6 +105,15 @@ object TilsagnValidator {
                     FieldError.of(
                         "Periode går over flere satser",
                         TilsagnRequest::periodeSlutt,
+                    ),
+                )
+            }
+
+            if (input.sats != satsPeriodeStart) {
+                add(
+                    FieldError.of(
+                        "Sats må være være stemme med avtalt sats for perioden",
+                        TilsagnBeregningAvtaltPrisPerManedsverk.Input::sats,
                     ),
                 )
             }

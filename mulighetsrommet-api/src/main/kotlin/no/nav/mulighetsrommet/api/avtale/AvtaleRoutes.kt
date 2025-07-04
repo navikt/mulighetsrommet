@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -96,7 +97,7 @@ fun Route.avtaleRoutes() {
     get("/prismodell/satser") {
         val tiltakstype: Tiltakskode by call.queryParameters
 
-        val satser = ForhandsgodkjenteSatser.satser(tiltakstype).map {
+        val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype).map {
             AvtaltSatsDto(
                 periodeStart = it.periode.start,
                 periodeSlutt = it.periode.getLastInclusiveDate(),

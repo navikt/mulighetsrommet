@@ -12,7 +12,6 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -309,7 +308,7 @@ private fun resolveTilsagnDefaults(
                 .min()
 
             val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
-            val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
+            val beregning = AvtalteSatser.findSats(avtale, periode)
                 ?.let { sats ->
                     TilsagnBeregningAvtaltPrisPerManedsverk.Input(
                         periode = periode,

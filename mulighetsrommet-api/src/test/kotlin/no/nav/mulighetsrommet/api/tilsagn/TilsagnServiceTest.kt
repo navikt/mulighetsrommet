@@ -14,6 +14,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -25,6 +27,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerManedsverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
@@ -62,6 +65,7 @@ class TilsagnServiceTest : FunSpec({
             prisbetingelser = null,
         )
     }
+
     val request = TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -183,6 +187,69 @@ class TilsagnServiceTest : FunSpec({
                 FieldError(
                     pointer = "/periodeStart",
                     detail = "Minimum startdato for tilsagn til Arbeidsforberedende trening (AFT) er 01.01.2025",
+                ),
+            )
+        }
+
+        test("validerer at avtalt pris per månedsverk må ha en sats som matcher med avtalen") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(
+                    AvtaleFixtures.AFT,
+                    AvtaleFixtures.ARR.copy(
+                        prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                        satser = listOf(
+                            AvtaltSats(
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                                sats = 2000,
+                            ),
+                        ),
+                    ),
+                ),
+                gjennomforinger = listOf(
+                    GjennomforingFixtures.AFT1,
+                    GjennomforingFixtures.ArbeidsrettetRehabilitering.copy(
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 2, 1),
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val beregningAvtaltPrisPerManedsverk = TilsagnBeregningAvtaltPrisPerManedsverk.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                sats = 1_000,
+                antallPlasser = 10,
+            )
+
+            val invalidRequest1 = request.copy(
+                gjennomforingId = GjennomforingFixtures.AFT1.id,
+                beregning = beregningAvtaltPrisPerManedsverk,
+            )
+            service.upsert(invalidRequest1, ansatt1).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/sats",
+                    detail = "Sats må være være stemme med avtalt sats for perioden",
+                ),
+            )
+
+            val invalidRequest2 = request.copy(
+                gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id,
+                beregning = beregningAvtaltPrisPerManedsverk,
+            )
+            service.upsert(invalidRequest2, ansatt1).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/sats",
+                    detail = "Sats må være være stemme med avtalt sats for perioden",
+                ),
+            )
+
+            val invalidRequest3 = request.copy(
+                gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id,
+                beregning = beregningAvtaltPrisPerManedsverk.copy(),
+            )
+            service.upsert(invalidRequest2, ansatt1).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/sats",
+                    detail = "Sats må være være stemme med avtalt sats for perioden",
                 ),
             )
         }
