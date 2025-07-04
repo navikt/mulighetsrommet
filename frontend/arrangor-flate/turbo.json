@@ -18,7 +18,7 @@
     },
     "typecheck": {
       "dependsOn": ["api-client:build"],
-      "outputs": []
+      "outputs": [".react-router"]
     },
     "build": {
       "dependsOn": ["api-client:build"],
