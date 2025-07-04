@@ -27,6 +27,7 @@ data class Utbetaling(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val beskrivelse: String?,
+    val begrunnelseMindreBetalt: String?,
     val tilskuddstype: Tilskuddstype,
 ) {
     @Serializable

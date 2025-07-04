@@ -343,6 +343,7 @@ class UtbetalingQueries(private val session: Session) {
             innsender = innsender,
             createdAt = localDateTime("created_at"),
             beskrivelse = stringOrNull("beskrivelse"),
+            begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
         )
     }
