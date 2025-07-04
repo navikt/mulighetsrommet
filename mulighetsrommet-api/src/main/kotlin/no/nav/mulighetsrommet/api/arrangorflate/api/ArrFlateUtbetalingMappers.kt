@@ -4,8 +4,8 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.math.BigDecimal
 import java.math.RoundingMode

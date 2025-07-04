@@ -33,7 +33,8 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.temporal.TemporalAdjusters
+import java.time.LocalDate.now
+import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.*
 
 fun Route.tilsagnRoutes() {
@@ -291,108 +292,109 @@ private fun resolveTilsagnDefaults(
     )
     return when (prismodell) {
         Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-            val periodeStart = listOfNotNull(
-                config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
-                gjennomforing.startDato,
-                tilsagn?.periode?.slutt,
-            ).max()
-
-            val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
-            val lastDayOfYear = periodeStart.withMonth(12).withDayOfMonth(31)
-            val periodeSlutt = listOfNotNull(
-                gjennomforing.sluttDato,
-                forhandsgodkjentTilsagnPeriodeSlutt,
-                lastDayOfYear,
-            )
-                .filter { it > periodeStart }
-                .min()
-
-            val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
-            val beregning = AvtalteSatser.findSats(avtale, periode)
-                ?.let { sats ->
-                    TilsagnBeregningPrisPerManedsverk.Input(
-                        periode = periode,
-                        sats = sats,
-                        antallPlasser = gjennomforing.antallPlasser,
-                    )
-                }
-
-            TilsagnDefaults(
-                id = null,
-                gjennomforingId = gjennomforing.id,
-                type = TilsagnType.TILSAGN,
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
-                kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
-                beregning = beregning,
-            )
+            val periode = getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
+            getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
 
         Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
-            val periodeStart = listOfNotNull(
-                config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
-                gjennomforing.startDato,
-                tilsagn?.periode?.slutt,
-            ).max()
-
-            val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(1).minusDays(1)
-            val lastDayOfYear = periodeStart.withMonth(12).withDayOfMonth(31)
-            val periodeSlutt = listOfNotNull(
-                gjennomforing.sluttDato,
-                forhandsgodkjentTilsagnPeriodeSlutt,
-                lastDayOfYear,
-            ).filter { it > periodeStart }.min()
-
-            val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
-            val beregning = AvtalteSatser.findSats(avtale, periode)
-                ?.let { sats ->
-                    TilsagnBeregningPrisPerManedsverk.Input(
-                        periode = periode,
-                        sats = sats,
-                        antallPlasser = gjennomforing.antallPlasser,
-                    )
-                }
-
-            TilsagnDefaults(
-                id = null,
-                gjennomforingId = gjennomforing.id,
-                type = TilsagnType.TILSAGN,
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
-                kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
-                beregning = beregning,
-            )
+            val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+            getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
 
         Prismodell.ANNEN_AVTALT_PRIS -> {
-            val firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1)
-            val periodeStart = listOfNotNull(
-                config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
-                gjennomforing.startDato,
-                tilsagn?.periode?.slutt,
-                firstDayOfCurrentMonth,
-            ).max()
-
-            val lastDayOfMonth = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
-            val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
-            val beregning = TilsagnBeregningFri.Input(
-                linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
-                ),
-                prisbetingelser = avtale.prisbetingelser,
-            )
-
-            TilsagnDefaults(
-                id = null,
-                gjennomforingId = gjennomforing.id,
-                type = TilsagnType.TILSAGN,
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
-                kostnadssted = null,
-                beregning = beregning,
-            )
+            val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+            getTilsagnBeregningFriDefaults(periode, avtale, gjennomforing)
         }
     }
+}
+
+private fun getForhandsgodkjentTiltakPeriode(
+    config: OkonomiConfig,
+    gjennomforing: GjennomforingDto,
+    tilsagn: Tilsagn?,
+): Periode {
+    val periodeStart = listOfNotNull(
+        config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+        gjennomforing.startDato,
+        tilsagn?.periode?.slutt,
+    ).max()
+
+    val defaultForhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
+    val lastDayOfYear = periodeStart.withMonth(12).withDayOfMonth(31)
+    val periodeSlutt = listOfNotNull(
+        gjennomforing.sluttDato,
+        defaultForhandsgodkjentTilsagnPeriodeSlutt,
+        lastDayOfYear,
+    ).filter { it > periodeStart }.min()
+
+    return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+}
+
+private fun getAnskaffetTiltakPeriode(
+    config: OkonomiConfig,
+    gjennomforing: GjennomforingDto,
+    tilsagn: Tilsagn?,
+): Periode {
+    val firstDayOfCurrentMonth = now().withDayOfMonth(1)
+    val periodeStart = listOfNotNull(
+        config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+        gjennomforing.startDato,
+        tilsagn?.periode?.slutt,
+        firstDayOfCurrentMonth,
+    ).max()
+
+    val lastDayOfMonth = periodeStart.with(lastDayOfMonth())
+    val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
+
+    return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+}
+
+private fun getTilsagnBeregningPrisPerManedsverkDefaults(
+    periode: Periode,
+    avtale: AvtaleDto,
+    gjennomforing: GjennomforingDto,
+    tilsagn: Tilsagn?,
+): TilsagnDefaults {
+    val beregning = AvtalteSatser.findSats(avtale, periode)?.let { sats ->
+        TilsagnBeregningPrisPerManedsverk.Input(
+            periode = periode,
+            sats = sats,
+            antallPlasser = gjennomforing.antallPlasser,
+        )
+    }
+
+    return TilsagnDefaults(
+        id = null,
+        gjennomforingId = gjennomforing.id,
+        type = TilsagnType.TILSAGN,
+        periodeStart = periode.start,
+        periodeSlutt = periode.getLastInclusiveDate(),
+        kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
+        beregning = beregning,
+    )
+}
+
+private fun getTilsagnBeregningFriDefaults(
+    periode: Periode,
+    avtale: AvtaleDto,
+    gjennomforing: GjennomforingDto,
+): TilsagnDefaults {
+    val beregning = TilsagnBeregningFri.Input(
+        linjer = listOf(
+            TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
+        ),
+        prisbetingelser = avtale.prisbetingelser,
+    )
+
+    return TilsagnDefaults(
+        id = null,
+        gjennomforingId = gjennomforing.id,
+        type = TilsagnType.TILSAGN,
+        periodeStart = periode.start,
+        periodeSlutt = periode.getLastInclusiveDate(),
+        kostnadssted = null,
+        beregning = beregning,
+    )
 }
 
 private fun resolveEkstraTilsagnDefaults(

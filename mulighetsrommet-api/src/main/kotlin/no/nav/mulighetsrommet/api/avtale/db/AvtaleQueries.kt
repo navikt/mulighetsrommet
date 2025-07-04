@@ -614,14 +614,7 @@ class AvtaleQueries(private val session: Session) {
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
             prismodell = Prismodell.valueOf(string("prismodell")),
-            satser = satser.map {
-                AvtaltSatsDto(
-                    periodeStart = it.periode.start,
-                    periodeSlutt = it.periode.getLastInclusiveDate(),
-                    pris = it.sats,
-                    valuta = "NOK",
-                )
-            },
+            satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
         )
     }
 }

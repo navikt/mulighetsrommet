@@ -223,7 +223,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(invalidRequest1, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(
                     pointer = "/sats",
-                    detail = "Sats må være være stemme med avtalt sats for perioden",
+                    detail = "Sats må stemme med avtalt sats for perioden (20975)",
                 ),
             )
 
@@ -234,7 +234,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(invalidRequest2, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(
                     pointer = "/sats",
-                    detail = "Sats må være være stemme med avtalt sats for perioden",
+                    detail = "Sats må stemme med avtalt sats for perioden (2000)",
                 ),
             )
         }

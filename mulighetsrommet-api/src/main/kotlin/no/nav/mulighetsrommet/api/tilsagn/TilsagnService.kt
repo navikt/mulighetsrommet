@@ -61,17 +61,17 @@ class TilsagnService(
         )
 
         val previous = queries.tilsagn.get(request.id)
-        return TilsagnValidator.validate(
-            next = request,
-            previous = previous,
-            gjennomforingSluttDato = gjennomforing.sluttDato,
-            tiltakstypeNavn = gjennomforing.tiltakstype.navn,
-            arrangorSlettet = gjennomforing.arrangor.slettet,
-            minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
-        )
+        return TilsagnValidator
+            .validate(
+                next = request,
+                previous = previous,
+                gjennomforingSluttDato = gjennomforing.sluttDato,
+                tiltakstypeNavn = gjennomforing.tiltakstype.navn,
+                arrangorSlettet = gjennomforing.arrangor.slettet,
+                minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+            )
             .flatMap {
                 when (request.beregning) {
-                    // TODO: valider basert på avtalens satser
                     is TilsagnBeregningPrisPerManedsverk.Input -> {
                         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
                         TilsagnValidator.validateAvtaltSats(avtale, request.beregning)
@@ -150,9 +150,7 @@ class TilsagnService(
             .map {
                 when (input) {
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
-                    is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(
-                        input,
-                    )
+                    is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(input)
                 }
             }
     }

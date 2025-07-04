@@ -12,4 +12,15 @@ data class AvtaltSatsDto(
     val periodeSlutt: LocalDate,
     val pris: Int,
     val valuta: String,
-)
+) {
+    companion object {
+        fun fromAvtaltSats(avtaltSats: AvtaltSats): AvtaltSatsDto {
+            return AvtaltSatsDto(
+                periodeStart = avtaltSats.periode.start,
+                periodeSlutt = avtaltSats.periode.getLastInclusiveDate(),
+                pris = avtaltSats.sats,
+                valuta = "NOK",
+            )
+        }
+    }
+}

@@ -112,7 +112,7 @@ object TilsagnValidator {
             if (input.sats != satsPeriodeStart) {
                 add(
                     FieldError.of(
-                        "Sats må være være stemme med avtalt sats for perioden",
+                        "Sats må stemme med avtalt sats for perioden ($satsPeriodeStart)",
                         TilsagnBeregningPrisPerManedsverk.Input::sats,
                     ),
                 )

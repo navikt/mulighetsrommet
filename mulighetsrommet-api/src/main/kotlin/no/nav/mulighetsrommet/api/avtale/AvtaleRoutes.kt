@@ -97,14 +97,8 @@ fun Route.avtaleRoutes() {
     get("/prismodell/satser") {
         val tiltakstype: Tiltakskode by call.queryParameters
 
-        val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype).map {
-            AvtaltSatsDto(
-                periodeStart = it.periode.start,
-                periodeSlutt = it.periode.getLastInclusiveDate(),
-                pris = it.sats,
-                valuta = "NOK",
-            )
-        }
+        val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype)
+            .map { AvtaltSatsDto.fromAvtaltSats(it) }
 
         if (satser.isEmpty()) {
             return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
@@ -250,7 +244,10 @@ fun Route.avtaleRoutes() {
             val avtale = avtaler.get(id)
                 ?: return@get call.respond(HttpStatusCode.NotFound, "Avtale med id $id finnes ikke")
 
-            call.respond(avtale.satser)
+            val satser = AvtalteSatser.getAvtalteSatser(avtale)
+                .map { AvtaltSatsDto.fromAvtaltSats(it) }
+
+            call.respond(satser)
         }
 
         get("{id}/historikk") {
