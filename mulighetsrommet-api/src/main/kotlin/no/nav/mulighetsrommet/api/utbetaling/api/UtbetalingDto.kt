@@ -25,6 +25,7 @@ data class UtbetalingDto(
     val createdAt: LocalDateTime,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val beskrivelse: String?,
+    val begrunnelseMindreBetalt: String?,
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
@@ -58,6 +59,7 @@ data class UtbetalingDto(
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
                 createdAt = utbetaling.createdAt,
                 beskrivelse = utbetaling.beskrivelse,
+                begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 beregning = when (utbetaling.beregning) {
                     is UtbetalingBeregningForhandsgodkjent -> Beregning.Forhandsgodkjent(
                         belop = utbetaling.beregning.output.belop,
