@@ -14,6 +14,10 @@ import {
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ExpansionCard, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
+import {
+  isBeregningFri,
+  isBeregningPrisPerManedsverk,
+} from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -57,7 +61,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
                 header={tilsagnTekster.periode.start.label}
                 verdi={formaterPeriodeStart(periode)}
               />
-              {beregning.type === "FORHANDSGODKJENT" && (
+              {isBeregningPrisPerManedsverk(beregning) && (
                 <MetadataHorisontal
                   header={tilsagnTekster.antallPlasser.label}
                   verdi={beregning.input.antallPlasser}
@@ -77,13 +81,13 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
                 header={tilsagnTekster.periode.slutt.label}
                 verdi={formaterPeriodeSlutt(periode)}
               />
-              {beregning.type === "FORHANDSGODKJENT" && (
+              {isBeregningPrisPerManedsverk(beregning) && (
                 <MetadataHorisontal
                   header={tilsagnTekster.sats.label}
                   verdi={formaterNOK(beregning.input.sats)}
                 />
               )}
-              {beregning.type === "FRI" && !beregning.input.prisbetingelser && (
+              {isBeregningFri(beregning) && !beregning.input.prisbetingelser && (
                 <MetadataHorisontal
                   header={tilsagnTekster.beregning.prisbetingelser.label}
                   verdi="-"
@@ -91,7 +95,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
               )}
             </VStack>
           </HStack>
-          {beregning.type === "FRI" && beregning.input.prisbetingelser && (
+          {isBeregningFri(beregning) && beregning.input.prisbetingelser && (
             <PrisbetingelserFriModell
               id={tilsagn.id}
               tilsagnStatus={tilsagn.status}
@@ -130,7 +134,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             header={tilsagnTekster.belopGjenstaende.label}
             verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
-          {beregning.type === "FRI" && (
+          {isBeregningFri(beregning) && (
             <BeregningFriModell id={tilsagn.id} status={tilsagn.status} beregning={beregning} />
           )}
         </VStack>
@@ -189,9 +193,7 @@ function BeregningFriModell({ id, status, beregning }: BeregningFriModellProps) 
   const startOpenForStatus = [TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT].includes(
     status,
   );
-  if (beregning.type !== "FRI") {
-    return null;
-  }
+
   return (
     <ExpansionCard
       key={id}

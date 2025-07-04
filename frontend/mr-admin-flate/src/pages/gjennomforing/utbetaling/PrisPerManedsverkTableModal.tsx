@@ -1,7 +1,7 @@
 import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
 import { DeltakerForKostnadsfordeling, NavEnhet, NavRegion } from "@mr/api-client-v2";
 import { NavEnhetFilter } from "@mr/frontend-common";
-import { ForhandsgodkjentDeltakerTable } from "@/components/utbetaling/ForhandsgodkjentDeltakerTable";
+import { PrisPerManedsverkTable } from "@/components/utbetaling/PrisPerManedsverkTable";
 import { useMemo, useState } from "react";
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
   heading: string;
 }
 
-export function ForhandsgodkjentDeltakerTableModal({
+export function PrisPerManedsverkTableModal({
   heading,
   sats,
   deltakere,
@@ -92,11 +92,7 @@ export function ForhandsgodkjentDeltakerTableModal({
             </VStack>
             <VStack>
               <Heading size="small">{heading}</Heading>
-              <ForhandsgodkjentDeltakerTable
-                maxHeight="50rem"
-                sats={sats}
-                deltakere={filteredDeltakere}
-              />
+              <PrisPerManedsverkTable maxHeight="50rem" sats={sats} deltakere={filteredDeltakere} />
             </VStack>
           </HGrid>
         </VStack>

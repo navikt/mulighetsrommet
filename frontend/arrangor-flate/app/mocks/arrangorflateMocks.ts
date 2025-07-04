@@ -200,7 +200,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       belop: 308530,
       digest: "ac6b2cdcbfc885e64121cf4e0ebee5dd",
       deltakelser: mockDeltakelser,
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       stengt: [
         {
           periode: { start: "2024-05-15", slutt: "2024-06-03" },
@@ -243,7 +243,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       deltakelser: mockDeltakelser,
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       stengt: [],
     },
   },
@@ -277,7 +277,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
       deltakelser: mockDeltakelser,
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       stengt: [],
     },
   },
@@ -348,7 +348,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
       antallManedsverk: 4,
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       stengt: [],
     },
   },
@@ -373,9 +373,9 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       input: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         periode: {
           start: "2024-07-01",
           slutt: "2024-12-31",
@@ -384,7 +384,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         sats: 20205,
       },
       output: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         belop: 150_000,
       },
     },
@@ -414,9 +414,9 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       input: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         periode: {
           start: "2024-09-01",
           slutt: "2024-12-31",
@@ -425,7 +425,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         sats: 20205,
       },
       output: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         belop: 50_000,
       },
     },
@@ -454,9 +454,9 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       input: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         periode: {
           start: "2024-10-01",
           slutt: "2024-12-31",
@@ -465,7 +465,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         sats: 20205,
       },
       output: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         belop: 30_000,
       },
     },
@@ -494,9 +494,9 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       input: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         periode: {
           start: "2024-11-01",
           slutt: "2024-12-31",
@@ -505,7 +505,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         sats: 20205,
       },
       output: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         belop: 20_000,
       },
     },
@@ -534,9 +534,9 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "FORHANDSGODKJENT",
+      type: "PRIS_PER_MANEDSVERK",
       input: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         periode: {
           start: "2024-12-01",
           slutt: "2024-12-31",
@@ -545,7 +545,7 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
         sats: 20205,
       },
       output: {
-        type: "FORHANDSGODKJENT",
+        type: "PRIS_PER_MANEDSVERK",
         belop: 10_000,
       },
     },

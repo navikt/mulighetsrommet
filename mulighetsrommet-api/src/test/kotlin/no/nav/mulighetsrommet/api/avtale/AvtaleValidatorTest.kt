@@ -6,10 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -70,7 +67,8 @@ class AvtaleValidatorTest : FunSpec({
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     beforeEach {
@@ -274,18 +272,18 @@ class AvtaleValidatorTest : FunSpec({
         val aft = AvtaleFixtures.AFT.copy(
             avtaletype = Avtaletype.RAMMEAVTALE,
             sluttDato = LocalDate.of(2023, 1, 1),
-            prismodell = Prismodell.FRI,
+            prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         )
         val vta = AvtaleFixtures.VTA.copy(
             avtaletype = Avtaletype.AVTALE,
-            prismodell = Prismodell.FRI,
+            prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         )
         val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
             amoKategorisering = AmoKategorisering.Studiespesialisering,
-            prismodell = Prismodell.FORHANDSGODKJENT,
+            prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         )
 
         val validator = createValidator()
@@ -438,12 +436,12 @@ class AvtaleValidatorTest : FunSpec({
         test("prismodell må stemme overens med avtaletypen") {
             val validator = createValidator()
 
-            val forhandsgodkjent = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
+            val forhandsgodkjent = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK)
             validator.validate(forhandsgodkjent, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodell", "Prismodellen kan ikke være forhåndsgodkjent"),
             )
 
-            val fri = avtaleDbo.copy(prismodell = Prismodell.FRI)
+            val fri = avtaleDbo.copy(prismodell = Prismodell.ANNEN_AVTALT_PRIS)
             validator.validate(fri, null).shouldBeRight()
         }
     }

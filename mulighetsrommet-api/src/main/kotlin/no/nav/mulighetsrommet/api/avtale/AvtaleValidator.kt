@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -109,9 +110,9 @@ class AvtaleValidator(
                 }
             }
 
-            if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
+            if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT && avtale.prismodell != Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                 add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen må være forhåndsgodkjent"))
-            } else if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
+            } else if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.prismodell == Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                 add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen kan ikke være forhåndsgodkjent"))
             }
 

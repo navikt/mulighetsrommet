@@ -103,8 +103,10 @@ class ArrangorFlateService(
     suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
         val deltakere = when (utbetaling.beregning) {
-            is UtbetalingBeregningForhandsgodkjent -> queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
             is UtbetalingBeregningFri -> emptyList()
+            is UtbetalingBeregningPrisPerManedsverk -> {
+                queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            }
         }
         val personerByNorskIdent = if (deltakere.isNotEmpty()) getPersoner(deltakere) else emptyMap()
 
@@ -120,11 +122,12 @@ class ArrangorFlateService(
                     FakturaStatusType.DELVIS_BETALT,
                     FakturaStatusType.FULLT_BETALT,
                     -> DelutbetalingStatus.UTBETALT
+
                     FakturaStatusType.IKKE_BETALT,
                     FakturaStatusType.SENDT,
+                    FakturaStatusType.FEILET,
+                    null,
                     -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                    FakturaStatusType.FEILET -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                    null -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                 },
                 statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
                 tilsagn = tilsagn,
@@ -227,18 +230,22 @@ class ArrangorFlateService(
 fun DeltakerForslag.relevantForDeltakelse(
     utbetaling: Utbetaling,
 ): Boolean = when (utbetaling.beregning) {
-    is UtbetalingBeregningForhandsgodkjent -> relevantForDeltakelse(utbetaling.beregning)
+    is UtbetalingBeregningPrisPerManedsverk -> relevantForDeltakelse(
+        utbetaling.beregning.input.deltakelser,
+        utbetaling.beregning.input.periode,
+    )
+
     is UtbetalingBeregningFri -> false
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
-    beregning: UtbetalingBeregningForhandsgodkjent,
+    perioderMedDeltakelser: Set<DeltakelsePerioder>,
+    periode: Periode,
 ): Boolean {
-    val deltakelser = beregning.input.deltakelser
+    val deltakelser = perioderMedDeltakelser
         .find { it.deltakelseId == this.deltakerId }
         ?: return false
 
-    val periode = beregning.input.periode
     val sisteSluttDato = deltakelser.perioder.maxOf { it.periode.getLastInclusiveDate() }
     val forsteStartDato = deltakelser.perioder.minOf { it.periode.start }
 

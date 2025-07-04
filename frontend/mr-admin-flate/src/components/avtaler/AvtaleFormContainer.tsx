@@ -98,7 +98,7 @@ export function AvtaleFormContainer({
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
       prisbetingelser:
-        !data.prismodell || data.prismodell === Prismodell.FRI
+        !data.prismodell || data.prismodell === Prismodell.ANNEN_AVTALT_PRIS
           ? data.prisbetingelser || null
           : null,
       beskrivelse: data.beskrivelse,
@@ -112,7 +112,8 @@ export function AvtaleFormContainer({
         customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
       },
       utdanningslop: getUtdanningslop(data),
-      prismodell: data.prismodell ?? Prismodell.FRI,
+      prismodell: data.prismodell ?? Prismodell.ANNEN_AVTALT_PRIS,
+      satser: data.satser,
     };
 
     mutation.mutate(requestBody, {

@@ -145,8 +145,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregningForhandsgodkjent = UtbetalingBeregningForhandsgodkjent(
-                    input = UtbetalingBeregningForhandsgodkjent.Input(
+                val beregningForhandsgodkjent = UtbetalingBeregningPrisPerManedsverk(
+                    input = UtbetalingBeregningPrisPerManedsverk.Input(
                         sats = 20_205,
                         periode = periode,
                         stengt = setOf(
@@ -184,7 +184,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningForhandsgodkjent.Output(
+                    output = UtbetalingBeregningPrisPerManedsverk.Output(
                         belop = 100_000,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakelse1Id, 1.0),
@@ -221,14 +221,14 @@ class UtbetalingQueriesTest : FunSpec({
                 val utbetalingForhandsgodkjent = UtbetalingDbo(
                     id = UUID.randomUUID(),
                     gjennomforingId = AFT1.id,
-                    beregning = UtbetalingBeregningForhandsgodkjent(
-                        input = UtbetalingBeregningForhandsgodkjent.Input(
+                    beregning = UtbetalingBeregningPrisPerManedsverk(
+                        input = UtbetalingBeregningPrisPerManedsverk.Input(
                             periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                             sats = 20_205,
                             stengt = setOf(),
                             deltakelser = setOf(deltakelse),
                         ),
-                        output = UtbetalingBeregningForhandsgodkjent.Output(
+                        output = UtbetalingBeregningPrisPerManedsverk.Output(
                             belop = 0,
                             deltakelser = setOf(),
                         ),

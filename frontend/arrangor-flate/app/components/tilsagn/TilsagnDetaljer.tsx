@@ -19,24 +19,7 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
     },
   ];
 
-  const beregningDetaljer =
-    tilsagn.beregning.type === "FORHANDSGODKJENT"
-      ? [
-          { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
-          { key: "Sats", value: formaterNOK(tilsagn.beregning.input.sats) },
-          { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
-          {
-            key: "Gjenstående beløp",
-            value: formaterNOK(tilsagn.gjenstaendeBelop),
-          },
-        ]
-      : [
-          { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
-          {
-            key: "Gjenstående beløp",
-            value: formaterNOK(tilsagn.gjenstaendeBelop),
-          },
-        ];
+  const beregningDetaljer = getTilsagnBeregningDetaljer(tilsagn);
 
   return (
     <Definisjonsliste
@@ -45,4 +28,27 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
       definitions={[...tilsagnDetaljer, ...beregningDetaljer]}
     />
   );
+}
+
+function getTilsagnBeregningDetaljer(tilsagn: ArrangorflateTilsagn) {
+  switch (tilsagn.beregning.type) {
+    case "PRIS_PER_MANEDSVERK":
+      return [
+        { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
+        { key: "Sats", value: formaterNOK(tilsagn.beregning.input.sats) },
+        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+        {
+          key: "Gjenstående beløp",
+          value: formaterNOK(tilsagn.gjenstaendeBelop),
+        },
+      ];
+    case "FRI":
+      return [
+        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+        {
+          key: "Gjenstående beløp",
+          value: formaterNOK(tilsagn.gjenstaendeBelop),
+        },
+      ];
+  }
 }

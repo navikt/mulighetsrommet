@@ -8,13 +8,19 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import java.time.LocalDate
 import java.util.*
 
 class AvtaleRoutesTest : FunSpec({
@@ -114,6 +120,58 @@ class AvtaleRoutesTest : FunSpec({
                     setBody("{}")
                 }
                 response.status shouldBe HttpStatusCode.BadRequest
+            }
+        }
+    }
+
+    context("hent avtalte satser") {
+        beforeEach {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(
+                    AvtaleFixtures.AFT,
+                    AvtaleFixtures.oppfolging.copy(
+                        prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                        satser = listOf(AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 1000)),
+                    ),
+                ),
+            ).initialize(database.db)
+        }
+
+        test("henter avtalte satser fra avtalens prismodell") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+
+                val response1 = client.get("/api/v1/intern/avtaler/${AvtaleFixtures.AFT.id}/satser") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                }
+                response1.status shouldBe HttpStatusCode.OK
+                response1.body<List<AvtaltSatsDto>>() shouldBe listOf(
+                    AvtaltSatsDto(
+                        periodeStart = LocalDate.of(2025, 1, 1),
+                        periodeSlutt = LocalDate.of(2025, 12, 31),
+                        pris = 20_975,
+                        valuta = "NOK",
+                    ),
+                )
+
+                val response2 = client.get("/api/v1/intern/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                }
+                response2.status shouldBe HttpStatusCode.OK
+                response2.body<List<AvtaltSatsDto>>() shouldBe listOf(
+                    AvtaltSatsDto(
+                        periodeStart = LocalDate.of(2025, 1, 1),
+                        periodeSlutt = LocalDate.of(2025, 1, 31),
+                        pris = 1000,
+                        valuta = "NOK",
+                    ),
+                )
             }
         }
     }

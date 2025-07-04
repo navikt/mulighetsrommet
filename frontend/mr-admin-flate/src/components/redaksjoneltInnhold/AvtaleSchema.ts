@@ -71,6 +71,14 @@ export const AvtaleSchema = z
     amoKategorisering: AmoKategoriseringSchema.nullish(),
     utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
     prismodell: z.nativeEnum(Prismodell).nullable(),
+    satser: z.array(
+      z.object({
+        periodeStart: z.string(),
+        periodeSlutt: z.string(),
+        pris: z.number(),
+        valuta: z.string(),
+      }),
+    ),
   })
   .superRefine((data, ctx) => {
     if (

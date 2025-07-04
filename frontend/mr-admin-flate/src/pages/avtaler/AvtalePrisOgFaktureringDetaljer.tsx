@@ -4,7 +4,7 @@ import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { formaterDato } from "@/utils/Utils";
-import { AvtaleDto, Prismodell } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaltSatsDto, Prismodell } from "@mr/api-client-v2";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { Box, HStack, VStack } from "@navikt/ds-react";
 
@@ -27,7 +27,7 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
             header={avtaletekster.prismodell.label}
             verdi={prismodell ? avtaletekster.prismodell.beskrivelse(prismodell) : null}
           />
-          {prismodell === Prismodell.FRI && (
+          {prismodell === Prismodell.ANNEN_AVTALT_PRIS && (
             <Metadata
               header={avtaletekster.prisOgBetalingLabel}
               verdi={avtale.prisbetingelser ?? "-"}
@@ -35,23 +35,37 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
           )}
         </Bolk>
 
-        {prismodell === Prismodell.FORHANDSGODKJENT && (
-          <ForhandsgodkjentAvtalePrismodell avtale={avtale} />
+        {prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
+          <ForhandsgodkjentPrisPerManedsverk avtale={avtale} />
+        )}
+
+        {prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK && (
+          <AvtaltPrisPerManedsverk satser={avtale.satser} />
         )}
       </VStack>
     </TwoColumnGrid>
   );
 }
 
-interface ForhandsgodkjentAvtalePrismodellProps {
+interface ForhandsgodkjentPrisPerManedsverkProps {
   avtale: AvtaleDto;
 }
 
-function ForhandsgodkjentAvtalePrismodell({ avtale }: ForhandsgodkjentAvtalePrismodellProps) {
+function ForhandsgodkjentPrisPerManedsverk({ avtale }: ForhandsgodkjentPrisPerManedsverkProps) {
   const { data: satser } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
 
-  if (!satser) return null;
+  if (!satser) {
+    return null;
+  }
 
+  return <AvtaltPrisPerManedsverk satser={satser} />;
+}
+
+interface AvtaltPrisPerManedsverkProps {
+  satser: AvtaltSatsDto[];
+}
+
+function AvtaltPrisPerManedsverk({ satser }: AvtaltPrisPerManedsverkProps) {
   return (
     <VStack gap="4">
       {satser.map((sats) => (

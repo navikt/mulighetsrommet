@@ -1,6 +1,12 @@
-import { TilsagnFormForhandsgodkjent } from "@/components/tilsagn/prismodell/TilsagnFormForhandsgodkjent";
+import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/prismodell/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/prismodell/TilsagnFormFri";
-import { AvtaleDto, GjennomforingDto, Prismodell, TilsagnType } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  GjennomforingDto,
+  Prismodell,
+  TilsagnBeregningType,
+  TilsagnType,
+} from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
@@ -28,26 +34,30 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  switch (defaults.beregning?.type ?? avtale.prismodell) {
-    case Prismodell.FORHANDSGODKJENT:
+  const beregning = defaults.beregning?.type ?? getTilsagnBeregningType(avtale.prismodell);
+  switch (beregning) {
+    case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
       return (
-        <TilsagnFormForhandsgodkjent
+        <TilsagnFormPrisPerManedsverk
           defaultValues={{
             ...defaults,
-            beregning: { ...defaults.beregning, type: "FORHANDSGODKJENT" },
+            beregning: {
+              ...defaults.beregning,
+              type: TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+            },
           }}
           {...props}
         />
       );
-    case Prismodell.FRI:
+    case TilsagnBeregningType.FRI:
       return (
         <TilsagnFormFri
           defaultValues={{
             ...defaults,
             beregning: {
               ...defaults.beregning,
-              type: "FRI",
               prisbetingelser: avtale.prisbetingelser,
+              type: TilsagnBeregningType.FRI,
             },
           }}
           {...props}
@@ -62,4 +72,18 @@ function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: Ti
   return type === TilsagnType.TILSAGN
     ? gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer)
     : [];
+}
+
+function getTilsagnBeregningType(
+  prismodell: Prismodell | undefined | null,
+): TilsagnBeregningType | undefined {
+  switch (prismodell) {
+    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
+      return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
+    case Prismodell.ANNEN_AVTALT_PRIS:
+      return TilsagnBeregningType.FRI;
+    default:
+      return undefined;
+  }
 }

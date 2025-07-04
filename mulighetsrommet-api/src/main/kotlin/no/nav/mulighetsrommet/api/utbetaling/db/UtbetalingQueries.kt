@@ -5,10 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -29,7 +26,7 @@ class UtbetalingQueries(private val session: Session) {
                 kontonummer,
                 kid,
                 periode,
-                prismodell,
+                beregning_type,
                 belop_beregnet,
                 innsender,
                 tilskuddstype,
@@ -41,7 +38,7 @@ class UtbetalingQueries(private val session: Session) {
                 :kontonummer,
                 :kid,
                 :periode::daterange,
-                :prismodell::prismodell,
+                :beregning_type::utbetaling_beregning_type,
                 :belop_beregnet,
                 :innsender,
                 :tilskuddstype::tilskuddstype,
@@ -52,7 +49,7 @@ class UtbetalingQueries(private val session: Session) {
                 kontonummer = excluded.kontonummer,
                 kid = excluded.kid,
                 periode = excluded.periode,
-                prismodell = excluded.prismodell,
+                beregning_type = excluded.beregning_type,
                 belop_beregnet = excluded.belop_beregnet,
                 innsender = excluded.innsender,
                 tilskuddstype = excluded.tilskuddstype,
@@ -66,9 +63,9 @@ class UtbetalingQueries(private val session: Session) {
             "kontonummer" to dbo.kontonummer?.value,
             "kid" to dbo.kid?.value,
             "periode" to dbo.periode.toDaterange(),
-            "prismodell" to when (dbo.beregning) {
-                is UtbetalingBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT
-                is UtbetalingBeregningFri -> Prismodell.FRI
+            "beregning_type" to when (dbo.beregning) {
+                is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
+                is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
             }.name,
             "belop_beregnet" to dbo.beregning.output.belop,
             "innsender" to dbo.innsender?.textRepr(),
@@ -80,20 +77,26 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(utbetalingQuery, params))
 
         when (dbo.beregning) {
-            is UtbetalingBeregningForhandsgodkjent -> {
-                check(dbo.periode == dbo.beregning.input.periode) {
-                    "Utbetalingsperiode og beregningsperiode må være lik"
-                }
-                upsertUtbetalingBeregningForhandsgodkjent(dbo.id, dbo.beregning)
-            }
-
             is UtbetalingBeregningFri -> Unit
+
+            is UtbetalingBeregningPrisPerManedsverk -> {
+                upsertUtbetalingBeregningForhandsgodkjent(
+                    dbo.id,
+                    dbo.beregning.input.sats,
+                    dbo.beregning.input.stengt,
+                    dbo.beregning.input.deltakelser,
+                    dbo.beregning.output.deltakelser,
+                )
+            }
         }
     }
 
     private fun Session.upsertUtbetalingBeregningForhandsgodkjent(
         id: UUID,
-        beregning: UtbetalingBeregningForhandsgodkjent,
+        sats: Int,
+        stengtPerioder: Set<StengtPeriode>,
+        deltakelsePerioder: Set<DeltakelsePerioder>,
+        deltakelseManedsverk: Set<DeltakelseManedsverk>,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -104,7 +107,7 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
         val params = mapOf(
             "utbetaling_id" to id,
-            "sats" to beregning.input.sats,
+            "sats" to sats,
         )
         execute(queryOf(query, params))
 
@@ -121,7 +124,7 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling_stengt_hos_arrangor (utbetaling_id, periode, beskrivelse)
             values (:utbetaling_id::uuid, :periode::daterange, :beskrivelse)
         """.trimIndent()
-        val stengt = beregning.input.stengt.map { stengt ->
+        val stengt = stengtPerioder.map { stengt ->
             mapOf(
                 "utbetaling_id" to id,
                 "periode" to stengt.periode.toDaterange(),
@@ -143,7 +146,7 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling_deltakelse_periode (utbetaling_id, deltakelse_id, periode, deltakelsesprosent)
             values (:utbetaling_id, :deltakelse_id, :periode::daterange, :deltakelsesprosent)
         """.trimIndent()
-        val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
+        val perioder = deltakelsePerioder.flatMap { deltakelse ->
             deltakelse.perioder.map { periode ->
                 mapOf(
                     "utbetaling_id" to id,
@@ -169,7 +172,7 @@ class UtbetalingQueries(private val session: Session) {
             values (:utbetaling_id, :deltakelse_id, :manedsverk)
         """.trimIndent()
 
-        val manedsverk = beregning.output.deltakelser.map { deltakelse ->
+        val manedsverk = deltakelseManedsverk.map { deltakelse ->
             mapOf(
                 "utbetaling_id" to id,
                 "deltakelse_id" to deltakelse.deltakelseId,
@@ -314,7 +317,7 @@ class UtbetalingQueries(private val session: Session) {
 
     private fun Row.toUtbetalingDto(): Utbetaling {
         val id = uuid("id")
-        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
+        val beregning = getBeregning(id, UtbetalingBeregningType.valueOf(string("beregning_type")))
         val innsender = stringOrNull("innsender")?.toAgent()
         return Utbetaling(
             id = id,
@@ -348,14 +351,14 @@ class UtbetalingQueries(private val session: Session) {
         )
     }
 
-    private fun getBeregning(id: UUID, prismodell: Prismodell): UtbetalingBeregning {
-        return when (prismodell) {
-            Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
-            Prismodell.FRI -> getBeregningFri(id)
+    private fun getBeregning(id: UUID, beregning: UtbetalingBeregningType): UtbetalingBeregning {
+        return when (beregning) {
+            UtbetalingBeregningType.FRI -> getBeregningFri(id)
+            UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
         }
     }
 
-    private fun getBeregningForhandsgodkjent(id: UUID): UtbetalingBeregning {
+    private fun getBeregningPrisPerManedsverk(id: UUID): UtbetalingBeregning {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -364,14 +367,14 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
-            UtbetalingBeregningForhandsgodkjent(
-                input = UtbetalingBeregningForhandsgodkjent.Input(
+            UtbetalingBeregningPrisPerManedsverk(
+                input = UtbetalingBeregningPrisPerManedsverk.Input(
                     periode = row.periode("periode"),
                     sats = row.int("sats"),
                     stengt = Json.decodeFromString(row.string("stengt_json")),
                     deltakelser = Json.decodeFromString(row.string("perioder_json")),
                 ),
-                output = UtbetalingBeregningForhandsgodkjent.Output(
+                output = UtbetalingBeregningPrisPerManedsverk.Output(
                     belop = row.int("belop_beregnet"),
                     deltakelser = Json.decodeFromString(row.string("manedsverk_json")),
                 ),

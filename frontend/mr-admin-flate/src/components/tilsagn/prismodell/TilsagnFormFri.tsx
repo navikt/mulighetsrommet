@@ -1,4 +1,4 @@
-import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
+import { GjennomforingDto, TilsagnBeregningFri, TilsagnBeregningType } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
 import { Alert, Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
@@ -153,7 +153,7 @@ function BeregningOutputPreview() {
     <>
       <TilsagnBeregningPreview
         input={{
-          type: "FRI",
+          type: TilsagnBeregningType.FRI,
           linjer: linjer,
           prisbetingelser: values.beregning?.prisbetingelser,
         }}

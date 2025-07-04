@@ -6,9 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -17,6 +15,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -52,6 +51,7 @@ data class AvtaleRequest(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell,
+    val satser: List<AvtaltSatsDto>,
 ) {
 
     @Serializable
@@ -92,6 +92,19 @@ fun Route.avtaleRoutes() {
                     .map { it.toPersonopplysningData() },
             )
         }
+    }
+
+    get("/prismodell/satser") {
+        val tiltakstype: Tiltakskode by call.queryParameters
+
+        val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype)
+            .map { AvtaltSatsDto.fromAvtaltSats(it) }
+
+        if (satser.isEmpty()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
+        }
+
+        call.respond(satser)
     }
 
     route("avtaler") {
@@ -223,6 +236,18 @@ fun Route.avtaleRoutes() {
             avtaler.get(id)
                 ?.let { call.respond(it) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
+        }
+
+        get("{id}/satser") {
+            val id: UUID by call.parameters
+
+            val avtale = avtaler.get(id)
+                ?: return@get call.respond(HttpStatusCode.NotFound, "Avtale med id $id finnes ikke")
+
+            val satser = AvtalteSatser.getAvtalteSatser(avtale)
+                .map { AvtaltSatsDto.fromAvtaltSats(it) }
+
+            call.respond(satser)
         }
 
         get("{id}/historikk") {
