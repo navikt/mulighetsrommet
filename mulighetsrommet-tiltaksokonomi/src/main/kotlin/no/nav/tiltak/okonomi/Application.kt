@@ -104,7 +104,7 @@ fun Application.configure(config: AppConfig) {
 
     val kafka = configureKafka(config.kafka, db, okonomi)
 
-    configureApi(kafka, okonomiDb, okonomi)
+    configureApi(kafka, okonomi)
 
     val sftpClient = SftpClient(properties = config.avstemming.sftpProperties)
     val avstemmingService = AvstemmingService(db = okonomiDb, sftpClient)
