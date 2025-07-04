@@ -520,8 +520,8 @@ class AvtaleQueries(private val session: Session) {
             "avbrutt_tidspunkt" to avbruttTidspunkt,
             "avbrutt_aarsak" to if (avbruttTidspunkt != null) "AVBRUTT_I_ARENA" else null,
             "prismodell" to when (avtaletype) {
-                Avtaletype.FORHANDSGODKJENT -> Prismodell.FORHANDSGODKJENT
-                else -> Prismodell.FRI
+                Avtaletype.FORHANDSGODKJENT -> Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                else -> Prismodell.ANNEN_AVTALT_PRIS
             }.name,
             "prisbetingelser" to prisbetingelser,
         )

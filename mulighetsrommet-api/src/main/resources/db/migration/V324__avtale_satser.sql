@@ -1,4 +1,6 @@
-alter type prismodell add value 'AVTALT_SATS_PER_MANED';
+alter type prismodell add value 'AVTALT_PRIS_PER_MANEDSVERK';
+alter type prismodell rename value 'FRI' to 'ANNEN_AVTALT_PRIS';
+alter type prismodell rename value 'FORHANDSGODKJENT' to 'FORHANDSGODKJENT_PRIS_PER_MANEDSVERK';
 
 create table avtale_sats
 (

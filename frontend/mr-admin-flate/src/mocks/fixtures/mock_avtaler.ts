@@ -81,7 +81,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.FRI,
+    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
     satser: [],
   },
   {
@@ -137,7 +137,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.FRI,
+    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
     satser: [],
   },
   {
@@ -188,7 +188,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.FRI,
+    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
     satser: [],
   },
   {
@@ -240,7 +240,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.FRI,
+    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
     satser: [],
   },
 ];
@@ -297,7 +297,7 @@ for (let i = 0; i < x; i++) {
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.FRI,
+    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
     satser: [],
   });
 }

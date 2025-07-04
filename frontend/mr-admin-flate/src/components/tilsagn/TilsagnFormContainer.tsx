@@ -72,10 +72,10 @@ function getTilsagnBeregningType(
   prismodell: Prismodell | undefined | null,
 ): "FRI" | "AVTALT_PRIS_PER_MANEDSVERK" | undefined {
   switch (prismodell) {
-    case Prismodell.FORHANDSGODKJENT:
-    case Prismodell.AVTALT_SATS_PER_MANED:
+    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
       return "AVTALT_PRIS_PER_MANEDSVERK";
-    case Prismodell.FRI:
+    case Prismodell.ANNEN_AVTALT_PRIS:
       return "FRI";
     default:
       return undefined;

@@ -174,7 +174,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
-            avtaler = listOf(AvtaleFixtures.AFT.copy(prismodell = Prismodell.FORHANDSGODKJENT)),
+            avtaler = listOf(AvtaleFixtures.AFT.copy(prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK)),
             gjennomforinger = listOf(AFT1),
         )
 

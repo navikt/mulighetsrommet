@@ -37,19 +37,19 @@ class GenererUtbetalingService(
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, prismodell) ->
                 val utbetaling = when (prismodell) {
-                    Prismodell.FORHANDSGODKJENT -> createUtbetalingForhandsgodkjent(
+                    Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> createUtbetalingForhandsgodkjent(
                         utbetalingId = UUID.randomUUID(),
                         gjennomforingId = gjennomforingId,
                         periode = periode,
                     )
 
-                    Prismodell.AVTALT_SATS_PER_MANED -> createUtbetalingAvtaltSatsPerManed(
+                    Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> createUtbetalingAvtaltSatsPerManed(
                         utbetalingId = UUID.randomUUID(),
                         gjennomforingId = gjennomforingId,
                         periode = periode,
                     )
 
-                    Prismodell.FRI -> null
+                    Prismodell.ANNEN_AVTALT_PRIS -> null
                 }
                 utbetaling?.takeIf { it.beregning.output.belop > 0 }
             }
@@ -74,20 +74,20 @@ class GenererUtbetalingService(
                     is UtbetalingBeregningFri -> null
 
                     is UtbetalingBeregningAvtaltPrisPerManedsverk -> when (prismodell) {
-                        Prismodell.FORHANDSGODKJENT -> createUtbetalingForhandsgodkjent(
+                        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> createUtbetalingForhandsgodkjent(
                             utbetalingId = gjeldendeKrav.id,
                             gjennomforingId = gjeldendeKrav.gjennomforing.id,
                             periode = gjeldendeKrav.beregning.input.periode,
                         )
 
-                        Prismodell.AVTALT_SATS_PER_MANED -> createUtbetalingAvtaltSatsPerManed(
+                        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> createUtbetalingAvtaltSatsPerManed(
                             utbetalingId = gjeldendeKrav.id,
                             gjennomforingId = gjeldendeKrav.gjennomforing.id,
                             periode = gjeldendeKrav.beregning.input.periode,
                         )
 
                         // TODO: slett krav når avtale har endret til en modell som ikke kan beregnes av systemet
-                        Prismodell.FRI -> null
+                        Prismodell.ANNEN_AVTALT_PRIS -> null
                     }
                 }
 

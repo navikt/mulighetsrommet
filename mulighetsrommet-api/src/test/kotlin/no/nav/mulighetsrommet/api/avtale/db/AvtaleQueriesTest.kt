@@ -482,13 +482,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = Prismodell.AVTALT_SATS_PER_MANED,
+                        prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                         satser = listOf(sats2),
                     ),
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell shouldBe Prismodell.AVTALT_SATS_PER_MANED
+                    it.prismodell shouldBe Prismodell.AVTALT_PRIS_PER_MANEDSVERK
                     it.satser shouldContainExactly listOf(
                         AvtaltSatsDto(
                             periodeStart = LocalDate.of(2025, 7, 1),
@@ -501,13 +501,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = Prismodell.FORHANDSGODKJENT,
+                        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                         satser = listOf(sats1, sats2),
                     ),
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell shouldBe Prismodell.FORHANDSGODKJENT
+                    it.prismodell shouldBe Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
                     it.satser shouldContainExactly listOf(
                         AvtaltSatsDto(
                             periodeStart = LocalDate.of(2025, 6, 1),

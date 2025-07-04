@@ -291,7 +291,7 @@ private fun resolveTilsagnDefaults(
         "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
     )
     return when (prismodell) {
-        Prismodell.FORHANDSGODKJENT -> {
+        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
             val periodeStart = listOfNotNull(
                 config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforing.startDato,
@@ -329,7 +329,7 @@ private fun resolveTilsagnDefaults(
             )
         }
 
-        Prismodell.AVTALT_SATS_PER_MANED -> {
+        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
             val periodeStart = listOfNotNull(
                 config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforing.startDato,
@@ -365,7 +365,7 @@ private fun resolveTilsagnDefaults(
             )
         }
 
-        Prismodell.FRI -> {
+        Prismodell.ANNEN_AVTALT_PRIS -> {
             val firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1)
             val periodeStart = listOfNotNull(
                 config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
@@ -401,7 +401,7 @@ private fun resolveEkstraTilsagnDefaults(
     gjennomforing: GjennomforingDto,
     prisbetingelser: String?,
 ): TilsagnDefaults {
-    return if (request.prismodell == Prismodell.FRI) {
+    return if (request.prismodell == Prismodell.ANNEN_AVTALT_PRIS) {
         TilsagnDefaults(
             id = null,
             gjennomforingId = gjennomforing.id,

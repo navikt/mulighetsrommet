@@ -3164,9 +3164,9 @@ components:
     Prismodell:
       type: string
       enum:
-        - FRI
-        - FORHANDSGODKJENT
-        - AVTALT_SATS_PER_MANED
+        - ANNEN_AVTALT_PRIS
+        - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+        - AVTALT_PRIS_PER_MANEDSVERK
 
     EmbeddedTiltakstype:
       type: object

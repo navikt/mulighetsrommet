@@ -102,7 +102,7 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
                   >
                     {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
                   </Dropdown.Menu.GroupedList.Item>
-                  {avtale?.prismodell === Prismodell.FORHANDSGODKJENT && (
+                  {avtale?.prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
                     <Dropdown.Menu.GroupedList.Item
                       onClick={() => registrerStengtModalRef.current?.showModal()}
                     >

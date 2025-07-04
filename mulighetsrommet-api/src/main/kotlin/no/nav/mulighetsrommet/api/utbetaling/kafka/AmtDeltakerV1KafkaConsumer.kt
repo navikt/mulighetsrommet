@@ -67,8 +67,8 @@ class AmtDeltakerV1KafkaConsumer(
         }
 
         when (prismodell) {
-            Prismodell.FRI -> return false
-            Prismodell.FORHANDSGODKJENT, Prismodell.AVTALT_SATS_PER_MANED -> Unit
+            Prismodell.ANNEN_AVTALT_PRIS -> return false
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> Unit
         }
 
         if (
@@ -96,7 +96,7 @@ class AmtDeltakerV1KafkaConsumer(
 private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell?): DeltakerDbo {
     val deltakelsesprosent = when (prismodell) {
         // Hvis deltakelsesprosent mangler for forhåndsgodkjente tiltak så skal det antas å være 100%
-        Prismodell.FORHANDSGODKJENT -> deltaker.prosentStilling?.toDouble() ?: 100.0
+        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> deltaker.prosentStilling?.toDouble() ?: 100.0
         else -> null
     }
     return DeltakerDbo(

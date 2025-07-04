@@ -27,7 +27,7 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
             header={avtaletekster.prismodell.label}
             verdi={prismodell ? avtaletekster.prismodell.beskrivelse(prismodell) : null}
           />
-          {prismodell === Prismodell.FRI && (
+          {prismodell === Prismodell.ANNEN_AVTALT_PRIS && (
             <Metadata
               header={avtaletekster.prisOgBetalingLabel}
               verdi={avtale.prisbetingelser ?? "-"}
@@ -35,11 +35,11 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
           )}
         </Bolk>
 
-        {prismodell === Prismodell.FORHANDSGODKJENT && (
+        {prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
           <ForhandsgodkjentPrisPerManedsverk avtale={avtale} />
         )}
 
-        {prismodell === Prismodell.AVTALT_SATS_PER_MANED && (
+        {prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK && (
           <AvtaltPrisPerManedsverk avtale={avtale} />
         )}
       </VStack>

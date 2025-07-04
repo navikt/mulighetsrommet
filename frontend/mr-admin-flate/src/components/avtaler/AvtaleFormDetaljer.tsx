@@ -94,7 +94,7 @@ export function AvtaleFormDetaljer({
     }
 
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
-      setValue("prismodell", Prismodell.FORHANDSGODKJENT);
+      setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
     } else {
       setValue("prismodell", null);
     }

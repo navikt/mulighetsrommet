@@ -36,7 +36,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -66,7 +66,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -96,7 +96,7 @@ object AvtaleFixtures {
         amoKategorisering = AmoKategorisering.Studiespesialisering,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -126,7 +126,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -156,7 +156,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         utdanningslop = null,
-        prismodell = Prismodell.FORHANDSGODKJENT,
+        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         satser = listOf(),
     )
 
@@ -186,7 +186,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         utdanningslop = null,
-        prismodell = Prismodell.FORHANDSGODKJENT,
+        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         satser = listOf(),
     )
 
@@ -216,7 +216,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -246,7 +246,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -278,7 +278,7 @@ object AvtaleFixtures {
             customOpsjonsmodellNavn = null,
         ),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -311,7 +311,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.FRI,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 }

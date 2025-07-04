@@ -29,7 +29,12 @@ import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
 import no.nav.mulighetsrommet.utdanning.utdanningRoutes
 
 fun Route.apiRoutes() {
-    maamRoutes()
+    authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+        authorize(Rolle.TEAM_MULIGHETSROMMET) {
+            // TODO: test access control
+            maamRoutes()
+        }
+    }
 
     authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
         externalRoutes()
