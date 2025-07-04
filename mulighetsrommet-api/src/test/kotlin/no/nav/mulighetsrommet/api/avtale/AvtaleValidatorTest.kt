@@ -5,8 +5,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.mockk.every
-import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
@@ -20,8 +18,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.unleash.Toggle
-import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.*
@@ -74,7 +70,7 @@ class AvtaleValidatorTest : FunSpec({
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.FRI,
     )
 
     beforeEach {
@@ -85,13 +81,10 @@ class AvtaleValidatorTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createValidator(
-        unleash: UnleashService = mockk(relaxed = true),
-    ) = AvtaleValidator(
+    fun createValidator() = AvtaleValidator(
         db = database.db,
         tiltakstyper = TiltakstypeService(database.db),
         navEnheterService = NavEnhetService(database.db),
-        unleash = unleash,
     )
 
     test("should accumulate errors when dbo has multiple issues") {
@@ -281,15 +274,18 @@ class AvtaleValidatorTest : FunSpec({
         val aft = AvtaleFixtures.AFT.copy(
             avtaletype = Avtaletype.RAMMEAVTALE,
             sluttDato = LocalDate.of(2023, 1, 1),
+            prismodell = Prismodell.FRI,
         )
         val vta = AvtaleFixtures.VTA.copy(
             avtaletype = Avtaletype.AVTALE,
+            prismodell = Prismodell.FRI,
         )
         val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
             amoKategorisering = AmoKategorisering.Studiespesialisering,
+            prismodell = Prismodell.FORHANDSGODKJENT,
         )
 
         val validator = createValidator()
@@ -439,42 +435,8 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("prismodell") {
-        test("kan ikke settes når feature er disabled") {
-            val unleash = mockk<UnleashService>()
-            every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
-            } returns false
-
-            val validator = createValidator(unleash)
-
-            val dbo = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
-
-            validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell", "Prismodell kan foreløpig ikke velges for tiltakstype Oppfølging"),
-            )
-        }
-
-        test("må settes når feature er enabled") {
-            val unleash = mockk<UnleashService>()
-            every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
-            } returns true
-
-            val validator = createValidator(unleash)
-
-            val dbo = avtaleDbo.copy(prismodell = null)
-            validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell", "Du må velge en prismodell"),
-            )
-        }
-
         test("prismodell må stemme overens med avtaletypen") {
-            val unleash = mockk<UnleashService>()
-            every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
-            } returns true
-
-            val validator = createValidator(unleash)
+            val validator = createValidator()
 
             val forhandsgodkjent = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
             validator.validate(forhandsgodkjent, null).shouldBeLeft().shouldContainExactlyInAnyOrder(

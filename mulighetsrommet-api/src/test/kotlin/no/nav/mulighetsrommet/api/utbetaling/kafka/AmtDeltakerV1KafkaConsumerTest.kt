@@ -136,8 +136,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         test("tolker deltakelsesprosent som 100 hvis den mangler for tiltak med forhåndsgodkjent prismodell") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(
-                    AvtaleFixtures.AFT.copy(prismodell = Prismodell.FORHANDSGODKJENT),
-                    AvtaleFixtures.VTA.copy(prismodell = null),
+                    AvtaleFixtures.AFT,
+                    AvtaleFixtures.oppfolging,
                 ),
             ).initialize(database.db)
 
@@ -148,7 +148,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             )
             deltakerConsumer.consume(
                 amtDeltaker2.id,
-                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
+                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = Oppfolging1.id)),
             )
 
             database.run {
@@ -157,7 +157,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                         .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
                         .toDeltaker(),
                     deltaker2Dbo
-                        .copy(gjennomforingId = VTA1.id, deltakelsesprosent = null)
+                        .copy(gjennomforingId = Oppfolging1.id, deltakelsesprosent = null)
                         .toDeltaker(),
                 )
             }

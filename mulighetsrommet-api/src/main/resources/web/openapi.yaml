@@ -3008,9 +3008,7 @@ components:
             - type: ["null"]
             - $ref: "#/components/schemas/Utdanningslop"
         prismodell:
-          anyOf:
-            - type: ["null"]
-            - $ref: "#/components/schemas/Prismodell"
+          $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - tiltakstype
@@ -3106,9 +3104,7 @@ components:
             - type: "null"
             - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodell:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/Prismodell"
+          $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - navn
@@ -6002,24 +5998,24 @@ components:
       required: [id, status, periode, beregning, createdAt, tilskuddstype]
 
     UtbetalingKompaktDto:
-        type: object
-        properties:
-          id:
-            type: string
-            format: uuid
-          status:
-            $ref: "#/components/schemas/AdminUtbetalingStatus"
-          periode:
-            $ref: "#/components/schemas/Periode"
-          kostnadssteder:
-            type: array
-            items:
-              $ref: "#/components/schemas/NavEnhet"
-          belopUtbetalt:
-            type: [number, "null"]
-          type:
-            $ref: "#/components/schemas/UtbetalingType"
-        required: [ id, status, periode, kostnadssteder, belopUtbetalt ]
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/AdminUtbetalingStatus"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+        belopUtbetalt:
+          type: [number, "null"]
+        type:
+          $ref: "#/components/schemas/UtbetalingType"
+      required: [id, status, periode, kostnadssteder, belopUtbetalt]
 
     UtbetalingType:
       type: string
@@ -6257,7 +6253,6 @@ components:
       oneOf:
         - $ref: "#/components/schemas/BeregningForhandsgodkjent"
         - $ref: "#/components/schemas/BeregningFri"
-
 
     UtbetalingStengtPeriode:
       type: object
@@ -6589,8 +6584,8 @@ components:
           type: string
           format: UUID
         tilsagnId:
-            type: string
-            format: UUID
+          type: string
+          format: UUID
         periodeStart:
           type: string
         periodeSlutt:

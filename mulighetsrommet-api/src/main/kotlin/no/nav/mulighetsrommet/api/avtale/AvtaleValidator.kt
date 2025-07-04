@@ -17,14 +17,11 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.unleash.Toggle
-import no.nav.mulighetsrommet.unleash.UnleashService
 
 class AvtaleValidator(
     private val db: ApiDatabase,
     private val tiltakstyper: TiltakstypeService,
     private val navEnheterService: NavEnhetService,
-    private val unleash: UnleashService,
 ) {
     private val opsjonsmodellerUtenValidering = listOf(
         OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
@@ -112,21 +109,10 @@ class AvtaleValidator(
                 }
             }
 
-            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, tiltakskode)) {
-                if (avtale.prismodell == null) {
-                    add(FieldError.of(AvtaleDbo::prismodell, "Du må velge en prismodell"))
-                } else if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
-                    add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen må være forhåndsgodkjent"))
-                } else if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
-                    add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen kan ikke være forhåndsgodkjent"))
-                }
-            } else if (avtale.prismodell != null) {
-                add(
-                    FieldError.of(
-                        AvtaleDbo::prismodell,
-                        "Prismodell kan foreløpig ikke velges for tiltakstype ${tiltakstype.navn}",
-                    ),
-                )
+            if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
+                add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen må være forhåndsgodkjent"))
+            } else if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
+                add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen kan ikke være forhåndsgodkjent"))
             }
 
             if (tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {

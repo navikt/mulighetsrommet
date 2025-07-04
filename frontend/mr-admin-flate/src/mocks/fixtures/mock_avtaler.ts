@@ -136,7 +136,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: null,
+    prismodell: Prismodell.FRI,
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -186,7 +186,7 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: null,
+    prismodell: Prismodell.FRI,
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
@@ -293,6 +293,6 @@ for (let i = 0; i < x; i++) {
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: null,
+    prismodell: Prismodell.FRI,
   });
 }

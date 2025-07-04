@@ -112,7 +112,7 @@ export function AvtaleFormContainer({
         customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
       },
       utdanningslop: getUtdanningslop(data),
-      prismodell: enableTilsagn ? data.prismodell : null,
+      prismodell: data.prismodell ?? Prismodell.FRI,
     };
 
     mutation.mutate(requestBody, {
