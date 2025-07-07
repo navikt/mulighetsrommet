@@ -17,7 +17,10 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.Avtaletyper
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 
 class AvtaleValidator(
     private val db: ApiDatabase,
@@ -62,7 +65,7 @@ class AvtaleValidator(
                 add(FieldError.of(AvtaleDbo::sakarkivNummer, "Du må skrive inn saksnummer til avtalesaken"))
             }
 
-            if (avtale.avtaletype !in allowedAvtaletypes(tiltakskode)) {
+            if (avtale.avtaletype !in Avtaletyper.getAvtaletyperForTiltak(tiltakskode)) {
                 add(
                     FieldError.of(
                         AvtaleDbo::avtaletype,
