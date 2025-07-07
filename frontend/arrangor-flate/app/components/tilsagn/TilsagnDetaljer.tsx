@@ -3,20 +3,24 @@ import { ArrangorflateTilsagn } from "api-client";
 import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
 import { tekster } from "~/tekster";
+import { TilsagnStatusTag } from "./TilsagnStatusTag";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
+  minimal?: boolean;
   ekstraDefinisjoner?: Definition[];
 }
 
-export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
+export function TilsagnDetaljer({ tilsagn, minimal = false }: Props) {
   const tilsagnDetaljer: Definition[] = [
-    ...(ekstraDefinisjoner || []),
-    { key: "Tilsagnstype", value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type) },
-    {
-      key: "Tilsagnsperiode",
-      value: formaterPeriode(tilsagn.periode),
-    },
+    ...(!minimal
+      ? [
+          { key: "Status", value: <TilsagnStatusTag data={tilsagn.status} /> },
+          { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
+          { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
+        ]
+      : []),
+    { key: "Tilsagnsperiode", value: formaterPeriode(tilsagn.periode) },
   ];
 
   const beregningDetaljer = getTilsagnBeregningDetaljer(tilsagn);
@@ -24,7 +28,7 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
   return (
     <Definisjonsliste
       className="p-4 border-1 border-border-divider rounded-lg w-xl"
-      title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} - ${tilsagn.bestillingsnummer}`}
+      title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}
       definitions={[...tilsagnDetaljer, ...beregningDetaljer]}
     />
   );
