@@ -22,13 +22,12 @@ import { apiHeaders } from "./auth/auth.server";
 import { problemDetailResponse } from "./utils";
 import css from "./root.module.css";
 import { ErrorPage } from "./components/ErrorPage";
-import { Environment, getEnvironment } from "./services/environment";
+import { isDemo } from "./services/environment";
 import { Alert, Heading, Link } from "@navikt/ds-react";
 
 export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const env = getEnvironment();
   const { data: arrangortilganger, error } =
     await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
       headers: await apiHeaders(request),
@@ -39,28 +38,26 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   let dekorator = null;
-  if (process.env.DISABLE_DEKORATOR !== "true" && env !== Environment.Demo) {
+  if (process.env.DISABLE_DEKORATOR !== "true") {
     dekorator = await fetchSsrDekorator();
   }
 
   return {
     dekorator,
     arrangortilganger,
-    env,
   };
 };
 
 export type LoaderData = {
   dekorator: DekoratorElements | null;
   arrangortilganger: Arrangor[];
-  env: Environment;
 };
 
 function App() {
-  const { dekorator, arrangortilganger, env } = useLoaderData<LoaderData>();
+  const { dekorator, arrangortilganger } = useLoaderData<LoaderData>();
 
   return (
-    <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger} env={env}>
+    <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger}>
       <Outlet />
     </Dokument>
   );
@@ -70,12 +67,10 @@ function Dokument({
   dekorator,
   children,
   arrangorer,
-  env,
 }: {
   dekorator?: DekoratorElements;
   children: ReactNode;
   arrangorer: Arrangor[];
-  env: Environment;
 }) {
   useInjectDecoratorScript(dekorator?.scripts);
   return (
@@ -88,13 +83,13 @@ function Dokument({
         {dekorator && parse(dekorator.head)}
       </head>
       <body>
-        <DekoratorHeader dekorator={dekorator} env={env} />
+        <DekoratorHeader dekorator={dekorator} />
         <Header arrangorer={arrangorer} />
         <main className={css.main}>{children}</main>
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.isDemo = ${env === Environment.Demo}`,
+            __html: `window.isDemo = ${isDemo()}`,
           }}
         />
         <Scripts />
@@ -104,8 +99,8 @@ function Dokument({
   );
 }
 
-function DekoratorHeader({ dekorator, env }: { dekorator?: DekoratorElements; env: Environment }) {
-  if (env === Environment.Demo) {
+function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
+  if (isDemo()) {
     return (
       <Alert fullWidth variant="warning" className="max-w-1920">
         <Heading spacing size="small" level="3">
@@ -132,7 +127,6 @@ function DekoratorHeader({ dekorator, env }: { dekorator?: DekoratorElements; en
 export const ErrorBoundary = () => {
   const navigate = useNavigate();
   const error = useRouteError();
-  const env = getEnvironment();
 
   useEffect(() => {
     if (isRouteErrorResponse(error)) {
@@ -147,7 +141,7 @@ export const ErrorBoundary = () => {
 
   if (isRouteErrorResponse(error)) {
     return (
-      <Dokument arrangorer={[]} env={env}>
+      <Dokument arrangorer={[]}>
         <ErrorPage
           heading={error.status === 404 ? "Siden ble ikke funnet" : `Feil ${error.status}`}
           body={[error.data.title, error.data.detail]}
@@ -157,7 +151,7 @@ export const ErrorBoundary = () => {
     );
   } else {
     return (
-      <Dokument arrangorer={[]} env={env}>
+      <Dokument arrangorer={[]}>
         <ErrorPage
           heading="Ojsann! Noe gikk galt"
           body={[

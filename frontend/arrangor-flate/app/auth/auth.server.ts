@@ -1,18 +1,20 @@
 import { getToken, parseIdportenToken, requestTokenxOboToken, validateToken } from "@navikt/oasis";
 import { redirectDocument } from "react-router";
 import { v4 as uuidv4 } from "uuid";
-import { Environment, getEnvironment } from "~/services/environment";
+import { Environment, getEnvironment, isDemo } from "~/services/environment";
 
 const loginUrl = "/oauth2/login";
 
 export async function apiHeaders(request: Request): Promise<Record<string, string>> {
-  const token = [Environment.Lokalt, Environment.Demo].includes(getEnvironment())
-    ? process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN
-    : await oboExchange(
-        request,
-        `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
-      );
-
+  let token;
+  if (Environment.Lokalt === getEnvironment() || isDemo()) {
+    token = process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN;
+  } else {
+    token = await oboExchange(
+      request,
+      `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
+    );
+  }
   return {
     Accept: "application/json",
     "Nav-Consumer-Id": uuidv4(),
@@ -47,7 +49,7 @@ export async function oboExchange(request: Request, audience: string) {
 }
 
 export async function checkValidToken(request: Request) {
-  if ([Environment.Lokalt, Environment.Demo].includes(getEnvironment())) return;
+  if (Environment.Lokalt === getEnvironment() || isDemo()) return;
   const token = getToken(request);
 
   if (!token) {
