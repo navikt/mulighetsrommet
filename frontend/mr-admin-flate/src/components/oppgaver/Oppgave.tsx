@@ -1,6 +1,6 @@
 import { formaterDato } from "@/utils/Utils";
 import { type Oppgave, OppgaveEnhet, OppgaveIconType, OppgaveType } from "@mr/api-client-v2";
-import { BankNoteIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import { BankNoteIcon, HandshakeIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { BodyShort, Box, HStack, LinkCard, Tag } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
@@ -50,7 +50,10 @@ function OppgaveIcon(props: { type: OppgaveIconType; fontSize?: string }) {
     case OppgaveIconType.TILSAGN:
       return <PiggybankIcon fontSize={props.fontSize} />;
     case OppgaveIconType.UTBETALING:
-      return <BankNoteIcon />;
+      return <BankNoteIcon fontSize={props.fontSize} />;
+    case OppgaveIconType.AVTALE:
+    case OppgaveIconType.GJENNOMFORING:
+      return <HandshakeIcon fontSize={props.fontSize} />;
   }
 }
 

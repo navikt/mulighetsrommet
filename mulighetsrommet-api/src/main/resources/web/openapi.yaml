@@ -4820,6 +4820,8 @@ components:
       enum:
         - TILSAGN
         - UTBETALING
+        - AVTALE
+        - GJENNOMFORING
 
     OppgaveTiltakstype:
       type: object

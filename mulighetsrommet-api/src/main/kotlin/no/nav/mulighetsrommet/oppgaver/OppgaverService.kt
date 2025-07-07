@@ -403,7 +403,7 @@ private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildLis
                 link = "/gjennomforinger/${data.id}",
             ),
             createdAt = data.updatedAt,
-            iconType = OppgaveIconType.AVTALE,
+            iconType = OppgaveIconType.GJENNOMFORING,
         ),
     )
 }
