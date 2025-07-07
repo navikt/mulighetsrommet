@@ -129,6 +129,7 @@ function DekoratorHeader({ dekorator, env }: { dekorator?: DekoratorElements; en
 export const ErrorBoundary = () => {
   const navigate = useNavigate();
   const error = useRouteError();
+  const env = getEnvironment();
 
   useEffect(() => {
     if (isRouteErrorResponse(error)) {
@@ -143,7 +144,7 @@ export const ErrorBoundary = () => {
 
   if (isRouteErrorResponse(error)) {
     return (
-      <Dokument arrangorer={[]}>
+      <Dokument arrangorer={[]} env={env}>
         <ErrorPage
           heading={error.status === 404 ? "Siden ble ikke funnet" : `Feil ${error.status}`}
           body={[error.data.title, error.data.detail]}
@@ -153,7 +154,7 @@ export const ErrorBoundary = () => {
     );
   } else {
     return (
-      <Dokument arrangorer={[]}>
+      <Dokument arrangorer={[]} env={env}>
         <ErrorPage
           heading="Ojsann! Noe gikk galt"
           body={[
