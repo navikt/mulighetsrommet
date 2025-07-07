@@ -228,7 +228,7 @@ function PrisPerManedsverkBeregning({
         </Heading>
         <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
           <Table.Header>
-            <>
+            <Table.Row>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
                 Navn
               </Table.ColumnHeader>
@@ -246,8 +246,8 @@ function PrisPerManedsverkBeregning({
               <Table.ColumnHeader align="right" scope="col">
                 Månedsverk
               </Table.ColumnHeader>
-              <Table.HeaderCell scope="col"></Table.HeaderCell>
-            </>
+              <Table.ColumnHeader scope="col"></Table.ColumnHeader>
+            </Table.Row>
           </Table.Header>
           <Table.Body>
             {sortedData.map((deltakelse, index) => {

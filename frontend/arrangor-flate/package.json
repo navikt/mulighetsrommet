@@ -5,7 +5,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK='true' node ./server/main.js",
+    "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK='true' DISABLE_DEKORATOR='true' node ./server/main.js",
     "dev:vite": "react-router dev",
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' node ./server/main.js",
     "start": "cross-env NODE_ENV=production VITE_MULIGHETSROMMET_API_BASE='http://mulighetsrommet-api' node ./server/main.js",
@@ -13,7 +13,9 @@
     "lint:fix": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server/ --fix",
     "typecheck": "react-router typegen && tsc",
     "build": "react-router build",
+    "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK='true' DISABLE_DEKORATOR='true' react-router build",
     "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist",
+    "pack:demo": "pnpm --filter @mr/arrangor-flate --prod deploy dist",
     "playwright": "cross-env DISABLE_DEKORATOR='true' playwright test ",
     "playwright:debug": "cross-env DISABLE_DEKORATOR='true' playwright test --debug",
     "playwright:open": "cross-env DISABLE_DEKORATOR='true' playwright test --ui",

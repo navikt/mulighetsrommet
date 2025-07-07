@@ -559,15 +559,13 @@ export const mockTilsagn: ArrangorflateTilsagn[] = [
   },
 ];
 
-const arrangorer: Arrangor[] = [
-  {
-    id: uuid(),
-    organisasjonsnummer: "123456789",
-    organisasjonsform: "AS",
-    navn: "Fretex",
-    overordnetEnhet: null,
-  },
-];
+const arrangorMock: Arrangor = {
+  id: uuid(),
+  organisasjonsnummer: "123456789",
+  organisasjonsform: "AS",
+  navn: "Arrangør",
+  overordnetEnhet: null,
+};
 
 const mockRelevanteForslag: RelevanteForslag[] = [
   {
@@ -592,6 +590,17 @@ export const arrangorflateHandlers = [
       return HttpResponse.json(mockKrav.find((k) => k.id === id));
     },
   ),
+  http.get<PathParams, string>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/sync-kontonummer",
+    ({ params }) => {
+      const { id } = params;
+      const kontoNr = mockKrav.find((k) => k.id === id)?.betalingsinformasjon.kontonummer;
+      const expires = new Date(new Date().getTime() + 5 * 60000).toISOString(); // 5 min, NS_BINDING_ABORTED fix
+      return HttpResponse.text(kontoNr, {
+        headers: { Expires: expires },
+      });
+    },
+  ),
   http.post<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/utbetaling/:id/godkjenn",
     () => HttpResponse.json({}),
@@ -612,6 +621,10 @@ export const arrangorflateHandlers = [
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
+  http.get<PathParams, boolean>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/features",
+    () => new HttpResponse(true, { status: 200 }),
+  ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/tilsagn/:id",
     ({ params }) => {
@@ -622,6 +635,6 @@ export const arrangorflateHandlers = [
     },
   ),
   http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
-    HttpResponse.json(arrangorer),
+    HttpResponse.json([arrangorMock]),
   ),
 ];

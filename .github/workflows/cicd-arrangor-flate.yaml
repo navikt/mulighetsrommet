@@ -64,6 +64,34 @@ jobs:
       - name: Test
         run: npx turbo run lint typecheck playwright --filter=@mr/arrangor-flate
 
+
+  deploy-til-demo:
+    name: Deploy demo
+    needs: ci
+    #if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Bygg applikasjon
+        run: npx turbo run pack:demo --filter=@mr/arrangor-flate
+      - name: Push docker image to GAR
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: team-mulighetsrommet
+          docker_context: ./frontend/arrangor-flate
+          image_suffix: arrangor-flate-demo
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: frontend/arrangor-flate/.nais/nais-demo.yaml
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
+
   deploy-til-dev:
     name: Deploy til dev-gcp
     needs: ci

@@ -17,10 +17,11 @@ import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
 import { client } from "api-client";
 import logger from "../server/logger.js";
+import { isDemo } from "./services/environment";
 
 export const streamTimeout = 5000;
 
-if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+if (isDemo()) {
   // eslint-disable-next-line no-console
   console.log("Initialiserer mock server");
   initializeMockServer();
