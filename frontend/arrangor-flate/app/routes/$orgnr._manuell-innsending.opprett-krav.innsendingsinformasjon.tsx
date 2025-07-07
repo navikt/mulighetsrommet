@@ -307,7 +307,7 @@ export default function OpprettKravInnsendingsinformasjon() {
                   >
                     {relevanteTilsagn.map((tilsagn) => (
                       <Radio key={tilsagn.id} size="small" value={tilsagn.id}>
-                        <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} />
+                        <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
                       </Radio>
                     ))}
                   </RadioGroup>
