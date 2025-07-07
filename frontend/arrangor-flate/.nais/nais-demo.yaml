@@ -36,3 +36,8 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
+  env:
+  - name: VITE_MULIGHETSROMMET_API_MOCK
+    value: true
+  - name: DISABLE_DEKORATOR
+    value: true
