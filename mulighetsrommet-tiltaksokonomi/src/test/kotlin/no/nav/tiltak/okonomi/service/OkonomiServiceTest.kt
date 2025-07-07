@@ -580,8 +580,7 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        // TODO: Skru på når vi får kvittering på fakturaer
-        xtest("feiler når en faktura venter på kvittering") {
+        test("feiler når en faktura venter på kvittering") {
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
             val opprettFaktura = createOpprettFaktura(bestilling1.bestillingsnummer, "B1-F55")
