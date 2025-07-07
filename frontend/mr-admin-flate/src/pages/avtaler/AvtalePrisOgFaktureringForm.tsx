@@ -11,7 +11,7 @@ import {
 } from "@navikt/ds-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client-v2";
+import { EmbeddedTiltakstype, Prismodell, PrismodellDto, Tiltakskode } from "@mr/api-client-v2";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { FormGroup } from "@/components/skjema/FormGroup";
@@ -20,50 +20,39 @@ import { DateInput } from "@/components/skjema/DateInput";
 import { useEffect } from "react";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 
-interface Props {
+interface AvtalPrisOgFaktureringProps {
   tiltakstype?: EmbeddedTiltakstype;
 }
 
-export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
-  const { watch } = useFormContext<InferredAvtaleSchema>();
-
+export function AvtalePrisOgFaktureringForm({ tiltakstype }: AvtalPrisOgFaktureringProps) {
   if (!tiltakstype) {
     return <Alert variant="info">Tiltakstype må velges før prismodell kan velges.</Alert>;
   }
 
-  const prismodell = watch("prismodell");
-  const avtaletype = watch("avtaletype");
+  return <AvtalePrisOgFakturering tiltakstype={tiltakstype} />;
+}
+
+function AvtalePrisOgFakturering({ tiltakstype }: Required<AvtalPrisOgFaktureringProps>) {
+  const { data: prismodeller } = usePrismodeller(tiltakstype.tiltakskode);
 
   return (
     <HGrid columns={2} align="start">
       <FormGroup>
         <Metadata header={avtaletekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
-
-        <SelectPrismodell options={resolvePrismodellOptions(avtaletype)} />
-
-        {prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
-          <ForhandsgodkjenteSatser tiltakstype={tiltakstype.tiltakskode} />
-        )}
-        {(prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK ||
-          prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK) && <AvtalteSatser />}
-        {prismodell === Prismodell.ANNEN_AVTALT_PRIS && <PrisBetingelser />}
+        <SelectPrismodell prismodeller={prismodeller} />
+        <PrismodellDetaljerForm tiltakstype={tiltakstype} />
       </FormGroup>
     </HGrid>
   );
 }
 
 interface SelectPrismodellProps {
-  readOnly?: boolean;
-  options: Option[];
+  prismodeller: PrismodellDto[];
 }
 
-interface Option {
-  value: string;
-  label: string;
-}
-
-function SelectPrismodell(props: SelectPrismodellProps) {
+function SelectPrismodell({ prismodeller }: SelectPrismodellProps) {
   const fieldName = "prismodell";
   const {
     register,
@@ -71,8 +60,7 @@ function SelectPrismodell(props: SelectPrismodellProps) {
     setValue,
   } = useFormContext<InferredAvtaleSchema>();
 
-  const preselectPrismodell: false | Prismodell =
-    props.options.length === 1 && (props.options[0].value as Prismodell);
+  const preselectPrismodell: false | Prismodell = prismodeller.length === 1 && prismodeller[0].type;
 
   useEffect(() => {
     if (preselectPrismodell) {
@@ -85,32 +73,31 @@ function SelectPrismodell(props: SelectPrismodellProps) {
       label={avtaletekster.prismodell.label}
       size="small"
       error={errors.prismodell?.message}
-      readOnly={props.readOnly}
       {...register(fieldName)}
     >
-      {props.options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
+      {prismodeller.map(({ type, beskrivelse }) => (
+        <option key={type} value={type}>
+          {beskrivelse}
         </option>
       ))}
     </Select>
   );
 }
 
-function resolvePrismodellOptions(avtaletype: Avtaletype): Option[] {
-  if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
-    return [toOption(Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK)];
-  } else {
-    return [
-      toOption(Prismodell.ANNEN_AVTALT_PRIS),
-      toOption(Prismodell.AVTALT_PRIS_PER_MANEDSVERK),
-      toOption(Prismodell.AVTALT_PRIS_PER_UKESVERK),
-    ];
-  }
-}
+function PrismodellDetaljerForm({ tiltakstype }: Required<AvtalPrisOgFaktureringProps>) {
+  const { watch } = useFormContext<InferredAvtaleSchema>();
 
-function toOption(prismodell: Prismodell): Option {
-  return { value: prismodell, label: avtaletekster.prismodell.beskrivelse(prismodell) };
+  const prismodell = watch("prismodell");
+
+  switch (prismodell) {
+    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      return <ForhandsgodkjenteSatser tiltakstype={tiltakstype.tiltakskode} />;
+    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
+    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+      return <AvtalteSatser />;
+    case Prismodell.ANNEN_AVTALT_PRIS:
+      return <Prisbetingelser />;
+  }
 }
 
 interface ForhandsgodkjentAvtalePrismodellProps {
@@ -119,8 +106,6 @@ interface ForhandsgodkjentAvtalePrismodellProps {
 
 function ForhandsgodkjenteSatser({ tiltakstype }: ForhandsgodkjentAvtalePrismodellProps) {
   const { data: satser } = useForhandsgodkjenteSatser(tiltakstype);
-
-  if (!satser) return null;
 
   return (
     <VStack gap="4">
@@ -260,7 +245,7 @@ function AvtalteSatser() {
   );
 }
 
-function PrisBetingelser() {
+function Prisbetingelser() {
   const {
     register,
     formState: { errors },
