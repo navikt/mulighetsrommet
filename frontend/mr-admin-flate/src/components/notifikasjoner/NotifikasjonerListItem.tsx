@@ -37,7 +37,9 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
       >
         <HStack justify="space-between">
           <HStack gap="2">
-            <PaperplaneIcon className="rounded bg-gray-200" title="a11y-title" fontSize="2rem" />
+            <div className="inline-flex items-center self-start justify-center p-2 bg-gray-200 rounded-xl">
+              <PaperplaneIcon fontSize="2rem" />
+            </div>
             <VStack gap="4" className="max-w-[75ch]">
               <Heading
                 level="2"
