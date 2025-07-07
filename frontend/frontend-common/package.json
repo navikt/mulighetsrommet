@@ -8,9 +8,9 @@
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
   "dependencies": {
     "@hookform/resolvers": "5.1.1",
-    "@navikt/aksel-icons": "7.24.0",
-    "@navikt/ds-css": "7.24.0",
-    "@navikt/ds-react": "7.24.0",
+    "@navikt/aksel-icons": "7.25.1",
+    "@navikt/ds-css": "7.25.1",
+    "@navikt/ds-react": "7.25.1",
     "@tanstack/react-query": "5.81.5",
     "classnames": "2.5.1",
     "debounce": "2.2.0",
