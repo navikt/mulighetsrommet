@@ -32,23 +32,24 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
 
 function getTilsagnBeregningDetaljer(tilsagn: ArrangorflateTilsagn) {
   switch (tilsagn.beregning.type) {
-    case "PRIS_PER_MANEDSVERK":
-      return [
-        { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
-        { key: "Sats", value: formaterNOK(tilsagn.beregning.input.sats) },
-        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
-        {
-          key: "Gjenstående beløp",
-          value: formaterNOK(tilsagn.gjenstaendeBelop),
-        },
-      ];
     case "FRI":
       return [
         { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
-        {
-          key: "Gjenstående beløp",
-          value: formaterNOK(tilsagn.gjenstaendeBelop),
-        },
+        { key: "Gjenstående beløp", value: formaterNOK(tilsagn.gjenstaendeBelop) },
+      ];
+    case "PRIS_PER_MANEDSVERK":
+      return [
+        { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
+        { key: "Pris per månedsverk", value: formaterNOK(tilsagn.beregning.input.sats) },
+        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+        { key: "Gjenstående beløp", value: formaterNOK(tilsagn.gjenstaendeBelop) },
+      ];
+    case "PRIS_PER_UKESVERK":
+      return [
+        { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
+        { key: "Pris per ukesverk", value: formaterNOK(tilsagn.beregning.input.sats) },
+        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+        { key: "Gjenstående beløp", value: formaterNOK(tilsagn.gjenstaendeBelop) },
       ];
   }
 }

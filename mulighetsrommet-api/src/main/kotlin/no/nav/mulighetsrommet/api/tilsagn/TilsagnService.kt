@@ -151,6 +151,7 @@ class TilsagnService(
                 when (input) {
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
                     is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(input)
+                    is TilsagnBeregningPrisPerUkesverk.Input -> TilsagnBeregningPrisPerUkesverk.beregn(input)
                 }
             }
     }

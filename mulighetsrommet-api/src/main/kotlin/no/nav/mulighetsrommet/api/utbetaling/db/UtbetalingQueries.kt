@@ -66,6 +66,7 @@ class UtbetalingQueries(private val session: Session) {
             "beregning_type" to when (dbo.beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
                 is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
+                is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
             }.name,
             "belop_beregnet" to dbo.beregning.output.belop,
             "innsender" to dbo.innsender?.textRepr(),
@@ -80,27 +81,29 @@ class UtbetalingQueries(private val session: Session) {
             is UtbetalingBeregningFri -> Unit
 
             is UtbetalingBeregningPrisPerManedsverk -> {
-                upsertUtbetalingBeregningForhandsgodkjent(
-                    dbo.id,
-                    dbo.beregning.input.sats,
-                    dbo.beregning.input.stengt,
-                    dbo.beregning.input.deltakelser,
-                    dbo.beregning.output.deltakelser,
-                )
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
+                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
+                upsertUtbetalingBeregningOutputManedsverk(dbo.id, dbo.beregning.output.deltakelser)
+            }
+
+            is UtbetalingBeregningPrisPerUkesverk -> {
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
+                // TODO: lagre perioder uten deltakelsesprosent?
+                val perioder = dbo.beregning.input.deltakelser
+                    .map { DeltakelsePerioder(it.deltakelseId, listOf(DeltakelsesprosentPeriode(it.periode, 100.0))) }
+                    .toSet()
+                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
+                upsertUtbetalingBeregningOutputUkesverk(dbo.id, dbo.beregning.output.deltakelser)
             }
         }
     }
 
-    private fun Session.upsertUtbetalingBeregningForhandsgodkjent(
-        id: UUID,
-        sats: Int,
-        stengtPerioder: Set<StengtPeriode>,
-        deltakelsePerioder: Set<DeltakelsePerioder>,
-        deltakelseManedsverk: Set<DeltakelseManedsverk>,
-    ) {
+    private fun Session.upsertUtbetalingBeregningInputSats(id: UUID, sats: Int) {
         @Language("PostgreSQL")
         val query = """
-            insert into utbetaling_beregning_forhandsgodkjent (utbetaling_id, sats)
+            insert into utbetaling_beregning_sats (utbetaling_id, sats)
             values (:utbetaling_id::uuid, :sats)
             on conflict (utbetaling_id) do update set
                 sats = excluded.sats
@@ -110,7 +113,9 @@ class UtbetalingQueries(private val session: Session) {
             "sats" to sats,
         )
         execute(queryOf(query, params))
+    }
 
+    private fun Session.upsertUtbetalingBeregningInputStengt(id: UUID, stengt: Set<StengtPeriode>) {
         @Language("PostgreSQL")
         val deleteStengtHosArrangorQuery = """
             delete
@@ -124,7 +129,7 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling_stengt_hos_arrangor (utbetaling_id, periode, beskrivelse)
             values (:utbetaling_id::uuid, :periode::daterange, :beskrivelse)
         """.trimIndent()
-        val stengt = stengtPerioder.map { stengt ->
+        val stengt = stengt.map { stengt ->
             mapOf(
                 "utbetaling_id" to id,
                 "periode" to stengt.periode.toDaterange(),
@@ -132,7 +137,9 @@ class UtbetalingQueries(private val session: Session) {
             )
         }
         batchPreparedNamedStatement(insertStengtHosArrangorQuery, stengt)
+    }
 
+    private fun Session.upsertUtbetalingBeregningInputDeltakelsePerioder(id: UUID, perioder: Set<DeltakelsePerioder>) {
         @Language("PostgreSQL")
         val deletePerioderQuery = """
             delete
@@ -146,7 +153,7 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling_deltakelse_periode (utbetaling_id, deltakelse_id, periode, deltakelsesprosent)
             values (:utbetaling_id, :deltakelse_id, :periode::daterange, :deltakelsesprosent)
         """.trimIndent()
-        val perioder = deltakelsePerioder.flatMap { deltakelse ->
+        val perioderParams = perioder.flatMap { deltakelse ->
             deltakelse.perioder.map { periode ->
                 mapOf(
                     "utbetaling_id" to id,
@@ -156,8 +163,10 @@ class UtbetalingQueries(private val session: Session) {
                 )
             }
         }
-        batchPreparedNamedStatement(insertPeriodeQuery, perioder)
+        batchPreparedNamedStatement(insertPeriodeQuery, perioderParams)
+    }
 
+    private fun Session.upsertUtbetalingBeregningOutputManedsverk(id: UUID, manedsverk: Set<DeltakelseManedsverk>) {
         @Language("PostgreSQL")
         val deleteManedsverk = """
             delete
@@ -172,14 +181,39 @@ class UtbetalingQueries(private val session: Session) {
             values (:utbetaling_id, :deltakelse_id, :manedsverk)
         """.trimIndent()
 
-        val manedsverk = deltakelseManedsverk.map { deltakelse ->
+        val manedsverkParams = manedsverk.map { deltakelse ->
             mapOf(
                 "utbetaling_id" to id,
                 "deltakelse_id" to deltakelse.deltakelseId,
                 "manedsverk" to deltakelse.manedsverk,
             )
         }
-        batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
+        batchPreparedNamedStatement(insertManedsverkQuery, manedsverkParams)
+    }
+
+    private fun Session.upsertUtbetalingBeregningOutputUkesverk(id: UUID, ukesverk: Set<DeltakelseUkesverk>) {
+        @Language("PostgreSQL")
+        val deleteUkesverk = """
+            delete
+            from utbetaling_deltakelse_ukesverk
+            where utbetaling_id = ?::uuid
+        """
+        execute(queryOf(deleteUkesverk, id))
+
+        @Language("PostgreSQL")
+        val insertUkesverk = """
+            insert into utbetaling_deltakelse_ukesverk (utbetaling_id, deltakelse_id, ukesverk)
+            values (:utbetaling_id, :deltakelse_id, :ukesverk)
+        """.trimIndent()
+
+        val ukesverkParams = ukesverk.map { deltakelse ->
+            mapOf(
+                "utbetaling_id" to id,
+                "deltakelse_id" to deltakelse.deltakelseId,
+                "ukesverk" to deltakelse.ukesverk,
+            )
+        }
+        batchPreparedNamedStatement(insertUkesverk, ukesverkParams)
     }
 
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
@@ -355,6 +389,27 @@ class UtbetalingQueries(private val session: Session) {
         return when (beregning) {
             UtbetalingBeregningType.FRI -> getBeregningFri(id)
             UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
+            UtbetalingBeregningType.PRIS_PER_UKESVERK -> getBeregningPrisPerUkesverk(id)
+        }
+    }
+
+    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
+        @Language("PostgreSQL")
+        val query = """
+            select belop_beregnet
+            from utbetaling
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) {
+            UtbetalingBeregningFri(
+                input = UtbetalingBeregningFri.Input(
+                    belop = it.int("belop_beregnet"),
+                ),
+                output = UtbetalingBeregningFri.Output(
+                    belop = it.int("belop_beregnet"),
+                ),
+            )
         }
     }
 
@@ -362,7 +417,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_utbetaling_beregning_forhandsgodkjent
+            from view_utbetaling_beregning_manedsverk
             where id = ?::uuid
         """.trimIndent()
 
@@ -382,21 +437,25 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
+    private fun getBeregningPrisPerUkesverk(id: UUID): UtbetalingBeregningPrisPerUkesverk {
         @Language("PostgreSQL")
         val query = """
-            select belop_beregnet
-            from utbetaling
+            select *
+            from view_utbetaling_beregning_ukesverk
             where id = ?::uuid
         """.trimIndent()
 
-        return session.requireSingle(queryOf(query, id)) {
-            UtbetalingBeregningFri(
-                input = UtbetalingBeregningFri.Input(
-                    belop = it.int("belop_beregnet"),
+        return session.requireSingle(queryOf(query, id)) { row ->
+            UtbetalingBeregningPrisPerUkesverk(
+                input = UtbetalingBeregningPrisPerUkesverk.Input(
+                    periode = row.periode("periode"),
+                    sats = row.int("sats"),
+                    stengt = Json.decodeFromString(row.string("stengt_json")),
+                    deltakelser = Json.decodeFromString(row.string("perioder_json")),
                 ),
-                output = UtbetalingBeregningFri.Output(
-                    belop = it.int("belop_beregnet"),
+                output = UtbetalingBeregningPrisPerUkesverk.Output(
+                    belop = row.int("belop_beregnet"),
+                    deltakelser = Json.decodeFromString(row.string("ukesverk_json")),
                 ),
             )
         }

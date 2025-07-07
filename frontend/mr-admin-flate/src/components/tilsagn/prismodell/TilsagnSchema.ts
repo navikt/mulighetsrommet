@@ -42,6 +42,27 @@ export const TilsagnBeregningSchema = z.discriminatedUnion("type", [
       .positive({ message: "Antall plasser må være positivt" }),
   }),
   z.object({
+    type: z.literal("PRIS_PER_UKESVERK"),
+    sats: z.number({
+      invalid_type_error: "Sats mangler",
+      required_error: "Sats er påkrevd",
+    }),
+    periode: z.object({
+      start: z
+        .string({ required_error: tilsagnTekster.manglerStartdato })
+        .min(10, tilsagnTekster.manglerStartdato),
+      slutt: z
+        .string({ required_error: tilsagnTekster.manglerSluttdato })
+        .min(10, tilsagnTekster.manglerSluttdato),
+    }),
+    antallPlasser: z
+      .number({
+        invalid_type_error: "Antall plasser mangler",
+        required_error: "Antall plasser mangler",
+      })
+      .positive({ message: "Antall plasser må være positivt" }),
+  }),
+  z.object({
     type: z.literal("FRI"),
     linjer: z.array(TilsagnBeregningFriInputLinje),
     prisbetingelser: z.string().nullable(),

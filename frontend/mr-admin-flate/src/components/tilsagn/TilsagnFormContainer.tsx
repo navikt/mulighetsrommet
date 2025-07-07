@@ -34,17 +34,18 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  const beregning = defaults.beregning?.type ?? getTilsagnBeregningType(avtale.prismodell);
+  const beregning =
+    (defaults.beregning?.type ?? avtale.prismodell)
+      ? getTilsagnBeregningType(avtale.prismodell)
+      : null;
   switch (beregning) {
+    case TilsagnBeregningType.PRIS_PER_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
       return (
         <TilsagnFormPrisPerManedsverk
           defaultValues={{
             ...defaults,
-            beregning: {
-              ...defaults.beregning,
-              type: TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-            },
+            beregning: { ...defaults.beregning, type: beregning },
           }}
           {...props}
         />
@@ -57,13 +58,13 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
             beregning: {
               ...defaults.beregning,
               prisbetingelser: avtale.prisbetingelser,
-              type: TilsagnBeregningType.FRI,
+              type: beregning,
             },
           }}
           {...props}
         />
       );
-    default:
+    case null:
       return <Alert variant={"warning"}>Prismodell mangler</Alert>;
   }
 }
@@ -74,16 +75,14 @@ function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: Ti
     : [];
 }
 
-function getTilsagnBeregningType(
-  prismodell: Prismodell | undefined | null,
-): TilsagnBeregningType | undefined {
+function getTilsagnBeregningType(prismodell: Prismodell): TilsagnBeregningType {
   switch (prismodell) {
+    case Prismodell.ANNEN_AVTALT_PRIS:
+      return TilsagnBeregningType.FRI;
     case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
     case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
       return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
-    case Prismodell.ANNEN_AVTALT_PRIS:
-      return TilsagnBeregningType.FRI;
-    default:
-      return undefined;
+    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+      return TilsagnBeregningType.PRIS_PER_UKESVERK;
   }
 }

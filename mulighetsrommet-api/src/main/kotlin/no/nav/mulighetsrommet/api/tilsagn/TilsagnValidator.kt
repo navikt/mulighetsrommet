@@ -126,10 +126,35 @@ object TilsagnValidator {
         return when (input) {
             is TilsagnBeregningFri.Input -> validateBeregningFriInput(input)
             is TilsagnBeregningPrisPerManedsverk.Input -> validateBeregningPrisPerManedsverkInput(input)
+            is TilsagnBeregningPrisPerUkesverk.Input -> validateBeregningPrisPerUkesverkInput(input)
         }
     }
 
     private fun validateBeregningPrisPerManedsverkInput(input: TilsagnBeregningPrisPerManedsverk.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
+        val errors = buildList {
+            if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
+                add(
+                    FieldError.of(
+                        "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                        TilsagnBeregningPrisPerManedsverk.Input::periode,
+                        Periode::slutt,
+                    ),
+                )
+            }
+            if (input.antallPlasser <= 0) {
+                add(
+                    FieldError.of(
+                        "Antall plasser kan ikke være 0",
+                        TilsagnBeregningPrisPerManedsverk.Input::antallPlasser,
+                    ),
+                )
+            }
+        }
+
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
+    }
+
+    private fun validateBeregningPrisPerUkesverkInput(input: TilsagnBeregningPrisPerUkesverk.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
                 add(

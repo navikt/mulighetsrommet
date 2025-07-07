@@ -68,7 +68,11 @@ class AmtDeltakerV1KafkaConsumer(
 
         when (prismodell) {
             Prismodell.ANNEN_AVTALT_PRIS -> return false
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> Unit
+
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+            Prismodell.AVTALT_PRIS_PER_UKESVERK,
+            -> Unit
         }
 
         if (

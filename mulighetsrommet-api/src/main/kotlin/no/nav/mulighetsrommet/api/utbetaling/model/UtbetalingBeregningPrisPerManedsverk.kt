@@ -72,7 +72,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
                 .flatMap { deltakelsePeriode ->
                     deltakelsePeriode.periode
                         .subtractPeriods(stengtHosArrangor)
-                        .map { DeltakelsePeriode(periode = it, deltakelsePeriode.deltakelsesprosent) }
+                        .map { DeltakelsesprosentPeriode(periode = it, deltakelsePeriode.deltakelsesprosent) }
                 }
                 .map { deltakelsePeriode ->
                     calculateManedsverkFraction(deltakelsePeriode, totalDuration)
@@ -85,7 +85,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
         }
 
         private fun calculateManedsverkFraction(
-            deltakelsePeriode: DeltakelsePeriode,
+            deltakelsePeriode: DeltakelsesprosentPeriode,
             totalDuration: BigDecimal,
         ): BigDecimal {
             val overlapDuration = deltakelsePeriode.periode
@@ -117,11 +117,11 @@ data class StengtPeriode(
 data class DeltakelsePerioder(
     @Serializable(with = UUIDSerializer::class)
     val deltakelseId: UUID,
-    val perioder: List<DeltakelsePeriode>,
+    val perioder: List<DeltakelsesprosentPeriode>,
 )
 
 @Serializable
-data class DeltakelsePeriode(
+data class DeltakelsesprosentPeriode(
     val periode: Periode,
     val deltakelsesprosent: Double,
 )

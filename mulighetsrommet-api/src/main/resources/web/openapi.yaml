@@ -3167,6 +3167,7 @@ components:
         - ANNEN_AVTALT_PRIS
         - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
         - AVTALT_PRIS_PER_MANEDSVERK
+        - AVTALT_PRIS_PER_UKESVERK
 
     EmbeddedTiltakstype:
       type: object
@@ -5829,21 +5830,25 @@ components:
       enum:
         - FRI
         - PRIS_PER_MANEDSVERK
+        - PRIS_PER_UKESVERK
 
     TilsagnBeregning:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
         - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
 
     TilsagnBeregningPrisPerManedsverk:
       type: object
@@ -5881,6 +5886,48 @@ components:
       properties:
         type:
           const: PRIS_PER_MANEDSVERK
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
+
+    TilsagnBeregningPrisPerUkesverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        input:
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
+        output:
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
+      required:
+        - type
+        - input
+        - output
+
+    TilsagnBeregningPrisPerUkesverkInput:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        periode:
+          $ref: "#/components/schemas/Periode"
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+      required:
+        - type
+        - periode
+        - sats
+        - antallPlasser
+
+    TilsagnBeregningPrisPerUkesverkOutput:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
         belop:
           type: integer
       required:
@@ -6224,35 +6271,9 @@ components:
     ArrFlateBeregning:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
-
-    ArrFlateBeregningPrisPerManedsverk:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_MANEDSVERK
-        belop:
-          type: integer
-        antallManedsverk:
-          type: number
-        digest:
-          type: string
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingDeltakelse"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingStengtPeriode"
-      required:
-        - type
-        - belop
-        - antallManedsverk
-        - digest
-        - deltakelser
-        - stengt
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
 
     ArrFlateBeregningFri:
       type: object
@@ -6267,6 +6288,60 @@ components:
         - belop
         - type
         - digest
+
+    ArrFlateBeregningPrisPerManedsverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_MANEDSVERK
+        belop:
+          type: integer
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingDeltakelseManedsverk"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStengtPeriode"
+        antallManedsverk:
+          type: number
+      required:
+        - type
+        - belop
+        - digest
+        - deltakelser
+        - stengt
+        - antallManedsverk
+
+    ArrFlateBeregningPrisPerUkesverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        belop:
+          type: integer
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingDeltakelseUkesverk"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStengtPeriode"
+        antallUkesverk:
+          type: number
+      required:
+        - type
+        - belop
+        - digest
+        - deltakelser
+        - stengt
+        - antallManedsverk
 
     UtbetalingBeregningType:
       type: string
@@ -6311,16 +6386,13 @@ components:
         - periode
         - beskrivelse
 
-    UtbetalingDeltakelse:
+    UtbetalingDeltakelseManedsverk:
       type: object
       properties:
         id:
           type: string
           format: uuid
         startDato:
-          type: string
-          format: date
-        sluttDato:
           type: string
           format: date
         forstePeriodeStartDato:
@@ -6347,6 +6419,32 @@ components:
         - sistePeriodeDeltakelsesprosent
         - perioder
         - manedsverk
+
+    UtbetalingDeltakelseUkesverk:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type: string
+          format: date
+        periodeStartDato:
+          type: string
+          format: date
+        periodeSluttDato:
+          type: string
+          format: date
+        ukesverk:
+          type: number
+        person:
+          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+      required:
+        - id
+        - deltakerStartDato
+        - periodeStartDato
+        - periodeSluttDato
+        - ukesverk
 
     UtbetalingDeltakelsePeriode:
       type: object

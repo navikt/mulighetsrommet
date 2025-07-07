@@ -301,6 +301,11 @@ private fun resolveTilsagnDefaults(
             getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
 
+        Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
+            val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+            getTilsagnBeregningPrisPerUkesverkDefaults(periode, avtale, gjennomforing, tilsagn)
+        }
+
         Prismodell.ANNEN_AVTALT_PRIS -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             getTilsagnBeregningFriDefaults(periode, avtale, gjennomforing)
@@ -357,6 +362,31 @@ private fun getTilsagnBeregningPrisPerManedsverkDefaults(
 ): TilsagnDefaults {
     val beregning = AvtalteSatser.findSats(avtale, periode)?.let { sats ->
         TilsagnBeregningPrisPerManedsverk.Input(
+            periode = periode,
+            sats = sats,
+            antallPlasser = gjennomforing.antallPlasser,
+        )
+    }
+
+    return TilsagnDefaults(
+        id = null,
+        gjennomforingId = gjennomforing.id,
+        type = TilsagnType.TILSAGN,
+        periodeStart = periode.start,
+        periodeSlutt = periode.getLastInclusiveDate(),
+        kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
+        beregning = beregning,
+    )
+}
+
+private fun getTilsagnBeregningPrisPerUkesverkDefaults(
+    periode: Periode,
+    avtale: AvtaleDto,
+    gjennomforing: GjennomforingDto,
+    tilsagn: Tilsagn?,
+): TilsagnDefaults {
+    val beregning = AvtalteSatser.findSats(avtale, periode)?.let { sats ->
+        TilsagnBeregningPrisPerUkesverk.Input(
             periode = periode,
             sats = sats,
             antallPlasser = gjennomforing.antallPlasser,

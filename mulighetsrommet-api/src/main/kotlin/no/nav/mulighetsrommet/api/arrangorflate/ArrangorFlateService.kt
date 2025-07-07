@@ -104,7 +104,10 @@ class ArrangorFlateService(
         val status = getArrFlateUtbetalingStatus(utbetaling)
         val deltakere = when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> emptyList()
-            is UtbetalingBeregningPrisPerManedsverk -> {
+
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> {
                 queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
             }
         }
@@ -153,7 +156,7 @@ class ArrangorFlateService(
         )
     }
 
-    private suspend fun getPersoner(deltakere: List<Deltaker>): Map<NorskIdent, UtbetalingDeltakelse.Person> {
+    private suspend fun getPersoner(deltakere: List<Deltaker>): Map<NorskIdent, UtbetalingDeltakelsePerson> {
         val identer = deltakere
             .mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }
             .toNonEmptySetOrNull()
@@ -176,20 +179,20 @@ class ArrangorFlateService(
             }
     }
 
-    private fun toUtbetalingPerson(person: HentPersonBolkResponse.Person): UtbetalingDeltakelse.Person {
+    private fun toUtbetalingPerson(person: HentPersonBolkResponse.Person): UtbetalingDeltakelsePerson {
         val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
         return when (gradering) {
             PdlGradering.UGRADERT -> {
                 val navn = if (person.navn.isNotEmpty()) tilPersonNavn(person.navn) else "Ukjent"
                 val foedselsdato = if (person.foedselsdato.isNotEmpty()) person.foedselsdato.first() else null
-                UtbetalingDeltakelse.Person(
+                UtbetalingDeltakelsePerson(
                     navn = navn,
                     fodselsaar = foedselsdato?.foedselsaar,
                     fodselsdato = foedselsdato?.foedselsdato,
                 )
             }
 
-            else -> UtbetalingDeltakelse.Person(
+            else -> UtbetalingDeltakelsePerson(
                 navn = "Adressebeskyttet",
                 fodselsaar = null,
                 fodselsdato = null,
@@ -229,25 +232,30 @@ class ArrangorFlateService(
 
 fun DeltakerForslag.relevantForDeltakelse(
     utbetaling: Utbetaling,
-): Boolean = when (utbetaling.beregning) {
-    is UtbetalingBeregningPrisPerManedsverk -> relevantForDeltakelse(
-        utbetaling.beregning.input.deltakelser,
-        utbetaling.beregning.input.periode,
-    )
+): Boolean {
+    return when (utbetaling.beregning) {
+        is UtbetalingBeregningFri -> false
 
-    is UtbetalingBeregningFri -> false
+        is UtbetalingBeregningPrisPerManedsverk -> {
+            val deltaker = utbetaling.beregning.input.deltakelser.find { it.deltakelseId == deltakerId } ?: return false
+            val perioder = deltaker.perioder.map { it.periode }
+            relevantForDeltakelse(perioder, utbetaling.beregning.input.periode)
+        }
+
+        is UtbetalingBeregningPrisPerUkesverk -> {
+            val deltaker = utbetaling.beregning.input.deltakelser.find { it.deltakelseId == deltakerId } ?: return false
+            val perioder = listOf(deltaker.periode)
+            relevantForDeltakelse(perioder, utbetaling.beregning.input.periode)
+        }
+    }
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
-    perioderMedDeltakelser: Set<DeltakelsePerioder>,
+    perioder: List<Periode>,
     periode: Periode,
 ): Boolean {
-    val deltakelser = perioderMedDeltakelser
-        .find { it.deltakelseId == this.deltakerId }
-        ?: return false
-
-    val sisteSluttDato = deltakelser.perioder.maxOf { it.periode.getLastInclusiveDate() }
-    val forsteStartDato = deltakelser.perioder.minOf { it.periode.start }
+    val sisteSluttDato = perioder.maxOf { it.getLastInclusiveDate() }
+    val forsteStartDato = perioder.minOf { it.start }
 
     return when (this.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {

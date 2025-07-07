@@ -19,14 +19,14 @@ object AvtalteSatser {
     fun getAvtalteSatser(avtale: AvtaleDto): List<AvtaltSats> = when (avtale.prismodell) {
         Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> getForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode)
 
-        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> avtale.satser.map {
+        Prismodell.AVTALT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_UKESVERK -> avtale.satser.map {
             AvtaltSats(
                 periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
                 sats = it.pris,
             )
         }
 
-        else -> listOf()
+        Prismodell.ANNEN_AVTALT_PRIS -> listOf()
     }
 
     fun getForhandsgodkjenteSatser(tiltakskode: Tiltakskode): List<AvtaltSats> = when (tiltakskode) {

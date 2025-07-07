@@ -94,7 +94,7 @@ object ArrangorflateTestUtils {
                     DeltakelsePerioder(
                         deltakelseId = deltakerId,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2024, 8, 1), LocalDate.of(2024, 8, 31)),
                                 deltakelsesprosent = 100.0,
                             ),

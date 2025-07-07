@@ -13,8 +13,8 @@ sealed class UtbetalingBeregning {
     }
 }
 
-abstract class UtbetalingBeregningInput
+sealed class UtbetalingBeregningInput
 
-abstract class UtbetalingBeregningOutput {
+sealed class UtbetalingBeregningOutput {
     abstract val belop: Int
 }
