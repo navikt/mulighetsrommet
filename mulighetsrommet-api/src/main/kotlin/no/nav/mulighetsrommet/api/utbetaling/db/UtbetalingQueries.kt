@@ -100,11 +100,10 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    // TODO: endre navn på tabell
     private fun Session.upsertUtbetalingBeregningInputSats(id: UUID, sats: Int) {
         @Language("PostgreSQL")
         val query = """
-            insert into utbetaling_beregning_forhandsgodkjent (utbetaling_id, sats)
+            insert into utbetaling_beregning_sats (utbetaling_id, sats)
             values (:utbetaling_id::uuid, :sats)
             on conflict (utbetaling_id) do update set
                 sats = excluded.sats
@@ -418,7 +417,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_utbetaling_beregning_forhandsgodkjent
+            from view_utbetaling_beregning_manedsverk
             where id = ?::uuid
         """.trimIndent()
 

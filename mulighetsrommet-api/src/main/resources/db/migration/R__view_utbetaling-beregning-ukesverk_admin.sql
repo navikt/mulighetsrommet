@@ -42,11 +42,11 @@ select utbetaling.id,
        utbetaling.periode,
        utbetaling.belop_beregnet,
        beregning.sats,
+       coalesce(deltakelse_ukesverk.deltakelser, '[]'::jsonb) as ukesverk_json,
        coalesce(stengt_periode.stengt, '[]'::jsonb)           as stengt_json,
-       coalesce(deltakelse_perioder.deltakelser, '[]'::jsonb) as perioder_json,
-       coalesce(deltakelse_ukesverk.deltakelser, '[]'::jsonb) as ukesverk_json
-from utbetaling_beregning_forhandsgodkjent beregning
-         join utbetaling on beregning.utbetaling_id = utbetaling.id
-         left join stengt_periode on beregning.utbetaling_id = stengt_periode.utbetaling_id
-         left join deltakelse_perioder on beregning.utbetaling_id = deltakelse_perioder.utbetaling_id
-         left join deltakelse_ukesverk on beregning.utbetaling_id = deltakelse_ukesverk.utbetaling_id;
+       coalesce(deltakelse_perioder.deltakelser, '[]'::jsonb) as perioder_json
+from utbetaling
+         join utbetaling_beregning_sats beregning on utbetaling.id = beregning.utbetaling_id
+         left join deltakelse_ukesverk on utbetaling.id = deltakelse_ukesverk.utbetaling_id
+         left join stengt_periode on utbetaling.id = stengt_periode.utbetaling_id
+         left join deltakelse_perioder on utbetaling.id = deltakelse_perioder.utbetaling_id
