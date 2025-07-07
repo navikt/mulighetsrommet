@@ -4797,8 +4797,8 @@ components:
         createdAt:
           type: string
           format: date-time
-        oppgaveIcon:
-          $ref: "#/components/schemas/OppgaveIcon"
+        iconType:
+          $ref: "#/components/schemas/OppgaveIconType"
       required:
         - type
         - navn
@@ -4806,7 +4806,7 @@ components:
         - tiltakstype
         - link
         - createdAt
-        - oppgaveIcon
+        - iconType
 
     OppgaveEnhet:
       properties:
@@ -4815,7 +4815,7 @@ components:
         navn:
           type: string
 
-    OppgaveIcon:
+    OppgaveIconType:
       type: string
       enum:
         - TILSAGN
