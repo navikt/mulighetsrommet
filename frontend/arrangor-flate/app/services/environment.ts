@@ -32,7 +32,7 @@ const getClientEnvironment = (window: Window) => {
     return Environment.DevGcp;
   } else if (href.includes("nav.no")) {
     return Environment.ProdGcp;
-  } else if ((window as any)["isDemo"] === "true") {
+  } else if ((window as any)["isDemo"] === true) {
     return Environment.Demo;
   } else {
     return Environment.Lokalt;

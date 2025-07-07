@@ -23,7 +23,7 @@ import { problemDetailResponse } from "./utils";
 import css from "./root.module.css";
 import { ErrorPage } from "./components/ErrorPage";
 import { Environment, getEnvironment } from "./services/environment";
-import { Alert, Heading } from "@navikt/ds-react";
+import { Alert, Heading, Link } from "@navikt/ds-react";
 
 export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
 
@@ -93,7 +93,7 @@ function Dokument({
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.isDemo = ${JSON.stringify(env === Environment.Demo)}`,
+            __html: `window.isDemo = ${env === Environment.Demo}`,
           }}
         />
         <Scripts />
@@ -114,7 +114,9 @@ function DekoratorHeader({ dekorator, env }: { dekorator?: DekoratorElements; en
         tiltaksarrangører har i våre flater.
         <br />
         Applikasjonsansvarlige:{" "}
-        <a href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">Team Valp</a>
+        <Link href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">
+          Team Valp
+        </Link>
         <br />
         <b>OBS!</b> Demoen inneholder ikke ekte data og kan til tider være ustabil.
       </Alert>
