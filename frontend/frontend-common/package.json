@@ -17,11 +17,11 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-error-boundary": "6.0.0",
-    "react-hook-form": "7.59.0",
+    "react-hook-form": "7.60.0",
     "react-select": "5.10.1",
     "react-router": "7.6.3",
     "use-resize-observer": "9.1.0",
-    "zod": "3.25.67"
+    "zod": "3.25.74"
   },
   "devDependencies": {
     "@types/react": "19.0.3",
