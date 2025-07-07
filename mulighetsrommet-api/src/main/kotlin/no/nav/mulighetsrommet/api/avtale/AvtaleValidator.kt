@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -113,10 +113,13 @@ class AvtaleValidator(
                 }
             }
 
-            if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT && avtale.prismodell != Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-                add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen må være forhåndsgodkjent"))
-            } else if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && avtale.prismodell == Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-                add(FieldError.of(AvtaleDbo::prismodell, "Prismodellen kan ikke være forhåndsgodkjent"))
+            if (avtale.prismodell !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
+                add(
+                    FieldError.of(
+                        AvtaleDbo::prismodell,
+                        "${avtale.prismodell.beskrivelse} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
+                    ),
+                )
             }
 
             if (tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {

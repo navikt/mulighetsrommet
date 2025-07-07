@@ -1092,7 +1092,7 @@ class UtbetalingServiceTest : FunSpec({
                         it.besluttetAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
                         it.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
                         it.beskrivelse shouldBe """
-                            Tiltakstype: Arbeidsforberedende trening (AFT)
+                            Tiltakstype: Arbeidsforberedende trening
                             Periode: 01.01.2025 - 31.01.2025
                             Tilsagnsnummer: A-2025/1-1
                         """.trimIndent()
