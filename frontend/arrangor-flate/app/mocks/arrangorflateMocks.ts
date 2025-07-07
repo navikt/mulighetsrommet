@@ -578,8 +578,6 @@ const mockRelevanteForslag: RelevanteForslag[] = [
   },
 ];
 
-const mockKontonumre: string[] = ["35466090326", "47656509208", "94234241219", "20104034676"];
-
 export const arrangorflateHandlers = [
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
@@ -590,6 +588,17 @@ export const arrangorflateHandlers = [
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(mockKrav.find((k) => k.id === id));
+    },
+  ),
+  http.get<PathParams, string>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/sync-kontonummer",
+    ({ params }) => {
+      const { id } = params;
+      const kontoNr = mockKrav.find((k) => k.id === id)?.betalingsinformasjon.kontonummer;
+      const expires = new Date(new Date().getTime() + 5 * 60000).toISOString(); // 5 min, NS_BINDING_ABORTED fix
+      return HttpResponse.text(kontoNr, {
+        headers: { Expires: expires },
+      });
     },
   ),
   http.post<PathParams, ArrFlateUtbetaling[]>(
@@ -612,6 +621,10 @@ export const arrangorflateHandlers = [
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
+  http.get<PathParams, boolean>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/features",
+    () => new HttpResponse(true, { status: 200 }),
+  ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/tilsagn/:id",
     ({ params }) => {
@@ -624,10 +637,4 @@ export const arrangorflateHandlers = [
   http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
     HttpResponse.json([arrangorMock]),
   ),
-  http.get<PathParams, string>("*/api/:id/sync-kontonummer", () => {
-    HttpResponse.text(mockKontonumre[Math.floor(Math.random() * mockKontonumre.length)]);
-  }),
-  http.get<PathParams, boolean>("*/api/v1/intern/arrangorflate/arrangor/:orgnr/features", () => {
-    new HttpResponse(true, { status: 200 });
-  }),
 ];
