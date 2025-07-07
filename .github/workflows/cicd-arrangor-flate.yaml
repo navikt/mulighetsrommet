@@ -21,6 +21,7 @@ on:
         options:
           - dev
           - dev_and_prod
+          - demo
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -68,8 +69,8 @@ jobs:
   deploy-til-demo:
     name: Deploy demo
     needs: ci
-    #if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-    if: github.event_name == 'workflow_dispatch'
+    #if: github.event_name == 'push' && github.ref_name == 'main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'demo')
+    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'demo')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +96,7 @@ jobs:
   deploy-til-dev:
     name: Deploy til dev-gcp
     needs: ci
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' && github.ref_name == 'main' || (github.event_name == 'workflow_dispatch' && contains(github.event.inputs.environment,'dev'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -121,7 +122,7 @@ jobs:
   deploy-til-prod:
     name: Deploy til prod-gcp
     needs: [ci, deploy-til-dev]
-    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' && github.ref_name == 'main' || (github.event_name == 'workflow_dispatch' && contains(github.event.inputs.environment,'prod'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
