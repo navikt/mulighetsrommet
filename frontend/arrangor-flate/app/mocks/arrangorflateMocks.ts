@@ -7,12 +7,12 @@ import {
   RelevanteForslag,
   TilsagnStatus,
   TilsagnType,
-  UtbetalingDeltakelse,
+  UtbetalingDeltakelseManedsverk,
 } from "api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 
-const mockDeltakelser: UtbetalingDeltakelse[] = [
+const mockDeltakelser: UtbetalingDeltakelseManedsverk[] = [
   {
     id: uuid(),
     person: {

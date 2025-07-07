@@ -104,24 +104,6 @@ class UtbetalingQueriesTest : FunSpec({
         }
     }
 
-    test("set godkjent av arrangør") {
-        database.runAndRollback { session ->
-            domain.setup(session)
-
-            val queries = UtbetalingQueries(session)
-
-            queries.upsert(utbetaling.copy(innsender = null))
-
-            queries.get(utbetaling.id)
-                .shouldNotBeNull().innsender shouldBe null
-
-            queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
-
-            queries.get(utbetaling.id)
-                .shouldNotBeNull().innsender shouldBe Arrangor
-        }
-    }
-
     test("set journalpost id") {
         database.runAndRollback { session ->
             domain.setup(session)
@@ -136,8 +118,8 @@ class UtbetalingQueriesTest : FunSpec({
         }
     }
 
-    context("utbetaling med forhåndsgodkjent beregning") {
-        test("upsert and get forhåndsgodkjent beregning") {
+    context("utbetaling med beregning for månedsverk") {
+        test("upsert and get beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -145,7 +127,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregningForhandsgodkjent = UtbetalingBeregningPrisPerManedsverk(
+                val beregning = UtbetalingBeregningPrisPerManedsverk(
                     input = UtbetalingBeregningPrisPerManedsverk.Input(
                         sats = 20_205,
                         periode = periode,
@@ -159,15 +141,15 @@ class UtbetalingQueriesTest : FunSpec({
                             DeltakelsePerioder(
                                 deltakelseId = deltakelse1Id,
                                 perioder = listOf(
-                                    DeltakelsePeriode(
+                                    DeltakelsesprosentPeriode(
                                         periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 10)),
                                         deltakelsesprosent = 100.0,
                                     ),
-                                    DeltakelsePeriode(
+                                    DeltakelsesprosentPeriode(
                                         periode = Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
                                         deltakelsesprosent = 50.0,
                                     ),
-                                    DeltakelsePeriode(
+                                    DeltakelsesprosentPeriode(
                                         periode = Periode(LocalDate.of(2023, 1, 20), LocalDate.of(2023, 2, 1)),
                                         deltakelsesprosent = 50.0,
                                     ),
@@ -176,7 +158,7 @@ class UtbetalingQueriesTest : FunSpec({
                             DeltakelsePerioder(
                                 deltakelseId = deltakelse2Id,
                                 perioder = listOf(
-                                    DeltakelsePeriode(
+                                    DeltakelsesprosentPeriode(
                                         periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)),
                                         deltakelsesprosent = 100.0,
                                     ),
@@ -193,13 +175,13 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
                 val tubetalingForhandsgodkjent = utbetaling.copy(
-                    beregning = beregningForhandsgodkjent,
+                    beregning = beregning,
                 )
 
                 queries.upsert(tubetalingForhandsgodkjent)
 
                 queries.get(tubetalingForhandsgodkjent.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregningForhandsgodkjent
+                    it.beregning shouldBe beregning
                 }
             }
         }
@@ -210,7 +192,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val queries = UtbetalingQueries(session)
 
-                val deltakelsePeriode = DeltakelsePeriode(
+                val deltakelsePeriode = DeltakelsesprosentPeriode(
                     periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
                     deltakelsesprosent = 100.0,
                 )
@@ -218,7 +200,7 @@ class UtbetalingQueriesTest : FunSpec({
                     deltakelseId = UUID.randomUUID(),
                     perioder = listOf(deltakelsePeriode, deltakelsePeriode),
                 )
-                val utbetalingForhandsgodkjent = UtbetalingDbo(
+                val beregning = UtbetalingDbo(
                     id = UUID.randomUUID(),
                     gjennomforingId = AFT1.id,
                     beregning = UtbetalingBeregningPrisPerManedsverk(
@@ -243,7 +225,58 @@ class UtbetalingQueriesTest : FunSpec({
                 )
 
                 assertThrows<SQLException> {
-                    queries.upsert(utbetalingForhandsgodkjent)
+                    queries.upsert(beregning)
+                }
+            }
+        }
+    }
+
+    context("utbetaling med beregning for ukesverk") {
+        test("upsert and get beregning") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = UtbetalingQueries(session)
+
+                val deltakelse1Id = UUID.randomUUID()
+                val deltakelse2Id = UUID.randomUUID()
+                val beregning = UtbetalingBeregningPrisPerUkesverk(
+                    input = UtbetalingBeregningPrisPerUkesverk.Input(
+                        sats = 2999,
+                        periode = periode,
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
+                                "Ferie",
+                            ),
+                        ),
+                        deltakelser = setOf(
+                            DeltakelsePeriode(
+                                deltakelseId = deltakelse1Id,
+                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 10)),
+                            ),
+                            DeltakelsePeriode(
+                                deltakelseId = deltakelse2Id,
+                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)),
+                            ),
+                        ),
+                    ),
+                    output = UtbetalingBeregningPrisPerUkesverk.Output(
+                        belop = 5999,
+                        deltakelser = setOf(
+                            DeltakelseUkesverk(deltakelse1Id, 2.2),
+                            DeltakelseUkesverk(deltakelse2Id, 4.2),
+                        ),
+                    ),
+                )
+                val tubetalingForhandsgodkjent = utbetaling.copy(
+                    beregning = beregning,
+                )
+
+                queries.upsert(tubetalingForhandsgodkjent)
+
+                queries.get(tubetalingForhandsgodkjent.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregning
                 }
             }
         }

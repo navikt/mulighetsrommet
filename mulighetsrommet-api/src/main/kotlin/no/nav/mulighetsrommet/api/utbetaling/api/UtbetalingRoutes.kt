@@ -82,6 +82,8 @@ fun Route.utbetalingRoutes() {
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 
                     val deltakere = when (utbetaling.beregning) {
+                        is UtbetalingBeregningFri -> emptyList()
+
                         is UtbetalingBeregningPrisPerManedsverk -> {
                             val deltakereById = queries.deltaker
                                 .getAll(gjennomforingId = utbetaling.gjennomforing.id)
@@ -97,7 +99,21 @@ fun Route.utbetalingRoutes() {
                             }
                         }
 
-                        is UtbetalingBeregningFri -> emptyList()
+                        is UtbetalingBeregningPrisPerUkesverk -> {
+                            val deltakereById = queries.deltaker
+                                .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                                .associateBy { it.id }
+
+                            val deltakerPersoner =
+                                deltakerService.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
+
+                            utbetaling.beregning.output.deltakelser.map {
+                                val deltaker = deltakereById.getValue(it.deltakelseId)
+                                val person = deltaker.norskIdent?.let { deltakerPersoner.getValue(deltaker.norskIdent) }
+                                // TODO: modell må passe ukesverk
+                                toDeltakerForKostnadsfordeling(deltaker, person, it.ukesverk)
+                            }
+                        }
                     }
 
                     UtbetalingDetaljerDto(

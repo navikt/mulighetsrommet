@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
-import no.nav.mulighetsrommet.api.arrangorflate.api.Beregning
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
@@ -86,32 +86,47 @@ class JournalforUtbetaling(
                     tiltakstype = TiltakstypePdf(
                         navn = arrflateUtbetaling.tiltakstype.navn,
                     ),
+                    // TODO: kan mapping gjøres fra Utbetaling -> UtbetalingPdf i stedet for å mappe Utbetaling -> ArrflateUtbetaling -> UtbetalingPdf?
                     beregning = when (arrflateUtbetaling.beregning) {
-                        is Beregning.Fri -> BeregningPdf(
-                            antallManedsverk = null,
+                        is ArrFlateBeregning.Fri -> BeregningPdf(
                             belop = arrflateUtbetaling.beregning.belop,
+                            antallManedsverk = null,
                             deltakelser = emptyList(),
                             stengt = emptyList(),
                         )
 
-                        is Beregning.PrisPerManedsverk -> BeregningPdf(
-                            antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                        is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
                             belop = arrflateUtbetaling.beregning.belop,
+                            antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
                             deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
                                 DeltakerPdf(
-                                    startDato = it.startDato,
-                                    sluttDato = it.sluttDato,
+                                    startDato = it.forstePeriodeStartDato,
+                                    sluttDato = it.sistePeriodeSluttDato,
                                     perioder = it.perioder,
                                     manedsverk = it.manedsverk,
-                                    person = it.person?.let {
+                                    person = it.person?.let { person ->
                                         PersonPdf(
-                                            navn = it.navn,
-                                            fodselsdato = it.fodselsdato,
-                                            fodselsaar = it.fodselsaar,
+                                            navn = person.navn,
+                                            fodselsdato = person.fodselsdato,
+                                            fodselsaar = person.fodselsaar,
                                         )
                                     },
                                 )
                             },
+                            stengt = arrflateUtbetaling.beregning.stengt.map {
+                                StengtPeriodePdf(
+                                    periode = it.periode,
+                                    beskrivelse = it.beskrivelse,
+                                )
+                            },
+                        )
+
+                        is ArrFlateBeregning.PrisPerUkesverk -> BeregningPdf(
+                            belop = arrflateUtbetaling.beregning.belop,
+                            // TODO støtte ukesverk?
+                            antallManedsverk = null,
+                            // TODO deltakelser med eller uten deltakelsesprosent?
+                            deltakelser = emptyList(),
                             stengt = arrflateUtbetaling.beregning.stengt.map {
                                 StengtPeriodePdf(
                                     periode = it.periode,

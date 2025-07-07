@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 class GenererUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -98,7 +97,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
@@ -217,7 +216,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
@@ -226,7 +225,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[1].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
                                 deltakelsesprosent = 40.0,
                             ),
@@ -235,7 +234,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[2].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 50.0,
                             ),
@@ -244,15 +243,15 @@ class GenererUtbetalingServiceTest : FunSpec({
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[5].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)),
                                 deltakelsesprosent = 20.0,
                             ),
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 20)),
                                 deltakelsesprosent = 15.0,
                             ),
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 10.0,
                             ),
@@ -422,7 +421,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     DeltakelsePerioder(
                         deltakelseId = deltaker.id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
                                 deltakelsesprosent = 100.0,
                             ),

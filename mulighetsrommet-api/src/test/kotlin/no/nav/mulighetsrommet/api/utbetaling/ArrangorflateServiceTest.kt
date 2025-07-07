@@ -9,9 +9,9 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
-import no.nav.mulighetsrommet.api.arrangorflate.api.Beregning
-import no.nav.mulighetsrommet.api.arrangorflate.api.UtbetalingDeltakelse
+import no.nav.mulighetsrommet.api.arrangorflate.api.UtbetalingDeltakelsePerson
 import no.nav.mulighetsrommet.api.arrangorflate.api.mapUtbetalingToArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
@@ -60,12 +60,16 @@ class ArrangorflateServiceTest : FunSpec({
     fun createMappingTestData(id: UUID, status: ArrFlateUtbetalingStatus) = database.db.session {
         val utbetalingDto = getUtbetalingDto(id)
         val deltakere = getDeltakereForUtbetaling(utbetalingDto)
-        val personerByNorskIdent = mapOf<NorskIdent, UtbetalingDeltakelse.Person>()
-
+        val personerByNorskIdent = mapOf<NorskIdent, UtbetalingDeltakelsePerson>()
         Triple(utbetalingDto, deltakere, personerByNorskIdent) to status
     }
 
-    fun verifyForhandsgodkjentBeregning(beregning: Beregning.PrisPerManedsverk, expectedBelop: Int, expectedManedsverk: Double, expectedDeltakelserCount: Int) {
+    fun verifyForhandsgodkjentBeregning(
+        beregning: ArrFlateBeregning.PrisPerManedsverk,
+        expectedBelop: Int,
+        expectedManedsverk: Double,
+        expectedDeltakelserCount: Int,
+    ) {
         beregning.antallManedsverk shouldBe expectedManedsverk
         beregning.belop shouldBe expectedBelop
         beregning.deltakelser shouldHaveSize expectedDeltakelserCount
@@ -169,7 +173,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
 
-        result.beregning.shouldBeInstanceOf<Beregning.PrisPerManedsverk> {
+        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverk> {
             verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
         }
     }
@@ -204,7 +208,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<Beregning.Fri> {
+        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.Fri> {
             it.belop shouldBe 5000
         }
     }

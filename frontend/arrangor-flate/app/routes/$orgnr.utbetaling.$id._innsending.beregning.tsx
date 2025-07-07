@@ -21,7 +21,7 @@ import {
   Periode,
   RelevanteForslag,
   UtbetalingBeregningType,
-  UtbetalingDeltakelse,
+  UtbetalingDeltakelseManedsverk,
   UtbetalingDeltakelsePerson,
   UtbetalingStengtPeriode,
 } from "api-client";
@@ -185,8 +185,8 @@ function PrisPerManedsverkBeregning({
     return (relevanteForslag.find((r) => r.deltakerId === id)?.antallRelevanteForslag ?? 0) > 0;
   }
 
-  const deltakereMedRelevanteForslag = sortedData.filter((deltaker: UtbetalingDeltakelse) =>
-    hasRelevanteForslag(deltaker.id),
+  const deltakereMedRelevanteForslag = sortedData.filter(
+    (deltaker: UtbetalingDeltakelseManedsverk) => hasRelevanteForslag(deltaker.id),
   );
 
   return (
@@ -304,7 +304,9 @@ function isDeltakerSortKey(sortKey: string): sortKey is DeltakerSortKey {
   return sortKey in DeltakerSortKey;
 }
 
-function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<UtbetalingDeltakelse> {
+function getDeltakerSelector(
+  sortKey: DeltakerSortKey,
+): SortBySelector<UtbetalingDeltakelseManedsverk> {
   switch (sortKey) {
     case DeltakerSortKey.PERSON_NAVN:
       return (d) => d.person?.navn;
@@ -333,7 +335,7 @@ function deltakerOversiktLenke(env: Environment): string {
 interface DeltakelseTimelineProps {
   utbetalingsperiode: Periode;
   stengt: UtbetalingStengtPeriode[];
-  deltakelse: UtbetalingDeltakelse;
+  deltakelse: UtbetalingDeltakelseManedsverk;
 }
 
 function DeltakelseTimeline({ utbetalingsperiode, stengt, deltakelse }: DeltakelseTimelineProps) {

@@ -2,10 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -14,10 +11,15 @@ fun mapUtbetalingToArrFlateUtbetaling(
     utbetaling: Utbetaling,
     status: ArrFlateUtbetalingStatus,
     deltakere: List<Deltaker>,
-    personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person>,
+    personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelsePerson>,
     linjer: List<ArrangorUtbetalingLinje>,
 ): ArrFlateUtbetaling {
     val beregning = when (val beregning = utbetaling.beregning) {
+        is UtbetalingBeregningFri -> ArrFlateBeregning.Fri(
+            belop = beregning.output.belop,
+            digest = beregning.getDigest(),
+        )
+
         is UtbetalingBeregningPrisPerManedsverk -> {
             val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
@@ -31,10 +33,9 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 val forstePeriode = deltakelse.perioder.first()
                 val sistePeriode = deltakelse.perioder.last()
 
-                UtbetalingDeltakelse(
+                UtbetalingDeltakelseManedsverk(
                     id = id,
                     startDato = deltaker?.startDato,
-                    sluttDato = deltaker?.startDato,
                     forstePeriodeStartDato = forstePeriode.periode.start,
                     sistePeriodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
                     sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
@@ -50,7 +51,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()
 
-            Beregning.PrisPerManedsverk(
+            ArrFlateBeregning.PrisPerManedsverk(
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
@@ -59,10 +60,40 @@ fun mapUtbetalingToArrFlateUtbetaling(
             )
         }
 
-        is UtbetalingBeregningFri -> Beregning.Fri(
-            belop = beregning.output.belop,
-            digest = beregning.getDigest(),
-        )
+        is UtbetalingBeregningPrisPerUkesverk -> {
+            val deltakereById = deltakere.associateBy { it.id }
+            val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
+            val ukesverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
+
+            val deltakelser = perioderById.map { (id, deltakelse) ->
+                val deltaker = deltakereById[id]
+                val ukesverk = ukesverkById.getValue(id).ukesverk
+                val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
+
+                UtbetalingDeltakelseUkesverk(
+                    id = id,
+                    deltakerStartDato = deltaker?.startDato,
+                    periodeStartDato = deltakelse.periode.start,
+                    periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
+                    ukesverk = ukesverk,
+                    person = person,
+                )
+            }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
+
+            val antallUkesverk = deltakelser
+                .map { BigDecimal(it.ukesverk) }
+                .sumOf { it }
+                .setScale(2, RoundingMode.HALF_UP)
+                .toDouble()
+
+            ArrFlateBeregning.PrisPerUkesverk(
+                belop = beregning.output.belop,
+                digest = beregning.getDigest(),
+                deltakelser = deltakelser,
+                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                antallUkesverk = antallUkesverk,
+            )
+        }
     }
 
     return ArrFlateUtbetaling(

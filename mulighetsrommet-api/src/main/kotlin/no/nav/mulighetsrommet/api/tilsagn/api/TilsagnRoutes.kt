@@ -296,7 +296,10 @@ private fun resolveTilsagnDefaults(
             getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
 
-        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
+        // TODO: eget tilsagn for pris per ukesverk
+        Prismodell.AVTALT_PRIS_PER_UKESVERK,
+        Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+        -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
