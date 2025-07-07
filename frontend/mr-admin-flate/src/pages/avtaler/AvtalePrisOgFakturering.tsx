@@ -43,10 +43,10 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
         <SelectPrismodell options={resolvePrismodellOptions(avtaletype)} />
 
         {prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
-          <ForhandsgodkjentPrisPerManedsverk tiltakstype={tiltakstype.tiltakskode} />
+          <ForhandsgodkjenteSatser tiltakstype={tiltakstype.tiltakskode} />
         )}
-        {prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK && <AvtaltPrisPerManedsverk />}
-        {prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK && <AvtaltPrisPerManedsverk />}
+        {(prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK ||
+          prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK) && <AvtalteSatser />}
         {prismodell === Prismodell.ANNEN_AVTALT_PRIS && <PrisBetingelser />}
       </FormGroup>
     </HGrid>
@@ -117,7 +117,7 @@ interface ForhandsgodkjentAvtalePrismodellProps {
   tiltakstype: Tiltakskode;
 }
 
-function ForhandsgodkjentPrisPerManedsverk({ tiltakstype }: ForhandsgodkjentAvtalePrismodellProps) {
+function ForhandsgodkjenteSatser({ tiltakstype }: ForhandsgodkjentAvtalePrismodellProps) {
   const { data: satser } = useForhandsgodkjenteSatser(tiltakstype);
 
   if (!satser) return null;
@@ -172,8 +172,13 @@ function ForhandsgodkjentPrisPerManedsverk({ tiltakstype }: ForhandsgodkjentAvta
   );
 }
 
-function AvtaltPrisPerManedsverk() {
-  const { control, register, watch } = useFormContext<InferredAvtaleSchema>();
+function AvtalteSatser() {
+  const {
+    control,
+    register,
+    watch,
+    formState: { errors },
+  } = useFormContext<InferredAvtaleSchema>();
 
   const { fields, append, remove } = useFieldArray({
     name: "satser",
@@ -201,8 +206,8 @@ function AvtaltPrisPerManedsverk() {
               label={avtaletekster.prismodell.pris.label}
               size="small"
               type="number"
+              error={errors?.satser?.[index]?.pris?.message}
               {...register(`satser.${index}.pris`, {
-                shouldUnregister: true,
                 valueAsNumber: true,
               })}
             />
@@ -213,9 +218,7 @@ function AvtaltPrisPerManedsverk() {
               toDate={sluttDato ? new Date(sluttDato) : new Date()}
               format={"iso-string"}
               size="small"
-              {...register(`satser.${index}.periodeStart`, {
-                shouldUnregister: true,
-              })}
+              {...register(`satser.${index}.periodeStart`)}
               control={control}
             />
 
@@ -225,9 +228,7 @@ function AvtaltPrisPerManedsverk() {
               fromDate={new Date(startDato)}
               toDate={sluttDato ? new Date(sluttDato) : new Date()}
               format={"iso-string"}
-              {...register(`satser.${index}.periodeSlutt`, {
-                shouldUnregister: true,
-              })}
+              {...register(`satser.${index}.periodeSlutt`)}
               control={control}
             />
 
