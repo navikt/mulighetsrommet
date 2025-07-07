@@ -627,7 +627,7 @@ export const arrangorflateHandlers = [
   http.get<PathParams, string>("*/api/:id/sync-kontonummer", () => {
     HttpResponse.text(mockKontonumre[Math.floor(Math.random() * mockKontonumre.length)]);
   }),
-  http.get<PathParams,string>("*/api/v1/intern/arrangorflate/arrangor/:orgnr/features", () => {
-    new HttpResponse('', { status: 200 })
+  http.get<PathParams, boolean>("*/api/v1/intern/arrangorflate/arrangor/:orgnr/features", () => {
+    new HttpResponse(true, { status: 200 });
   }),
 ];
