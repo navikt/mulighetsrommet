@@ -87,6 +87,7 @@ class TilsagnQueries(private val session: Session) {
             "beregning_type" to when (dbo.beregning) {
                 is TilsagnBeregningFri -> TilsagnBeregningType.FRI
                 is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
+                is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK
             }.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
@@ -106,9 +107,18 @@ class TilsagnQueries(private val session: Session) {
                     dbo.beregning.input.antallPlasser,
                 )
             }
+
+            is TilsagnBeregningPrisPerUkesverk -> {
+                upsertTilsagnBeregningPrisPerManedsverk(
+                    dbo.id,
+                    dbo.beregning.input.sats,
+                    dbo.beregning.input.antallPlasser,
+                )
+            }
         }
     }
 
+    // TODO: generaliser til f.eks. "upsertTilsagnBeregningSats" så den er generell på tvers av beregningstyper
     private fun TransactionalSession.upsertTilsagnBeregningPrisPerManedsverk(
         id: UUID,
         sats: Int,
@@ -368,11 +378,13 @@ class TilsagnQueries(private val session: Session) {
     private fun getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
         return when (beregning) {
             TilsagnBeregningType.FRI -> getBeregningFri(id)
-            TilsagnBeregningType.PRIS_PER_MANEDSVERK -> getBeregningForhandsgodkjent(id)
+            TilsagnBeregningType.PRIS_PER_MANEDSVERK -> getBeregningManedsverk(id)
+            TilsagnBeregningType.PRIS_PER_UKESVERK -> getBeregningUkesverk(id)
         }
     }
 
-    private fun getBeregningForhandsgodkjent(id: UUID): TilsagnBeregningPrisPerManedsverk {
+    // TODO generaliser måned/ukesverk
+    private fun getBeregningManedsverk(id: UUID): TilsagnBeregningPrisPerManedsverk {
         @Language("PostgreSQL")
         val query = """
             select tilsagn.periode, tilsagn.belop_beregnet, beregning.sats, beregning.antall_plasser
@@ -388,6 +400,28 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = row.int("antall_plasser"),
                 ),
                 output = TilsagnBeregningPrisPerManedsverk.Output(
+                    belop = row.int("belop_beregnet"),
+                ),
+            )
+        }
+    }
+
+    private fun getBeregningUkesverk(id: UUID): TilsagnBeregningPrisPerUkesverk {
+        @Language("PostgreSQL")
+        val query = """
+            select tilsagn.periode, tilsagn.belop_beregnet, beregning.sats, beregning.antall_plasser
+            from tilsagn join tilsagn_forhandsgodkjent_beregning beregning on tilsagn.id = beregning.tilsagn_id
+            where tilsagn.id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) { row ->
+            TilsagnBeregningPrisPerUkesverk(
+                input = TilsagnBeregningPrisPerUkesverk.Input(
+                    periode = row.periode("periode"),
+                    sats = row.int("sats"),
+                    antallPlasser = row.int("antall_plasser"),
+                ),
+                output = TilsagnBeregningPrisPerUkesverk.Output(
                     belop = row.int("belop_beregnet"),
                 ),
             )

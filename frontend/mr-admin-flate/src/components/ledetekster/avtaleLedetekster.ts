@@ -46,6 +46,8 @@ export const avtaletekster = {
           return "Fast sats per tiltaksplass per måned";
         case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
           return "Avtalt sats per tiltaksplass per måned";
+        case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+          return "Avtalt sats per tiltaksplass per ukesverk";
       }
     },
     valuta: {

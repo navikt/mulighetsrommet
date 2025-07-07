@@ -100,6 +100,7 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
+    // TODO: endre navn på tabell
     private fun Session.upsertUtbetalingBeregningInputSats(id: UUID, sats: Int) {
         @Language("PostgreSQL")
         val query = """

@@ -37,7 +37,7 @@ data class TilsagnBeregningPrisPerManedsverk(
         fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
             val (periode, sats, antallPlasser) = input
 
-            val output = periode.start.datesUntil(periode.slutt)
+            val belop = periode.start.datesUntil(periode.slutt)
                 .asSequence()
                 .groupBy { it.month }
                 .map { (_, datesInMonth) ->
@@ -56,9 +56,8 @@ data class TilsagnBeregningPrisPerManedsverk(
                     value.intValueExact()
                 }
                 .reduce { acc: Int, s: Int -> addExact(acc, s) }
-                .let { Output(it) }
 
-            return TilsagnBeregningPrisPerManedsverk(input, output)
+            return TilsagnBeregningPrisPerManedsverk(input, Output(belop))
         }
     }
 }

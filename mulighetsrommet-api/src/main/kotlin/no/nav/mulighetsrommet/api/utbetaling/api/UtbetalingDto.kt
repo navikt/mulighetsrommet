@@ -36,6 +36,7 @@ data class UtbetalingDto(
     sealed class Beregning {
         abstract val belop: Int
 
+        // TODO: slå sammen månedsverk/ukesverk til felles modell for visning?
         @Serializable
         @SerialName("PRIS_PER_MANEDSVERK")
         data class PrisPerManedsverk(

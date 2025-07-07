@@ -46,6 +46,7 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
           <ForhandsgodkjentPrisPerManedsverk tiltakstype={tiltakstype.tiltakskode} />
         )}
         {prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK && <AvtaltPrisPerManedsverk />}
+        {prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK && <AvtaltPrisPerManedsverk />}
         {prismodell === Prismodell.ANNEN_AVTALT_PRIS && <PrisBetingelser />}
       </FormGroup>
     </HGrid>
@@ -103,6 +104,7 @@ function resolvePrismodellOptions(avtaletype: Avtaletype): Option[] {
     return [
       toOption(Prismodell.ANNEN_AVTALT_PRIS),
       toOption(Prismodell.AVTALT_PRIS_PER_MANEDSVERK),
+      toOption(Prismodell.AVTALT_PRIS_PER_UKESVERK),
     ];
   }
 }

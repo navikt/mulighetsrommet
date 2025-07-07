@@ -2,7 +2,11 @@ import { useFindAvtaltSats } from "@/api/tilsagn/useFindAvtaltSats";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
-import { GjennomforingDto, TilsagnBeregningPrisPerManedsverk } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  TilsagnBeregningPrisPerManedsverk,
+  TilsagnBeregningPrisPerUkesverk,
+} from "@mr/api-client-v2";
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -11,7 +15,7 @@ import { tilsagnTekster } from "../TilsagnTekster";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
-  beregning: TilsagnBeregningPrisPerManedsverk;
+  beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
 };
 
 interface Props {

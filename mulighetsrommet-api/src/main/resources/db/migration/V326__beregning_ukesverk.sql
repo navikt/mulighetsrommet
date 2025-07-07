@@ -1,3 +1,7 @@
+alter type prismodell add value 'AVTALT_PRIS_PER_UKESVERK';
+
+alter type tilsagn_beregning_type add value 'PRIS_PER_UKESVERK';
+
 alter type utbetaling_beregning_type add value 'PRIS_PER_UKESVERK';
 
 create table utbetaling_deltakelse_ukesverk

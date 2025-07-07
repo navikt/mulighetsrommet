@@ -3167,6 +3167,7 @@ components:
         - ANNEN_AVTALT_PRIS
         - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
         - AVTALT_PRIS_PER_MANEDSVERK
+        - AVTALT_PRIS_PER_UKESVERK
 
     EmbeddedTiltakstype:
       type: object
@@ -5829,21 +5830,25 @@ components:
       enum:
         - FRI
         - PRIS_PER_MANEDSVERK
+        - PRIS_PER_UKESVERK
 
     TilsagnBeregning:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
         - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
 
     TilsagnBeregningPrisPerManedsverk:
       type: object
@@ -5881,6 +5886,48 @@ components:
       properties:
         type:
           const: PRIS_PER_MANEDSVERK
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
+
+    TilsagnBeregningPrisPerUkesverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        input:
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
+        output:
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
+      required:
+        - type
+        - input
+        - output
+
+    TilsagnBeregningPrisPerUkesverkInput:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        periode:
+          $ref: "#/components/schemas/Periode"
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+      required:
+        - type
+        - periode
+        - sats
+        - antallPlasser
+
+    TilsagnBeregningPrisPerUkesverkOutput:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
         belop:
           type: integer
       required:

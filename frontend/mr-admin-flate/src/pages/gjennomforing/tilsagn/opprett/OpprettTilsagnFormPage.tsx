@@ -11,7 +11,7 @@ import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
-import { Laster } from "../../../../components/laster/Laster";
+import { Laster } from "@/components/laster/Laster";
 import { aktiveTilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
