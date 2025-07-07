@@ -73,9 +73,9 @@ export const AvtaleSchema = z
     prismodell: z.nativeEnum(Prismodell).nullable(),
     satser: z.array(
       z.object({
-        periodeStart: z.string(),
-        periodeSlutt: z.string(),
-        pris: z.number(),
+        periodeStart: z.string({ required_error: "Du må legge inn en startdato for perioden" }),
+        periodeSlutt: z.string({ required_error: "Du må legge inn en sluttdato for perioden" }),
+        pris: z.number({ required_error: "Du må legge inn en pris for perioden" }),
         valuta: z.string(),
       }),
     ),
