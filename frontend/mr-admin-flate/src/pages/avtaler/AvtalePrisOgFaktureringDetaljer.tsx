@@ -36,11 +36,12 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
         </Bolk>
 
         {prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
-          <ForhandsgodkjentPrisPerManedsverk avtale={avtale} />
+          <ForhandsgodkjenteSatser avtale={avtale} />
         )}
 
-        {prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK && (
-          <AvtaltPrisPerManedsverk satser={avtale.satser} />
+        {(prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK ||
+          prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK) && (
+          <AvtalteSatser satser={avtale.satser} />
         )}
       </VStack>
     </TwoColumnGrid>
@@ -51,21 +52,21 @@ interface ForhandsgodkjentPrisPerManedsverkProps {
   avtale: AvtaleDto;
 }
 
-function ForhandsgodkjentPrisPerManedsverk({ avtale }: ForhandsgodkjentPrisPerManedsverkProps) {
+function ForhandsgodkjenteSatser({ avtale }: ForhandsgodkjentPrisPerManedsverkProps) {
   const { data: satser } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
 
   if (!satser) {
     return null;
   }
 
-  return <AvtaltPrisPerManedsverk satser={satser} />;
+  return <AvtalteSatser satser={satser} />;
 }
 
 interface AvtaltPrisPerManedsverkProps {
   satser: AvtaltSatsDto[];
 }
 
-function AvtaltPrisPerManedsverk({ satser }: AvtaltPrisPerManedsverkProps) {
+function AvtalteSatser({ satser }: AvtaltPrisPerManedsverkProps) {
   return (
     <VStack gap="4">
       {satser.map((sats) => (

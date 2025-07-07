@@ -43,10 +43,10 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
         <SelectPrismodell options={resolvePrismodellOptions(avtaletype)} />
 
         {prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
-          <ForhandsgodkjentPrisPerManedsverk tiltakstype={tiltakstype.tiltakskode} />
+          <ForhandsgodkjenteSatser tiltakstype={tiltakstype.tiltakskode} />
         )}
-        {prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK && <AvtalteSatser />}
-        {prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK && <AvtalteSatser />}
+        {(prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK ||
+          prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK) && <AvtalteSatser />}
         {prismodell === Prismodell.ANNEN_AVTALT_PRIS && <PrisBetingelser />}
       </FormGroup>
     </HGrid>
@@ -117,7 +117,7 @@ interface ForhandsgodkjentAvtalePrismodellProps {
   tiltakstype: Tiltakskode;
 }
 
-function ForhandsgodkjentPrisPerManedsverk({ tiltakstype }: ForhandsgodkjentAvtalePrismodellProps) {
+function ForhandsgodkjenteSatser({ tiltakstype }: ForhandsgodkjentAvtalePrismodellProps) {
   const { data: satser } = useForhandsgodkjenteSatser(tiltakstype);
 
   if (!satser) return null;
