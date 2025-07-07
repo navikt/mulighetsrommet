@@ -1,11 +1,11 @@
 [versions]
 common-java-modules = "3.2025.06.23_14.50-3af3985d8555"
-flyway = "11.10.0"
+flyway = "11.10.1"
 koin = "4.1.0-Beta8"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.2.0"
-ktor = "3.2.0"
+ktor = "3.2.1"
 logback = "1.5.18"
 metrics = "4.2.33"
 arrow = "2.1.2"
@@ -104,7 +104,7 @@ nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modu
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.06.26_08.26-e6890018ec16"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.07.04_08.56-814fa50f6740"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.2.1"
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.51.0"
@@ -122,4 +122,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.17"
 apache-poi = "org.apache.poi:poi:5.4.1"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.1"
 
-unleash = "io.getunleash:unleash-client-java:11.0.0"
+unleash = "io.getunleash:unleash-client-java:11.0.2"
