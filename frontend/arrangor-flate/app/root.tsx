@@ -28,6 +28,7 @@ import { Alert, Heading, Link } from "@navikt/ds-react";
 export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
+  const env = getEnvironment();
   const { data: arrangortilganger, error } =
     await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
       headers: await apiHeaders(request),
@@ -38,14 +39,14 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   let dekorator = null;
-  if (process.env.DISABLE_DEKORATOR !== "true") {
+  if (process.env.DISABLE_DEKORATOR !== "true" && env !== Environment.Demo) {
     dekorator = await fetchSsrDekorator();
   }
 
   return {
     dekorator,
     arrangortilganger,
-    env: getEnvironment(),
+    env,
   };
 };
 

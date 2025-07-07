@@ -36,8 +36,3 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
-  accessPolicy:
-    outbound:
-      rules:
-        - application: nav-dekoratoren
-          namespace: personbruker
