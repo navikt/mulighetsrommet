@@ -41,5 +41,3 @@ spec:
       rules:
         - application: nav-dekoratoren
           namespace: personbruker
-  tokenx:
-    enabled: true
