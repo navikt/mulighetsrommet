@@ -182,7 +182,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(
                     pointer = "/periodeStart",
-                    detail = "Minimum startdato for tilsagn til Arbeidsforberedende trening (AFT) er 01.01.2025",
+                    detail = "Minimum startdato for tilsagn til Arbeidsforberedende trening er 01.01.2025",
                 ),
             )
         }

@@ -94,17 +94,28 @@ fun Route.avtaleRoutes() {
         }
     }
 
-    get("/prismodell/satser") {
-        val tiltakstype: Tiltakskode by call.queryParameters
+    route("prismodeller") {
+        get {
+            val tiltakstype: Tiltakskode by call.queryParameters
 
-        val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype)
-            .map { AvtaltSatsDto.fromAvtaltSats(it) }
+            val prismodeller = Prismodeller.getPrismodellerForTiltak(tiltakstype)
+                .map { PrismodellDto(type = it, beskrivelse = it.beskrivelse) }
 
-        if (satser.isEmpty()) {
-            return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
+            call.respond(prismodeller)
         }
 
-        call.respond(satser)
+        get("forhandsgodkjente-satser") {
+            val tiltakstype: Tiltakskode by call.queryParameters
+
+            val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype)
+                .map { AvtaltSatsDto.fromAvtaltSats(it) }
+
+            if (satser.isEmpty()) {
+                return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
+            }
+
+            call.respond(satser)
+        }
     }
 
     route("avtaler") {

@@ -7,13 +7,19 @@ import { formaterDato } from "@/utils/Utils";
 import { AvtaleDto, AvtaltSatsDto, Prismodell } from "@mr/api-client-v2";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { Box, HStack, VStack } from "@navikt/ds-react";
+import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 
 interface Props {
   avtale: AvtaleDto;
 }
 
 export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
-  const prismodell = avtale.prismodell;
+  const { data: prismodeller } = usePrismodeller(avtale.tiltakstype.tiltakskode);
+
+  const prismodell = prismodeller.find(({ type }) => type === avtale.prismodell) ?? {
+    type: avtale.prismodell,
+    beskrivelse: avtale.prismodell,
+  };
 
   return (
     <TwoColumnGrid separator>
@@ -23,29 +29,32 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
         </Bolk>
 
         <Bolk>
-          <Metadata
-            header={avtaletekster.prismodell.label}
-            verdi={prismodell ? avtaletekster.prismodell.beskrivelse(prismodell) : null}
-          />
-          {prismodell === Prismodell.ANNEN_AVTALT_PRIS && (
-            <Metadata
-              header={avtaletekster.prisOgBetalingLabel}
-              verdi={avtale.prisbetingelser ?? "-"}
-            />
-          )}
+          <Metadata header={avtaletekster.prismodell.label} verdi={prismodell.beskrivelse} />
         </Bolk>
 
-        {prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
-          <ForhandsgodkjenteSatser avtale={avtale} />
-        )}
-
-        {(prismodell === Prismodell.AVTALT_PRIS_PER_MANEDSVERK ||
-          prismodell === Prismodell.AVTALT_PRIS_PER_UKESVERK) && (
-          <AvtalteSatser satser={avtale.satser} />
-        )}
+        <PrismodellDetaljer avtale={avtale} />
       </VStack>
     </TwoColumnGrid>
   );
+}
+
+function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
+  switch (avtale.prismodell) {
+    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      return <ForhandsgodkjenteSatser avtale={avtale} />;
+
+    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
+    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+      return <AvtalteSatser satser={avtale.satser} />;
+
+    case Prismodell.ANNEN_AVTALT_PRIS:
+      return (
+        <Metadata
+          header={avtaletekster.prisOgBetalingLabel}
+          verdi={avtale.prisbetingelser ?? "-"}
+        />
+      );
+  }
 }
 
 interface ForhandsgodkjentPrisPerManedsverkProps {
@@ -54,11 +63,6 @@ interface ForhandsgodkjentPrisPerManedsverkProps {
 
 function ForhandsgodkjenteSatser({ avtale }: ForhandsgodkjentPrisPerManedsverkProps) {
   const { data: satser } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
-
-  if (!satser) {
-    return null;
-  }
-
   return <AvtalteSatser satser={satser} />;
 }
 

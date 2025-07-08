@@ -30,7 +30,7 @@ import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import { AvtaleFormDetaljer } from "./AvtaleFormDetaljer";
 import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { AvtalePrisOgFakturering } from "@/pages/avtaler/AvtalePrisOgFakturering";
+import { AvtalePrisOgFaktureringForm } from "@/pages/avtaler/AvtalePrisOgFaktureringForm";
 import { z } from "zod";
 
 interface Props {
@@ -205,7 +205,7 @@ export function AvtaleFormContainer({
             <Tabs.Panel value="okonomi">
               <InlineErrorBoundary>
                 <Box marginBlock="4">
-                  <AvtalePrisOgFakturering tiltakstype={watchedTiltakstype} />
+                  <AvtalePrisOgFaktureringForm tiltakstype={watchedTiltakstype} />
                 </Box>
               </InlineErrorBoundary>
             </Tabs.Panel>

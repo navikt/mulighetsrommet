@@ -2283,7 +2283,31 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/prismodell/satser:
+  /api/v1/intern/prismodeller:
+    get:
+      tags:
+        - Prismodell
+      parameters:
+        - in: query
+          name: tiltakstype
+          required: true
+          schema:
+            $ref: "#/components/schemas/Tiltakskode"
+            type: string
+      operationId: getPrismodeller
+      responses:
+        200:
+          description: Prismodeller for tiltakstype
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrismodellDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/prismodeller/forhandsgodkjente-satser:
     get:
       tags:
         - Prismodell
@@ -5995,6 +6019,17 @@ components:
       required:
         - type
         - belop
+
+    PrismodellDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/Prismodell"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - beskrivelse
 
     AvtaltSatsDto:
       type: object
