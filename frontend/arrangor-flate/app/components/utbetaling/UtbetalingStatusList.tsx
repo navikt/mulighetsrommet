@@ -1,11 +1,12 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Accordion, Heading, Link, VStack, HStack } from "@navikt/ds-react";
+import { Accordion, Heading, Link, VStack } from "@navikt/ds-react";
 import { ArrangorUtbetalingLinje, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
-import { formaterDato, useOrgnrFromUrl } from "../../utils";
 import { Definisjonsliste } from "../Definisjonsliste";
 import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
+import { useOrgnrFromUrl } from "~/utils/navigation";
+import { formaterDato } from "~/utils/date";
 
 interface Props {
   utbetaling: ArrFlateUtbetaling;
@@ -20,40 +21,31 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
   const erUtbetalt = seesPaaSomUtbetalt(utbetaling.status);
 
   return (
-    <>
-      <VStack gap="4">
-        <Definisjonsliste
-          title="Utbetalingsstatus"
-          definitions={[
-            {
-              key: "Status",
-              value: <UtbetalingStatusTag status={utbetaling.status} size={"small"} />,
-            },
-          ]}
-        />
+    <VStack gap="4">
+      <Definisjonsliste
+        title="Utbetalingsstatus"
+        headingLevel="3"
+        definitions={[
+          {
+            key: "Status",
+            value: <UtbetalingStatusTag status={utbetaling.status} size={"small"} />,
+          },
+        ]}
+      />
 
-        {erUtbetalt && utbetaling.linjer && utbetaling.linjer.length > 0 ? (
-          <>
-            <Heading size="small" level="3">
-              Tilsagn som er brukt til utbetaling
-            </Heading>
-            <UtbetalingTilsagndetaljer linjer={utbetaling.linjer} />
-            <UtbetalingTotaltBelop linjer={utbetaling.linjer} />
-          </>
-        ) : null}
-      </VStack>
-    </>
-  );
-}
-
-function UtbetalingTotaltBelop({ linjer }: { linjer: ArrangorUtbetalingLinje[] }) {
-  return (
-    <HStack gap="2" align="center" className="mt-2">
-      <div>Godkjent beløp til utbetaling:</div>
-      <div className="font-bold text-right">
-        {formaterNOK(linjer.reduce((acc, cur) => cur.belop + acc, 0))}
-      </div>
-    </HStack>
+      {erUtbetalt && utbetaling.linjer && utbetaling.linjer.length > 0 ? (
+        <>
+          <Heading size="small" level="4">
+            Tilsagn som er brukt til utbetaling
+          </Heading>
+          <UtbetalingTilsagndetaljer linjer={utbetaling.linjer} />
+          <p>
+            Godkjent beløp til utbetaling:{" "}
+            <b>{formaterNOK(utbetaling.linjer.reduce((acc, cur) => cur.belop + acc, 0))}</b>
+          </p>
+        </>
+      ) : null}
+    </VStack>
   );
 }
 
@@ -63,8 +55,8 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje
   return (
     <Accordion>
       {linjer
-        .sort((linjea, linjeb) =>
-          linjea.tilsagn.bestillingsnummer.localeCompare(linjeb.tilsagn.bestillingsnummer),
+        .sort((linjeA, linjeB) =>
+          linjeA.tilsagn.bestillingsnummer.localeCompare(linjeB.tilsagn.bestillingsnummer),
         )
         .map((linje) => (
           <Accordion.Item key={linje.id}>

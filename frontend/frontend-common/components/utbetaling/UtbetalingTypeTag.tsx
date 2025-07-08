@@ -1,8 +1,8 @@
-import { HStack, Tag } from "@navikt/ds-react";
+import { Heading, HStack, Tag } from "@navikt/ds-react";
 
 enum UtbetalingType {
-    KORRIGERING = 'KORRIGERING',
-    INVESTERING = 'INVESTERING'
+  KORRIGERING = "KORRIGERING",
+  INVESTERING = "INVESTERING",
 }
 
 interface UtbetalingsTypeTagProps {
@@ -11,21 +11,23 @@ interface UtbetalingsTypeTagProps {
 
 export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
   return (
-    <Tag variant="neutral" title={visningsNavn(type)} size="small">
+    <Tag variant="neutral" title={visningsNavn(type)} size="small" aria-hidden>
       {tagNavn(type)}
     </Tag>
   );
 }
 
 interface UtbetalingsTypeProps {
-  text?: String
+  text: String;
   type: UtbetalingType;
 }
 
 export function UtbetalingTypeText({ text, type }: UtbetalingsTypeProps) {
   return (
     <HStack gap="2">
-      {text || visningsNavn(type)}
+      <Heading level="3" size="medium">
+        {text}
+      </Heading>
       <UtbetalingTypeTag type={type} />
     </HStack>
   );

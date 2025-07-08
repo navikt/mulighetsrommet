@@ -1,5 +1,5 @@
 import { Heading, HeadingProps, HStack, VStack } from "@navikt/ds-react";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 
 export interface Definition {
   key: string;
@@ -18,7 +18,7 @@ export function Definisjonsliste({ title, definitions, className, headingLevel }
   return (
     <VStack gap="3" className={className}>
       {title && (
-        <Heading size={headingSize} level={headingLevel || "2"}>
+        <Heading size={headingSize} level={headingLevel}>
           {title}
         </Heading>
       )}
