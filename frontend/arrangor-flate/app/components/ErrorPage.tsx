@@ -15,8 +15,8 @@ export function ErrorPage(props: Props) {
           <Heading spacing size="large" level="2">
             {props.heading}
           </Heading>
-          {props.body.map((b) => (
-            <BodyShort key={b} spacing>
+          {props.body.map((b, i) => (
+            <BodyShort key={b + i.toString()} spacing>
               {b}
             </BodyShort>
           ))}

@@ -2,11 +2,10 @@ import { http, HttpResponse, PathParams } from "msw";
 import { Arrangor, ArrFlateUtbetaling } from "api-client";
 import { mockArrFlateUtbetalingKompakt } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
-import { v4 as uuid } from "uuid";
 import { arrangorflateTilsagn } from "./tilsagnMocks";
 
 const arrangorMock: Arrangor = {
-  id: uuid(),
+  id: "cc04c391-d733-4762-8208-b0dd4387a126",
   organisasjonsnummer: "123456789",
   organisasjonsform: "AS",
   navn: "Arrangør",
@@ -17,6 +16,14 @@ export const handlers = [
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
     () => HttpResponse.json(mockArrFlateUtbetalingKompakt),
+  ),
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/kontonummer",
+    () => HttpResponse.text("10002427740"), // random kontonr
+  ),
+  http.post<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
+    () => HttpResponse.text("585a2834-338a-4ac7-82e0-e1b08bfe1408"), // investerings utbetaling
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/utbetaling/:id",
@@ -86,6 +93,26 @@ export const handlers = [
   http.get<PathParams, boolean>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/features",
     () => new HttpResponse(true, { status: 200 }),
+  ),
+  http.get<PathParams, boolean>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/gjennomforing",
+    () => {
+      const gjennomforinger = [
+        {
+          id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
+          navn: "AFT Foobar",
+          startDato: "2022-04-01",
+          sluttDato: "2026-11-26",
+        },
+        {
+          id: "90ae5baf-98b0-49d3-803f-1bd9d8e1a719",
+          navn: "AFT høstblad",
+          startDato: "2024-04-01",
+          sluttDato: "2027-04-01",
+        },
+      ];
+      return HttpResponse.json(gjennomforinger);
+    },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/tilsagn/:id",
