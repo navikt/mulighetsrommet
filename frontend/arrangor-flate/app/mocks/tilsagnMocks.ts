@@ -50,6 +50,52 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     bestillingsnummer: "A-2025/11073-1",
   },
   {
+    id: "d8ccb57f-b9db-48e1-97f1-cb38426a9389",
+    gjennomforing: {
+      id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
+      navn: "AFT Foobar",
+    },
+    bruktBelop: 0,
+    gjenstaendeBelop: 123456,
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    type: TilsagnType.INVESTERING,
+    periode: {
+      start: "2025-01-01",
+      slutt: "2025-12-31",
+    },
+    beregning: {
+      type: "FRI",
+      input: {
+        type: "FRI",
+        linjer: [
+          {
+            id: "8890342e-cde8-4680-8122-f4af7d988492",
+            beskrivelse: "Investering av avtalt sum",
+            belop: 123456,
+            antall: 1,
+          },
+        ],
+        prisbetingelser: null,
+      },
+      output: {
+        type: "FRI",
+        belop: 5285700,
+      },
+    },
+    arrangor: {
+      id: "cc04c391-d733-4762-8208-b0dd4387a126",
+      organisasjonsnummer: "973674471",
+      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
+    },
+    status: {
+      status: TilsagnStatus.GODKJENT,
+      aarsaker: [],
+    },
+    bestillingsnummer: "A-2025/11073-2",
+  },
+  {
     id: "f8fbc0f7-3280-410b-8387-20ff63896926",
     gjennomforing: {
       id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
