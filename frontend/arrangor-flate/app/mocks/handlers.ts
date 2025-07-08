@@ -87,6 +87,14 @@ export const handlers = [
     },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/utbetalingsdetaljer",
+    () =>
+      HttpResponse.json(
+        { type: "method-not-allowed", title: "PDF er ikke tilgjengelig i Demo", status: "405" },
+        { status: 405 },
+      ),
+  ),
+  http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
     () => HttpResponse.json(arrangorflateTilsagn),
   ),
