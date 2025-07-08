@@ -1,7 +1,7 @@
-import { compareByKey, formaterDato } from "@/utils/Utils";
+import { formaterDato } from "@/utils/Utils";
 import { DeltakerForKostnadsfordeling } from "@mr/api-client-v2";
-import { BodyShort, CopyButton, HStack, SortState, Table, VStack } from "@navikt/ds-react";
-import { useState } from "react";
+import { useSortableData } from "@mr/frontend-common";
+import { BodyShort, CopyButton, HStack, Table, VStack } from "@navikt/ds-react";
 
 interface Props {
   deltakere: DeltakerForKostnadsfordeling[];
@@ -9,45 +9,8 @@ interface Props {
   maxHeight: string;
 }
 
-interface ScopedSortState extends SortState {
-  orderBy: keyof DeltakerForKostnadsfordeling;
-}
-
 export function PrisPerManedsverkTable({ deltakere, sats, maxHeight: height }: Props) {
-  const [sort, setSort] = useState<ScopedSortState>();
-
-  const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
-    setSort(
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
-    );
-  };
-
-  const sortedData: DeltakerForKostnadsfordeling[] = [...deltakere]
-    .map((deltaker) => ({
-      ...deltaker,
-      navn: deltaker.navn,
-      foedselsdato: deltaker.foedselsdato,
-      geografiskEnhet: deltaker.geografiskEnhet,
-      region: deltaker.region,
-      manedsverk: deltaker.manedsverk,
-    }))
-    .toSorted((a, b) => {
-      if (sort) {
-        return sort.direction === "ascending"
-          ? compareByKey(b, a, sort.orderBy)
-          : compareByKey(a, b, sort.orderBy);
-      } else {
-        return 0;
-      }
-    });
+  const { sortedData, sort, toggleSort } = useSortableData(deltakere);
 
   function totalManedsverk() {
     return sortedData.reduce((sum, deltaker) => sum + deltaker.manedsverk, 0);
@@ -67,7 +30,7 @@ export function PrisPerManedsverkTable({ deltakere, sats, maxHeight: height }: P
         <Table
           size="small"
           sort={sort}
-          onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
+          onSortChange={(sortKey) => toggleSort(sortKey as keyof DeltakerForKostnadsfordeling)}
         >
           <Table.Header>
             <Table.Row>
