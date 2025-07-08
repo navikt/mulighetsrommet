@@ -13,6 +13,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.ktor.clients.plugin.RateLimit
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -56,6 +57,10 @@ class MsGraphClient(
             retryOnServerErrors(maxRetries = 5)
             retryOnException(maxRetries = 5)
             exponentialDelay()
+        }
+        install(RateLimit) {
+            maxRequestsPerWindow = 500
+            windowSizeMs = 10_000L
         }
     }
 
