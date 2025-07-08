@@ -36,34 +36,6 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
     ?.join(" ");
 }
 
-export function compareByKey<T extends Record<string, any>>(a: T, b: T, orderBy: keyof T): number {
-  const aValue = a[orderBy];
-  const bValue = b[orderBy];
-  return compare(aValue, bValue);
-}
-
-export function compare<T>(aValue: T, bValue: T): number {
-  if (aValue == null && bValue == null) {
-    return 0;
-  } else if (aValue == null) {
-    return 1;
-  } else if (bValue == null) {
-    return -1;
-  }
-
-  if (typeof aValue === "number" && typeof bValue === "number") {
-    return bValue - aValue;
-  }
-
-  if (bValue < aValue) {
-    return -1;
-  } else if (bValue > aValue) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
 export function formaterPeriode(periode: Periode) {
   return `${formaterPeriodeStart(periode)} - ${formaterPeriodeSlutt(periode)}`;
 }

@@ -1,81 +1,44 @@
-import {
-  compare,
-  compareByKey,
-  formaterNavEnheter,
-  formaterPeriodeSlutt,
-  formaterPeriodeStart,
-} from "@/utils/Utils";
-import { AdminUtbetalingStatus, UtbetalingKompaktDto } from "@mr/api-client-v2";
+import { formaterNavEnheter, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
+import { AdminUtbetalingStatus, NavEnhet, UtbetalingKompaktDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { HelpText, HStack, SortState, Table, VStack } from "@navikt/ds-react";
+import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
-import { useState } from "react";
+import { useMemo } from "react";
 import { Link, useParams } from "react-router";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
+import { useSortableData } from "@mr/frontend-common";
 
 interface Props {
   utbetalinger: UtbetalingKompaktDto[];
 }
 
-interface ScopedSortState extends SortState {
-  orderBy: keyof UtbetalingKompaktDto;
-}
-
-interface UtbetalingTabellData extends UtbetalingKompaktDto {
+interface UtbetalingRow {
   periodeStart: string;
   periodeSlutt: string;
   status: AdminUtbetalingStatus;
+  kostnadssteder: NavEnhet[];
 }
 
 export function UtbetalingTable({ utbetalinger }: Props) {
   const { gjennomforingId } = useParams();
-
-  const [sort, setSort] = useState<ScopedSortState | undefined>();
-
-  const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
-    setSort(
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
-    );
-  };
-
-  const sortedData: UtbetalingTabellData[] = [...utbetalinger]
-    .map((utbetaling) => ({
-      ...utbetaling,
-      periodeStart: utbetaling.periode.start,
-      periodeSlutt: utbetaling.periode.slutt,
-      status: utbetaling.status,
-    }))
-    .toSorted((a, b) => {
-      if (sort) {
-        if (sort.orderBy === "kostnadssteder") {
-          return sort.direction === "ascending"
-            ? compare(b.kostnadssteder.at(0)?.navn, a.kostnadssteder.at(0)?.navn)
-            : compare(a.kostnadssteder.at(0)?.navn, b.kostnadssteder.at(0)?.navn);
-        }
-        return sort.direction === "ascending"
-          ? compareByKey(b, a, sort.orderBy)
-          : compareByKey(a, b, sort.orderBy);
-      } else {
-        return 0;
-      }
-    });
+  const { sortedData, sort, toggleSort } = useSortableData(
+    useMemo(() => {
+      return utbetalinger.map((u) => ({
+        ...u,
+        periodeStart: u.periode.start,
+        periodeSlutt: u.periode.slutt,
+      }));
+    }, [utbetalinger]),
+  );
 
   const harUtbetalingsType = sortedData.some((utbetaling) => utbetaling.type);
 
   return (
     <Table
       sort={sort}
-      onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
+      onSortChange={(sortKey) => toggleSort(sortKey as keyof UtbetalingRow)}
       aria-label="Utbetalinger"
     >
       <Table.Header>
@@ -89,7 +52,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <Table.ColumnHeader sortKey="kostnadssteder" sortable>
             Kostnadssted
           </Table.ColumnHeader>
-          <TableColumnHeader sortKey="belop" sortable align="right">
+          <TableColumnHeader sortKey="belopUtbetalt" sortable align="right">
             {utbetalingTekster.beregning.belop.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="status" sortable align="right">

@@ -36,3 +36,26 @@ export function jsonPointerToFieldPath(pointer: string): string {
     .replace(/~1/g, "/") // Decode escaped '/'
     .replace(/~0/g, "~"); // Decode escaped '~'
 }
+
+export function compare<T>(aValue: T, bValue: T): number {
+  if (aValue == null && bValue == null) {
+    return 0;
+  } else if (aValue == null) {
+    return 1;
+  } else if (bValue == null) {
+    return -1;
+  }
+
+  if (typeof aValue === "number" && typeof bValue === "number") {
+    return bValue - aValue;
+  }
+
+  if (bValue < aValue) {
+    return -1;
+  } else if (bValue > aValue) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+

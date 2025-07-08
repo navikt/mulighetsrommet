@@ -24,6 +24,7 @@ import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemelding
 import { FilterContainer } from "./components/filter/FilterContainer";
 import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
 import { useApiQuery, useApiSuspenseQuery } from "./hooks/useApiQuery";
+import { useSortableData } from "./hooks/useSortableData";
 
 export {
   useDebounce,
@@ -51,4 +52,5 @@ export {
   useOpenFilterWhenThreshold,
   useApiQuery,
   useApiSuspenseQuery,
+  useSortableData,
 };
