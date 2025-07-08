@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.tiltak.okonomi.FakturaStatusType
 import java.util.*
 
 private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
@@ -121,17 +120,7 @@ class ArrangorFlateService(
             ArrangorUtbetalingLinje(
                 id = delutbetaling.id,
                 belop = delutbetaling.belop,
-                status = when (delutbetaling.faktura.status) {
-                    FakturaStatusType.DELVIS_BETALT,
-                    FakturaStatusType.FULLT_BETALT,
-                    -> DelutbetalingStatus.UTBETALT
-
-                    FakturaStatusType.IKKE_BETALT,
-                    FakturaStatusType.SENDT,
-                    FakturaStatusType.FEILET,
-                    null,
-                    -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                },
+                status = delutbetaling.status,
                 statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
                 tilsagn = tilsagn,
             )
