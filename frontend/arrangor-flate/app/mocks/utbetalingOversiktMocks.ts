@@ -25,29 +25,6 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompakt[] = [
     belop: 10149,
   },
   {
-    id: "db6f1689-6446-4f1b-900d-b06c469851f8",
-    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
-    godkjentAvArrangorTidspunkt: "2025-05-02T14:51:13.772419",
-    tiltakstype: {
-      navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
-    },
-    gjennomforing: {
-      id: "e6dfb756-3499-4d15-bd42-f25e01411443",
-      navn: "November rain - VTA ",
-    },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-      slettet: false,
-    },
-    periode: {
-      start: "2025-01-01",
-      slutt: "2025-02-01",
-    },
-    belop: 75816,
-  },
-  {
     id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
     status: ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
     godkjentAvArrangorTidspunkt: null,
@@ -117,5 +94,28 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompakt[] = [
     },
     belop: 500,
     type: UtbetalingType.KORRIGERING,
+  },
+  {
+    id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    godkjentAvArrangorTidspunkt: null,
+    tiltakstype: {
+      navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
+    },
+    gjennomforing: {
+      id: "6a760ab8-fb12-4c6e-b143-b711331f63f6",
+      navn: "May rain - VTA ",
+    },
+    arrangor: {
+      id: "cc04c391-d733-4762-8208-b0dd4387a126",
+      organisasjonsnummer: "973674471",
+      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
+      slettet: false,
+    },
+    periode: {
+      start: "2025-06-01",
+      slutt: "2025-07-01",
+    },
+    belop: 16848,
   },
 ];

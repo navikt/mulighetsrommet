@@ -16,7 +16,7 @@ export function ErrorPage(props: Props) {
             {props.heading}
           </Heading>
           {props.body.map((b) => (
-            <BodyShort spacing>{b}</BodyShort>
+            <BodyShort key={b} spacing>{b}</BodyShort>
           ))}
         </Alert>
         <Box padding="4" className="flex justify-center gap-[1rem]">

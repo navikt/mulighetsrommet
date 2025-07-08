@@ -1,76 +1,12 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { mockTilsagn } from "./arrangorflateMocks";
 import {
   Arrangor,
   ArrFlateUtbetaling,
-  RelevanteForslag,
-  UtbetalingDeltakelseManedsverk,
 } from "api-client";
-import { mockArrFlateUtbetalingKompakt } from "./oversiktMocks";
-import { arrFlateUtbetaling } from "./utbetalingMocks";
+import { mockArrFlateUtbetalingKompakt } from "./utbetalingOversiktMocks";
+import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
 import { v4 as uuid } from "uuid";
-
-const mockDeltakelser: UtbetalingDeltakelseManedsverk[] = [
-  {
-    id: uuid(),
-    person: {
-      navn: "Per Petterson",
-      fodselsdato: "1980-01-01",
-      fodselsaar: 1980,
-    },
-    startDato: "2024-06-01",
-    forstePeriodeStartDato: "2024-06-01",
-    sistePeriodeSluttDato: "2024-06-30",
-    sistePeriodeDeltakelsesprosent: 30,
-    perioder: [
-      {
-        periode: { start: "2024-06-01", slutt: "2024-06-15" },
-        deltakelsesprosent: 100,
-      },
-      {
-        periode: { start: "2024-06-15", slutt: "2024-07-01" },
-        deltakelsesprosent: 30,
-      },
-    ],
-    manedsverk: 0.3,
-  },
-  {
-    id: uuid(),
-    person: {
-      navn: "Stian Bjærvik",
-      fodselsaar: 1980,
-    },
-    startDato: "2024-06-01",
-    forstePeriodeStartDato: "2024-06-01",
-    sistePeriodeSluttDato: "2024-06-30",
-    sistePeriodeDeltakelsesprosent: 100,
-    perioder: [
-      {
-        periode: { start: "2024-06-01", slutt: "2024-07-01" },
-        deltakelsesprosent: 100,
-      },
-    ],
-    manedsverk: 1,
-  },
-  {
-    id: uuid(),
-    person: {
-      navn: "Donald Duck",
-      fodselsaar: 1980,
-    },
-    startDato: "2024-06-01",
-    forstePeriodeStartDato: "2024-06-01",
-    sistePeriodeSluttDato: "2024-06-30",
-    sistePeriodeDeltakelsesprosent: 100,
-    perioder: [
-      {
-        periode: { start: "2024-06-01", slutt: "2024-07-01" },
-        deltakelsesprosent: 100,
-      },
-    ],
-    manedsverk: 1,
-  },
-];
+import { arrangorflateTilsagn } from "./tilsagnMocks";
 
 const arrangorMock: Arrangor = {
   id: uuid(),
@@ -79,17 +15,6 @@ const arrangorMock: Arrangor = {
   navn: "Arrangør",
   overordnetEnhet: null,
 };
-
-const mockRelevanteForslag: RelevanteForslag[] = [
-  {
-    deltakerId: mockDeltakelser[0].id,
-    antallRelevanteForslag: 0,
-  },
-  {
-    deltakerId: mockDeltakelser[1].id,
-    antallRelevanteForslag: 0,
-  },
-];
 
 export const handlers = [
   http.get<PathParams, ArrFlateUtbetaling[]>(
@@ -124,15 +49,32 @@ export const handlers = [
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/utbetaling/:id/tilsagn",
-    () => HttpResponse.json(mockTilsagn),
+    ({ params }) => {
+      const { id } = params;
+      const utbetaling = arrFlateUtbetaling.find((u) => u.id === id)
+      return HttpResponse.json(arrangorflateTilsagn.filter((it) => (it.gjennomforing.id === utbetaling?.gjennomforing.id)));
+    },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/utbetaling/:id/relevante-forslag",
-    () => HttpResponse.json(mockRelevanteForslag),
+    ({params}) => {
+      if (params.id !== "a5499e34-9fb4-49d1-a37d-11810f6df19b") {
+        return HttpResponse.json([])
+      }
+      const utbetaling = arrFlateUtbetaling.find((it) => it.id === params.id)
+      const deltakelser = utbetaling!.beregning.type !== "FRI" ? utbetaling!.beregning.deltakelser : []
+      const deltaker = deltakelser[Math.floor(Math.random()*deltakelser.length)]
+      return HttpResponse.json([
+        {
+          deltakerId: deltaker.id,
+          antallRelevanteForslag: 1,
+        }
+      ])
+    }
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
-    () => HttpResponse.json(mockTilsagn),
+    () => HttpResponse.json(arrangorflateTilsagn),
   ),
   http.get<PathParams, boolean>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/features",
@@ -143,7 +85,7 @@ export const handlers = [
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(
-        mockTilsagn.find((k) => k.id === id) || mockTilsagn.find((k) => k.id === id),
+        arrangorflateTilsagn.find((k) => k.id === id),
       );
     },
   ),
