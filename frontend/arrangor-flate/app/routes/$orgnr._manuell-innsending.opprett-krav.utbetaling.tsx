@@ -13,10 +13,9 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
-import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { pathByOrgnr } from "../pathByOrgnr";
-import { errorAt } from "~/utils/validering";
+import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { commitSession, getSession } from "~/sessions.server";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 
 type LoaderData = {
   kontonummer?: string;

@@ -9,9 +9,9 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeader } from "~/components/PageHeader";
-import { pathByOrgnr } from "~/pathByOrgnr";
-import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { tekster } from "../tekster";
+import { problemDetailResponse } from "~/utils/validering";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 
 type UtbetalingKvitteringData = {
   mottattTidspunkt: string;

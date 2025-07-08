@@ -1,11 +1,12 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, HelpText, HStack, SortState, Table } from "@navikt/ds-react";
 import React, { useState } from "react";
-import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { ArrFlateUtbetalingKompakt } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { UtbetalingTextLink } from "./UtbetalingTextLink";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
+import { formaterPeriode } from "~/utils/date";
+import { useOrgnrFromUrl } from "~/utils/navigation";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];

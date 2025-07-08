@@ -10,13 +10,13 @@ import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
-import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
 import { PageHeader } from "~/components/PageHeader";
 import { useTabState } from "~/hooks/useTabState";
-import { pathByOrgnr } from "~/pathByOrgnr";
 import { toggleIsEnabled } from "~/services/featureToggle/featureToggleService";
 import { tekster } from "~/tekster";
 import css from "../root.module.css";
+import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { problemDetailResponse } from "~/utils/validering";
 
 export const meta: MetaFunction = () => {
   return [

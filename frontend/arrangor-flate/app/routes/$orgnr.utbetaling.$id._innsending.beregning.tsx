@@ -28,19 +28,14 @@ import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { pathByOrgnr } from "~/pathByOrgnr";
 import { Environment, getEnvironment } from "~/services/environment";
-import {
-  formaterDato,
-  formaterPeriode,
-  problemDetailResponse,
-  subtractDays,
-  useOrgnrFromUrl,
-} from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { getBeregningDetaljer } from "~/utils/beregning";
+import { formaterPeriode, formaterDato, subtractDays } from "~/utils/date";
+import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { problemDetailResponse } from "~/utils/validering";
 
 export const meta: MetaFunction = () => {
   return [

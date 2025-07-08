@@ -1,8 +1,8 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateTilsagn } from "api-client";
-import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
 import { tekster } from "~/tekster";
+import { formaterPeriode } from "~/utils/date";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;

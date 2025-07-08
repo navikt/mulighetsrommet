@@ -31,18 +31,14 @@ import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/KontonummerInput";
 import { Separator } from "~/components/Separator";
 import { getOrError, getOrThrowError } from "~/form/form-helpers";
-import { pathByOrgnr } from "~/pathByOrgnr";
-import {
-  formaterPeriode,
-  isValidationError,
-  problemDetailResponse,
-  useOrgnrFromUrl,
-} from "~/utils";
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
+import { formaterPeriode } from "~/utils/date";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { problemDetailResponse, isValidationError } from "~/utils/validering";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;

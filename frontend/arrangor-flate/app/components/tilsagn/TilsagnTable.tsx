@@ -1,9 +1,9 @@
 import { ArrangorflateTilsagn, TilsagnType } from "api-client";
 import { Alert, Table } from "@navikt/ds-react";
-import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
-import { pathByOrgnr } from "../../pathByOrgnr";
 import { LinkWithTabState } from "../LinkWithTabState";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
+import { formaterPeriode } from "~/utils/date";
+import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn[];

@@ -4,11 +4,11 @@ import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 import { PageHeader } from "../components/PageHeader";
-import { pathByOrgnr } from "../pathByOrgnr";
 import { tekster } from "../tekster";
-import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { VStack } from "@navikt/ds-react";
 import css from "../root.module.css";
+import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { problemDetailResponse } from "~/utils/validering";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;

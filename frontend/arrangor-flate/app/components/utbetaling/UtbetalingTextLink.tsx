@@ -1,7 +1,7 @@
 import { Link } from "@navikt/ds-react";
 import { ArrFlateUtbetalingStatus } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
-import { pathByOrgnr } from "~/pathByOrgnr";
+import { pathByOrgnr } from "~/utils/navigation";
 
 interface UtbetalingTextLinkProps {
   status: ArrFlateUtbetalingStatus;

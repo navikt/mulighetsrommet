@@ -1,8 +1,8 @@
-import { formaterDato } from "~/utils";
 import { Definisjonsliste } from "../Definisjonsliste";
 import { ArrangorflateTilsagn } from "api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterTilsagnType } from "../tilsagn/TilsagnTable";
+import { formaterDato } from "~/utils/date";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;

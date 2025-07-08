@@ -2,12 +2,13 @@ import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "
 import { LoaderFunction, useLoaderData, Link as ReactRouterLink } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { pathByOrgnr } from "../pathByOrgnr";
-import { formaterPeriode, problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
+import { formaterPeriode } from "~/utils/date";
+import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { problemDetailResponse } from "~/utils/validering";
 
 type LoaderData = {
   utbetaling: ArrFlateUtbetaling;

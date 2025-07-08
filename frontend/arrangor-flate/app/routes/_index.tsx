@@ -1,9 +1,9 @@
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { redirect } from "react-router";
-import { pathByOrgnr } from "../pathByOrgnr";
 import { ArrangorflateService } from "api-client";
 import { apiHeaders } from "~/auth/auth.server";
-import { problemDetailResponse } from "~/utils";
+import { pathByOrgnr } from "~/utils/navigation";
+import { problemDetailResponse } from "~/utils/validering";
 
 export const meta: MetaFunction = () => {
   return [

@@ -37,12 +37,12 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { formaterDato, problemDetailResponse, subtractDays } from "~/utils";
-import { pathByOrgnr } from "~/pathByOrgnr";
-import { errorAt } from "~/utils/validering";
+import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { formaterDato, subtractDays } from "~/utils/date";
+import { pathByOrgnr } from "~/utils/navigation";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];

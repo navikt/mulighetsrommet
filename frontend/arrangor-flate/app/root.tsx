@@ -19,9 +19,9 @@ import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekor
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
-import { problemDetailResponse } from "./utils";
 import css from "./root.module.css";
 import { ErrorPage } from "./components/ErrorPage";
+import { problemDetailResponse } from "./utils/validering";
 
 export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
 
