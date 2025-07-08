@@ -138,33 +138,34 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     },
     bestillingsnummer: "A-2025/11073-2",
   },
-  
-    {
-      id: "27f81471-1c6a-4f68-921e-ba9da68d4e89",
-      gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
-      bruktBelop: 0,
-      gjenstaendeBelop: 6000,
-      tiltakstype: { navn: "Varig tilrettelagt arbeid i skjermet virksomhet" },
-      type: TilsagnType.TILSAGN,
-      periode: { start: "2025-04-01", slutt: "2025-10-01" },
-      beregning: {
+
+  {
+    id: "27f81471-1c6a-4f68-921e-ba9da68d4e89",
+    gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
+    bruktBelop: 0,
+    gjenstaendeBelop: 6000,
+    tiltakstype: { navn: "Varig tilrettelagt arbeid i skjermet virksomhet" },
+    type: TilsagnType.TILSAGN,
+    periode: { start: "2025-04-01", slutt: "2025-10-01" },
+    beregning: {
+      type: "PRIS_PER_MANEDSVERK",
+      input: {
         type: "PRIS_PER_MANEDSVERK",
-        input: {
-          type: "PRIS_PER_MANEDSVERK",
-          periode: { start: "2025-04-01", slutt: "2025-10-01" },
-          sats: 16848,
-          antallPlasser: 30,
-        },
-        output: {
-          type: "PRIS_PER_MANEDSVERK",
-          belop: 6000 },
+        periode: { start: "2025-04-01", slutt: "2025-10-01" },
+        sats: 16848,
+        antallPlasser: 30,
       },
-      arrangor: {
-        id: "cc04c391-d733-4762-8208-b0dd4387a126",
-        organisasjonsnummer: "973674471",
-        navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
+      output: {
+        type: "PRIS_PER_MANEDSVERK",
+        belop: 6000,
       },
-      status: { status: TilsagnStatus.GODKJENT, aarsaker: [] },
-      bestillingsnummer: "A-2025/11398-1",
     },
+    arrangor: {
+      id: "cc04c391-d733-4762-8208-b0dd4387a126",
+      organisasjonsnummer: "973674471",
+      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
+    },
+    status: { status: TilsagnStatus.GODKJENT, aarsaker: [] },
+    bestillingsnummer: "A-2025/11398-1",
+  },
 ];

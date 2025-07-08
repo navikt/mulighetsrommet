@@ -1,8 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import {
-  Arrangor,
-  ArrFlateUtbetaling,
-} from "api-client";
+import { Arrangor, ArrFlateUtbetaling } from "api-client";
 import { mockArrFlateUtbetalingKompakt } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
 import { v4 as uuid } from "uuid";
@@ -25,7 +22,14 @@ export const handlers = [
     "*/api/v1/intern/arrangorflate/utbetaling/:id",
     ({ params }) => {
       const { id } = params;
-      return HttpResponse.json(arrFlateUtbetaling.find((k) => k.id === id));
+      const utbetaling = arrFlateUtbetaling.find((k) => k.id === id);
+      if (utbetaling?.id === "fdbb7433-b42e-4cd6-b995-74a8e487329f") {
+        return HttpResponse.json({
+          ...utbetaling,
+          godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
+        });
+      }
+      return HttpResponse.json(utbetaling);
     },
   ),
   http.get<PathParams, string>(
@@ -51,26 +55,29 @@ export const handlers = [
     "*/api/v1/intern/arrangorflate/utbetaling/:id/tilsagn",
     ({ params }) => {
       const { id } = params;
-      const utbetaling = arrFlateUtbetaling.find((u) => u.id === id)
-      return HttpResponse.json(arrangorflateTilsagn.filter((it) => (it.gjennomforing.id === utbetaling?.gjennomforing.id)));
+      const utbetaling = arrFlateUtbetaling.find((u) => u.id === id);
+      return HttpResponse.json(
+        arrangorflateTilsagn.filter((it) => it.gjennomforing.id === utbetaling?.gjennomforing.id),
+      );
     },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/utbetaling/:id/relevante-forslag",
-    ({params}) => {
+    ({ params }) => {
       if (params.id !== "a5499e34-9fb4-49d1-a37d-11810f6df19b") {
-        return HttpResponse.json([])
+        return HttpResponse.json([]);
       }
-      const utbetaling = arrFlateUtbetaling.find((it) => it.id === params.id)
-      const deltakelser = utbetaling!.beregning.type !== "FRI" ? utbetaling!.beregning.deltakelser : []
-      const deltaker = deltakelser[Math.floor(Math.random()*deltakelser.length)]
+      const utbetaling = arrFlateUtbetaling.find((it) => it.id === params.id);
+      const deltakelser =
+        utbetaling!.beregning.type !== "FRI" ? utbetaling!.beregning.deltakelser : [];
+      const deltaker = deltakelser[Math.floor(Math.random() * deltakelser.length)];
       return HttpResponse.json([
         {
           deltakerId: deltaker.id,
           antallRelevanteForslag: 1,
-        }
-      ])
-    }
+        },
+      ]);
+    },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
@@ -84,9 +91,7 @@ export const handlers = [
     "*/api/v1/intern/arrangorflate/tilsagn/:id",
     ({ params }) => {
       const { id } = params;
-      return HttpResponse.json(
-        arrangorflateTilsagn.find((k) => k.id === id),
-      );
+      return HttpResponse.json(arrangorflateTilsagn.find((k) => k.id === id));
     },
   ),
   http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
