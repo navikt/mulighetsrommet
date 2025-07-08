@@ -69,8 +69,7 @@ jobs:
   deploy-til-demo:
     name: Deploy demo
     needs: ci
-    #if: github.event_name == 'push' && github.ref_name == 'main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'demo')
-    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'demo')
+    if: (github.event_name == 'push' && github.ref_name == 'main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'demo')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
