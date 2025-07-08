@@ -60,7 +60,7 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
+import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
@@ -69,7 +69,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
+import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -166,8 +166,8 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
-            config.clients.replicateBestillingStatus to ReplicateOkonomiBestillingStatus(get()),
-            config.clients.replicateFakturaStatus to ReplicateOkonomiFakturaStatus(get()),
+            config.clients.replicateBestillingStatus to ReplicateBestillingStatusConsumer(get()),
+            config.clients.replicateFakturaStatus to ReplicateFakturaStatusConsumer(get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(
                 get(),
                 get(),

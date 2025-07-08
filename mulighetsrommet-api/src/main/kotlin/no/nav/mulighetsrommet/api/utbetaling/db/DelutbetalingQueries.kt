@@ -125,6 +125,22 @@ class DelutbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setStatus(fakturanummer: String, status: DelutbetalingStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update delutbetaling
+            set status = :status::delutbetaling_status
+            where fakturanummer = :fakturanummer
+        """.trimIndent()
+
+        val params = mapOf(
+            "fakturanummer" to fakturanummer,
+            "status" to status.name,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun setStatusForDelutbetalingerForBetaling(utbetalingId: UUID, status: DelutbetalingStatus) {
         @Language("PostgreSQL")
         val query = """
