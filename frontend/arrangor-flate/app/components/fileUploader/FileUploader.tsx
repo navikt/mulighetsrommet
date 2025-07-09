@@ -56,7 +56,7 @@ export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id, error }: P
 
         {acceptedFiles.length > 0 && (
           <VStack gap="2">
-            <Heading level="3" size="xsmall">
+            <Heading level="4" size="xsmall">
               {`Vedlegg (${acceptedFiles.length})`}
             </Heading>
             <VStack as="ul" gap="3">
@@ -76,7 +76,7 @@ export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id, error }: P
         )}
         {rejectedFiles.length > 0 && (
           <VStack gap="2">
-            <Heading level="3" size="xsmall">
+            <Heading level="4" size="xsmall">
               Vedlegg med feil
             </Heading>
             <VStack as="ul" gap="3">

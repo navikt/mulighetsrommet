@@ -83,7 +83,9 @@ function Dokument({
       <body>
         {dekorator && parse(dekorator.header)}
         <Header arrangorer={arrangorer} />
-        <main className={css.main}>{children}</main>
+        <main id="maincontent" className={css.main}>
+          {children}
+        </main>
         <ScrollRestoration />
         <Scripts />
         {dekorator && parse(dekorator.footer)}

@@ -44,7 +44,7 @@ export default function UtbetalingLayout() {
                 Steg
               </Heading>
               <Stepper
-                aria-labelledby="Innsendingssteg"
+                aria-labelledby="stepper-heading"
                 activeStep={activeStep}
                 onStepChange={setActiveStep}
                 interactive={false}
