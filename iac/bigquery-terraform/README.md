@@ -154,6 +154,11 @@ Eksterne utenfor teamet må gis rollen `roles/bigquery.metadataViewer` for å ku
 Dette vil gi de tilgang til metadata, som tabellnavn, hvilke kolonner som finnes og hvilke type data som er tilgjengelig.\
 >***OBS!* Alle med denne rollen vil da også få tilgang til å lese ut data fra `authorized_views`**
 
+### Logger - Datastream og BigQuery
+
+Loggene finner du i [GCP Observability Monitor](https://console.cloud.google.com/monitoring).\
+[#team-valp-monitoring](https://nav-it.slack.com/archives/C04QSFWJTMW) får alerts når det er noe muffins i monitor, konfiguerert via [Alert Policies](https://console.cloud.google.com/monitoring/alerting/policies).
+
 ### Feilsøking
 
 - **Hvorfor feiler `terraform apply` første gang det kjøres?**\
@@ -170,3 +175,8 @@ Dette vil gi de tilgang til metadata, som tabellnavn, hvilke kolonner som finnes
     Eks:
   - *En servicekonto til metabase har dukket opp i access roles for en gitt ressurs.*\
      I dette tilfellet var grunnen at dataproduktet vårt var delt til Metabase via Datamarkedsplassen.
+- **Hvorfor får vi feilmeldingen `UNSUPPORTED_EVENTS_DISCARDED` i loggene?**
+  - Datastream talker ikke endringer av datatypen på kolonner i streamede tabeller. Har vi nylig gjort en database migrering?\
+    **Fiks**:
+    - Drop kolonnen i truffet tabell via [BigQuery](https://console.cloud.google.com/bigquery)
+    - Kjør en `Initiate Backfill` av samme tabell via [Datastream -> Objects fanen](https://console.cloud.google.com/datastream/streams)
