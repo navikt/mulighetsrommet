@@ -6,7 +6,8 @@ import { UtbetalingTextLink } from "./UtbetalingTextLink";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { formaterPeriode } from "~/utils/date";
 import { useOrgnrFromUrl } from "~/utils/navigation";
-import { sortBy, SortBySelector, useSortState } from "~/utils/sort-by";
+import { sortBy, SortBySelector } from "~/utils/sort-by";
+import { useSortState } from "~/hooks/useSortState";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];

@@ -10,13 +10,13 @@ import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
-import { PageHeader } from "~/components/PageHeader";
 import { useTabState } from "~/hooks/useTabState";
 import { toggleIsEnabled } from "~/services/featureToggle/featureToggleService";
 import { tekster } from "~/tekster";
 import css from "../root.module.css";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
+import { PageHeading } from "~/components/common/PageHeading";
 
 export const meta: MetaFunction = () => {
   return [
@@ -73,7 +73,7 @@ export default function UtbetalingOversikt() {
   return (
     <Box className={css.side}>
       <div className="flex justify-between sm:flex-row sm:p-1">
-        <PageHeader title={tekster.bokmal.utbetaling.headingTitle} />
+        <PageHeading title={tekster.bokmal.utbetaling.headingTitle} />
         {opprettKravOmUtbetalingToggle && (
           <Button
             type="button"

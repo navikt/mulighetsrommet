@@ -8,10 +8,10 @@ import {
   useParams,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { PageHeader } from "~/components/PageHeader";
 import { tekster } from "../tekster";
 import { problemDetailResponse } from "~/utils/validering";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { PageHeading } from "~/components/common/PageHeading";
 
 type UtbetalingKvitteringData = {
   mottattTidspunkt: string;
@@ -59,7 +59,7 @@ export default function UtbetalingKvittering() {
   return (
     <>
       <VStack gap="5" className="max-w-[50%] my-5 mx-auto">
-        <PageHeader
+        <PageHeading
           title={tekster.bokmal.utbetaling.kvittering.headingTitle}
           tilbakeLenke={{
             navn: tekster.bokmal.tilbakeTilOversikt,

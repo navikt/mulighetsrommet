@@ -12,7 +12,7 @@ import {
   useActionData,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { KontonummerInput } from "~/components/KontonummerInput";
+import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { commitSession, getSession } from "~/sessions.server";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";

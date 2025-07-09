@@ -3,8 +3,8 @@ import { LoaderFunction, useLoaderData, Link as ReactRouterLink } from "react-ro
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
-import { Definisjonsliste } from "~/components/Definisjonsliste";
-import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
+import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { formaterPeriode } from "~/utils/date";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";

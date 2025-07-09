@@ -14,14 +14,14 @@ import {
 } from "react-router";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
-import { Header } from "./components/Header";
 import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
 import css from "./root.module.css";
-import { ErrorPage } from "./components/ErrorPage";
+import { ErrorPage } from "./components/common/ErrorPage";
 import { problemDetailResponse } from "./utils/validering";
+import { Header } from "./components/header/Header";
 
 export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
 

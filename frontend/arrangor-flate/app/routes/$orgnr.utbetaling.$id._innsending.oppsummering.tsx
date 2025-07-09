@@ -28,14 +28,14 @@ import {
   useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { KontonummerInput } from "~/components/KontonummerInput";
-import { Separator } from "~/components/Separator";
-import { getOrError, getOrThrowError } from "~/form/form-helpers";
-import { Definisjonsliste } from "../components/Definisjonsliste";
+import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
+import { Separator } from "~/components/common/Separator";
+import { getOrError, getOrThrowError } from "~/utils/form-helpers";
+import { Definisjonsliste } from "../components/common/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
+import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { formaterPeriode } from "~/utils/date";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse, isValidationError } from "~/utils/validering";

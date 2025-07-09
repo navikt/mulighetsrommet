@@ -1,10 +1,11 @@
 import { ArrangorflateTilsagn, TilsagnType } from "api-client";
 import { Alert, Table } from "@navikt/ds-react";
-import { LinkWithTabState } from "../LinkWithTabState";
+import { LinkWithTabState } from "../common/LinkWithTabState";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import { formaterPeriode } from "~/utils/date";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
-import { sortBy, SortBySelector, useSortState } from "~/utils/sort-by";
+import { sortBy, SortBySelector } from "~/utils/sort-by";
+import { useSortState } from "~/hooks/useSortState";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn[];

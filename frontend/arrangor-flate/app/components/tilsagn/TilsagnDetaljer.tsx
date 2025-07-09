@@ -1,6 +1,6 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateTilsagn } from "api-client";
-import { Definisjonsliste, Definition } from "../Definisjonsliste";
+import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { formaterPeriode } from "~/utils/date";
 
@@ -40,6 +40,7 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
 
   return (
     <Definisjonsliste
+      headingLevel="4"
       className="p-4 border-1 border-border-divider rounded-lg w-xl"
       title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} - ${tilsagn.bestillingsnummer}`}
       definitions={[...tilsagnDetaljer, ...beregningDetaljer]}

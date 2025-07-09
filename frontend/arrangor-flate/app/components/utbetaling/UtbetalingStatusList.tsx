@@ -2,7 +2,7 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Accordion, Heading, Link, VStack } from "@navikt/ds-react";
 import { ArrangorUtbetalingLinje, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
-import { Definisjonsliste } from "../Definisjonsliste";
+import { Definisjonsliste } from "../common/Definisjonsliste";
 import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { useOrgnrFromUrl } from "~/utils/navigation";

@@ -9,9 +9,8 @@ import {
 } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { PageHeader } from "~/components/PageHeader";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
-import { Definisjonsliste } from "../components/Definisjonsliste";
+import { Definisjonsliste } from "../components/common/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 import css from "../root.module.css";
@@ -19,6 +18,7 @@ import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/Ut
 import { formaterPeriode, getTimestamp } from "~/utils/date";
 import { problemDetailResponse } from "~/utils/validering";
 import { pathByOrgnr } from "~/utils/navigation";
+import { PageHeading } from "~/components/common/PageHeading";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
@@ -77,7 +77,7 @@ export default function UtbetalingDetaljerSide() {
   return (
     <VStack gap="4" className={css.side}>
       <HStack gap="2" className="max-w-[1250px]" align="end" justify="space-between">
-        <PageHeader
+        <PageHeading
           title="Detaljer"
           tilbakeLenke={{
             navn: tekster.bokmal.tilbakeTilOversikt,

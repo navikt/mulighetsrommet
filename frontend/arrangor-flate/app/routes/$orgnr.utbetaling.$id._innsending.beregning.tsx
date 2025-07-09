@@ -27,13 +27,14 @@ import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { Environment, getEnvironment } from "~/services/environment";
-import { sortBy, SortBySelector, useSortState } from "~/utils/sort-by";
-import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { sortBy, SortBySelector } from "~/utils/sort-by";
+import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { getBeregningDetaljer } from "~/utils/beregning";
 import { formaterPeriode, formaterDato, subtractDays } from "~/utils/date";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
+import { useSortState } from "~/hooks/useSortState";
 
 export const meta: MetaFunction = () => {
   return [
@@ -163,13 +164,14 @@ function ForhandsgodkjentBeregning({
   return (
     <VStack gap="4">
       <GuidePanel>
-        {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
-        <Link as={ReactRouterLink} to={deltakerlisteUrl}>
-          Deltakeroversikten
-        </Link>
-        .
-        <br />
-        {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}
+        <p>
+          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
+          <Link as={ReactRouterLink} to={deltakerlisteUrl}>
+            Deltakeroversikten
+          </Link>
+          .
+        </p>
+        <p>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</p>
       </GuidePanel>
       {beregning.stengt.length > 0 && (
         <Alert variant={"info"}>

@@ -3,12 +3,12 @@ import { LoaderFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
-import { PageHeader } from "../components/PageHeader";
 import { tekster } from "../tekster";
 import { VStack } from "@navikt/ds-react";
 import css from "../root.module.css";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
+import { PageHeading } from "~/components/common/PageHeading";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
@@ -35,7 +35,7 @@ export default function TilsagnDetaljerPage() {
 
   return (
     <VStack gap="4" className={css.side}>
-      <PageHeader
+      <PageHeading
         title={tekster.bokmal.tilsagn.detaljer.headingTitle}
         tilbakeLenke={{
           navn: tekster.bokmal.tilsagn.detaljer.tilbakeLenke,
