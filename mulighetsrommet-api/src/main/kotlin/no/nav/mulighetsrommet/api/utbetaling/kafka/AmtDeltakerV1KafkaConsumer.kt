@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -60,12 +59,7 @@ class AmtDeltakerV1KafkaConsumer(
         }
     }
 
-    // TODO: oppdater logikk ifm. prodsetting av tiltaksøkonomi
     private fun isRelevantForUtbetaling(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell): Boolean {
-        if (NaisEnv.current().isProdGCP()) {
-            return false
-        }
-
         when (prismodell) {
             Prismodell.ANNEN_AVTALT_PRIS -> return false
 
