@@ -82,7 +82,7 @@ class GenererUtbetalingService(
     }
 
     // TODO: oppdater utbetalinger når avtale endres
-    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
+    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
         val gjennomforing = requireNotNull(queries.gjennomforing.get(id))
         val prismodell = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!)?.prismodell)
 
@@ -134,10 +134,11 @@ class GenererUtbetalingService(
 
                 nyttKrav?.takeIf { it.beregning != gjeldendeKrav.beregning }
             }
-            .forEach { utbetaling ->
+            .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
                 val dto = getOrError(utbetaling.id)
                 logEndring("Utbetaling beregning oppdatert", dto, Tiltaksadministrasjon)
+                dto
             }
     }
 
