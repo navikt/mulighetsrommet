@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
@@ -13,7 +14,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -21,12 +24,19 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(
     private val db: ApiDatabase,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
+
+    private val kontonummerCache: Cache<String, Kontonummer> = Caffeine.newBuilder()
+        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .maximumSize(10_000)
+        .recordStats()
+        .build()
 
     suspend fun genererUtbetalingForMonth(month: Int): List<Utbetaling> = db.transaction {
         val currentYear = LocalDate.now().year
@@ -83,38 +93,39 @@ class GenererUtbetalingService(
         prismodell: Prismodell,
         gjennomforing: GjennomforingDto,
         periode: Periode,
-    ): UtbetalingDbo? = when (prismodell) {
-        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-            val input = resolveForhandsgodkjentPrisPerManedsverkInput(gjennomforing, periode)
-            createUtbetaling(
-                utbetalingId = utbetalingId,
-                gjennomforing = gjennomforing,
-                periode = periode,
-                input = input,
-            )
+    ): UtbetalingDbo? {
+        val beregning = when (prismodell) {
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
+                val input = resolveForhandsgodkjentPrisPerManedsverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            }
+
+            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
+                val input = resolveAvtaltPrisPerManedsverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            }
+
+            Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
+                val input = resolveAvtaltPrisPerUkesverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerUkesverk.beregn(input)
+            }
+
+            Prismodell.ANNEN_AVTALT_PRIS -> return null
         }
 
-        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
-            val input = resolveAvtaltPrisPerManedsverkInput(gjennomforing, periode)
-            createUtbetaling(
-                utbetalingId = utbetalingId,
-                gjennomforing = gjennomforing,
-                periode = periode,
-                input = input,
+        if (beregning.output.belop == 0) {
+            log.info(
+                "Genererer ikke utbetaling for gjennomføring ${gjennomforing.id} i periode $periode, da beløpet er ${beregning.output.belop}",
             )
+            return null
         }
 
-        Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
-            val input = resolveAvtaltPrisPerUkesverkInput(gjennomforing, periode)
-            createUtbetaling(
-                utbetalingId = utbetalingId,
-                gjennomforing = gjennomforing,
-                periode = periode,
-                input = input,
-            )
-        }
-
-        Prismodell.ANNEN_AVTALT_PRIS -> null
+        return createUtbetaling(
+            utbetalingId = utbetalingId,
+            gjennomforing = gjennomforing,
+            periode = periode,
+            beregning = beregning,
+        )
     }
 
     private fun QueryContext.resolveForhandsgodkjentPrisPerManedsverkInput(
@@ -166,18 +177,14 @@ class GenererUtbetalingService(
         utbetalingId: UUID,
         gjennomforing: GjennomforingDto,
         periode: Periode,
-        input: UtbetalingBeregningInput,
+        beregning: UtbetalingBeregning,
     ): UtbetalingDbo {
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforing.id)
-        val kontonummer = getKontonummer(gjennomforing)
+        val kontonummer = getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
-            beregning = when (input) {
-                is UtbetalingBeregningFri.Input -> UtbetalingBeregningFri.beregn(input)
-                is UtbetalingBeregningPrisPerManedsverk.Input -> UtbetalingBeregningPrisPerManedsverk.beregn(input)
-                is UtbetalingBeregningPrisPerUkesverk.Input -> UtbetalingBeregningPrisPerUkesverk.beregn(input)
-            },
+            beregning = beregning,
             kontonummer = kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
@@ -194,21 +201,19 @@ class GenererUtbetalingService(
             ?: throw IllegalStateException("Sats mangler for periode $periode")
     }
 
-    private suspend fun getKontonummer(gjennomforing: GjennomforingDto): Kontonummer? {
-        return when (
-            val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+    private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
+        return CacheUtils.tryCacheFirstNullable(kontonummerCache, organisasjonsnummer.value) {
+            kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(organisasjonsnummer).fold(
+                { error ->
+                    log.error(
+                        "Kunne ikke hente kontonummer for organisasjon ${organisasjonsnummer.value}. Error: $error",
+                    )
+                    null
+                },
+                { response ->
+                    Kontonummer(response.kontonr)
+                },
             )
-        ) {
-            is Either.Left -> {
-                log.error(
-                    "Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}",
-                    result.value,
-                )
-                null
-            }
-
-            is Either.Right -> Kontonummer(result.value.kontonr)
         }
     }
 
@@ -220,20 +225,16 @@ class GenererUtbetalingService(
             select gjennomforing.id, avtale.prismodell
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
-            where (gjennomforing.start_dato <= :periode_slutt)
-              and (gjennomforing.slutt_dato >= :periode_start or gjennomforing.slutt_dato is null)
-              and (gjennomforing.avsluttet_tidspunkt > :periode_start or gjennomforing.avsluttet_tidspunkt is null)
+            where gjennomforing.status = 'GJENNOMFORES'
               and not exists (
                     select 1
                     from utbetaling
                     where utbetaling.gjennomforing_id = gjennomforing.id
-                      and utbetaling.periode && daterange(:periode_start, :periode_slutt)
+                      and utbetaling.periode && ?::daterange
               )
         """.trimIndent()
 
-        val params = mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt)
-
-        return session.list(queryOf(query, params)) {
+        return session.list(queryOf(query, periode.toDaterange())) {
             Pair(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
         }
     }
