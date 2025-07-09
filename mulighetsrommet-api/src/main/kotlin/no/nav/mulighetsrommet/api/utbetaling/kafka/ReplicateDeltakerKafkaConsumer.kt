@@ -20,7 +20,7 @@ import java.time.LocalDate
 import java.time.Period
 import java.util.*
 
-class AmtDeltakerV1KafkaConsumer(
+class ReplicateDeltakerKafkaConsumer(
     private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val db: ApiDatabase,
     private val oppdaterUtbetaling: OppdaterUtbetalingBeregning,
