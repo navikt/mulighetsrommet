@@ -127,7 +127,13 @@ spec:
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
             },
-           {
+            {
+              "name": "amt.deltaker-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "amt.tiltakskoordinators-deltakerliste-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
