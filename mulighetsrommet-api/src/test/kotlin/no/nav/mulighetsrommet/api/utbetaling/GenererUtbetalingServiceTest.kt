@@ -2,7 +2,9 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -643,7 +645,45 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val oppdatertUtbetaling = service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id)
                 .shouldHaveSize(1).first()
+            oppdatertUtbetaling.id shouldBe generertUtbetaling.id
             oppdatertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>()
+        }
+
+        test("utbetalinger slettes når prismodell ikke lengre kan genereres av systemet") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val generertUtbetaling = service.genererUtbetalingForMonth(1).shouldHaveSize(1).first()
+            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
+
+            database.run {
+                queries.avtale.upsert(avtale.copy(prismodell = Prismodell.ANNEN_AVTALT_PRIS))
+            }
+
+            service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id).shouldBeEmpty()
+
+            // Sjekk at utbetalingen er fjernet fra databasen etter at avtalen er endret tilbake til ANNEN_AVTALT_PRIS
+            database.run {
+                queries.utbetaling.get(generertUtbetaling.id).shouldBeNull()
+            }
         }
     }
 })

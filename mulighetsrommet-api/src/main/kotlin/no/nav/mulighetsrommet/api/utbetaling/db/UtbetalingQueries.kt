@@ -84,7 +84,7 @@ class UtbetalingQueries(private val session: Session) {
                 upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
                 upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
-                upsertUtbetalingBeregningOutputManedsverk(dbo.id, dbo.beregning.output.deltakelser)
+                upsertUtbetalingBeregningOutputDeltakelseManedsverk(dbo.id, dbo.beregning.output.deltakelser)
             }
 
             is UtbetalingBeregningPrisPerUkesverk -> {
@@ -166,26 +166,26 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertPeriodeQuery, perioderParams)
     }
 
-    private fun Session.upsertUtbetalingBeregningOutputManedsverk(id: UUID, manedsverk: Set<DeltakelseManedsverk>) {
+    private fun Session.upsertUtbetalingBeregningOutputDeltakelseManedsverk(id: UUID, manedsverk: Set<DeltakelseManedsverk>) {
         @Language("PostgreSQL")
         val deleteManedsverk = """
             delete
-            from utbetaling_deltakelse_manedsverk
+            from utbetaling_deltakelse_faktor
             where utbetaling_id = ?::uuid
         """
         execute(queryOf(deleteManedsverk, id))
 
         @Language("PostgreSQL")
         val insertManedsverkQuery = """
-            insert into utbetaling_deltakelse_manedsverk (utbetaling_id, deltakelse_id, manedsverk)
-            values (:utbetaling_id, :deltakelse_id, :manedsverk)
+            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor)
+            values (:utbetaling_id, :deltakelse_id, :faktor)
         """.trimIndent()
 
         val manedsverkParams = manedsverk.map { deltakelse ->
             mapOf(
                 "utbetaling_id" to id,
                 "deltakelse_id" to deltakelse.deltakelseId,
-                "manedsverk" to deltakelse.manedsverk,
+                "faktor" to deltakelse.manedsverk,
             )
         }
         batchPreparedNamedStatement(insertManedsverkQuery, manedsverkParams)
@@ -195,22 +195,22 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val deleteUkesverk = """
             delete
-            from utbetaling_deltakelse_ukesverk
+            from utbetaling_deltakelse_faktor
             where utbetaling_id = ?::uuid
         """
         execute(queryOf(deleteUkesverk, id))
 
         @Language("PostgreSQL")
         val insertUkesverk = """
-            insert into utbetaling_deltakelse_ukesverk (utbetaling_id, deltakelse_id, ukesverk)
-            values (:utbetaling_id, :deltakelse_id, :ukesverk)
+            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor)
+            values (:utbetaling_id, :deltakelse_id, :faktor)
         """.trimIndent()
 
         val ukesverkParams = ukesverk.map { deltakelse ->
             mapOf(
                 "utbetaling_id" to id,
                 "deltakelse_id" to deltakelse.deltakelseId,
-                "ukesverk" to deltakelse.ukesverk,
+                "faktor" to deltakelse.ukesverk,
             )
         }
         batchPreparedNamedStatement(insertUkesverk, ukesverkParams)
@@ -347,6 +347,16 @@ class UtbetalingQueries(private val session: Session) {
         return session.single(queryOf(query, gjennomforingId)) {
             it.toUtbetalingDto()
         }
+    }
+
+    fun delete(ud: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from utbetaling
+            where id = ?::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, ud))
     }
 
     private fun Row.toUtbetalingDto(): Utbetaling {
