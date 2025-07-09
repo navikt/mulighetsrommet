@@ -3,9 +3,6 @@ package no.nav.mulighetsrommet.ktor.clients.plugin
 import io.ktor.client.plugins.api.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import org.slf4j.LoggerFactory
-
-private val log = LoggerFactory.getLogger("RateLimit")
 
 /**
  * Rate limit plugin for Ktor clients.
@@ -67,7 +64,6 @@ private suspend fun ArrayDeque<Long>.waitForPermit(
 
         // If we have reached the limit, wait until the oldest request is outside the window
         val waitTime = first() + windowSizeMs - now
-        log.info("Rate limit reached, waiting for $waitTime ms")
         delay(waitTime)
     }
 }
