@@ -11,7 +11,7 @@ interface UtbetalingsTypeTagProps {
 
 export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
   return (
-    <Tag variant="neutral" title={visningsNavn(type)} size="small" aria-hidden>
+    <Tag variant="neutral" title={visningsNavn(type)} size="small">
       {tagNavn(type)}
     </Tag>
   );

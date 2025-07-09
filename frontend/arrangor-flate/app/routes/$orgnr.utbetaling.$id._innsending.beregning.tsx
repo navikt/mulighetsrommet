@@ -8,7 +8,6 @@ import {
   HStack,
   Link,
   List,
-  SortState,
   Table,
   Timeline,
   Tooltip,
@@ -24,12 +23,11 @@ import {
   UtbetalingDeltakelsePerson,
   UtbetalingStengtPeriode,
 } from "api-client";
-import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { Environment, getEnvironment } from "~/services/environment";
-import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
+import { sortBy, SortBySelector, useSortState } from "~/utils/sort-by";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { getBeregningDetaljer } from "~/utils/beregning";
@@ -81,11 +79,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
   return { utbetaling, deltakerlisteUrl, relevanteForslag };
 };
-
-interface DeltakerSortState extends SortState {
-  direction: SortOrder;
-  orderBy: DeltakerSortKey;
-}
 
 enum DeltakerSortKey {
   PERSON_NAVN = "PERSON_NAVN",
@@ -153,23 +146,7 @@ function ForhandsgodkjentBeregning({
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 }) {
-  const [sort, setSort] = useState<DeltakerSortState | undefined>();
-
-  const handleSort = (orderBy: string) => {
-    if (!isDeltakerSortKey(orderBy)) {
-      return;
-    }
-
-    if (sort && orderBy === sort.orderBy && sort.direction === "descending") {
-      setSort(undefined);
-    } else {
-      const direction =
-        sort && orderBy === sort.orderBy && sort.direction === "ascending"
-          ? "descending"
-          : "ascending";
-      setSort({ orderBy, direction });
-    }
-  };
+  const { sort, handleSort } = useSortState<DeltakerSortKey>();
 
   const sortedData = sort
     ? sortBy(beregning.deltakelser, sort.direction, getDeltakerSelector(sort.orderBy))
@@ -220,7 +197,7 @@ function ForhandsgodkjentBeregning({
         <Heading level="3" size="medium">
           Deltakere
         </Heading>
-        <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
+        <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey as DeltakerSortKey)}>
           <Table.Header>
             <>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
@@ -292,10 +269,6 @@ function ForhandsgodkjentBeregning({
       </Box>
     </VStack>
   );
-}
-
-function isDeltakerSortKey(sortKey: string): sortKey is DeltakerSortKey {
-  return sortKey in DeltakerSortKey;
 }
 
 function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<UtbetalingDeltakelse> {

@@ -4,13 +4,34 @@ import { LinkWithTabState } from "../LinkWithTabState";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import { formaterPeriode } from "~/utils/date";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { sortBy, SortBySelector, useSortState } from "~/utils/sort-by";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn[];
 }
+enum TilsagnSortKey {
+  TILSAGNSNUMMER = "TILSAGNSNUMMER",
+  PERIODE = "PERIODE",
+  STATUS = "STATUS",
+  TYPE = "TYPE",
+}
+
+function getTilsagnSelector(sortKey: TilsagnSortKey): SortBySelector<ArrangorflateTilsagn> {
+  switch (sortKey) {
+    case TilsagnSortKey.PERIODE:
+      return (t) => t.periode.start;
+    case TilsagnSortKey.TILSAGNSNUMMER:
+      return (t) => t.bestillingsnummer;
+    case TilsagnSortKey.STATUS:
+      return (t) => t.status.status;
+    case TilsagnSortKey.TYPE:
+      return (t) => t.type;
+  }
+}
 
 export function TilsagnTable({ tilsagn }: Props) {
   const orgnr = useOrgnrFromUrl();
+  const { sort, handleSort } = useSortState<TilsagnSortKey>();
 
   if (tilsagn.length === 0) {
     return (
@@ -20,51 +41,60 @@ export function TilsagnTable({ tilsagn }: Props) {
     );
   }
 
+  const sortedData = sort
+    ? sortBy(tilsagn, sort.direction, getTilsagnSelector(sort.orderBy))
+    : tilsagn;
+
   return (
-    <>
-      <div className="border-spacing-y-6 border-collapsed mt-4">
-        <Table zebraStripes>
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeader scope="col">Navn</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Periode</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Tilsagnsnummer</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Tilsagnstype</Table.ColumnHeader>
-              <Table.ColumnHeader scope="col" className="min-w-44">
-                Status
-              </Table.ColumnHeader>
-              <Table.ColumnHeader scope="col" aria-label="handlinger"></Table.ColumnHeader>
+    <Table
+      zebraStripes
+      sort={sort}
+      onSortChange={(sortKey) => handleSort(sortKey as TilsagnSortKey)}
+    >
+      <Table.Header>
+        <Table.Row>
+          <Table.ColumnHeader scope="col">Navn</Table.ColumnHeader>
+          <Table.ColumnHeader scope="col" sortable sortKey={TilsagnSortKey.PERIODE}>
+            Periode
+          </Table.ColumnHeader>
+          <Table.ColumnHeader scope="col" sortable sortKey={TilsagnSortKey.TILSAGNSNUMMER}>
+            Tilsagnsnummer
+          </Table.ColumnHeader>
+          <Table.ColumnHeader scope="col" sortable sortKey={TilsagnSortKey.TYPE}>
+            Tilsagnstype
+          </Table.ColumnHeader>
+          <Table.ColumnHeader scope="col" sortable sortKey={TilsagnSortKey.STATUS}>
+            Status
+          </Table.ColumnHeader>
+          <Table.ColumnHeader scope="col" aria-label="handlinger"></Table.ColumnHeader>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {sortedData.map((tilsagn, i) => {
+          return (
+            <Table.Row key={i}>
+              <Table.HeaderCell scope="row">{tilsagn.gjennomforing.navn}</Table.HeaderCell>
+              <Table.DataCell className="whitespace-nowrap">
+                {formaterPeriode(tilsagn.periode)}
+              </Table.DataCell>
+              <Table.DataCell>{tilsagn.bestillingsnummer}</Table.DataCell>
+              <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
+              <Table.DataCell>
+                <TilsagnStatusTag data={tilsagn.status} />
+              </Table.DataCell>
+              <Table.DataCell>
+                <LinkWithTabState
+                  aria-label={`Detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
+                  to={pathByOrgnr(orgnr).tilsagn(tilsagn.id)}
+                >
+                  Detaljer
+                </LinkWithTabState>
+              </Table.DataCell>
             </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {tilsagn.map((tilsagn, i) => {
-              return (
-                <Table.Row key={i}>
-                  <Table.HeaderCell>{tilsagn.gjennomforing.navn}</Table.HeaderCell>
-                  <Table.DataCell>{formaterPeriode(tilsagn.periode)}</Table.DataCell>
-                  <Table.DataCell>{tilsagn.tiltakstype.navn}</Table.DataCell>
-                  <Table.DataCell>{tilsagn.bestillingsnummer}</Table.DataCell>
-                  <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
-                  <Table.DataCell>
-                    <TilsagnStatusTag data={tilsagn.status} />
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <LinkWithTabState
-                      aria-label={`Detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
-                      className="hover:underline font-bold no-underline"
-                      to={pathByOrgnr(orgnr).tilsagn(tilsagn.id)}
-                    >
-                      Detaljer
-                    </LinkWithTabState>
-                  </Table.DataCell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table>
-      </div>
-    </>
+          );
+        })}
+      </Table.Body>
+    </Table>
   );
 }
 
