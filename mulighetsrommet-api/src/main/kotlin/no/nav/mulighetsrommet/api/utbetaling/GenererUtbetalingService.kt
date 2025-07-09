@@ -47,7 +47,6 @@ class GenererUtbetalingService(
             }
     }
 
-    // TODO: oppdater utbetalinger når avtale endres
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
         val gjennomforing = requireNotNull(queries.gjennomforing.get(id))
         val prismodell = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!)?.prismodell)
