@@ -256,7 +256,7 @@ class AvtaleService(
         gjennomforingPublisher.schedule(
             input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
             id = dto.id,
-            startTime = Instant.now().plus(5, ChronoUnit.MINUTES),
+            startTime = Instant.now().plus(30, ChronoUnit.SECONDS),
         )
     }
 

@@ -35,43 +35,9 @@ class GenererUtbetalingService(
 
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, prismodell) ->
-                val utbetaling = when (prismodell) {
-                    Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
-                        val input = resolveForhandsgodkjentPrisPerManedsverkInput(gjennomforing, periode)
-                        createUtbetaling(
-                            utbetalingId = UUID.randomUUID(),
-                            gjennomforing = gjennomforing,
-                            periode = periode,
-                            input = input,
-                        )
-                    }
-
-                    Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
-                        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
-                        val input = resolveAvtaltPrisPerManedsverkInput(gjennomforing, periode)
-                        createUtbetaling(
-                            utbetalingId = UUID.randomUUID(),
-                            gjennomforing = gjennomforing,
-                            periode = periode,
-                            input = input,
-                        )
-                    }
-
-                    Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
-                        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
-                        val input = resolveAvtaltPrisPerUkesverkInput(gjennomforing, periode)
-                        createUtbetaling(
-                            utbetalingId = UUID.randomUUID(),
-                            gjennomforing = gjennomforing,
-                            periode = periode,
-                            input = input,
-                        )
-                    }
-
-                    Prismodell.ANNEN_AVTALT_PRIS -> null
-                }
-                utbetaling?.takeIf { it.beregning.output.belop > 0 }
+                val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+                val utbetaling = generateUtbetalingForPrismodell(UUID.randomUUID(), prismodell, gjennomforing, periode)
+                utbetaling?.takeIf { isUtbetalingRelevantForArrangor(it) }
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
@@ -81,64 +47,74 @@ class GenererUtbetalingService(
             }
     }
 
-    // TODO: oppdater utbetalinger når avtale endres
-    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
+    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
         val gjennomforing = requireNotNull(queries.gjennomforing.get(id))
         val prismodell = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!)?.prismodell)
 
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }
-            .mapNotNull { gjeldendeKrav ->
-                val periode = gjeldendeKrav.periode
-                val nyttKrav = when (gjeldendeKrav.beregning) {
-                    is UtbetalingBeregningFri -> null
+            .mapNotNull { utbetaling ->
+                val oppdatertUtbetaling = when (utbetaling.beregning) {
+                    is UtbetalingBeregningFri -> return@mapNotNull null
 
                     is UtbetalingBeregningPrisPerManedsverk,
                     is UtbetalingBeregningPrisPerUkesverk,
-                    -> when (prismodell) {
-                        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                            val input = resolveForhandsgodkjentPrisPerManedsverkInput(gjennomforing, periode)
-                            createUtbetaling(
-                                utbetalingId = gjeldendeKrav.id,
-                                gjennomforing = gjennomforing,
-                                periode = periode,
-                                input = input,
-                            )
-                        }
-
-                        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
-                            val input = resolveAvtaltPrisPerManedsverkInput(gjennomforing, periode)
-                            createUtbetaling(
-                                utbetalingId = gjeldendeKrav.id,
-                                gjennomforing = gjennomforing,
-                                periode = periode,
-                                input = input,
-                            )
-                        }
-
-                        Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
-                            val input = resolveAvtaltPrisPerUkesverkInput(gjennomforing, periode)
-                            createUtbetaling(
-                                utbetalingId = gjeldendeKrav.id,
-                                gjennomforing = gjennomforing,
-                                periode = periode,
-                                input = input,
-                            )
-                        }
-
-                        // TODO: slett krav når avtale har endret til en modell som ikke kan beregnes av systemet
-                        Prismodell.ANNEN_AVTALT_PRIS -> null
-                    }
+                    -> generateUtbetalingForPrismodell(utbetaling.id, prismodell, gjennomforing, utbetaling.periode)
                 }
 
-                nyttKrav?.takeIf { it.beregning != gjeldendeKrav.beregning }
+                if (!isUtbetalingRelevantForArrangor(oppdatertUtbetaling)) {
+                    queries.utbetaling.delete(utbetaling.id)
+                    return@mapNotNull null
+                }
+
+                oppdatertUtbetaling
             }
-            .forEach { utbetaling ->
+            .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
                 val dto = getOrError(utbetaling.id)
                 logEndring("Utbetaling beregning oppdatert", dto, Tiltaksadministrasjon)
+                dto
             }
+    }
+
+    private suspend fun QueryContext.generateUtbetalingForPrismodell(
+        utbetalingId: UUID,
+        prismodell: Prismodell,
+        gjennomforing: GjennomforingDto,
+        periode: Periode,
+    ): UtbetalingDbo? = when (prismodell) {
+        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
+            val input = resolveForhandsgodkjentPrisPerManedsverkInput(gjennomforing, periode)
+            createUtbetaling(
+                utbetalingId = utbetalingId,
+                gjennomforing = gjennomforing,
+                periode = periode,
+                input = input,
+            )
+        }
+
+        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
+            val input = resolveAvtaltPrisPerManedsverkInput(gjennomforing, periode)
+            createUtbetaling(
+                utbetalingId = utbetalingId,
+                gjennomforing = gjennomforing,
+                periode = periode,
+                input = input,
+            )
+        }
+
+        Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
+            val input = resolveAvtaltPrisPerUkesverkInput(gjennomforing, periode)
+            createUtbetaling(
+                utbetalingId = utbetalingId,
+                gjennomforing = gjennomforing,
+                periode = periode,
+                input = input,
+            )
+        }
+
+        Prismodell.ANNEN_AVTALT_PRIS -> null
     }
 
     private fun QueryContext.resolveForhandsgodkjentPrisPerManedsverkInput(
@@ -258,9 +234,7 @@ class GenererUtbetalingService(
         val params = mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt)
 
         return session.list(queryOf(query, params)) {
-            it.stringOrNull("prismodell")?.let { prismodell ->
-                Pair(it.uuid("id"), Prismodell.valueOf(prismodell))
-            }
+            Pair(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
         }
     }
 
@@ -391,4 +365,8 @@ private fun isRelevantForUtbetalingsperide(
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+}
+
+private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo?): Boolean {
+    return utbetaling != null && utbetaling.beregning.output.belop > 0
 }
