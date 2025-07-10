@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -65,7 +65,7 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     fun verifyForhandsgodkjentBeregning(
-        beregning: ArrFlateBeregning.PrisPerManedsverk,
+        beregning: ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder,
         expectedBelop: Int,
         expectedManedsverk: Double,
         expectedDeltakelserCount: Int,
@@ -108,7 +108,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
 
-        result.beregning.shouldBeInstanceOf<UtbetalingBeregningPrisPerManedsverk>().should {
+        result.beregning.shouldBeInstanceOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder>().should {
             it.output.belop shouldBe 10000
         }
     }
@@ -173,7 +173,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
 
-        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverk> {
+        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
             verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
         }
     }

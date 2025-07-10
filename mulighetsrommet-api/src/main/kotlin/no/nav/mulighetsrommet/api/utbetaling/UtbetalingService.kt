@@ -247,7 +247,7 @@ class UtbetalingService(
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
 
-            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
             is UtbetalingBeregningPrisPerUkesverk,
             -> Unit
         }

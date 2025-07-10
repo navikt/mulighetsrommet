@@ -40,8 +40,8 @@ sealed class ArrFlateBeregning {
     abstract val digest: String
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
-    data class PrisPerManedsverk(
+    @SerialName("PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER")
+    data class PrisPerManedsverkMedDeltakelsesmengder(
         override val belop: Int,
         override val digest: String,
         val deltakelser: List<UtbetalingDeltakelseManedsverk>,

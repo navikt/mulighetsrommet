@@ -26,7 +26,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
       slettet: false,
     },
     beregning: {
-      type: "PRIS_PER_MANEDSVERK",
+      type: "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER",
       belop: 10149,
       digest: "b3602d2a",
       deltakelser: [
@@ -100,7 +100,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
       slettet: false,
     },
     beregning: {
-      type: "PRIS_PER_MANEDSVERK",
+      type: "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER",
       belop: 242904,
       digest: "db0c7c6e",
       deltakelser: [
@@ -387,7 +387,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
       slettet: false,
     },
     beregning: {
-      type: "PRIS_PER_MANEDSVERK",
+      type: "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER",
       belop: 16848,
       digest: "38c07a43",
       deltakelser: [

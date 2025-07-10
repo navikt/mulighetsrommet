@@ -104,7 +104,7 @@ class ArrangorFlateService(
         val deltakere = when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> emptyList()
 
-            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
             is UtbetalingBeregningPrisPerUkesverk,
             -> {
                 queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
@@ -225,7 +225,7 @@ fun DeltakerForslag.relevantForDeltakelse(
     return when (utbetaling.beregning) {
         is UtbetalingBeregningFri -> false
 
-        is UtbetalingBeregningPrisPerManedsverk -> {
+        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
             val deltaker = utbetaling.beregning.input.deltakelser.find { it.deltakelseId == deltakerId } ?: return false
             val perioder = deltaker.perioder.map { it.periode }
             relevantForDeltakelse(perioder, utbetaling.beregning.input.periode)

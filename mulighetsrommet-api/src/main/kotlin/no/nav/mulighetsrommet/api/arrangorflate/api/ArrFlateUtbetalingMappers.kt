@@ -20,7 +20,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
             digest = beregning.getDigest(),
         )
 
-        is UtbetalingBeregningPrisPerManedsverk -> {
+        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
             val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
             val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
@@ -51,7 +51,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()
 
-            ArrFlateBeregning.PrisPerManedsverk(
+            ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,

@@ -1,11 +1,11 @@
 import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
-import { Table, HStack, Tooltip, Alert, List } from "@navikt/ds-react";
+import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
 import { useSortState } from "~/hooks/useSortState";
 import { formaterDato, formaterFoedselsdato } from "~/utils/date";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { DeltakelseTimeline } from "./DeltakelseTimeline";
 import {
-  ArrFlateBeregningPrisPerManedsverk,
+  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder,
   Periode,
   RelevanteForslag,
   UtbetalingDeltakelseManedsverk,
@@ -37,7 +37,7 @@ export function DeltakelserTable({
   relevanteForslag,
 }: {
   periode: Periode;
-  beregning: ArrFlateBeregningPrisPerManedsverk;
+  beregning: ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 }) {
@@ -50,6 +50,7 @@ export function DeltakelserTable({
   function hasRelevanteForslag(id: string): boolean {
     return (relevanteForslag.find((r) => r.deltakerId === id)?.antallRelevanteForslag ?? 0) > 0;
   }
+
   const deltakereMedRelevanteForslag = beregning.deltakelser.filter(
     (deltaker: UtbetalingDeltakelseManedsverk) => hasRelevanteForslag(deltaker.id),
   );

@@ -6304,28 +6304,28 @@ components:
       type: object
       oneOf:
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
         - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
 
     ArrFlateBeregningFri:
       type: object
       properties:
-        belop:
-          type: integer
         type:
           const: FRI
+        belop:
+          type: integer
         digest:
           type: string
       required:
-        - belop
         - type
+        - belop
         - digest
 
-    ArrFlateBeregningPrisPerManedsverk:
+    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder:
       type: object
       properties:
         type:
-          const: PRIS_PER_MANEDSVERK
+          const: PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER
         belop:
           type: integer
         digest:
@@ -6385,9 +6385,24 @@ components:
     UtbetalingBeregningDto:
       type: object
       oneOf:
+        - $ref: "#/components/schemas/UtbetalingBeregningFri"
         - $ref: "#/components/schemas/UtbetalingBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/UtbetalingBeregningPrisPerUkesverk"
-        - $ref: "#/components/schemas/UtbetalingBeregningFri"
+
+    UtbetalingBeregningFri:
+      type: object
+      properties:
+        belop:
+          type: integer
+        type:
+          const: FRI
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegion"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+      required: [belop, type, deltakerTableData, deltakerRegioner]
 
     UtbetalingBeregningPrisPerManedsverk:
       type: object
@@ -6426,21 +6441,6 @@ components:
         ukesverkTotal:
           type: number
       required: [type, belop, sats, deltakerTableData, deltakerRegioner, ukesverkTotal]
-
-    UtbetalingBeregningFri:
-      type: object
-      properties:
-        belop:
-          type: integer
-        type:
-          const: FRI
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegion"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-      required: [belop, type, deltakerTableData, deltakerRegioner]
 
     UtbetalingStengtPeriode:
       type: object

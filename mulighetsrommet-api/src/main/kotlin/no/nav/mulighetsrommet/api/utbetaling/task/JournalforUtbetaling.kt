@@ -95,7 +95,7 @@ class JournalforUtbetaling(
                             stengt = emptyList(),
                         )
 
-                        is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
+                        is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> BeregningPdf(
                             belop = arrflateUtbetaling.beregning.belop,
                             antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
                             deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
