@@ -22,7 +22,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             forAll(
                 row(
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
@@ -38,7 +38,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 50.0),
@@ -54,7 +54,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 40.0),
@@ -70,7 +70,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
@@ -87,13 +87,13 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
                             ),
                         ),
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 49.0),
@@ -110,14 +110,14 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
                                 DeltakelsesprosentPeriode(Periode(periodeMidt, periodeSlutt), 50.0),
                             ),
                         ),
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
@@ -154,7 +154,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 row(
                     setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
@@ -171,7 +171,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 row(
                     setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
@@ -188,14 +188,14 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 row(
                     setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
                                 DeltakelsesprosentPeriode(Periode(periodeMidt, periodeSlutt), 50.0),
                             ),
                         ),
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
                                 DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
@@ -233,14 +233,14 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 sats = 100,
                 stengt = setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
                 deltakelser = setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = deltakerId1,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
                             DeltakelsesprosentPeriode(Periode(periodeMidt, periodeSlutt), 50.0),
                         ),
                     ),
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = deltakerId2,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
@@ -269,7 +269,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 StengtPeriode(Periode(LocalDate.of(2023, 4, 5), LocalDate.of(2023, 4, 19)), "Stengt"),
             )
             val deltakelser = setOf(
-                DeltakelsePerioder(
+                DeltakelseDeltakelsesprosentPerioder(
                     deltakelseId = deltakerId1,
                     perioder = listOf(
                         DeltakelsesprosentPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1)), 100.0),
@@ -297,7 +297,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                     20205,
                     emptySet(),
                     setOf(
-                        DeltakelsePerioder(
+                        DeltakelseDeltakelsesprosentPerioder(
                             deltakelseId = UUID.randomUUID(),
                             perioder = listOf(DeltakelsesprosentPeriode(Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, 6)), 100.0)),
                         ),
@@ -316,7 +316,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                         20205,
                         emptySet(),
                         setOf(
-                            DeltakelsePerioder(
+                            DeltakelseDeltakelsesprosentPerioder(
                                 deltakelseId = UUID.randomUUID(),
                                 perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
                             ),

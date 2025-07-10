@@ -22,10 +22,11 @@ test.describe("Utbetalinger detaljer", () => {
     page,
   }) => {
     // Wait for the utbetalinger table to load
-    await page.waitForSelector("table");
+    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
 
     // Find the row with status Til attestering
     const returnertUtbetalingRow = page
+      .getByTestId("utbetaling-table")
       .locator("tr")
       .filter({ hasText: "Til attestering" })
       .first();
@@ -40,7 +41,7 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify the utbetaling linjer are displayed
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
-    await expect(page.locator("table")).toBeVisible();
+    await expect(page.getByTestId("linje-table")).toBeVisible();
 
     // Verify that Attester og Send i retur buttons are visible
     await expect(page.locator("tr button", { hasText: /^Attester$/ })).toBeVisible();
@@ -63,10 +64,14 @@ test.describe("Utbetalinger detaljer", () => {
 
   test("should navigate to utbetalinger and select a RETURNERT utbetaling", async ({ page }) => {
     // Wait for the utbetalinger table to load
-    await page.waitForSelector("table");
+    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
 
     // Find the row with status RETURNERT
-    const returnertUtbetalingRow = page.locator("tr").filter({ hasText: "RETURNERT" }).first();
+    const returnertUtbetalingRow = page
+      .getByTestId("utbetaling-table")
+      .locator("tr")
+      .filter({ hasText: "RETURNERT" })
+      .first();
     await expect(returnertUtbetalingRow).toBeVisible();
 
     // Click on the "Behandle" link within that row
@@ -81,7 +86,7 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify the utbetaling linjer are displayed
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
-    await expect(page.locator("table")).toBeVisible();
+    await expect(page.getByTestId("linje-table")).toBeVisible();
 
     // Verify that årsak og forklaring is rendered
     await expect(
@@ -99,10 +104,11 @@ test.describe("Utbetalinger detaljer", () => {
     page,
   }) => {
     // Wait for the utbetalinger table to load
-    await page.waitForSelector("table");
+    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
 
     // Find the row with status Overført til utbetaling
     const returnertUtbetalingRow = page
+      .getByTestId("utbetaling-table")
       .locator("tr")
       .filter({ hasText: "Overført til utbetaling" })
       .first();
@@ -117,7 +123,7 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify the utbetaling linjer are displayed
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
-    await expect(page.locator("table")).toBeVisible();
+    await expect(page.getByTestId("linje-table")).toBeVisible();
 
     // Verify the status is displayed as Overført til utbetaling for the utbetalingslinje
     await expect(page.locator("td span", { hasText: "Overført til utbetaling" })).toBeVisible();
@@ -133,10 +139,14 @@ test.describe("Utbetalinger detaljer", () => {
 
   test("should navigate to utbetalinger and select a UTBETALT utbetaling", async ({ page }) => {
     // Wait for the utbetalinger table to load
-    await page.waitForSelector("table");
+    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
 
     // Find the row with status Utbetalt
-    const returnertUtbetalingRow = page.locator("tr").filter({ hasText: "Utbetalt" }).first();
+    const returnertUtbetalingRow = page
+      .getByTestId("utbetaling-table")
+      .locator("tr")
+      .filter({ hasText: "Utbetalt" })
+      .first();
     await expect(returnertUtbetalingRow).toBeVisible();
 
     // Click on the "Detaljer" link within that row
@@ -148,7 +158,7 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify the utbetaling linjer are displayed
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
-    await expect(page.locator("table")).toBeVisible();
+    await expect(page.getByTestId("linje-table")).toBeVisible();
 
     // Verify the status is displayed as Overført til utbetaling for the utbetalingslinje
     await expect(page.locator("td span", { hasText: "Utbetalt" })).toBeVisible();

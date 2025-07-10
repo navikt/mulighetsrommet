@@ -9,6 +9,7 @@ import {
   Tilskuddstype,
   TotrinnskontrollBesluttetDto,
   TotrinnskontrollTilBeslutningDto,
+  UtbetalingBeregningFri,
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinje,
@@ -478,3 +479,13 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     } as TotrinnskontrollBesluttetDto,
   },
 ];
+
+export const mockBeregning: UtbetalingBeregningFri = {
+  belop: 780,
+  deltakerRegioner: [],
+  deltakerTableData: {
+    columns: [],
+    rows: [],
+  },
+  type: "FRI",
+};

@@ -1,6 +1,12 @@
-import { UtbetalingDetaljerDto, TilsagnDto, UtbetalingKompaktDto } from "@mr/api-client-v2";
+import {
+  UtbetalingDetaljerDto,
+  TilsagnDto,
+  UtbetalingKompaktDto,
+  UtbetalingBeregningDto,
+} from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import {
+  mockBeregning,
   mockUtbetalinger,
   mockUtbetalingerKompakt,
   mockUtbetalingLinjer,
@@ -26,6 +32,12 @@ export const utbetalingHandlers = [
         utbetaling: mockUtbetaling,
         linjer: matchingLinjer,
       });
+    },
+  ),
+  http.get<PathParams, PathParams, UtbetalingBeregningDto>(
+    "*/api/v1/intern/utbetaling/:id/beregning",
+    () => {
+      return HttpResponse.json(mockBeregning);
     },
   ),
   http.get<PathParams, PathParams, UtbetalingKompaktDto[]>(

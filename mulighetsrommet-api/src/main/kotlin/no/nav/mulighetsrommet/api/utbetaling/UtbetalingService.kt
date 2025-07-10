@@ -247,7 +247,9 @@ class UtbetalingService(
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
 
-            is UtbetalingBeregningPrisPerManedsverk, is UtbetalingBeregningPrisPerUkesverk -> Unit
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> Unit
         }
 
         val relevanteTilsagn = queries.tilsagn.getAll(

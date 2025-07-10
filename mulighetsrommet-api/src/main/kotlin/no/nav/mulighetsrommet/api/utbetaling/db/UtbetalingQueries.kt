@@ -93,7 +93,12 @@ class UtbetalingQueries(private val session: Session) {
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
                 // TODO: lagre perioder uten deltakelsesprosent?
                 val perioder = dbo.beregning.input.deltakelser
-                    .map { DeltakelsePerioder(it.deltakelseId, listOf(DeltakelsesprosentPeriode(it.periode, 100.0))) }
+                    .map {
+                        DeltakelseDeltakelsesprosentPerioder(
+                            it.deltakelseId,
+                            listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                        )
+                    }
                     .toSet()
                 upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
                 val deltakelser = dbo.beregning.output.deltakelser.map { it.deltakelseId to it.ukesverk }
@@ -141,7 +146,10 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertStengtHosArrangorQuery, perioder)
     }
 
-    private fun Session.upsertUtbetalingBeregningInputDeltakelsePerioder(id: UUID, perioder: Set<DeltakelsePerioder>) {
+    private fun Session.upsertUtbetalingBeregningInputDeltakelsePerioder(
+        id: UUID,
+        perioder: Set<DeltakelseDeltakelsesprosentPerioder>,
+    ) {
         @Language("PostgreSQL")
         val deletePerioderQuery = """
             delete

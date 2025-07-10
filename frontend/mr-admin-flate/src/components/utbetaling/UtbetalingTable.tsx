@@ -40,6 +40,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       sort={sort}
       onSortChange={(sortKey) => toggleSort(sortKey as keyof UtbetalingRow)}
       aria-label="Utbetalinger"
+      data-testid="utbetaling-table"
     >
       <Table.Header>
         <Table.Row>

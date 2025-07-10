@@ -16,7 +16,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
 
   return (
     <Box className="overflow-x-scroll">
-      <Table>
+      <Table data-testid="linje-table">
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell colSpan={6} className="bg-gray-100">

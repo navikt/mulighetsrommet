@@ -91,7 +91,7 @@ object ArrangorflateTestUtils {
                 sats = 20205,
                 stengt = setOf(),
                 deltakelser = setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = deltakerId,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
