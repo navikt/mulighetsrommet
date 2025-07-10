@@ -1,6 +1,6 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Box, Spacer, HStack, VStack, Link } from "@navikt/ds-react";
+import { Box, Spacer, HStack, VStack, Link, Heading } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetaling,
@@ -66,7 +66,11 @@ export default function UtbetalingDetaljerSide() {
     if (type === UtbetalingType.INVESTERING) {
       return <UtbetalingTypeText type={type} text={"Utbetaling for investering"} />;
     }
-    return "Innsending";
+    return (
+      <Heading level="3" size="medium">
+        Innsending
+      </Heading>
+    );
   };
 
   const visNedlastingAvKvittering = [

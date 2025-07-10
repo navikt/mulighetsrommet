@@ -1,14 +1,24 @@
 import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
-import { LoaderFunction, useLoaderData, Link as ReactRouterLink } from "react-router";
+import { LoaderFunction, useLoaderData, Link as ReactRouterLink, MetaFunction } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { formaterPeriode } from "~/utils/date";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Steg 1 av 3: Innsendingsinformasjon - Godkjenn innsending" },
+    {
+      name: "description",
+      content: "Grunnleggende informasjon om innsendingen",
+    },
+  ];
+};
 
 type LoaderData = {
   utbetaling: ArrFlateUtbetaling;
@@ -56,30 +66,28 @@ export default function TilsagnDetaljerPage() {
         Innsendingsinformasjon
       </Heading>
       <VStack gap="4">
-        <Box>
-          <Definisjonsliste
-            definitions={[
-              {
-                key: "Arrangør",
-                value: `${utbetaling.arrangor.navn} - ${utbetaling.arrangor.organisasjonsnummer}`,
-              },
-              { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
-              { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-              { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
-              {
-                key: "Frist for innsending",
-                value: "Kravet må sendes inn senest to måneder etter at tilsagnsperioden går ut.",
-              },
-            ]}
-          />
-        </Box>
+        <Definisjonsliste
+          definitions={[
+            {
+              key: "Arrangør",
+              value: `${utbetaling.arrangor.navn} - ${utbetaling.arrangor.organisasjonsnummer}`,
+            },
+            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+            { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
+            {
+              key: "Frist for innsending",
+              value: "Kravet må sendes inn senest to måneder etter at tilsagnsperioden går ut.",
+            },
+          ]}
+        />
         <Heading level="3" size="medium">
           Tilgjengelige tilsagn
         </Heading>
         {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
         <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         {tilsagn.map((tilsagn) => (
-          <TilsagnDetaljer tilsagn={tilsagn} />
+          <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} headingLevel="4" />
         ))}
         {harTilsagn && (
           <HStack gap="4" className="mt-4">

@@ -40,6 +40,14 @@ export function subtractDays(date: Date | string, numDays: number): Date {
   return newDate;
 }
 
+export function formaterFoedselsdato(foedselsdato: string | undefined, foedselsaar?: number) {
+  return foedselsdato
+    ? formaterDato(foedselsdato)
+    : foedselsaar
+      ? `Fødselsår: ${foedselsaar}`
+      : null;
+}
+
 interface TimestampInfo {
   title: string;
   value: string;

@@ -18,7 +18,7 @@ interface Props {
 
 export function KontonummerInput({ kontonummer, error, onClick }: Props) {
   return (
-    <VStack gap="4">
+    <VStack gap="2">
       {!kontonummer ? (
         <Alert variant="warning">
           <VStack align="start" gap="2">

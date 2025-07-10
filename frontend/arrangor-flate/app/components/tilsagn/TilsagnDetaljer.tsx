@@ -7,9 +7,10 @@ import { formaterPeriode } from "~/utils/date";
 interface Props {
   tilsagn: ArrangorflateTilsagn;
   ekstraDefinisjoner?: Definition[];
+  headingLevel?: "3" | "4";
 }
 
-export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
+export function TilsagnDetaljer({ tilsagn, headingLevel, ekstraDefinisjoner }: Props) {
   const tilsagnDetaljer: Definition[] = [
     ...(ekstraDefinisjoner || []),
     { key: "Tilsagnstype", value: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type) },
@@ -40,7 +41,7 @@ export function TilsagnDetaljer({ tilsagn, ekstraDefinisjoner }: Props) {
 
   return (
     <Definisjonsliste
-      headingLevel="4"
+      headingLevel={headingLevel ?? "3"}
       className="p-4 border-1 border-border-divider rounded-lg w-xl"
       title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} - ${tilsagn.bestillingsnummer}`}
       definitions={[...tilsagnDetaljer, ...beregningDetaljer]}

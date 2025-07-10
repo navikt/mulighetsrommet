@@ -23,7 +23,6 @@ import { apiHeaders } from "~/auth/auth.server";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useEffect, useRef } from "react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { Separator } from "~/components/common/Separator";
 import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
@@ -31,6 +30,7 @@ import { errorAt, isValidationError, problemDetailResponse } from "~/utils/valid
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 import { formaterPeriode } from "~/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
+import { Separator } from "~/components/common/Separator";
 
 export const meta: MetaFunction = () => {
   return [
@@ -224,17 +224,19 @@ export default function OpprettKravOppsummering() {
         />
         <Separator />
         <Form method="post" encType="multipart/form-data">
-          <VStack gap="4">
-            <Heading level="3" size="small">
-              Vedlegg
-            </Heading>
-            <FileUploader
-              error={errorAt("/vedlegg", data?.errors)}
-              maxFiles={10}
-              maxSizeMB={3}
-              maxSizeBytes={3 * 1024 * 1024}
-              id="vedlegg"
-            />
+          <VStack gap="6">
+            <VStack gap="4">
+              <Heading level="3" size="medium">
+                Vedlegg
+              </Heading>
+              <FileUploader
+                error={errorAt("/vedlegg", data?.errors)}
+                maxFiles={10}
+                maxSizeMB={3}
+                maxSizeBytes={3 * 1024 * 1024}
+                id="vedlegg"
+              />
+            </VStack>
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>
               <Checkbox
