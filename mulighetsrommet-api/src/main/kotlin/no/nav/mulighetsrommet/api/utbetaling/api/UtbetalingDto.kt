@@ -1,11 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -19,7 +15,7 @@ data class UtbetalingDto(
     val id: UUID,
     val status: AdminUtbetalingStatus,
     val periode: Periode,
-    val beregning: Beregning,
+    val belop: Int,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -32,32 +28,6 @@ data class UtbetalingDto(
     val tilskuddstype: Tilskuddstype,
     val type: UtbetalingType?,
 ) {
-    @Serializable
-    sealed class Beregning {
-        abstract val belop: Int
-
-        // TODO: slå sammen månedsverk/ukesverk til felles modell for visning?
-        @Serializable
-        @SerialName("PRIS_PER_MANEDSVERK")
-        data class PrisPerManedsverk(
-            val sats: Int,
-            override val belop: Int,
-        ) : Beregning()
-
-        @Serializable
-        @SerialName("PRIS_PER_UKESVERK")
-        data class PrisPerUkesverk(
-            val sats: Int,
-            override val belop: Int,
-        ) : Beregning()
-
-        @Serializable
-        @SerialName("FRI")
-        data class Fri(
-            override val belop: Int,
-        ) : Beregning()
-    }
-
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus): UtbetalingDto {
             return UtbetalingDto(
@@ -69,21 +39,7 @@ data class UtbetalingDto(
                 createdAt = utbetaling.createdAt,
                 beskrivelse = utbetaling.beskrivelse,
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
-                beregning = when (utbetaling.beregning) {
-                    is UtbetalingBeregningFri -> Beregning.Fri(
-                        belop = utbetaling.beregning.output.belop,
-                    )
-
-                    is UtbetalingBeregningPrisPerManedsverk -> Beregning.PrisPerManedsverk(
-                        belop = utbetaling.beregning.output.belop,
-                        sats = utbetaling.beregning.input.sats,
-                    )
-
-                    is UtbetalingBeregningPrisPerUkesverk -> Beregning.PrisPerUkesverk(
-                        belop = utbetaling.beregning.output.belop,
-                        sats = utbetaling.beregning.input.sats,
-                    )
-                },
+                belop = utbetaling.beregning.output.belop,
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,

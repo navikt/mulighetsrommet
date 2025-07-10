@@ -10,18 +10,10 @@ import { formaterDato, formaterPeriode, utbetalingLinjeCompareFn } from "@/utils
 import { AdminUtbetalingStatus, Rolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
-import {
-  Accordion,
-  Alert,
-  Button,
-  CopyButton,
-  Heading,
-  HGrid,
-  HStack,
-  VStack,
-} from "@navikt/ds-react";
+import { Accordion, Alert, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import {
+  beregningQuery,
   tilsagnTilUtbetalingQuery,
   utbetalingHistorikkQuery,
   utbetalingQuery,
@@ -33,11 +25,9 @@ import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbet
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { useEffect, useState } from "react";
-import { PrisPerManedsverkTable } from "@/components/utbetaling/PrisPerManedsverkTable";
-import { PrisPerManedsverkTableModal } from "./PrisPerManedsverkTableModal";
+import { useEffect } from "react";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/utbetaling/utbetalingUtils";
+import BeregningView from "@/components/utbetaling/beregning/BeregningView";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -47,6 +37,7 @@ function useUtbetalingPageData() {
   const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
   const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
   const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
+  const { data: beregning } = useApiSuspenseQuery(beregningQuery({ navEnheter: [] }, utbetalingId));
 
   // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
   useEffect(() => {
@@ -60,15 +51,14 @@ function useUtbetalingPageData() {
     tilsagn,
     utbetaling: utbetaling.utbetaling,
     linjer: utbetaling.linjer.toSorted(utbetalingLinjeCompareFn),
-    deltakere: utbetaling.deltakere,
+    beregning,
   };
 }
 
 export function UtbetalingPage() {
-  const { gjennomforingId } = useParams();
-  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, deltakere } =
+  const { gjennomforingId, utbetalingId } = useParams();
+  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, beregning } =
     useUtbetalingPageData();
-  const [beregningModalOpen, setBeregningModalOpen] = useState<boolean>(false);
 
   const erSaksbehandlerOkonomi = ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI);
   const brodsmuler: Brodsmule[] = [
@@ -137,7 +127,7 @@ export function UtbetalingPage() {
                     />
                     <MetadataHorisontal
                       header={utbetalingTekster.beregning.belop.label}
-                      verdi={formaterNOK(utbetaling.beregning.belop)}
+                      verdi={formaterNOK(utbetaling.belop)}
                     />
                     {utbetaling.beskrivelse && (
                       <MetadataHorisontal
@@ -197,33 +187,16 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
-              {isBeregningPrisPerManedsverk(utbetaling.beregning) && (
-                <Accordion>
-                  <Accordion.Item>
-                    <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
-                    <Accordion.Content>
-                      <VStack gap="2">
-                        {
-                          <PrisPerManedsverkTable
-                            maxHeight="30rem"
-                            deltakere={deltakere}
-                            sats={utbetaling.beregning.sats}
-                          />
-                        }
-                        <HStack justify="start" align="start">
-                          <Button
-                            variant="secondary"
-                            size="small"
-                            onClick={() => setBeregningModalOpen(true)}
-                          >
-                            Filtreringshjelp
-                          </Button>
-                        </HStack>
-                      </VStack>
-                    </Accordion.Content>
-                  </Accordion.Item>
-                </Accordion>
-              )}
+              <Accordion>
+                <Accordion.Item>
+                  <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
+                  <Accordion.Content>
+                    {utbetalingId && (
+                      <BeregningView utbetalingId={utbetalingId} beregning={beregning} />
+                    )}
+                  </Accordion.Content>
+                </Accordion.Item>
+              </Accordion>
               {tilsagn.every(
                 (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
               ) && (
@@ -247,15 +220,6 @@ export function UtbetalingPage() {
           </VStack>
         </WhitePaddedBox>
       </ContentBox>
-      {isBeregningPrisPerManedsverk(utbetaling.beregning) && (
-        <PrisPerManedsverkTableModal
-          heading={formaterPeriode(utbetaling.periode)}
-          deltakere={deltakere}
-          sats={utbetaling.beregning.sats}
-          modalOpen={beregningModalOpen}
-          onClose={() => setBeregningModalOpen(false)}
-        />
-      )}
     </>
   );
 }

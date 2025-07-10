@@ -34,7 +34,7 @@ data class UtbetalingBeregningPrisPerUkesverk(
     @Serializable
     data class Output(
         override val belop: Int,
-        val deltakelser: Set<DeltakelseUkesverk>,
+        override val deltakelser: Set<DeltakelseUkesverk>,
     ) : UtbetalingBeregningOutput()
 
     companion object {
@@ -93,6 +93,6 @@ data class DeltakelsePeriode(
 @Serializable
 data class DeltakelseUkesverk(
     @Serializable(with = UUIDSerializer::class)
-    val deltakelseId: UUID,
+    override val deltakelseId: UUID,
     val ukesverk: Double,
-)
+) : UtbetalingBeregningDeltakelse()

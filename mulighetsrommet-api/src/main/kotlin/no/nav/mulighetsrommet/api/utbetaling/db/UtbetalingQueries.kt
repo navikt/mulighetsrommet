@@ -129,14 +129,14 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling_stengt_hos_arrangor (utbetaling_id, periode, beskrivelse)
             values (:utbetaling_id::uuid, :periode::daterange, :beskrivelse)
         """.trimIndent()
-        val stengt = stengt.map { stengt ->
+        val perioder = stengt.map {
             mapOf(
                 "utbetaling_id" to id,
-                "periode" to stengt.periode.toDaterange(),
-                "beskrivelse" to stengt.beskrivelse,
+                "periode" to it.periode.toDaterange(),
+                "beskrivelse" to it.beskrivelse,
             )
         }
-        batchPreparedNamedStatement(insertStengtHosArrangorQuery, stengt)
+        batchPreparedNamedStatement(insertStengtHosArrangorQuery, perioder)
     }
 
     private fun Session.upsertUtbetalingBeregningInputDeltakelsePerioder(id: UUID, perioder: Set<DeltakelsePerioder>) {
@@ -408,6 +408,7 @@ class UtbetalingQueries(private val session: Session) {
                 ),
                 output = UtbetalingBeregningFri.Output(
                     belop = it.int("belop_beregnet"),
+                    deltakelser = emptySet(),
                 ),
             )
         }

@@ -24,7 +24,7 @@ data class Deltakelsesmengde(
     val deltakelsesprosent: Double,
 )
 
-data class DeltakerPerson(
+data class Person(
     val norskIdent: NorskIdent,
     val foedselsdato: LocalDate?,
     val navn: String,

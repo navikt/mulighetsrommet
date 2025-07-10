@@ -130,6 +130,7 @@ object ArrangorflateTestUtils {
             ),
             output = UtbetalingBeregningFri.Output(
                 belop = 5000,
+                emptySet(),
             ),
         ),
         kontonummer = Kontonummer("12312312312"),

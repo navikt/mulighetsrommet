@@ -23,11 +23,11 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -37,7 +37,6 @@ import java.util.*
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
-    val deltakerService: DeltakerService by inject()
 
     route("/utbetaling/{id}") {
         authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
@@ -81,52 +80,29 @@ fun Route.utbetalingRoutes() {
                         )
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 
-                    val deltakere = when (utbetaling.beregning) {
-                        is UtbetalingBeregningFri -> emptyList()
-
-                        is UtbetalingBeregningPrisPerManedsverk -> {
-                            val deltakereById = queries.deltaker
-                                .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                                .associateBy { it.id }
-
-                            val deltakerPersoner =
-                                deltakerService.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
-
-                            utbetaling.beregning.output.deltakelser.map {
-                                val deltaker = deltakereById.getValue(it.deltakelseId)
-                                val person = deltaker.norskIdent?.let { deltakerPersoner.getValue(deltaker.norskIdent) }
-                                toDeltakerForKostnadsfordeling(deltaker, person, it.manedsverk)
-                            }
-                        }
-
-                        is UtbetalingBeregningPrisPerUkesverk -> {
-                            val deltakereById = queries.deltaker
-                                .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                                .associateBy { it.id }
-
-                            val deltakerPersoner =
-                                deltakerService.getDeltakereForKostnadsfordeling(deltakereById.values.mapNotNull { it.norskIdent })
-
-                            utbetaling.beregning.output.deltakelser.map {
-                                val deltaker = deltakereById.getValue(it.deltakelseId)
-                                val person = deltaker.norskIdent?.let { deltakerPersoner.getValue(deltaker.norskIdent) }
-                                // TODO: modell må passe ukesverk
-                                toDeltakerForKostnadsfordeling(deltaker, person, it.ukesverk)
-                            }
-                        }
-                    }
-
                     UtbetalingDetaljerDto(
                         utbetaling = UtbetalingDto.fromUtbetaling(
                             utbetaling,
                             AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger),
                         ),
-                        deltakere = deltakere,
                         linjer = linjer,
                     )
                 }
 
                 call.respond(utbetaling)
+            }
+        }
+
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
+            get("/beregning") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val filter = getBeregningFilter()
+
+                val utbetaling = db.session {
+                    queries.utbetaling.get(id) ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
+                }
+
+                call.respond(utbetalingService.getUtbetalingBeregning(utbetaling, filter = filter))
             }
         }
 
@@ -207,19 +183,6 @@ fun Route.utbetalingRoutes() {
     }
 }
 
-private fun toDeltakerForKostnadsfordeling(
-    deltaker: Deltaker,
-    person: DeltakerPerson?,
-    manedsverk: Double,
-): DeltakerForKostnadsfordeling = DeltakerForKostnadsfordeling(
-    id = deltaker.id,
-    navn = person?.navn,
-    geografiskEnhet = person?.geografiskEnhet,
-    region = person?.region,
-    foedselsdato = person?.foedselsdato,
-    manedsverk = manedsverk,
-)
-
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("besluttelse")
@@ -272,4 +235,12 @@ data class OpprettUtbetalingRequest(
     val kontonummer: Kontonummer,
     val kidNummer: String? = null,
     val belop: Int,
+)
+
+data class BeregningFilter(
+    val navEnheter: List<NavEnhetNummer>,
+)
+
+fun RoutingContext.getBeregningFilter() = BeregningFilter(
+    navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList(),
 )

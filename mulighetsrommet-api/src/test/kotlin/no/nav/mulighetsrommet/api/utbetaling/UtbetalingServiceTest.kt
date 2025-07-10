@@ -59,6 +59,7 @@ class UtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
+        personService: PersonService = mockk(relaxed = true),
     ) = UtbetalingService(
         config = UtbetalingService.Config(
             bestillingTopic = "bestilling-topic",
@@ -66,6 +67,7 @@ class UtbetalingServiceTest : FunSpec({
         db = database.db,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
+        personService = personService,
     )
 
     context("opprett utbetaling") {
@@ -520,7 +522,7 @@ class UtbetalingServiceTest : FunSpec({
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
                     input = UtbetalingBeregningFri.Input(10),
-                    output = UtbetalingBeregningFri.Output(10),
+                    output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
             )
 
@@ -573,7 +575,7 @@ class UtbetalingServiceTest : FunSpec({
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
                     input = UtbetalingBeregningFri.Input(10),
-                    output = UtbetalingBeregningFri.Output(10),
+                    output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
             )
 
@@ -627,7 +629,7 @@ class UtbetalingServiceTest : FunSpec({
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
                     input = UtbetalingBeregningFri.Input(10),
-                    output = UtbetalingBeregningFri.Output(10),
+                    output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
             )
 
@@ -898,7 +900,7 @@ class UtbetalingServiceTest : FunSpec({
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
                     input = UtbetalingBeregningFri.Input(10),
-                    output = UtbetalingBeregningFri.Output(10),
+                    output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
             )
 
@@ -1220,7 +1222,7 @@ class UtbetalingServiceTest : FunSpec({
                     utbetaling1Forhandsgodkjent.copy(
                         beregning = UtbetalingBeregningFri(
                             input = UtbetalingBeregningFri.Input(1),
-                            output = UtbetalingBeregningFri.Output(1),
+                            output = UtbetalingBeregningFri.Output(1, emptySet()),
                         ),
                     ),
                 ),

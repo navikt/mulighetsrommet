@@ -24,7 +24,6 @@ export const utbetalingHandlers = [
 
       return HttpResponse.json({
         utbetaling: mockUtbetaling,
-        deltakere: [],
         linjer: matchingLinjer,
       });
     },
