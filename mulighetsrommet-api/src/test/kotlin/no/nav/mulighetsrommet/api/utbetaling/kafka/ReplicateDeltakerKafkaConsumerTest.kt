@@ -33,14 +33,14 @@ import java.time.LocalDateTime
 import java.time.Period
 import java.util.*
 
-class AmtDeltakerV1KafkaConsumerTest : FunSpec({
+class ReplicateDeltakerKafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createConsumer(
         period: Period = Period.ofDays(1),
         oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(),
-    ): AmtDeltakerV1KafkaConsumer {
-        return AmtDeltakerV1KafkaConsumer(
+    ): ReplicateDeltakerKafkaConsumer {
+        return ReplicateDeltakerKafkaConsumer(
             db = database.db,
             relevantDeltakerSluttDatoPeriod = period,
             oppdaterUtbetaling = oppdaterUtbetaling,

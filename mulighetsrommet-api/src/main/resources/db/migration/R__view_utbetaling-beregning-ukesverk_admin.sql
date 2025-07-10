@@ -33,10 +33,10 @@ with stengt_periode as (select utbetaling_id,
                                     jsonb_agg(
                                             jsonb_build_object(
                                                     'deltakelseId', deltakelse_id,
-                                                    'ukesverk', ukesverk
+                                                    'ukesverk', faktor
                                             )
                                     ) as deltakelser
-                             from utbetaling_deltakelse_ukesverk
+                             from utbetaling_deltakelse_faktor
                              group by utbetaling_id)
 select utbetaling.id,
        utbetaling.periode,

@@ -67,8 +67,8 @@ import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
@@ -159,7 +159,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
                 get(),
             ),
-            config.clients.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(
+            config.clients.amtDeltakerV1 to ReplicateDeltakerKafkaConsumer(
                 db = get(),
                 oppdaterUtbetaling = get(),
             ),
