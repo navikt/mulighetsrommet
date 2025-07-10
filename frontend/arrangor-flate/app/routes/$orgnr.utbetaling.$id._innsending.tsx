@@ -1,10 +1,9 @@
 import { Heading, Hide, HStack, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Outlet, useLocation } from "react-router";
-import { pathByOrgnr } from "~/pathByOrgnr";
 import { Link as ReactRouterLink } from "react-router";
-import { useOrgnrFromUrl } from "~/utils";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { useEffect, useState } from "react";
+import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 
 function useStep(path: string) {
   switch (path.split("/").pop()) {
@@ -44,7 +43,7 @@ export default function UtbetalingLayout() {
               Steg
             </Heading>
             <Stepper
-              aria-labelledby="Innsendingssteg"
+              aria-labelledby="stepper-heading"
               activeStep={activeStep}
               onStepChange={setActiveStep}
               interactive={false}

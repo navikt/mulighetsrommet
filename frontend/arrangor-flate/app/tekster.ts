@@ -1,5 +1,5 @@
 import { TilsagnType } from "api-client";
-import { formaterDato } from "./utils";
+import { formaterDato } from "./utils/date";
 
 export const tekster = {
   bokmal: {
@@ -56,6 +56,7 @@ export const tekster = {
         kontoTitle: "Konto for utbetaling",
         kontonummerRegistrert: "Vi har registrert følgende kontonummer: ",
       },
+      pdfNavn: (tidspunkt: Date | string) => `utbetaling-${formaterDato(tidspunkt)}.pdf`,
     },
     tilbakeTilOversikt: "Tilbake til oversikten",
   },

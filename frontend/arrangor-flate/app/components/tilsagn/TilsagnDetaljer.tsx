@@ -1,17 +1,17 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateTilsagn } from "api-client";
-import { formaterPeriode } from "~/utils";
-import { Definisjonsliste, Definition } from "../Definisjonsliste";
+import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
 import { tekster } from "~/tekster";
+import { formaterPeriode } from "~/utils/date";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
   minimal?: boolean;
-  ekstraDefinisjoner?: Definition[];
+  headingLevel?: "3" | "4";
 }
 
-export function TilsagnDetaljer({ tilsagn, minimal = false }: Props) {
+export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Props) {
   const tilsagnDetaljer: Definition[] = [
     ...(!minimal
       ? [
@@ -27,6 +27,7 @@ export function TilsagnDetaljer({ tilsagn, minimal = false }: Props) {
 
   return (
     <Definisjonsliste
+      headingLevel={headingLevel ?? "3"}
       className="p-4 border-1 border-border-divider rounded-lg w-xl"
       title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}
       definitions={[...tilsagnDetaljer, ...beregningDetaljer]}

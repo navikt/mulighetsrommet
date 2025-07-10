@@ -1,5 +1,4 @@
-import { useParams } from "react-router";
-import { Periode, ProblemDetail, ValidationError } from "api-client";
+import { ArrFlateUtbetaling, Periode } from "api-client";
 
 export function formaterPeriode(periode: Periode) {
   const start = formaterDato(periode.start);
@@ -35,29 +34,35 @@ export function formaterDatoTid(dato: string | Date): string {
   return result.replace(",", " kl. ");
 }
 
-export function useOrgnrFromUrl() {
-  const { orgnr } = useParams();
-
-  if (!orgnr) {
-    throw new Error("Fant ikke orgnr i url");
-  }
-
-  return orgnr;
-}
-
 export function subtractDays(date: Date | string, numDays: number): Date {
   const newDate = new Date(date);
   newDate.setDate(newDate.getDate() - numDays);
   return newDate;
 }
 
-export function problemDetailResponse(error: ProblemDetail): Response {
-  return new Response(JSON.stringify(error), {
-    status: error.status,
-    headers: { "Content-Type": "application/json" },
-  });
+export function formaterFoedselsdato(foedselsdato: string | undefined, foedselsaar?: number) {
+  return foedselsdato
+    ? formaterDato(foedselsdato)
+    : foedselsaar
+      ? `Fødselsår: ${foedselsaar}`
+      : null;
 }
 
-export function isValidationError(error: unknown): error is ValidationError {
-  return typeof error === "object" && error !== null && "errors" in error;
+interface TimestampInfo {
+  title: string;
+  value: string;
 }
+
+export const getTimestamp = (utbetaling: ArrFlateUtbetaling): TimestampInfo => {
+  if (utbetaling.godkjentAvArrangorTidspunkt) {
+    return {
+      title: "Dato innsendt",
+      value: formaterDato(utbetaling.godkjentAvArrangorTidspunkt),
+    };
+  }
+
+  return {
+    title: "Dato opprettet hos Nav",
+    value: utbetaling.createdAt ? formaterDato(utbetaling.createdAt) : "-",
+  };
+};

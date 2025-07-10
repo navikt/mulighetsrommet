@@ -1,6 +1,6 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Box, Heading, Spacer, HStack, VStack, Link } from "@navikt/ds-react";
+import { Box, Spacer, HStack, VStack, Link, Heading } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetaling,
@@ -9,37 +9,19 @@ import {
 } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { PageHeader } from "~/components/PageHeader";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
-import { Definisjonsliste } from "../components/Definisjonsliste";
-import { pathByOrgnr } from "../pathByOrgnr";
+import { Definisjonsliste } from "../components/common/Definisjonsliste";
 import { tekster } from "../tekster";
-import { formaterDato, formaterPeriode, problemDetailResponse } from "../utils";
 import { getBeregningDetaljer } from "../utils/beregning";
 import css from "../root.module.css";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
+import { formaterPeriode, getTimestamp } from "~/utils/date";
+import { problemDetailResponse } from "~/utils/validering";
+import { pathByOrgnr } from "~/utils/navigation";
+import { PageHeading } from "~/components/common/PageHeading";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
-};
-
-interface TimestampInfo {
-  title: string;
-  value: string;
-}
-
-const getTimestamp = (utbetaling: ArrFlateUtbetaling): TimestampInfo => {
-  if (utbetaling.godkjentAvArrangorTidspunkt) {
-    return {
-      title: "Dato innsendt",
-      value: formaterDato(utbetaling.godkjentAvArrangorTidspunkt),
-    };
-  }
-
-  return {
-    title: "Dato opprettet hos Nav",
-    value: utbetaling.createdAt ? formaterDato(utbetaling.createdAt) : "-",
-  };
 };
 
 export const meta: MetaFunction = () => {
@@ -84,7 +66,11 @@ export default function UtbetalingDetaljerSide() {
     if (type === UtbetalingType.INVESTERING) {
       return <UtbetalingTypeText type={type} text={"Utbetaling for investering"} />;
     }
-    return "Innsending";
+    return (
+      <Heading level="3" size="medium">
+        Innsending
+      </Heading>
+    );
   };
 
   const visNedlastingAvKvittering = [
@@ -95,7 +81,7 @@ export default function UtbetalingDetaljerSide() {
   return (
     <VStack gap="4" className={css.side}>
       <HStack gap="2" className="max-w-[1250px]" align="end" justify="space-between">
-        <PageHeader
+        <PageHeading
           title="Detaljer"
           tilbakeLenke={{
             navn: tekster.bokmal.tilbakeTilOversikt,
@@ -105,7 +91,7 @@ export default function UtbetalingDetaljerSide() {
         <Spacer />
         {visNedlastingAvKvittering && (
           <Link
-            href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=utbetaling-${formaterDato(utbetaling.periode.start)}.pdf`}
+            href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=${tekster.bokmal.utbetaling.pdfNavn(utbetaling.periode.start)}`}
             target="_blank"
           >
             <FilePdfIcon />
@@ -113,9 +99,7 @@ export default function UtbetalingDetaljerSide() {
           </Link>
         )}
       </HStack>
-      <Heading level="2" size="medium">
-        {innsendingHeader(utbetaling.type)}
-      </Heading>
+      {innsendingHeader(utbetaling.type)}
       <Definisjonsliste
         definitions={[
           {
@@ -158,7 +142,7 @@ export default function UtbetalingDetaljerSide() {
         padding="6"
         borderRadius="medium"
         borderColor="border-subtle"
-        borderWidth={"2 1 1 1"}
+        borderWidth={"1 1 1 1"}
         className="max-w-[1250px]"
       >
         <UtbetalingStatusList utbetaling={utbetaling} />

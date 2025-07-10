@@ -1,3 +1,20 @@
+import { useParams } from "react-router";
+import { Tabs } from "~/routes/$orgnr_.oversikt";
+
+export function getCurrentTab(request: Request): Tabs {
+  return (new URL(request.url).searchParams.get("forside-tab") as Tabs) || "aktive";
+}
+
+export function useOrgnrFromUrl() {
+  const { orgnr } = useParams();
+
+  if (!orgnr) {
+    throw new Error("Fant ikke orgnr i url");
+  }
+
+  return orgnr;
+}
+
 export const pathByOrgnr = (orgnr: string) => {
   return {
     utbetalinger: `/${orgnr}/oversikt`,

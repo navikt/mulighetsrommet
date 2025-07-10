@@ -14,14 +14,14 @@ import {
 } from "react-router";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
-import { Header } from "./components/Header";
 import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
-import { problemDetailResponse } from "./utils";
 import css from "./root.module.css";
-import { ErrorPage } from "./components/ErrorPage";
+import { ErrorPage } from "./components/common/ErrorPage";
+import { problemDetailResponse } from "./utils/validering";
+import { Header } from "./components/header/Header";
 import { isDemo } from "./services/environment";
 import { Alert, Heading, Link } from "@navikt/ds-react";
 
@@ -85,7 +85,9 @@ function Dokument({
       <body>
         <DekoratorHeader dekorator={dekorator} />
         <Header arrangorer={arrangorer} />
-        <main className={css.main}>{children}</main>
+        <main id="maincontent" className={css.main}>
+          {children}
+        </main>
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{

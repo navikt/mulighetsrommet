@@ -1,6 +1,6 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ArrFlateBeregning } from "../../api-client";
-import { Definition } from "~/components/Definisjonsliste";
+import { Definition } from "../components/common/Definisjonsliste";
 
 export function getBeregningDetaljer(beregning: ArrFlateBeregning): Definition[] {
   switch (beregning.type) {

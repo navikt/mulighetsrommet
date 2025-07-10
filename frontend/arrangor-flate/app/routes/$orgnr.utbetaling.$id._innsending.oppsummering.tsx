@@ -2,6 +2,7 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Button,
   Checkbox,
+  CheckboxGroup,
   ErrorSummary,
   Heading,
   HStack,
@@ -28,21 +29,17 @@ import {
   useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { KontonummerInput } from "~/components/KontonummerInput";
-import { Separator } from "~/components/Separator";
-import { getOrError, getOrThrowError } from "~/form/form-helpers";
-import { pathByOrgnr } from "~/pathByOrgnr";
-import {
-  formaterPeriode,
-  isValidationError,
-  problemDetailResponse,
-  useOrgnrFromUrl,
-} from "~/utils";
-import { Definisjonsliste } from "../components/Definisjonsliste";
+import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
+import { Separator } from "~/components/common/Separator";
+import { getOrError, getOrThrowError } from "~/utils/form-helpers";
+import { Definisjonsliste } from "../components/common/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { ManglendeMidlerAlert } from "~/components/ManglendeMidlerAlert";
+import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
+import { formaterPeriode } from "~/utils/date";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { problemDetailResponse, isValidationError, errorAt } from "~/utils/validering";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -55,8 +52,11 @@ interface ActionData {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Bekreft utbetaling" },
-    { name: "description", content: "Arrangørflate for bekreftelse av krav om utbetaling" },
+    { title: "Steg 3 av 3: Oppsummering - Godkjenn innsending" },
+    {
+      name: "description",
+      content: "Oppsummering av innsendingen og betalingsinformasjon",
+    },
   ];
 };
 
@@ -148,6 +148,7 @@ export default function BekreftUtbetaling() {
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const hasError = data?.errors && data.errors.length > 0;
 
   const handleHentKontonummer = async () => {
     fetcher.load(`/api/${utbetaling.id}/sync-kontonummer`);
@@ -162,6 +163,12 @@ export default function BekreftUtbetaling() {
       revalidator.revalidate();
     }
   }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon?.kontonummer]);
+
+  useEffect(() => {
+    if (hasError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [data, hasError]);
 
   if (data?.errors) {
     errorSummaryRef.current?.focus();
@@ -201,55 +208,62 @@ export default function BekreftUtbetaling() {
         />
         <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         <Separator />
-        <Heading size="medium" level="3">
-          Betalingsinformasjon
-        </Heading>
         <Form method="post">
-          <VStack gap="4">
-            <KontonummerInput
-              kontonummer={utbetaling.betalingsinformasjon.kontonummer ?? undefined}
-              error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
-              onClick={() => handleHentKontonummer()}
-            />
-            <TextField
-              label="KID-nummer for utbetaling (valgfritt)"
-              size="small"
-              name="kid"
-              htmlSize={35}
-              error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
-              defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
-              maxLength={25}
-              id="kid"
-            />
-            <Separator />
-            {harTilsagn && (
-              <Checkbox
-                name="bekreftelse"
-                value="bekreftet"
-                error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
-                id="bekreftelse"
-              >
-                {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
-              </Checkbox>
-            )}
-            <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
-            <input type="hidden" name="orgnr" value={orgnr} />
-            {data?.errors && data.errors.length > 0 && (
-              <ErrorSummary ref={errorSummaryRef}>
-                {data.errors.map((error: FieldError) => {
-                  return (
-                    <ErrorSummary.Item
-                      href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                      key={jsonPointerToFieldPath(error.pointer)}
-                    >
-                      {error.detail}
-                    </ErrorSummary.Item>
-                  );
-                })}
-              </ErrorSummary>
-            )}
-            {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
+          <VStack gap="6">
+            {harTilsagn ? (
+              <>
+                <VStack gap="4">
+                  <Heading size="medium" level="3">
+                    Betalingsinformasjon
+                  </Heading>
+                  <KontonummerInput
+                    kontonummer={utbetaling.betalingsinformasjon.kontonummer ?? undefined}
+                    error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
+                    onClick={() => handleHentKontonummer()}
+                  />
+                  <TextField
+                    label="KID-nummer for utbetaling (valgfritt)"
+                    size="small"
+                    name="kid"
+                    htmlSize={35}
+                    error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
+                    defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
+                    maxLength={25}
+                    id="kid"
+                  />
+                </VStack>
+                <Separator />
+                <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend="Bekreftelse">
+                  <Checkbox
+                    name="bekreftelse"
+                    value="bekreftet"
+                    id="bekreftelse"
+                    error={errorAt("/bekreftelse", data?.errors) !== undefined}
+                  >
+                    {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
+                  </Checkbox>
+                </CheckboxGroup>
 
+                <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
+                <input type="hidden" name="orgnr" value={orgnr} />
+                {hasError && (
+                  <ErrorSummary ref={errorSummaryRef}>
+                    {data.errors?.map((error: FieldError) => {
+                      return (
+                        <ErrorSummary.Item
+                          href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                          key={jsonPointerToFieldPath(error.pointer)}
+                        >
+                          {error.detail}
+                        </ErrorSummary.Item>
+                      );
+                    })}
+                  </ErrorSummary>
+                )}
+              </>
+            ) : (
+              <UtbetalingManglendeTilsagnAlert />
+            )}
             <HStack gap="4">
               <Button
                 as={ReactRouterLink}

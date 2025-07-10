@@ -1,4 +1,4 @@
-import { Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
+import { Button, ErrorSummary, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { ArrangorflateService, FieldError } from "api-client";
 import {
   LoaderFunction,
@@ -12,11 +12,12 @@ import {
   useActionData,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { KontonummerInput } from "~/components/KontonummerInput";
-import { problemDetailResponse, useOrgnrFromUrl } from "~/utils";
-import { pathByOrgnr } from "../pathByOrgnr";
-import { errorAt } from "~/utils/validering";
+import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
+import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { commitSession, getSession } from "~/sessions.server";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { useEffect, useRef } from "react";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type LoaderData = {
   kontonummer?: string;
@@ -26,7 +27,7 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Opprett krav om utbetaling" },
+    { title: "Steg 2 av 3: Betalingsinformasjon - Opprett krav om utbetaling" },
     {
       name: "description",
       content: "Fyll ut betalingsinformasjon for å opprette et krav om utbetaling",
@@ -106,6 +107,15 @@ export default function OpprettKravUtbetaling() {
   const { kontonummer, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();
   const revalidator = useRevalidator();
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  const hasError = data?.errors && data.errors.length > 0;
+
+  useEffect(() => {
+    if (hasError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [data, hasError]);
 
   return (
     <>
@@ -140,6 +150,20 @@ export default function OpprettKravUtbetaling() {
               id="kid"
             />
           </VStack>
+          {hasError && (
+            <ErrorSummary ref={errorSummaryRef}>
+              {data.errors?.map((error: FieldError) => {
+                return (
+                  <ErrorSummary.Item
+                    href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                    key={jsonPointerToFieldPath(error.pointer)}
+                  >
+                    {error.detail}
+                  </ErrorSummary.Item>
+                );
+              })}
+            </ErrorSummary>
+          )}
           <HStack gap="4">
             <Button
               as={ReactRouterLink}

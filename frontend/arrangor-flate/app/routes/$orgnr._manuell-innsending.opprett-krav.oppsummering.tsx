@@ -17,27 +17,27 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import { pathByOrgnr } from "~/pathByOrgnr";
 import { ArrangorflateService, ArrangorflateTilsagn, FieldError } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useRef } from "react";
-import { Definisjonsliste } from "~/components/Definisjonsliste";
-import { Separator } from "~/components/Separator";
+import { useEffect, useRef } from "react";
+import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { formaterPeriode, isValidationError, problemDetailResponse } from "~/utils";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
-import { errorAt } from "~/utils/validering";
+import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { formaterPeriode } from "~/utils/date";
+import { pathByOrgnr } from "~/utils/navigation";
+import { Separator } from "~/components/common/Separator";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Opprett krav om utbetaling" },
+    { title: "Steg 3 av 3: Oppsummering - Opprett krav om utbetaling" },
     {
       name: "description",
-      content: "Last opp vedlegg for å opprette et krav om utbetaling",
+      content: "Oppsummering av krav om utbetaling og last opp vedlegg",
     },
   ];
 };
@@ -182,16 +182,23 @@ export default function OpprettKravOppsummering() {
     useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const hasError = data?.errors && data.errors.length > 0;
+
+  useEffect(() => {
+    if (hasError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [data, hasError]);
 
   return (
     <>
-      <Heading level="3" spacing size="large">
+      <Heading level="2" spacing size="large">
         Oppsummering
       </Heading>
       <VStack gap="6">
         <Definisjonsliste
           title="Innsendingsinformasjon"
-          headingLevel="4"
+          headingLevel="3"
           definitions={[
             {
               key: "Arrangør",
@@ -204,7 +211,7 @@ export default function OpprettKravOppsummering() {
         <Separator />
         <Definisjonsliste
           title={"Utbetaling"}
-          headingLevel="4"
+          headingLevel="3"
           definitions={[
             {
               key: "Utbetalingsperiode",
@@ -217,26 +224,33 @@ export default function OpprettKravOppsummering() {
         />
         <Separator />
         <Form method="post" encType="multipart/form-data">
-          <VStack gap="4">
-            <Heading level="4" size="small">
-              Vedlegg
-            </Heading>
-            <FileUploader
-              error={errorAt("/vedlegg", data?.errors)}
-              maxFiles={10}
-              maxSizeMB={3}
-              maxSizeBytes={3 * 1024 * 1024}
-              id="vedlegg"
-            />
+          <VStack gap="6">
+            <VStack gap="4">
+              <Heading level="3" size="medium">
+                Vedlegg
+              </Heading>
+              <FileUploader
+                error={errorAt("/vedlegg", data?.errors)}
+                maxFiles={10}
+                maxSizeMB={3}
+                maxSizeBytes={3 * 1024 * 1024}
+                id="vedlegg"
+              />
+            </VStack>
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>
-              <Checkbox name="bekreftelse" value="bekreftet" id="bekreftelse">
+              <Checkbox
+                name="bekreftelse"
+                value="bekreftet"
+                id="bekreftelse"
+                error={errorAt("/bekreftelse", data?.errors) !== undefined}
+              >
                 {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
               </Checkbox>
             </CheckboxGroup>
-            {data?.errors && data.errors.length > 0 && (
+            {hasError && (
               <ErrorSummary ref={errorSummaryRef}>
-                {data.errors.map((error: FieldError) => {
+                {data.errors?.map((error: FieldError) => {
                   return (
                     <ErrorSummary.Item
                       href={`#${jsonPointerToFieldPath(error.pointer)}`}

@@ -1,7 +1,7 @@
 import { LoaderFunction } from "react-router";
 import { ArrangorflateService } from "api-client";
 import { apiHeaders } from "~/auth/auth.server";
-import { problemDetailResponse } from "~/utils";
+import { problemDetailResponse } from "~/utils/validering";
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<Response> => {
   const { id } = params;

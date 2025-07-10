@@ -24,7 +24,7 @@ import {
   FieldError,
   TilsagnType,
 } from "api-client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionFunctionArgs,
   Form,
@@ -37,12 +37,12 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { formaterDato, problemDetailResponse, subtractDays } from "~/utils";
-import { pathByOrgnr } from "~/pathByOrgnr";
-import { errorAt } from "~/utils/validering";
+import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { formaterDato, subtractDays } from "~/utils/date";
+import { pathByOrgnr } from "~/utils/navigation";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -57,10 +57,10 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Opprett krav om utbetaling" },
+    { title: "Steg 1 av 3: Innsendingsinformasjon - Opprett krav om utbetaling" },
     {
       name: "description",
-      content: "Velg tilsagn for å opprette et krav om utbetaling",
+      content: "Fyll ut grunnleggende innsendingsinformasjon for å opprette krav om utbetaling",
     },
   ];
 };
@@ -204,6 +204,14 @@ export default function OpprettKravInnsendingsinformasjon() {
     sessionGjennomforingId,
   );
   const [tilsagnId, setTilsagnId] = useState<string | undefined>(sessionTilsagnId);
+
+  const hasError = data?.errors && data.errors.length > 0;
+
+  useEffect(() => {
+    if (hasError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [data, hasError]);
 
   const {
     datepickerProps: periodeStartPickerProps,
