@@ -1,4 +1,13 @@
-import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Button,
+  GuidePanel,
+  Heading,
+  HStack,
+  VStack,
+  Link,
+  Alert,
+} from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetaling,
@@ -14,6 +23,8 @@ import { getBeregningDetaljer } from "~/utils/beregning";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
+import { tekster } from "~/tekster";
+import { formaterPeriode } from "~/utils/date";
 
 export const meta: MetaFunction = () => {
   return [
@@ -79,14 +90,41 @@ export default function UtbetalingBeregning() {
       <Heading level="2" spacing size="large">
         Beregning
       </Heading>
+      <GuidePanel>
+        <BodyShort>
+          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
+          <Link as={ReactRouterLink} to={deltakerlisteUrl}>
+            Deltakeroversikten
+          </Link>
+          .{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}
+        </BodyShort>
+        <BodyShort>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</BodyShort>
+      </GuidePanel>
+      <Heading level="3" size="medium">
+        Deltakere
+      </Heading>
       <VStack gap="4">
         {utbetaling.beregning.type === UtbetalingBeregningType.PRIS_PER_MANEDSVERK && (
-          <DeltakelserTable
-            periode={utbetaling.periode}
-            beregning={utbetaling.beregning}
-            relevanteForslag={relevanteForslag}
-            deltakerlisteUrl={deltakerlisteUrl}
-          />
+          <>
+            {utbetaling.beregning.stengt.length > 0 && (
+              <Alert variant={"info"}>
+                {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+                <ul>
+                  {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
+                    <li key={periode.start + periode.slutt}>
+                      {formaterPeriode(periode)}: {beskrivelse}
+                    </li>
+                  ))}
+                </ul>
+              </Alert>
+            )}
+            <DeltakelserTable
+              periode={utbetaling.periode}
+              beregning={utbetaling.beregning}
+              relevanteForslag={relevanteForslag}
+              deltakerlisteUrl={deltakerlisteUrl}
+            />
+          </>
         )}
         <Definisjonsliste
           definitions={getBeregningDetaljer(utbetaling.beregning)}
