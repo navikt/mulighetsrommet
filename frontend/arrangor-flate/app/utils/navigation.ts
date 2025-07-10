@@ -22,6 +22,11 @@ export const pathByOrgnr = (orgnr: string) => {
     opprettKravVedlegg: `/${orgnr}/opprett-krav/vedlegg`,
     opprettKravUtbetaling: `/${orgnr}/opprett-krav/utbetaling`,
     opprettKravOppsummering: `/${orgnr}/opprett-krav/oppsummering`,
+    opprettKrav: {
+      driftstilskudd: {
+        innsendingsinformasjon: `/${orgnr}/opprett-krav/driftstilskudd/innsendingsinformasjon`,
+      },
+    },
     innsendingsinformasjon: (id: string) => `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
     beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
     oppsummering: (id: string) => `/${orgnr}/utbetaling/${id}/oppsummering`,

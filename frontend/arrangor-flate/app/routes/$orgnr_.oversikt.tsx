@@ -1,4 +1,4 @@
-import { Box, Button, Tabs } from "@navikt/ds-react";
+import { ActionMenu, Box, Button, Tabs } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetalingKompakt,
@@ -17,6 +17,7 @@ import css from "../root.module.css";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { PageHeading } from "~/components/common/PageHeading";
+import { ChevronDownIcon } from "@navikt/aksel-icons";
 
 export const meta: MetaFunction = () => {
   return [
@@ -39,6 +40,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     tiltakskoder: [],
     headers: await apiHeaders(request),
   });
+  const opprettUtbetalingsKravAnnenAvtaltPrisToggle = await toggleIsEnabled({
+    orgnr,
+    feature: Toggles.ARRANGORFLATE_UTBETALING_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
+    tiltakskoder: [],
+    headers: await apiHeaders(request),
+  });
 
   const [{ data: utbetalinger, error: utbetalingerError }, { data: tilsagn, error: tilsagnError }] =
     await Promise.all([
@@ -58,12 +65,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (tilsagnError || !tilsagn) {
     throw problemDetailResponse(tilsagnError);
   }
-  return { utbetalinger, tilsagn, opprettKravOmUtbetalingToggle };
+  return {
+    utbetalinger,
+    tilsagn,
+    opprettKravOmUtbetalingToggle,
+    opprettUtbetalingsKravAnnenAvtaltPrisToggle,
+  };
 }
 
 export default function UtbetalingOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
-  const { utbetalinger, tilsagn, opprettKravOmUtbetalingToggle } = useLoaderData<typeof loader>();
+  const {
+    utbetalinger,
+    tilsagn,
+    opprettKravOmUtbetalingToggle,
+    opprettUtbetalingsKravAnnenAvtaltPrisToggle,
+  } = useLoaderData<typeof loader>();
   const historiske: ArrFlateUtbetalingKompakt[] = utbetalinger.filter(
     (k) => k.status === ArrFlateUtbetalingStatus.UTBETALT,
   );
@@ -75,14 +92,38 @@ export default function UtbetalingOversikt() {
       <div className="flex justify-between sm:flex-row sm:p-1">
         <PageHeading title={tekster.bokmal.utbetaling.headingTitle} />
         {opprettKravOmUtbetalingToggle && (
-          <Button
-            type="button"
-            variant="secondary"
-            as={ReactRouterLink}
-            to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
-          >
-            {tekster.bokmal.utbetaling.opprettUtbetalingKnapp}
-          </Button>
+          <>
+            <ActionMenu>
+              <ActionMenu.Trigger>
+                <Button
+                  variant="secondary"
+                  icon={<ChevronDownIcon aria-hidden />}
+                  iconPosition="right"
+                >
+                  {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
+                </Button>
+              </ActionMenu.Trigger>
+              <ActionMenu.Content>
+                <ActionMenu.Group label="Utbetalingskrav">
+                  {opprettUtbetalingsKravAnnenAvtaltPrisToggle && (
+                    <ActionMenu.Item
+                      as={ReactRouterLink}
+                      to={pathByOrgnr(orgnr).opprettKrav.driftstilskudd.innsendingsinformasjon}
+                    >
+                      {tekster.bokmal.utbetaling.opprettUtbetaling.driftstilskudd}
+                    </ActionMenu.Item>
+                  )}
+
+                  <ActionMenu.Item
+                    as={ReactRouterLink}
+                    to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
+                  >
+                    {tekster.bokmal.utbetaling.opprettUtbetaling.investering}
+                  </ActionMenu.Item>
+                </ActionMenu.Group>
+              </ActionMenu.Content>
+            </ActionMenu>
+          </>
         )}
       </div>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
