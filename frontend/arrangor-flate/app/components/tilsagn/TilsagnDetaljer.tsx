@@ -8,7 +8,6 @@ import { TilsagnStatusTag } from "./TilsagnStatusTag";
 interface Props {
   tilsagn: ArrangorflateTilsagn;
   minimal?: boolean;
-  ekstraDefinisjoner?: Definition[];
   headingLevel?: "3" | "4";
 }
 
