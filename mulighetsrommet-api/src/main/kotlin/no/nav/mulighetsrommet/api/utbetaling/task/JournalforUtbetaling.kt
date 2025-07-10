@@ -100,10 +100,10 @@ class JournalforUtbetaling(
                             antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
                             deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
                                 DeltakerPdf(
-                                    startDato = it.forstePeriodeStartDato,
-                                    sluttDato = it.sistePeriodeSluttDato,
-                                    perioder = it.perioder,
-                                    manedsverk = it.manedsverk,
+                                    startDato = it.periodeStartDato,
+                                    sluttDato = it.periodeSluttDato,
+                                    perioder = it.perioderMedDeltakelsesmengde,
+                                    manedsverk = it.faktor,
                                     person = it.person?.let { person ->
                                         PersonPdf(
                                             navn = person.navn,
@@ -129,7 +129,7 @@ class JournalforUtbetaling(
                                     startDato = it.periodeStartDato,
                                     sluttDato = it.periodeSluttDato,
                                     perioder = listOf(),
-                                    manedsverk = it.manedsverk,
+                                    manedsverk = it.faktor,
                                     person = it.person?.let { person ->
                                         PersonPdf(
                                             navn = person.navn,

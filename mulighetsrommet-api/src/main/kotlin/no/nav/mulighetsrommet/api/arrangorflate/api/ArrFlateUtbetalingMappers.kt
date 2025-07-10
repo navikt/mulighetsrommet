@@ -20,6 +20,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
             digest = beregning.getDigest(),
         )
 
+        // TODO: forenkle mapping av beregninger som inkluderer deltakelser
         is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
             val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
@@ -33,20 +34,19 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 val forstePeriode = deltakelse.perioder.first()
                 val sistePeriode = deltakelse.perioder.last()
 
-                UtbetalingDeltakelseManedsverk(
+                ArrFlateUtbetalingDeltakelse(
                     id = id,
-                    startDato = deltaker?.startDato,
-                    forstePeriodeStartDato = forstePeriode.periode.start,
-                    sistePeriodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
-                    sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
-                    manedsverk = manedsverk,
-                    perioder = deltakelse.perioder,
+                    deltakerStartDato = deltaker?.startDato,
+                    periodeStartDato = forstePeriode.periode.start,
+                    periodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
+                    faktor = manedsverk,
+                    perioderMedDeltakelsesmengde = deltakelse.perioder,
                     person = person,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
             val antallManedsverk = deltakelser
-                .map { BigDecimal(it.manedsverk) }
+                .map { BigDecimal(it.faktor) }
                 .sumOf { it }
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()
@@ -70,18 +70,20 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 val manedsverk = ukesverkById.getValue(id).manedsverk
                 val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
 
-                UtbetalingDeltakelseManedsverk2(
+                ArrFlateUtbetalingDeltakelse(
                     id = id,
                     deltakerStartDato = deltaker?.startDato,
                     periodeStartDato = deltakelse.periode.start,
                     periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
-                    manedsverk = manedsverk,
+                    faktor = manedsverk,
+                    // TODO: deltakelsesmengder er egentlig ikke relevant for denne beregningen
+                    perioderMedDeltakelsesmengde = listOf(DeltakelsesprosentPeriode(deltakelse.periode, 100.0)),
                     person = person,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
             val antallUkesverk = deltakelser
-                .map { BigDecimal(it.manedsverk) }
+                .map { BigDecimal(it.faktor) }
                 .sumOf { it }
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()
@@ -105,18 +107,20 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 val ukesverk = ukesverkById.getValue(id).ukesverk
                 val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
 
-                UtbetalingDeltakelseUkesverk(
+                ArrFlateUtbetalingDeltakelse(
                     id = id,
                     deltakerStartDato = deltaker?.startDato,
                     periodeStartDato = deltakelse.periode.start,
                     periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
-                    ukesverk = ukesverk,
+                    faktor = ukesverk,
+                    // TODO: deltakelsesmengder er egentlig ikke relevant for denne beregningen
+                    perioderMedDeltakelsesmengde = listOf(DeltakelsesprosentPeriode(deltakelse.periode, 100.0)),
                     person = person,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
             val antallUkesverk = deltakelser
-                .map { BigDecimal(it.ukesverk) }
+                .map { BigDecimal(it.faktor) }
                 .sumOf { it }
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()

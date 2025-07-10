@@ -44,7 +44,7 @@ sealed class ArrFlateBeregning {
     data class PrisPerManedsverkMedDeltakelsesmengder(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<UtbetalingDeltakelseManedsverk>,
+        val deltakelser: List<ArrFlateUtbetalingDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
     ) : ArrFlateBeregning()
@@ -54,7 +54,7 @@ sealed class ArrFlateBeregning {
     data class PrisPerManedsverk(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<UtbetalingDeltakelseManedsverk2>,
+        val deltakelser: List<ArrFlateUtbetalingDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
     ) : ArrFlateBeregning()
@@ -64,7 +64,7 @@ sealed class ArrFlateBeregning {
     data class PrisPerUkesverk(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<UtbetalingDeltakelseUkesverk>,
+        val deltakelser: List<ArrFlateUtbetalingDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallUkesverk: Double,
     ) : ArrFlateBeregning()
@@ -78,23 +78,7 @@ sealed class ArrFlateBeregning {
 }
 
 @Serializable
-data class UtbetalingDeltakelseManedsverk(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val forstePeriodeStartDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sistePeriodeSluttDato: LocalDate,
-    val sistePeriodeDeltakelsesprosent: Double,
-    val perioder: List<DeltakelsesprosentPeriode>,
-    val manedsverk: Double,
-    val person: UtbetalingDeltakelsePerson?,
-)
-
-@Serializable
-data class UtbetalingDeltakelseManedsverk2(
+data class ArrFlateUtbetalingDeltakelse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = LocalDateSerializer::class)
@@ -103,21 +87,8 @@ data class UtbetalingDeltakelseManedsverk2(
     val periodeStartDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSluttDato: LocalDate,
-    val manedsverk: Double,
-    val person: UtbetalingDeltakelsePerson?,
-)
-
-@Serializable
-data class UtbetalingDeltakelseUkesverk(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @Serializable(with = LocalDateSerializer::class)
-    val deltakerStartDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStartDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSluttDato: LocalDate,
-    val ukesverk: Double,
+    val faktor: Double,
+    val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
     val person: UtbetalingDeltakelsePerson?,
 )
 

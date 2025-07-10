@@ -5,10 +5,12 @@ import { formaterDato, formaterFoedselsdato } from "~/utils/date";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { DeltakelseTimeline } from "./DeltakelseTimeline";
 import {
+  ArrFlateUtbetalingDeltakelse,
+  ArrFlateBeregningPrisPerManedsverk,
   ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder,
+  ArrFlateBeregningPrisPerUkesverk,
   Periode,
   RelevanteForslag,
-  UtbetalingDeltakelseManedsverk,
 } from "api-client";
 import { tekster } from "~/tekster";
 
@@ -20,14 +22,14 @@ enum DeltakerSortKey {
 
 function getDeltakerSelector(
   sortKey: DeltakerSortKey,
-): SortBySelector<UtbetalingDeltakelseManedsverk> {
+): SortBySelector<ArrFlateUtbetalingDeltakelse> {
   switch (sortKey) {
     case DeltakerSortKey.PERSON_NAVN:
       return (d) => d.person?.navn;
     case DeltakerSortKey.PERIODE_START:
-      return (d) => d.forstePeriodeStartDato;
+      return (d) => d.periodeStartDato;
     case DeltakerSortKey.PERIODE_SLUTT:
-      return (d) => d.sistePeriodeSluttDato;
+      return (d) => d.periodeSluttDato;
   }
 }
 
@@ -37,7 +39,10 @@ export function DeltakelserTable({
   relevanteForslag,
 }: {
   periode: Periode;
-  beregning: ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder;
+  beregning:
+    | ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder
+    | ArrFlateBeregningPrisPerManedsverk
+    | ArrFlateBeregningPrisPerUkesverk;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 }) {
@@ -52,7 +57,7 @@ export function DeltakelserTable({
   }
 
   const deltakereMedRelevanteForslag = beregning.deltakelser.filter(
-    (deltaker: UtbetalingDeltakelseManedsverk) => hasRelevanteForslag(deltaker.id),
+    (deltaker: ArrFlateUtbetalingDeltakelse) => hasRelevanteForslag(deltaker.id),
   );
 
   return (
@@ -85,7 +90,7 @@ export function DeltakelserTable({
               Deltakelsesprosent
             </Table.ColumnHeader>
             <Table.ColumnHeader align="right" scope="col">
-              Månedsverk
+              {tekster.bokmal.utbetaling.beregning.deltakelsesfaktor(beregning.type)}
             </Table.ColumnHeader>
             <Table.ColumnHeader scope="col"></Table.ColumnHeader>
           </Table.Row>
@@ -124,13 +129,15 @@ export function DeltakelserTable({
                   </HStack>
                 </Table.HeaderCell>
                 <Table.DataCell>{fodselsdato}</Table.DataCell>
-                <Table.DataCell>{formaterDato(deltakelse.startDato)}</Table.DataCell>
-                <Table.DataCell>{formaterDato(deltakelse.forstePeriodeStartDato)}</Table.DataCell>
-                <Table.DataCell>{formaterDato(deltakelse.sistePeriodeSluttDato)}</Table.DataCell>
-                <Table.DataCell align="right">
-                  {deltakelse.sistePeriodeDeltakelsesprosent}
+                <Table.DataCell>
+                  {deltakelse.deltakerStartDato ? formaterDato(deltakelse.deltakerStartDato) : "-"}
                 </Table.DataCell>
-                <Table.DataCell align="right">{deltakelse.manedsverk}</Table.DataCell>
+                <Table.DataCell>{formaterDato(deltakelse.periodeStartDato)}</Table.DataCell>
+                <Table.DataCell>{formaterDato(deltakelse.periodeSluttDato)}</Table.DataCell>
+                <Table.DataCell align="right">
+                  {deltakelse.perioderMedDeltakelsesmengde.at(-1)?.deltakelsesprosent}
+                </Table.DataCell>
+                <Table.DataCell align="right">{deltakelse.faktor}</Table.DataCell>
               </Table.ExpandableRow>
             );
           })}

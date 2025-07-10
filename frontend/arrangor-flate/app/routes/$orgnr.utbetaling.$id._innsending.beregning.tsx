@@ -99,7 +99,7 @@ export default function UtbetalingBeregning() {
         Deltakere
       </Heading>
       <VStack gap="4">
-        {utbetaling.beregning.type === "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER" && (
+        {utbetaling.beregning.type !== "FRI" && (
           <>
             {utbetaling.beregning.stengt.length > 0 && (
               <Alert variant={"info"}>
