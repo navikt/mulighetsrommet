@@ -1,5 +1,5 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, HelpText, HStack, Table } from "@navikt/ds-react";
+import { Alert, BodyShort, HelpText, HStack, Table } from "@navikt/ds-react";
 import { ArrFlateUtbetalingKompakt } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { UtbetalingTextLink } from "./UtbetalingTextLink";
@@ -70,12 +70,12 @@ export function UtbetalingTable({ utbetalinger }: Props) {
             <HStack gap="2" wrap={false}>
               Type
               <HelpText title="Hva betyr forkortelsene?">
-                <p>
+                <BodyShort>
                   <b>KOR:</b> Korrigering opprettet av NAV
-                </p>
-                <p>
+                </BodyShort>
+                <BodyShort>
                   <b>INV:</b> Utbetaling for investering
-                </p>
+                </BodyShort>
               </HelpText>
             </HStack>
           </Table.ColumnHeader>

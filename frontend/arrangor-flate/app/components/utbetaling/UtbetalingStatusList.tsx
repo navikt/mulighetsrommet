@@ -1,5 +1,5 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Accordion, Heading, Link, VStack } from "@navikt/ds-react";
+import { Accordion, BodyShort, Heading, Link, VStack } from "@navikt/ds-react";
 import { ArrangorUtbetalingLinje, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { Definisjonsliste } from "../common/Definisjonsliste";
@@ -39,10 +39,10 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
             Tilsagn som er brukt til utbetaling
           </Heading>
           <UtbetalingTilsagndetaljer linjer={utbetaling.linjer} />
-          <p>
+          <BodyShort>
             Godkjent beløp til utbetaling:{" "}
             <b>{formaterNOK(utbetaling.linjer.reduce((acc, cur) => cur.belop + acc, 0))}</b>
-          </p>
+          </BodyShort>
         </>
       ) : null}
     </VStack>
