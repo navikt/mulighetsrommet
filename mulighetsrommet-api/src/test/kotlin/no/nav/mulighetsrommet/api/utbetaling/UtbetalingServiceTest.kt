@@ -1092,7 +1092,7 @@ class UtbetalingServiceTest : FunSpec({
                         it.besluttetAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
                         it.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
                         it.beskrivelse shouldBe """
-                            Tiltakstype: Arbeidsforberedende trening (AFT)
+                            Tiltakstype: Arbeidsforberedende trening
                             Periode: 01.01.2025 - 31.01.2025
                             Tilsagnsnummer: A-2025/1-1
                         """.trimIndent()
@@ -1326,14 +1326,14 @@ private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRo
     )
 }
 
-private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = UtbetalingBeregningForhandsgodkjent(
-    input = UtbetalingBeregningForhandsgodkjent.Input(
+private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = UtbetalingBeregningPrisPerManedsverk(
+    input = UtbetalingBeregningPrisPerManedsverk.Input(
         periode = periode,
         sats = 20205,
         stengt = setOf(),
         deltakelser = setOf(),
     ),
-    output = UtbetalingBeregningForhandsgodkjent.Output(
+    output = UtbetalingBeregningPrisPerManedsverk.Output(
         belop = belop,
         deltakelser = setOf(),
     ),

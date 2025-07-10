@@ -35,4 +35,25 @@ object DeltakerFixtures {
             opprettetDato = LocalDateTime.now(),
         ),
     )
+
+    fun createDeltaker(
+        gjennomforingId: UUID,
+        startDato: LocalDate,
+        sluttDato: LocalDate,
+        statusType: DeltakerStatus.Type,
+    ) = DeltakerDbo(
+        id = UUID.randomUUID(),
+        startDato = startDato,
+        sluttDato = sluttDato,
+        gjennomforingId = gjennomforingId,
+        registrertDato = LocalDate.now(),
+        endretTidspunkt = LocalDateTime.now(),
+        deltakelsesprosent = null,
+        deltakelsesmengder = listOf(),
+        status = DeltakerStatus(
+            type = statusType,
+            aarsak = null,
+            opprettetDato = LocalDateTime.now(),
+        ),
+    )
 }

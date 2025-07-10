@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.tiltak.okonomi.FakturaStatusType
 import java.util.*
 
 private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
@@ -103,8 +102,13 @@ class ArrangorFlateService(
     suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
         val deltakere = when (utbetaling.beregning) {
-            is UtbetalingBeregningForhandsgodkjent -> queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
             is UtbetalingBeregningFri -> emptyList()
+
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> {
+                queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            }
         }
         val personerByNorskIdent = if (deltakere.isNotEmpty()) getPersoner(deltakere) else emptyMap()
 
@@ -116,15 +120,7 @@ class ArrangorFlateService(
             ArrangorUtbetalingLinje(
                 id = delutbetaling.id,
                 belop = delutbetaling.belop,
-                status = when (delutbetaling.faktura.status) {
-                    FakturaStatusType.DELVIS_BETALT,
-                    FakturaStatusType.FULLT_BETALT,
-                    FakturaStatusType.IKKE_BETALT,
-                    -> DelutbetalingStatus.UTBETALT
-                    FakturaStatusType.SENDT -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                    FakturaStatusType.FEILET -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                    null -> DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                },
+                status = delutbetaling.status,
                 statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
                 tilsagn = tilsagn,
             )
@@ -149,7 +145,7 @@ class ArrangorFlateService(
         )
     }
 
-    private suspend fun getPersoner(deltakere: List<Deltaker>): Map<NorskIdent, UtbetalingDeltakelse.Person> {
+    private suspend fun getPersoner(deltakere: List<Deltaker>): Map<NorskIdent, UtbetalingDeltakelsePerson> {
         val identer = deltakere
             .mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }
             .toNonEmptySetOrNull()
@@ -172,20 +168,20 @@ class ArrangorFlateService(
             }
     }
 
-    private fun toUtbetalingPerson(person: HentPersonBolkResponse.Person): UtbetalingDeltakelse.Person {
+    private fun toUtbetalingPerson(person: HentPersonBolkResponse.Person): UtbetalingDeltakelsePerson {
         val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
         return when (gradering) {
             PdlGradering.UGRADERT -> {
                 val navn = if (person.navn.isNotEmpty()) tilPersonNavn(person.navn) else "Ukjent"
                 val foedselsdato = if (person.foedselsdato.isNotEmpty()) person.foedselsdato.first() else null
-                UtbetalingDeltakelse.Person(
+                UtbetalingDeltakelsePerson(
                     navn = navn,
                     fodselsaar = foedselsdato?.foedselsaar,
                     fodselsdato = foedselsdato?.foedselsdato,
                 )
             }
 
-            else -> UtbetalingDeltakelse.Person(
+            else -> UtbetalingDeltakelsePerson(
                 navn = "Adressebeskyttet",
                 fodselsaar = null,
                 fodselsdato = null,
@@ -225,21 +221,30 @@ class ArrangorFlateService(
 
 fun DeltakerForslag.relevantForDeltakelse(
     utbetaling: Utbetaling,
-): Boolean = when (utbetaling.beregning) {
-    is UtbetalingBeregningForhandsgodkjent -> relevantForDeltakelse(utbetaling.beregning)
-    is UtbetalingBeregningFri -> false
+): Boolean {
+    return when (utbetaling.beregning) {
+        is UtbetalingBeregningFri -> false
+
+        is UtbetalingBeregningPrisPerManedsverk -> {
+            val deltaker = utbetaling.beregning.input.deltakelser.find { it.deltakelseId == deltakerId } ?: return false
+            val perioder = deltaker.perioder.map { it.periode }
+            relevantForDeltakelse(perioder, utbetaling.beregning.input.periode)
+        }
+
+        is UtbetalingBeregningPrisPerUkesverk -> {
+            val deltaker = utbetaling.beregning.input.deltakelser.find { it.deltakelseId == deltakerId } ?: return false
+            val perioder = listOf(deltaker.periode)
+            relevantForDeltakelse(perioder, utbetaling.beregning.input.periode)
+        }
+    }
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
-    beregning: UtbetalingBeregningForhandsgodkjent,
+    perioder: List<Periode>,
+    periode: Periode,
 ): Boolean {
-    val deltakelser = beregning.input.deltakelser
-        .find { it.deltakelseId == this.deltakerId }
-        ?: return false
-
-    val periode = beregning.input.periode
-    val sisteSluttDato = deltakelser.perioder.maxOf { it.periode.getLastInclusiveDate() }
-    val forsteStartDato = deltakelser.perioder.minOf { it.periode.start }
+    val sisteSluttDato = perioder.maxOf { it.getLastInclusiveDate() }
+    val forsteStartDato = perioder.minOf { it.start }
 
     return when (this.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {

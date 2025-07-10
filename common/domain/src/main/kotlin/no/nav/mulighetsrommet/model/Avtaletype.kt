@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.model
 
-import no.nav.mulighetsrommet.model.Tiltakskode.*
-
 enum class Avtaletype(val beskrivelse: String) {
     AVTALE("Avtale"),
     RAMMEAVTALE("Rammeavtale"),
@@ -13,13 +11,30 @@ enum class Avtaletype(val beskrivelse: String) {
     }
 }
 
-fun allowedAvtaletypes(tiltakskode: Tiltakskode): List<Avtaletype> = when (tiltakskode) {
-    ARBEIDSFORBEREDENDE_TRENING, VARIG_TILRETTELAGT_ARBEID_SKJERMET ->
-        listOf(Avtaletype.FORHANDSGODKJENT)
+object Avtaletyper {
+    fun getAvtaletyperForTiltak(tiltakskode: Tiltakskode): List<Avtaletype> = when (tiltakskode) {
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        -> listOf(
+            Avtaletype.FORHANDSGODKJENT,
+        )
 
-    AVKLARING, OPPFOLGING, ARBEIDSRETTET_REHABILITERING, JOBBKLUBB, DIGITALT_OPPFOLGINGSTILTAK ->
-        listOf(Avtaletype.RAMMEAVTALE, Avtaletype.AVTALE)
+        Tiltakskode.AVKLARING,
+        Tiltakskode.OPPFOLGING,
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        Tiltakskode.JOBBKLUBB,
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+        -> listOf(
+            Avtaletype.RAMMEAVTALE,
+            Avtaletype.AVTALE,
+        )
 
-    GRUPPE_ARBEIDSMARKEDSOPPLAERING, GRUPPE_FAG_OG_YRKESOPPLAERING ->
-        listOf(Avtaletype.RAMMEAVTALE, Avtaletype.AVTALE, Avtaletype.OFFENTLIG_OFFENTLIG)
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        -> listOf(
+            Avtaletype.RAMMEAVTALE,
+            Avtaletype.AVTALE,
+            Avtaletype.OFFENTLIG_OFFENTLIG,
+        )
+    }
 }

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
@@ -27,7 +27,7 @@ data class ArrFlateUtbetaling(
     val tiltakstype: Utbetaling.Tiltakstype,
     val gjennomforing: Utbetaling.Gjennomforing,
     val arrangor: Utbetaling.Arrangor,
-    val beregning: Beregning,
+    val beregning: ArrFlateBeregning,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val periode: Periode,
     val type: UtbetalingType?,
@@ -35,50 +35,72 @@ data class ArrFlateUtbetaling(
 )
 
 @Serializable
-sealed class Beregning {
+sealed class ArrFlateBeregning {
     abstract val belop: Int
     abstract val digest: String
 
     @Serializable
-    @SerialName("FORHANDSGODKJENT")
-    data class Forhandsgodkjent(
-        val antallManedsverk: Double,
+    @SerialName("PRIS_PER_MANEDSVERK")
+    data class PrisPerManedsverk(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<UtbetalingDeltakelse>,
+        val deltakelser: List<UtbetalingDeltakelseManedsverk>,
         val stengt: List<StengtPeriode>,
-    ) : Beregning()
+        val antallManedsverk: Double,
+    ) : ArrFlateBeregning()
+
+    @Serializable
+    @SerialName("PRIS_PER_UKESVERK")
+    data class PrisPerUkesverk(
+        override val belop: Int,
+        override val digest: String,
+        val deltakelser: List<UtbetalingDeltakelseUkesverk>,
+        val stengt: List<StengtPeriode>,
+        val antallUkesverk: Double,
+    ) : ArrFlateBeregning()
 
     @Serializable
     @SerialName("FRI")
     data class Fri(
         override val belop: Int,
         override val digest: String,
-    ) : Beregning()
+    ) : ArrFlateBeregning()
 }
 
 @Serializable
-data class UtbetalingDeltakelse(
+data class UtbetalingDeltakelseManedsverk(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
     val forstePeriodeStartDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sistePeriodeSluttDato: LocalDate,
     val sistePeriodeDeltakelsesprosent: Double,
-    val perioder: List<DeltakelsePeriode>,
+    val perioder: List<DeltakelsesprosentPeriode>,
     val manedsverk: Double,
-    val person: Person?,
-) {
-    @Serializable
-    data class Person(
-        val navn: String,
-        @Serializable(with = LocalDateSerializer::class)
-        val fodselsdato: LocalDate?,
-        val fodselsaar: Int?,
-    )
-}
+    val person: UtbetalingDeltakelsePerson?,
+)
+
+@Serializable
+data class UtbetalingDeltakelseUkesverk(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = LocalDateSerializer::class)
+    val deltakerStartDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStartDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSluttDato: LocalDate,
+    val ukesverk: Double,
+    val person: UtbetalingDeltakelsePerson?,
+)
+
+@Serializable
+data class UtbetalingDeltakelsePerson(
+    val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val fodselsdato: LocalDate?,
+    val fodselsaar: Int?,
+)

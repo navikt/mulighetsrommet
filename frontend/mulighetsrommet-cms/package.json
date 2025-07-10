@@ -14,17 +14,17 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "7.24.0",
+    "@navikt/aksel-icons": "7.25.1",
     "@portabletext/react": "3.2.1",
     "@sanity/client": "7.6.0",
     "@sanity/ui": "2.16.2",
-    "@sanity/util": "3.95.0",
-    "@sanity/vision": "3.95.0",
+    "@sanity/util": "3.97.1",
+    "@sanity/vision": "3.97.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-icons": "5.5.0",
     "react-switch": "7.1.0",
-    "sanity": "3.95.0",
+    "sanity": "3.97.1",
     "styled-components": "6.1.19"
   },
   "devDependencies": {

@@ -5,10 +5,10 @@ import { formaterDato, formaterFoedselsdato } from "~/utils/date";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { DeltakelseTimeline } from "./DeltakelseTimeline";
 import {
-  UtbetalingDeltakelse,
+  ArrFlateBeregningPrisPerManedsverk,
   Periode,
-  ArrFlateBeregningForhandsgodkjent,
   RelevanteForslag,
+  UtbetalingDeltakelseManedsverk,
 } from "api-client";
 import { tekster } from "~/tekster";
 
@@ -18,7 +18,9 @@ enum DeltakerSortKey {
   PERIODE_SLUTT = "PERIODE_SLUTT",
 }
 
-function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<UtbetalingDeltakelse> {
+function getDeltakerSelector(
+  sortKey: DeltakerSortKey,
+): SortBySelector<UtbetalingDeltakelseManedsverk> {
   switch (sortKey) {
     case DeltakerSortKey.PERSON_NAVN:
       return (d) => d.person?.navn;
@@ -29,13 +31,13 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Utbetalin
   }
 }
 
-export function DeltagelserTable({
+export function DeltakelserTable({
   periode,
   beregning,
   relevanteForslag,
 }: {
   periode: Periode;
-  beregning: ArrFlateBeregningForhandsgodkjent;
+  beregning: ArrFlateBeregningPrisPerManedsverk;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 }) {
@@ -49,7 +51,7 @@ export function DeltagelserTable({
     return (relevanteForslag.find((r) => r.deltakerId === id)?.antallRelevanteForslag ?? 0) > 0;
   }
   const deltakereMedRelevanteForslag = beregning.deltakelser.filter(
-    (deltaker: UtbetalingDeltakelse) => hasRelevanteForslag(deltaker.id),
+    (deltaker: UtbetalingDeltakelseManedsverk) => hasRelevanteForslag(deltaker.id),
   );
 
   return (
@@ -90,7 +92,7 @@ export function DeltagelserTable({
         <Table.Body>
           {sortedData.map((deltakelse, index) => {
             const { id, person } = deltakelse;
-            const fodselsdato = formaterFoedselsdato(person.fodselsdato, person.fodselsaar);
+            const fodselsdato = formaterFoedselsdato(person?.fodselsdato, person?.fodselsaar);
             return (
               <Table.ExpandableRow
                 key={id}
@@ -117,7 +119,7 @@ export function DeltagelserTable({
                         <ExclamationmarkTriangleIcon fontSize="1.5rem" />
                       </Tooltip>
                     )}
-                    {person.navn}
+                    {person?.navn}
                   </HStack>
                 </Table.HeaderCell>
                 <Table.DataCell>{fodselsdato}</Table.DataCell>

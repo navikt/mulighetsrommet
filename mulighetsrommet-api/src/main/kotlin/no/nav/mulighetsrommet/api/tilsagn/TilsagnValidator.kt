@@ -5,12 +5,12 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 
 object TilsagnValidator {
@@ -75,12 +75,12 @@ object TilsagnValidator {
         return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()
     }
 
-    fun validateForhandsgodkjentSats(
-        tiltakskode: Tiltakskode,
-        input: TilsagnBeregningForhandsgodkjent.Input,
-    ): Either<List<FieldError>, TilsagnBeregningForhandsgodkjent.Input> = either {
+    fun validateAvtaltSats(
+        avtale: AvtaleDto,
+        input: TilsagnBeregningPrisPerManedsverk.Input,
+    ): Either<List<FieldError>, TilsagnBeregningPrisPerManedsverk.Input> = either {
         val errors = buildList {
-            val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periode.start)
+            val satsPeriodeStart = AvtalteSatser.findSats(avtale, input.periode.start)
             if (satsPeriodeStart == null) {
                 add(
                     FieldError.of(
@@ -90,7 +90,7 @@ object TilsagnValidator {
                 )
             }
 
-            val satsPeriodeSlutt = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periode.getLastInclusiveDate())
+            val satsPeriodeSlutt = AvtalteSatser.findSats(avtale, input.periode.getLastInclusiveDate())
             if (satsPeriodeSlutt == null) {
                 add(
                     FieldError.of(
@@ -108,6 +108,15 @@ object TilsagnValidator {
                     ),
                 )
             }
+
+            if (input.sats != satsPeriodeStart) {
+                add(
+                    FieldError.of(
+                        "Sats må stemme med avtalt sats for perioden ($satsPeriodeStart)",
+                        TilsagnBeregningPrisPerManedsverk.Input::sats,
+                    ),
+                )
+            }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
@@ -115,18 +124,19 @@ object TilsagnValidator {
 
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregningInput> = either {
         return when (input) {
-            is TilsagnBeregningForhandsgodkjent.Input -> validateAFTTilsagnBeregningInput(input)
             is TilsagnBeregningFri.Input -> validateBeregningFriInput(input)
+            is TilsagnBeregningPrisPerManedsverk.Input -> validateBeregningPrisPerManedsverkInput(input)
+            is TilsagnBeregningPrisPerUkesverk.Input -> validateBeregningPrisPerUkesverkInput(input)
         }
     }
 
-    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningForhandsgodkjent.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
+    private fun validateBeregningPrisPerManedsverkInput(input: TilsagnBeregningPrisPerManedsverk.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
                 add(
                     FieldError.of(
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
-                        TilsagnBeregningForhandsgodkjent.Input::periode,
+                        TilsagnBeregningPrisPerManedsverk.Input::periode,
                         Periode::slutt,
                     ),
                 )
@@ -135,7 +145,31 @@ object TilsagnValidator {
                 add(
                     FieldError.of(
                         "Antall plasser kan ikke være 0",
-                        TilsagnBeregningForhandsgodkjent.Input::antallPlasser,
+                        TilsagnBeregningPrisPerManedsverk.Input::antallPlasser,
+                    ),
+                )
+            }
+        }
+
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
+    }
+
+    private fun validateBeregningPrisPerUkesverkInput(input: TilsagnBeregningPrisPerUkesverk.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
+        val errors = buildList {
+            if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
+                add(
+                    FieldError.of(
+                        "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                        TilsagnBeregningPrisPerManedsverk.Input::periode,
+                        Periode::slutt,
+                    ),
+                )
+            }
+            if (input.antallPlasser <= 0) {
+                add(
+                    FieldError.of(
+                        "Antall plasser kan ikke være 0",
+                        TilsagnBeregningPrisPerManedsverk.Input::antallPlasser,
                     ),
                 )
             }
@@ -146,7 +180,12 @@ object TilsagnValidator {
 
     private fun validateBeregningFriInput(input: TilsagnBeregningFri.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         if (input.linjer.isEmpty()) {
-            return listOf(FieldError.ofPointer(pointer = "beregning/linjer", detail = "Du må legge til en linje")).left()
+            return listOf(
+                FieldError.ofPointer(
+                    pointer = "beregning/linjer",
+                    detail = "Du må legge til en linje",
+                ),
+            ).left()
         }
         val errors = buildList {
             input.linjer.forEachIndexed { index, linje ->

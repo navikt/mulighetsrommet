@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.utdanning.utdanningRoutes
 fun Route.apiRoutes() {
     authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
         authorize(Rolle.TEAM_MULIGHETSROMMET) {
+            // TODO: test access control
             maamRoutes()
         }
     }

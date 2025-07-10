@@ -2,28 +2,28 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 class GenererUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -52,7 +52,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         ),
     )
 
-    context("generering av utbetaling for AFT") {
+    context("utbetalinger for forhåndsgodkjente tiltak") {
         val service = createUtbetalingService()
 
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
@@ -71,7 +71,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("genererer en utbetaling med riktig periode, frist og sats som input") {
+        test("genererer en utbetaling med riktig periode, sats og deltakere som input") {
             val domain = MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -93,15 +93,15 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
-            utbetaling.beregning.input shouldBe UtbetalingBeregningForhandsgodkjent.Input(
+            utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 sats = 20975,
                 stengt = setOf(),
                 deltakelser = setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
@@ -215,47 +215,47 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Input>().should {
                 it.deltakelser shouldBe setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
                         ),
                     ),
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[1].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
                                 deltakelsesprosent = 40.0,
                             ),
                         ),
                     ),
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[2].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 50.0,
                             ),
                         ),
                     ),
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[5].id,
                         perioder = listOf(
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)),
                                 deltakelsesprosent = 20.0,
                             ),
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 20)),
                                 deltakelsesprosent = 15.0,
                             ),
-                            DeltakelsePeriode(
+                            DeltakelsesprosentPeriode(
                                 periode = Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 10.0,
                             ),
@@ -309,7 +309,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Input>().should {
                 it.stengt shouldBe setOf(
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)), "Ferie 1"),
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie 2"),
@@ -333,7 +333,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>().should {
                 it.belop shouldBe 20975
                 it.deltakelser shouldBe setOf(
                     DeltakelseManedsverk(
@@ -399,108 +399,290 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Input>().should {
                 it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
             }
         }
     }
 
-    context("rekalkulering av utbetaling for AFT") {
+    context("rekalkulering av utbetalinger for forhåndsgodkjente tiltak") {
         val service = createUtbetalingService()
 
-        test("oppdaterer beregnet utbetaling når deltakelser endres") {
-            val domain = MulighetsrommetTestDomain(
-                gjennomforinger = listOf(AFT1),
-                deltakere = listOf(
-                    DeltakerFixtures.createDeltaker(
-                        AFT1.id,
-                        startDato = LocalDate.of(2025, 6, 1),
-                        sluttDato = LocalDate.of(2025, 6, 30),
-                        statusType = DeltakerStatus.Type.DELTAR,
-                        deltakelsesprosent = 100.0,
+        val deltaker = DeltakerFixtures.createDeltaker(
+            AFT1.id,
+            startDato = LocalDate.of(2025, 6, 1),
+            sluttDato = LocalDate.of(2025, 6, 15),
+            statusType = DeltakerStatus.Type.DELTAR,
+            deltakelsesprosent = 100.0,
+        )
+
+        val beregning = UtbetalingBeregningPrisPerManedsverk(
+            input = UtbetalingBeregningPrisPerManedsverk.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
+                sats = 20975,
+                stengt = setOf(),
+                deltakelser = setOf(
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltaker.id,
+                        perioder = listOf(
+                            DeltakelsesprosentPeriode(
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
+                                deltakelsesprosent = 100.0,
+                            ),
+                        ),
                     ),
                 ),
+            ),
+            output = UtbetalingBeregningPrisPerManedsverk.Output(
+                belop = 20975,
+                deltakelser = setOf(
+                    DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 1.0),
+                ),
+            ),
+        )
+
+        test("oppdaterer beregnet utbetaling når deltakelser endres") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(
+                    UtbetalingFixtures.utbetaling1.copy(
+                        gjennomforingId = AFT1.id,
+                        periode = beregning.input.periode,
+                        beregning = beregning,
+                    ),
+                ),
+                deltakere = listOf(deltaker),
             ).initialize(database.db)
-
-            val utbetalingId = UUID.randomUUID()
-
-            database.run {
-                val utbetaling = service.createUtbetalingForhandsgodkjent(
-                    utbetalingId = utbetalingId,
-                    gjennomforingId = AFT1.id,
-                    periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
-                )
-                queries.utbetaling.upsert(utbetaling)
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20975
-
-                val updatedDeltaker = domain.deltakere[0].copy(
-                    sluttDato = LocalDate.of(2025, 6, 15),
-                )
-                queries.deltaker.upsert(updatedDeltaker)
-            }
 
             service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
-                val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
+                val utbetaling = queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id).shouldNotBeNull()
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>().should {
                     it.belop shouldBe 10488
                     it.deltakelser shouldBe setOf(
-                        DeltakelseManedsverk(
-                            deltakelseId = domain.deltakere[0].id,
-                            manedsverk = 0.5,
-                        ),
+                        DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 0.5),
                     )
                 }
             }
         }
 
         test("oppdaterer ikke utbetaling hvis det allerede er godkjent av arrangør") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
-                deltakere = listOf(
-                    DeltakerFixtures.createDeltaker(
-                        AFT1.id,
-                        startDato = LocalDate.of(2025, 6, 1),
-                        sluttDato = LocalDate.of(2025, 6, 30),
-                        statusType = DeltakerStatus.Type.DELTAR,
-                        deltakelsesprosent = 100.0,
+                utbetalinger = listOf(
+                    UtbetalingFixtures.utbetaling1.copy(
+                        gjennomforingId = AFT1.id,
+                        periode = beregning.input.periode,
+                        beregning = beregning,
                     ),
                 ),
-            ).initialize(database.db)
-
-            val utbetalingId = UUID.randomUUID()
-
-            database.run {
-                val utbetaling = service.createUtbetalingForhandsgodkjent(
-                    utbetalingId = utbetalingId,
-                    gjennomforingId = AFT1.id,
-                    periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
-                )
-                queries.utbetaling.upsert(utbetaling)
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20975
-
-                val updatedDeltaker = domain.deltakere[0].copy(
-                    sluttDato = LocalDate.of(2025, 6, 15),
-                )
-                queries.deltaker.upsert(updatedDeltaker)
-
-                queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-            }
+                deltakere = listOf(deltaker),
+            ) {
+                queries.utbetaling.setGodkjentAvArrangor(UtbetalingFixtures.utbetaling1.id, LocalDateTime.now())
+            }.initialize(database.db)
 
             service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
-                val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
+                val utbetaling = queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id).shouldNotBeNull()
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>().should {
                     it.belop shouldBe 20975
                     it.deltakelser shouldBe setOf(
-                        DeltakelseManedsverk(
-                            deltakelseId = domain.deltakere[0].id,
-                            manedsverk = 1.0,
-                        ),
+                        DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 1.0),
                     )
                 }
+            }
+        }
+    }
+
+    context("utbetalinger for anskaffede tiltak") {
+        val service = createUtbetalingService()
+
+        val oppfolging = GjennomforingFixtures.Oppfolging1
+
+        test("genererer en utbetaling for avtalt pris per månedsverk med riktig periode, stengt, sats og deltakere som input") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                ),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 3, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                    ),
+                ),
+            ) {
+                queries.gjennomforing.setStengtHosArrangor(
+                    oppfolging.id,
+                    Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 20)),
+                    "Ferie!",
+                )
+            }.initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingForMonth(1)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.gjennomforing.id shouldBe oppfolging.id
+            utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                sats = 100,
+                stengt = setOf(
+                    StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
+                ),
+                deltakelser = setOf(
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = domain.deltakere[0].id,
+                        perioder = listOf(
+                            DeltakelsesprosentPeriode(
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                                deltakelsesprosent = 100.0,
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        }
+
+        test("genererer en utbetaling for avtalt pris per ukesverk med riktig periode, stengt, sats og deltakere som input") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = Prismodell.AVTALT_PRIS_PER_UKESVERK,
+                satser = listOf(
+                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                ),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 3, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                    ),
+                ),
+            ) {
+                queries.gjennomforing.setStengtHosArrangor(
+                    oppfolging.id,
+                    Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 20)),
+                    "Ferie!",
+                )
+            }.initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingForMonth(1)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.gjennomforing.id shouldBe oppfolging.id
+            utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerUkesverk.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                sats = 100,
+                stengt = setOf(
+                    StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
+                ),
+                deltakelser = setOf(
+                    DeltakelsePeriode(
+                        deltakelseId = domain.deltakere[0].id,
+                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                    ),
+                ),
+            )
+        }
+
+        test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val generertUtbetaling = service.genererUtbetalingForMonth(1).shouldHaveSize(1).first()
+            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
+
+            database.run {
+                queries.avtale.upsert(avtale.copy(prismodell = Prismodell.AVTALT_PRIS_PER_UKESVERK))
+            }
+
+            val oppdatertUtbetaling = service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id)
+                .shouldHaveSize(1).first()
+            oppdatertUtbetaling.id shouldBe generertUtbetaling.id
+            oppdatertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>()
+        }
+
+        test("utbetalinger slettes når prismodell ikke lengre kan genereres av systemet") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val generertUtbetaling = service.genererUtbetalingForMonth(1).shouldHaveSize(1).first()
+            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
+
+            database.run {
+                queries.avtale.upsert(avtale.copy(prismodell = Prismodell.ANNEN_AVTALT_PRIS))
+            }
+
+            service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id).shouldBeEmpty()
+
+            // Sjekk at utbetalingen er fjernet fra databasen etter at avtalen er endret tilbake til ANNEN_AVTALT_PRIS
+            database.run {
+                queries.utbetaling.get(generertUtbetaling.id).shouldBeNull()
             }
         }
     }

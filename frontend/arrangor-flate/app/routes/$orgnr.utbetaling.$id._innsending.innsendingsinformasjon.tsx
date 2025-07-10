@@ -87,7 +87,12 @@ export default function TilsagnDetaljerPage() {
         {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
         <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         {tilsagn.map((tilsagn) => (
-          <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} headingLevel="4" />
+          <TilsagnDetaljer
+            key={tilsagn.bestillingsnummer}
+            tilsagn={tilsagn}
+            headingLevel="4"
+            minimal
+          />
         ))}
         {harTilsagn && (
           <HStack gap="4" className="mt-4">

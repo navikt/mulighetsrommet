@@ -3,15 +3,13 @@ package no.nav.mulighetsrommet.api.avtale
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.mockk.every
-import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -20,8 +18,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.unleash.Toggle
-import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.*
@@ -74,7 +70,8 @@ class AvtaleValidatorTest : FunSpec({
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     beforeEach {
@@ -85,13 +82,10 @@ class AvtaleValidatorTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createValidator(
-        unleash: UnleashService = mockk(relaxed = true),
-    ) = AvtaleValidator(
+    fun createValidator() = AvtaleValidator(
         db = database.db,
         tiltakstyper = TiltakstypeService(database.db),
         navEnheterService = NavEnhetService(database.db),
-        unleash = unleash,
     )
 
     test("should accumulate errors when dbo has multiple issues") {
@@ -277,62 +271,47 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("avtaletype må være allowed") {
-        val aft = AvtaleFixtures.AFT.copy(
-            avtaletype = Avtaletype.RAMMEAVTALE,
-            sluttDato = LocalDate.of(2023, 1, 1),
-        )
-        val vta = AvtaleFixtures.VTA.copy(
-            avtaletype = Avtaletype.AVTALE,
-        )
-        val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)
-        val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(
-            avtaletype = Avtaletype.FORHANDSGODKJENT,
-            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-            amoKategorisering = AmoKategorisering.Studiespesialisering,
-        )
-
+    test("avtaletype må stemme overens med tiltakstypen") {
         val validator = createValidator()
 
-        validator.validate(aft, null).shouldBeLeft(
-            listOf(
+        forAll(
+            row(
+                AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.RAMMEAVTALE),
                 FieldError(
                     "/avtaletype",
-                    "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening (AFT)",
+                    "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening",
                 ),
             ),
-        )
-        validator.validate(vta, null).shouldBeLeft(
-            listOf(
+            row(
+                AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.AVTALE),
                 FieldError(
                     "/avtaletype",
                     "Avtale er ikke tillatt for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet",
                 ),
             ),
-        )
-        validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(
+            row(
+                AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG),
+                FieldError("/avtaletype", "Offentlig-offentlig samarbeid er ikke tillatt for tiltakstype Oppfølging"),
+            ),
+            row(
+                AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.FORHANDSGODKJENT),
                 FieldError(
                     "/avtaletype",
-                    "Offentlig-offentlig samarbeid er ikke tillatt for tiltakstype Oppfølging",
+                    "Forhåndsgodkjent er ikke tillatt for tiltakstype Arbeidsmarkedsopplæring (Gruppe)",
                 ),
             ),
-        )
-        validator.validate(gruppeAmo, null).shouldBeLeft(
-            listOf(FieldError("/avtaletype", "Forhåndsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
-        )
+        ) { avtale, expectedError ->
+            validator.validate(avtale, null).shouldBeLeft().shouldContain(expectedError)
+        }
 
-        val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)
-        val vtaForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)
-        val oppfolgingRamme = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.RAMMEAVTALE)
-        val gruppeAmoOffentlig = AvtaleFixtures.gruppeAmo.copy(
-            avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-            amoKategorisering = AmoKategorisering.Studiespesialisering,
-        )
-        validator.validate(aftForhaands, null).shouldBeRight()
-        validator.validate(vtaForhaands, null).shouldBeRight()
-        validator.validate(oppfolgingRamme, null).shouldBeRight()
-        validator.validate(gruppeAmoOffentlig, null).shouldBeRight()
+        forAll(
+            row(AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)),
+            row(AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)),
+            row(AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.RAMMEAVTALE)),
+            row(AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)),
+        ) { avtale ->
+            validator.validate(avtale, null).shouldBeRight()
+        }
     }
 
     test("SakarkivNummer må være med når avtalen er avtale eller rammeavtale") {
@@ -439,49 +418,45 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("prismodell") {
-        test("kan ikke settes når feature er disabled") {
-            val unleash = mockk<UnleashService>()
-            every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
-            } returns false
+        test("prismodell må stemme overens med tiltakstypen") {
+            val validator = createValidator()
 
-            val validator = createValidator(unleash)
+            forAll(
+                row(
+                    avtaleDbo.copy(
+                        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    ),
+                    FieldError(
+                        "/prismodell",
+                        "Fast månedspris per tiltaksplass er ikke tillatt for tiltakstype Oppfølging",
+                    ),
+                ),
+                row(
+                    avtaleDbo.copy(
+                        tiltakstypeId = TiltakstypeFixtures.AFT.id,
+                        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+                    ),
+                    FieldError(
+                        "/prismodell",
+                        "Annen avtalt pris er ikke tillatt for tiltakstype Arbeidsforberedende trening",
+                    ),
+                ),
+                row(
+                    avtaleDbo.copy(
+                        tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
+                        prismodell = Prismodell.AVTALT_PRIS_PER_UKESVERK,
+                    ),
+                    FieldError(
+                        "/prismodell",
+                        "Avtalt ukespris per tiltaksplass er ikke tillatt for tiltakstype Arbeidsmarkedsopplæring (Gruppe)",
+                    ),
+                ),
+            ) { avtale, expectedError ->
+                validator.validate(avtale, null).shouldBeLeft().shouldContain(expectedError)
+            }
 
-            val dbo = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
-
-            validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell", "Prismodell kan foreløpig ikke velges for tiltakstype Oppfølging"),
-            )
-        }
-
-        test("må settes når feature er enabled") {
-            val unleash = mockk<UnleashService>()
-            every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
-            } returns true
-
-            val validator = createValidator(unleash)
-
-            val dbo = avtaleDbo.copy(prismodell = null)
-            validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell", "Du må velge en prismodell"),
-            )
-        }
-
-        test("prismodell må stemme overens med avtaletypen") {
-            val unleash = mockk<UnleashService>()
-            every {
-                unleash.isEnabledForTiltakstype(Toggle.MIGRERING_TILSAGN, Tiltakskode.OPPFOLGING)
-            } returns true
-
-            val validator = createValidator(unleash)
-
-            val forhandsgodkjent = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
-            validator.validate(forhandsgodkjent, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell", "Prismodellen kan ikke være forhåndsgodkjent"),
-            )
-
-            val fri = avtaleDbo.copy(prismodell = Prismodell.FRI)
+            val fri = avtaleDbo.copy(prismodell = Prismodell.ANNEN_AVTALT_PRIS)
             validator.validate(fri, null).shouldBeRight()
         }
     }

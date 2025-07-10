@@ -22,6 +22,15 @@ const getServerEnvironment = () => {
   }
 };
 
+/**
+ * Differansiert fra Environment mtp hvilken modus appen kjører i
+ * Demo modus: mocked ressurser
+ */
+export const isDemo = () =>
+  erHosKlient()
+    ? (window as any)["isDemo"] === true
+    : process.env.VITE_MULIGHETSROMMET_API_MOCK === "true";
+
 const getClientEnvironment = (window: Window) => {
   const { href } = window.location;
 

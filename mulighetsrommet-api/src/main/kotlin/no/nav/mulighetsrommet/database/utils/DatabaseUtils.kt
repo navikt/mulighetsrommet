@@ -9,29 +9,7 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
 
 object DatabaseUtils {
-    fun andWhereParameterNotNull(vararg parts: Pair<Any?, String?>): String = parts
-        .filter { it.first != null }
-        .map { it.second }
-        .reduceOrNull { where, part -> "$where and $part" }
-        ?.let { "where $it" }
-        ?: ""
-
-    @Suppress("DuplicatedCode")
-    fun <T> paginate(pageSize: Int, operation: (Pagination) -> List<T>): Int {
-        var page = 1
-        var count = 0
-
-        do {
-            val items = operation(Pagination.of(page, pageSize))
-            page += 1
-            count += items.size
-        } while (items.isNotEmpty())
-
-        return count
-    }
-
-    @Suppress("DuplicatedCode")
-    suspend fun <T> paginateSuspend(pageSize: Int, operation: suspend (Pagination) -> List<T>): Int {
+    private suspend fun <T> paginateSuspend(pageSize: Int, operation: suspend (Pagination) -> List<T>): Int {
         var page = 1
         var count = 0
 
@@ -91,9 +69,12 @@ object DatabaseUtils {
         totalEntries
     }
 
-    fun String.toFTSPrefixQuery() = this
+    fun String.toFTSPrefixQuery(): String = this
         .trim()
         .split("\\s+".toRegex())
-        .filter { it.isNotEmpty() }
-        .joinToString(separator = "&") { "$it:*" }
+        .mapNotNull { token ->
+            val cleaned = token.replace(Regex("""[?`*&|!():'"\\]"""), "")
+            if (cleaned.isNotBlank()) "$cleaned:*" else null
+        }
+        .joinToString(" & ")
 }

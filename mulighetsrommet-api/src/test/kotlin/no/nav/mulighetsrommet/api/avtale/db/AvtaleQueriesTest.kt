@@ -15,7 +15,10 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -464,6 +467,61 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtale.copy(amoKategorisering = null))
                 queries.get(avtale.id).shouldNotBeNull().should {
                     it.amoKategorisering shouldBe null
+                }
+            }
+        }
+
+        test("upsert prismodell med avtalte satser") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = AvtaleQueries(session)
+
+                val sats1 = AvtaltSats(Periode(LocalDate.of(2025, 6, 1), LocalDate.of(2025, 7, 1)), 1000)
+                val sats2 = AvtaltSats(Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 8, 1)), 2000)
+
+                queries.upsert(
+                    AvtaleFixtures.oppfolging.copy(
+                        prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                        satser = listOf(sats2),
+                    ),
+                )
+
+                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
+                    it.prismodell shouldBe Prismodell.AVTALT_PRIS_PER_MANEDSVERK
+                    it.satser shouldContainExactly listOf(
+                        AvtaltSatsDto(
+                            periodeStart = LocalDate.of(2025, 7, 1),
+                            periodeSlutt = LocalDate.of(2025, 7, 31),
+                            pris = 2000,
+                            valuta = "NOK",
+                        ),
+                    )
+                }
+
+                queries.upsert(
+                    AvtaleFixtures.oppfolging.copy(
+                        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                        satser = listOf(sats1, sats2),
+                    ),
+                )
+
+                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
+                    it.prismodell shouldBe Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                    it.satser shouldContainExactly listOf(
+                        AvtaltSatsDto(
+                            periodeStart = LocalDate.of(2025, 6, 1),
+                            periodeSlutt = LocalDate.of(2025, 6, 30),
+                            pris = 1000,
+                            valuta = "NOK",
+                        ),
+                        AvtaltSatsDto(
+                            periodeStart = LocalDate.of(2025, 7, 1),
+                            periodeSlutt = LocalDate.of(2025, 7, 31),
+                            pris = 2000,
+                            valuta = "NOK",
+                        ),
+                    )
                 }
             }
         }

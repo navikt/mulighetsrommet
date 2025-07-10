@@ -252,15 +252,23 @@ fun Route.arrangorflateRoutes() {
                             navn = arrflateUtbetaling.tiltakstype.navn,
                         ),
                         beregning = when (arrflateUtbetaling.beregning) {
-                            is Beregning.Fri -> BeregningPdf(
+                            is ArrFlateBeregning.Fri -> BeregningPdf(
                                 antallManedsverk = null,
                                 belop = arrflateUtbetaling.beregning.belop,
                                 deltakelser = emptyList(),
                                 stengt = emptyList(),
                             )
 
-                            is Beregning.Forhandsgodkjent -> BeregningPdf(
+                            is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
                                 antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                                belop = arrflateUtbetaling.beregning.belop,
+                                deltakelser = emptyList(),
+                                stengt = emptyList(),
+                            )
+
+                            is ArrFlateBeregning.PrisPerUkesverk -> BeregningPdf(
+                                // TODO: støtte ukesverk, evt. vurdere om månedsverk ikke trengs i det hele tatt?
+                                antallManedsverk = null,
                                 belop = arrflateUtbetaling.beregning.belop,
                                 deltakelser = emptyList(),
                                 stengt = emptyList(),

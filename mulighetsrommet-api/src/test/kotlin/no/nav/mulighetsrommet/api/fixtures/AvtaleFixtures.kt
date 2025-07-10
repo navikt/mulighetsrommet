@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
@@ -35,7 +36,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -64,7 +66,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -93,7 +96,8 @@ object AvtaleFixtures {
         amoKategorisering = AmoKategorisering.Studiespesialisering,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     val gruppeFagYrke = AvtaleDbo(
@@ -122,7 +126,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     val VTA = AvtaleDbo(
@@ -151,7 +156,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        satser = listOf(),
     )
 
     val AFT = AvtaleDbo(
@@ -180,7 +186,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        satser = listOf(),
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -209,7 +216,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     val jobbklubb = AvtaleDbo(
@@ -238,7 +246,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -269,7 +278,8 @@ object AvtaleFixtures {
             customOpsjonsmodellNavn = null,
         ),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 
     /**
@@ -301,6 +311,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = null,
+        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        satser = listOf(),
     )
 }

@@ -4,7 +4,7 @@ drop view if exists utbetaling_dto_view;
 
 create view utbetaling_dto_view as
 select utbetaling.id,
-       utbetaling.prismodell,
+       utbetaling.beregning_type,
        utbetaling.godkjent_av_arrangor_tidspunkt,
        utbetaling.kontonummer,
        utbetaling.kid,
@@ -12,6 +12,7 @@ select utbetaling.id,
        utbetaling.innsender,
        utbetaling.created_at,
        utbetaling.beskrivelse,
+       utbetaling.begrunnelse_mindre_betalt,
        utbetaling.periode,
        utbetaling.tilskuddstype,
        gjennomforing.id                  as gjennomforing_id,

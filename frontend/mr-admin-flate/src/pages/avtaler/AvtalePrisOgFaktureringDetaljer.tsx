@@ -4,16 +4,22 @@ import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { formaterDato } from "@/utils/Utils";
-import { AvtaleDto, Prismodell } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaltSatsDto, Prismodell } from "@mr/api-client-v2";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { Box, HStack, VStack } from "@navikt/ds-react";
+import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 
 interface Props {
   avtale: AvtaleDto;
 }
 
 export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
-  const prismodell = avtale.prismodell;
+  const { data: prismodeller } = usePrismodeller(avtale.tiltakstype.tiltakskode);
+
+  const prismodell = prismodeller.find(({ type }) => type === avtale.prismodell) ?? {
+    type: avtale.prismodell,
+    beskrivelse: avtale.prismodell,
+  };
 
   return (
     <TwoColumnGrid separator>
@@ -23,35 +29,48 @@ export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
         </Bolk>
 
         <Bolk>
-          <Metadata
-            header={avtaletekster.prismodell.label}
-            verdi={prismodell ? avtaletekster.prismodell.beskrivelse(prismodell) : null}
-          />
-          {prismodell === Prismodell.FRI && (
-            <Metadata
-              header={avtaletekster.prisOgBetalingLabel}
-              verdi={avtale.prisbetingelser ?? "-"}
-            />
-          )}
+          <Metadata header={avtaletekster.prismodell.label} verdi={prismodell.beskrivelse} />
         </Bolk>
 
-        {prismodell === Prismodell.FORHANDSGODKJENT && (
-          <ForhandsgodkjentAvtalePrismodell avtale={avtale} />
-        )}
+        <PrismodellDetaljer avtale={avtale} />
       </VStack>
     </TwoColumnGrid>
   );
 }
 
-interface ForhandsgodkjentAvtalePrismodellProps {
+function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
+  switch (avtale.prismodell) {
+    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      return <ForhandsgodkjenteSatser avtale={avtale} />;
+
+    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
+    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+      return <AvtalteSatser satser={avtale.satser} />;
+
+    case Prismodell.ANNEN_AVTALT_PRIS:
+      return (
+        <Metadata
+          header={avtaletekster.prisOgBetalingLabel}
+          verdi={avtale.prisbetingelser ?? "-"}
+        />
+      );
+  }
+}
+
+interface ForhandsgodkjentPrisPerManedsverkProps {
   avtale: AvtaleDto;
 }
 
-function ForhandsgodkjentAvtalePrismodell({ avtale }: ForhandsgodkjentAvtalePrismodellProps) {
+function ForhandsgodkjenteSatser({ avtale }: ForhandsgodkjentPrisPerManedsverkProps) {
   const { data: satser } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
+  return <AvtalteSatser satser={satser} />;
+}
 
-  if (!satser) return null;
+interface AvtaltPrisPerManedsverkProps {
+  satser: AvtaltSatsDto[];
+}
 
+function AvtalteSatser({ satser }: AvtaltPrisPerManedsverkProps) {
   return (
     <VStack gap="4">
       {satser.map((sats) => (

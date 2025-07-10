@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
-import no.nav.mulighetsrommet.api.avtale.task.BackfillAvtale
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -61,16 +60,16 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateOkonomiBestillingStatus
+import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerService
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateOkonomiFakturaStatus
+import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateDeltakerKafkaConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -160,15 +159,15 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
                 get(),
             ),
-            config.clients.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(
+            config.clients.amtDeltakerV1 to ReplicateDeltakerKafkaConsumer(
                 db = get(),
                 oppdaterUtbetaling = get(),
             ),
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
-            config.clients.replicateBestillingStatus to ReplicateOkonomiBestillingStatus(get()),
-            config.clients.replicateFakturaStatus to ReplicateOkonomiFakturaStatus(get()),
+            config.clients.replicateBestillingStatus to ReplicateBestillingStatusConsumer(get()),
+            config.clients.replicateFakturaStatus to ReplicateFakturaStatusConsumer(get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(
                 get(),
                 get(),
@@ -221,9 +220,6 @@ private fun services(appConfig: AppConfig) = module {
         privateJwk = appConfig.auth.maskinporten.privateJwk,
     )
 
-    single {
-        BackfillAvtale(get(), get())
-    }
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
@@ -403,7 +399,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { DeltakerService(get(), get(), get()) }
     single { UnleashService(appConfig.unleash) }
-    single { AvtaleValidator(get(), get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get()) }
     single { GjennomforingValidator(get()) }
     single { LagretFilterService(get()) }
     single {

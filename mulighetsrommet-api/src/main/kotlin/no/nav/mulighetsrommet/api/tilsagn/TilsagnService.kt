@@ -61,20 +61,21 @@ class TilsagnService(
         )
 
         val previous = queries.tilsagn.get(request.id)
-        return TilsagnValidator.validate(
-            next = request,
-            previous = previous,
-            gjennomforingSluttDato = gjennomforing.sluttDato,
-            tiltakstypeNavn = gjennomforing.tiltakstype.navn,
-            arrangorSlettet = gjennomforing.arrangor.slettet,
-            minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
-        )
+        return TilsagnValidator
+            .validate(
+                next = request,
+                previous = previous,
+                gjennomforingSluttDato = gjennomforing.sluttDato,
+                tiltakstypeNavn = gjennomforing.tiltakstype.navn,
+                arrangorSlettet = gjennomforing.arrangor.slettet,
+                minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+            )
             .flatMap {
                 when (request.beregning) {
-                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
-                        gjennomforing.tiltakstype.tiltakskode,
-                        request.beregning,
-                    )
+                    is TilsagnBeregningPrisPerManedsverk.Input -> {
+                        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
+                        TilsagnValidator.validateAvtaltSats(avtale, request.beregning)
+                    }
 
                     else -> request.beregning.right()
                 }
@@ -148,8 +149,9 @@ class TilsagnService(
         return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
-                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnBeregningForhandsgodkjent.beregn(input)
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
+                    is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(input)
+                    is TilsagnBeregningPrisPerUkesverk.Input -> TilsagnBeregningPrisPerUkesverk.beregn(input)
                 }
             }
     }
@@ -211,6 +213,7 @@ class TilsagnService(
         var tilsagn = queryContext.queries.tilsagn.getOrError(id)
         tilsagn = queryContext.setTilOppgjort(tilsagn, Tiltaksadministrasjon, emptyList(), null)
         return queryContext.gjorOppTilsagn(tilsagn, Tiltaksadministrasjon).getOrElse {
+            // TODO returner valideringsfeil i stedet for å kaste exception
             throw IllegalStateException(it.first().detail)
         }
     }

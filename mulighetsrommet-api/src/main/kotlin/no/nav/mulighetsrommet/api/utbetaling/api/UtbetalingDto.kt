@@ -3,8 +3,9 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -25,6 +26,7 @@ data class UtbetalingDto(
     val createdAt: LocalDateTime,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val beskrivelse: String?,
+    val begrunnelseMindreBetalt: String?,
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
@@ -34,9 +36,17 @@ data class UtbetalingDto(
     sealed class Beregning {
         abstract val belop: Int
 
+        // TODO: slå sammen månedsverk/ukesverk til felles modell for visning?
         @Serializable
-        @SerialName("FORHANDSGODKJENT")
-        data class Forhandsgodkjent(
+        @SerialName("PRIS_PER_MANEDSVERK")
+        data class PrisPerManedsverk(
+            val sats: Int,
+            override val belop: Int,
+        ) : Beregning()
+
+        @Serializable
+        @SerialName("PRIS_PER_UKESVERK")
+        data class PrisPerUkesverk(
             val sats: Int,
             override val belop: Int,
         ) : Beregning()
@@ -58,13 +68,20 @@ data class UtbetalingDto(
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
                 createdAt = utbetaling.createdAt,
                 beskrivelse = utbetaling.beskrivelse,
+                begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 beregning = when (utbetaling.beregning) {
-                    is UtbetalingBeregningForhandsgodkjent -> Beregning.Forhandsgodkjent(
+                    is UtbetalingBeregningFri -> Beregning.Fri(
+                        belop = utbetaling.beregning.output.belop,
+                    )
+
+                    is UtbetalingBeregningPrisPerManedsverk -> Beregning.PrisPerManedsverk(
                         belop = utbetaling.beregning.output.belop,
                         sats = utbetaling.beregning.input.sats,
                     )
-                    is UtbetalingBeregningFri -> Beregning.Fri(
+
+                    is UtbetalingBeregningPrisPerUkesverk -> Beregning.PrisPerUkesverk(
                         belop = utbetaling.beregning.output.belop,
+                        sats = utbetaling.beregning.input.sats,
                     )
                 },
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),

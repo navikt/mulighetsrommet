@@ -2,7 +2,6 @@ import { ArrangorflateService, ArrangorflateTilsagn } from "api-client";
 import { LoaderFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 import { tekster } from "../tekster";
 import { VStack } from "@navikt/ds-react";
 import css from "../root.module.css";
@@ -42,15 +41,7 @@ export default function TilsagnDetaljerPage() {
           url: pathByOrgnr(orgnr).utbetalinger,
         }}
       />
-      <TilsagnDetaljer
-        tilsagn={tilsagn}
-        ekstraDefinisjoner={[
-          { key: "Status", value: <TilsagnStatusTag data={tilsagn.status} /> },
-          { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
-          { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
-          { key: "Tilsagnsnummer", value: tilsagn.bestillingsnummer },
-        ]}
-      />
+      <TilsagnDetaljer tilsagn={tilsagn} />
     </VStack>
   );
 }

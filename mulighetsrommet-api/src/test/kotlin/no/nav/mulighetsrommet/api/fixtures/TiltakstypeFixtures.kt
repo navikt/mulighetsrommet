@@ -8,7 +8,7 @@ import java.util.*
 object TiltakstypeFixtures {
     val AFT = TiltakstypeDbo(
         id = UUID.fromString("59a64a02-efdd-471d-9529-356ff5553a5d"),
-        navn = "Arbeidsforberedende trening (AFT)",
+        navn = "Arbeidsforberedende trening",
         tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         arenaKode = "ARBFORB",
         startDato = LocalDate.of(2023, 1, 1),
@@ -35,7 +35,7 @@ object TiltakstypeFixtures {
 
     val GruppeAmo = TiltakstypeDbo(
         id = UUID.fromString("ca0cbc97-0306-4d7d-a368-10087e71c365"),
-        navn = "Gruppe amo",
+        navn = "Arbeidsmarkedsopplæring (Gruppe)",
         tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         arenaKode = "GRUPPEAMO",
         startDato = LocalDate.of(2023, 1, 1),

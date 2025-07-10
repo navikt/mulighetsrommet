@@ -4,12 +4,17 @@ import { Definition } from "../components/common/Definisjonsliste";
 
 export function getBeregningDetaljer(beregning: ArrFlateBeregning): Definition[] {
   switch (beregning.type) {
-    case "FORHANDSGODKJENT":
+    case "FRI":
+      return [{ key: "Beløp", value: formaterNOK(beregning.belop) }];
+    case "PRIS_PER_MANEDSVERK":
       return [
         { key: "Antall månedsverk", value: String(beregning.antallManedsverk) },
         { key: "Beløp", value: formaterNOK(beregning.belop) },
       ];
-    case "FRI":
-      return [{ key: "Beløp", value: formaterNOK(beregning.belop) }];
+    case "PRIS_PER_UKESVERK":
+      return [
+        { key: "Antall ukesverk", value: String(beregning.antallUkesverk) },
+        { key: "Beløp", value: formaterNOK(beregning.belop) },
+      ];
   }
 }

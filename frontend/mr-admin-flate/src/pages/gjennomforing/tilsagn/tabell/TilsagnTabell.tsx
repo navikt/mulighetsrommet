@@ -1,16 +1,17 @@
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
-import { isTilsagnForhandsgodkjent } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
-import { compareByKey, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
+import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
+import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
 import { TilsagnDto, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { SortState, Table } from "@navikt/ds-react";
+import { Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
-import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
+import { useSortableData } from "@mr/frontend-common";
+import { useMemo } from "react";
 
-interface TilsagnTabellData extends TilsagnDto {
+interface TilsagnRow {
   periodeStart: string;
   periodeSlutt: string;
   navnForKostnadssted: string;
@@ -22,55 +23,26 @@ interface Props {
   tilsagn: TilsagnDto[];
 }
 
-interface ScopedSortState extends SortState {
-  orderBy: keyof TilsagnTabellData;
-}
-
 export function TilsagnTabell({ tilsagn }: Props) {
   const { gjennomforingId } = useParams();
 
-  const [sort, setSort] = useState<ScopedSortState>();
-
-  const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
-    setSort(
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
-    );
-  };
-
-  const sortedData: TilsagnTabellData[] = [...tilsagn]
-    .map((tilsagn) => ({
-      ...tilsagn,
-      periodeStart: tilsagn.periode.start,
-      periodeSlutt: tilsagn.periode.slutt,
-      type: tilsagn.type,
-      navnForKostnadssted: tilsagn.kostnadssted.navn,
-      antallPlasser: getAntallPlasser(tilsagn),
-      belop: tilsagn.beregning.output.belop,
-      status: tilsagn.status,
-    }))
-    .toSorted((a, b) => {
-      if (sort) {
-        return sort.direction === "ascending"
-          ? compareByKey(b, a, sort.orderBy)
-          : compareByKey(a, b, sort.orderBy);
-      } else {
-        return 0;
-      }
-    });
+  const { sortedData, sort, toggleSort } = useSortableData(
+    useMemo(() => {
+      return tilsagn.map((t) => ({
+        ...t,
+        periodeStart: t.periode.start,
+        periodeSlutt: t.periode.slutt,
+        type: t.type,
+        navnForKostnadssted: t.kostnadssted.navn,
+        antallPlasser: getAntallPlasser(t),
+        belop: t.beregning.output.belop,
+        status: t.status,
+      }));
+    }, [tilsagn]),
+  );
 
   return (
-    <Table
-      sort={sort}
-      onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
-    >
+    <Table sort={sort} onSortChange={(sortKey) => toggleSort(sortKey as keyof TilsagnRow)}>
       <Table.Header>
         <Table.Row>
           <TableColumnHeader sortKey="bestillingsnummer" sortable>
@@ -135,5 +107,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
 }
 
 function getAntallPlasser(tilsagn: TilsagnDto) {
-  return isTilsagnForhandsgodkjent(tilsagn) ? tilsagn.beregning.input.antallPlasser : null;
+  return isBeregningPrisPerManedsverk(tilsagn.beregning)
+    ? tilsagn.beregning.input.antallPlasser
+    : null;
 }

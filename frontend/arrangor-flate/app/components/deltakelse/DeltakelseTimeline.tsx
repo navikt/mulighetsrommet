@@ -1,12 +1,12 @@
 import { PersonIcon, ParasolBeachIcon } from "@navikt/aksel-icons";
 import { Timeline } from "@navikt/ds-react";
-import { Periode, UtbetalingStengtPeriode, UtbetalingDeltakelse } from "api-client";
+import { Periode, UtbetalingDeltakelseManedsverk, UtbetalingStengtPeriode } from "api-client";
 import { subtractDays, formaterPeriode } from "~/utils/date";
 
 interface DeltakelseTimelineProps {
   utbetalingsperiode: Periode;
   stengt: UtbetalingStengtPeriode[];
-  deltakelse: UtbetalingDeltakelse;
+  deltakelse: UtbetalingDeltakelseManedsverk;
 }
 
 export function DeltakelseTimeline({

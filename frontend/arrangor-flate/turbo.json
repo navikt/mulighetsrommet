@@ -18,15 +18,24 @@
     },
     "typecheck": {
       "dependsOn": ["api-client:build"],
-      "outputs": []
+      "outputs": [".react-router"]
     },
     "build": {
+      "dependsOn": ["api-client:build"],
+      "outputs": ["build"]
+    },
+    "build:demo": {
       "dependsOn": ["api-client:build"],
       "outputs": ["build"]
     },
     "pack": {
       "env": ["NODE_AUTH_TOKEN", "NPM_CONFIG_USERCONFIG"],
       "dependsOn": ["build"],
+      "outputs": ["dist"]
+    },
+    "pack:demo": {
+      "env": ["NODE_AUTH_TOKEN", "NPM_CONFIG_USERCONFIG"],
+      "dependsOn": ["build:demo"],
       "outputs": ["dist"]
     }
   }

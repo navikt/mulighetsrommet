@@ -19,6 +19,7 @@ data class TilsagnDto(
     val belopBrukt: Int,
     val belopGjenstaende: Int,
     val kostnadssted: NavEnhetDbo,
+    // TODO: eksponere en forenklet beregningsmodell, tilsavarende UtbetalingDto?
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
     val bestillingsnummer: String,

@@ -115,7 +115,7 @@ class KafkaClients(
     var replicateFakturaStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-faktura-status",
         topic = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.faktura-status.v1"),
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.faktura-status.v2"),
     )
     var amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-deltaker",

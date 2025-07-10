@@ -204,7 +204,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavIdent): Oppgave?
                     tiltakstype = tiltakstype,
                     link = link,
                     createdAt = opprettelse.behandletTidspunkt,
-                    oppgaveIcon = OppgaveIcon.TILSAGN,
+                    iconType = OppgaveIconType.TILSAGN,
                 )
             }
         }
@@ -224,7 +224,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavIdent): Oppgave?
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.besluttetTidspunkt,
-                oppgaveIcon = OppgaveIcon.TILSAGN,
+                iconType = OppgaveIconType.TILSAGN,
             )
         }
 
@@ -245,7 +245,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavIdent): Oppgave?
                     tiltakstype = tiltakstype,
                     link = link,
                     createdAt = annullering.behandletTidspunkt,
-                    oppgaveIcon = OppgaveIcon.TILSAGN,
+                    iconType = OppgaveIconType.TILSAGN,
                 )
             }
         }
@@ -267,7 +267,7 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavIdent): Oppgave?
                     tiltakstype = tiltakstype,
                     link = link,
                     createdAt = tilOppgjor.behandletTidspunkt,
-                    oppgaveIcon = OppgaveIcon.TILSAGN,
+                    iconType = OppgaveIconType.TILSAGN,
                 )
             }
         }
@@ -303,7 +303,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData, ansatt
                     tiltakstype = tiltakstype,
                     link = link,
                     createdAt = opprettelse.behandletTidspunkt,
-                    oppgaveIcon = OppgaveIcon.UTBETALING,
+                    iconType = OppgaveIconType.UTBETALING,
                 )
             }
         }
@@ -322,7 +322,7 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData, ansatt
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
-                oppgaveIcon = OppgaveIcon.UTBETALING,
+                iconType = OppgaveIconType.UTBETALING,
             )
         }
 
@@ -346,7 +346,7 @@ private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
         link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetalinger/${utbetaling.id}",
     ),
     createdAt = utbetaling.createdAt,
-    oppgaveIcon = OppgaveIcon.UTBETALING,
+    iconType = OppgaveIconType.UTBETALING,
 )
 
 private fun QueryContext.toOppgaver(avtale: AvtaleDto): List<Oppgave> = buildList {
@@ -374,7 +374,7 @@ private fun QueryContext.toOppgaver(avtale: AvtaleDto): List<Oppgave> = buildLis
                     link = "/avtaler/${avtale.id}",
                 ),
                 createdAt = updatedAt,
-                oppgaveIcon = OppgaveIcon.AVTALE,
+                iconType = OppgaveIconType.AVTALE,
             ),
         )
     }
@@ -403,7 +403,7 @@ private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildLis
                 link = "/gjennomforinger/${data.id}",
             ),
             createdAt = data.updatedAt,
-            oppgaveIcon = OppgaveIcon.AVTALE,
+            iconType = OppgaveIconType.GJENNOMFORING,
         ),
     )
 }

@@ -41,7 +41,8 @@ select avtale.id,
        arrangor.slettet_dato is not null                as arrangor_hovedenhet_slettet,
        arrangor_underenheter_json,
        arrangor_kontaktpersoner_json,
-       utdanningslop_json
+       utdanningslop_json,
+       satser_json
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
@@ -139,4 +140,17 @@ from avtale
                                      join utdanningsprogram up on upa.utdanningsprogram_id = up.id
                                      join utdanning u on upa.utdanning_id = u.id
                             where avtale_id = avtale.id
-                            group by up.id) on true;
+                            group by up.id) on true
+         left join lateral (select jsonb_agg(
+                                           jsonb_build_object(
+                                                   'periode',
+                                                   jsonb_build_object(
+                                                           'start', lower(periode),
+                                                           'slutt', upper(periode)
+                                                   ),
+                                                   'sats',
+                                                   sats
+                                           )
+                                   ) satser_json
+                            from avtale_sats
+                            where avtale_id = avtale.id) on true

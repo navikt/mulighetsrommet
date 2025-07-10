@@ -1,18 +1,22 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(
     private val db: ApiDatabase,
@@ -27,23 +32,22 @@ class GenererUtbetalingService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
+    private val kontonummerCache: Cache<String, Kontonummer> = Caffeine.newBuilder()
+        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .maximumSize(10_000)
+        .recordStats()
+        .build()
+
     suspend fun genererUtbetalingForMonth(month: Int): List<Utbetaling> = db.transaction {
         val currentYear = LocalDate.now().year
         val date = LocalDate.of(currentYear, month, 1)
         val periode = Periode.forMonthOf(date)
 
         getGjennomforingerForGenereringAvUtbetalinger(periode)
-            .mapNotNull { (gjennomforingId, avtaletype) ->
-                val utbetaling = when (avtaletype) {
-                    Avtaletype.FORHANDSGODKJENT -> createUtbetalingForhandsgodkjent(
-                        utbetalingId = UUID.randomUUID(),
-                        gjennomforingId = gjennomforingId,
-                        periode = periode,
-                    )
-
-                    else -> null
-                }
-                utbetaling?.takeIf { it.beregning.output.belop > 0 }
+            .mapNotNull { (gjennomforingId, prismodell) ->
+                val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+                val utbetaling = generateUtbetalingForPrismodell(UUID.randomUUID(), prismodell, gjennomforing, periode)
+                utbetaling?.takeIf { isUtbetalingRelevantForArrangor(it) }
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
@@ -53,74 +57,133 @@ class GenererUtbetalingService(
             }
     }
 
-    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): Unit = db.transaction {
+    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(id))
+        val prismodell = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!)?.prismodell)
+
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }
-            .mapNotNull { gjeldendeKrav ->
-                val nyttKrav = when (gjeldendeKrav.beregning) {
-                    is UtbetalingBeregningForhandsgodkjent -> createUtbetalingForhandsgodkjent(
-                        utbetalingId = gjeldendeKrav.id,
-                        gjennomforingId = gjeldendeKrav.gjennomforing.id,
-                        periode = gjeldendeKrav.beregning.input.periode,
-                    )
+            .mapNotNull { utbetaling ->
+                val oppdatertUtbetaling = when (utbetaling.beregning) {
+                    is UtbetalingBeregningFri -> return@mapNotNull null
 
-                    is UtbetalingBeregningFri -> null
+                    is UtbetalingBeregningPrisPerManedsverk,
+                    is UtbetalingBeregningPrisPerUkesverk,
+                    -> generateUtbetalingForPrismodell(utbetaling.id, prismodell, gjennomforing, utbetaling.periode)
                 }
 
-                nyttKrav?.takeIf { it.beregning != gjeldendeKrav.beregning }
+                if (!isUtbetalingRelevantForArrangor(oppdatertUtbetaling)) {
+                    queries.utbetaling.delete(utbetaling.id)
+                    return@mapNotNull null
+                }
+
+                oppdatertUtbetaling
             }
-            .forEach { utbetaling ->
+            .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
                 val dto = getOrError(utbetaling.id)
                 logEndring("Utbetaling beregning oppdatert", dto, Tiltaksadministrasjon)
+                dto
             }
     }
 
-    suspend fun createUtbetalingForhandsgodkjent(
+    private suspend fun QueryContext.generateUtbetalingForPrismodell(
         utbetalingId: UUID,
-        gjennomforingId: UUID,
+        prismodell: Prismodell,
+        gjennomforing: GjennomforingDto,
         periode: Periode,
-    ): UtbetalingDbo = db.session {
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+    ): UtbetalingDbo? {
+        val beregning = when (prismodell) {
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
+                val input = resolveForhandsgodkjentPrisPerManedsverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            }
 
-        val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
-            ?: throw IllegalStateException("Sats mangler for periode $periode")
+            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
+                val input = resolveAvtaltPrisPerManedsverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            }
 
+            Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
+                val input = resolveAvtaltPrisPerUkesverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerUkesverk.beregn(input)
+            }
+
+            Prismodell.ANNEN_AVTALT_PRIS -> return null
+        }
+
+        if (beregning.output.belop == 0) {
+            log.info(
+                "Genererer ikke utbetaling for gjennomføring ${gjennomforing.id} i periode $periode, da beløpet er ${beregning.output.belop}",
+            )
+            return null
+        }
+
+        return createUtbetaling(
+            utbetalingId = utbetalingId,
+            gjennomforing = gjennomforing,
+            periode = periode,
+            beregning = beregning,
+        )
+    }
+
+    private fun QueryContext.resolveForhandsgodkjentPrisPerManedsverkInput(
+        gjennomforing: GjennomforingDto,
+        periode: Periode,
+    ): UtbetalingBeregningPrisPerManedsverk.Input {
+        val sats = resolveAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-
-        val deltakelser = resolveDeltakelser(gjennomforingId, periode)
-
-        val input = UtbetalingBeregningForhandsgodkjent.Input(
+        val deltakelser = resolveDeltakelserManedsverkForhandsgodkjent(gjennomforing.id, periode)
+        return UtbetalingBeregningPrisPerManedsverk.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
+    }
 
-        val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
+    private fun QueryContext.resolveAvtaltPrisPerManedsverkInput(
+        gjennomforing: GjennomforingDto,
+        periode: Periode,
+    ): UtbetalingBeregningPrisPerManedsverk.Input {
+        val sats = resolveAvtaltSats(gjennomforing, periode)
+        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val deltakelser = resolveDeltakelserManedsverk(gjennomforing.id, periode)
+        return UtbetalingBeregningPrisPerManedsverk.Input(
+            periode = periode,
+            sats = sats,
+            stengt = stengtHosArrangor,
+            deltakelser = deltakelser,
+        )
+    }
 
-        val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
+    private fun QueryContext.resolveAvtaltPrisPerUkesverkInput(
+        gjennomforing: GjennomforingDto,
+        periode: Periode,
+    ): UtbetalingBeregningPrisPerUkesverk.Input {
+        val sats = resolveAvtaltSats(gjennomforing, periode)
+        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val deltakelser = resolveDeltakelserUkesverk(gjennomforing.id, periode)
+        return UtbetalingBeregningPrisPerUkesverk.Input(
+            periode = periode,
+            sats = sats,
+            stengt = stengtHosArrangor,
+            deltakelser = deltakelser,
+        )
+    }
 
-        val kontonummer = when (
-            val result = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-            )
-        ) {
-            is Either.Left -> {
-                log.error(
-                    "Kunne ikke hente kontonummer for organisasjon ${gjennomforing.arrangor.organisasjonsnummer}. Error: {}",
-                    result.value,
-                )
-                null
-            }
-
-            is Either.Right -> Kontonummer(result.value.kontonr)
-        }
-
+    private suspend fun QueryContext.createUtbetaling(
+        utbetalingId: UUID,
+        gjennomforing: GjennomforingDto,
+        periode: Periode,
+        beregning: UtbetalingBeregning,
+    ): UtbetalingDbo {
+        val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforing.id)
+        val kontonummer = getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
         return UtbetalingDbo(
             id = utbetalingId,
-            gjennomforingId = gjennomforingId,
+            gjennomforingId = gjennomforing.id,
             beregning = beregning,
             kontonummer = kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
@@ -132,29 +195,47 @@ class GenererUtbetalingService(
         )
     }
 
+    private fun QueryContext.resolveAvtaltSats(gjennomforing: GjennomforingDto, periode: Periode): Int {
+        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
+        return AvtalteSatser.findSats(avtale, periode)
+            ?: throw IllegalStateException("Sats mangler for periode $periode")
+    }
+
+    private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
+        return CacheUtils.tryCacheFirstNullable(kontonummerCache, organisasjonsnummer.value) {
+            kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(organisasjonsnummer).fold(
+                { error ->
+                    log.error(
+                        "Kunne ikke hente kontonummer for organisasjon ${organisasjonsnummer.value}. Error: $error",
+                    )
+                    null
+                },
+                { response ->
+                    Kontonummer(response.kontonr)
+                },
+            )
+        }
+    }
+
     private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
         periode: Periode,
-    ): List<Pair<UUID, Avtaletype>> {
+    ): List<Pair<UUID, Prismodell>> {
         @Language("PostgreSQL")
         val query = """
-            select gjennomforing.id, avtale.avtaletype
+            select gjennomforing.id, avtale.prismodell
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
-            where (gjennomforing.start_dato <= :periode_slutt)
-              and (gjennomforing.slutt_dato >= :periode_start or gjennomforing.slutt_dato is null)
-              and (gjennomforing.avsluttet_tidspunkt > :periode_start or gjennomforing.avsluttet_tidspunkt is null)
+            where gjennomforing.status = 'GJENNOMFORES'
               and not exists (
                     select 1
                     from utbetaling
                     where utbetaling.gjennomforing_id = gjennomforing.id
-                      and utbetaling.periode && daterange(:periode_start, :periode_slutt)
+                      and utbetaling.periode && ?::daterange
               )
         """.trimIndent()
 
-        val params = mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt)
-
-        return session.list(queryOf(query, params)) {
-            Pair(it.uuid("id"), Avtaletype.valueOf(it.string("avtaletype")))
+        return session.list(queryOf(query, periode.toDaterange())) {
+            Pair(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
         }
     }
 
@@ -171,10 +252,10 @@ class GenererUtbetalingService(
             .toSet()
     }
 
-    private fun resolveDeltakelser(
+    private fun resolveDeltakelserManedsverkForhandsgodkjent(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelsePerioder> = db.session {
+    ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
         queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
             .filter { deltaker ->
@@ -189,7 +270,7 @@ class GenererUtbetalingService(
                     val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: sluttDatoInPeriode
 
                     Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
-                        DeltakelsePeriode(
+                        DeltakelsesprosentPeriode(
                             periode = overlappingPeriode,
                             deltakelsesprosent = mengde.deltakelsesprosent,
                         )
@@ -200,7 +281,43 @@ class GenererUtbetalingService(
                     "Deltaker id=${deltaker.id} er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
                 }
 
-                DeltakelsePerioder(deltaker.id, perioder)
+                DeltakelseDeltakelsesprosentPerioder(deltaker.id, perioder)
+            }
+            .toSet()
+    }
+
+    private fun resolveDeltakelserManedsverk(
+        gjennomforingId: UUID,
+        periode: Periode,
+    ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
+        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
+            .asSequence()
+            .filter { deltaker ->
+                isRelevantForUtbetalingsperide(deltaker, periode)
+            }
+            .map { deltaker ->
+                // TODO: trenger kanskje litt opprydninger her
+                val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+                val overlappingPeriode = Periode(deltaker.startDato!!, sluttDatoInPeriode).intersect(periode)!!
+                val perioder = listOf(DeltakelsesprosentPeriode(overlappingPeriode, 100.0))
+                DeltakelseDeltakelsesprosentPerioder(deltaker.id, perioder)
+            }
+            .toSet()
+    }
+
+    private fun resolveDeltakelserUkesverk(
+        gjennomforingId: UUID,
+        periode: Periode,
+    ): Set<DeltakelsePeriode> = db.session {
+        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
+            .asSequence()
+            .filter { deltaker ->
+                isRelevantForUtbetalingsperide(deltaker, periode)
+            }
+            .map { deltaker ->
+                val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+                val overlappingPeriode = Periode(deltaker.startDato!!, sluttDatoInPeriode).intersect(periode)!!
+                DeltakelsePeriode(deltaker.id, overlappingPeriode)
             }
             .toSet()
     }
@@ -249,4 +366,8 @@ private fun isRelevantForUtbetalingsperide(
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+}
+
+private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo?): Boolean {
+    return utbetaling != null && utbetaling.beregning.output.belop > 0
 }

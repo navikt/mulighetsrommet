@@ -2259,7 +2259,31 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/prismodell/satser:
+  /api/v1/intern/avtaler/{id}/satser:
+    get:
+      tags:
+        - Avtaler
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      operationId: getAvtalteSatser
+      responses:
+        200:
+          description: Avtalte satser for avtale
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaltSatsDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/prismodeller:
     get:
       tags:
         - Prismodell
@@ -2270,7 +2294,30 @@ paths:
           schema:
             $ref: "#/components/schemas/Tiltakskode"
             type: string
-            format: uuid
+      operationId: getPrismodeller
+      responses:
+        200:
+          description: Prismodeller for tiltakstype
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrismodellDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/prismodeller/forhandsgodkjente-satser:
+    get:
+      tags:
+        - Prismodell
+      parameters:
+        - in: query
+          name: tiltakstype
+          required: true
+          schema:
+            $ref: "#/components/schemas/Tiltakskode"
+            type: string
       operationId: getForhandsgodkjenteSatser
       responses:
         200:
@@ -2280,7 +2327,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AvtaltSats"
+                  $ref: "#/components/schemas/AvtaltSatsDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -3008,9 +3055,11 @@ components:
             - type: ["null"]
             - $ref: "#/components/schemas/Utdanningslop"
         prismodell:
-          anyOf:
-            - type: ["null"]
-            - $ref: "#/components/schemas/Prismodell"
+          $ref: "#/components/schemas/Prismodell"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsDto"
       required:
         - id
         - tiltakstype
@@ -3029,6 +3078,7 @@ components:
         - opsjonerRegistrert
         - utdanningslop
         - prismodell
+        - satser
 
     AvtaleRequest:
       type: object
@@ -3106,9 +3156,11 @@ components:
             - type: "null"
             - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodell:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/Prismodell"
+          $ref: "#/components/schemas/Prismodell"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsDto"
       required:
         - id
         - navn
@@ -3131,12 +3183,15 @@ components:
         - opsjonsmodell
         - utdanningslop
         - prismodell
+        - satser
 
     Prismodell:
       type: string
       enum:
-        - FORHANDSGODKJENT
-        - FRI
+        - ANNEN_AVTALT_PRIS
+        - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+        - AVTALT_PRIS_PER_MANEDSVERK
+        - AVTALT_PRIS_PER_UKESVERK
 
     EmbeddedTiltakstype:
       type: object
@@ -4766,8 +4821,8 @@ components:
         createdAt:
           type: string
           format: date-time
-        oppgaveIcon:
-          $ref: "#/components/schemas/OppgaveIcon"
+        iconType:
+          $ref: "#/components/schemas/OppgaveIconType"
       required:
         - type
         - navn
@@ -4775,7 +4830,7 @@ components:
         - tiltakstype
         - link
         - createdAt
-        - oppgaveIcon
+        - iconType
 
     OppgaveEnhet:
       properties:
@@ -4784,11 +4839,13 @@ components:
         navn:
           type: string
 
-    OppgaveIcon:
+    OppgaveIconType:
       type: string
       enum:
         - TILSAGN
         - UTBETALING
+        - AVTALE
+        - GJENNOMFORING
 
     OppgaveTiltakstype:
       type: object
@@ -5794,40 +5851,50 @@ components:
         - TILSAGN_FEIL_STATUS
         - PROPAGERT_RETUR
 
+    TilsagnBeregningType:
+      type: string
+      enum:
+        - FRI
+        - PRIS_PER_MANEDSVERK
+        - PRIS_PER_UKESVERK
+
     TilsagnBeregning:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
         - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
 
-    TilsagnBeregningForhandsgodkjent:
+    TilsagnBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: PRIS_PER_MANEDSVERK
         input:
-          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         output:
-          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
       required:
         - type
         - input
         - output
 
-    TilsagnBeregningForhandsgodkjentInput:
+    TilsagnBeregningPrisPerManedsverkInput:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: PRIS_PER_MANEDSVERK
         periode:
           $ref: "#/components/schemas/Periode"
         sats:
@@ -5840,11 +5907,53 @@ components:
         - sats
         - antallPlasser
 
-    TilsagnBeregningForhandsgodkjentOutput:
+    TilsagnBeregningPrisPerManedsverkOutput:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: PRIS_PER_MANEDSVERK
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
+
+    TilsagnBeregningPrisPerUkesverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        input:
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
+        output:
+          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
+      required:
+        - type
+        - input
+        - output
+
+    TilsagnBeregningPrisPerUkesverkInput:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        periode:
+          $ref: "#/components/schemas/Periode"
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+      required:
+        - type
+        - periode
+        - sats
+        - antallPlasser
+
+    TilsagnBeregningPrisPerUkesverkOutput:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
         belop:
           type: integer
       required:
@@ -5911,7 +6020,18 @@ components:
         - type
         - belop
 
-    AvtaltSats:
+    PrismodellDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/Prismodell"
+        beskrivelse:
+          type: string
+      required:
+        - type
+        - beskrivelse
+
+    AvtaltSatsDto:
       type: object
       properties:
         periodeStart:
@@ -5978,7 +6098,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         beregning:
-          $ref: "#/components/schemas/Beregning"
+          $ref: "#/components/schemas/UtbetalingBeregning"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6002,24 +6122,24 @@ components:
       required: [id, status, periode, beregning, createdAt, tilskuddstype]
 
     UtbetalingKompaktDto:
-        type: object
-        properties:
-          id:
-            type: string
-            format: uuid
-          status:
-            $ref: "#/components/schemas/AdminUtbetalingStatus"
-          periode:
-            $ref: "#/components/schemas/Periode"
-          kostnadssteder:
-            type: array
-            items:
-              $ref: "#/components/schemas/NavEnhet"
-          belopUtbetalt:
-            type: [number, "null"]
-          type:
-            $ref: "#/components/schemas/UtbetalingType"
-        required: [ id, status, periode, kostnadssteder, belopUtbetalt ]
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/AdminUtbetalingStatus"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+        belopUtbetalt:
+          type: [number, "null"]
+        type:
+          $ref: "#/components/schemas/UtbetalingType"
+      required: [id, status, periode, kostnadssteder, belopUtbetalt]
 
     UtbetalingType:
       type: string
@@ -6185,32 +6305,12 @@ components:
         - navn
         - slettet
 
-    ArrFlateBeregningForhandsgodkjent:
+    ArrFlateBeregning:
       type: object
-      properties:
-        type:
-          const: FORHANDSGODKJENT
-        belop:
-          type: integer
-        antallManedsverk:
-          type: number
-        digest:
-          type: string
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingDeltakelse"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingStengtPeriode"
-      required:
-        - type
-        - belop
-        - antallManedsverk
-        - digest
-        - deltakelser
-        - stengt
+      oneOf:
+        - $ref: "#/components/schemas/ArrFlateBeregningFri"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
 
     ArrFlateBeregningFri:
       type: object
@@ -6226,24 +6326,84 @@ components:
         - type
         - digest
 
-    ArrFlateBeregning:
-      type: object
-      oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
-        - $ref: "#/components/schemas/ArrFlateBeregningFri"
-
-    BeregningForhandsgodkjent:
+    ArrFlateBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
-          const: FORHANDSGODKJENT
+          const: PRIS_PER_MANEDSVERK
+        belop:
+          type: integer
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingDeltakelseManedsverk"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStengtPeriode"
+        antallManedsverk:
+          type: number
+      required:
+        - type
+        - belop
+        - digest
+        - deltakelser
+        - stengt
+        - antallManedsverk
+
+    ArrFlateBeregningPrisPerUkesverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        belop:
+          type: integer
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingDeltakelseUkesverk"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStengtPeriode"
+        antallUkesverk:
+          type: number
+      required:
+        - type
+        - belop
+        - digest
+        - deltakelser
+        - stengt
+        - antallManedsverk
+
+    UtbetalingBeregningType:
+      type: string
+      enum:
+        - FRI
+        - PRIS_PER_MANEDSVERK
+
+    UtbetalingBeregning:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/UtbetalingBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/UtbetalingBeregningFri"
+
+    UtbetalingBeregningPrisPerManedsverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_MANEDSVERK
         belop:
           type: integer
         sats:
           type: integer
       required: [type, belop, sats]
 
-    BeregningFri:
+    UtbetalingBeregningFri:
       type: object
       properties:
         belop:
@@ -6251,13 +6411,6 @@ components:
         type:
           const: FRI
       required: [belop, type]
-
-    Beregning:
-      type: object
-      oneOf:
-        - $ref: "#/components/schemas/BeregningForhandsgodkjent"
-        - $ref: "#/components/schemas/BeregningFri"
-
 
     UtbetalingStengtPeriode:
       type: object
@@ -6270,16 +6423,13 @@ components:
         - periode
         - beskrivelse
 
-    UtbetalingDeltakelse:
+    UtbetalingDeltakelseManedsverk:
       type: object
       properties:
         id:
           type: string
           format: uuid
         startDato:
-          type: string
-          format: date
-        sluttDato:
           type: string
           format: date
         forstePeriodeStartDato:
@@ -6306,7 +6456,32 @@ components:
         - sistePeriodeDeltakelsesprosent
         - perioder
         - manedsverk
-        - person
+
+    UtbetalingDeltakelseUkesverk:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type: string
+          format: date
+        periodeStartDato:
+          type: string
+          format: date
+        periodeSluttDato:
+          type: string
+          format: date
+        ukesverk:
+          type: number
+        person:
+          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+      required:
+        - id
+        - deltakerStartDato
+        - periodeStartDato
+        - periodeSluttDato
+        - ukesverk
 
     UtbetalingDeltakelsePeriode:
       type: object
@@ -6589,8 +6764,8 @@ components:
           type: string
           format: UUID
         tilsagnId:
-            type: string
-            format: UUID
+          type: string
+          format: UUID
         periodeStart:
           type: string
         periodeSlutt:

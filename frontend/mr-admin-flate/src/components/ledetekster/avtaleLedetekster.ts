@@ -1,4 +1,4 @@
-import { Avtaletype, Prismodell, TilsagnType } from "@mr/api-client-v2";
+import { Avtaletype, TilsagnType } from "@mr/api-client-v2";
 
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",
@@ -38,14 +38,6 @@ export const avtaletekster = {
   },
   prismodell: {
     label: "Prismodell",
-    beskrivelse: (prismodell: Prismodell): string => {
-      switch (prismodell) {
-        case Prismodell.FORHANDSGODKJENT:
-          return "Fast sats per tiltaksplass per måned";
-        case Prismodell.FRI:
-          return "Avtalt prismodell";
-      }
-    },
     valuta: {
       label: "Valuta",
     },
