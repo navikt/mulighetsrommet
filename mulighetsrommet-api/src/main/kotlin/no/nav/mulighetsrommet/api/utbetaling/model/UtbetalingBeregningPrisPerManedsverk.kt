@@ -20,7 +20,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
     @Serializable
     data class Output(
         override val belop: Int,
-        val deltakelser: Set<DeltakelseManedsverk>,
+        override val deltakelser: Set<DeltakelseManedsverk>,
     ) : UtbetalingBeregningOutput()
 
     companion object {

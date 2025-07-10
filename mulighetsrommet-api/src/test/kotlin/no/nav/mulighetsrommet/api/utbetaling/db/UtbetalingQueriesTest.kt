@@ -30,15 +30,15 @@ class UtbetalingQueriesTest : FunSpec({
 
     val periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1))
 
-    val beregning = UtbetalingBeregningFri(
+    val friBeregning = UtbetalingBeregningFri(
         input = UtbetalingBeregningFri.Input(belop = 137_077),
-        output = UtbetalingBeregningFri.Output(belop = 137_077),
+        output = UtbetalingBeregningFri.Output(belop = 137_077, emptySet()),
     )
 
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        beregning = beregning,
+        beregning = friBeregning,
         kontonummer = Kontonummer("11111111111"),
         kid = Kid.parseOrThrow("006402710013"),
         periode = periode,
@@ -72,7 +72,7 @@ class UtbetalingQueriesTest : FunSpec({
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 )
-                it.beregning shouldBe beregning
+                it.beregning shouldBe friBeregning
                 it.betalingsinformasjon shouldBe Utbetaling.Betalingsinformasjon(
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid.parseOrThrow("006402710013"),

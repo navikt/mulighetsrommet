@@ -2008,6 +2008,30 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/utbetaling/{id}/beregning:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      parameters:
+        - in: query
+          name: navEnheter
+          schema:
+            type: array
+            items:
+              type: string
+      tags:
+        - Utbetaling
+      operationId: getUtbetalingBeregning
+      responses:
+        200:
+          description: Filtrert utbetaling beregning
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UtbetalingBeregningDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/utbetaling/{id}/historikk:
     get:
       tags:
@@ -6074,10 +6098,6 @@ components:
       properties:
         utbetaling:
           $ref: "#/components/schemas/UtbetalingDto"
-        deltakere:
-          type: array
-          items:
-            $ref: "#/components/schemas/DeltakerForKostnadsfordeling"
         linjer:
           type: array
           items:
@@ -6097,8 +6117,8 @@ components:
           $ref: "#/components/schemas/AdminUtbetalingStatus"
         periode:
           $ref: "#/components/schemas/Periode"
-        beregning:
-          $ref: "#/components/schemas/UtbetalingBeregning"
+        belop:
+          type: integer
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -6119,7 +6139,7 @@ components:
           $ref: "#/components/schemas/UtbetalingType"
         begrunnelseMindreBetalt:
           type: string
-      required: [id, status, periode, beregning, createdAt, tilskuddstype]
+      required: [id, status, periode, belop, createdAt, tilskuddstype]
 
     UtbetalingKompaktDto:
       type: object
@@ -6146,31 +6166,6 @@ components:
       enum:
         - KORRIGERING
         - INVESTERING
-
-    DeltakerForKostnadsfordeling:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        foedselsdato:
-          type: string
-          format: date
-        geografiskEnhet:
-          $ref: "#/components/schemas/NavEnhet"
-        region:
-          $ref: "#/components/schemas/NavEnhet"
-        manedsverk:
-          type: number
-        belop:
-          type: number
-      required:
-        - id
-        - manedsverk
-        - navn
-        - belop
 
     ArrFlateUtbetalingKompakt:
       type: object
@@ -6385,11 +6380,13 @@ components:
       enum:
         - FRI
         - PRIS_PER_MANEDSVERK
+        - PRIS_PER_UKESVERK
 
-    UtbetalingBeregning:
+    UtbetalingBeregningDto:
       type: object
       oneOf:
         - $ref: "#/components/schemas/UtbetalingBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/UtbetalingBeregningPrisPerUkesverk"
         - $ref: "#/components/schemas/UtbetalingBeregningFri"
 
     UtbetalingBeregningPrisPerManedsverk:
@@ -6399,9 +6396,36 @@ components:
           const: PRIS_PER_MANEDSVERK
         belop:
           type: integer
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegion"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
         sats:
           type: integer
-      required: [type, belop, sats]
+        manedsverkTotal:
+          type: number
+      required: [type, belop, sats, deltakerTableData, deltakerRegioner, manedsverkTotal]
+
+    UtbetalingBeregningPrisPerUkesverk:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        belop:
+          type: integer
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegion"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        sats:
+          type: integer
+        ukesverkTotal:
+          type: number
+      required: [type, belop, sats, deltakerTableData, deltakerRegioner, ukesverkTotal]
 
     UtbetalingBeregningFri:
       type: object
@@ -6410,7 +6434,13 @@ components:
           type: integer
         type:
           const: FRI
-      required: [belop, type]
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegion"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+      required: [belop, type, deltakerTableData, deltakerRegioner]
 
     UtbetalingStengtPeriode:
       type: object
@@ -6962,3 +6992,39 @@ components:
       required:
         - type
         - navn
+
+    DataDrivenTableDto:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenColumn"
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+      required: [columns, rows]
+
+    DataDrivenColumn:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        sortable:
+          type: boolean
+        align:
+          type: string
+          enum:
+            - left
+            - right
+        format:
+          type: string
+          enum:
+            - DATE
+            - NOK
+      required: [key, type, sortable, align]

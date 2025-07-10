@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navenhet.buildRegionList
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -38,6 +39,7 @@ class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
+    private val personService: PersonService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     data class Config(
@@ -366,11 +368,11 @@ class UtbetalingService(
         val utbetaling = getOrError(delutbetaling.utbetalingId)
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
 
-        delutbetalinger.forEach { delutbetaling ->
-            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+        delutbetalinger.forEach {
+            val tilsagn = queries.tilsagn.getOrError(it.tilsagnId)
             if (tilsagn.status != TilsagnStatus.GODKJENT) {
                 return returnerDelutbetaling(
-                    delutbetaling,
+                    it,
                     listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
                     null,
                     Tiltaksadministrasjon,
@@ -530,5 +532,25 @@ class UtbetalingService(
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
+    }
+
+    suspend fun getUtbetalingBeregning(utbetaling: Utbetaling, filter: BeregningFilter): UtbetalingBeregningDto = db.session {
+        val norskIdentById = queries.deltaker
+            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            .filter { it.id in utbetaling.beregning.output.deltakelser.map { it.deltakelseId } }
+            .associate { it.id to it.norskIdent }
+
+        val personer = personService.getPersoner(norskIdentById.values.mapNotNull { it })
+        val regioner = buildRegionList(
+            personer.mapNotNull { it.value.geografiskEnhet } + personer.mapNotNull { it.value.region },
+        )
+
+        val deltakelsePersoner = utbetaling.beregning.output.deltakelser.map {
+            val norskIdent = norskIdentById.getValue(it.deltakelseId)
+            val person = norskIdent?.let { personer.getValue(norskIdent) }
+            it to person
+        }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+
+        return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
 }

@@ -12,7 +12,6 @@ sealed class UtbetalingBeregning {
     abstract val input: UtbetalingBeregningInput
     abstract val output: UtbetalingBeregningOutput
 
-    @OptIn(ExperimentalStdlibApi::class)
     fun getDigest(): String {
         return (input.hashCode() + output.hashCode()).toHexString()
     }
@@ -22,6 +21,11 @@ sealed class UtbetalingBeregningInput
 
 sealed class UtbetalingBeregningOutput {
     abstract val belop: Int
+    abstract val deltakelser: Set<UtbetalingBeregningDeltakelse>
+}
+
+sealed class UtbetalingBeregningDeltakelse {
+    abstract val deltakelseId: UUID
 }
 
 @Serializable
@@ -50,9 +54,9 @@ interface DeltakelseFaktor {
 @Serializable
 data class DeltakelseManedsverk(
     @Serializable(with = UUIDSerializer::class)
-    val deltakelseId: UUID,
+    override val deltakelseId: UUID,
     val manedsverk: Double,
-) : DeltakelseFaktor {
+) : DeltakelseFaktor, UtbetalingBeregningDeltakelse() {
     override fun getFaktor(): Double = manedsverk
 }
 
@@ -66,9 +70,9 @@ data class DeltakelsePeriode(
 @Serializable
 data class DeltakelseUkesverk(
     @Serializable(with = UUIDSerializer::class)
-    val deltakelseId: UUID,
+    override val deltakelseId: UUID,
     val ukesverk: Double,
-) : DeltakelseFaktor {
+) : DeltakelseFaktor, UtbetalingBeregningDeltakelse() {
     override fun getFaktor(): Double = ukesverk
 }
 

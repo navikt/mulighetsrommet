@@ -343,7 +343,7 @@ class GenererUtbetalingService(
     }
 }
 
-private fun isRelevantForUtbetalingsperide(
+fun isRelevantForUtbetalingsperide(
     deltaker: Deltaker,
     periode: Periode,
 ): Boolean {

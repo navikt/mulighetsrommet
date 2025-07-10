@@ -12,11 +12,11 @@ export interface Props {
 export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
   const utbetalesTotal = linjer.reduce((acc, d) => acc + d.belop, 0);
   const totalGjenstaendeBelop = linjer.reduce((acc, l) => acc + l.tilsagn.belopGjenstaende, 0);
-  const differanse = utbetaling.beregning.belop - utbetalesTotal;
+  const differanse = utbetaling.belop - utbetalesTotal;
 
   return (
     <Box className="overflow-x-scroll">
-      <Table>
+      <Table data-testid="linje-table">
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell colSpan={6} className="bg-gray-100">
@@ -51,7 +51,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
           {linjer.map((linje, i) => renderRow(linje, i))}
           <Table.Row shadeOnHover={false}>
             <Table.DataCell colSpan={5} className="font-bold">
-              {`${utbetalingTekster.beregning.belop.label}: ${formaterNOK(utbetaling.beregning.belop)}`}
+              {`${utbetalingTekster.beregning.belop.label}: ${formaterNOK(utbetaling.belop)}`}
             </Table.DataCell>
             <Table.DataCell className="font-bold" colSpan={2}>
               {formaterNOK(totalGjenstaendeBelop)}
