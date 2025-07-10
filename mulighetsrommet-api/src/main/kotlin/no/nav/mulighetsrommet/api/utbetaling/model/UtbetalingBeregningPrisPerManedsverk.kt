@@ -28,7 +28,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
         val periode: Periode,
         val sats: Int,
         val stengt: Set<StengtPeriode>,
-        val deltakelser: Set<DeltakelsePerioder>,
+        val deltakelser: Set<DeltakelseDeltakelsesprosentPerioder>,
     ) : UtbetalingBeregningInput()
 
     @Serializable
@@ -64,7 +64,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
         }
 
         private fun calculateManedsverk(
-            deltakelse: DeltakelsePerioder,
+            deltakelse: DeltakelseDeltakelsesprosentPerioder,
             stengtHosArrangor: List<Periode>,
             totalDuration: BigDecimal,
         ): DeltakelseManedsverk {
@@ -114,7 +114,7 @@ data class StengtPeriode(
 )
 
 @Serializable
-data class DeltakelsePerioder(
+data class DeltakelseDeltakelsesprosentPerioder(
     @Serializable(with = UUIDSerializer::class)
     val deltakelseId: UUID,
     val perioder: List<DeltakelsesprosentPeriode>,
