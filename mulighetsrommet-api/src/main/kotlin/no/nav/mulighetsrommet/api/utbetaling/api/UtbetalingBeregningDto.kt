@@ -30,14 +30,14 @@ sealed class UtbetalingBeregningDto {
             fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = manedsverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map {
-                    foo(it.first, sats, it.second)
+                    deltakerRow(it.first, sats, it.second)
                 },
             )
 
             private fun manedsverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
                 listOf(
-                    DataDrivenTableDto.Column("manedsverk", "Månedsverk", true, DataDrivenTableDto.Column.Align.RIGHT),
-                    DataDrivenTableDto.Column("belop", "Beløp", true, DataDrivenTableDto.Column.Align.RIGHT),
+                    DataDrivenTableDto.Column("manedsverk", "Månedsverk", true, DataDrivenTableDto.Column.Align.RIGHT, null),
+                    DataDrivenTableDto.Column("belop", "Beløp", true, DataDrivenTableDto.Column.Align.RIGHT, DataDrivenTableDto.Column.Format.NOK),
                 ),
             )
 
@@ -63,14 +63,14 @@ sealed class UtbetalingBeregningDto {
             fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = ukesverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map {
-                    foo(it.first, sats, it.second)
+                    deltakerRow(it.first, sats, it.second)
                 },
             )
 
             private fun ukesverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
                 listOf(
-                    DataDrivenTableDto.Column("ukesverk", "Ukesverk", true, DataDrivenTableDto.Column.Align.RIGHT),
-                    DataDrivenTableDto.Column("belop", "Beløp", true, DataDrivenTableDto.Column.Align.RIGHT),
+                    DataDrivenTableDto.Column("ukesverk", "Ukesverk", true, DataDrivenTableDto.Column.Align.RIGHT, null),
+                    DataDrivenTableDto.Column("belop", "Beløp", true, DataDrivenTableDto.Column.Align.RIGHT, DataDrivenTableDto.Column.Format.NOK),
                 ),
             )
 
@@ -99,10 +99,10 @@ sealed class UtbetalingBeregningDto {
             )
 
             fun friDeltakelseColumns() = listOf(
-                DataDrivenTableDto.Column("navn", "Navn", true, DataDrivenTableDto.Column.Align.LEFT),
-                DataDrivenTableDto.Column("foedselsdato", "Fødselsdato", true, DataDrivenTableDto.Column.Align.LEFT),
-                DataDrivenTableDto.Column("region", "Region", true, DataDrivenTableDto.Column.Align.LEFT),
-                DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet", true, DataDrivenTableDto.Column.Align.LEFT),
+                DataDrivenTableDto.Column("navn", "Navn", true, DataDrivenTableDto.Column.Align.LEFT, null),
+                DataDrivenTableDto.Column("foedselsdato", "Fødselsdato", true, DataDrivenTableDto.Column.Align.LEFT, DataDrivenTableDto.Column.Format.DATE),
+                DataDrivenTableDto.Column("region", "Region", true, DataDrivenTableDto.Column.Align.LEFT, null),
+                DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet", true, DataDrivenTableDto.Column.Align.LEFT, null),
             )
 
             fun friDeltakelseRow(person: Person?) = mapOf<String, JsonElement>(
@@ -150,7 +150,7 @@ sealed class UtbetalingBeregningDto {
     }
 }
 
-fun foo(deltakelse: UtbetalingBeregningDeltakelse, sats: Int, person: Person?) = when (deltakelse) {
+fun deltakerRow(deltakelse: UtbetalingBeregningDeltakelse, sats: Int, person: Person?) = when (deltakelse) {
     is UtbetalingBeregningFri.Deltakelse -> Fri.friDeltakelseRow(person)
     is DeltakelseManedsverk -> PrisPerManedsverk.manedsverkDeltakelseRow(deltakelse.manedsverk, sats, person)
     is DeltakelseUkesverk -> PrisPerUkesverk.ukesverkDeltakelseRow(deltakelse.ukesverk, sats, person)

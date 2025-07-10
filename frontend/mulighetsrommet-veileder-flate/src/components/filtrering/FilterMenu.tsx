@@ -58,8 +58,8 @@ export function FilterMenu() {
           </Accordion.Header>
           <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
             <NavEnhetFilter
-              navEnheter={filter.navEnheter}
-              setNavEnheter={(navEnheter: string[]) =>
+              value={filter.navEnheter}
+              onChange={(navEnheter: string[]) =>
                 setFilter({
                   ...filter,
                   navEnheter: regioner

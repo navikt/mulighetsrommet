@@ -7022,4 +7022,9 @@ components:
           enum:
             - left
             - right
+        format:
+          type: string
+          enum:
+            - DATE
+            - NOK
       required: [key, type, sortable, align]

@@ -1,37 +1,44 @@
-import { useMemo, useState } from 'react';
-import { compare } from '../utils/utils';
+import { useMemo, useState } from 'react'
+import { compare } from '../utils/utils'
+import { SortState } from '@navikt/ds-react'
 
-export function useSortableData<T>(
+interface ScopedSortState<T> extends SortState {
+  orderBy: Extract<keyof T, string>; // Ensures string keys only
+  direction: 'ascending' | 'descending';
+}
+
+export function useSortableData<T extends Record<string, unknown>>(
   data: T[],
-  defaultSort?: { orderBy: keyof T; direction: "ascending" | "descending" }
+  defaultSort?: ScopedSortState<T>
 ) {
-  const [sort, setSort] = useState<typeof defaultSort | undefined>(defaultSort);
+  const [sort, setSort] = useState<ScopedSortState<T> | undefined>(defaultSort)
 
   const sortedData = useMemo(() => {
-    if (!sort) {
-      return data;
-    }
-    const sorted = [...data].sort((a, b) => {
-      const aValue = a[sort.orderBy];
-      const bValue = b[sort.orderBy];
-      return sort.direction === "ascending"
-        ? compare(bValue, aValue)
-        : compare(aValue, bValue);
-    });
-    return sorted;
-  }, [data, sort]);
+    if (!sort) return data
 
-  const toggleSort = (key: keyof T) => {
-    setSort((prev) => {
+    const { orderBy, direction } = sort
+    return [...data].sort((a, b) => {
+      const aVal = a[orderBy]
+      const bVal = b[orderBy]
+
+      return direction === 'ascending'
+        ? compare(bVal, aVal)
+        : compare(aVal, bVal)
+    })
+  }, [data, sort])
+
+  const toggleSort = (key: Extract<keyof T, string>) => {
+    setSort((prev): ScopedSortState<T> | undefined => {
       if (!prev || prev.orderBy !== key) {
-        return { orderBy: key, direction: "ascending" };
+        return { orderBy: key, direction: 'ascending' };
       }
-      if (prev.direction === "ascending") {
-        return { orderBy: key, direction: "descending" };
+      if (prev.direction === 'ascending') {
+        return { orderBy: key, direction: 'descending' };
       }
-      return undefined; // clear sort
+      return undefined;
     });
   };
 
-  return { sortedData, sort, setSort, toggleSort };
+  return { sortedData, sort, setSort, toggleSort }
 }
+

@@ -15,6 +15,7 @@ class DataDrivenTableDto(
         val label: String,
         val sortable: Boolean,
         val align: Align,
+        val format: Format?,
     ) {
         @Serializable
         enum class Align {
@@ -23,6 +24,12 @@ class DataDrivenTableDto(
 
             @SerialName("right")
             RIGHT,
+        }
+
+        @Serializable
+        enum class Format {
+            DATE,
+            NOK,
         }
     }
 }
