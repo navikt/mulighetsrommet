@@ -98,7 +98,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 sats = 20975,
                 stengt = setOf(),
                 deltakelser = setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
@@ -217,7 +217,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Input>().should {
                 it.deltakelser shouldBe setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
@@ -226,7 +226,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                             ),
                         ),
                     ),
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[1].id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
@@ -235,7 +235,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                             ),
                         ),
                     ),
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[2].id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
@@ -244,7 +244,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                             ),
                         ),
                     ),
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[5].id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
@@ -422,7 +422,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 sats = 20975,
                 stengt = setOf(),
                 deltakelser = setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = deltaker.id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
@@ -547,7 +547,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
                 ),
                 deltakelser = setOf(
-                    DeltakelsePerioder(
+                    DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(

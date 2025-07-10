@@ -255,7 +255,7 @@ class GenererUtbetalingService(
     private fun resolveDeltakelserManedsverkForhandsgodkjent(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelsePerioder> = db.session {
+    ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
         queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
             .filter { deltaker ->
@@ -281,7 +281,7 @@ class GenererUtbetalingService(
                     "Deltaker id=${deltaker.id} er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
                 }
 
-                DeltakelsePerioder(deltaker.id, perioder)
+                DeltakelseDeltakelsesprosentPerioder(deltaker.id, perioder)
             }
             .toSet()
     }
@@ -289,7 +289,7 @@ class GenererUtbetalingService(
     private fun resolveDeltakelserManedsverk(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelsePerioder> = db.session {
+    ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
         queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
             .filter { deltaker ->
@@ -300,7 +300,7 @@ class GenererUtbetalingService(
                 val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
                 val overlappingPeriode = Periode(deltaker.startDato!!, sluttDatoInPeriode).intersect(periode)!!
                 val perioder = listOf(DeltakelsesprosentPeriode(overlappingPeriode, 100.0))
-                DeltakelsePerioder(deltaker.id, perioder)
+                DeltakelseDeltakelsesprosentPerioder(deltaker.id, perioder)
             }
             .toSet()
     }
