@@ -35,7 +35,7 @@ export function UtbetalingTextLink({
           aria-label={`Se innsending for krav om utbetaling for ${gjennomforingNavn}`}
           to={pathByOrgnr(orgnr).beregning(utbetalingId)}
         >
-          Se hvorfor
+          Se innsending
         </Link>
       );
     }
@@ -43,10 +43,10 @@ export function UtbetalingTextLink({
       return (
         <Link
           as={ReactRouterLink}
-          aria-label={`Detaljer for krav om utbetaling for ${gjennomforingNavn}`}
+          aria-label={`Se detaljer for krav om utbetaling for ${gjennomforingNavn}`}
           to={pathByOrgnr(orgnr).detaljer(utbetalingId)}
         >
-          Detaljer
+          Se detaljer
         </Link>
       );
     }

@@ -67,7 +67,7 @@ export function TilsagnTable({ tilsagn }: Props) {
           <Table.ColumnHeader scope="col" sortable sortKey={TilsagnSortKey.STATUS}>
             Status
           </Table.ColumnHeader>
-          <Table.ColumnHeader scope="col" aria-label="handlinger"></Table.ColumnHeader>
+          <Table.ColumnHeader scope="col">Handlinger</Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -85,10 +85,10 @@ export function TilsagnTable({ tilsagn }: Props) {
               </Table.DataCell>
               <Table.DataCell>
                 <LinkWithTabState
-                  aria-label={`Detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
+                  aria-label={`Se detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
                   to={pathByOrgnr(orgnr).tilsagn(tilsagn.id)}
                 >
-                  Detaljer
+                  Se detaljer
                 </LinkWithTabState>
               </Table.DataCell>
             </Table.Row>

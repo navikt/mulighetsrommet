@@ -87,7 +87,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           >
             Status
           </Table.ColumnHeader>
-          <Table.ColumnHeader scope="col" aria-label="Handlinger"></Table.ColumnHeader>
+          <Table.ColumnHeader scope="col">Handlinger</Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
