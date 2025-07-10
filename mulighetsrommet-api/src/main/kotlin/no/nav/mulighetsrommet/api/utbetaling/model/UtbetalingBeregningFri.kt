@@ -38,5 +38,7 @@ data class UtbetalingBeregningFri(
     data class Deltakelse(
         @Serializable(with = UUIDSerializer::class)
         override val deltakelseId: UUID,
-    ) : UtbetalingBeregningDeltakelse()
+    ) : UtbetalingBeregningDeltakelse {
+        override val faktor = 1.0
+    }
 }

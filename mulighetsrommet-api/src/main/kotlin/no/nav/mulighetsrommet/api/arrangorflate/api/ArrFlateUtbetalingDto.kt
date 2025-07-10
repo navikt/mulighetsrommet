@@ -50,6 +50,16 @@ sealed class ArrFlateBeregning {
     ) : ArrFlateBeregning()
 
     @Serializable
+    @SerialName("PRIS_PER_MANEDSVERK")
+    data class PrisPerManedsverk(
+        override val belop: Int,
+        override val digest: String,
+        val deltakelser: List<UtbetalingDeltakelseManedsverk2>,
+        val stengt: List<StengtPeriode>,
+        val antallManedsverk: Double,
+    ) : ArrFlateBeregning()
+
+    @Serializable
     @SerialName("PRIS_PER_UKESVERK")
     data class PrisPerUkesverk(
         override val belop: Int,
@@ -79,6 +89,20 @@ data class UtbetalingDeltakelseManedsverk(
     val sistePeriodeSluttDato: LocalDate,
     val sistePeriodeDeltakelsesprosent: Double,
     val perioder: List<DeltakelsesprosentPeriode>,
+    val manedsverk: Double,
+    val person: UtbetalingDeltakelsePerson?,
+)
+
+@Serializable
+data class UtbetalingDeltakelseManedsverk2(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = LocalDateSerializer::class)
+    val deltakerStartDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStartDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSluttDato: LocalDate,
     val manedsverk: Double,
     val person: UtbetalingDeltakelsePerson?,
 )

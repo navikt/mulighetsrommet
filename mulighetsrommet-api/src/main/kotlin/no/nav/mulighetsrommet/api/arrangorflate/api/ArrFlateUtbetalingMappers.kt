@@ -60,6 +60,41 @@ fun mapUtbetalingToArrFlateUtbetaling(
             )
         }
 
+        is UtbetalingBeregningPrisPerManedsverk -> {
+            val deltakereById = deltakere.associateBy { it.id }
+            val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
+            val ukesverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
+
+            val deltakelser = perioderById.map { (id, deltakelse) ->
+                val deltaker = deltakereById[id]
+                val manedsverk = ukesverkById.getValue(id).manedsverk
+                val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
+
+                UtbetalingDeltakelseManedsverk2(
+                    id = id,
+                    deltakerStartDato = deltaker?.startDato,
+                    periodeStartDato = deltakelse.periode.start,
+                    periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
+                    manedsverk = manedsverk,
+                    person = person,
+                )
+            }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
+
+            val antallUkesverk = deltakelser
+                .map { BigDecimal(it.manedsverk) }
+                .sumOf { it }
+                .setScale(2, RoundingMode.HALF_UP)
+                .toDouble()
+
+            ArrFlateBeregning.PrisPerManedsverk(
+                belop = beregning.output.belop,
+                digest = beregning.getDigest(),
+                deltakelser = deltakelser,
+                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                antallManedsverk = antallUkesverk,
+            )
+        }
+
         is UtbetalingBeregningPrisPerUkesverk -> {
             val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }

@@ -215,54 +215,55 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>().should {
-                it.deltakelser shouldBe setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = domain.deltakere[0].id,
-                        perioder = listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                                deltakelsesprosent = 100.0,
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
+                .should {
+                    it.deltakelser shouldBe setOf(
+                        DeltakelseDeltakelsesprosentPerioder(
+                            deltakelseId = domain.deltakere[0].id,
+                            perioder = listOf(
+                                DeltakelsesprosentPeriode(
+                                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                                    deltakelsesprosent = 100.0,
+                                ),
                             ),
                         ),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = domain.deltakere[1].id,
-                        perioder = listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
-                                deltakelsesprosent = 40.0,
+                        DeltakelseDeltakelsesprosentPerioder(
+                            deltakelseId = domain.deltakere[1].id,
+                            perioder = listOf(
+                                DeltakelsesprosentPeriode(
+                                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
+                                    deltakelsesprosent = 40.0,
+                                ),
                             ),
                         ),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = domain.deltakere[2].id,
-                        perioder = listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                                deltakelsesprosent = 50.0,
+                        DeltakelseDeltakelsesprosentPerioder(
+                            deltakelseId = domain.deltakere[2].id,
+                            perioder = listOf(
+                                DeltakelsesprosentPeriode(
+                                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                                    deltakelsesprosent = 50.0,
+                                ),
                             ),
                         ),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = domain.deltakere[5].id,
-                        perioder = listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)),
-                                deltakelsesprosent = 20.0,
-                            ),
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 20)),
-                                deltakelsesprosent = 15.0,
-                            ),
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)),
-                                deltakelsesprosent = 10.0,
+                        DeltakelseDeltakelsesprosentPerioder(
+                            deltakelseId = domain.deltakere[5].id,
+                            perioder = listOf(
+                                DeltakelsesprosentPeriode(
+                                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)),
+                                    deltakelsesprosent = 20.0,
+                                ),
+                                DeltakelsesprosentPeriode(
+                                    periode = Periode(LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 20)),
+                                    deltakelsesprosent = 15.0,
+                                ),
+                                DeltakelsesprosentPeriode(
+                                    periode = Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)),
+                                    deltakelsesprosent = 10.0,
+                                ),
                             ),
                         ),
-                    ),
-                )
-            }
+                    )
+                }
         }
 
         test("overstyrer deltakelse-perioder når det er stengt hos arrangør") {
@@ -309,12 +310,13 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>().should {
-                it.stengt shouldBe setOf(
-                    StengtPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)), "Ferie 1"),
-                    StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie 2"),
-                )
-            }
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
+                .should {
+                    it.stengt shouldBe setOf(
+                        StengtPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)), "Ferie 1"),
+                        StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie 2"),
+                    )
+                }
         }
 
         test("genererer en utbetaling med beregnet belop basert på input") {
@@ -333,15 +335,16 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>().should {
-                it.belop shouldBe 20975
-                it.deltakelser shouldBe setOf(
-                    DeltakelseManedsverk(
-                        deltakelseId = domain.deltakere[0].id,
-                        manedsverk = 1.0,
-                    ),
-                )
-            }
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+                .should {
+                    it.belop shouldBe 20975
+                    it.deltakelser shouldBe setOf(
+                        DeltakelseManedsverk(
+                            deltakelseId = domain.deltakere[0].id,
+                            manedsverk = 1.0,
+                        ),
+                    )
+                }
         }
 
         test("genererer ikke utbetaling hvis det finnes et med overlappende periode") {
@@ -399,9 +402,10 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(1).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>().should {
-                it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
-            }
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
+                .should {
+                    it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
+                }
         }
     }
 
@@ -458,12 +462,13 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 val utbetaling = queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>().should {
-                    it.belop shouldBe 10488
-                    it.deltakelser shouldBe setOf(
-                        DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 0.5),
-                    )
-                }
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+                    .should {
+                        it.belop shouldBe 10488
+                        it.deltakelser shouldBe setOf(
+                            DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 0.5),
+                        )
+                    }
             }
         }
 
@@ -486,12 +491,13 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 val utbetaling = queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>().should {
-                    it.belop shouldBe 20975
-                    it.deltakelser shouldBe setOf(
-                        DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 1.0),
-                    )
-                }
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+                    .should {
+                        it.belop shouldBe 20975
+                        it.deltakelser shouldBe setOf(
+                            DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 1.0),
+                        )
+                    }
             }
         }
     }
@@ -540,21 +546,16 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
-            utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+            utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 sats = 100,
                 stengt = setOf(
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
                 ),
                 deltakelser = setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
+                    DeltakelsePeriode(
                         deltakelseId = domain.deltakere[0].id,
-                        perioder = listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                                deltakelsesprosent = 100.0,
-                            ),
-                        ),
+                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                     ),
                 ),
             )
@@ -637,7 +638,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val generertUtbetaling = service.genererUtbetalingForMonth(1).shouldHaveSize(1).first()
-            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder>()
+            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
                 queries.avtale.upsert(avtale.copy(prismodell = Prismodell.AVTALT_PRIS_PER_UKESVERK))
@@ -672,7 +673,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val generertUtbetaling = service.genererUtbetalingForMonth(1).shouldHaveSize(1).first()
-            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder>()
+            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
                 queries.avtale.upsert(avtale.copy(prismodell = Prismodell.ANNEN_AVTALT_PRIS))

@@ -69,6 +69,7 @@ class GenererUtbetalingService(
                     is UtbetalingBeregningFri -> return@mapNotNull null
 
                     is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+                    is UtbetalingBeregningPrisPerManedsverk,
                     is UtbetalingBeregningPrisPerUkesverk,
                     -> generateUtbetalingForPrismodell(utbetaling.id, prismodell, gjennomforing, utbetaling.periode)
                 }
@@ -96,17 +97,17 @@ class GenererUtbetalingService(
     ): UtbetalingDbo? {
         val beregning = when (prismodell) {
             Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                val input = resolveForhandsgodkjentPrisPerManedsverkInput(gjennomforing, periode)
+                val input = resolvePrisPerManedsverkMedDeltakelsesmengderInput(gjennomforing, periode)
                 UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.beregn(input)
             }
 
             Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
-                val input = resolveAvtaltPrisPerManedsverkInput(gjennomforing, periode)
-                UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.beregn(input)
+                val input = resolvePrisPerManedsverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerManedsverk.beregn(input)
             }
 
             Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
-                val input = resolveAvtaltPrisPerUkesverkInput(gjennomforing, periode)
+                val input = resolvePrisPerUkesverkInput(gjennomforing, periode)
                 UtbetalingBeregningPrisPerUkesverk.beregn(input)
             }
 
@@ -128,13 +129,13 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveForhandsgodkjentPrisPerManedsverkInput(
+    private fun QueryContext.resolvePrisPerManedsverkMedDeltakelsesmengderInput(
         gjennomforing: GjennomforingDto,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserManedsverkForhandsgodkjent(gjennomforing.id, periode)
+        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
             periode = periode,
             sats = sats,
@@ -143,14 +144,14 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveAvtaltPrisPerManedsverkInput(
+    private fun QueryContext.resolvePrisPerManedsverkInput(
         gjennomforing: GjennomforingDto,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input {
+    ): UtbetalingBeregningPrisPerManedsverk.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserManedsverk(gjennomforing.id, periode)
-        return UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
+        return UtbetalingBeregningPrisPerManedsverk.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
@@ -158,13 +159,13 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveAvtaltPrisPerUkesverkInput(
+    private fun QueryContext.resolvePrisPerUkesverkInput(
         gjennomforing: GjennomforingDto,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserUkesverk(gjennomforing.id, periode)
+        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerUkesverk.Input(
             periode = periode,
             sats = sats,
@@ -252,7 +253,7 @@ class GenererUtbetalingService(
             .toSet()
     }
 
-    private fun resolveDeltakelserManedsverkForhandsgodkjent(
+    private fun resolveDeltakelserPerioderMedDeltakelsesmengder(
         gjennomforingId: UUID,
         periode: Periode,
     ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
@@ -286,26 +287,7 @@ class GenererUtbetalingService(
             .toSet()
     }
 
-    private fun resolveDeltakelserManedsverk(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
-        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-            .asSequence()
-            .filter { deltaker ->
-                isRelevantForUtbetalingsperide(deltaker, periode)
-            }
-            .map { deltaker ->
-                // TODO: trenger kanskje litt opprydninger her
-                val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-                val overlappingPeriode = Periode(deltaker.startDato!!, sluttDatoInPeriode).intersect(periode)!!
-                val perioder = listOf(DeltakelsesprosentPeriode(overlappingPeriode, 100.0))
-                DeltakelseDeltakelsesprosentPerioder(deltaker.id, perioder)
-            }
-            .toSet()
-    }
-
-    private fun resolveDeltakelserUkesverk(
+    private fun resolveDeltakelsePerioder(
         gjennomforingId: UUID,
         periode: Periode,
     ): Set<DeltakelsePeriode> = db.session {

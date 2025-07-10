@@ -121,6 +121,32 @@ class JournalforUtbetaling(
                             },
                         )
 
+                        is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
+                            belop = arrflateUtbetaling.beregning.belop,
+                            antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                            deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
+                                DeltakerPdf(
+                                    startDato = it.periodeStartDato,
+                                    sluttDato = it.periodeSluttDato,
+                                    perioder = listOf(),
+                                    manedsverk = it.manedsverk,
+                                    person = it.person?.let { person ->
+                                        PersonPdf(
+                                            navn = person.navn,
+                                            fodselsdato = person.fodselsdato,
+                                            fodselsaar = person.fodselsaar,
+                                        )
+                                    },
+                                )
+                            },
+                            stengt = arrflateUtbetaling.beregning.stengt.map {
+                                StengtPeriodePdf(
+                                    periode = it.periode,
+                                    beskrivelse = it.beskrivelse,
+                                )
+                            },
+                        )
+
                         is ArrFlateBeregning.PrisPerUkesverk -> BeregningPdf(
                             belop = arrflateUtbetaling.beregning.belop,
                             // TODO støtte ukesverk?

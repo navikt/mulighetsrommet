@@ -5,11 +5,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.*
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import kotlin.math.round
 
 @Serializable
 sealed class UtbetalingBeregningDto {
@@ -29,8 +27,8 @@ sealed class UtbetalingBeregningDto {
         companion object {
             fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = manedsverkDeltakelseColumns(),
-                rows = deltakelsePersoner.map {
-                    deltakerRow(it.first, sats, it.second)
+                rows = deltakelsePersoner.map { (deltakelse, person) ->
+                    manedsverkDeltakelseRow(deltakelse.faktor, sats, person)
                 },
             )
 
@@ -74,8 +72,8 @@ sealed class UtbetalingBeregningDto {
         companion object {
             fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = ukesverkDeltakelseColumns(),
-                rows = deltakelsePersoner.map {
-                    deltakerRow(it.first, sats, it.second)
+                rows = deltakelsePersoner.map { (deltakelse, person) ->
+                    ukesverkDeltakelseRow(deltakelse.faktor, sats, person)
                 },
             )
 
@@ -98,7 +96,7 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            fun ukesverkDeltakelseRow(ukesverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
+            private fun ukesverkDeltakelseRow(ukesverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
                 mapOf(
                     "ukesverk" to JsonPrimitive(ukesverk),
                     "belop" to JsonPrimitive(sats.toDouble() * ukesverk),
@@ -163,31 +161,29 @@ sealed class UtbetalingBeregningDto {
                     deltakerTableData = Fri.friTable(deltakelsePersoner),
                 )
 
-                is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
-                    val manedsverkTotal = deltakelsePersoner.sumOf { (it.first as DeltakelseManedsverk).manedsverk }
+                is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+                is UtbetalingBeregningPrisPerManedsverk,
+                -> {
+                    val sats = getSats(utbetaling.beregning.input)
+                    val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerManedsverk(
-                        belop = round(manedsverkTotal * utbetaling.beregning.input.sats.toDouble()).toInt(),
+                        belop = utbetaling.beregning.output.belop,
                         manedsverkTotal = manedsverkTotal,
                         deltakerRegioner = regioner,
-                        deltakerTableData = PrisPerManedsverk.manedsverkTable(
-                            deltakelsePersoner,
-                            utbetaling.beregning.input.sats,
-                        ),
-                        sats = utbetaling.beregning.input.sats,
+                        deltakerTableData = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats),
+                        sats = sats,
                     )
                 }
 
                 is UtbetalingBeregningPrisPerUkesverk -> {
-                    val ukesverkTotal = deltakelsePersoner.sumOf { (it.first as DeltakelseUkesverk).ukesverk }
+                    val sats = getSats(utbetaling.beregning.input)
+                    val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerUkesverk(
-                        belop = round(ukesverkTotal * utbetaling.beregning.input.sats.toDouble()).toInt(),
+                        belop = utbetaling.beregning.output.belop,
                         ukesverkTotal = ukesverkTotal,
                         deltakerRegioner = regioner,
-                        deltakerTableData = PrisPerUkesverk.ukesverkTable(
-                            deltakelsePersoner,
-                            utbetaling.beregning.input.sats,
-                        ),
-                        sats = utbetaling.beregning.input.sats,
+                        deltakerTableData = PrisPerUkesverk.ukesverkTable(deltakelsePersoner, sats),
+                        sats = sats,
                     )
                 }
             }
@@ -195,8 +191,11 @@ sealed class UtbetalingBeregningDto {
     }
 }
 
-fun deltakerRow(deltakelse: UtbetalingBeregningDeltakelse, sats: Int, person: Person?) = when (deltakelse) {
-    is UtbetalingBeregningFri.Deltakelse -> Fri.friDeltakelseRow(person)
-    is DeltakelseManedsverk -> PrisPerManedsverk.manedsverkDeltakelseRow(deltakelse.manedsverk, sats, person)
-    is DeltakelseUkesverk -> PrisPerUkesverk.ukesverkDeltakelseRow(deltakelse.ukesverk, sats, person)
+private fun getSats(input: UtbetalingBeregningInput): Int {
+    return when (input) {
+        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input -> input.sats
+        is UtbetalingBeregningPrisPerManedsverk.Input -> input.sats
+        is UtbetalingBeregningPrisPerUkesverk.Input -> input.sats
+        is UtbetalingBeregningFri.Input -> throw IllegalArgumentException("UtbetalingBeregningFri har ingen sats")
+    }
 }
