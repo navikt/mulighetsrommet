@@ -6,7 +6,24 @@ import { useEffect, useState } from "react";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 
 function useStep(path: string) {
-  switch (path.split("/").pop()) {
+  const [type, stepPath] = path.split("/").slice(-2);
+  if (type === "info") {
+    return 0;
+  }
+  if (type === "driftstilskudd") {
+    switch (stepPath) {
+      case "innsendingsinformasjon":
+        return 1;
+      case "utbetaling":
+        return 2;
+      case "oppsummering":
+        return 3;
+      default:
+        return 1;
+    }
+  }
+
+  switch (stepPath) {
     case "innsendingsinformasjon":
       return 1;
     case "utbetaling":
@@ -38,7 +55,7 @@ export default function UtbetalingLayout() {
           <VStack padding="8" flexGrow="2" className="bg-bg-default rounded-lg ">
             <Outlet />
           </VStack>
-          <Hide below="lg">
+          <Hide below="lg" hidden={activeStep === 0}>
             <VStack flexGrow="1">
               <Heading size="medium" spacing level="2" id="stepper-heading">
                 Steg

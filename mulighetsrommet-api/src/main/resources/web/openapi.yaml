@@ -5055,6 +5055,7 @@ components:
         - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.migrering.tilsagn
         - arrangorflate.utbetaling.opprett-utbetaling-knapp
+        - arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris
 
     PublisertRequest:
       type: object
