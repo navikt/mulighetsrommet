@@ -91,7 +91,7 @@ export default function UtbetalingBeregning() {
           <Link as={ReactRouterLink} to={deltakerlisteUrl}>
             Deltakeroversikten
           </Link>
-          .{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}
+          .
         </BodyShort>
         <BodyShort>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</BodyShort>
       </GuidePanel>
