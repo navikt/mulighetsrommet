@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.DataDrivenTableDto
 @Serializable
 sealed class UtbetalingBeregningDto {
     abstract val belop: Int
+    abstract val heading: String
     abstract val deltakerTableData: DataDrivenTableDto
     abstract val deltakerRegioner: List<NavEnhetService.NavRegionDto>
 
@@ -24,6 +25,8 @@ sealed class UtbetalingBeregningDto {
         override val deltakerRegioner: List<NavEnhetService.NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
+        override val heading = "Pris per månedsverk"
+
         companion object {
             fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = manedsverkDeltakelseColumns(),
@@ -69,6 +72,8 @@ sealed class UtbetalingBeregningDto {
         override val deltakerRegioner: List<NavEnhetService.NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
+        override val heading = "Pris per ukesverk"
+
         companion object {
             fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = ukesverkDeltakelseColumns(),
@@ -112,6 +117,8 @@ sealed class UtbetalingBeregningDto {
         override val deltakerRegioner: List<NavEnhetService.NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
+        override val heading = "Annen avtalt pris"
+
         companion object {
             fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>) = DataDrivenTableDto(
                 columns = friDeltakelseColumns(),

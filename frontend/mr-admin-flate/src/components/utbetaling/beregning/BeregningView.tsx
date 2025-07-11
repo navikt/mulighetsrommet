@@ -1,4 +1,4 @@
-import { Button, HStack, VStack } from "@navikt/ds-react";
+import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { UtbetalingBeregningDto } from "@mr/api-client-v2";
 import { useState } from "react";
 import Beregning from "./Beregning";
@@ -15,12 +15,15 @@ export default function BeregningView({ beregning, utbetalingId }: Props) {
   return (
     <VStack gap="2">
       <div className={`max-h-[30rem] overflow-y-scroll`}>
+        <Heading size="small">{beregning.heading}</Heading>
         <Beregning beregning={beregning} />
       </div>
       <HStack justify="start" align="start">
-        <Button variant="secondary" size="small" onClick={() => setBeregningModalOpen(true)}>
-          Filtreringshjelp
-        </Button>
+        { beregning.deltakerTableData.rows.length > 0 &&
+          <Button variant="secondary" size="small" onClick={() => setBeregningModalOpen(true)}>
+            Filtreringshjelp
+          </Button>
+        }
       </HStack>
       <BeregningModal
         utbetalingId={utbetalingId}

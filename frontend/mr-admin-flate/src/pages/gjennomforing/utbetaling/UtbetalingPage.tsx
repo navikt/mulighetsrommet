@@ -189,7 +189,7 @@ export function UtbetalingPage() {
               </HGrid>
               <Accordion>
                 <Accordion.Item>
-                  <Accordion.Header>Deltakere i utbetalingsperioden</Accordion.Header>
+                  <Accordion.Header>Beregning</Accordion.Header>
                   <Accordion.Content>
                     {utbetalingId && (
                       <BeregningView utbetalingId={utbetalingId} beregning={beregning} />

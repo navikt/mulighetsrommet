@@ -22,7 +22,7 @@ export function BeregningModal({ utbetalingId, modalOpen, onClose }: Props) {
       className="h-[60rem]"
     >
       <Modal.Header closeButton>
-        <Heading size="medium">Deltakere i utbetalingsperioden</Heading>
+        <Heading size="medium">Beregning</Heading>
       </Modal.Header>
       <Modal.Body>
         <Suspense fallback={<Laster tekst="Laster..." />}>

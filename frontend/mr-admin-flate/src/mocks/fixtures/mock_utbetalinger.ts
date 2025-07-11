@@ -481,6 +481,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
 ];
 
 export const mockBeregning: UtbetalingBeregningFri = {
+  heading: "Annen avtalt pris",
   belop: 780,
   deltakerRegioner: [],
   deltakerTableData: {
