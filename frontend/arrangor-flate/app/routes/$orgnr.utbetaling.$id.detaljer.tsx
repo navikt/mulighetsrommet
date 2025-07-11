@@ -1,6 +1,6 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Box, Spacer, HStack, VStack, Link, Heading } from "@navikt/ds-react";
+import { Box, Heading, HStack, Link, Spacer, VStack } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrFlateUtbetaling,
@@ -10,11 +10,11 @@ import {
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
-import { Definisjonsliste } from "../components/common/Definisjonsliste";
-import { tekster } from "../tekster";
-import { getBeregningDetaljer } from "../utils/beregning";
+import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { tekster } from "~/tekster";
+import { getBeregningDetaljer } from "~/utils/beregning";
 import css from "../root.module.css";
-import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
+import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { formaterPeriode, getTimestamp } from "~/utils/date";
 import { problemDetailResponse } from "~/utils/validering";
 import { pathByOrgnr } from "~/utils/navigation";
@@ -59,20 +59,6 @@ export default function UtbetalingDetaljerSide() {
 
   const innsendtTidspunkt = getTimestamp(utbetaling);
 
-  const innsendingHeader = (type: UtbetalingType | undefined) => {
-    if (type === UtbetalingType.KORRIGERING) {
-      return <UtbetalingTypeText type={type} text={"Korrigering"} />;
-    }
-    if (type === UtbetalingType.INVESTERING) {
-      return <UtbetalingTypeText type={type} text={"Utbetaling for investering"} />;
-    }
-    return (
-      <Heading level="3" size="medium">
-        Innsending
-      </Heading>
-    );
-  };
-
   const visNedlastingAvKvittering = [
     ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     ArrFlateUtbetalingStatus.UTBETALT,
@@ -99,7 +85,7 @@ export default function UtbetalingDetaljerSide() {
           </Link>
         )}
       </HStack>
-      {innsendingHeader(utbetaling.type)}
+      <UtbetalingHeader type={utbetaling.type} />
       <Definisjonsliste
         definitions={[
           {
@@ -149,4 +135,25 @@ export default function UtbetalingDetaljerSide() {
       </Box>
     </VStack>
   );
+}
+
+function UtbetalingHeader({ type }: { type: UtbetalingType | undefined }) {
+  const tekst = type ? getUtbetalingTypeNavn(type) : "Innsending";
+  return (
+    <HStack gap="2">
+      <Heading level="3" size="medium">
+        {tekst}
+      </Heading>
+      {type && <UtbetalingTypeTag type={type} />}
+    </HStack>
+  );
+}
+
+function getUtbetalingTypeNavn(type: UtbetalingType) {
+  switch (type) {
+    case UtbetalingType.KORRIGERING:
+      return "Korrigering";
+    case UtbetalingType.INVESTERING:
+      return "Utbetaling for investering";
+  }
 }

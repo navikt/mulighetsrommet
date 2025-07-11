@@ -85,8 +85,8 @@ object ArrangorflateTestUtils {
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        beregning = UtbetalingBeregningPrisPerManedsverk(
-            input = UtbetalingBeregningPrisPerManedsverk.Input(
+        beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
+            input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 stengt = setOf(),
@@ -102,7 +102,7 @@ object ArrangorflateTestUtils {
                     ),
                 ),
             ),
-            output = UtbetalingBeregningPrisPerManedsverk.Output(
+            output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
                 belop = 10000,
                 deltakelser = setOf(
                     DeltakelseManedsverk(
@@ -130,6 +130,7 @@ object ArrangorflateTestUtils {
             ),
             output = UtbetalingBeregningFri.Output(
                 belop = 5000,
+                emptySet(),
             ),
         ),
         kontonummer = Kontonummer("12312312312"),

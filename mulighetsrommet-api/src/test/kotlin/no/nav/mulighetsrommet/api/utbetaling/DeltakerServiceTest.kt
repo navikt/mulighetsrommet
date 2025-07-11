@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerPerson
+import no.nav.mulighetsrommet.api.utbetaling.model.Person
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -34,7 +34,7 @@ class DeltakerServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createDeltakerService() = DeltakerService(
+    fun createDeltakerService() = PersonService(
         db = database.db,
         pdlQuery = pdl,
         norg2Client = norg2Client,
@@ -123,8 +123,8 @@ class DeltakerServiceTest : FunSpec({
             val service = createDeltakerService()
             MulighetsrommetTestDomain().initialize(database.db)
 
-            service.getDeltakereForKostnadsfordeling(listOf(fnr1, fnr2)) shouldBe mapOf(
-                fnr1 to DeltakerPerson(
+            service.getPersoner(listOf(fnr1, fnr2)) shouldBe mapOf(
+                fnr1 to Person(
                     norskIdent = fnr1,
                     foedselsdato = null,
                     navn = "Normann, Ola",
@@ -132,7 +132,7 @@ class DeltakerServiceTest : FunSpec({
                     region = Innlandet,
 
                 ),
-                fnr2 to DeltakerPerson(
+                fnr2 to Person(
                     norskIdent = fnr2,
                     foedselsdato = null,
                     navn = "Adressebeskyttet person",
@@ -147,8 +147,8 @@ class DeltakerServiceTest : FunSpec({
             val service = createDeltakerService()
             MulighetsrommetTestDomain().initialize(database.db)
 
-            service.getDeltakereForKostnadsfordeling(listOf(fnr3)) shouldBe mapOf(
-                fnr3 to DeltakerPerson(
+            service.getPersoner(listOf(fnr3)) shouldBe mapOf(
+                fnr3 to Person(
                     norskIdent = fnr3,
                     foedselsdato = null,
                     navn = "Ukjent",

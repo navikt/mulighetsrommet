@@ -32,17 +32,17 @@ interface RegionMap {
 }
 
 interface Props {
-  navEnheter: NavEnhet[];
-  setNavEnheter: (navEnheter: string[]) => void;
+  value: NavEnhet[];
+  onChange: (navEnheter: string[]) => void;
   regioner: NavRegion[];
 }
 
-export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
-  const regionMap = buildRegionMap(navEnheter);
+export function NavEnhetFilter({ value, onChange, regioner }: Props) {
+  const regionMap = buildRegionMap(value);
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
 
   function regionMapToNavEnheter(regionMap: RegionMap): string[] {
-    return Array.from(Object.values(regionMap)).flat(1).map(enhet => enhet.enhetsnummer);
+    return Array.from(Object.values(regionMap)).flat(1).map(e => e.enhetsnummer);
   }
 
   function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
@@ -75,7 +75,7 @@ export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
   function regionOnChange(region: NavRegion) {
     const count = underenhetCount(region);
 
-    setNavEnheter(
+    onChange(
       regionMapToNavEnheter({
         ...regionMap,
         [region.enhetsnummer]: count > 0 ? [] : region.enheter.filter((enhet) => enhet.type == NavEnhetType.LOKAL),
@@ -90,7 +90,7 @@ export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
-    setNavEnheter(addOrRemove(navEnheter, enhet).map(enhet => enhet.enhetsnummer));
+    onChange(addOrRemove(value, enhet).map(e => e.enhetsnummer));
   }
 
   return (

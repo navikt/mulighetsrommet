@@ -71,7 +71,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
 
   function opprettEkstraTilsagn() {
     const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
-    const defaultBelop = tilsagn.length === 0 ? utbetaling.beregning.belop : 0;
+    const defaultBelop = tilsagn.length === 0 ? utbetaling.belop : 0;
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
@@ -191,7 +191,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
             size="small"
             type="button"
             onClick={() => {
-              if (utbetalesTotal() < utbetaling.beregning.belop) {
+              if (utbetalesTotal() < utbetaling.belop) {
                 setMindreBelopModalOpen(true);
               } else {
                 sendTilGodkjenning();
@@ -216,7 +216,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
         }}
         begrunnelseOnChange={(e) => setBegrunnelseMindreBetalt(e.target.value)}
         belopUtbetaling={utbetalesTotal()}
-        belopInnsendt={utbetaling.beregning.belop}
+        belopInnsendt={utbetaling.belop}
       />
     </>
   );

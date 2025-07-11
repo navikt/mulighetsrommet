@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService.NavRegionDto
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -51,26 +52,14 @@ class NavEnhetService(
                 typer = listOf(Norg2Type.KO, Norg2Type.LOKAL, Norg2Type.FYLKE, Norg2Type.ARK),
             ),
         )
-
-        return alleEnheter
-            .filter { it.type == Norg2Type.FYLKE }
-            .map { region ->
-                NavRegionDto(
-                    enhetsnummer = region.enhetsnummer,
-                    navn = region.navn,
-                    status = region.status,
-                    type = region.type,
-                    enheter = alleEnheter
-                        .filter {
-                            (
-                                it.overordnetEnhet == region.enhetsnummer &&
-                                    (it.type == Norg2Type.LOKAL || NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value) || NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value))
-                                )
-                        }
-                        // K er før L så egne ansatte (som er KO) legger seg nederst (med desc)
-                        .sortedByDescending { it.type },
-                )
+            .filter {
+                it.type == Norg2Type.FYLKE ||
+                    it.type == Norg2Type.LOKAL ||
+                    NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value) ||
+                    NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP.keys.contains(it.enhetsnummer.value)
             }
+
+        return buildRegionList(alleEnheter)
     }
 
     fun hentKostnadssted(regioner: List<NavEnhetNummer>): List<NavEnhetDbo> = db.session {
@@ -92,3 +81,22 @@ data class EnhetFilter(
     val typer: List<Norg2Type>? = null,
     val overordnetEnhet: NavEnhetNummer? = null,
 )
+
+fun buildRegionList(enheter: List<NavEnhetDbo>): List<NavRegionDto> {
+    return enheter
+        .filter { it.type == Norg2Type.FYLKE }
+        .toSet()
+        .map { region ->
+            NavRegionDto(
+                enhetsnummer = region.enhetsnummer,
+                navn = region.navn,
+                status = region.status,
+                type = region.type,
+                enheter = enheter
+                    .filter { it.overordnetEnhet == region.enhetsnummer }
+                    .toSet()
+                    // K er før L så egne ansatte (som er KO) legger seg nederst (med desc)
+                    .sortedByDescending { it.type },
+            )
+        }
+}

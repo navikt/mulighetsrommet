@@ -1,26 +1,21 @@
 import {
+  Alert,
   BodyShort,
   Button,
   GuidePanel,
   Heading,
   HStack,
-  VStack,
   Link,
-  Alert,
+  VStack,
 } from "@navikt/ds-react";
-import {
-  ArrangorflateService,
-  ArrFlateUtbetaling,
-  RelevanteForslag,
-  UtbetalingBeregningType,
-} from "api-client";
+import { ArrangorflateService, ArrFlateUtbetaling, RelevanteForslag } from "api-client";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { Environment, getEnvironment } from "~/services/environment";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { getBeregningDetaljer } from "~/utils/beregning";
-import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
@@ -104,7 +99,7 @@ export default function UtbetalingBeregning() {
         Deltakere
       </Heading>
       <VStack gap="4">
-        {utbetaling.beregning.type === UtbetalingBeregningType.PRIS_PER_MANEDSVERK && (
+        {utbetaling.beregning.type !== "FRI" && (
           <>
             {utbetaling.beregning.stengt.length > 0 && (
               <Alert variant={"info"}>

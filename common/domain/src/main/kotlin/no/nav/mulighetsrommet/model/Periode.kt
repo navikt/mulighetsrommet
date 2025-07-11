@@ -53,6 +53,16 @@ data class Periode(
         fun fromInclusiveDates(inclusiveStart: LocalDate, inclusiveEnd: LocalDate): Periode {
             return Periode(inclusiveStart, inclusiveEnd.plusDays(1))
         }
+
+        /**
+         * Lager en Periode som spenner fra tidligste start til seneste slutt i en liste av perioder.
+         */
+        fun fromRange(perioder: Collection<Periode>): Periode {
+            require(perioder.isNotEmpty()) { "Kan ikke lage Periode fra tom liste" }
+            val earliestStart = perioder.minOf { it.start }
+            val latestEnd = perioder.maxOf { it.slutt }
+            return Periode(earliestStart, latestEnd)
+        }
     }
 
     override fun compareTo(other: Periode): Int {
@@ -60,7 +70,7 @@ data class Periode(
     }
 
     operator fun contains(date: LocalDate): Boolean {
-        return date == start || date.isAfter(start) && date.isBefore(slutt)
+        return date.isEqual(start) || date.isAfter(start) && date.isBefore(slutt)
     }
 
     operator fun contains(periode: Periode): Boolean {
@@ -70,6 +80,7 @@ data class Periode(
     fun getDurationInDays(): Long {
         return ChronoUnit.DAYS.between(start, slutt)
     }
+
     fun getLastInclusiveDate(): LocalDate {
         return slutt.minusDays(1)
     }

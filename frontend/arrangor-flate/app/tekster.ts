@@ -1,4 +1,4 @@
-import { TilsagnType } from "api-client";
+import { TilsagnType, ArrFlateBeregning } from "api-client";
 import { formaterDato } from "./utils/date";
 
 export const tekster = {
@@ -38,6 +38,17 @@ export const tekster = {
         stengtHosArrangor: "Det er registrert stengt hos arrangør i følgende perioder:",
         ubehandledeDeltakerforslag:
           "Det finnes ubehandlede forslag som påvirker utbetalinger på følgende personer. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg.",
+        deltakelsesfaktor: (type: ArrFlateBeregning["type"]) => {
+          switch (type) {
+            case "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER":
+            case "PRIS_PER_MANEDSVERK":
+              return "Månedsverk";
+            case "PRIS_PER_UKESVERK":
+              return "Ukesverk";
+            case "FRI":
+              throw new Error("Deltakelsesfaktor ikke støttet for type FRI");
+          }
+        },
       },
       oppsummering: {
         bekreftelse:

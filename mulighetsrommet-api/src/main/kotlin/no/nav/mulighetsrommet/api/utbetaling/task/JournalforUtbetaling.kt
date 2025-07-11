@@ -95,15 +95,41 @@ class JournalforUtbetaling(
                             stengt = emptyList(),
                         )
 
+                        is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> BeregningPdf(
+                            belop = arrflateUtbetaling.beregning.belop,
+                            antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                            deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
+                                DeltakerPdf(
+                                    startDato = it.periodeStartDato,
+                                    sluttDato = it.periodeSluttDato,
+                                    perioder = it.perioderMedDeltakelsesmengde,
+                                    manedsverk = it.faktor,
+                                    person = it.person?.let { person ->
+                                        PersonPdf(
+                                            navn = person.navn,
+                                            fodselsdato = person.fodselsdato,
+                                            fodselsaar = person.fodselsaar,
+                                        )
+                                    },
+                                )
+                            },
+                            stengt = arrflateUtbetaling.beregning.stengt.map {
+                                StengtPeriodePdf(
+                                    periode = it.periode,
+                                    beskrivelse = it.beskrivelse,
+                                )
+                            },
+                        )
+
                         is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
                             belop = arrflateUtbetaling.beregning.belop,
                             antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
                             deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
                                 DeltakerPdf(
-                                    startDato = it.forstePeriodeStartDato,
-                                    sluttDato = it.sistePeriodeSluttDato,
-                                    perioder = it.perioder,
-                                    manedsverk = it.manedsverk,
+                                    startDato = it.periodeStartDato,
+                                    sluttDato = it.periodeSluttDato,
+                                    perioder = listOf(),
+                                    manedsverk = it.faktor,
                                     person = it.person?.let { person ->
                                         PersonPdf(
                                             navn = person.navn,

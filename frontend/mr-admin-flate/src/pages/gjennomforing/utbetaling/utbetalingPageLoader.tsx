@@ -17,3 +17,10 @@ export const utbetalingHistorikkQuery = (utbetalingId?: string) => ({
   queryFn: () => UtbetalingService.getUtbetalingEndringshistorikk({ path: { id: utbetalingId! } }),
   enabled: !!utbetalingId,
 });
+
+export const beregningQuery = (filter: { navEnheter: string[] }, utbetalingId?: string) => ({
+  queryKey: ["utbetaling-beregning", utbetalingId, filter, filter.navEnheter.join(",")],
+  queryFn: () =>
+    UtbetalingService.getUtbetalingBeregning({ path: { id: utbetalingId! }, query: { ...filter } }),
+  enabled: !!utbetalingId,
+});

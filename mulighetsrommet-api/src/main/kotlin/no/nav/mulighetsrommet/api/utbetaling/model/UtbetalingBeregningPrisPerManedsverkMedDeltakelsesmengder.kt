@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
-data class UtbetalingBeregningPrisPerManedsverk(
+data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
@@ -14,7 +14,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
         val periode: Periode,
         val sats: Int,
         val stengt: Set<StengtPeriode>,
-        val deltakelser: Set<DeltakelsePeriode>,
+        val deltakelser: Set<DeltakelseDeltakelsesprosentPerioder>,
     ) : UtbetalingBeregningInput()
 
     @Serializable
@@ -24,18 +24,22 @@ data class UtbetalingBeregningPrisPerManedsverk(
     ) : UtbetalingBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): UtbetalingBeregningPrisPerManedsverk {
+        fun beregn(input: Input): UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder {
             val stengtHosArrangor = input.stengt.map { it.periode }
 
             val manedsverk = input.deltakelser
                 .map { deltakelse ->
-                    UtbetalingBeregningHelpers.calculateManedsverk(deltakelse, stengtHosArrangor, input.periode)
+                    UtbetalingBeregningHelpers.calculateManedsverkForDeltakelsesprosent(
+                        deltakelse,
+                        stengtHosArrangor,
+                        input.periode,
+                    )
                 }
                 .toSet()
 
             val belop = UtbetalingBeregningHelpers.caclulateBelopForDeltakelse(manedsverk, input.sats)
 
-            return UtbetalingBeregningPrisPerManedsverk(input, Output(belop, manedsverk))
+            return UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(input, Output(belop, manedsverk))
         }
     }
 }

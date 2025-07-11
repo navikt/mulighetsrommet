@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_utbetaling_beregning_manedsverk;
+drop view if exists view_utbetaling_beregning_manedsverk_med_deltakelsesmengder;
 
-create view view_utbetaling_beregning_manedsverk as
+create view view_utbetaling_beregning_manedsverk_med_deltakelsesmengder as
 with stengt as (select utbetaling_id,
                        jsonb_agg(
                                jsonb_build_object(
@@ -16,18 +16,29 @@ with stengt as (select utbetaling_id,
                        ) as stengt_perioder_json
                 from utbetaling_stengt_hos_arrangor
                 group by utbetaling_id),
+     deltakelse_periode as (select utbetaling_id,
+                                   deltakelse_id,
+                                   jsonb_agg(
+                                           jsonb_build_object(
+                                                   'periode',
+                                                   jsonb_build_object(
+                                                           'start', lower(periode),
+                                                           'slutt', upper(periode)
+                                                   ),
+                                                   'deltakelsesprosent',
+                                                   deltakelsesprosent
+                                           )
+                                   ) as perioder
+                            from utbetaling_deltakelse_periode
+                            group by utbetaling_id, deltakelse_id),
      deltakelser as (select utbetaling_id,
                             jsonb_agg(
                                     jsonb_build_object(
                                             'deltakelseId', deltakelse_id,
-                                            'periode',
-                                            jsonb_build_object(
-                                                    'start', lower(periode),
-                                                    'slutt', upper(periode)
-                                            )
+                                            'perioder', deltakelse_periode.perioder
                                     )
                             ) as deltakelser_perioder_json
-                     from utbetaling_deltakelse_periode
+                     from deltakelse_periode
                      group by utbetaling_id),
      manedsverk as (select utbetaling_id,
                            jsonb_agg(
@@ -35,14 +46,14 @@ with stengt as (select utbetaling_id,
                                            'deltakelseId', deltakelse_id,
                                            'manedsverk', faktor
                                    )
-                           ) as manedsverk_json
+                           ) as deltakelser
                     from utbetaling_deltakelse_faktor
                     group by utbetaling_id)
 select utbetaling.id,
        utbetaling.periode,
        utbetaling.belop_beregnet,
        beregning.sats,
-       coalesce(manedsverk.manedsverk_json, '[]'::jsonb)            as manedsverk_json,
+       coalesce(manedsverk.deltakelser, '[]'::jsonb)                as manedsverk_json,
        coalesce(stengt.stengt_perioder_json, '[]'::jsonb)           as stengt_perioder_json,
        coalesce(deltakelser.deltakelser_perioder_json, '[]'::jsonb) as deltakelser_perioder_json
 from utbetaling

@@ -12,7 +12,6 @@ sealed class UtbetalingBeregning {
     abstract val input: UtbetalingBeregningInput
     abstract val output: UtbetalingBeregningOutput
 
-    @OptIn(ExperimentalStdlibApi::class)
     fun getDigest(): String {
         return (input.hashCode() + output.hashCode()).toHexString()
     }
@@ -22,6 +21,12 @@ sealed class UtbetalingBeregningInput
 
 sealed class UtbetalingBeregningOutput {
     abstract val belop: Int
+    abstract val deltakelser: Set<UtbetalingBeregningDeltakelse>
+}
+
+interface UtbetalingBeregningDeltakelse {
+    val deltakelseId: UUID
+    val faktor: Double
 }
 
 @Serializable
@@ -43,17 +48,14 @@ data class DeltakelsesprosentPeriode(
     val deltakelsesprosent: Double,
 )
 
-interface DeltakelseFaktor {
-    fun getFaktor(): Double
-}
-
 @Serializable
 data class DeltakelseManedsverk(
     @Serializable(with = UUIDSerializer::class)
-    val deltakelseId: UUID,
+    override val deltakelseId: UUID,
     val manedsverk: Double,
-) : DeltakelseFaktor {
-    override fun getFaktor(): Double = manedsverk
+) : UtbetalingBeregningDeltakelse {
+    override val faktor: Double
+        get() = manedsverk
 }
 
 @Serializable
@@ -66,10 +68,11 @@ data class DeltakelsePeriode(
 @Serializable
 data class DeltakelseUkesverk(
     @Serializable(with = UUIDSerializer::class)
-    val deltakelseId: UUID,
+    override val deltakelseId: UUID,
     val ukesverk: Double,
-) : DeltakelseFaktor {
-    override fun getFaktor(): Double = ukesverk
+) : UtbetalingBeregningDeltakelse {
+    override val faktor: Double
+        get() = ukesverk
 }
 
 object UtbetalingBeregningHelpers {
@@ -111,6 +114,25 @@ object UtbetalingBeregningHelpers {
         return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
     }
 
+    fun calculateManedsverk(
+        deltakelse: DeltakelsePeriode,
+        stengtHosArrangor: List<Periode>,
+        periode: Periode,
+    ): DeltakelseManedsverk {
+        val totalDuration = periode.getDurationInDays().toBigDecimal()
+
+        val manedsverk = deltakelse.periode
+            .subtractPeriods(stengtHosArrangor)
+            .map { deltakelsePeriode ->
+                calculateManedsverkFraction(deltakelsePeriode, totalDuration)
+            }
+            .sumOf { it }
+            .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
+            .toDouble()
+
+        return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
+    }
+
     fun calculateManedsverkFraction(
         periode: Periode,
         totalDuration: BigDecimal,
@@ -140,10 +162,10 @@ object UtbetalingBeregningHelpers {
         return days.divide(BigDecimal(7), CALCULATION_PRECISION, RoundingMode.HALF_UP)
     }
 
-    fun caclulateBelopForDeltakelse(deltakelser: Set<DeltakelseFaktor>, sats: Int): Int {
+    fun caclulateBelopForDeltakelse(deltakelser: Set<UtbetalingBeregningDeltakelse>, sats: Int): Int {
         return deltakelser
             .fold(BigDecimal.ZERO) { sum, deltakelse ->
-                sum.add(BigDecimal(deltakelse.getFaktor()))
+                sum.add(BigDecimal(deltakelse.faktor))
             }
             .multiply(BigDecimal(sats))
             .setScale(0, RoundingMode.HALF_UP)

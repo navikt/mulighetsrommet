@@ -9,6 +9,7 @@ import {
   Tilskuddstype,
   TotrinnskontrollBesluttetDto,
   TotrinnskontrollTilBeslutningDto,
+  UtbetalingBeregningFri,
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinje,
@@ -25,10 +26,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     status: AdminUtbetalingStatus.VENTER_PA_ARRANGOR,
     createdAt: "2024-01-01T10:00:00",
     godkjentAvArrangorTidspunkt: undefined,
-    beregning: {
-      type: "FRI",
-      belop: 15000,
-    },
+    belop: 15000,
     betalingsinformasjon: {
       kontonummer: "1234.56.78900",
       kid: "12345678901",
@@ -47,10 +45,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     status: AdminUtbetalingStatus.TIL_ATTESTERING,
     createdAt: "2024-07-01T14:30:00",
     godkjentAvArrangorTidspunkt: "2024-07-02T09:15:00",
-    beregning: {
-      type: "FRI",
-      belop: 18000,
-    },
+    belop: 18000,
     betalingsinformasjon: {
       kontonummer: "9876.54.32100",
       kid: "98765432109",
@@ -69,10 +64,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     status: AdminUtbetalingStatus.RETURNERT,
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
-    beregning: {
-      type: "FRI",
-      belop: 9000,
-    },
+    belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",
       kid: "11122233344",
@@ -91,10 +83,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     status: AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
-    beregning: {
-      type: "FRI",
-      belop: 9000,
-    },
+    belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",
       kid: "11122233344",
@@ -113,10 +102,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     status: AdminUtbetalingStatus.UTBETALT,
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: undefined,
-    beregning: {
-      type: "FRI",
-      belop: 9000,
-    },
+    belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",
       kid: "11122233344",
@@ -493,3 +479,13 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     } as TotrinnskontrollBesluttetDto,
   },
 ];
+
+export const mockBeregning: UtbetalingBeregningFri = {
+  belop: 780,
+  deltakerRegioner: [],
+  deltakerTableData: {
+    columns: [],
+    rows: [],
+  },
+  type: "FRI",
+};
