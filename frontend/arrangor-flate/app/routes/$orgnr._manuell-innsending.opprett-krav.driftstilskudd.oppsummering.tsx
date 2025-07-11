@@ -72,7 +72,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let belop: number | undefined;
   let kontonummer: string | undefined;
   let kid: string | undefined;
-  if (session.get("orgnr") === orgnr && session.get("type") === "investeringstilskudd") {
+  if (session.get("orgnr") === orgnr && session.get("type") === "driftstilskudd") {
     gjennomforingId = session.get("gjennomforingId");
     tilsagnId = session.get("tilsagnId");
     periodeStart = session.get("periodeStart");
@@ -81,7 +81,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kontonummer = session.get("kontonummer");
     kid = session.get("kid");
   }
-
   if (
     !orgnr ||
     !gjennomforingId ||
@@ -147,6 +146,7 @@ export const action: ActionFunction = async ({ request }) => {
       detail: "Du må bekrefte at opplysningene er korrekte",
     });
   }
+
   const orgnr = session.get("orgnr");
   const belop = Number(session.get("belop"));
   const gjennomforingId = session.get("gjennomforingId");
@@ -280,7 +280,7 @@ export default function OpprettKravOppsummering() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKravUtbetaling}
+                to={pathByOrgnr(orgnr).opprettKrav.driftstilskudd.utbetaling}
               >
                 Tilbake
               </Button>
