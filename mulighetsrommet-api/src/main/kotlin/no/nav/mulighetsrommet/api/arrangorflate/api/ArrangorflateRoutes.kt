@@ -17,6 +17,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -34,13 +35,11 @@ import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
@@ -175,6 +174,16 @@ fun Route.arrangorflateRoutes() {
                 val isEnabled = unleashService.isEnabled(feature, context)
 
                 call.respond(isEnabled)
+            }
+
+            route("/utbetalingskrav/driftstilskudd") {
+                get("/gjennomforing") {
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
+                    requireTilgangHosArrangor(orgnr)
+                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(orgnr, listOf(Prismodell.ANNEN_AVTALT_PRIS))
+                    call.respond(gjennomforinger)
+                }
             }
         }
 
@@ -358,17 +367,6 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         vedlegg = validatedVedlegg,
     )
 }
-
-@Serializable
-data class ArrangorflateGjennomforing(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-)
 
 @Serializable
 data class GodkjennUtbetaling(

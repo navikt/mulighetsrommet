@@ -4,10 +4,14 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
+import kotliquery.Row
+import kotliquery.queryOf
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
@@ -24,11 +28,16 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import org.intellij.lang.annotations.Language
+import java.time.LocalDate
 import java.util.*
 
 private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
@@ -219,6 +228,29 @@ class ArrangorFlateService(
             }
     }
 
+    fun getGjennomforingerByPrismodeller(orgnr: Organisasjonsnummer, prismodeller: List<Prismodell>): List<ArrangorflateGjennomforing> = db.session {
+        val parameters = mapOf(
+            "arrangor_orgnr" to orgnr.value,
+            "prismodeller" to session.createArrayOfValue(prismodeller) { it.name },
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select g.id, g.navn, g.start_dato, g.slutt_dato
+            from gjennomforing g
+                     join arrangor arr on arr.id = g.arrangor_id
+                     inner join avtale a on g.avtale_id = a.id
+            where a.prismodell = ANY (:prismodeller::prismodell[])
+              and arr.organisasjonsnummer = :arrangor_orgnr
+              order by g.slutt_dato desc, g.navn
+        """.trimIndent()
+
+        val result = session.list(queryOf(query, parameters)) {
+            it.toArrangorflateGjennomforing()
+        }
+        return result
+    }
+
     suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
         return kontoregisterOrganisasjonClient
             .getKontonummerForOrganisasjon(orgnr)
@@ -339,3 +371,21 @@ private fun QueryContext.toArrangorflateTilsagn(
         bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
     )
 }
+
+@Serializable
+data class ArrangorflateGjennomforing(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+)
+
+fun Row.toArrangorflateGjennomforing(): ArrangorflateGjennomforing = ArrangorflateGjennomforing(
+    id = uuid("id"),
+    navn = string("navn"),
+    startDato = localDate("start_dato"),
+    sluttDato = localDateOrNull("slutt_dato"),
+)
