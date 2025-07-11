@@ -166,79 +166,7 @@ fun toUtbetalingsdetaljer(
         ),
     )
 
-    val utbetalingHeader = when (utbetaling.type) {
-        UtbetalingType.KORRIGERING -> "Korrigering"
-        UtbetalingType.INVESTERING -> "Utbetaling for investering"
-        null -> "Innsending"
-    }
-    sections.add(
-        Section(
-            title = Section.Header(utbetalingHeader, level = 4),
-            blocks = listOf(
-                Section.Block(
-                    entries = listOfNotNull(
-                        Section.Entry(
-                            "Arrangør",
-                            "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer})",
-                        ),
-                        utbetaling.godkjentAvArrangorTidspunkt
-                            ?.let {
-                                Section.Entry(
-                                    "Dato innsendt av arrangør",
-                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
-                                )
-                            }
-                            ?: utbetaling.createdAt?.let {
-                                Section.Entry(
-                                    "Dato opprettet hos Nav",
-                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
-                                )
-                            },
-                        Section.Entry("Tiltaksnavn", utbetaling.gjennomforing.navn),
-                        Section.Entry("Tiltakstype", utbetaling.tiltakstype.navn),
-                    ),
-                ),
-            ),
-        ),
-    )
-
-    sections.add(
-        Section(
-            title = Section.Header("Utbetaling", level = 4),
-            blocks = listOf(
-                Section.Block(
-                    entries = listOfNotNull(
-                        Section.Entry(
-                            "Utbetalingsperiode",
-                            "${utbetaling.periodeStart.formaterDatoTilEuropeiskDatoformat()} - ${utbetaling.periodeSlutt.formaterDatoTilEuropeiskDatoformat()}",
-                        ),
-                        utbetaling.beregning.antallManedsverk?.let {
-                            Section.Entry("Antall månedsverk", it.toString())
-                        },
-                        Section.Entry(
-                            "Beløp",
-                            utbetaling.beregning.belop.toString(),
-                            Section.Format.NOK,
-                        ),
-                    ),
-                ),
-            ),
-        ),
-    )
-
-    sections.add(
-        Section(
-            title = Section.Header("Betalingsinformasjon", level = 4),
-            blocks = listOf(
-                Section.Block(
-                    entries = listOfNotNull(
-                        Section.Entry("Kontonummer", utbetaling.betalingsinformasjon.kontonummer?.value),
-                        Section.Entry("KID-nummer", utbetaling.betalingsinformasjon.kid?.value),
-                    ),
-                ),
-            ),
-        ),
-    )
+    sections.addCommonUtbetalingSections(utbetaling)
 
     if (utbetaling.status == "Overført til utbetaling") {
         sections.add(
@@ -302,79 +230,7 @@ fun toJournalpost(
         ),
     )
 
-    val utbetalingHeader = when (utbetaling.type) {
-        UtbetalingType.KORRIGERING -> "Korrigering"
-        UtbetalingType.INVESTERING -> "Utbetaling for investering"
-        null -> "Innsending"
-    }
-    sections.add(
-        Section(
-            title = Section.Header(utbetalingHeader, level = 4),
-            blocks = listOf(
-                Section.Block(
-                    entries = listOfNotNull(
-                        Section.Entry(
-                            "Arrangør",
-                            "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer})",
-                        ),
-                        utbetaling.godkjentAvArrangorTidspunkt
-                            ?.let {
-                                Section.Entry(
-                                    "Dato innsendt av arrangør",
-                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
-                                )
-                            }
-                            ?: utbetaling.createdAt?.let {
-                                Section.Entry(
-                                    "Dato opprettet hos Nav",
-                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
-                                )
-                            },
-                        Section.Entry("Tiltaksnavn", utbetaling.gjennomforing.navn),
-                        Section.Entry("Tiltakstype", utbetaling.tiltakstype.navn),
-                    ),
-                ),
-            ),
-        ),
-    )
-
-    sections.add(
-        Section(
-            title = Section.Header("Utbetaling", level = 4),
-            blocks = listOf(
-                Section.Block(
-                    entries = listOfNotNull(
-                        Section.Entry(
-                            "Utbetalingsperiode",
-                            "${utbetaling.periodeStart.formaterDatoTilEuropeiskDatoformat()} - ${utbetaling.periodeSlutt.formaterDatoTilEuropeiskDatoformat()}",
-                        ),
-                        utbetaling.beregning.antallManedsverk?.let {
-                            Section.Entry("Antall månedsverk", it.toString())
-                        },
-                        Section.Entry(
-                            "Beløp",
-                            utbetaling.beregning.belop.toString(),
-                            Section.Format.NOK,
-                        ),
-                    ),
-                ),
-            ),
-        ),
-    )
-
-    sections.add(
-        Section(
-            title = Section.Header("Betalingsinformasjon", level = 4),
-            blocks = listOf(
-                Section.Block(
-                    entries = listOfNotNull(
-                        Section.Entry("Kontonummer", utbetaling.betalingsinformasjon.kontonummer?.value),
-                        Section.Entry("KID-nummer", utbetaling.betalingsinformasjon.kid?.value),
-                    ),
-                ),
-            ),
-        ),
-    )
+    sections.addCommonUtbetalingSections(utbetaling)
 
     if (utbetaling.beregning.stengt.isNotEmpty()) {
         sections.add(
@@ -477,6 +333,82 @@ fun toJournalpost(
         description = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
         author = "Tiltaksadministrasjon",
         sections = sections,
+    )
+}
+
+private fun MutableList<Section>.addCommonUtbetalingSections(utbetaling: UtbetalingPdfDto) {
+    val utbetalingHeader = when (utbetaling.type) {
+        UtbetalingType.KORRIGERING -> "Korrigering"
+        UtbetalingType.INVESTERING -> "Utbetaling for investering"
+        null -> "Innsending"
+    }
+    add(
+        Section(
+            title = Section.Header(utbetalingHeader, level = 4),
+            blocks = listOf(
+                Section.Block(
+                    entries = listOfNotNull(
+                        Section.Entry(
+                            "Arrangør",
+                            "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer})",
+                        ),
+                        utbetaling.godkjentAvArrangorTidspunkt
+                            ?.let {
+                                Section.Entry(
+                                    "Dato innsendt av arrangør",
+                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
+                                )
+                            }
+                            ?: utbetaling.createdAt?.let {
+                                Section.Entry(
+                                    "Dato opprettet hos Nav",
+                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
+                                )
+                            },
+                        Section.Entry("Tiltaksnavn", utbetaling.gjennomforing.navn),
+                        Section.Entry("Tiltakstype", utbetaling.tiltakstype.navn),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    add(
+        Section(
+            title = Section.Header("Utbetaling", level = 4),
+            blocks = listOf(
+                Section.Block(
+                    entries = listOfNotNull(
+                        Section.Entry(
+                            "Utbetalingsperiode",
+                            "${utbetaling.periodeStart.formaterDatoTilEuropeiskDatoformat()} - ${utbetaling.periodeSlutt.formaterDatoTilEuropeiskDatoformat()}",
+                        ),
+                        utbetaling.beregning.antallManedsverk?.let {
+                            Section.Entry("Antall månedsverk", it.toString())
+                        },
+                        Section.Entry(
+                            "Beløp",
+                            utbetaling.beregning.belop.toString(),
+                            Section.Format.NOK,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    add(
+        Section(
+            title = Section.Header("Betalingsinformasjon", level = 4),
+            blocks = listOf(
+                Section.Block(
+                    entries = listOfNotNull(
+                        Section.Entry("Kontonummer", utbetaling.betalingsinformasjon.kontonummer?.value),
+                        Section.Entry("KID-nummer", utbetaling.betalingsinformasjon.kid?.value),
+                    ),
+                ),
+            ),
+        ),
     )
 }
 
