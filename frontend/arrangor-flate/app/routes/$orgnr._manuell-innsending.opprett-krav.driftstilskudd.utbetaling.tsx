@@ -98,7 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("belop", belop);
     session.set("kid", kid);
     session.set("kontonummer", kontonummer);
-    return redirect(pathByOrgnr(orgnr).opprettKravOppsummering, {
+    return redirect(pathByOrgnr(orgnr).opprettKrav.driftstilskudd.oppsummering, {
       headers: {
         "Set-Cookie": await commitSession(session),
       },

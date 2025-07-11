@@ -182,7 +182,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("tilsagnId", tilsagnId);
     session.set("periodeStart", formaterDatoSomYYYYMMDD(periodeStart));
     session.set("periodeSlutt", formaterDatoSomYYYYMMDD(periodeSlutt));
-    return redirect(pathByOrgnr(orgnr).opprettKravUtbetaling, {
+    return redirect(pathByOrgnr(orgnr).opprettKrav.driftstilskudd.utbetaling, {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
