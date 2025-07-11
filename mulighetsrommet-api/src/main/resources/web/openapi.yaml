@@ -2452,6 +2452,25 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/utbetalingskrav/driftstilskudd/gjennomforing:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getUtbetalingskravDriftstilskuddGjennomforinger
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      responses:
+        200:
+          description: Hent gjennomforinger til utbetalingskrav for drifttilskudd
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/kontonummer:
     get:
       tags:
