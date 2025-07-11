@@ -6193,6 +6193,8 @@ components:
           $ref: "#/components/schemas/Periode"
         belop:
           type: number
+        godkjentBelop:
+          type: number
         type:
           $ref: "#/components/schemas/UtbetalingType"
       required:

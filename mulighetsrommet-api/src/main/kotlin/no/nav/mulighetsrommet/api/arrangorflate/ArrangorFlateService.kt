@@ -52,7 +52,17 @@ class ArrangorFlateService(
     fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
         return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
             val status = getArrFlateUtbetalingStatus(utbetaling)
-            ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status)
+            val godkjentBelop =
+                if (status in listOf(
+                        ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                        ArrFlateUtbetalingStatus.UTBETALT,
+                    )
+                ) {
+                    getGodkjentBelopForUtbetaling(utbetaling.id)
+                } else {
+                    null
+                }
+            ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
         }
     }
 
@@ -97,6 +107,10 @@ class ArrangorFlateService(
                     antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(utbetaling) },
                 )
             }
+    }
+
+    fun getGodkjentBelopForUtbetaling(utbetalingId: UUID): Int = db.session {
+        return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
     suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
