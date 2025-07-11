@@ -94,7 +94,7 @@ class ArrangorFlateService(
             .map { (deltakerId, forslag) ->
                 RelevanteForslag(
                     deltakerId = deltakerId,
-                    antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(utbetaling) },
+                    antallRelevanteForslag = forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) },
                 )
             }
     }
@@ -104,6 +104,7 @@ class ArrangorFlateService(
         val deltakere = when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> emptyList()
 
+            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
             -> {
@@ -190,18 +191,19 @@ class ArrangorFlateService(
     }
 
     fun getGjennomforinger(orgnr: Organisasjonsnummer): List<ArrangorflateGjennomforing> = db.session {
-        queries.gjennomforing.getAll(
-            arrangorOrgnr = listOf(orgnr),
-        )
-    }
-        .items.map {
-            ArrangorflateGjennomforing(
-                id = it.id,
-                navn = it.navn,
-                startDato = it.startDato,
-                sluttDato = it.sluttDato,
+        queries.gjennomforing
+            .getAll(
+                arrangorOrgnr = listOf(orgnr),
             )
-        }
+            .items.map {
+                ArrangorflateGjennomforing(
+                    id = it.id,
+                    navn = it.navn,
+                    startDato = it.startDato,
+                    sluttDato = it.sluttDato,
+                )
+            }
+    }
 
     suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
         return kontoregisterOrganisasjonClient
@@ -219,46 +221,58 @@ class ArrangorFlateService(
     }
 }
 
-fun DeltakerForslag.relevantForDeltakelse(
+fun isForslagRelevantForUtbetaling(
+    forslag: DeltakerForslag,
     utbetaling: Utbetaling,
 ): Boolean {
-    return when (utbetaling.beregning) {
-        is UtbetalingBeregningFri -> false
+    val periode = when (utbetaling.beregning) {
+        is UtbetalingBeregningFri -> return false
+
+        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
+            val deltaker = utbetaling.beregning.input.deltakelser
+                .find { it.deltakelseId == forslag.deltakerId }
+                ?: return false
+            Periode.fromRange(deltaker.perioder.map { it.periode })
+        }
 
         is UtbetalingBeregningPrisPerManedsverk -> {
-            val deltaker = utbetaling.beregning.input.deltakelser.find { it.deltakelseId == deltakerId } ?: return false
-            val perioder = deltaker.perioder.map { it.periode }
-            relevantForDeltakelse(perioder, utbetaling.beregning.input.periode)
+            utbetaling.beregning.input.deltakelser
+                .find { it.deltakelseId == forslag.deltakerId }
+                ?.periode
+                ?: return false
         }
 
         is UtbetalingBeregningPrisPerUkesverk -> {
-            val deltaker = utbetaling.beregning.input.deltakelser.find { it.deltakelseId == deltakerId } ?: return false
-            val perioder = listOf(deltaker.periode)
-            relevantForDeltakelse(perioder, utbetaling.beregning.input.periode)
+            utbetaling.beregning.input.deltakelser
+                .find { it.deltakelseId == forslag.deltakerId }
+                ?.periode
+                ?: return false
         }
     }
+    return isForslagRelevantForPeriode(forslag, utbetaling.periode, periode)
 }
 
-fun DeltakerForslag.relevantForDeltakelse(
-    perioder: List<Periode>,
-    periode: Periode,
+fun isForslagRelevantForPeriode(
+    forslag: DeltakerForslag,
+    utbetalingPeriode: Periode,
+    deltakelsePeriode: Periode,
 ): Boolean {
-    val sisteSluttDato = perioder.maxOf { it.getLastInclusiveDate() }
-    val forsteStartDato = perioder.minOf { it.start }
+    val deltakerPeriodeSluttDato = deltakelsePeriode.getLastInclusiveDate()
 
-    return when (this.endring) {
+    return when (forslag.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {
-            val sluttDato = endring.sluttdato
+            val sluttDato = forslag.endring.sluttdato
 
-            endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
+            forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(deltakerPeriodeSluttDato))
         }
 
         is Melding.Forslag.Endring.Deltakelsesmengde -> {
-            endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
+            forslag.endring.gyldigFra?.isBefore(deltakerPeriodeSluttDato) ?: true
         }
 
         is Melding.Forslag.Endring.ForlengDeltakelse -> {
-            endring.sluttdato.isAfter(sisteSluttDato) && endring.sluttdato.isBefore(periode.slutt)
+            forslag.endring.sluttdato.isAfter(deltakerPeriodeSluttDato) &&
+                forslag.endring.sluttdato.isBefore(utbetalingPeriode.slutt)
         }
 
         is Melding.Forslag.Endring.IkkeAktuell -> {
@@ -270,11 +284,11 @@ fun DeltakerForslag.relevantForDeltakelse(
         }
 
         is Melding.Forslag.Endring.Sluttdato -> {
-            endring.sluttdato.isBefore(sisteSluttDato)
+            forslag.endring.sluttdato.isBefore(deltakerPeriodeSluttDato)
         }
 
         is Melding.Forslag.Endring.Startdato -> {
-            endring.startdato.isAfter(forsteStartDato)
+            forslag.endring.startdato.isAfter(deltakelsePeriode.start)
         }
 
         Melding.Forslag.Endring.FjernOppstartsdato -> true

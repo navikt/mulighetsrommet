@@ -20,7 +20,8 @@ fun mapUtbetalingToArrFlateUtbetaling(
             digest = beregning.getDigest(),
         )
 
-        is UtbetalingBeregningPrisPerManedsverk -> {
+        // TODO: forenkle mapping av beregninger som inkluderer deltakelser
+        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
             val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
             val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
@@ -33,30 +34,66 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 val forstePeriode = deltakelse.perioder.first()
                 val sistePeriode = deltakelse.perioder.last()
 
-                UtbetalingDeltakelseManedsverk(
+                ArrFlateUtbetalingDeltakelse(
                     id = id,
-                    startDato = deltaker?.startDato,
-                    forstePeriodeStartDato = forstePeriode.periode.start,
-                    sistePeriodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
-                    sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
-                    manedsverk = manedsverk,
-                    perioder = deltakelse.perioder,
+                    deltakerStartDato = deltaker?.startDato,
+                    periodeStartDato = forstePeriode.periode.start,
+                    periodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
+                    faktor = manedsverk,
+                    perioderMedDeltakelsesmengde = deltakelse.perioder,
                     person = person,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
             val antallManedsverk = deltakelser
-                .map { BigDecimal(it.manedsverk) }
+                .map { BigDecimal(it.faktor) }
                 .sumOf { it }
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()
 
-            ArrFlateBeregning.PrisPerManedsverk(
+            ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
+            )
+        }
+
+        is UtbetalingBeregningPrisPerManedsverk -> {
+            val deltakereById = deltakere.associateBy { it.id }
+            val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
+            val ukesverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
+
+            val deltakelser = perioderById.map { (id, deltakelse) ->
+                val deltaker = deltakereById[id]
+                val manedsverk = ukesverkById.getValue(id).manedsverk
+                val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
+
+                ArrFlateUtbetalingDeltakelse(
+                    id = id,
+                    deltakerStartDato = deltaker?.startDato,
+                    periodeStartDato = deltakelse.periode.start,
+                    periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
+                    faktor = manedsverk,
+                    // TODO: deltakelsesmengder er egentlig ikke relevant for denne beregningen
+                    perioderMedDeltakelsesmengde = listOf(DeltakelsesprosentPeriode(deltakelse.periode, 100.0)),
+                    person = person,
+                )
+            }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
+
+            val antallUkesverk = deltakelser
+                .map { BigDecimal(it.faktor) }
+                .sumOf { it }
+                .setScale(2, RoundingMode.HALF_UP)
+                .toDouble()
+
+            ArrFlateBeregning.PrisPerManedsverk(
+                belop = beregning.output.belop,
+                digest = beregning.getDigest(),
+                deltakelser = deltakelser,
+                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                antallManedsverk = antallUkesverk,
             )
         }
 
@@ -70,18 +107,20 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 val ukesverk = ukesverkById.getValue(id).ukesverk
                 val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
 
-                UtbetalingDeltakelseUkesverk(
+                ArrFlateUtbetalingDeltakelse(
                     id = id,
                     deltakerStartDato = deltaker?.startDato,
                     periodeStartDato = deltakelse.periode.start,
                     periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
-                    ukesverk = ukesverk,
+                    faktor = ukesverk,
+                    // TODO: deltakelsesmengder er egentlig ikke relevant for denne beregningen
+                    perioderMedDeltakelsesmengde = listOf(DeltakelsesprosentPeriode(deltakelse.periode, 100.0)),
                     person = person,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
             val antallUkesverk = deltakelser
-                .map { BigDecimal(it.ukesverk) }
+                .map { BigDecimal(it.faktor) }
                 .sumOf { it }
                 .setScale(2, RoundingMode.HALF_UP)
                 .toDouble()

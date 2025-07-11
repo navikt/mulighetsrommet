@@ -5,11 +5,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.*
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import kotlin.math.round
 
 @Serializable
 sealed class UtbetalingBeregningDto {
@@ -29,15 +27,27 @@ sealed class UtbetalingBeregningDto {
         companion object {
             fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = manedsverkDeltakelseColumns(),
-                rows = deltakelsePersoner.map {
-                    deltakerRow(it.first, sats, it.second)
+                rows = deltakelsePersoner.map { (deltakelse, person) ->
+                    manedsverkDeltakelseRow(deltakelse.faktor, sats, person)
                 },
             )
 
             private fun manedsverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
                 listOf(
-                    DataDrivenTableDto.Column("manedsverk", "Månedsverk", true, DataDrivenTableDto.Column.Align.RIGHT, null),
-                    DataDrivenTableDto.Column("belop", "Beløp", true, DataDrivenTableDto.Column.Align.RIGHT, DataDrivenTableDto.Column.Format.NOK),
+                    DataDrivenTableDto.Column(
+                        "manedsverk",
+                        "Månedsverk",
+                        true,
+                        DataDrivenTableDto.Column.Align.RIGHT,
+                        null,
+                    ),
+                    DataDrivenTableDto.Column(
+                        "belop",
+                        "Beløp",
+                        true,
+                        DataDrivenTableDto.Column.Align.RIGHT,
+                        DataDrivenTableDto.Column.Format.NOK,
+                    ),
                 ),
             )
 
@@ -62,19 +72,31 @@ sealed class UtbetalingBeregningDto {
         companion object {
             fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
                 columns = ukesverkDeltakelseColumns(),
-                rows = deltakelsePersoner.map {
-                    deltakerRow(it.first, sats, it.second)
+                rows = deltakelsePersoner.map { (deltakelse, person) ->
+                    ukesverkDeltakelseRow(deltakelse.faktor, sats, person)
                 },
             )
 
             private fun ukesverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
                 listOf(
-                    DataDrivenTableDto.Column("ukesverk", "Ukesverk", true, DataDrivenTableDto.Column.Align.RIGHT, null),
-                    DataDrivenTableDto.Column("belop", "Beløp", true, DataDrivenTableDto.Column.Align.RIGHT, DataDrivenTableDto.Column.Format.NOK),
+                    DataDrivenTableDto.Column(
+                        "ukesverk",
+                        "Ukesverk",
+                        true,
+                        DataDrivenTableDto.Column.Align.RIGHT,
+                        null,
+                    ),
+                    DataDrivenTableDto.Column(
+                        "belop",
+                        "Beløp",
+                        true,
+                        DataDrivenTableDto.Column.Align.RIGHT,
+                        DataDrivenTableDto.Column.Format.NOK,
+                    ),
                 ),
             )
 
-            fun ukesverkDeltakelseRow(ukesverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
+            private fun ukesverkDeltakelseRow(ukesverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
                 mapOf(
                     "ukesverk" to JsonPrimitive(ukesverk),
                     "belop" to JsonPrimitive(sats.toDouble() * ukesverk),
@@ -100,9 +122,21 @@ sealed class UtbetalingBeregningDto {
 
             fun friDeltakelseColumns() = listOf(
                 DataDrivenTableDto.Column("navn", "Navn", true, DataDrivenTableDto.Column.Align.LEFT, null),
-                DataDrivenTableDto.Column("foedselsdato", "Fødselsdato", true, DataDrivenTableDto.Column.Align.LEFT, DataDrivenTableDto.Column.Format.DATE),
+                DataDrivenTableDto.Column(
+                    "foedselsdato",
+                    "Fødselsdato",
+                    true,
+                    DataDrivenTableDto.Column.Align.LEFT,
+                    DataDrivenTableDto.Column.Format.DATE,
+                ),
                 DataDrivenTableDto.Column("region", "Region", true, DataDrivenTableDto.Column.Align.LEFT, null),
-                DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet", true, DataDrivenTableDto.Column.Align.LEFT, null),
+                DataDrivenTableDto.Column(
+                    "geografiskEnhet",
+                    "Geografisk enhet",
+                    true,
+                    DataDrivenTableDto.Column.Align.LEFT,
+                    null,
+                ),
             )
 
             fun friDeltakelseRow(person: Person?) = mapOf<String, JsonElement>(
@@ -113,6 +147,7 @@ sealed class UtbetalingBeregningDto {
             )
         }
     }
+
     companion object {
         fun from(
             utbetaling: Utbetaling,
@@ -125,24 +160,30 @@ sealed class UtbetalingBeregningDto {
                     deltakerRegioner = regioner,
                     deltakerTableData = Fri.friTable(deltakelsePersoner),
                 )
-                is UtbetalingBeregningPrisPerManedsverk -> {
-                    val manedsverkTotal = deltakelsePersoner.sumOf { (it.first as DeltakelseManedsverk).manedsverk }
+
+                is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+                is UtbetalingBeregningPrisPerManedsverk,
+                -> {
+                    val sats = getSats(utbetaling.beregning.input)
+                    val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerManedsverk(
-                        belop = round(manedsverkTotal * utbetaling.beregning.input.sats.toDouble()).toInt(),
+                        belop = utbetaling.beregning.output.belop,
                         manedsverkTotal = manedsverkTotal,
                         deltakerRegioner = regioner,
-                        deltakerTableData = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, utbetaling.beregning.input.sats),
-                        sats = utbetaling.beregning.input.sats,
+                        deltakerTableData = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats),
+                        sats = sats,
                     )
                 }
+
                 is UtbetalingBeregningPrisPerUkesverk -> {
-                    val ukesverkTotal = deltakelsePersoner.sumOf { (it.first as DeltakelseUkesverk).ukesverk }
+                    val sats = getSats(utbetaling.beregning.input)
+                    val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerUkesverk(
-                        belop = round(ukesverkTotal * utbetaling.beregning.input.sats.toDouble()).toInt(),
+                        belop = utbetaling.beregning.output.belop,
                         ukesverkTotal = ukesverkTotal,
                         deltakerRegioner = regioner,
-                        deltakerTableData = PrisPerUkesverk.ukesverkTable(deltakelsePersoner, utbetaling.beregning.input.sats),
-                        sats = utbetaling.beregning.input.sats,
+                        deltakerTableData = PrisPerUkesverk.ukesverkTable(deltakelsePersoner, sats),
+                        sats = sats,
                     )
                 }
             }
@@ -150,8 +191,11 @@ sealed class UtbetalingBeregningDto {
     }
 }
 
-fun deltakerRow(deltakelse: UtbetalingBeregningDeltakelse, sats: Int, person: Person?) = when (deltakelse) {
-    is UtbetalingBeregningFri.Deltakelse -> Fri.friDeltakelseRow(person)
-    is DeltakelseManedsverk -> PrisPerManedsverk.manedsverkDeltakelseRow(deltakelse.manedsverk, sats, person)
-    is DeltakelseUkesverk -> PrisPerUkesverk.ukesverkDeltakelseRow(deltakelse.ukesverk, sats, person)
+private fun getSats(input: UtbetalingBeregningInput): Int {
+    return when (input) {
+        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input -> input.sats
+        is UtbetalingBeregningPrisPerManedsverk.Input -> input.sats
+        is UtbetalingBeregningPrisPerUkesverk.Input -> input.sats
+        is UtbetalingBeregningFri.Input -> throw IllegalArgumentException("UtbetalingBeregningFri har ingen sats")
+    }
 }

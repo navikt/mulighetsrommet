@@ -118,7 +118,7 @@ class UtbetalingQueriesTest : FunSpec({
         }
     }
 
-    context("utbetaling med beregning for månedsverk") {
+    context("utbetaling med beregning for månedsverk med deltakelsesmengder") {
         test("upsert and get beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
@@ -127,8 +127,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningPrisPerManedsverk(
-                    input = UtbetalingBeregningPrisPerManedsverk.Input(
+                val beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
+                    input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
                         sats = 20_205,
                         periode = periode,
                         stengt = setOf(
@@ -166,7 +166,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningPrisPerManedsverk.Output(
+                    output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
                         belop = 100_000,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakelse1Id, 1.0),
@@ -174,13 +174,10 @@ class UtbetalingQueriesTest : FunSpec({
                         ),
                     ),
                 )
-                val tubetalingForhandsgodkjent = utbetaling.copy(
-                    beregning = beregning,
-                )
 
-                queries.upsert(tubetalingForhandsgodkjent)
+                queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(tubetalingForhandsgodkjent.id).shouldNotBeNull().should {
+                queries.get(utbetaling.id).shouldNotBeNull().should {
                     it.beregning shouldBe beregning
                 }
             }
@@ -200,32 +197,69 @@ class UtbetalingQueriesTest : FunSpec({
                     deltakelseId = UUID.randomUUID(),
                     perioder = listOf(deltakelsePeriode, deltakelsePeriode),
                 )
-                val beregning = UtbetalingDbo(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = AFT1.id,
-                    beregning = UtbetalingBeregningPrisPerManedsverk(
-                        input = UtbetalingBeregningPrisPerManedsverk.Input(
-                            periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
-                            sats = 20_205,
-                            stengt = setOf(),
-                            deltakelser = setOf(deltakelse),
-                        ),
-                        output = UtbetalingBeregningPrisPerManedsverk.Output(
-                            belop = 0,
-                            deltakelser = setOf(),
-                        ),
+                val beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
+                    input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+                        periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
+                        sats = 20_205,
+                        stengt = setOf(),
+                        deltakelser = setOf(deltakelse),
                     ),
-                    kontonummer = null,
-                    kid = null,
-                    periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
-                    innsender = null,
-                    beskrivelse = null,
-                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                    godkjentAvArrangorTidspunkt = null,
+                    output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+                        belop = 0,
+                        deltakelser = setOf(),
+                    ),
                 )
 
                 assertThrows<SQLException> {
-                    queries.upsert(beregning)
+                    queries.upsert(utbetaling.copy(beregning = beregning))
+                }
+            }
+        }
+    }
+
+    context("utbetaling med beregning for månedsverk") {
+        test("upsert and get beregning") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = UtbetalingQueries(session)
+
+                val deltakelse1Id = UUID.randomUUID()
+                val deltakelse2Id = UUID.randomUUID()
+                val beregning = UtbetalingBeregningPrisPerManedsverk(
+                    input = UtbetalingBeregningPrisPerManedsverk.Input(
+                        sats = 20_205,
+                        periode = periode,
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
+                                "Ferie",
+                            ),
+                        ),
+                        deltakelser = setOf(
+                            DeltakelsePeriode(
+                                deltakelseId = deltakelse1Id,
+                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 16)),
+                            ),
+                            DeltakelsePeriode(
+                                deltakelseId = deltakelse2Id,
+                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)),
+                            ),
+                        ),
+                    ),
+                    output = UtbetalingBeregningPrisPerManedsverk.Output(
+                        belop = 100_000,
+                        deltakelser = setOf(
+                            DeltakelseManedsverk(deltakelse1Id, 0.5),
+                            DeltakelseManedsverk(deltakelse2Id, 1.0),
+                        ),
+                    ),
+                )
+
+                queries.upsert(utbetaling.copy(beregning = beregning))
+
+                queries.get(utbetaling.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregning
                 }
             }
         }
@@ -269,13 +303,10 @@ class UtbetalingQueriesTest : FunSpec({
                         ),
                     ),
                 )
-                val tubetalingForhandsgodkjent = utbetaling.copy(
-                    beregning = beregning,
-                )
 
-                queries.upsert(tubetalingForhandsgodkjent)
+                queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(tubetalingForhandsgodkjent.id).shouldNotBeNull().should {
+                queries.get(utbetaling.id).shouldNotBeNull().should {
                     it.beregning shouldBe beregning
                 }
             }

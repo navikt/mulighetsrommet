@@ -34,7 +34,12 @@ export function DataDrivenTable({ data, className }: Props) {
       <Table.Header>
         <Table.Row>
           {data.columns.map((col: DataDrivenColumn) => (
-            <Table.ColumnHeader key={col.key} sortable={col.sortable} sortKey={col.key}>
+            <Table.ColumnHeader
+              key={col.key}
+              sortable={col.sortable}
+              sortKey={col.key}
+              align={col.align}
+            >
               {col.label}
             </Table.ColumnHeader>
           ))}
