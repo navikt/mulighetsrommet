@@ -72,12 +72,16 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
   const session = await getSession(request.headers.get("Cookie"));
 
-  const validSession = session.get("orgnr") === orgnr;
-  const sessionGjennomforingId = validSession ? session.get("gjennomforingId") : undefined;
-  const sessionTilsagnId = validSession ? session.get("tilsagnId") : undefined;
-  const sessionPeriodeStart = validSession ? session.get("periodeStart") : undefined;
-  const sessionPeriodeSlutt = validSession ? session.get("periodeSlutt") : undefined;
-
+  let sessionGjennomforingId: string | undefined;
+  let sessionTilsagnId: string | undefined;
+  let sessionPeriodeStart: string | undefined;
+  let sessionPeriodeSlutt: string | undefined;
+  if (session.get("orgnr") === orgnr && session.get("type") === "investeringstilskudd") {
+    sessionGjennomforingId = session.get("gjennomforingId");
+    sessionTilsagnId = session.get("tilsagnId");
+    sessionPeriodeStart = session.get("periodeStart");
+    sessionPeriodeSlutt = session.get("periodeSlutt");
+  }
   const [
     { data: gjennomforinger, error: gjennomforingerError },
     { data: tilsagn, error: tilsagnError },
@@ -170,6 +174,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
+    session.set("type", "investeringstilskudd");
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);

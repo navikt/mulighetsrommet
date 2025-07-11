@@ -14,7 +14,7 @@ import {
   RadioGroup,
   TextField,
   UNSAFE_Combobox,
-  useDatepicker,
+  useRangeDatepicker,
   VStack,
 } from "@navikt/ds-react";
 import {
@@ -43,6 +43,7 @@ import { commitSession, destroySession, getSession } from "~/sessions.server";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 import { formaterDato, subtractDays } from "~/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
+import { DateRange } from "node_modules/@navikt/ds-react/esm/date/Date.typeutils";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -72,18 +73,23 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
   const session = await getSession(request.headers.get("Cookie"));
 
-  const validSession = session.get("orgnr") === orgnr;
-  const sessionGjennomforingId = validSession ? session.get("gjennomforingId") : undefined;
-  const sessionTilsagnId = validSession ? session.get("tilsagnId") : undefined;
-  const sessionPeriodeStart = validSession ? session.get("periodeStart") : undefined;
-  const sessionPeriodeSlutt = validSession ? session.get("periodeSlutt") : undefined;
+  let sessionGjennomforingId: string | undefined;
+  let sessionTilsagnId: string | undefined;
+  let sessionPeriodeStart: string | undefined;
+  let sessionPeriodeSlutt: string | undefined;
+  if (session.get("orgnr") === orgnr && session.get("type") === "driftstilskudd") {
+    sessionGjennomforingId = session.get("gjennomforingId");
+    sessionTilsagnId = session.get("tilsagnId");
+    sessionPeriodeStart = session.get("periodeStart");
+    sessionPeriodeSlutt = session.get("periodeSlutt");
+  }
 
   const [
     { data: gjennomforinger, error: gjennomforingerError },
     { data: tilsagn, error: tilsagnError },
     { data: arrangortilganger, error: arrangorError },
   ] = await Promise.all([
-    ArrangorflateService.getArrangorflateGjennomforinger({
+    ArrangorflateService.getUtbetalingskravDriftstilskuddGjennomforinger({
       path: { orgnr },
       headers: await apiHeaders(request),
     }),
@@ -170,6 +176,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
+    session.set("type", "driftstilskudd");
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
@@ -187,6 +194,18 @@ interface ActionData {
   errors: FieldError[];
 }
 
+const filtrGjennomforingByPeriode =
+  (periode: DateRange) => (gjennomforing: ArrangorflateGjennomforing) => {
+    const gjennomforingPeriode = {
+      from: new Date(gjennomforing.startDato),
+      to: gjennomforing.sluttDato && new Date(gjennomforing.sluttDato),
+    };
+    if (gjennomforingPeriode.to) {
+      return gjennomforingPeriode.from <= periode.from! && periode.from! <= gjennomforingPeriode.to;
+    }
+    return gjennomforingPeriode.from <= periode.from!;
+  };
+
 export default function OpprettKravInnsendingsinformasjon() {
   const {
     orgnr,
@@ -203,7 +222,6 @@ export default function OpprettKravInnsendingsinformasjon() {
   const [gjennomforingId, setGjennomforingId] = useState<string | undefined>(
     sessionGjennomforingId,
   );
-  const [tilsagnId, setTilsagnId] = useState<string | undefined>(sessionTilsagnId);
 
   const hasError = data?.errors && data.errors.length > 0;
 
@@ -214,25 +232,34 @@ export default function OpprettKravInnsendingsinformasjon() {
   }, [data, hasError]);
 
   const {
-    datepickerProps: periodeStartPickerProps,
-    inputProps: periodeStartInputProps,
-    setSelected: setSelectedFraDato,
-  } = useDatepicker({
-    defaultSelected: sessionPeriodeStart ? new Date(sessionPeriodeStart) : undefined,
-  });
-  const {
-    datepickerProps: periodeSluttPickerProps,
-    inputProps: periodeSluttInputProps,
-    setSelected: setSelectedTilDato,
-  } = useDatepicker({
-    defaultSelected: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
+    datepickerProps,
+    fromInputProps: periodeStartInputProps,
+    toInputProps: periodeSluttInputProps,
+    setSelected: setPeriode,
+    selectedRange: valgtPeriode,
+  } = useRangeDatepicker({
+    defaultSelected: {
+      from: sessionPeriodeStart ? new Date(sessionPeriodeStart) : undefined,
+      to: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
+    },
   });
 
-  const valgtGjennomforing = gjennomforinger.find((g) => g.id === sessionGjennomforingId);
+  const relevanteGjennomforinger = useMemo(() => {
+    if (valgtPeriode?.from && valgtPeriode?.to) {
+      return gjennomforinger
+        .filter(filtrGjennomforingByPeriode(valgtPeriode))
+        .sort((a, b) => a.navn.localeCompare(b.navn));
+    }
+    return [];
+  }, [valgtPeriode, gjennomforinger]);
+
+  const valgtGjennomforing = relevanteGjennomforinger.find((g) => g.id === sessionGjennomforingId);
   const relevanteTilsagn = useMemo(() => {
     if (gjennomforingId) {
       return tilsagn.filter(
-        (t) => t.gjennomforing.id === gjennomforingId && t.type === TilsagnType.INVESTERING,
+        (t) =>
+          t.gjennomforing.id === gjennomforingId &&
+          [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN].includes(t.type),
       );
     }
     return [];
@@ -247,8 +274,13 @@ export default function OpprettKravInnsendingsinformasjon() {
           </Heading>
           <GuidePanel className="mb-2">
             <BodyLong spacing>
-              I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre
-              krav om utbetaling skal sendes inn via utbetalingene i{" "}
+              I dette skjemaet kan du sende inn krav som gjelder tilsagn for driftstilskudd.
+              <br />
+              Andre krav om utbetaling (feks <abbr title="Arbeidsforberedende trening">
+                AFT
+              </abbr>{" "}
+              eller <abbr title="Varig tilrettelagt arbeid">VTA</abbr>) skal sendes inn via
+              utbetalingene i{" "}
               <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
                 Utbetalingsoversikten.
               </Link>
@@ -257,35 +289,66 @@ export default function OpprettKravInnsendingsinformasjon() {
           <VStack gap="6" className="max-w-2xl">
             <TextField readOnly label="Arrangør" size="small" value={`${arrangor} - ${orgnr}`} />
             <input type="hidden" name="orgnr" value={orgnr} />
-            <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
-            <UNSAFE_Combobox
-              size="small"
-              label="Velg gjennomføring"
-              description="Hvilken gjennomføring gjelder kravet for?"
-              error={errorAt("/gjennomforingId", data?.errors)}
-              options={gjennomforinger.map((g) => ({
-                label: `${g.navn} - ${formaterDato(g.startDato)} - ${g.sluttDato ? formaterDato(g.sluttDato) : ""}`,
-                value: g.id,
-              }))}
-              selectedOptions={
-                valgtGjennomforing
-                  ? [
-                      {
-                        label: `${valgtGjennomforing.navn} - ${formaterDato(valgtGjennomforing.startDato)} - ${valgtGjennomforing.sluttDato ? formaterDato(valgtGjennomforing.sluttDato) : ""}`,
-                        value: valgtGjennomforing.id,
-                      },
-                    ]
-                  : undefined
-              }
-              onToggleSelected={(option, isSelected) => {
-                if (isSelected) {
-                  setGjennomforingId(option);
-                } else {
-                  setGjennomforingId(undefined);
-                  setTilsagnId(undefined);
-                }
-              }}
-            />
+            <VStack gap="1">
+              <Label size="small">Periode</Label>
+              <BodyShort textColor="subtle" size="small">
+                Hvilken periode gjelder kravet for?
+              </BodyShort>
+              <HStack gap="4">
+                <DatePicker {...datepickerProps} dropdownCaption id="periodeStartDatepicker">
+                  <HStack wrap gap="4" justify="center">
+                    <DatePicker.Input
+                      {...periodeStartInputProps}
+                      label="Fra dato"
+                      size="small"
+                      error={errorAt("/periodeStart", data?.errors)}
+                      name="periodeStart"
+                      id="periodeStart"
+                    />
+                    <DatePicker.Input
+                      {...periodeSluttInputProps}
+                      label="Til dato"
+                      size="small"
+                      error={errorAt("/periodeSlutt", data?.errors)}
+                      name="periodeSlutt"
+                      id="periodeSlutt"
+                    />
+                  </HStack>
+                </DatePicker>
+              </HStack>
+            </VStack>
+            {valgtPeriode?.from && valgtPeriode?.to && (
+              <>
+                <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
+                <UNSAFE_Combobox
+                  size="small"
+                  label="Velg gjennomføring"
+                  description="Hvilken gjennomføring gjelder kravet for?"
+                  error={errorAt("/gjennomforingId", data?.errors)}
+                  options={relevanteGjennomforinger.map((g) => ({
+                    label: `${g.navn} - ${formaterDato(g.startDato)} - ${g.sluttDato ? formaterDato(g.sluttDato) : ""}`,
+                    value: g.id,
+                  }))}
+                  selectedOptions={
+                    valgtGjennomforing
+                      ? [
+                          {
+                            label: `${valgtGjennomforing.navn} - ${formaterDato(valgtGjennomforing.startDato)} - ${valgtGjennomforing.sluttDato ? formaterDato(valgtGjennomforing.sluttDato) : ""}`,
+                            value: valgtGjennomforing.id,
+                          },
+                        ]
+                      : undefined
+                  }
+                  onToggleSelected={(option, isSelected) => {
+                    if (isSelected) {
+                      setGjennomforingId(option);
+                    } else {
+                      setGjennomforingId(undefined);
+                    }
+                  }}
+                />
+              </>
+            )}
             {gjennomforingId && (
               <>
                 {relevanteTilsagn.length < 1 ? (
@@ -300,17 +363,15 @@ export default function OpprettKravInnsendingsinformasjon() {
                     name="tilsagnId"
                     defaultValue={tilsagn.find((t) => t.id === sessionTilsagnId)?.id}
                     error={errorAt("/tilsagnId", data?.errors)}
-                    onChange={(val: string) => {
-                      setTilsagnId(val);
-                      setSelectedFraDato(
-                        new Date(tilsagn.find((t) => t.id === val)?.periode.start ?? ""),
-                      );
-                      setSelectedTilDato(
-                        subtractDays(
-                          new Date(tilsagn.find((t) => t.id === val)?.periode.slutt ?? ""),
-                          1,
-                        ),
-                      );
+                    onChange={(tilsagnId: string) => {
+                      const valgtTilsagn = tilsagn.find((t) => t.id === tilsagnId);
+                      if (valgtTilsagn) {
+                        const periode = {
+                          from: new Date(valgtTilsagn.periode.start),
+                          to: subtractDays(new Date(valgtTilsagn.periode.slutt), 1),
+                        };
+                        setPeriode(periode);
+                      }
                     }}
                   >
                     {relevanteTilsagn.map((tilsagn) => (
@@ -319,44 +380,6 @@ export default function OpprettKravInnsendingsinformasjon() {
                       </Radio>
                     ))}
                   </RadioGroup>
-                )}
-                {tilsagnId && (
-                  <VStack gap="1">
-                    <Label size="small">Periode</Label>
-                    <BodyShort textColor="subtle" size="small">
-                      Hvilken periode gjelder kravet for?
-                    </BodyShort>
-                    <HStack gap="4">
-                      <DatePicker
-                        {...periodeStartPickerProps}
-                        dropdownCaption
-                        id="periodeStartDatepicker"
-                      >
-                        <DatePicker.Input
-                          label="Fra dato"
-                          size="small"
-                          error={errorAt("/periodeStart", data?.errors)}
-                          name="periodeStart"
-                          id="periodeStart"
-                          {...periodeStartInputProps}
-                        />
-                      </DatePicker>
-                      <DatePicker
-                        {...periodeSluttPickerProps}
-                        dropdownCaption
-                        id="periodeSluttDatepicker"
-                      >
-                        <DatePicker.Input
-                          label="Til dato"
-                          size="small"
-                          error={errorAt("/periodeSlutt", data?.errors)}
-                          name="periodeSlutt"
-                          id="periodeSlutt"
-                          {...periodeSluttInputProps}
-                        />
-                      </DatePicker>
-                    </HStack>
-                  </VStack>
                 )}
               </>
             )}
