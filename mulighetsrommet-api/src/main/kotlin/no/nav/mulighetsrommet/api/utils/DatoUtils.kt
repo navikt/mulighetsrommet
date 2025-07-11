@@ -5,7 +5,8 @@ import java.time.format.DateTimeFormatter
 
 object DatoUtils {
     val europeanDatePattern = "dd.MM.yyyy"
-    fun LocalDate?.formaterDatoTilEuropeiskDatoformat(): String? {
-        return this?.format(DateTimeFormatter.ofPattern(europeanDatePattern))
+
+    fun LocalDate.formaterDatoTilEuropeiskDatoformat(): String {
+        return format(DateTimeFormatter.ofPattern(europeanDatePattern))
     }
 }

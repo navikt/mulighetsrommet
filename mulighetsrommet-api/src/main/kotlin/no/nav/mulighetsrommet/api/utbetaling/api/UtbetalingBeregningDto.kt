@@ -143,11 +143,10 @@ sealed class UtbetalingBeregningDto {
                 "navn" to JsonPrimitive(person?.navn),
                 "geografiskEnhet" to JsonPrimitive(person?.geografiskEnhet?.navn),
                 "region" to JsonPrimitive(person?.region?.navn),
-                "foedselsdato" to JsonPrimitive(person?.foedselsdato.formaterDatoTilEuropeiskDatoformat()),
+                "foedselsdato" to JsonPrimitive(person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat()),
             )
         }
     }
-
     companion object {
         fun from(
             utbetaling: Utbetaling,

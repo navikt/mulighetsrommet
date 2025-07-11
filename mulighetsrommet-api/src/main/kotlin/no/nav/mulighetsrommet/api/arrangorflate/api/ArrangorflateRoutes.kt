@@ -17,13 +17,13 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
-import no.nav.mulighetsrommet.api.pdfgen.*
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
+import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfContentMapper
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -234,66 +234,8 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
                 val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-                val pdfContent = pdfClient.getUtbetalingKvittering(
-                    utbetaling = UtbetalingPdfDto(
-                        status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
-                        periodeStart = arrflateUtbetaling.periode.start,
-                        periodeSlutt = arrflateUtbetaling.periode.slutt.minusDays(1),
-                        arrangor = ArrangorPdf(
-                            organisasjonsnummer = arrflateUtbetaling.arrangor.organisasjonsnummer.value,
-                            navn = arrflateUtbetaling.arrangor.navn,
-                        ),
-                        godkjentAvArrangorTidspunkt = arrflateUtbetaling.godkjentAvArrangorTidspunkt,
-                        createdAt = arrflateUtbetaling.createdAt,
-                        gjennomforing = GjennomforingPdf(
-                            navn = arrflateUtbetaling.gjennomforing.navn,
-                        ),
-                        tiltakstype = TiltakstypePdf(
-                            navn = arrflateUtbetaling.tiltakstype.navn,
-                        ),
-                        beregning = when (arrflateUtbetaling.beregning) {
-                            is ArrFlateBeregning.Fri -> BeregningPdf(
-                                antallManedsverk = null,
-                                belop = arrflateUtbetaling.beregning.belop,
-                                deltakelser = emptyList(),
-                                stengt = emptyList(),
-                            )
-
-                            is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> BeregningPdf(
-                                antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
-                                belop = arrflateUtbetaling.beregning.belop,
-                                deltakelser = emptyList(),
-                                stengt = emptyList(),
-                            )
-
-                            is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
-                                antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
-                                belop = arrflateUtbetaling.beregning.belop,
-                                deltakelser = emptyList(),
-                                stengt = emptyList(),
-                            )
-
-                            is ArrFlateBeregning.PrisPerUkesverk -> BeregningPdf(
-                                // TODO: støtte ukesverk, evt. vurdere om månedsverk ikke trengs i det hele tatt?
-                                antallManedsverk = null,
-                                belop = arrflateUtbetaling.beregning.belop,
-                                deltakelser = emptyList(),
-                                stengt = emptyList(),
-                            )
-                        },
-                        betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
-                        linjer = arrflateUtbetaling.linjer.map {
-                            UtbetalingslinjerPdfDto(
-                                id = it.id,
-                                tilsagn = it.tilsagn,
-                                status = toReadableName(it.status),
-                                belop = it.belop,
-                                statusSistOppdatert = it.statusSistOppdatert,
-                            )
-                        },
-                        type = arrflateUtbetaling.type,
-                    ),
-                )
+                val content = UbetalingToPdfContentMapper.toInnsendtFraArrangorPdfContent(arrflateUtbetaling)
+                val pdfContent = pdfClient.getUtbetalingKvittering(content)
 
                 call.response.headers.append(
                     "Content-Disposition",

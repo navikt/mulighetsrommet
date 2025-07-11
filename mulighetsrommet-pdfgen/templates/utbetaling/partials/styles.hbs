@@ -4,10 +4,35 @@
         font-weight: 400;
     }
 
+    #nav_logo {
+        width: 20mm;
+        height: 20mm;
+        padding: 0 0 0 0;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+
+    .logo-container {
+        display: block;
+        margin: 0 auto;
+        height: 50px;
+    }
+
+    /**
+     * Section styles
+     */
+    .line_middle {
+        margin-bottom: 20px;
+    }
+
     .line_bottom {
         border-bottom: 1px #CCC solid;
     }
 
+    /**
+     * Block styles
+     */
     .block {
         width: 100%;
         margin-top: 0;
@@ -27,13 +52,18 @@
         width: 75%;
     }
 
-    .tilsagn-table {
-        border: 1px solid #D1D4D8;
-        padding: 8px;
-        margin-bottom: 20px;
+    .block-table {
+        width: 100%;
+        table-layout: fixed;
     }
 
-    .deltaker-liste th {
+    .block-table th,
+    .block-table td {
+        width: auto;
+        padding: 8px;
+    }
+
+    .block-table th {
         font-weight: bold;
     }
 
@@ -41,41 +71,13 @@
         text-align: right;
     }
 
-    .deltaker-liste {
-        width: 100%;
-        table-layout: fixed;
-    }
-
-    .deltaker-liste th,
-    .deltaker-liste td {
-        width: auto;
-        padding: 8px;
-        text-align: left;
-    }
-
-    .deltaker-liste tr:nth-child(even) {
+    .block-table tr:nth-child(even) {
         background-color: #f5f5f5;
     }
 
-    #nav_logo {
-        width: 20mm;
-        height: 20mm;
-        padding: 0 0 0 0;
-        position: absolute;
-        top: 0px;
-        left: 0px;
-    }
-
-    .logo-container {
-        display: block;
-        margin: 0 auto;
-        height: 50px;
-    }
-
-    .utbetalinglinjestatus {
-        margin-bottom: 20px;
-    }
-
+    /**
+     * Value formatting styles
+     */
     .status_success {
         background-color: #ccf1d6;
         border: 1px solid #06893a;

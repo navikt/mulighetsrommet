@@ -2,24 +2,19 @@
 <html>
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Utbetalingsdetaljer</title>
-    <meta name="subject" content="Dokumentemne" />
-    <meta name="author" content="pdfgen" />
-    <meta name="description" content="Utbetalingsdetaljer" />
+    <meta charset="UTF-8"/>
+    <title>{{title}}</title>
+    <meta name="subject" content="{{subject}}"/>
+    <meta name="description" content="{{description}}"/>
+    <meta name="author" content="{{author}}"/>
     {{> utbetaling/partials/styles}}
 </head>
 
 <body>
-    {{> utbetaling/partials/navlogo}}
-    <h1>Detaljer om utbetaling</h1>
-    {{> utbetaling/partials/utbetalingType}}
-    {{> utbetaling/partials/innsendtAv}}
-    {{> utbetaling/partials/innsendtGodkjentTidspunkt}}
-    {{> utbetaling/partials/innsendingsdetaljerGenerelt}}
-    {{> utbetaling/partials/utbetalingsinformasjon}}
-    {{> utbetaling/partials/betalingsinformasjon}}
-    {{> utbetaling/partials/utbetalinglinjestatus}}
+{{> utbetaling/partials/navlogo}}
+{{#each sections}}
+    {{> utbetaling/partials/section}}
+{{/each}}
 </body>
 
 </html>

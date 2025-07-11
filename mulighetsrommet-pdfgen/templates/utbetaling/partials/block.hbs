@@ -1,0 +1,49 @@
+{{#if this.description}}
+    <p>{{this.description}}</p>
+{{/if}}
+
+{{#if this.values}}
+    <ul>
+        {{#each this.values}}
+            <li>{{this}}</li>
+        {{/each}}
+    </ul>
+{{/if}}
+
+{{#if this.entries}}
+    <table class="block">
+        <tbody>
+        {{#each this.entries}}
+            <tr>
+                <th>{{label}}:</th>
+                <td>{{> utbetaling/partials/format_value this}}</td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+{{/if}}
+
+{{#if this.table}}
+    <table class="block block-table">
+        <thead>
+        <tr>
+            {{#each this.table.columns}}
+                <th{{#eq align "RIGHT"}} class="text-align-right"{{/eq}}>{{title}}</th>
+            {{/each}}
+        </tr>
+        </thead>
+        <tbody>
+        {{#each this.table.rows}}
+            <tr>
+                {{#each cells}}
+                    {{#with (lookup ../../table.columns @index) as |col|}}
+                        <td{{#eq col.align "RIGHT"}} class="text-align-right"{{/eq}}>
+                            {{> utbetaling/partials/format_value this}}
+                        </td>
+                    {{/with}}
+                {{/each}}
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+{{/if}}
