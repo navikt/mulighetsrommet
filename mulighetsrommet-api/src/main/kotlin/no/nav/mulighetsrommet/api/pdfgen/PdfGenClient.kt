@@ -45,15 +45,10 @@ class PdfGenClient(
     suspend fun utbetalingJournalpost(
         utbetaling: UtbetalingPdfDto,
     ): ByteArray {
-        @Serializable
-        data class PdfData(
-            val utbetaling: UtbetalingPdfDto,
-        )
-
         return downloadPdf(
             app = "utbetaling",
             template = "journalpost",
-            body = PdfData(utbetaling),
+            body = toJournalpost(utbetaling),
         )
     }
 
@@ -102,20 +97,52 @@ data class Section(
 
     @Serializable
     data class Block(
-        val entries: List<Entry>,
+        val description: String? = null,
+        val values: List<String> = listOf(),
+        val entries: List<Entry> = listOf(),
+        val table: Table? = null,
     )
 
     @Serializable
     data class Entry(
         val label: String,
-        val value: String? = null,
+        val value: String?,
         val format: Format? = null,
+    )
+
+    @Serializable
+    data class Table(
+        val columns: List<Column>,
+        val rows: List<Row>,
     ) {
-        enum class Format {
-            NOK,
-            DATE,
-            STATUS_SUCCESS,
+        @Serializable
+        data class Column(
+            val title: String,
+            val align: Align = Align.LEFT,
+        ) {
+            enum class Align {
+                LEFT,
+                RIGHT,
+            }
         }
+
+        @Serializable
+        data class Row(
+            val cells: List<Cell>,
+        )
+
+        @Serializable
+        data class Cell(
+            val value: String?,
+            val format: Format? = null,
+        )
+    }
+
+    enum class Format {
+        NOK,
+        DATE,
+        PERCENT,
+        STATUS_SUCCESS,
     }
 }
 
@@ -149,7 +176,7 @@ fun toUtbetalingsdetaljer(
             title = Section.Header(utbetalingHeader, level = 4),
             blocks = listOf(
                 Section.Block(
-                    listOfNotNull(
+                    entries = listOfNotNull(
                         Section.Entry(
                             "Arrangør",
                             "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer})",
@@ -180,7 +207,7 @@ fun toUtbetalingsdetaljer(
             title = Section.Header("Utbetaling", level = 4),
             blocks = listOf(
                 Section.Block(
-                    listOfNotNull(
+                    entries = listOfNotNull(
                         Section.Entry(
                             "Utbetalingsperiode",
                             "${utbetaling.periodeStart.formaterDatoTilEuropeiskDatoformat()} - ${utbetaling.periodeSlutt.formaterDatoTilEuropeiskDatoformat()}",
@@ -191,7 +218,7 @@ fun toUtbetalingsdetaljer(
                         Section.Entry(
                             "Beløp",
                             utbetaling.beregning.belop.toString(),
-                            Section.Entry.Format.NOK,
+                            Section.Format.NOK,
                         ),
                     ),
                 ),
@@ -204,7 +231,7 @@ fun toUtbetalingsdetaljer(
             title = Section.Header("Betalingsinformasjon", level = 4),
             blocks = listOf(
                 Section.Block(
-                    listOfNotNull(
+                    entries = listOfNotNull(
                         Section.Entry("Kontonummer", utbetaling.betalingsinformasjon.kontonummer?.value),
                         Section.Entry("KID-nummer", utbetaling.betalingsinformasjon.kid?.value),
                     ),
@@ -219,12 +246,12 @@ fun toUtbetalingsdetaljer(
                 title = Section.Header("Utbetalingsstatus", level = 4),
                 blocks = listOf(
                     Section.Block(
-                        listOfNotNull(
-                            Section.Entry("Status", utbetaling.status, Section.Entry.Format.STATUS_SUCCESS),
+                        entries = listOfNotNull(
+                            Section.Entry("Status", utbetaling.status, Section.Format.STATUS_SUCCESS),
                             Section.Entry(
                                 "Godkjent beløp til utbetaling",
                                 utbetaling.totaltUtbetalt.toString(),
-                                Section.Entry.Format.NOK,
+                                Section.Format.NOK,
                             ),
                         ),
                     ),
@@ -237,15 +264,15 @@ fun toUtbetalingsdetaljer(
                 title = Section.Header("Tilsagn som er brukt til utbetaling", level = 4),
                 blocks = (utbetaling.linjer ?: listOf()).map {
                     Section.Block(
-                        listOfNotNull(
+                        entries = listOfNotNull(
                             Section.Entry("Tilsagn", it.tilsagn.bestillingsnummer),
-                            Section.Entry("Beløp til utbetaling", it.belop.toString(), Section.Entry.Format.NOK),
-                            Section.Entry("Status", it.status, Section.Entry.Format.STATUS_SUCCESS),
+                            Section.Entry("Beløp til utbetaling", it.belop.toString(), Section.Format.NOK),
+                            Section.Entry("Status", it.status, Section.Format.STATUS_SUCCESS),
                             it.statusSistOppdatert?.let { sistEndret ->
                                 Section.Entry(
                                     "Status endret",
                                     sistEndret.toString(),
-                                    Section.Entry.Format.DATE,
+                                    Section.Format.DATE,
                                 )
                             },
                         ),
@@ -260,6 +287,195 @@ fun toUtbetalingsdetaljer(
         subject = "Utbetaling til ${utbetaling.arrangor.navn}",
         description = "Detaljer om utbetaling for gjennomføring av ${utbetaling.tiltakstype.navn}",
         author = "Nav",
+        sections = sections,
+    )
+}
+
+fun toJournalpost(
+    utbetaling: UtbetalingPdfDto,
+): UtbetalingPdfContext {
+    val sections = mutableListOf<Section>()
+
+    sections.add(
+        Section(
+            title = Section.Header("Innsendt krav om utbetaling", level = 1),
+        ),
+    )
+
+    val utbetalingHeader = when (utbetaling.type) {
+        UtbetalingType.KORRIGERING -> "Korrigering"
+        UtbetalingType.INVESTERING -> "Utbetaling for investering"
+        null -> "Innsending"
+    }
+    sections.add(
+        Section(
+            title = Section.Header(utbetalingHeader, level = 4),
+            blocks = listOf(
+                Section.Block(
+                    entries = listOfNotNull(
+                        Section.Entry(
+                            "Arrangør",
+                            "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer})",
+                        ),
+                        utbetaling.godkjentAvArrangorTidspunkt
+                            ?.let {
+                                Section.Entry(
+                                    "Dato innsendt av arrangør",
+                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
+                                )
+                            }
+                            ?: utbetaling.createdAt?.let {
+                                Section.Entry(
+                                    "Dato opprettet hos Nav",
+                                    it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
+                                )
+                            },
+                        Section.Entry("Tiltaksnavn", utbetaling.gjennomforing.navn),
+                        Section.Entry("Tiltakstype", utbetaling.tiltakstype.navn),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    sections.add(
+        Section(
+            title = Section.Header("Utbetaling", level = 4),
+            blocks = listOf(
+                Section.Block(
+                    entries = listOfNotNull(
+                        Section.Entry(
+                            "Utbetalingsperiode",
+                            "${utbetaling.periodeStart.formaterDatoTilEuropeiskDatoformat()} - ${utbetaling.periodeSlutt.formaterDatoTilEuropeiskDatoformat()}",
+                        ),
+                        utbetaling.beregning.antallManedsverk?.let {
+                            Section.Entry("Antall månedsverk", it.toString())
+                        },
+                        Section.Entry(
+                            "Beløp",
+                            utbetaling.beregning.belop.toString(),
+                            Section.Format.NOK,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    sections.add(
+        Section(
+            title = Section.Header("Betalingsinformasjon", level = 4),
+            blocks = listOf(
+                Section.Block(
+                    entries = listOfNotNull(
+                        Section.Entry("Kontonummer", utbetaling.betalingsinformasjon.kontonummer?.value),
+                        Section.Entry("KID-nummer", utbetaling.betalingsinformasjon.kid?.value),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    if (utbetaling.beregning.stengt.isNotEmpty()) {
+        sections.add(
+            Section(
+                title = Section.Header("Stengt hos arrangør", level = 4),
+                blocks = listOf(
+                    Section.Block(
+                        description = "Det er registrert stengt hos arrangør i følgende perioder:",
+                        values = utbetaling.beregning.stengt.map {
+                            val start = it.periode.start.formaterDatoTilEuropeiskDatoformat()
+                            val slutt = it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+                            "$start - $slutt: ${it.beskrivelse}"
+                        },
+                    ),
+                ),
+            ),
+        )
+    }
+
+    if (utbetaling.beregning.deltakelser.isNotEmpty()) {
+        sections.add(
+            Section(
+                title = Section.Header("Deltakerperioder", level = 4),
+                blocks = listOf(
+                    Section.Block(
+                        table = Section.Table(
+                            columns = listOf(
+                                Section.Table.Column("Navn"),
+                                Section.Table.Column("Fødselsdato", Section.Table.Column.Align.RIGHT),
+                                Section.Table.Column("Startdato i perioden", Section.Table.Column.Align.RIGHT),
+                                Section.Table.Column("Sluttdato i perioden", Section.Table.Column.Align.RIGHT),
+                                Section.Table.Column("Deltakelsesprosent", Section.Table.Column.Align.RIGHT),
+                            ),
+                            rows = utbetaling.beregning.deltakelser.flatMap { deltakelse ->
+                                deltakelse.perioder.map { (periode, prosent) ->
+                                    Section.Table.Row(
+                                        cells = listOf(
+                                            Section.Table.Cell(
+                                                deltakelse.person?.navn,
+                                            ),
+                                            Section.Table.Cell(
+                                                deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                                            ),
+                                            Section.Table.Cell(
+                                                periode.start.formaterDatoTilEuropeiskDatoformat(),
+                                            ),
+                                            Section.Table.Cell(
+                                                periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
+                                            ),
+                                            Section.Table.Cell(
+                                                prosent.toString(),
+                                                Section.Format.PERCENT,
+                                            ),
+                                        ),
+                                    )
+                                }
+                            },
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        sections.add(
+            Section(
+                title = Section.Header("Beregnet månedsverk", level = 4),
+                blocks = listOf(
+                    Section.Block(
+                        table = Section.Table(
+                            columns = listOf(
+                                Section.Table.Column("Navn"),
+                                Section.Table.Column("Fødselsdato", Section.Table.Column.Align.RIGHT),
+                                Section.Table.Column("Månedsverk", Section.Table.Column.Align.RIGHT),
+                            ),
+                            rows = utbetaling.beregning.deltakelser.map { deltakelse ->
+                                Section.Table.Row(
+                                    cells = listOf(
+                                        Section.Table.Cell(
+                                            deltakelse.person?.navn,
+                                        ),
+                                        Section.Table.Cell(
+                                            deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                                        ),
+                                        Section.Table.Cell(
+                                            deltakelse.manedsverk.toString(),
+                                        ),
+                                    ),
+                                )
+                            },
+                        ),
+                    ),
+                ),
+            ),
+        )
+    }
+
+    return UtbetalingPdfContext(
+        title = "Utbetaling",
+        subject = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
+        description = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
+        author = "Tiltaksadministrasjon",
         sections = sections,
     )
 }

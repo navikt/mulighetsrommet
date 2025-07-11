@@ -6,6 +6,9 @@
         {{#eq format "DATE"}}
             {{iso_to_nor_date value}}
         {{/eq}}
+        {{#eq format "PERCENT"}}
+            {{value}} %
+        {{/eq}}
         {{#eq format "STATUS_SUCCESS"}}
             <span class="status_success">{{value}}</span>
         {{/eq}}

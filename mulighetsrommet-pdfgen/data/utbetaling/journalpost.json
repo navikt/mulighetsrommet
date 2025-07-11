@@ -1,98 +1,196 @@
 {
-  "utbetaling": {
-    "status": "Overført til utbetaling",
-    "type": null,
-    "periodeStart": "2024-01-01",
-    "periodeSlutt": "2024-01-29",
-    "arrangor": {
-      "organisasjonsnummer": "1234567890",
-      "navn": "Fretex AS"
+  "title": "Utbetaling",
+  "subject": "Krav om utbetaling fra Underenhet 1 AS",
+  "description": "Krav om utbetaling fra Underenhet 1 AS",
+  "author": "Tiltaksadministrasjon",
+  "sections": [
+    {
+      "title": {
+        "text": "Innsendt krav om utbetaling",
+        "level": 1
+      }
     },
-    "godkjentArrangorTidspunkt": "2025-06-15T10:00:00",
-    "createdAt": "2025-05-13T10:00:00",
-    "fristForGodkjenning": "2024-03-01",
-    "gjennomforing": {
-      "navn": "Arbeidsforberedende gjennomføring"
-    },
-    "tiltakstype": {
-      "navn": "Arbeidsforberedende trening"
-    },
-    "beregning": {
-      "antallManedsverk": 2.3,
-      "belop": 44000,
-      "deltakelser": [
+    {
+      "title": {
+        "text": "Innsending",
+        "level": 4
+      },
+      "blocks": [
         {
-          "startDato": "2024-01-01",
-          "sluttDato": "2024-01-29",
-          "perioder": [
+          "entries": [
             {
-              "periode": {
-                "start": "2024-01-01",
-                "slutt": "2024-01-29"
-              },
-              "deltakelsesprosent": 100
+              "label": "Arrangør",
+              "value": "Underenhet 1 AS (976663934)"
+            },
+            {
+              "label": "Dato innsendt av arrangør",
+              "value": "11.07.2025"
+            },
+            {
+              "label": "Tiltaksnavn",
+              "value": "AFT 1"
+            },
+            {
+              "label": "Tiltakstype",
+              "value": "Arbeidsforberedende trening"
             }
-          ],
-          "manedsverk": 1.0,
-          "person": {
-            "navn": "Ola Nordmann",
-            "fodselsdato": "1990-01-01",
-            "fodselsaar": 1990
-          }
-        }
-      ],
-      "stengt": [
-        {
-          "periode": {
-            "start": "2025-04-17",
-            "slutt": "2025-04-21"
-          },
-          "beskrivelse": "Påskeferie"
-        },
-        {
-          "periode": {
-            "start": "2025-07-10",
-            "slutt": "2025-07-31"
-          },
-          "beskrivelse": "Sommerferie"
+          ]
         }
       ]
     },
-    "betalingsinformasjon": {
-      "kontonummer": "12312312312",
-      "kid": ""
+    {
+      "title": {
+        "text": "Utbetaling",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "entries": [
+            {
+              "label": "Utbetalingsperiode",
+              "value": "01.08.2024 - 31.08.2024"
+            },
+            {
+              "label": "Antall månedsverk",
+              "value": "0.5"
+            },
+            {
+              "label": "Beløp",
+              "value": "0",
+              "format": "NOK"
+            }
+          ]
+        }
+      ]
     },
-    "linjer": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "tilsagn": {
-          "id": "tilsagn-1",
-          "bestillingsnummer": "A-2024/001"
-        },
-        "status": "Overført til utbetaling",
-        "statusSistOppdatert": "2024-01-15T10:00:00",
-        "belop": 15000
+    {
+      "title": {
+        "text": "Betalingsinformasjon",
+        "level": 4
       },
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440001",
-        "tilsagn": {
-          "id": "tilsagn-2",
-          "bestillingsnummer": "A-2024/002"
-        },
-        "status": "Overført til utbetaling",
-        "statusSistOppdatert": "2024-01-20T10:00:00",
-        "belop": 20000
+      "blocks": [
+        {
+          "entries": [
+            {
+              "label": "Kontonummer",
+              "value": "12312312312"
+            },
+            {
+              "label": "KID-nummer",
+              "value": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Stengt hos arrangør",
+        "level": 4
       },
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440002",
-        "tilsagn": {
-          "id": "tilsagn-3",
-          "bestillingsnummer": "A-2024/003"
-        },
-        "status": "Overført til utbetaling",
-        "statusSistOppdatert": "2024-01-25T10:00:00",
-        "belop": 9000
-      }
-    ]
-  }
+      "blocks": [
+        {
+          "description": "Det er registrert stengt hos arrangør i følgende perioder:",
+          "values": [
+            "01.08.2024 - 31.08.2024: Stengt for ferie"
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Deltakerperioder",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "table": {
+            "columns": [
+              {
+                "title": "Navn"
+              },
+              {
+                "title": "Fødselsdato",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Startdato i perioden",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Sluttdato i perioden",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Deltakelsesprosent",
+                "align": "RIGHT"
+              }
+            ],
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Beregnet månedsverk",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "table": {
+            "columns": [
+              {
+                "title": "Navn"
+              },
+              {
+                "title": "Fødselsdato",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Månedsverk",
+                "align": "RIGHT"
+              }
+            ],
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "0.5"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
 }
