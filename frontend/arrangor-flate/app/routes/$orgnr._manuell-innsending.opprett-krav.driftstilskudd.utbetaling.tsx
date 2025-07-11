@@ -40,11 +40,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (!orgnr) {
     throw new Error("Mangler orgnr");
   }
-
   const session = await getSession(request.headers.get("Cookie"));
   let sessionBelop: string | undefined;
   let sessionKid: string | undefined;
-  if (session.get("orgnr") === orgnr && session.get("type") === "investeringstilskudd") {
+  if (session.get("orgnr") === orgnr && session.get("type") === "driftstilskudd") {
     sessionBelop = session.get("belop");
     sessionKid = session.get("kid");
   }
@@ -95,7 +94,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
-    session.set("type", "investeringstilskudd");
+    session.set("type", "driftstilskudd");
     session.set("belop", belop);
     session.set("kid", kid);
     session.set("kontonummer", kontonummer);
@@ -174,7 +173,7 @@ export default function OpprettKravUtbetaling() {
               as={ReactRouterLink}
               type="button"
               variant="tertiary"
-              to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
+              to={pathByOrgnr(orgnr).opprettKrav.driftstilskudd.innsendingsinformasjon}
             >
               Tilbake
             </Button>
