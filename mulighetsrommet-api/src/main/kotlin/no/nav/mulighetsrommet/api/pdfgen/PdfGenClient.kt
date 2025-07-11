@@ -41,6 +41,7 @@ class PdfGenClient(
     }
 
     private suspend inline fun <reified T> downloadPdf(app: String, template: String, body: T): ByteArray {
+        // TODO: handle errors
         return client
             .post {
                 url("$baseUrl/api/v1/genpdf/$app/$template")
