@@ -69,6 +69,81 @@ class JournalforUtbetaling(
 
         val pdf = run {
             val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
+            val beregningPdf = when (arrflateUtbetaling.beregning) {
+                is ArrFlateBeregning.Fri -> BeregningPdf(
+                    belop = arrflateUtbetaling.beregning.belop,
+                    antallManedsverk = null,
+                    deltakelser = emptyList(),
+                    stengt = emptyList(),
+                )
+
+                is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> BeregningPdf(
+                    belop = arrflateUtbetaling.beregning.belop,
+                    antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                    deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
+                        DeltakerPdf(
+                            startDato = it.periodeStartDato,
+                            sluttDato = it.periodeSluttDato,
+                            perioder = it.perioderMedDeltakelsesmengde,
+                            manedsverk = it.faktor,
+                            person = it.person?.let { person ->
+                                PersonPdf(
+                                    navn = person.navn,
+                                    fodselsdato = person.fodselsdato,
+                                    fodselsaar = person.fodselsaar,
+                                )
+                            },
+                        )
+                    },
+                    stengt = arrflateUtbetaling.beregning.stengt.map {
+                        StengtPeriodePdf(
+                            periode = it.periode,
+                            beskrivelse = it.beskrivelse,
+                        )
+                    },
+                )
+
+                is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
+                    belop = arrflateUtbetaling.beregning.belop,
+                    antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
+                    deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
+                        DeltakerPdf(
+                            startDato = it.periodeStartDato,
+                            sluttDato = it.periodeSluttDato,
+                            perioder = listOf(),
+                            manedsverk = it.faktor,
+                            person = it.person?.let { person ->
+                                PersonPdf(
+                                    navn = person.navn,
+                                    fodselsdato = person.fodselsdato,
+                                    fodselsaar = person.fodselsaar,
+                                )
+                            },
+                        )
+                    },
+                    stengt = arrflateUtbetaling.beregning.stengt.map {
+                        StengtPeriodePdf(
+                            periode = it.periode,
+                            beskrivelse = it.beskrivelse,
+                        )
+                    },
+                )
+
+                is ArrFlateBeregning.PrisPerUkesverk -> BeregningPdf(
+                    belop = arrflateUtbetaling.beregning.belop,
+                    // TODO støtte ukesverk?
+                    antallManedsverk = null,
+                    // TODO deltakelser med eller uten deltakelsesprosent?
+                    deltakelser = emptyList(),
+                    stengt = arrflateUtbetaling.beregning.stengt.map {
+                        StengtPeriodePdf(
+                            periode = it.periode,
+                            beskrivelse = it.beskrivelse,
+                        )
+                    },
+                )
+            }
+
             pdf.utbetalingJournalpost(
                 utbetaling = UtbetalingPdfDto(
                     status = ArrFlateUtbetalingStatus.toReadableName(arrflateUtbetaling.status),
@@ -87,80 +162,7 @@ class JournalforUtbetaling(
                         navn = arrflateUtbetaling.tiltakstype.navn,
                     ),
                     // TODO: kan mapping gjøres fra Utbetaling -> UtbetalingPdf i stedet for å mappe Utbetaling -> ArrflateUtbetaling -> UtbetalingPdf?
-                    beregning = when (arrflateUtbetaling.beregning) {
-                        is ArrFlateBeregning.Fri -> BeregningPdf(
-                            belop = arrflateUtbetaling.beregning.belop,
-                            antallManedsverk = null,
-                            deltakelser = emptyList(),
-                            stengt = emptyList(),
-                        )
-
-                        is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> BeregningPdf(
-                            belop = arrflateUtbetaling.beregning.belop,
-                            antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
-                            deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
-                                DeltakerPdf(
-                                    startDato = it.periodeStartDato,
-                                    sluttDato = it.periodeSluttDato,
-                                    perioder = it.perioderMedDeltakelsesmengde,
-                                    manedsverk = it.faktor,
-                                    person = it.person?.let { person ->
-                                        PersonPdf(
-                                            navn = person.navn,
-                                            fodselsdato = person.fodselsdato,
-                                            fodselsaar = person.fodselsaar,
-                                        )
-                                    },
-                                )
-                            },
-                            stengt = arrflateUtbetaling.beregning.stengt.map {
-                                StengtPeriodePdf(
-                                    periode = it.periode,
-                                    beskrivelse = it.beskrivelse,
-                                )
-                            },
-                        )
-
-                        is ArrFlateBeregning.PrisPerManedsverk -> BeregningPdf(
-                            belop = arrflateUtbetaling.beregning.belop,
-                            antallManedsverk = arrflateUtbetaling.beregning.antallManedsverk,
-                            deltakelser = arrflateUtbetaling.beregning.deltakelser.map {
-                                DeltakerPdf(
-                                    startDato = it.periodeStartDato,
-                                    sluttDato = it.periodeSluttDato,
-                                    perioder = listOf(),
-                                    manedsverk = it.faktor,
-                                    person = it.person?.let { person ->
-                                        PersonPdf(
-                                            navn = person.navn,
-                                            fodselsdato = person.fodselsdato,
-                                            fodselsaar = person.fodselsaar,
-                                        )
-                                    },
-                                )
-                            },
-                            stengt = arrflateUtbetaling.beregning.stengt.map {
-                                StengtPeriodePdf(
-                                    periode = it.periode,
-                                    beskrivelse = it.beskrivelse,
-                                )
-                            },
-                        )
-
-                        is ArrFlateBeregning.PrisPerUkesverk -> BeregningPdf(
-                            belop = arrflateUtbetaling.beregning.belop,
-                            // TODO støtte ukesverk?
-                            antallManedsverk = null,
-                            // TODO deltakelser med eller uten deltakelsesprosent?
-                            deltakelser = emptyList(),
-                            stengt = arrflateUtbetaling.beregning.stengt.map {
-                                StengtPeriodePdf(
-                                    periode = it.periode,
-                                    beskrivelse = it.beskrivelse,
-                                )
-                            },
-                        )
-                    },
+                    beregning = beregningPdf,
                     betalingsinformasjon = arrflateUtbetaling.betalingsinformasjon,
                     linjer = arrflateUtbetaling.linjer.map {
                         UtbetalingslinjerPdfDto(

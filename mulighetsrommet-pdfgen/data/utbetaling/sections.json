@@ -1,0 +1,162 @@
+{
+  "title": "Utbetalingsdetaljer",
+  "subject": "Utbetaling til BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
+  "description": "Detaljer om utbetaling for gjennomføring av Arbeidsforberedende trening",
+  "author": "Nav",
+  "sections": [
+    {
+      "title": {
+        "text": "Detaljer om utbetaling",
+        "level": 1
+      }
+    },
+    {
+      "title": {
+        "text": "Innsending",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "entries": [
+            {
+              "label": "Arrangør",
+              "value": "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN (973674471)"
+            },
+            {
+              "label": "Dato innsendt av arrangør",
+              "value": "02.04.2025"
+            },
+            {
+              "label": "Tiltaksnavn",
+              "value": "AFT Foobar"
+            },
+            {
+              "label": "Tiltakstype",
+              "value": "Arbeidsforberedende trening"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Utbetaling",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "entries": [
+            {
+              "label": "Utbetalingsperiode",
+              "value": "01.07.2025 - 31.07.2025"
+            },
+            {
+              "label": "Antall månedsverk",
+              "value": "1.0"
+            },
+            {
+              "label": "Beløp",
+              "value": "20975",
+              "format": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Betalingsinformasjon",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "entries": [
+            {
+              "label": "Kontonummer",
+              "value": "63728787114"
+            },
+            {
+              "label": "KID-nummer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Utbetalingsstatus",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "entries": [
+            {
+              "label": "Status",
+              "value": "Overført til utbetaling",
+              "format": "STATUS_SUCCESS"
+            },
+            {
+              "label": "Godkjent beløp til utbetaling",
+              "value": "19999",
+              "format": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Tilsagn som er brukt til utbetaling",
+        "level": 4
+      },
+      "blocks": [
+        {
+          "entries": [
+            {
+              "label": "Tilsagn",
+              "value": "A-2025/11073-6"
+            },
+            {
+              "label": "Beløp til utbetaling",
+              "value": "11111",
+              "format": "NOK"
+            },
+            {
+              "label": "Status",
+              "value": "Overført til utbetaling",
+              "format": "STATUS_SUCCESS"
+            },
+            {
+              "label": "Status endret",
+              "value": "2025-05-21T09:58:15.108453",
+              "format": "DATE"
+            }
+          ]
+        },
+        {
+          "entries": [
+            {
+              "label": "Tilsagn",
+              "value": "A-2025/11073-3"
+            },
+            {
+              "label": "Beløp til utbetaling",
+              "value": "8888",
+              "format": "NOK"
+            },
+            {
+              "label": "Status",
+              "value": "Overført til utbetaling",
+              "format": "STATUS_SUCCESS"
+            },
+            {
+              "label": "Status endret",
+              "value": "2025-05-21T09:58:15.154458",
+              "format": "DATE"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

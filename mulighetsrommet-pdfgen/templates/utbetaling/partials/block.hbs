@@ -1,0 +1,10 @@
+<table class="block">
+    <tbody>
+    {{#each entries}}
+        <tr>
+            <th>{{label}}:</th>
+            <td>{{> utbetaling/partials/format_value this}}</td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
