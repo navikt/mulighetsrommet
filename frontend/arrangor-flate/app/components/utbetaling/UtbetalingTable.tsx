@@ -66,6 +66,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <Table.ColumnHeader align="right" scope="col" sortable sortKey={UtbetalingSortKey.BELOP}>
             Beløp
           </Table.ColumnHeader>
+          <Table.ColumnHeader align="right" scope="col">
+            Godkjent
+          </Table.ColumnHeader>
           <Table.ColumnHeader scope="col" align="left" aria-label="Type">
             <HStack gap="2" wrap={false}>
               Type
@@ -91,32 +94,37 @@ export function UtbetalingTable({ utbetalinger }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(({ id, status, belop, periode, gjennomforing, tiltakstype, type }) => {
-          return (
-            <Table.Row key={id}>
-              <Table.HeaderCell scope="row">{gjennomforing.navn}</Table.HeaderCell>
-              <Table.DataCell className="whitespace-nowrap">
-                {formaterPeriode(periode)}
-              </Table.DataCell>
-              <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
-              <Table.DataCell align="right" className="whitespace-nowrap">
-                {formaterNOK(belop)}
-              </Table.DataCell>
-              <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
-              <Table.DataCell>
-                <UtbetalingStatusTag status={status} />
-              </Table.DataCell>
-              <Table.DataCell>
-                <UtbetalingTextLink
-                  orgnr={orgnr}
-                  status={status}
-                  gjennomforingNavn={gjennomforing.navn}
-                  utbetalingId={id}
-                />
-              </Table.DataCell>
-            </Table.Row>
-          );
-        })}
+        {sortedData.map(
+          ({ id, status, belop, godkjentBelop, periode, gjennomforing, tiltakstype, type }) => {
+            return (
+              <Table.Row key={id}>
+                <Table.HeaderCell scope="row">{gjennomforing.navn}</Table.HeaderCell>
+                <Table.DataCell className="whitespace-nowrap">
+                  {formaterPeriode(periode)}
+                </Table.DataCell>
+                <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
+                <Table.DataCell align="right" className="whitespace-nowrap">
+                  {formaterNOK(belop)}
+                </Table.DataCell>
+                <Table.DataCell align="right" className="whitespace-nowrap">
+                  {godkjentBelop && formaterNOK(godkjentBelop)}
+                </Table.DataCell>
+                <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
+                <Table.DataCell>
+                  <UtbetalingStatusTag status={status} />
+                </Table.DataCell>
+                <Table.DataCell>
+                  <UtbetalingTextLink
+                    orgnr={orgnr}
+                    status={status}
+                    gjennomforingNavn={gjennomforing.navn}
+                    utbetalingId={id}
+                  />
+                </Table.DataCell>
+              </Table.Row>
+            );
+          },
+        )}
       </Table.Body>
     </Table>
   );

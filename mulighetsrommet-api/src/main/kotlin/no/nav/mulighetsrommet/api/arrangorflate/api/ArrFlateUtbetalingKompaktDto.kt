@@ -21,10 +21,11 @@ data class ArrFlateUtbetalingKompaktDto(
     val arrangor: Utbetaling.Arrangor,
     val periode: Periode,
     val belop: Int,
+    val godkjentBelop: Int?,
     val type: UtbetalingType? = null,
 ) {
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrFlateUtbetalingStatus) = ArrFlateUtbetalingKompaktDto(
+        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrFlateUtbetalingStatus, godkjentBelop: Int?) = ArrFlateUtbetalingKompaktDto(
             id = utbetaling.id,
             status = status,
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
@@ -33,6 +34,7 @@ data class ArrFlateUtbetalingKompaktDto(
             arrangor = utbetaling.arrangor,
             periode = utbetaling.periode,
             belop = utbetaling.beregning.output.belop,
+            godkjentBelop = godkjentBelop,
             type = UtbetalingType.from(utbetaling),
         )
     }
