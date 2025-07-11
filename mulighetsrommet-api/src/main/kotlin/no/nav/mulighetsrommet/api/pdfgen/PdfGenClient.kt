@@ -33,12 +33,12 @@ class PdfGenClient(
     }
 
     suspend fun getUtbetalingKvittering(
-        utbetaling: UtbetalingPdfDto,
+        utbetaling: UtbetalingPdfContext,
     ): ByteArray {
         return downloadPdf(
             app = "utbetaling",
             template = "utbetalingsdetaljer",
-            body = toUtbetalingsdetaljer(utbetaling),
+            body = utbetaling,
         )
     }
 
@@ -48,7 +48,7 @@ class PdfGenClient(
         return downloadPdf(
             app = "utbetaling",
             template = "journalpost",
-            body = toJournalpost(utbetaling),
+            body = toJournalpostPdfContent(utbetaling),
         )
     }
 
@@ -155,71 +155,8 @@ data class UtbetalingPdfContext(
     val sections: List<Section>,
 )
 
-fun toUtbetalingsdetaljer(
-    utbetaling: UtbetalingPdfDto,
-): UtbetalingPdfContext {
-    val sections = mutableListOf<Section>()
 
-    sections.add(
-        Section(
-            title = Section.Header("Detaljer om utbetaling", level = 1),
-        ),
-    )
-
-    sections.addCommonUtbetalingSections(utbetaling)
-
-    if (utbetaling.status == "Overført til utbetaling") {
-        sections.add(
-            Section(
-                title = Section.Header("Utbetalingsstatus", level = 4),
-                blocks = listOf(
-                    Section.Block(
-                        entries = listOfNotNull(
-                            Section.Entry("Status", utbetaling.status, Section.Format.STATUS_SUCCESS),
-                            Section.Entry(
-                                "Godkjent beløp til utbetaling",
-                                utbetaling.totaltUtbetalt.toString(),
-                                Section.Format.NOK,
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        sections.add(
-            Section(
-                title = Section.Header("Tilsagn som er brukt til utbetaling", level = 4),
-                blocks = (utbetaling.linjer ?: listOf()).map {
-                    Section.Block(
-                        entries = listOfNotNull(
-                            Section.Entry("Tilsagn", it.tilsagn.bestillingsnummer),
-                            Section.Entry("Beløp til utbetaling", it.belop.toString(), Section.Format.NOK),
-                            Section.Entry("Status", it.status, Section.Format.STATUS_SUCCESS),
-                            it.statusSistOppdatert?.let { sistEndret ->
-                                Section.Entry(
-                                    "Status endret",
-                                    sistEndret.toString(),
-                                    Section.Format.DATE,
-                                )
-                            },
-                        ),
-                    )
-                },
-            ),
-        )
-    }
-
-    return UtbetalingPdfContext(
-        title = "Utbetalingsdetaljer",
-        subject = "Utbetaling til ${utbetaling.arrangor.navn}",
-        description = "Detaljer om utbetaling for gjennomføring av ${utbetaling.tiltakstype.navn}",
-        author = "Nav",
-        sections = sections,
-    )
-}
-
-fun toJournalpost(
+fun toJournalpostPdfContent(
     utbetaling: UtbetalingPdfDto,
 ): UtbetalingPdfContext {
     val sections = mutableListOf<Section>()
