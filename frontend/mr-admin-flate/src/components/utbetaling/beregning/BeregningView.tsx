@@ -1,4 +1,4 @@
-import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Button, HStack, VStack } from "@navikt/ds-react";
 import { UtbetalingBeregningDto } from "@mr/api-client-v2";
 import { useState } from "react";
 import Beregning from "./Beregning";
@@ -15,7 +15,6 @@ export default function BeregningView({ beregning, utbetalingId }: Props) {
   return (
     <VStack gap="2">
       <div className={`max-h-[30rem] overflow-y-scroll`}>
-        <Heading size="small">{beregning.heading}</Heading>
         <Beregning beregning={beregning} />
       </div>
       <HStack justify="start" align="start">

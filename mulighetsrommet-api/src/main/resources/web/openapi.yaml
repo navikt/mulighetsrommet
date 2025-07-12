@@ -6434,7 +6434,7 @@ components:
           $ref: "#/components/schemas/DataDrivenTableDto"
         heading:
           type: string
-      required: [belop, type, deltakerTableData, deltakerRegioner]
+      required: [heading, belop, type, deltakerTableData, deltakerRegioner]
 
     UtbetalingBeregningPrisPerManedsverk:
       type: object
