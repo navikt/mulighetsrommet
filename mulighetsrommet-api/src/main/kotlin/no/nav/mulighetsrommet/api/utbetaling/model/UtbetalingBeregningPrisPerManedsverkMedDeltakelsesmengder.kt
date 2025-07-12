@@ -32,7 +32,6 @@ data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
                     UtbetalingBeregningHelpers.calculateManedsverkForDeltakelsesprosent(
                         deltakelse,
                         stengtHosArrangor,
-                        input.periode,
                     )
                 }
                 .toSet()

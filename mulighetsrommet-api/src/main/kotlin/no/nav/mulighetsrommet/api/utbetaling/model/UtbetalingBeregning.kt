@@ -89,10 +89,7 @@ object UtbetalingBeregningHelpers {
     fun calculateManedsverkForDeltakelsesprosent(
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
         stengtHosArrangor: List<Periode>,
-        periode: Periode,
     ): DeltakelseManedsverk {
-        val totalDuration = periode.getDurationInDays().toBigDecimal()
-
         val manedsverk = deltakelse.perioder
             .flatMap { deltakelsePeriode ->
                 deltakelsePeriode.periode
@@ -100,7 +97,7 @@ object UtbetalingBeregningHelpers {
                     .map { DeltakelsesprosentPeriode(it, deltakelsePeriode.deltakelsesprosent) }
             }
             .map { deltakelsePeriode ->
-                val fraction = calculateManedsverk(deltakelsePeriode.periode, totalDuration)
+                val fraction = calculateManedsverk(deltakelsePeriode.periode)
                 if (deltakelsePeriode.deltakelsesprosent < 50) {
                     fraction.divide(BigDecimal(2), CALCULATION_PRECISION, RoundingMode.HALF_UP)
                 } else {
@@ -117,14 +114,11 @@ object UtbetalingBeregningHelpers {
     fun calculateManedsverk(
         deltakelse: DeltakelsePeriode,
         stengtHosArrangor: List<Periode>,
-        periode: Periode,
     ): DeltakelseManedsverk {
-        val totalDuration = periode.getDurationInDays().toBigDecimal()
-
         val manedsverk = deltakelse.periode
             .subtractPeriods(stengtHosArrangor)
             .map { deltakelsePeriode ->
-                calculateManedsverk(deltakelsePeriode, totalDuration)
+                calculateManedsverk(deltakelsePeriode)
             }
             .sumOf { it }
             .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
@@ -133,12 +127,14 @@ object UtbetalingBeregningHelpers {
         return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
     }
 
-    private fun calculateManedsverk(
-        periode: Periode,
-        totalDuration: BigDecimal,
-    ): BigDecimal {
-        val overlapDuration = periode.getDurationInDays().toBigDecimal()
-        return overlapDuration.divide(totalDuration, CALCULATION_PRECISION, RoundingMode.HALF_UP)
+    private fun calculateManedsverk(periode: Periode): BigDecimal {
+        return periode
+            .splitByMonth()
+            .map {
+                val duration = it.getDurationInDays().toBigDecimal()
+                duration.divide(it.start.lengthOfMonth().toBigDecimal(), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+            }
+            .sumOf { it }
     }
 
     fun calculateUkesverk(

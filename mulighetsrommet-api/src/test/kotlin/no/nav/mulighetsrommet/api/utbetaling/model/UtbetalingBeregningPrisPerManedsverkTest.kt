@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.util.*
 
 class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
-    context("beregning for pris per månedsverk med deltakelsesmengder") {
+    context("enkel beregning full og halv") {
         test("én deltaker full periode") {
             val periode = Periode(LocalDate.of(2023, 6, 1), LocalDate.of(2023, 7, 1))
             val deltakerId1 = UUID.randomUUID()
@@ -85,7 +85,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
         }
-
+    }
+    context("stengt perioder") {
         test("én deltaker full periode, stengt start til midt") {
             val periodeStart = LocalDate.of(2025, 2, 1)
             val periodeMidt = LocalDate.of(2025, 2, 15)
@@ -168,35 +169,109 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
         }
+    }
 
-        test("utbetaling og tilsagn er likt for forskjellige perioder av en måned") {
-            (2..31).forEach {
-                val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, it))
+    test("utbetaling og tilsagn er likt for forskjellige perioder av en måned") {
+        (2..31).forEach {
+            val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, it))
 
-                val utbetaling = UtbetalingBeregningPrisPerManedsverk.beregn(
-                    UtbetalingBeregningPrisPerManedsverk.Input(
-                        periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
-                        20205,
-                        emptySet(),
-                        setOf(
-                            DeltakelsePeriode(
-                                deltakelseId = UUID.randomUUID(),
-                                periode = periode,
-                            ),
+            val utbetaling = UtbetalingBeregningPrisPerManedsverk.beregn(
+                UtbetalingBeregningPrisPerManedsverk.Input(
+                    periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
+                    20205,
+                    emptySet(),
+                    setOf(
+                        DeltakelsePeriode(
+                            deltakelseId = UUID.randomUUID(),
+                            periode = periode,
                         ),
                     ),
-                )
+                ),
+            )
 
-                val tilsagn = TilsagnBeregningPrisPerManedsverk.beregn(
-                    TilsagnBeregningPrisPerManedsverk.Input(
-                        periode = periode,
-                        sats = 20205,
-                        antallPlasser = 1,
-                    ),
-                )
+            val tilsagn = TilsagnBeregningPrisPerManedsverk.beregn(
+                TilsagnBeregningPrisPerManedsverk.Input(
+                    periode = periode,
+                    sats = 20205,
+                    antallPlasser = 1,
+                ),
+            )
 
-                utbetaling.output.belop shouldBe tilsagn.output.belop
-            }
+            utbetaling.output.belop shouldBe tilsagn.output.belop
+        }
+    }
+
+    context("periode ulik én måned") {
+        test("to deltakere over 2 måneder") {
+            val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1))
+            val deltakerId1 = UUID.randomUUID()
+            val deltakerId2 = UUID.randomUUID()
+
+            val input = UtbetalingBeregningPrisPerManedsverk.Input(
+                periode,
+                10,
+                setOf(),
+                setOf(
+                    DeltakelsePeriode(deltakelseId = deltakerId1, periode = periode),
+                    DeltakelsePeriode(deltakelseId = deltakerId2, periode = periode),
+                ),
+            )
+
+            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+                belop = 40,
+                deltakelser = setOf(
+                    DeltakelseManedsverk(deltakerId1, 2.0),
+                    DeltakelseManedsverk(deltakerId2, 2.0),
+                ),
+            )
+        }
+
+        test("periode 4 dager, stengt dag én og tre gir 2/31") {
+            val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 5))
+            val deltakerId1 = UUID.randomUUID()
+            val deltakerId2 = UUID.randomUUID()
+
+            val input = UtbetalingBeregningPrisPerManedsverk.Input(
+                periode,
+                31,
+                setOf( // Stengt dag én og tre
+                    StengtPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2)), "1"),
+                    StengtPeriode(Periode(LocalDate.of(2025, 1, 3), LocalDate.of(2025, 1, 4)), "2"),
+                ),
+                setOf(
+                    DeltakelsePeriode(deltakelseId = deltakerId1, periode = periode),
+                    DeltakelsePeriode(deltakelseId = deltakerId2, periode = periode),
+                ),
+            )
+
+            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            beregning.output.belop shouldBe 4 // 2 * 2/31 * 31
+        }
+
+        test("én dag i februar er verdt mer enn én dag i januar") {
+            val periodeJanuar = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2))
+            val periodeFebruar = Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2))
+            val deltakerId1 = UUID.randomUUID()
+
+            val beregningJanuar = UtbetalingBeregningPrisPerManedsverk.beregn(
+                UtbetalingBeregningPrisPerManedsverk.Input(
+                    periodeJanuar,
+                    31_000,
+                    setOf(),
+                    setOf(DeltakelsePeriode(deltakerId1, periodeJanuar)),
+                ),
+            )
+            val beregningFebruar = UtbetalingBeregningPrisPerManedsverk.beregn(
+                UtbetalingBeregningPrisPerManedsverk.Input(
+                    periodeFebruar,
+                    31_000,
+                    setOf(),
+                    setOf(DeltakelsePeriode(deltakerId1, periodeFebruar)),
+                ),
+            )
+            beregningJanuar.output.belop shouldBe 1000
+            beregningFebruar.output.belop shouldBe 1107
         }
     }
 })
