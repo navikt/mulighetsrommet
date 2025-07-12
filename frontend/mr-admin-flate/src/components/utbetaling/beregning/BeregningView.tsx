@@ -18,9 +18,11 @@ export default function BeregningView({ beregning, utbetalingId }: Props) {
         <Beregning beregning={beregning} />
       </div>
       <HStack justify="start" align="start">
-        <Button variant="secondary" size="small" onClick={() => setBeregningModalOpen(true)}>
-          Filtreringshjelp
-        </Button>
+        {beregning.deltakerTableData.rows.length > 0 && (
+          <Button variant="secondary" size="small" onClick={() => setBeregningModalOpen(true)}>
+            Filtreringshjelp
+          </Button>
+        )}
       </HStack>
       <BeregningModal
         utbetalingId={utbetalingId}

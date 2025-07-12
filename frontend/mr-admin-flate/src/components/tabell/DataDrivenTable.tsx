@@ -46,8 +46,8 @@ export function DataDrivenTable({ data, className }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map((row) => (
-          <Table.Row key={row.id}>
+        {sortedData.map((row, index) => (
+          <Table.Row key={index}>
             {data.columns.map((col) => (
               <Table.DataCell key={col.key} align={col.align}>
                 {formatRow(row[col.key], col.format)}

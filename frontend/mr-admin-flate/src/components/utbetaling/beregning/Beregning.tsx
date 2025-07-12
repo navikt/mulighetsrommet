@@ -15,7 +15,9 @@ interface Props {
 export default function Beregning({ beregning }: Props) {
   return (
     <VStack gap="2">
-      <DataDrivenTable data={beregning.deltakerTableData} />
+      {beregning.deltakerTableData.rows.length > 0 && (
+        <DataDrivenTable data={beregning.deltakerTableData} />
+      )}
       <Regnestykke beregning={beregning} />
     </VStack>
   );
