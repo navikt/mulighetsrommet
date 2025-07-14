@@ -42,18 +42,18 @@ export function formaterDatoTid(dato: string | Date, fallback = ""): string {
 
 /**
  * Parse to known & valid date formats
- * @returns valid date, otherwise null
+ * @returns valid date, otherwise undefined
  */
-export function parseDate(date: string | Date | null | undefined): Date | null {
+export function parseDate(date: string | Date | null | undefined): Date | undefined {
   if (!date) {
-    return null;
+    return undefined;
   }
 
   if (isDate(date)) {
     if (isValid(date)) {
       return date
     }
-    return null
+    return undefined
   }
 
   let parsedDate = parseISO(date)
@@ -65,5 +65,5 @@ export function parseDate(date: string | Date | null | undefined): Date | null {
   if (isValid(parsedDate)) {
     return parsedDate
   }
-  return null
+  return undefined
 }
