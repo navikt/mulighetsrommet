@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const EditTilgjengeligForArrangorSchema = z.object({
-  tilgjengeligForArrangorDato: z.string({ required_error: "Feltet er påkrevd" }).date(),
+  tilgjengeligForArrangorDato: z.string({ error: "Feltet er påkrevd" }).date(),
 });
 
 export type InferredEditTilgjengeligForArrangorSchema = z.infer<

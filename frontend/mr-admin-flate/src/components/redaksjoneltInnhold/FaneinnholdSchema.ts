@@ -2,8 +2,8 @@ import z from "zod";
 
 export const FaneinnholdLenkerSchema = z
   .object({
-    lenkenavn: z.string().min(3, { message: "Lenkenavnet må være minst 3 tegn" }),
-    lenke: z.string().url({ message: "Du må oppgi en gyldig url" }),
+    lenkenavn: z.string().min(3, { error: "Lenkenavnet må være minst 3 tegn" }),
+    lenke: z.string().url({ error: "Du må oppgi en gyldig url" }),
     visKunForVeileder: z.boolean().default(false),
     apneINyFane: z.boolean().default(false),
   })
@@ -13,18 +13,18 @@ export const FaneinnholdLenkerSchema = z
 
 export const FaneinnholdSchema = z.object(
   {
-    forHvemInfoboks: z.string().nullable().optional(),
-    forHvem: z.any().nullable(),
-    detaljerOgInnholdInfoboks: z.string().nullable().optional(),
-    detaljerOgInnhold: z.any().nullable(),
-    pameldingOgVarighetInfoboks: z.string().nullable().optional(),
-    pameldingOgVarighet: z.any().nullable(),
-    kontaktinfo: z.any().nullable(),
-    kontaktinfoInfoboks: z.string().nullable().optional(),
+    forHvemInfoboks: z.string().nullish(),
+    forHvem: z.any().nullish(),
+    detaljerOgInnholdInfoboks: z.string().nullish(),
+    detaljerOgInnhold: z.any().nullish(),
+    pameldingOgVarighetInfoboks: z.string().nullish(),
+    pameldingOgVarighet: z.any().nullish(),
+    kontaktinfo: z.any().nullish(),
+    kontaktinfoInfoboks: z.string().nullish(),
     lenker: FaneinnholdLenkerSchema,
-    delMedBruker: z.string().nullable().optional(),
+    delMedBruker: z.string().nullish(),
   },
-  { required_error: "Det redaksjonelle innholdet må settes på avtalen" },
+  { error: "Det redaksjonelle innholdet må settes på avtalen" },
 );
 
 export type InferredFaneinnholdSchema = z.infer<typeof FaneinnholdSchema>;

@@ -236,7 +236,7 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
   function lagre() {
     const result = KontaktpersonSchema.safeParse(state);
     if (!result.success) {
-      const errors = result.error.errors.reduce((prev, next) => {
+      const errors = result.error.issues.reduce((prev, next) => {
         return { ...prev, [next.path[0]]: next.message };
       }, {});
 
