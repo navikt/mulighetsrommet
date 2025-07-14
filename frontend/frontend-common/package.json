@@ -21,7 +21,7 @@
     "react-select": "5.10.2",
     "react-router": "7.6.3",
     "use-resize-observer": "9.1.0",
-    "zod": "3.25.74"
+    "zod": "4.0.5"
   },
   "devDependencies": {
     "@types/react": "19.0.3",
