@@ -72,7 +72,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let belop: number | undefined;
   let kontonummer: string | undefined;
   let kid: string | undefined;
-  if (session.get("orgnr") === orgnr && session.get("type") === "driftstilskudd") {
+  if (
+    session.get("orgnr") === orgnr &&
+    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD
+  ) {
     gjennomforingId = session.get("gjennomforingId");
     tilsagnId = session.get("tilsagnId");
     periodeStart = session.get("periodeStart");

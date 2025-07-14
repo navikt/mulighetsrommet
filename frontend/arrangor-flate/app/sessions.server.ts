@@ -1,9 +1,10 @@
+import { Tilskuddstype } from "api-client";
 import { createCookieSessionStorage } from "react-router";
 
 export type InnsendingSessionData = InvesteringstilskuddSessionData | DrifttilskuddSessionData;
 
 interface InvesteringstilskuddSessionData {
-  type: "investeringstilskudd";
+  tilskuddstype: Tilskuddstype.TILTAK_INVESTERINGER;
   orgnr?: string;
   gjennomforingId?: string;
   tilsagnId?: string;
@@ -17,7 +18,7 @@ interface InvesteringstilskuddSessionData {
 }
 
 interface DrifttilskuddSessionData {
-  type: "driftstilskudd";
+  tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD;
   orgnr?: string;
   gjennomforingId?: string;
   tilsagnId?: string;

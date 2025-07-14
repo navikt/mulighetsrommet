@@ -23,6 +23,7 @@ import {
   ArrangorflateTilsagn,
   FieldError,
   TilsagnType,
+  Tilskuddstype,
 } from "api-client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -76,7 +77,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let sessionTilsagnId: string | undefined;
   let sessionPeriodeStart: string | undefined;
   let sessionPeriodeSlutt: string | undefined;
-  if (session.get("orgnr") === orgnr && session.get("type") === "investeringstilskudd") {
+  if (
+    session.get("orgnr") === orgnr &&
+    session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER
+  ) {
     sessionGjennomforingId = session.get("gjennomforingId");
     sessionTilsagnId = session.get("tilsagnId");
     sessionPeriodeStart = session.get("periodeStart");
@@ -174,7 +178,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
-    session.set("type", "investeringstilskudd");
+    session.set("tilskuddstype", Tilskuddstype.TILTAK_INVESTERINGER);
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
