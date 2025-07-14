@@ -266,7 +266,11 @@ function MindreBelopModal({
             <BodyShort>Beløp til attestering: {formaterNOK(belopUtbetaling)}</BodyShort>
             <BodyShort>Innsendt beløp: {formaterNOK(belopInnsendt)}</BodyShort>
           </VStack>
-          <Textarea label="Begrunnelse" onChange={begrunnelseOnChange} />
+          <Textarea
+            label="Begrunnelse"
+            onChange={begrunnelseOnChange}
+            description="Oppgi begrunnelse for beløp som utbetales. Hvis det er benyttet flere tilsagn, begrunner du hvordan fordelingen er gjort. Begrunnelsen vil kun være synlig for NAV"
+          />
         </VStack>
       </Modal.Body>
       <Modal.Footer>
