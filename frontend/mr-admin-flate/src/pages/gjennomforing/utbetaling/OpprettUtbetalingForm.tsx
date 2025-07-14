@@ -15,12 +15,12 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { addYear } from "@/utils/Utils";
 import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { Separator } from "@/components/detaljside/Metadata";
+import { addYears } from "date-fns";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -124,7 +124,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                   size="small"
                   label="Periodestart"
                   fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addYear(new Date(), 5)}
+                  toDate={addYears(new Date(), 5)}
                   format="iso-string"
                   {...register("periodeStart")}
                   control={control}
@@ -133,7 +133,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                   size="small"
                   label="Periodeslutt"
                   fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addYear(new Date(), 5)}
+                  toDate={addYears(new Date(), 5)}
                   format="iso-string"
                   {...register("periodeSlutt")}
                   control={control}

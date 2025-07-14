@@ -1,5 +1,4 @@
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { formaterDato } from "@/utils/Utils";
 import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Table } from "@navikt/ds-react";
@@ -7,6 +6,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
 import { tiltakstypeFilterStateAtom } from "@/pages/tiltakstyper/filter";
 import { useFilterState } from "@/filter/useFilterState";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 export function TiltakstypeTabell() {
   const { filter, updateFilter } = useFilterState(tiltakstypeFilterStateAtom);

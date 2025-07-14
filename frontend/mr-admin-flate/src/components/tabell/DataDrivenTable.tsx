@@ -1,8 +1,8 @@
 import { Table } from "@navikt/ds-react";
 import { DataDrivenColumn, DataDrivenTableDto } from "@mr/api-client-v2";
-import { formaterDato } from "@/utils/Utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { useSortableData } from "@mr/frontend-common";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   data: DataDrivenTableDto;

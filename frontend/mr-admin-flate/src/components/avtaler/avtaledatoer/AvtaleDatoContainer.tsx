@@ -1,11 +1,11 @@
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
-import { addYear } from "@/utils/Utils";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import { addYears } from "date-fns";
 
 interface Props {
   avtale?: AvtaleDto;
@@ -21,7 +21,7 @@ export function AvtaleDatoContainer({ avtale }: Props) {
     [startDato],
   );
   const sluttDatoTilDato = useMemo(
-    () => addYear(startDato ? new Date(startDato) : new Date(), MAKS_AAR_FOR_AVTALER),
+    () => addYears(startDato ? startDato : new Date(), MAKS_AAR_FOR_AVTALER),
     [startDato],
   );
 

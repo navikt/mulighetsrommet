@@ -13,7 +13,7 @@ import {
   Opsjonsvalg,
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
-import { addYear } from "@/utils/Utils";
+import { addYears } from "date-fns";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -133,9 +133,7 @@ function getNesteSluttDato(
 ): string | null {
   switch (opsjonsvalg) {
     case "1":
-      return avtaleSluttDato
-        ? formaterDatoSomYYYYMMDD(addYear(new Date(avtaleSluttDato), 1))
-        : null;
+      return avtaleSluttDato ? formaterDatoSomYYYYMMDD(addYears(avtaleSluttDato, 1)) : null;
     case "Annet":
       return customSluttDato || null;
     case "Opsjon_skal_ikke_utloses":

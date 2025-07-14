@@ -3,7 +3,7 @@ import type {
   EndringshistorikkNavAnsatt,
   EndringshistorikkUser,
 } from "@mr/api-client-v2";
-import { formaterDatoTid } from "../../utils/Utils";
+import { formaterDatoTid } from "@mr/frontend-common/utils/date";
 import classNames from "classnames";
 
 export interface ViewEndringshistorikkProps {

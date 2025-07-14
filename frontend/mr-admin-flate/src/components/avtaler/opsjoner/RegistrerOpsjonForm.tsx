@@ -1,10 +1,11 @@
 import { Alert, Radio } from "@navikt/ds-react";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
-import { addDays, addYear, formaterDato } from "@/utils/Utils";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
 import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
+import { formaterDato } from "@mr/frontend-common/utils/date";
+import { addDays, addYears, isAfter } from "date-fns";
 
 interface Props {
   avtale: AvtaleDto;
@@ -28,11 +29,8 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
     <div className="bg-surface-selected p-4 rounded-lg">
       <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
         <Radio value="Opsjon_skal_ikke_utloses">Avklart at opsjon ikke skal utløses</Radio>
-        <Radio
-          value="1"
-          disabled={addYear(new Date(sluttdato), 1) > new Date(maksVarighetForOpsjon)}
-        >
-          + 1 år (Forleng til: {formaterDato(addYear(new Date(sluttdato), 1))})
+        <Radio value="1" disabled={isAfter(addYears(sluttdato, 1), maksVarighetForOpsjon)}>
+          + 1 år (Forleng til: {formaterDato(addYears(sluttdato, 1))})
         </Radio>
         <Radio value="Annet">Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})</Radio>
       </ControlledRadioGroup>
@@ -40,7 +38,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
         <ControlledDateInput
           size="small"
           label={"Velg ny sluttdato"}
-          fromDate={sluttDatoSisteOpsjon ? addDays(new Date(sluttDatoSisteOpsjon), 1) : new Date()}
+          fromDate={sluttDatoSisteOpsjon ? addDays(sluttDatoSisteOpsjon, 1) : new Date()}
           toDate={new Date(maksVarighetForOpsjon)}
           {...register("opsjonsdatoValgt")}
           format={"iso-string"}

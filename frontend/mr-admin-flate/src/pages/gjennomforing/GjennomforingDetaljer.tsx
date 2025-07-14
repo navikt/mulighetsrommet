@@ -12,7 +12,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
-import { formaterDato, formatertVentetid, isKursTiltak } from "@/utils/Utils";
+import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
@@ -21,6 +21,7 @@ import {
 } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { useState } from "react";

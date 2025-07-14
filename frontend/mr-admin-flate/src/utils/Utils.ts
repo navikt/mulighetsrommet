@@ -19,6 +19,8 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
+import { formaterDato } from "@mr/frontend-common/utils/date";
+import { subDays } from "date-fns";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -40,36 +42,12 @@ export function formaterPeriode(periode: Periode) {
   return `${formaterPeriodeStart(periode)} - ${formaterPeriodeSlutt(periode)}`;
 }
 
-export function formaterPeriodeStart(periode: Periode) {
-  return formaterDato(periode.start);
+export function formaterPeriodeStart({ start }: Periode) {
+  return formaterDato(start);
 }
 
-export function formaterPeriodeSlutt(periode: Periode) {
-  return formaterDato(subtractDays(new Date(periode.slutt), 1));
-}
-
-export function formaterDato(dato: string | Date | undefined | null): string {
-  if (!dato) return "";
-
-  return new Date(dato).toLocaleString("no-NO", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
-export function formaterDatoTid(dato: string | Date, fallback = ""): string {
-  const result = new Date(dato).toLocaleTimeString("no-NO", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-
-  if (result === "Invalid Date") {
-    return fallback;
-  }
-
-  return result.replace(",", " ");
+export function formaterPeriodeSlutt({ slutt }: Periode) {
+  return formaterDato(subDays(slutt, 1));
 }
 
 export function kalkulerStatusBasertPaaFraOgTilDato(
@@ -124,42 +102,8 @@ export function validEmail(email: string | undefined): boolean {
   );
 }
 
-export function addYear(date: Date, numYears: number): Date {
-  const newDate = new Date(date);
-  newDate.setFullYear(date.getFullYear() + numYears);
-  return newDate;
-}
-
-export function addMonths(date: Date, numOfMonths: number): Date {
-  const newDate = new Date(date);
-  newDate.setMonth(date.getMonth() + numOfMonths);
-  return newDate;
-}
-
-export function subtractMonths(date: Date, numMonths: number): Date {
-  const newDate = new Date(date);
-  newDate.setMonth(date.getMonth() - numMonths);
-  return newDate;
-}
-
-export function addDays(date: Date | string, numDays: number): Date {
-  const newDate = new Date(date);
-  newDate.setDate(newDate.getDate() + numDays);
-  return newDate;
-}
-
-export function subtractDays(date: Date | string, numDays: number): Date {
-  const newDate = new Date(date);
-  newDate.setDate(newDate.getDate() - numDays);
-  return newDate;
-}
-
 export function avtaleHarRegioner(avtale: AvtaleDto): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
-}
-
-export function max(a: Date, b: Date): Date {
-  return a > b ? a : b;
 }
 
 export function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {

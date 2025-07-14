@@ -12,6 +12,35 @@ export function formaterDatoSomYYYYMMDD(
 }
 
 /**
+ * Formatter gyldige datoer
+ * @returns norsk dato format, ellers fallback (default "")
+ */
+export function formaterDato(dato: string | Date | undefined | null, fallback = ""): string {
+  const parsedDato = parseDate(dato)
+  if (!parsedDato) {
+    return fallback
+  }
+
+  return new Date(parsedDato).toLocaleString("no-NO", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
+export function formaterDatoTid(dato: string | Date, fallback = ""): string {
+  const parsedDato = parseDate(dato)
+  if (!parsedDato) {
+    return fallback
+  }
+  return parsedDato.toLocaleTimeString("no-NO", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).replace(",", " ")
+}
+
+/**
  * Parse to known & valid date formats
  * @returns valid date, otherwise null
  */
