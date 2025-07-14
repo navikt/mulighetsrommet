@@ -41,7 +41,7 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { formaterDatoSomYYYYMMDD, parseDate } from "@mr/frontend-common/utils/date";
+import { formaterDato, formaterDatoSomYYYYMMDD, parseDate } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { DateRange } from "node_modules/@navikt/ds-react/esm/date/Date.typeutils";
 import { compareAsc, isAfter, subDays } from "date-fns";

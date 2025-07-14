@@ -1,7 +1,7 @@
 import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
 import { useSortState } from "~/hooks/useSortState";
-import { formaterDato, formaterFoedselsdato } from "~/utils/date";
+import { formaterFoedselsdato } from "~/utils/date";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { DeltakelseTimeline } from "./DeltakelseTimeline";
 import {
@@ -13,6 +13,7 @@ import {
   RelevanteForslag,
 } from "api-client";
 import { tekster } from "~/tekster";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 enum DeltakerSortKey {
   PERSON_NAVN = "PERSON_NAVN",
