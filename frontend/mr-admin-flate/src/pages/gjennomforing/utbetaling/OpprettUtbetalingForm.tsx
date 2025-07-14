@@ -21,6 +21,7 @@ import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { Separator } from "@/components/detaljside/Metadata";
 import { addYears } from "date-fns";
+import { parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -123,7 +124,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                 <ControlledDateInput
                   size="small"
                   label="Periodestart"
-                  fromDate={new Date(gjennomforing.startDato)}
+                  fromDate={parseDate(gjennomforing.startDato)!}
                   toDate={addYears(new Date(), 5)}
                   format="iso-string"
                   {...register("periodeStart")}
@@ -132,7 +133,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                 <ControlledDateInput
                   size="small"
                   label="Periodeslutt"
-                  fromDate={new Date(gjennomforing.startDato)}
+                  fromDate={parseDate(gjennomforing.startDato)!}
                   toDate={addYears(new Date(), 5)}
                   format="iso-string"
                   {...register("periodeSlutt")}

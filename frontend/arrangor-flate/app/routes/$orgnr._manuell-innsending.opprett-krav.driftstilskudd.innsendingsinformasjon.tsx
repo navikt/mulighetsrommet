@@ -41,10 +41,10 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { formaterDato, formaterDatoSomYYYYMMDD, parseDate } from "@mr/frontend-common/utils/date";
+import { formaterDato, formaterDatoSomYYYYMMDD, isAfterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { DateRange } from "node_modules/@navikt/ds-react/esm/date/Date.typeutils";
-import { compareAsc, isAfter, subDays } from "date-fns";
+import { subDays } from "date-fns";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -200,13 +200,9 @@ interface ActionData {
 
 const filtrGjennomforingByPeriode =
   (periode: DateRange) => (gjennomforing: ArrangorflateGjennomforing) => {
-    const gjennomforingPeriode = {
-      from: parseDate(gjennomforing.startDato),
-      to: parseDate(gjennomforing.sluttDato),
-    };
-    const fromGreaterOrEqual = compareAsc(periode.from ?? '', gjennomforingPeriode.from ?? '') !== -1
-    if (gjennomforingPeriode.to) {
-      const toLessOrEqual = compareAsc(gjennomforingPeriode.to, periode.from ?? '') !== -1 
+    const fromGreaterOrEqual = isAfterOrSameDay(periode.from, gjennomforing.startDato)
+    if (gjennomforing.sluttDato) {
+      const toLessOrEqual = isAfterOrSameDay(gjennomforing.sluttDato, periode.from)
       return fromGreaterOrEqual && toLessOrEqual;
     }
     return fromGreaterOrEqual;

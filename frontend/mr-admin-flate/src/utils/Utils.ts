@@ -19,8 +19,8 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
-import { formaterDato } from "@mr/frontend-common/utils/date";
-import { subDays } from "date-fns";
+import { formaterDato, inBetweenInclusive, parseDate } from "@mr/frontend-common/utils/date";
+import { isAfter, subDays } from "date-fns";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -58,14 +58,17 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
   now: Date = new Date(),
 ): "Aktiv" | "Planlagt" | "Avsluttet" | " - " {
   const { fraDato, tilDato } = datoer;
-  const fraDatoAsDate = new Date(fraDato);
-  const tilDatoAsDate = new Date(tilDato);
+  const fraDatoAsDate = parseDate(fraDato);
+  const tilDatoAsDate = parseDate(tilDato);
 
-  if (now >= fraDatoAsDate && now <= tilDatoAsDate) {
+  if (!fraDatoAsDate || !tilDatoAsDate) {
+    return " - ";
+  }
+  if (inBetweenInclusive(now, { fraDato: fraDatoAsDate, tilDato: tilDatoAsDate })) {
     return "Aktiv";
-  } else if (now < fraDatoAsDate) {
+  } else if (isAfter(fraDatoAsDate,now)) {
     return "Planlagt";
-  } else if (now > tilDatoAsDate) {
+  } else if (isAfter(now, tilDatoAsDate)) {
     return "Avsluttet";
   } else {
     return " - ";

@@ -6,6 +6,7 @@ import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import { addYears } from "date-fns";
+import { parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   avtale?: AvtaleDto;
@@ -17,11 +18,11 @@ export function AvtaleDatoContainer({ avtale }: Props) {
   const { startDato } = watch("startOgSluttDato") ?? {};
   // Uten useMemo for sluttDatoFraDato så trigges rerendering av children hver gang sluttdato kalkuleres på nytt ved endring av startdato
   const sluttDatoFraDato = useMemo(
-    () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),
+    () => parseDate(startDato) ?? MIN_START_DATO_FOR_AVTALER,
     [startDato],
   );
   const sluttDatoTilDato = useMemo(
-    () => addYears(startDato ? startDato : new Date(), MAKS_AAR_FOR_AVTALER),
+    () => addYears(parseDate(startDato) ?? Date.now(), MAKS_AAR_FOR_AVTALER),
     [startDato],
   );
 

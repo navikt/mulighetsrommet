@@ -4,7 +4,7 @@ import { useFormContext } from "react-hook-form";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
 import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { formaterDato, parseDate } from "@mr/frontend-common/utils/date";
 import { addDays, addYears, isAfter } from "date-fns";
 
 interface Props {
@@ -12,9 +12,9 @@ interface Props {
 }
 
 export function RegistrerOpsjonForm({ avtale }: Props) {
-  const maksVarighetForOpsjon = avtale.opsjonsmodell.opsjonMaksVarighet;
-  const sluttDatoSisteOpsjon = avtale.opsjonerRegistrert.at(-1)?.sluttDato;
-  const sluttdato = avtale.sluttDato;
+  const maksVarighetForOpsjon = parseDate(avtale.opsjonsmodell.opsjonMaksVarighet);
+  const sluttDatoSisteOpsjon = parseDate(avtale.opsjonerRegistrert.at(-1)?.sluttDato);
+  const sluttdato = parseDate(avtale.sluttDato);
   const { watch, register, control } = useFormContext<InferredRegistrerOpsjonSchema>();
 
   if (!maksVarighetForOpsjon || !sluttdato) {
@@ -39,7 +39,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
           size="small"
           label={"Velg ny sluttdato"}
           fromDate={sluttDatoSisteOpsjon ? addDays(sluttDatoSisteOpsjon, 1) : new Date()}
-          toDate={new Date(maksVarighetForOpsjon)}
+          toDate={maksVarighetForOpsjon}
           {...register("opsjonsdatoValgt")}
           format={"iso-string"}
           control={control}

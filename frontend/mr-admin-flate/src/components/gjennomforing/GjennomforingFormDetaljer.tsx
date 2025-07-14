@@ -42,8 +42,8 @@ import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
 import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
-import { formaterDato } from "@mr/frontend-common/utils/date";
-import { addYears } from "date-fns";
+import { formaterDato, parseDate } from "@mr/frontend-common/utils/date";
+import { addYears, isBefore } from "date-fns";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -93,7 +93,8 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
   const antallDeltakere = deltakerSummary?.antallDeltakere;
 
   useEffect(() => {
-    if (watchStartDato && new Date(watchStartDato) < new Date()) {
+    const parsedStartDato = parseDate(watchStartDato)
+    if (parsedStartDato && isBefore(parsedStartDato,  new Date())) {
       setValue("tilgjengeligForArrangorDato", null);
     }
   }, [setValue, watchStartDato]);
@@ -134,7 +135,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
     value: enhet.enhetsnummer,
   }));
 
-  const minStartdato = new Date(avtale.startDato);
+  const minStartdato = parseDate(avtale.startDato)!;
   const maxSluttdato = addYears(minStartdato, 35);
 
   return (

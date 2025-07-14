@@ -2,7 +2,7 @@ import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, OpprettOpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { formaterDatoSomYYYYMMDD, isAfterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -48,10 +48,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   function sluttDatoErLikEllerPassererMaksVarighet(): boolean {
-    if (avtale?.opsjonsmodell?.opsjonMaksVarighet && avtale?.sluttDato) {
-      return new Date(avtale.sluttDato) >= new Date(avtale.opsjonsmodell.opsjonMaksVarighet);
-    }
-    return false;
+    return isAfterOrSameDay(avtale?.sluttDato, avtale?.opsjonsmodell?.opsjonMaksVarighet);
   }
 
   if (sluttDatoErLikEllerPassererMaksVarighet()) {
