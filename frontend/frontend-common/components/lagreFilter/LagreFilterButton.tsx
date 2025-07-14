@@ -6,7 +6,7 @@ import z from "zod";
 
 const LagreFilterSchema = z.object({
   navn: z
-    .string({ required_error: "Du må gi filteret et navn" })
+    .string({ error: "Du må gi filteret et navn" })
     .min(3, "Du må gi filteret et navn")
     .max(100, "Navnet kan ikke være lengre enn 100 tegn"),
 });

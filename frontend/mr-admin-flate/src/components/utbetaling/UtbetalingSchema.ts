@@ -4,7 +4,7 @@ export const UtbetalingSchema = z.object({
   kostnadsfordeling: z
     .object({
       tilsagnId: z.string(),
-      belop: z.number({ required_error: "Du må velge beløp" }),
+      belop: z.number({ error: "Du må velge beløp" }),
     })
     .array(),
 });

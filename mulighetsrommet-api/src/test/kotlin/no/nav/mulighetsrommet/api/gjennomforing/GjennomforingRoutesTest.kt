@@ -303,7 +303,6 @@ class GjennomforingRoutesTest : FunSpec({
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
-                response.bodyAsText().shouldBe("Beskrivelse er obligatorisk når “Annet” er valgt som årsak")
             }
         }
 

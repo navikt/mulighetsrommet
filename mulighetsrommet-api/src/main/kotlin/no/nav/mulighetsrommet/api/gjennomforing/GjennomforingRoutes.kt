@@ -53,20 +53,6 @@ fun Route.gjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val (aarsak) = call.receive<AvbrytRequest>()
 
-                if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.length > 100) {
-                    return@put call.respond(
-                        HttpStatusCode.BadRequest,
-                        message = "Beskrivelse kan ikke inneholde mer enn 100 tegn",
-                    )
-                }
-
-                if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.isEmpty()) {
-                    return@put call.respond(
-                        HttpStatusCode.BadRequest,
-                        message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak",
-                    )
-                }
-
                 gjennomforinger.avbrytGjennomforing(id, LocalDateTime.now(), aarsak, navIdent)
                     .onLeft {
                         val response = ValidationError("Klarte ikke avbryte gjennomføring", listOf(it))
