@@ -11,13 +11,14 @@ export const RegistrerOpsjonSchema = z
     opsjonsvalg,
     opsjonsdatoValgt: z.string({ error: "Ny sluttdato for avtalen må settes" }).optional(),
   })
-  .superRefine((data, ctx) => {
-    if (data.opsjonsvalg === "Annet") {
-      if (!data.opsjonsdatoValgt) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+  .check((ctx) => {
+    if (ctx.value.opsjonsvalg === "Annet") {
+      if (!ctx.value.opsjonsdatoValgt) {
+        ctx.issues.push({
+          code: "custom",
           path: ["opsjonsdatoValgt"],
           message: "Ny sluttdato for avtalen må settes",
+          input: ctx.value,
         });
       }
     }

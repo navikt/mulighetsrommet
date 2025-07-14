@@ -26,7 +26,7 @@ export const AvtaleSchema = z
     }),
     arrangorHovedenhet: z.string().optional(),
     arrangorUnderenheter: z.array(z.string()).optional(),
-    arrangorKontaktpersoner: z.string().uuid().array().optional(),
+    arrangorKontaktpersoner: z.uuid().array().optional(),
     navRegioner: z.string().array().nonempty({ error: "Du må velge minst én region" }),
     navKontorer: z.string().array(),
     navAndreEnheter: z.string().array(),
@@ -80,84 +80,69 @@ export const AvtaleSchema = z
           valuta: z.string(),
         }),
       )
-      .superRefine((satser, ctx) => {
+      .check((ctx) => {
+        const satser = ctx.value;
         for (let i = 0; i < satser.length; i++) {
           const a = satser[i];
           for (let j = i + 1; j < satser.length; j++) {
             const b = satser[j];
             if (a.periodeStart <= b.periodeSlutt && b.periodeStart <= a.periodeSlutt) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
+              ctx.issues.push({
+                code: "custom",
                 error: "Perioder i satser kan ikke overlappe",
                 path: [i, "periodeStart"],
+                input: satser,
               });
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
+              ctx.issues.push({
+                code: "custom",
                 error: "Perioder i satser kan ikke overlappe",
                 path: [j, "periodeStart"],
+                input: satser,
               });
             }
           }
         }
       }),
   })
-  .superRefine((data, ctx) => {
-    if (
-      [Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) &&
-      !data.sakarkivNummer
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        error: "Du må skrive inn saksnummer til avtalesaken",
-        path: ["sakarkivNummer"],
-      });
-    }
-
-    if (data.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
-      if (!data.opsjonsmodell.type) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+  .check((ctx) => {
+    if (ctx.value.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
+      if (!ctx.value.opsjonsmodell.type) {
+        ctx.issues.push({
+          code: "custom",
           error: "Du må velge avtalt mulighet for forlengelse",
           path: ["opsjonsmodell.type"],
+          input: ctx.value.opsjonsmodell,
         });
       }
 
       if (
-        data.opsjonsmodell.type === OpsjonsmodellType.ANNET &&
-        !data.opsjonsmodell.customOpsjonsmodellNavn
+        ctx.value.opsjonsmodell.type === OpsjonsmodellType.ANNET &&
+        !ctx.value.opsjonsmodell.customOpsjonsmodellNavn
       ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+        ctx.issues.push({
+          code: "custom",
           error: "Du må gi oppsjonsmodellen et navn",
           path: ["opsjonsmodell.customOpsjonsmodellNavn"],
+          input: ctx.value.opsjonsmodell,
         });
       }
     }
 
-    if (!data.startOgSluttDato.startDato) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+    if (!ctx.value.startOgSluttDato.startDato) {
+      ctx.issues.push({
+        code: "custom",
         error: "Du må legge inn startdato for avtalen",
         path: ["startOgSluttDato.startDato"],
+        input: ctx.value.startOgSluttDato.startDato,
       });
     }
 
-    if (
-      data.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
-      !data.amoKategorisering
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        error: "Du må velge en kurstype",
-        path: ["amoKategorisering.kurstype"],
-      });
-    }
-
-    if (!data.arrangorHovedenhet && data.arrangorUnderenheter?.length) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+    if (!ctx.value.arrangorHovedenhet && ctx.value.arrangorUnderenheter?.length) {
+      ctx.issues.push({
+        code: "custom",
         error: "Underenheter can only be empty if hovedenhet is also empty",
         path: ["arrangorUnderenheter"],
+        input: ctx.value.arrangorHovedenhet,
       });
     }
   });

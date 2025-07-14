@@ -202,7 +202,7 @@ const KontaktpersonSchema = z.object({
     .string()
     .min(3, "Navn må være minst tre tegn langt")
     .max(100, "Navn kan ikke være mer enn 100 tegn langt"),
-  epost: z.string().email("Du må skrive inn en gyldig e-postadresse").optional(),
+  epost: z.email("Du må skrive inn en gyldig e-postadresse").optional(),
   telefon: z.string().optional(),
   beskrivelse: z.string().optional(),
   ansvarligFor: z

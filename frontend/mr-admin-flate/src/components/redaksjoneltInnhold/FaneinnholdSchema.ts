@@ -3,7 +3,7 @@ import z from "zod";
 export const FaneinnholdLenkerSchema = z
   .object({
     lenkenavn: z.string().min(3, { error: "Lenkenavnet må være minst 3 tegn" }),
-    lenke: z.string().url({ error: "Du må oppgi en gyldig url" }),
+    lenke: z.url({ error: "Du må oppgi en gyldig url" }),
     visKunForVeileder: z.boolean().default(false),
     apneINyFane: z.boolean().default(false),
   })
