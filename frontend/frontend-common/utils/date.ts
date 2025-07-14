@@ -1,37 +1,40 @@
-const ddMMyyyyFormat = new RegExp("^[0-9]{2}.[0-9]{2}.[0-9]{4}$");
-const yyyyMMddFormat = new RegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$");
+import { isDate, isValid, lightFormat, parse, parseISO } from "date-fns"
 
 export function formaterDatoSomYYYYMMDD(
   dato: string | Date | null | undefined,
   fallback = "",
 ): string {
-  if (!dato) {
-    return fallback;
+  const parsedDate = parseDate(dato)
+  if (parsedDate) {
+    return lightFormat(parsedDate, "yyyy-MM-dd");
   }
-
-  if (typeof dato !== "string") {
-    return dateToyyyyMMdd(dato, fallback);
-  }
-
-  if (yyyyMMddFormat.test(dato)) {
-    const [year, month, day] = dato.split("-").map(Number);
-    return dateToyyyyMMdd(new Date(year, month - 1, day), fallback)
-  }
-
-  if (ddMMyyyyFormat.test(dato)) {
-    const [day, month, year] = dato.split(".").map(Number);
-    return dateToyyyyMMdd(new Date(year, month - 1, day), fallback);
-  }
-
   return fallback;
 }
 
-function dateToyyyyMMdd(dato: Date, fallback: string): string {
-  if (isNaN(dato.getTime())) return fallback;
+/**
+ * Parse to known & valid date formats
+ * @returns valid date, otherwise null
+ */
+export function parseDate(date: string | Date | null | undefined): Date | null {
+  if (!date) {
+    return null;
+  }
 
-  const year = dato.getFullYear();
-  const month = String(dato.getMonth() + 1).padStart(2, "0");
-  const day = String(dato.getDate()).padStart(2, "0");
+  if (isDate(date)) {
+    if (isValid(date)) {
+      return date
+    }
+    return null
+  }
 
-  return `${year}-${month}-${day}`;
+  let parsedDate = parseISO(date)
+  if (isValid(parsedDate)) {
+    return parsedDate
+  }
+
+  parsedDate = parse(date, "dd.MM.yyyy", new Date())
+  if (isValid(parsedDate)) {
+    return parsedDate
+  }
+  return null
 }
