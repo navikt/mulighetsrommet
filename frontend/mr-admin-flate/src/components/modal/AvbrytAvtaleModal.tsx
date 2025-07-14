@@ -16,7 +16,7 @@ import classNames from "classnames";
 
 export const AvbrytAvtaleModalSchema = z.object({
   aarsak: z.enum({ ...AvbrytAvtaleAarsak, ...AnnetEnum }, { error: "Mangler årsak" }),
-  customAarsak: z.string().max(100, "Beskrivelse kan ikke inneholde mer enn 100 tegn").optional(),
+  customAarsak: z.string().optional(),
 });
 
 interface Props {

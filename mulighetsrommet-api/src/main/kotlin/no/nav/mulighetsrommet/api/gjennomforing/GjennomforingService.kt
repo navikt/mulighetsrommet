@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.gjennomforing
 
 import arrow.core.*
 import arrow.core.raise.either
+import io.ktor.http.*
+import io.ktor.server.response.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -194,6 +196,13 @@ class GjennomforingService(
         avbruttAarsak: AvbruttAarsak,
         endretAv: Agent,
     ): Either<FieldError, GjennomforingDto> = db.transaction {
+        if (avbruttAarsak is AvbruttAarsak.Annet && avbruttAarsak.beskrivelse.length > 100) {
+            return FieldError.root("Beskrivelse kan ikke inneholde mer enn 100 tegn").left()
+        }
+        if (avbruttAarsak is AvbruttAarsak.Annet && avbruttAarsak.beskrivelse.isEmpty()) {
+            return FieldError.root("Beskrivelse er obligatorisk når “Annet” er valgt som årsak").left()
+        }
+
         val gjennomforing = getOrError(id)
 
         when (gjennomforing.status) {
