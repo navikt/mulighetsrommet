@@ -74,7 +74,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let kid: string | undefined;
   if (
     session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER
+    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD
   ) {
     gjennomforingId = session.get("gjennomforingId");
     tilsagnId = session.get("tilsagnId");
@@ -84,7 +84,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kontonummer = session.get("kontonummer");
     kid = session.get("kid");
   }
-
   if (
     !orgnr ||
     !gjennomforingId ||
@@ -150,6 +149,7 @@ export const action: ActionFunction = async ({ request }) => {
       detail: "Du må bekrefte at opplysningene er korrekte",
     });
   }
+
   const orgnr = session.get("orgnr");
   const belop = Number(session.get("belop"));
   const gjennomforingId = session.get("gjennomforingId");
@@ -173,7 +173,7 @@ export const action: ActionFunction = async ({ request }) => {
       periodeSlutt: formaterDatoSomYYYYMMDD(periodeSlutt!),
       kontonummer: kontonummer!,
       kidNummer: kid || null,
-      tilskuddstype: Tilskuddstype.TILTAK_INVESTERINGER,
+      tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
       vedlegg: vedlegg,
     },
     headers: await apiHeaders(request),
@@ -284,7 +284,7 @@ export default function OpprettKravOppsummering() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKravUtbetaling}
+                to={pathByOrgnr(orgnr).opprettKrav.driftstilskudd.utbetaling}
               >
                 Tilbake
               </Button>

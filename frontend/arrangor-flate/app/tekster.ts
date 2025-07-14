@@ -27,7 +27,11 @@ export const tekster = {
         historiske: "Historiske",
         tilsagnsoversikt: "Tilsagnsoversikt",
       },
-      opprettUtbetalingKnapp: "Opprett krav om utbetaling",
+      opprettUtbetaling: {
+        actionLabel: "Opprett krav om utbetaling",
+        investering: "Opprett investeringstilskudd",
+        driftstilskudd: "Opprett driftstilskudd",
+      },
       tilbakeTilBeregning: "Tilbake til beregning",
       beregning: {
         infotekstDeltakerliste: {

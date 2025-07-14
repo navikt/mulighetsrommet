@@ -17,6 +17,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -34,13 +35,11 @@ import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
@@ -176,6 +175,16 @@ fun Route.arrangorflateRoutes() {
 
                 call.respond(isEnabled)
             }
+
+            route("/utbetalingskrav/driftstilskudd") {
+                get("/gjennomforing") {
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
+                    requireTilgangHosArrangor(orgnr)
+                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(orgnr, listOf(Prismodell.ANNEN_AVTALT_PRIS))
+                    call.respond(gjennomforinger)
+                }
+            }
         }
 
         route("/utbetaling/{id}") {
@@ -297,6 +306,7 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
     var kontonummer: String? = null
     var kidNummer: String? = null
     var belop: Int? = null
+    var tilskuddstype: Tilskuddstype? = null
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
     val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
 
@@ -311,6 +321,7 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
                     "belop" -> belop = part.value.toInt()
                     "periodeStart" -> periodeStart = part.value
                     "periodeSlutt" -> periodeSlutt = part.value
+                    "tilskuddstype" -> tilskuddstype = Tilskuddstype.valueOf(part.value)
                 }
             }
 
@@ -354,21 +365,10 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         kontonummer = requireNotNull(kontonummer) { "Mangler kontonummer" },
         kidNummer = kidNummer,
         belop = belop ?: 0,
-        tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
+        tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
         vedlegg = validatedVedlegg,
     )
 }
-
-@Serializable
-data class ArrangorflateGjennomforing(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-)
 
 @Serializable
 data class GodkjennUtbetaling(
