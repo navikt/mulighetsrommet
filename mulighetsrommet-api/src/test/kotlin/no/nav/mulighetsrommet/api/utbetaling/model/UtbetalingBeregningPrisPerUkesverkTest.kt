@@ -133,4 +133,33 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
             }
         }
     }
+
+    context("periode ulik én uke") {
+        test("en deltakere over 6 uker") {
+            val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 12))
+            periode.getDurationInDays() shouldBe 6 * 7
+
+            val deltakerId1 = UUID.randomUUID()
+
+            val input = UtbetalingBeregningPrisPerUkesverk.Input(
+                periode,
+                10,
+                setOf(),
+                setOf(
+                    DeltakelsePeriode(
+                        deltakelseId = deltakerId1,
+                        periode = periode,
+                    ),
+                ),
+            )
+
+            val beregning = UtbetalingBeregningPrisPerUkesverk.beregn(input)
+            beregning.output shouldBe UtbetalingBeregningPrisPerUkesverk.Output(
+                belop = 60,
+                deltakelser = setOf(
+                    DeltakelseUkesverk(deltakerId1, 6.0),
+                ),
+            )
+        }
+    }
 })

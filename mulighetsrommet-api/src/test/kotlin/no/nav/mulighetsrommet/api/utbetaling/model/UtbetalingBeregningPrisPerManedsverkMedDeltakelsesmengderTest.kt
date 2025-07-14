@@ -336,4 +336,37 @@ class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengderTest : FunSpec({
             }
         }
     }
+
+    context("periode ulik én måned") {
+        test("to deltakere over 2 måneder") {
+            val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1))
+            val deltakerId1 = UUID.randomUUID()
+            val deltakerId2 = UUID.randomUUID()
+
+            val input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+                periode,
+                10,
+                setOf(),
+                setOf(
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId1,
+                        perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
+                    ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId2,
+                        perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
+                    ),
+                ),
+            )
+
+            val beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.beregn(input)
+            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+                belop = 40,
+                deltakelser = setOf(
+                    DeltakelseManedsverk(deltakerId1, 2.0),
+                    DeltakelseManedsverk(deltakerId2, 2.0),
+                ),
+            )
+        }
+    }
 })
