@@ -6832,6 +6832,8 @@ components:
           type: [string, "null"]
         belop:
           type: number
+        tilskuddstype:
+          $ref: "#/components/schemas/Tilskuddstype"
         vedlegg:
           type: array
           items:
@@ -6846,6 +6848,7 @@ components:
         - kidNummer
         - belop
         - vedlegg
+        - tilskuddstype
 
     OpprettUtbetalingRequest:
       type: object

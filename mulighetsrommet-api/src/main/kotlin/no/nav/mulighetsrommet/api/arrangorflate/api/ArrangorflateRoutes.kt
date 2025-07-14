@@ -306,6 +306,7 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
     var kontonummer: String? = null
     var kidNummer: String? = null
     var belop: Int? = null
+    var tilskuddstype: Tilskuddstype? = null
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
     val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
 
@@ -320,6 +321,7 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
                     "belop" -> belop = part.value.toInt()
                     "periodeStart" -> periodeStart = part.value
                     "periodeSlutt" -> periodeSlutt = part.value
+                    "tilskuddstype" -> tilskuddstype = Tilskuddstype.valueOf(part.value)
                 }
             }
 
@@ -363,7 +365,7 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         kontonummer = requireNotNull(kontonummer) { "Mangler kontonummer" },
         kidNummer = kidNummer,
         belop = belop ?: 0,
-        tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
+        tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
         vedlegg = validatedVedlegg,
     )
 }

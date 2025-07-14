@@ -17,7 +17,7 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import { ArrangorflateService, ArrangorflateTilsagn, FieldError } from "api-client";
+import { ArrangorflateService, ArrangorflateTilsagn, FieldError, Tilskuddstype } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -170,6 +170,7 @@ export const action: ActionFunction = async ({ request }) => {
       periodeSlutt: formaterDatoSomYYYYMMDD(periodeSlutt!),
       kontonummer: kontonummer!,
       kidNummer: kid || null,
+      tilskuddstype: Tilskuddstype.TILTAK_INVESTERINGER,
       vedlegg: vedlegg,
     },
     headers: await apiHeaders(request),
