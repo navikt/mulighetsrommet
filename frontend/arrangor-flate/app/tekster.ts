@@ -1,5 +1,5 @@
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TilsagnType, ArrFlateBeregning } from "api-client";
-import { formaterDato } from "./utils/date";
 
 export const tekster = {
   bokmal: {

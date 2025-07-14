@@ -41,9 +41,9 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
-import { formaterDato, subtractDays } from "~/utils/date";
+import { formaterDato, formaterDatoSomYYYYMMDD, parseDate } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
+import { subDays } from "date-fns";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -227,14 +227,14 @@ export default function OpprettKravInnsendingsinformasjon() {
     inputProps: periodeStartInputProps,
     setSelected: setSelectedFraDato,
   } = useDatepicker({
-    defaultSelected: sessionPeriodeStart ? new Date(sessionPeriodeStart) : undefined,
+    defaultSelected: parseDate(sessionPeriodeStart),
   });
   const {
     datepickerProps: periodeSluttPickerProps,
     inputProps: periodeSluttInputProps,
     setSelected: setSelectedTilDato,
   } = useDatepicker({
-    defaultSelected: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
+    defaultSelected: parseDate(sessionPeriodeSlutt),
   });
 
   const valgtGjennomforing = gjennomforinger.find((g) => g.id === sessionGjennomforingId);
@@ -312,11 +312,11 @@ export default function OpprettKravInnsendingsinformasjon() {
                     onChange={(val: string) => {
                       setTilsagnId(val);
                       setSelectedFraDato(
-                        new Date(tilsagn.find((t) => t.id === val)?.periode.start ?? ""),
+                        parseDate(tilsagn.find((t) => t.id === val)?.periode.start),
                       );
                       setSelectedTilDato(
-                        subtractDays(
-                          new Date(tilsagn.find((t) => t.id === val)?.periode.slutt ?? ""),
+                        subDays(
+                          parseDate(tilsagn.find((t) => t.id === val)?.periode.slutt) ?? "",
                           1,
                         ),
                       );

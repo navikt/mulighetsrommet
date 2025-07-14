@@ -41,10 +41,10 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
-import { formaterDato, subtractDays } from "~/utils/date";
+import { formaterDatoSomYYYYMMDD, parseDate } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { DateRange } from "node_modules/@navikt/ds-react/esm/date/Date.typeutils";
+import { compareAsc, isAfter, subDays } from "date-fns";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
@@ -201,13 +201,15 @@ interface ActionData {
 const filtrGjennomforingByPeriode =
   (periode: DateRange) => (gjennomforing: ArrangorflateGjennomforing) => {
     const gjennomforingPeriode = {
-      from: new Date(gjennomforing.startDato),
-      to: gjennomforing.sluttDato && new Date(gjennomforing.sluttDato),
+      from: parseDate(gjennomforing.startDato),
+      to: parseDate(gjennomforing.sluttDato),
     };
+    const fromGreaterOrEqual = compareAsc(periode.from ?? '', gjennomforingPeriode.from ?? '') !== -1
     if (gjennomforingPeriode.to) {
-      return gjennomforingPeriode.from <= periode.from! && periode.from! <= gjennomforingPeriode.to;
+      const toLessOrEqual = compareAsc(gjennomforingPeriode.to, periode.from ?? '') !== -1 
+      return fromGreaterOrEqual && toLessOrEqual;
     }
-    return gjennomforingPeriode.from <= periode.from!;
+    return fromGreaterOrEqual;
   };
 
 export default function OpprettKravInnsendingsinformasjon() {
@@ -243,8 +245,8 @@ export default function OpprettKravInnsendingsinformasjon() {
     selectedRange: valgtPeriode,
   } = useRangeDatepicker({
     defaultSelected: {
-      from: sessionPeriodeStart ? new Date(sessionPeriodeStart) : undefined,
-      to: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
+      from: parseDate(sessionPeriodeStart),
+      to: parseDate(sessionPeriodeSlutt),
     },
   });
 
@@ -371,8 +373,8 @@ export default function OpprettKravInnsendingsinformasjon() {
                       const valgtTilsagn = tilsagn.find((t) => t.id === tilsagnId);
                       if (valgtTilsagn) {
                         const periode = {
-                          from: new Date(valgtTilsagn.periode.start),
-                          to: subtractDays(new Date(valgtTilsagn.periode.slutt), 1),
+                          from: parseDate(valgtTilsagn.periode.start),
+                          to: subDays(parseDate(valgtTilsagn.periode.slutt) ?? '', 1),
                         };
                         setPeriode(periode);
                       }

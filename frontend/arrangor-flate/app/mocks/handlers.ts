@@ -3,6 +3,7 @@ import { Arrangor, ArrFlateUtbetaling } from "api-client";
 import { mockArrFlateUtbetalingKompakt } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn } from "./tilsagnMocks";
+import { addMinutes } from "date-fns";
 
 const arrangorMock: Arrangor = {
   id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -44,7 +45,7 @@ export const handlers = [
     ({ params }) => {
       const { id } = params;
       const kontoNr = arrFlateUtbetaling.find((k) => k.id === id)?.betalingsinformasjon.kontonummer;
-      const expires = new Date(new Date().getTime() + 5 * 60000).toISOString(); // 5 min, NS_BINDING_ABORTED fix
+      const expires = addMinutes(Date.now(), 5).toISOString(); // NS_BINDING_ABORTED fix
       return HttpResponse.text(kontoNr, {
         headers: { Expires: expires },
       });

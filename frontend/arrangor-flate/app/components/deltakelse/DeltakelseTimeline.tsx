@@ -1,7 +1,9 @@
+import { parseDate } from "@mr/frontend-common/utils/date";
 import { PersonIcon, ParasolBeachIcon } from "@navikt/aksel-icons";
 import { Timeline } from "@navikt/ds-react";
 import { Periode, ArrFlateUtbetalingDeltakelse, UtbetalingStengtPeriode } from "api-client";
-import { subtractDays, formaterPeriode } from "~/utils/date";
+import { subDays } from "date-fns";
+import { formaterPeriode } from "~/utils/date";
 
 interface DeltakelseTimelineProps {
   utbetalingsperiode: Periode;
@@ -16,18 +18,18 @@ export function DeltakelseTimeline({
 }: DeltakelseTimelineProps) {
   return (
     <Timeline
-      startDate={new Date(utbetalingsperiode.start)}
-      endDate={new Date(utbetalingsperiode.slutt)}
+      startDate={parseDate(utbetalingsperiode.start)}
+      endDate={parseDate(utbetalingsperiode.slutt)}
     >
       <Timeline.Row label="Deltakelse" icon={<PersonIcon aria-hidden />}>
         {deltakelse.perioderMedDeltakelsesmengde.map(({ periode, deltakelsesprosent }) => {
-          const start = new Date(periode.start);
-          const end = subtractDays(new Date(periode.slutt), 1);
+          const start = parseDate(periode.start);
+          const end = subDays(periode.slutt, 1);
           const label = `${formaterPeriode(periode)}: Deltakelse på ${deltakelsesprosent}%`;
           return (
             <Timeline.Period
               key={periode.start + periode.slutt}
-              start={start}
+              start={start!}
               end={end}
               status={"success"}
               icon={<PersonIcon aria-hidden />}
@@ -40,13 +42,13 @@ export function DeltakelseTimeline({
       </Timeline.Row>
       <Timeline.Row label="Stengt" icon={<ParasolBeachIcon aria-hidden />}>
         {stengt.map(({ periode, beskrivelse }) => {
-          const start = new Date(periode.start);
-          const end = subtractDays(new Date(periode.slutt), 1);
+          const start = parseDate(periode.start);
+          const end = subDays(parseDate(periode.slutt) ?? "", 1);
           const label = `${formaterPeriode(periode)}: ${beskrivelse}`;
           return (
             <Timeline.Period
               key={periode.start + periode.slutt}
-              start={start}
+              start={start!}
               end={end}
               status={"info"}
               icon={<ParasolBeachIcon aria-hidden />}
