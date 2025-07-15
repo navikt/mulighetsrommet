@@ -59,16 +59,16 @@ function OppgaveIcon(props: { type: OppgaveIconType; fontSize?: string }) {
 
 function getOppgaveVariant(type: OppgaveType): TagProps["variant"] {
   switch (type) {
-    case (OppgaveType.TILSAGN_TIL_ANNULLERING,
-    OppgaveType.TILSAGN_TIL_OPPGJOR,
-    OppgaveType.TILSAGN_RETURNERT,
-    OppgaveType.UTBETALING_RETURNERT,
-    OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
-    OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR):
+    case OppgaveType.TILSAGN_TIL_ANNULLERING:
+    case OppgaveType.TILSAGN_TIL_OPPGJOR:
+    case OppgaveType.TILSAGN_RETURNERT:
+    case OppgaveType.UTBETALING_RETURNERT:
+    case OppgaveType.AVTALE_MANGLER_ADMINISTRATOR:
+    case OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR:
       return "warning-moderate";
-    case (OppgaveType.TILSAGN_TIL_GODKJENNING,
-    OppgaveType.UTBETALING_TIL_ATTESTERING,
-    OppgaveType.UTBETALING_TIL_BEHANDLING):
+    case OppgaveType.TILSAGN_TIL_GODKJENNING:
+    case OppgaveType.UTBETALING_TIL_ATTESTERING:
+    case OppgaveType.UTBETALING_TIL_BEHANDLING:
       return "error-moderate";
     default:
       return "warning-moderate";
