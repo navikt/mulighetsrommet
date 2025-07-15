@@ -1,4 +1,4 @@
-import { compareAsc, isAfter, isBefore, isDate, isValid, lightFormat, parse, parseISO, ParseISOOptions } from "date-fns"
+import { compareAsc, isAfter, isBefore, isDate, isValid, lightFormat, parse, parseISO, ParseISOOptions, sub, Duration } from "date-fns"
 import { tz } from "@date-fns/tz"
 import { utc, UTCDate } from "@date-fns/utc"
 
@@ -60,6 +60,49 @@ export function formaterDatoTid(dato: UnparsedDate, fallback = ""): string {
     month: "2-digit",
     day: "2-digit",
   }).replace(",", " ")
+}
+
+type Periode = {
+  start: string
+  slutt: string
+}
+
+export function formaterPeriode(periode: Periode) {
+  return `${formaterPeriodeStart(periode)} - ${formaterPeriodeSlutt(periode)}`;
+}
+
+export function formaterPeriodeStart({ start }: Periode) {
+  return formaterDato(start);
+}
+
+export function formaterPeriodeSlutt({ slutt }: Periode) {
+  return formaterDato(subDuration(slutt, { days: 1 }));
+}
+
+/**
+ * Trekk fra gitt varighet for gitt dato, hhvis gyldig ellers undefined
+ * @param dato 
+ * @param duration 
+ * @returns 
+ */
+export function subDuration(dato: UnparsedDate, duration: Duration) {
+  const parsedDate = parseDate(dato)
+  if (parsedDate) {
+    return sub(parsedDate,  duration)
+  }
+}
+
+/**
+ * Trekk fra gitt varighet for gitt dato, hhvis gyldig ellers undefined
+ * @param dato 
+ * @param duration 
+ * @returns 
+ */
+export function addDuration(dato: UnparsedDate, duration: Duration) {
+  const parsedDate = parseDate(dato)
+  if (parsedDate) {
+    return sub(parsedDate,  duration)
+  }
 }
 
 /**
