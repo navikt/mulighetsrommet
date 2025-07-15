@@ -2,7 +2,13 @@ import { compareAsc, isDate, isValid, lightFormat, parse, parseISO } from "date-
 
 type UnparsedDate = string | Date | undefined | null
 
-export function formaterDatoSomYYYYMMDD(
+/**
+ * Format: "yyyy-MM-dd" hhvis gyldig dato, ellers fallback
+ * @param dato 
+ * @param fallback default ""
+ * @returns 
+ */
+export function isoDateStringFormat(
   dato: UnparsedDate,
   fallback = "",
 ): string {
@@ -14,8 +20,10 @@ export function formaterDatoSomYYYYMMDD(
 }
 
 /**
- * Formatter gyldige datoer
- * @returns norsk dato format, ellers fallback (default "")
+ * Format: "dd.MM.yyyy" hhvis gyldig dato, ellers fallback
+ * @param dato 
+ * @param fallback default ""
+ * @returns 
  */
 export function formaterDato(dato: UnparsedDate, fallback = ""): string {
   const parsedDato = parseDate(dato)
@@ -30,6 +38,12 @@ export function formaterDato(dato: UnparsedDate, fallback = ""): string {
   });
 }
 
+/**
+ * Format: "dd.MM.yyyy hh:mm" hhvis gyldig dato, ellers fallback
+ * @param dato 
+ * @param fallback default ""
+ * @returns 
+ */
 export function formaterDatoTid(dato: UnparsedDate, fallback = ""): string {
   const parsedDato = parseDate(dato)
   if (!parsedDato) {
@@ -64,6 +78,12 @@ export function inBetweenInclusive(dato: UnparsedDate, {fraDato, tilDato}: {fraD
   return isAfterOrSameDay(parsedDato, fraDato) && isAfterOrSameDay(tilDato, parsedDato)
 }
 
+/**
+ * **date** er strengt tidligere enn **compared** hhvis det er gyldige datoer, ellers false
+ * @param date 
+ * @param compared 
+ * @returns 
+ */
 export function isAfter(date: UnparsedDate, compared: UnparsedDate): boolean {
   const parsedDate = parseDate(date)
   const parsedCompared = parseDate(compared)
@@ -73,6 +93,12 @@ export function isAfter(date: UnparsedDate, compared: UnparsedDate): boolean {
   return false
 }
 
+/**
+ * **date** er strengt tidligere enn **compared** hhvis det er gyldige datoer, ellers false
+ * @param date 
+ * @param compared 
+ * @returns 
+ */
 export function isBefore(date: UnparsedDate, compared: UnparsedDate): boolean {
   const parsedDate = parseDate(date)
   const parsedCompared = parseDate(compared)
@@ -83,7 +109,12 @@ export function isBefore(date: UnparsedDate, compared: UnparsedDate): boolean {
 }
 
 /**
- * Parse to known & valid date formats
+ * Parser til gyldige date objekter\
+ * Støtter:
+ *  - Gyldige **Date** objekter
+ *  - ISO-8601 strenger
+ *  - "dd.MM.yyyy"
+ *  - "dd.MM.yyyy hh:mm"
  * @returns valid date, otherwise undefined
  */
 export function parseDate(date: UnparsedDate): Date | undefined {
@@ -99,6 +130,11 @@ export function parseDate(date: UnparsedDate): Date | undefined {
   }
 
   let parsedDate = parseISO(date)
+  if (isValid(parsedDate)) {
+    return parsedDate
+  }
+
+  parsedDate = parse(date, "dd.MM.yyyy HH:mm", new Date())
   if (isValid(parsedDate)) {
     return parsedDate
   }

@@ -33,7 +33,7 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { isoDateFormat } from "@mr/frontend-common/utils/date";
 import { subDays } from "date-fns";
 
 export interface Props {
@@ -78,7 +78,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
         `?type=${tilsagnsTypeFraTilskudd}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
-        `&periodeSlutt=${formaterDatoSomYYYYMMDD(subDays(utbetaling.periode.slutt, 1))}` +
+        `&periodeSlutt=${isoDateFormat(subDays(utbetaling.periode.slutt, 1))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
     );
   }

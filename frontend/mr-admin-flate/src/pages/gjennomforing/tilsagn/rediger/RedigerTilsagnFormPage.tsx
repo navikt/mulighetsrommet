@@ -15,7 +15,7 @@ import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { isoDateFormat } from "@mr/frontend-common/utils/date";
 import { subDays } from "date-fns";
 
 function useRedigerTilsagnFormData() {
@@ -62,7 +62,7 @@ export function RedigerTilsagnFormPage() {
     id: tilsagn.id,
     type: tilsagn.type,
     periodeStart: tilsagn.periode.start,
-    periodeSlutt: formaterDatoSomYYYYMMDD(subDays(tilsagn.periode.slutt, 1)),
+    periodeSlutt: isoDateFormat(subDays(tilsagn.periode.slutt, 1)),
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
     beregning: tilsagn.beregning.input,
     gjennomforingId: gjennomforing.id,

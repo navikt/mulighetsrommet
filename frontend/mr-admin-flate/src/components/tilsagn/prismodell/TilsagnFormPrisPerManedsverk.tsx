@@ -11,7 +11,7 @@ import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { isoDateFormat } from "@mr/frontend-common/utils/date";
 import { addDays } from "date-fns";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
@@ -61,7 +61,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
 
   useEffect(() => {
     const periodeSluttExclusive = periodeSlutt
-      ? formaterDatoSomYYYYMMDD(addDays(periodeSlutt, 1))
+      ? isoDateFormat(addDays(periodeSlutt, 1))
       : periodeSlutt;
     setValue("beregning.periode.slutt", periodeSluttExclusive);
   }, [periodeSlutt, setValue]);

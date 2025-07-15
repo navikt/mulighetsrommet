@@ -2,7 +2,7 @@ import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, OpprettOpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { formaterDatoSomYYYYMMDD, isAfterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
+import { isoDateFormat, isAfterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -130,7 +130,7 @@ function getNesteSluttDato(
 ): string | null {
   switch (opsjonsvalg) {
     case "1":
-      return avtaleSluttDato ? formaterDatoSomYYYYMMDD(addYears(avtaleSluttDato, 1)) : null;
+      return avtaleSluttDato ? isoDateFormat(addYears(avtaleSluttDato, 1)) : null;
     case "Annet":
       return customSluttDato || null;
     case "Opsjon_skal_ikke_utloses":

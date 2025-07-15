@@ -24,9 +24,15 @@
     "use-resize-observer": "9.1.0",
     "zod": "4.0.5"
   },
+  "scripts": {
+    "test": "vitest"
+  },
   "devDependencies": {
     "@types/react": "19.0.3",
-    "@types/react-dom": "19.0.4"
+    "@types/react-dom": "19.0.4",
+    "@vitejs/plugin-react": "4.6.0",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "3.2.4"
   },
   "repository": {
     "type": "git",
