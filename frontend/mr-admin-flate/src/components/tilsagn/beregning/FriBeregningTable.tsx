@@ -7,7 +7,8 @@ interface TilsagnBeregningTableProps {
   linjer: TilsagnBeregningFriInputLinje[];
   medRadnummer?: boolean;
 }
-export function TilsagnBeregningTable({ linjer, medRadnummer }: TilsagnBeregningTableProps) {
+
+export function FriBeregningTable({ linjer, medRadnummer }: TilsagnBeregningTableProps) {
   if (!linjer.length) {
     return null;
   }

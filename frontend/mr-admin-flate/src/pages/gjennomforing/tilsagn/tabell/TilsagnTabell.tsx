@@ -1,4 +1,3 @@
-import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
 import { TilsagnDto, TilsagnStatus } from "@mr/api-client-v2";
@@ -10,6 +9,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { useSortableData } from "@mr/frontend-common";
 import { useMemo } from "react";
+import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 
 interface TilsagnRow {
   periodeStart: string;

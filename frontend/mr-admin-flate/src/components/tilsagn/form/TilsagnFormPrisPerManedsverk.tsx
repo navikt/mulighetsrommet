@@ -1,7 +1,7 @@
 import { useFindAvtaltSats } from "@/api/tilsagn/useFindAvtaltSats";
-import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
-import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
-import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
+import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
+import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import {
   GjennomforingDto,
   TilsagnBeregningPrisPerManedsverk,

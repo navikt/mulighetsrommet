@@ -9,10 +9,7 @@ import { Heading, HStack, Label, VStack } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { ReactNode, useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import {
-  InferredTilsagn,
-  TilsagnBeregningSchema,
-} from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { InferredTilsagn, TilsagnBeregningSchema } from "./TilsagnSchema";
 
 interface Props {
   input: TilsagnBeregningInput;

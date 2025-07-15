@@ -1,12 +1,12 @@
 import { GjennomforingDto, TilsagnBeregningFri, TilsagnBeregningType } from "@mr/api-client-v2";
-import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
+import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
 import { Alert, Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
-import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
-import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TrashIcon } from "@navikt/aksel-icons";
-import { TilsagnBeregningTable } from "./TilsagnBeregningTable";
+import { InferredTilsagn } from "./TilsagnSchema";
+import { FriBeregningTable } from "../beregning/FriBeregningTable";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -157,7 +157,7 @@ function BeregningOutputPreview() {
           linjer: linjer,
           prisbetingelser: values.beregning?.prisbetingelser,
         }}
-        children={<TilsagnBeregningTable linjer={linjer} medRadnummer />}
+        children={<FriBeregningTable linjer={linjer} medRadnummer />}
       />
     </>
   );

@@ -1,7 +1,7 @@
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
-import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/prismodell/TilsagnSchema";
-import { VelgKostnadssted } from "@/components/tilsagn/prismodell/VelgKostnadssted";
-import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
+import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
+import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
+import { VelgPeriode } from "@/components/tilsagn/form/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";

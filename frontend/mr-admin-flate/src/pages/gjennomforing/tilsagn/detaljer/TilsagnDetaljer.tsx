@@ -1,8 +1,6 @@
 import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { TilsagnBeregningTable } from "@/components/tilsagn/prismodell/TilsagnBeregningTable";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
-import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   TilsagnBeregning,
@@ -19,6 +17,8 @@ import { BodyShort, Box, ExpansionCard, Heading, HStack, Spacer, VStack } from "
 import { ReactNode } from "react";
 import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
+import { FriBeregningTable } from "@/components/tilsagn/beregning/FriBeregningTable";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -185,7 +185,7 @@ function FriBeregning({ beregning }: { beregning: TilsagnBeregningFri }) {
         <ExpansionCard.Title size="small">Beregning</ExpansionCard.Title>
       </ExpansionCard.Header>
       <ExpansionCard.Content>
-        <TilsagnBeregningTable linjer={beregning.input.linjer} />
+        <FriBeregningTable linjer={beregning.input.linjer} />
       </ExpansionCard.Content>
     </ExpansionCard>
   );
