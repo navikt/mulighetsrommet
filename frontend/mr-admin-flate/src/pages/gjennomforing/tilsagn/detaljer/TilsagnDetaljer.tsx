@@ -1,9 +1,9 @@
-import { MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
-  TilsagnBeregning,
+  TilsagnBeregningDto,
   TilsagnBeregningFri,
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
@@ -13,12 +13,12 @@ import {
   TotrinnskontrollDto,
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { BodyShort, Box, ExpansionCard, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
+import { Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
-import { FriBeregningTable } from "@/components/tilsagn/beregning/FriBeregningTable";
+import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregning";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -49,7 +49,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           className="mb-6 lg:m-0 flex-1"
         >
           <HStack gap="6">
-            <VStack gap="6" className="flex-1">
+            <VStack gap="4" className="flex-1">
               <MetadataHorisontal
                 header={tilsagnTekster.bestillingsnummer.label}
                 verdi={bestillingsnummer}
@@ -63,7 +63,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
                 verdi={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
               />
             </VStack>
-            <VStack gap="6" className="flex-1">
+            <VStack gap="4" className="flex-1">
               <MetadataHorisontal
                 header={tilsagnTekster.type.label}
                 verdi={avtaletekster.tilsagn.type(type)}
@@ -74,9 +74,10 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
               />
             </VStack>
           </HStack>
-          <TilsagnPrismodellCard beregning={beregning} />
+          <Separator />
+          <TilsagnPrismodellSection beregning={beregning} />
         </VStack>
-        <VStack gap="6" className="lg:px-4 flex-1">
+        <VStack gap="4" className="lg:px-4 flex-1">
           <MetadataHorisontal
             header={tilsagnTekster.status.label}
             verdi={<TilsagnTag visAarsakerOgForklaring status={status} />}
@@ -97,7 +98,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           )}
           <MetadataHorisontal
             header={tilsagnTekster.beregning.belop.label}
-            verdi={formaterNOK(beregning.output.belop)}
+            verdi={formaterNOK(beregning.belop)}
           />
           <MetadataHorisontal
             header={tilsagnTekster.belopBrukt.label}
@@ -107,14 +108,18 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             header={tilsagnTekster.belopGjenstaende.label}
             verdi={formaterNOK(tilsagn.belopGjenstaende)}
           />
-          <TilsagnBeregningCard beregning={beregning} />
+          <Separator />
+          <VStack gap="2">
+            <Heading size="small">Beregning</Heading>
+            <TilsagnBeregning beregning={beregning} />
+          </VStack>
         </VStack>
       </TwoColumnGrid>
     </>
   );
 }
 
-function TilsagnPrismodellCard({ beregning }: { beregning: TilsagnBeregning }) {
+function TilsagnPrismodellSection({ beregning }: { beregning: TilsagnBeregningDto }) {
   switch (beregning.type) {
     case "FRI":
       return <FriPrismodell beregning={beregning} />;
@@ -125,19 +130,17 @@ function TilsagnPrismodellCard({ beregning }: { beregning: TilsagnBeregning }) {
 }
 
 function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
-  const paragraphs = beregning.input.prisbetingelser?.split("\n") || [];
+  const paragraphs = beregning.prisbetingelser?.split("\n") || [];
 
   return (
-    <ExpansionCard size="small" aria-label="Annen avtalt pris" className="flex-1" defaultOpen>
-      <ExpansionCard.Header>
-        <ExpansionCard.Title size="small">Prismodell - Annen avtalt pris</ExpansionCard.Title>
-      </ExpansionCard.Header>
-      <ExpansionCard.Content>
+    <VStack gap="4">
+      <Heading size="small">Prismodell - Annen avtalt pris</Heading>
+      <div className="max-h-[10rem] overflow-y-scroll">
         {paragraphs.map((i: string) => (
           <p key={i}>{i}</p>
         ))}
-      </ExpansionCard.Content>
-    </ExpansionCard>
+      </div>
+    </VStack>
   );
 }
 
@@ -147,67 +150,20 @@ function PrisPerManedsUkesverkPrismodell({
   beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
 }) {
   return (
-    <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
+    <VStack gap="4">
+      <Heading size="small">
+        Prismodell - Pris per {isBeregningPrisPerManedsverk(beregning) ? "månedsverk" : "ukesverk"}
+      </Heading>
       <VStack gap="4">
-        <Heading size="small">
-          Prismodell - Pris per{" "}
-          {isBeregningPrisPerManedsverk(beregning) ? "månedsverk" : "ukesverk"}
-        </Heading>
-        <VStack>
-          <MetadataHorisontal
-            header={tilsagnTekster.antallPlasser.label}
-            verdi={beregning.input.antallPlasser}
-          />
-          <MetadataHorisontal
-            header={tilsagnTekster.sats.label}
-            verdi={formaterNOK(beregning.input.sats)}
-          />
-        </VStack>
+        <MetadataHorisontal
+          header={tilsagnTekster.antallPlasser.label}
+          verdi={beregning.antallPlasser}
+        />
+        <MetadataHorisontal
+          header={tilsagnTekster.sats.label}
+          verdi={formaterNOK(beregning.sats)}
+        />
       </VStack>
-    </Box>
-  );
-}
-
-function TilsagnBeregningCard({ beregning }: { beregning: TilsagnBeregning }) {
-  switch (beregning.type) {
-    case "FRI":
-      return <FriBeregning beregning={beregning} />;
-    case "PRIS_PER_UKESVERK":
-    case "PRIS_PER_MANEDSVERK":
-      return <PrisPerManedsUkesverkBeregning beregning={beregning} />;
-  }
-}
-
-function FriBeregning({ beregning }: { beregning: TilsagnBeregningFri }) {
-  return (
-    <ExpansionCard size="small" aria-label={tilsagnTekster.beregning.input.label} defaultOpen>
-      <ExpansionCard.Header>
-        <ExpansionCard.Title size="small">Beregning</ExpansionCard.Title>
-      </ExpansionCard.Header>
-      <ExpansionCard.Content>
-        <FriBeregningTable linjer={beregning.input.linjer} />
-      </ExpansionCard.Content>
-    </ExpansionCard>
-  );
-}
-
-function PrisPerManedsUkesverkBeregning({
-  beregning,
-}: {
-  beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
-}) {
-  return (
-    <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
-      <VStack gap="4">
-        <Heading size="small">Beregning</Heading>
-        <HStack align="center" gap="2">
-          <BodyShort>
-            antall plasser × sats × antall{" "}
-            {isBeregningPrisPerManedsverk(beregning) ? "måneder" : "uker"} ={" "}
-            {formaterNOK(beregning.output.belop)}
-          </BodyShort>
-        </HStack>
-      </VStack>
-    </Box>
+    </VStack>
   );
 }

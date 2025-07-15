@@ -5,12 +5,14 @@ import { VelgPeriode } from "@/components/tilsagn/form/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Alert, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
+import { Separator } from "@/components/detaljside/Metadata";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -67,50 +69,49 @@ export function TilsagnForm(props: Props) {
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
-        <div className="border border-border-default rounded p-4 mt-6 mb-6">
-          <div className="flex justify-between my-3 flex-col gap-5">
-            <Heading size="medium" level="3">
+        <VStack gap="2">
+          <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
+            <Heading className="my-3" size="medium" level="3">
               Tilsagn
             </Heading>
-          </div>
-          <div className="grid grid-cols-2">
-            <div className="pr-6">
-              <div className="grid grid-cols-2">
-                <TextField
-                  size="small"
-                  label="Tilsagnstype"
-                  readOnly
-                  value={avtaletekster.tilsagn.type(tilsagnstype)}
-                />
+            <TwoColumnGrid separator>
+              <div className="pr-6">
+                <div className="grid grid-cols-2">
+                  <TextField
+                    size="small"
+                    label="Tilsagnstype"
+                    readOnly
+                    value={avtaletekster.tilsagn.type(tilsagnstype)}
+                  />
+                </div>
+                {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
+                <div className="py-3">
+                  <VelgPeriode startDato={gjennomforing.startDato} />
+                </div>
+                <div className="py-3">
+                  <VelgKostnadssted kostnadssteder={kostnadssteder} />
+                </div>
+                <Separator />
+                <div className="py-3">{props.beregningInput}</div>
               </div>
-              {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
-              <div className="py-3">
-                <VelgPeriode startDato={gjennomforing.startDato} />
-              </div>
-              <div className="py-3">{props.beregningInput}</div>
-              <div className="py-3">
-                <VelgKostnadssted kostnadssteder={kostnadssteder} />
-              </div>
-            </div>
-            <div className="border-l border-border-subtle pl-6 flex flex-col gap-2">
               {props.beregningOutput}
-            </div>
-          </div>
-        </div>
-        <VStack gap="2">
-          <HStack gap="2" justify={"end"}>
-            <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
-              Avbryt
-            </Button>
-            <Button size="small" type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
-            </Button>
-          </HStack>
-          {errors.id?.message && (
-            <Alert className="self-end" variant="error" size="small">
-              {errors.id?.message}
-            </Alert>
-          )}
+            </TwoColumnGrid>
+          </Box>
+          <VStack gap="2">
+            <HStack gap="2" justify={"end"}>
+              <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
+                Avbryt
+              </Button>
+              <Button size="small" type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
+              </Button>
+            </HStack>
+            {errors.id?.message && (
+              <Alert className="self-end" variant="error" size="small">
+                {errors.id?.message}
+              </Alert>
+            )}
+          </VStack>
         </VStack>
       </form>
     </FormProvider>

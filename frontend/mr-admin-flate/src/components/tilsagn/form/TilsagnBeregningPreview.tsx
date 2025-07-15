@@ -1,37 +1,37 @@
 import {
   ProblemDetail,
+  TilsagnBeregningDto,
   TilsagnBeregningInput,
-  TilsagnBeregningOutput,
   ValidationError,
 } from "@mr/api-client-v2";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Heading, HStack, Label, VStack } from "@navikt/ds-react";
+import { HStack, Label, VStack } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredTilsagn, TilsagnBeregningSchema } from "./TilsagnSchema";
+import { TilsagnBeregning } from "../beregning/TilsagnBeregning";
 
 interface Props {
   input: TilsagnBeregningInput;
-  onTilsagnBeregnet?: (output: TilsagnBeregningOutput) => void;
-  children?: ReactNode | ReactNode[];
+  onTilsagnBeregnet?: (output: TilsagnBeregningDto) => void;
 }
 
 export function TilsagnBeregningPreview(props: Props) {
-  const { input, onTilsagnBeregnet, children } = props;
+  const { input, onTilsagnBeregnet } = props;
   const { mutate: beregnTilsagn } = useBeregnTilsagn();
 
-  const [beregning, setBeregning] = useState<TilsagnBeregningOutput | null>(null);
+  const [beregning, setBeregning] = useState<TilsagnBeregningDto | null>(null);
 
   const { setError } = useFormContext<DeepPartial<InferredTilsagn>>();
 
-  function onSuccess(beregning: { data: TilsagnBeregningOutput }) {
+  function onSuccess(beregning: { data: TilsagnBeregningDto }) {
     setBeregning(beregning.data);
     onTilsagnBeregnet?.(beregning.data);
   }
 
   function onValidationError(error: ValidationError) {
-    setBeregning({ type: beregning!.type, belop: 0 });
+    setBeregning(null);
 
     error.errors.forEach((error: { pointer: string; detail: string }) => {
       const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
@@ -51,13 +51,12 @@ export function TilsagnBeregningPreview(props: Props) {
 
   return (
     <>
-      <Heading size="small">Beløp</Heading>
       <VStack gap="4">
-        {children}
         <HStack gap="2" justify="space-between">
           <Label size="medium">Totalbeløp</Label>
           {beregning?.belop && <Label size="medium">{formaterNOK(beregning.belop)}</Label>}
         </HStack>
+        {beregning && <TilsagnBeregning beregning={beregning} />}
       </VStack>
     </>
   );

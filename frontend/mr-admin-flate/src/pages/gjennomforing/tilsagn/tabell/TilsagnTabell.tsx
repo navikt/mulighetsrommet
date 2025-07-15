@@ -35,7 +35,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
         type: t.type,
         navnForKostnadssted: t.kostnadssted.navn,
         antallPlasser: getAntallPlasser(t),
-        belop: t.beregning.output.belop,
+        belop: t.beregning.belop,
         status: t.status,
       }));
     }, [tilsagn]),
@@ -83,7 +83,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
               <Table.DataCell>{avtaletekster.tilsagn.type(tilsagn.type)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
               <Table.DataCell align="right">{getAntallPlasser(tilsagn)}</Table.DataCell>
-              <Table.DataCell align="right">{formaterNOK(beregning.output.belop)}</Table.DataCell>
+              <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <TilsagnTag status={tilsagn.status} />
               </Table.DataCell>
@@ -107,7 +107,5 @@ export function TilsagnTabell({ tilsagn }: Props) {
 }
 
 function getAntallPlasser(tilsagn: TilsagnDto) {
-  return isBeregningPrisPerManedsverk(tilsagn.beregning)
-    ? tilsagn.beregning.input.antallPlasser
-    : null;
+  return isBeregningPrisPerManedsverk(tilsagn.beregning) ? tilsagn.beregning.antallPlasser : null;
 }

@@ -7,7 +7,7 @@ import {
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
-import { HGrid, TextField } from "@navikt/ds-react";
+import { Heading, HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { addDays } from "@/utils/Utils";
@@ -67,25 +67,28 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   }, [periodeSlutt, setValue]);
 
   return (
-    <HGrid columns={2}>
-      <TextField
-        size="small"
-        type="number"
-        label={tilsagnTekster.antallPlasser.label}
-        style={{ width: "180px" }}
-        error={errors.beregning?.antallPlasser?.message}
-        {...register("beregning.antallPlasser", { valueAsNumber: true })}
-      />
-      <TextField
-        size="small"
-        type="number"
-        label={tilsagnTekster.sats.label}
-        style={{ width: "180px" }}
-        readOnly={true}
-        error={errors.beregning?.sats?.message}
-        {...register("beregning.sats", { valueAsNumber: true })}
-      />
-    </HGrid>
+    <VStack gap="4">
+      <Heading size="small">Prismodell - Pris per månedsverk</Heading>
+      <HGrid columns={2}>
+        <TextField
+          size="small"
+          type="number"
+          label={tilsagnTekster.antallPlasser.label}
+          style={{ width: "180px" }}
+          error={errors.beregning?.antallPlasser?.message}
+          {...register("beregning.antallPlasser", { valueAsNumber: true })}
+        />
+        <TextField
+          size="small"
+          type="number"
+          label={tilsagnTekster.sats.label}
+          style={{ width: "180px" }}
+          readOnly={true}
+          error={errors.beregning?.sats?.message}
+          {...register("beregning.sats", { valueAsNumber: true })}
+        />
+      </HGrid>
+    </VStack>
   );
 }
 

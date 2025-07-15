@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk.Output
 import no.nav.mulighetsrommet.model.Periode
 import java.lang.Math.addExact
 import java.math.RoundingMode
@@ -37,18 +38,9 @@ data class TilsagnBeregningPrisPerManedsverk(
         fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
             val (periode, sats, antallPlasser) = input
 
-            val belop = periode.start.datesUntil(periode.slutt)
-                .asSequence()
-                .groupBy { it.month }
-                .map { (_, datesInMonth) ->
-                    val fractionOfMonth = datesInMonth.size.toBigDecimal()
-                        .divide(
-                            datesInMonth[0].lengthOfMonth().toBigDecimal(),
-                            CALCULATION_PRECISION,
-                            RoundingMode.HALF_UP,
-                        )
-
-                    val value = fractionOfMonth
+            val belop = manedsverk(periode)
+                .map {
+                    val value = it
                         .multiply(sats.toBigDecimal())
                         .multiply(antallPlasser.toBigDecimal())
                         .setScale(0, RoundingMode.HALF_EVEN)
@@ -57,7 +49,19 @@ data class TilsagnBeregningPrisPerManedsverk(
                 }
                 .reduce { acc: Int, s: Int -> addExact(acc, s) }
 
-            return TilsagnBeregningPrisPerManedsverk(input, Output(belop))
+            return TilsagnBeregningPrisPerManedsverk(input, Output(belop = belop))
         }
+
+        fun manedsverk(periode: Periode) = periode.start.datesUntil(periode.slutt)
+            .asSequence()
+            .groupBy { it.month }
+            .map { (_, datesInMonth) ->
+                datesInMonth.size.toBigDecimal()
+                    .divide(
+                        datesInMonth[0].lengthOfMonth().toBigDecimal(),
+                        CALCULATION_PRECISION,
+                        RoundingMode.HALF_UP,
+                    )
+            }
     }
 }

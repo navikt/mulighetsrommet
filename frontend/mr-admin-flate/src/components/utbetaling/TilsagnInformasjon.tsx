@@ -10,10 +10,7 @@ interface TilsagnInformasjonProps {
 export function TilsagnInformasjon({ tilsagn }: TilsagnInformasjonProps) {
   return (
     <HStack gap="4">
-      <Metadata
-        header="Totalbeløp på tilsagn"
-        verdi={formaterNOK(tilsagn.beregning.output.belop)}
-      />
+      <Metadata header="Totalbeløp på tilsagn" verdi={formaterNOK(tilsagn.beregning.belop)} />
     </HStack>
   );
 }

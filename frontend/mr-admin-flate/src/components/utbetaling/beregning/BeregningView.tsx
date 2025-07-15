@@ -14,7 +14,7 @@ export default function BeregningView({ beregning, utbetalingId }: Props) {
 
   return (
     <VStack gap="2">
-      <div className={`max-h-[30rem] overflow-y-scroll`}>
+      <div className="max-h-[30rem] overflow-y-scroll">
         <Beregning beregning={beregning} />
       </div>
       <HStack justify="start" align="start">
