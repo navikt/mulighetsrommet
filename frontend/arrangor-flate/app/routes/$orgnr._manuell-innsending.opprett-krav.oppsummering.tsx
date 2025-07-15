@@ -86,7 +86,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
 
   if (
-    !orgnr ||
     !gjennomforingId ||
     !tilsagnId ||
     !periodeStart ||

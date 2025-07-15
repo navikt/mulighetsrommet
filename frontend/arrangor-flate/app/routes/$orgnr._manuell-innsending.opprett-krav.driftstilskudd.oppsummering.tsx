@@ -85,7 +85,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kid = session.get("kid");
   }
   if (
-    !orgnr ||
     !gjennomforingId ||
     !tilsagnId ||
     !periodeStart ||
