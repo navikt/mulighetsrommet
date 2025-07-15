@@ -10,7 +10,7 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
-import { formaterDato, navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   Besluttelse,
   BesluttTilsagnRequest,
@@ -40,6 +40,7 @@ import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { Laster } from "@/components/laster/Laster";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();

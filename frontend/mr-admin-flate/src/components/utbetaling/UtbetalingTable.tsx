@@ -1,4 +1,4 @@
-import { formaterNavEnheter, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
+import { formaterNavEnheter } from "@/utils/Utils";
 import { AdminUtbetalingStatus, NavEnhet, UtbetalingKompaktDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
@@ -9,6 +9,7 @@ import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { useSortableData } from "@mr/frontend-common";
+import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 
 interface Props {
   utbetalinger: UtbetalingKompaktDto[];

@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
+import { parseDate } from "@mr/frontend-common/utils/date";
 
 interface AvtalPrisOgFaktureringProps {
   tiltakstype?: EmbeddedTiltakstype;
@@ -133,8 +134,8 @@ function ForhandsgodkjenteSatser({ tiltakstype }: ForhandsgodkjentAvtalePrismode
               label={avtaletekster.prismodell.periodeStart.label}
               readOnly={true}
               onChange={() => {}}
-              fromDate={new Date(sats.periodeStart)}
-              toDate={new Date(sats.periodeSlutt)}
+              fromDate={parseDate(sats.periodeStart)!}
+              toDate={parseDate(sats.periodeSlutt)!}
               format={"iso-string"}
               size="small"
               value={sats.periodeStart}
@@ -144,8 +145,8 @@ function ForhandsgodkjenteSatser({ tiltakstype }: ForhandsgodkjentAvtalePrismode
               label={avtaletekster.prismodell.periodeSlutt.label}
               readOnly={true}
               onChange={() => {}}
-              fromDate={new Date(sats.periodeStart)}
-              toDate={new Date(sats.periodeSlutt)}
+              fromDate={parseDate(sats.periodeStart)!}
+              toDate={parseDate(sats.periodeSlutt)!}
               format={"iso-string"}
               size="small"
               value={sats.periodeSlutt}
@@ -171,6 +172,8 @@ function AvtalteSatser() {
   });
 
   const { startDato, sluttDato } = watch("startOgSluttDato");
+  const parsedStart = parseDate(startDato)!;
+  const parsedSlutt = parseDate(sluttDato);
 
   return (
     <VStack gap="4">
@@ -199,8 +202,8 @@ function AvtalteSatser() {
 
             <ControlledDateInput
               label={avtaletekster.prismodell.periodeStart.label}
-              fromDate={new Date(startDato)}
-              toDate={sluttDato ? new Date(sluttDato) : new Date()}
+              fromDate={parsedStart!}
+              toDate={parsedSlutt ?? new Date()}
               format={"iso-string"}
               size="small"
               {...register(`satser.${index}.periodeStart`)}
@@ -210,8 +213,8 @@ function AvtalteSatser() {
             <ControlledDateInput
               size="small"
               label={avtaletekster.prismodell.periodeSlutt.label}
-              fromDate={new Date(startDato)}
-              toDate={sluttDato ? new Date(sluttDato) : new Date()}
+              fromDate={parsedStart}
+              toDate={parsedSlutt ?? new Date()}
               format={"iso-string"}
               {...register(`satser.${index}.periodeSlutt`)}
               control={control}

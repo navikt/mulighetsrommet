@@ -2,8 +2,8 @@ import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArra
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { addYear } from "@/utils/Utils";
 import { GjennomforingDto, SetStengtHosArrangorRequest, ValidationError } from "@mr/api-client-v2";
+import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { Alert, Button, HGrid, TextField, VStack } from "@navikt/ds-react";
@@ -49,8 +49,8 @@ export function RegistrerStengtHosArrangorForm({
     );
   }
 
-  const minDate = addYear(new Date(), -1);
-  const maxDate = addYear(new Date(), 5);
+  const minDate = subDuration(new Date(), { years: 1 })!;
+  const maxDate = addDuration(new Date(), { years: 5 })!;
 
   return (
     <FormProvider {...form}>

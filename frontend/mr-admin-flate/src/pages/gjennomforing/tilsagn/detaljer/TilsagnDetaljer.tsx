@@ -3,7 +3,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TilsagnBeregningTable } from "@/components/tilsagn/prismodell/TilsagnBeregningTable";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
-import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   TilsagnBeregningFri,
   TilsagnDto,
@@ -18,6 +18,7 @@ import {
   isBeregningFri,
   isBeregningPrisPerManedsverk,
 } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
+import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 
 interface Props {
   tilsagn: TilsagnDto;

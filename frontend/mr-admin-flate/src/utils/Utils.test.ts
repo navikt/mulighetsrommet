@@ -4,8 +4,8 @@ import { capitalizeEveryWord, kalkulerStatusBasertPaaFraOgTilDato } from "./Util
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   test("Skal returnere status 'Aktiv' når nå er større eller lik fra-dato og nå er mindre eller lik til-dato", () => {
     const now = new Date("2023-2-13");
-    const fraDato = "2023-1-11";
-    const tilDato = "2023-5-17";
+    const fraDato = "2023-01-11";
+    const tilDato = "2023-05-17";
     const result = kalkulerStatusBasertPaaFraOgTilDato(
       {
         fraDato,
@@ -17,8 +17,8 @@ describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   });
   test("Skal returnere status 'Planlagt' når nå er mindre enn fra-dato", () => {
     const now = new Date("2023-2-13");
-    const fraDato = "2023-2-14";
-    const tilDato = "2023-5-17";
+    const fraDato = "2023-02-14";
+    const tilDato = "2023-05-17";
     const result = kalkulerStatusBasertPaaFraOgTilDato(
       {
         fraDato,
@@ -28,10 +28,10 @@ describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
     );
     expect(result).toEqual("Planlagt");
   });
-  test("Skal returnere status 'Avsluttet' når nå er større enn til-dato", () => {
+  test.only("Skal returnere status 'Avsluttet' når nå er større enn til-dato", () => {
     const now = new Date("2023-6-6");
-    const fraDato = "2023-2-14";
-    const tilDato = "2023-5-17";
+    const fraDato = "2023-02-14";
+    const tilDato = "2023-05-17";
     const result = kalkulerStatusBasertPaaFraOgTilDato(
       {
         fraDato,

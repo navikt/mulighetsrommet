@@ -1,6 +1,6 @@
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { capitalizeEveryWord, formaterDato, formaterNavEnheter } from "@/utils/Utils";
+import { capitalizeEveryWord, formaterNavEnheter } from "@/utils/Utils";
 import { SorteringAvtaler } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
@@ -13,6 +13,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { downloadAvtalerAsExcel } from "@/api/avtaler/downloadAvtalerAsExcel";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   filter: AvtaleFilterType;

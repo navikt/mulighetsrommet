@@ -1,6 +1,5 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -9,6 +8,8 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import { subDays, subMonths, max } from "date-fns";
+import { formaterDato, parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -67,13 +68,13 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
 
   const dagensDato = new Date();
 
-  const gjennomforingStartDato = new Date(gjennomforing.startDato);
+  const gjennomforingStartDato = parseDate(gjennomforing.startDato)!;
 
   const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato
-    ? new Date(gjennomforing.tilgjengeligForArrangorDato)
-    : max(subtractDays(gjennomforingStartDato, 14), dagensDato);
+    ? parseDate(gjennomforing.tilgjengeligForArrangorDato)!
+    : max([subDays(gjennomforingStartDato, 14), dagensDato]);
 
-  const mintilgjengeligForArrangorDato = max(subtractMonths(gjennomforingStartDato, 2), dagensDato);
+  const mintilgjengeligForArrangorDato = max([subMonths(gjennomforingStartDato, 2), dagensDato]);
 
   if (dagensDato > gjennomforingStartDato) {
     return null;

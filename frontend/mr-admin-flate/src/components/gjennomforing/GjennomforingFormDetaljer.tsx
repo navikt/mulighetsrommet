@@ -7,7 +7,7 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { addYear, formaterDato, isKursTiltak } from "@/utils/Utils";
+import { isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
@@ -42,6 +42,7 @@ import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
 import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
+import { addDuration, formaterDato, isEarlier, parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -91,7 +92,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
   const antallDeltakere = deltakerSummary?.antallDeltakere;
 
   useEffect(() => {
-    if (watchStartDato && new Date(watchStartDato) < new Date()) {
+    if (isEarlier(watchStartDato, new Date())) {
       setValue("tilgjengeligForArrangorDato", null);
     }
   }, [setValue, watchStartDato]);
@@ -132,8 +133,8 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
     value: enhet.enhetsnummer,
   }));
 
-  const minStartdato = new Date(avtale.startDato);
-  const maxSluttdato = addYear(minStartdato, 35);
+  const minStartdato = parseDate(avtale.startDato)!;
+  const maxSluttdato = addDuration(minStartdato, { years: 35 })!;
 
   return (
     <>

@@ -2,7 +2,6 @@ import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, OpprettOpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -13,7 +12,11 @@ import {
   Opsjonsvalg,
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
-import { addYear } from "@/utils/Utils";
+import {
+  addDuration,
+  formaterDatoSomYYYYMMDD,
+  isLaterOrSameDay,
+} from "@mr/frontend-common/utils/date";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -48,10 +51,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   function sluttDatoErLikEllerPassererMaksVarighet(): boolean {
-    if (avtale?.opsjonsmodell?.opsjonMaksVarighet && avtale?.sluttDato) {
-      return new Date(avtale.sluttDato) >= new Date(avtale.opsjonsmodell.opsjonMaksVarighet);
-    }
-    return false;
+    return isLaterOrSameDay(avtale?.sluttDato, avtale?.opsjonsmodell?.opsjonMaksVarighet);
   }
 
   if (sluttDatoErLikEllerPassererMaksVarighet()) {
@@ -134,7 +134,7 @@ function getNesteSluttDato(
   switch (opsjonsvalg) {
     case "1":
       return avtaleSluttDato
-        ? formaterDatoSomYYYYMMDD(addYear(new Date(avtaleSluttDato), 1))
+        ? formaterDatoSomYYYYMMDD(addDuration(avtaleSluttDato, { years: 1 }))
         : null;
     case "Annet":
       return customSluttDato || null;

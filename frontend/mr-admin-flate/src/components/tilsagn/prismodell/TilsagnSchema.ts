@@ -1,6 +1,7 @@
 import z from "zod";
 import { TilsagnType } from "@mr/api-client-v2";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
+import { parseDate } from "@mr/frontend-common/utils/date";
 
 const TilsagnBeregningFriInputLinje = z.object({
   id: z.string(),
@@ -83,8 +84,8 @@ export const TilsagnSchema = z
   })
   .refine(
     (data) => {
-      const start = new Date(data.periodeStart);
-      const slutt = new Date(data.periodeSlutt);
+      const start = parseDate(data.periodeStart)!;
+      const slutt = parseDate(data.periodeSlutt)!;
       if (start > slutt) {
         return false;
       }
@@ -97,8 +98,8 @@ export const TilsagnSchema = z
   )
   .refine(
     (data) => {
-      const start = new Date(data.periodeStart);
-      const slutt = new Date(data.periodeSlutt);
+      const start = parseDate(data.periodeStart)!;
+      const slutt = parseDate(data.periodeSlutt)!;
       if (slutt < start) {
         return false;
       }

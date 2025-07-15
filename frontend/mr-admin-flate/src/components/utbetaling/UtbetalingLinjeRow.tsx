@@ -1,4 +1,4 @@
-import { delutbetalingAarsakTilTekst, formaterPeriode, tilsagnTypeToString } from "@/utils/Utils";
+import { delutbetalingAarsakTilTekst, tilsagnTypeToString } from "@/utils/Utils";
 import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
@@ -19,6 +19,7 @@ import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/Aarsaker
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 interface Props {
   readOnly?: boolean;

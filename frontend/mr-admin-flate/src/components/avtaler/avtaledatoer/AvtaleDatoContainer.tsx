@@ -1,11 +1,11 @@
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
-import { addYear } from "@/utils/Utils";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import { addDuration, parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   avtale?: AvtaleDto;
@@ -17,11 +17,11 @@ export function AvtaleDatoContainer({ avtale }: Props) {
   const { startDato } = watch("startOgSluttDato") ?? {};
   // Uten useMemo for sluttDatoFraDato så trigges rerendering av children hver gang sluttdato kalkuleres på nytt ved endring av startdato
   const sluttDatoFraDato = useMemo(
-    () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),
+    () => parseDate(startDato) ?? MIN_START_DATO_FOR_AVTALER,
     [startDato],
   );
   const sluttDatoTilDato = useMemo(
-    () => addYear(startDato ? new Date(startDato) : new Date(), MAKS_AAR_FOR_AVTALER),
+    () => addDuration(parseDate(startDato) ?? new Date(), { years: MAKS_AAR_FOR_AVTALER })!,
     [startDato],
   );
 

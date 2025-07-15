@@ -1,4 +1,5 @@
 import { Oppgave, OppgaveIconType, OppgaveType, Tiltakskode } from "@mr/api-client-v2";
+import { subDuration } from "@mr/frontend-common/utils/date";
 
 export const mockOppgaver: Oppgave[] = [
   {
@@ -14,7 +15,7 @@ export const mockOppgaver: Oppgave[] = [
       linkText: "Gå til tilsagnet",
       link: "https://nav.no/",
     },
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toString(),
+    createdAt: subDuration(new Date(), { days: 5 })!.toISOString(),
     iconType: OppgaveIconType.TILSAGN,
   },
   {
@@ -30,7 +31,7 @@ export const mockOppgaver: Oppgave[] = [
       linkText: "Gå til tilsagnet",
       link: "https://nav.no/",
     },
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toString(),
+    createdAt: subDuration(new Date(), { days: 4 })!.toISOString(),
     iconType: OppgaveIconType.TILSAGN,
   },
   {
@@ -46,7 +47,7 @@ export const mockOppgaver: Oppgave[] = [
       linkText: "Gå til tilsagnet",
       link: "https://nav.no/",
     },
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toString(),
+    createdAt: subDuration(new Date(), { days: 3 })!.toISOString(),
     iconType: OppgaveIconType.TILSAGN,
   },
   {
@@ -62,7 +63,7 @@ export const mockOppgaver: Oppgave[] = [
       linkText: "Se utbetaling",
       link: "https://nav.no/",
     },
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toString(),
+    createdAt: subDuration(new Date(), { days: 3 })!.toISOString(),
     iconType: OppgaveIconType.UTBETALING,
   },
 ];

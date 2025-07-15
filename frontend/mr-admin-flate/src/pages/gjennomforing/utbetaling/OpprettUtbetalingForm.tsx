@@ -15,12 +15,12 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { addYear } from "@/utils/Utils";
 import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { Separator } from "@/components/detaljside/Metadata";
+import { addDuration, parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -107,7 +107,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
       },
     );
   }
-
+  const fiveYearsAhead = addDuration(new Date(), { years: 5 })!;
   const errors = formState.errors;
   return (
     <>
@@ -123,8 +123,8 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                 <ControlledDateInput
                   size="small"
                   label="Periodestart"
-                  fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addYear(new Date(), 5)}
+                  fromDate={parseDate(gjennomforing.startDato)!}
+                  toDate={fiveYearsAhead}
                   format="iso-string"
                   {...register("periodeStart")}
                   control={control}
@@ -132,8 +132,8 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                 <ControlledDateInput
                   size="small"
                   label="Periodeslutt"
-                  fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addYear(new Date(), 5)}
+                  fromDate={parseDate(gjennomforing.startDato)!}
+                  toDate={fiveYearsAhead}
                   format="iso-string"
                   {...register("periodeSlutt")}
                   control={control}

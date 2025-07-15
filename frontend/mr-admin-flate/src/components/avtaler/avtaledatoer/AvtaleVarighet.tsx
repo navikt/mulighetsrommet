@@ -11,6 +11,7 @@ import {
   hentGjeldendeOpsjonsmodeller,
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
+import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 
 interface Props {
   avtale?: AvtaleDto;
@@ -182,9 +183,6 @@ export function AvtaleVarighet({
   );
 }
 
-function kalkulerMaksDato(date: Date, addYears: number): Date {
-  const resultDate = new Date(date.getTime());
-  resultDate.setFullYear(resultDate.getFullYear() + addYears);
-  const daysInMilliseconds = 1 * 24 * 60 * 60 * 1000;
-  return new Date(resultDate.getTime() - daysInMilliseconds);
+function kalkulerMaksDato(date: Date, years: number): Date {
+  return subDuration(addDuration(date, { years }), { days: 1 })!;
 }
