@@ -84,15 +84,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kontonummer = session.get("kontonummer");
     kid = session.get("kid");
   }
-  if (
-    !orgnr ||
-    !gjennomforingId ||
-    !tilsagnId ||
-    !periodeStart ||
-    !periodeSlutt ||
-    !belop ||
-    !kontonummer
-  )
+  if (!gjennomforingId || !tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
     throw new Error("Formdata mangler");
 
   const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
