@@ -7,25 +7,34 @@
   "types": "index.tsx",
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
   "dependencies": {
+    "@date-fns/tz": "^1.2.0",
+    "@date-fns/utc": "^2.1.0",
     "@hookform/resolvers": "5.1.1",
     "@navikt/aksel-icons": "7.25.1",
     "@navikt/ds-css": "7.25.1",
     "@navikt/ds-react": "7.25.1",
     "@tanstack/react-query": "5.83.0",
     "classnames": "2.5.1",
+    "date-fns": "^4.1.0",
     "debounce": "2.2.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-error-boundary": "6.0.0",
     "react-hook-form": "7.60.0",
-    "react-select": "5.10.2",
     "react-router": "7.6.3",
+    "react-select": "5.10.2",
     "use-resize-observer": "9.1.0",
     "zod": "4.0.5"
   },
+  "scripts": {
+    "test": "vitest"
+  },
   "devDependencies": {
     "@types/react": "19.0.3",
-    "@types/react-dom": "19.0.4"
+    "@types/react-dom": "19.0.4",
+    "@vitejs/plugin-react": "4.6.0",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "3.2.4"
   },
   "repository": {
     "type": "git",
