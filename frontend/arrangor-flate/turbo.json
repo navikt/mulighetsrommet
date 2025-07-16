@@ -37,6 +37,10 @@
       "env": ["NODE_AUTH_TOKEN", "NPM_CONFIG_USERCONFIG"],
       "dependsOn": ["build:demo"],
       "outputs": ["dist"]
+    },
+    "playwright": {
+      "dependsOn": ["api-client:build"],
+      "outputs": []
     }
   }
 }
