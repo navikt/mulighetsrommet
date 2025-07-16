@@ -87,30 +87,45 @@ export function validEmail(email: string | undefined): boolean {
   );
 }
 
+/**
+ * @deprecated bruk `addDuration(date, {years: number})`
+ */
 export function addYear(date: Date, numYears: number): Date {
   const newDate = new Date(date);
   newDate.setFullYear(date.getFullYear() + numYears);
   return newDate;
 }
 
+/**
+ * @deprecated bruk `addDuration(date, {months: number})`
+ */
 export function addMonths(date: Date, numOfMonths: number): Date {
   const newDate = new Date(date);
   newDate.setMonth(date.getMonth() + numOfMonths);
   return newDate;
 }
 
+/**
+ * @deprecated Bruk `subDuration(date, {months: number})`
+ */
 export function subtractMonths(date: Date, numMonths: number): Date {
   const newDate = new Date(date);
   newDate.setMonth(date.getMonth() - numMonths);
   return newDate;
 }
 
+/**
+ * @deprecated bruk `addDuration(date, {days: number})`
+ */
 export function addDays(date: Date | string, numDays: number): Date {
   const newDate = new Date(date);
   newDate.setDate(newDate.getDate() + numDays);
   return newDate;
 }
 
+/**
+ * @deprecated Bruk `subDuration(date, {days: number})`
+ */
 export function subtractDays(date: Date | string, numDays: number): Date {
   const newDate = new Date(date);
   newDate.setDate(newDate.getDate() - numDays);
@@ -121,6 +136,9 @@ export function avtaleHarRegioner(avtale: AvtaleDto): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
 }
 
+/**
+ * @deprecated Bruk maxOf([fra,til,annet])
+ */
 export function max(a: Date, b: Date): Date {
   return a > b ? a : b;
 }
