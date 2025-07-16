@@ -1,9 +1,9 @@
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { HistorikkService } from "@mr/api-client-v2";
+import { BrukerDeltakelseType, HistorikkService } from "@mr/api-client-v2";
 
-export function useTiltakshistorikkForBruker(type: "AKTIVE" | "HISTORISKE") {
+export function useTiltakshistorikkForBruker(type: BrukerDeltakelseType) {
   const { fnr: norskIdent } = useModiaContext();
 
   return useApiSuspenseQuery({

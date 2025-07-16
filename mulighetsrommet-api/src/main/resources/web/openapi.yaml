@@ -1733,11 +1733,7 @@ paths:
         name: perspective
         description: Hvilket Sanity-perspective du vil bruke
         schema:
-          type: string
-          enum:
-            - previewDrafts
-            - published
-            - raw
+          $ref: "#/components/schemas/SanityPerspective"
     get:
       tags:
         - Oppskrifter
@@ -2855,10 +2851,7 @@ components:
         norskIdent:
           type: string
         type:
-          type: string
-          enum:
-            - AKTIVE
-            - HISTORISKE
+          $ref: "#/components/schemas/BrukerDeltakelseType"
       required:
         - norskIdent
         - type
@@ -2894,6 +2887,12 @@ components:
           type: string
       required:
         - norskIdent
+
+    BrukerDeltakelseType:
+      type: string
+      enum:
+        - AKTIVE
+        - HISTORISKE
 
     ApentForPamelding:
       type: string
@@ -5150,6 +5149,13 @@ components:
         - steg
         - _updatedAt
 
+    SanityPerspective:
+      type: string
+      enum:
+        - previewDrafts
+        - published
+        - raw
+
     Steg:
       type: object
       properties:
@@ -5304,8 +5310,7 @@ components:
       properties:
         kurstype:
           type: string
-          enum:
-            - BRANSJE_OG_YRKESRETTET
+          const: BRANSJE_OG_YRKESRETTET
         bransje:
           $ref: "#/components/schemas/Bransje"
         forerkort:
@@ -5332,8 +5337,7 @@ components:
       properties:
         kurstype:
           type: string
-          enum:
-            - NORSKOPPLAERING
+          const: NORSKOPPLAERING
         norskprove:
           type: boolean
         innholdElementer:
@@ -5350,8 +5354,7 @@ components:
       properties:
         kurstype:
           type: string
-          enum:
-            - GRUNNLEGGENDE_FERDIGHETER
+          const: GRUNNLEGGENDE_FERDIGHETER
         innholdElementer:
           type: array
           items:
@@ -5365,8 +5368,7 @@ components:
       properties:
         kurstype:
           type: string
-          enum:
-            - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
+          const: FORBEREDENDE_OPPLAERING_FOR_VOKSNE
       required:
         - kurstype
 
@@ -5375,8 +5377,7 @@ components:
       properties:
         kurstype:
           type: string
-          enum:
-            - STUDIESPESIALISERING
+          const: STUDIESPESIALISERING
       required:
         - kurstype
 
