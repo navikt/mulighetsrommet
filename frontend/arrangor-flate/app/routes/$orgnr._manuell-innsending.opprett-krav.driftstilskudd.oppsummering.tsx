@@ -27,7 +27,7 @@ import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { formaterDatoSomYYYYMMDD, formaterPeriode } from "@mr/frontend-common/utils/date";
+import { yyyyMMddFormatting, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 
@@ -160,8 +160,8 @@ export const action: ActionFunction = async ({ request }) => {
       belop: belop!,
       gjennomforingId: gjennomforingId!,
       tilsagnId: tilsagnId!,
-      periodeStart: formaterDatoSomYYYYMMDD(periodeStart!),
-      periodeSlutt: formaterDatoSomYYYYMMDD(periodeSlutt!),
+      periodeStart: yyyyMMddFormatting(periodeStart!),
+      periodeSlutt: yyyyMMddFormatting(periodeSlutt!),
       kontonummer: kontonummer!,
       kidNummer: kid || null,
       tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
