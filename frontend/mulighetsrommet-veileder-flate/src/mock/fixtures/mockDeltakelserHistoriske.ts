@@ -3,6 +3,7 @@ import {
   Deltakelse,
   DeltakelseEierskap,
   ArbeidsgiverAvtaleStatus,
+  EierskapEnum,
 } from "@mr/api-client-v2";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
 
@@ -18,7 +19,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
     periode: {},
   },
   {
@@ -46,7 +47,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
       aarsak: "utdanning",
     },
     innsoktDato: "2024-03-02",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
     periode: {},
   },
   {
@@ -64,7 +65,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
       visningstekst: "Har sluttet",
     },
     innsoktDato: "2024-03-02",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
   },
   {
     periode: {
@@ -81,7 +82,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
       visningstekst: "Fullført",
     },
     innsoktDato: "2024-02-03",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
   },
   {
     periode: {
@@ -99,7 +100,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
       aarsak: "Fått jobb",
     },
     innsoktDato: "2024-02-03",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
   },
   {
     tittel: "Avklaring med Anne",
@@ -112,7 +113,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
       visningstekst: "Feilregistrert",
     },
     innsoktDato: "2024-02-03",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
     periode: {},
   },
   {
@@ -125,7 +126,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
       visningstekst: "Fullført",
     },
     innsoktDato: "2017-02-03",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
     periode: {},
   },
 ];

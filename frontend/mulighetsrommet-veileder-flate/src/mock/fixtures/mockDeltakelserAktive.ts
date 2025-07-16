@@ -2,6 +2,7 @@ import {
   ArbeidsgiverAvtaleStatus,
   Deltakelse,
   DeltakelseEierskap,
+  EierskapEnum,
   GruppetiltakDeltakerStatus,
 } from "@mr/api-client-v2";
 import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockGjennomforinger";
@@ -18,7 +19,7 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstypeNavn: "Arbeidsforberedende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
     periode: {},
   },
   {
@@ -32,7 +33,7 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
     periode: {},
   },
   {
@@ -49,7 +50,7 @@ export const deltakelserAktive: Deltakelse[] = [
       sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
   },
   {
     id: window.crypto.randomUUID(),
@@ -65,7 +66,7 @@ export const deltakelserAktive: Deltakelse[] = [
       sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    eierskap: EierskapEnum.TEAM_KOMET,
   },
   {
     id: window.crypto.randomUUID(),

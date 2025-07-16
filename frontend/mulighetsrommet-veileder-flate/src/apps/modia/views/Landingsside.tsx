@@ -1,6 +1,6 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
-import { Deltakelse, DeltakelserMelding } from "@mr/api-client-v2";
+import { Deltakelse, DeltakelserMelding, BrukerDeltakelseType } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,
@@ -179,7 +179,7 @@ function Container(props: { children: ReactNode }) {
 }
 
 function DeltakelserAktive() {
-  const { data } = useTiltakshistorikkForBruker("AKTIVE");
+  const { data } = useTiltakshistorikkForBruker(BrukerDeltakelseType.AKTIVE);
 
   return (
     <Container>
@@ -198,7 +198,7 @@ function DeltakelserAktive() {
 }
 
 function DeltakelserHistoriske() {
-  const { data } = useTiltakshistorikkForBruker("HISTORISKE");
+  const { data } = useTiltakshistorikkForBruker(BrukerDeltakelseType.HISTORISKE);
   const [yngreEnn5aar, eldreEnn5aar] = data.deltakelser.reduce<[Deltakelse[], Deltakelse[]]>(
     ([yngre, eldre], deltakelse) => {
       return isYngreEnn5aar(deltakelse)
