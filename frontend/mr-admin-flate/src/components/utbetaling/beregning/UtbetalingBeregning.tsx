@@ -12,7 +12,7 @@ interface Props {
   beregning: UtbetalingBeregningDto;
 }
 
-export default function Beregning({ beregning }: Props) {
+export default function UtbetalingBeregning({ beregning }: Props) {
   return (
     <VStack gap="2">
       {beregning.deltakerTableData.rows.length > 0 && (

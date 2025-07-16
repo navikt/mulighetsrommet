@@ -1,21 +1,21 @@
 import { Button, HStack, VStack } from "@navikt/ds-react";
 import { UtbetalingBeregningDto } from "@mr/api-client-v2";
 import { useState } from "react";
-import Beregning from "./Beregning";
-import { BeregningModal } from "./BeregningModal";
+import UtbetalingBeregning from "./UtbetalingBeregning";
+import { UtbetalingBeregningModal } from "./UtbetalingBeregningModal";
 
 interface Props {
   beregning: UtbetalingBeregningDto;
   utbetalingId: string;
 }
 
-export default function BeregningView({ beregning, utbetalingId }: Props) {
+export default function UtbetalingBeregningView({ beregning, utbetalingId }: Props) {
   const [beregningModalOpen, setBeregningModalOpen] = useState<boolean>(false);
 
   return (
     <VStack gap="2">
       <div className="max-h-[30rem] overflow-y-scroll">
-        <Beregning beregning={beregning} />
+        <UtbetalingBeregning beregning={beregning} />
       </div>
       <HStack justify="start" align="start">
         {beregning.deltakerTableData.rows.length > 0 && (
@@ -24,7 +24,7 @@ export default function BeregningView({ beregning, utbetalingId }: Props) {
           </Button>
         )}
       </HStack>
-      <BeregningModal
+      <UtbetalingBeregningModal
         utbetalingId={utbetalingId}
         modalOpen={beregningModalOpen}
         onClose={() => setBeregningModalOpen(false)}

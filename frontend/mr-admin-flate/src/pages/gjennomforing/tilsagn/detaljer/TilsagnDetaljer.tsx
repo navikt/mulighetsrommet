@@ -3,10 +3,6 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
-  TilsagnBeregningDto,
-  TilsagnBeregningFri,
-  TilsagnBeregningPrisPerManedsverk,
-  TilsagnBeregningPrisPerUkesverk,
   TilsagnDto,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
@@ -15,10 +11,10 @@ import {
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregning";
+import { TilsagnPrismodell } from "@/components/tilsagn/prismodell/TilsagnPrismodell";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -75,7 +71,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             </VStack>
           </HStack>
           <Separator />
-          <TilsagnPrismodellSection beregning={beregning} />
+          <TilsagnPrismodell beregning={beregning} />
         </VStack>
         <VStack gap="4" className="lg:px-4 flex-1">
           <MetadataHorisontal
@@ -116,54 +112,5 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
         </VStack>
       </TwoColumnGrid>
     </>
-  );
-}
-
-function TilsagnPrismodellSection({ beregning }: { beregning: TilsagnBeregningDto }) {
-  switch (beregning.type) {
-    case "FRI":
-      return <FriPrismodell beregning={beregning} />;
-    case "PRIS_PER_UKESVERK":
-    case "PRIS_PER_MANEDSVERK":
-      return <PrisPerManedsUkesverkPrismodell beregning={beregning} />;
-  }
-}
-
-function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
-  const paragraphs = beregning.prisbetingelser?.split("\n") || [];
-
-  return (
-    <VStack gap="4">
-      <Heading size="small">Prismodell - Annen avtalt pris</Heading>
-      <div className="max-h-[10rem] overflow-y-scroll">
-        {paragraphs.map((i: string) => (
-          <p key={i}>{i}</p>
-        ))}
-      </div>
-    </VStack>
-  );
-}
-
-function PrisPerManedsUkesverkPrismodell({
-  beregning,
-}: {
-  beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
-}) {
-  return (
-    <VStack gap="4">
-      <Heading size="small">
-        Prismodell - Pris per {isBeregningPrisPerManedsverk(beregning) ? "månedsverk" : "ukesverk"}
-      </Heading>
-      <VStack gap="4">
-        <MetadataHorisontal
-          header={tilsagnTekster.antallPlasser.label}
-          verdi={beregning.antallPlasser}
-        />
-        <MetadataHorisontal
-          header={tilsagnTekster.sats.label}
-          verdi={formaterNOK(beregning.sats)}
-        />
-      </VStack>
-    </VStack>
   );
 }
