@@ -1,7 +1,7 @@
 import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
-import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   TilsagnDto,
   TilsagnStatus,
@@ -15,6 +15,7 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregning";
 import { TilsagnPrismodell } from "@/components/tilsagn/prismodell/TilsagnPrismodell";
+import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 
 interface Props {
   tilsagn: TilsagnDto;

@@ -10,7 +10,6 @@ import {
   InnholdElement,
   Kurstype,
   NavEnhet,
-  Periode,
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
@@ -34,42 +33,6 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
       return capitalize(it);
     })
     ?.join(" ");
-}
-
-export function formaterPeriode(periode: Periode) {
-  return `${formaterPeriodeStart(periode)} - ${formaterPeriodeSlutt(periode)}`;
-}
-
-export function formaterPeriodeStart(periode: Periode) {
-  return formaterDato(periode.start);
-}
-
-export function formaterPeriodeSlutt(periode: Periode) {
-  return formaterDato(subtractDays(new Date(periode.slutt), 1));
-}
-
-export function formaterDato(dato: string | Date | undefined | null): string {
-  if (!dato) return "";
-
-  return new Date(dato).toLocaleString("no-NO", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
-export function formaterDatoTid(dato: string | Date, fallback = ""): string {
-  const result = new Date(dato).toLocaleTimeString("no-NO", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-
-  if (result === "Invalid Date") {
-    return fallback;
-  }
-
-  return result.replace(",", " ");
 }
 
 export function kalkulerStatusBasertPaaFraOgTilDato(

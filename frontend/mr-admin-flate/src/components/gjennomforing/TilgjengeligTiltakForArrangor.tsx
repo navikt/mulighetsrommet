@@ -1,6 +1,6 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
+import { max, subtractDays, subtractMonths } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -9,6 +9,7 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing: GjennomforingDto;

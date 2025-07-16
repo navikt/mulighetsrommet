@@ -1,9 +1,9 @@
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
-import { formaterDato } from "@/utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
 import { ReactNode } from "react";
 import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing: GjennomforingDto;

@@ -7,7 +7,7 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { addYear, formaterDato, isKursTiltak } from "@/utils/Utils";
+import { addYear, isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
@@ -42,6 +42,7 @@ import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
 import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
