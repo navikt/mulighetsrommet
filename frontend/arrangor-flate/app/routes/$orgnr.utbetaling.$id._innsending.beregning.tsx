@@ -19,7 +19,7 @@ import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
-import { formaterPeriode } from "~/utils/date";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 export const meta: MetaFunction = () => {
   return [

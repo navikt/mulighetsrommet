@@ -6,7 +6,7 @@ import { Definisjonsliste } from "../common/Definisjonsliste";
 import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { useOrgnrFromUrl } from "~/utils/navigation";
-import { formaterDato } from "~/utils/date";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   utbetaling: ArrFlateUtbetaling;

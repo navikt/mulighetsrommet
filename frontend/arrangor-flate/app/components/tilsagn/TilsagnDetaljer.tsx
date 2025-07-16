@@ -2,8 +2,8 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateTilsagn } from "api-client";
 import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { formaterPeriode } from "~/utils/date";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
