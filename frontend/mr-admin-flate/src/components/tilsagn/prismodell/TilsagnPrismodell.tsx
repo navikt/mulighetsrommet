@@ -30,7 +30,7 @@ function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
   return (
     <VStack gap="4">
       <Heading size="small">Prismodell - Annen avtalt pris</Heading>
-      <div className="max-h-[10rem] overflow-y-scroll">
+      <div>
         {paragraphs.map((i: string) => (
           <p key={i}>{i}</p>
         ))}

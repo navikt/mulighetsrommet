@@ -56,7 +56,7 @@ export function TilsagnBeregningPreview(props: Props) {
           <Label size="medium">Totalbeløp</Label>
           {beregning?.belop && <Label size="medium">{formaterNOK(beregning.belop)}</Label>}
         </HStack>
-        {beregning && <TilsagnBeregning beregning={beregning} />}
+        {beregning && <TilsagnBeregning redigeringsModus beregning={beregning} />}
       </VStack>
     </>
   );

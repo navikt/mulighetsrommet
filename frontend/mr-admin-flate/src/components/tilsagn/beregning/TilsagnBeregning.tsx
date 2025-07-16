@@ -10,12 +10,19 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   beregning: TilsagnBeregningDto;
+  redigeringsModus?: boolean;
 }
 
-export function TilsagnBeregning({ beregning }: Props) {
+export function TilsagnBeregning({ beregning, redigeringsModus }: Props) {
   switch (beregning.type) {
     case "FRI":
-      return <FriBeregningTable medRadnummer linjer={beregning.linjer} />;
+      return (
+        <FriBeregningTable
+          medRadnummer={redigeringsModus}
+          medBeskrivelse={!redigeringsModus}
+          linjer={beregning.linjer}
+        />
+      );
     case "PRIS_PER_UKESVERK":
       return <PrisPerUkesverkBeregning beregning={beregning} />;
     case "PRIS_PER_MANEDSVERK":
@@ -26,9 +33,10 @@ export function TilsagnBeregning({ beregning }: Props) {
 interface TilsagnBeregningTableProps {
   linjer: TilsagnBeregningFriInputLinje[];
   medRadnummer?: boolean;
+  medBeskrivelse?: boolean;
 }
 
-function FriBeregningTable({ linjer, medRadnummer }: TilsagnBeregningTableProps) {
+function FriBeregningTable({ linjer, medRadnummer, medBeskrivelse }: TilsagnBeregningTableProps) {
   if (!linjer.length) {
     return null;
   }
@@ -36,11 +44,16 @@ function FriBeregningTable({ linjer, medRadnummer }: TilsagnBeregningTableProps)
     <Table size="small">
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell scope="col">
-            {medRadnummer
-              ? tilsagnTekster.beregning.input.linjer.rad.label
-              : tilsagnTekster.beregning.input.linjer.beskrivelse.label}
-          </Table.HeaderCell>
+          {medRadnummer && (
+            <Table.HeaderCell scope="col">
+              {tilsagnTekster.beregning.input.linjer.rad.label}
+            </Table.HeaderCell>
+          )}
+          {medBeskrivelse && (
+            <Table.HeaderCell scope="col">
+              {tilsagnTekster.beregning.input.linjer.beskrivelse.label}
+            </Table.HeaderCell>
+          )}
           <Table.HeaderCell scope="col" align="right">
             {tilsagnTekster.beregning.input.linjer.belop.label}
           </Table.HeaderCell>
@@ -56,12 +69,8 @@ function FriBeregningTable({ linjer, medRadnummer }: TilsagnBeregningTableProps)
         {linjer.map(({ id, beskrivelse, belop, antall }: any, i: number) => {
           return (
             <Table.Row key={id}>
-              {medRadnummer ? (
-                <Table.HeaderCell scope="row">{i + 1}</Table.HeaderCell>
-              ) : (
-                <Table.DataCell>{beskrivelse}</Table.DataCell>
-              )}
-
+              {medRadnummer && <Table.HeaderCell scope="row">{i + 1}</Table.HeaderCell>}
+              {medBeskrivelse && <Table.DataCell>{beskrivelse}</Table.DataCell>}
               <Table.DataCell align="right">{formaterNOK(belop)}</Table.DataCell>
               <Table.DataCell align="right">{antall}</Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(belop * antall)}</Table.DataCell>
