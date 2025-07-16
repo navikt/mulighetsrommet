@@ -54,7 +54,7 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            fun manedsverkDeltakelseRow(manedsverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
+            private fun manedsverkDeltakelseRow(manedsverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
                 mapOf(
                     "manedsverk" to JsonPrimitive(manedsverk),
                     "belop" to JsonPrimitive(sats.toDouble() * manedsverk),

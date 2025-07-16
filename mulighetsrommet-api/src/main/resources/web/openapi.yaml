@@ -2144,7 +2144,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilsagnBeregningOutput"
+                $ref: "#/components/schemas/TilsagnBeregningDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -5780,7 +5780,7 @@ components:
         kostnadssted:
           $ref: "#/components/schemas/NavEnhet"
         beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
+          $ref: "#/components/schemas/TilsagnBeregningDto"
         status:
           $ref: "#/components/schemas/TilsagnStatus"
         bestillingsnummer:
@@ -5902,7 +5902,7 @@ components:
         - PRIS_PER_MANEDSVERK
         - PRIS_PER_UKESVERK
 
-    TilsagnBeregning:
+    TilsagnBeregningDto:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningFri"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
@@ -5914,25 +5914,22 @@ components:
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
 
-    TilsagnBeregningOutput:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
-
     TilsagnBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
           const: PRIS_PER_MANEDSVERK
-        input:
-          $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
-        output:
-          $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkOutput"
-      required:
-        - type
-        - input
-        - output
+        belop:
+          type: integer
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+        antallManeder:
+          type: number
+        periode:
+          $ref: "#/components/schemas/Periode"
+      required: [periode, type, belop, sats, antallPlasser, antallManeder]
 
     TilsagnBeregningPrisPerManedsverkInput:
       type: object
@@ -5945,36 +5942,24 @@ components:
           type: integer
         antallPlasser:
           type: integer
-      required:
-        - type
-        - periode
-        - sats
-        - antallPlasser
-
-    TilsagnBeregningPrisPerManedsverkOutput:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_MANEDSVERK
-        belop:
-          type: integer
-      required:
-        - type
-        - belop
+      required: [type, periode, sats, antallPlasser]
 
     TilsagnBeregningPrisPerUkesverk:
       type: object
       properties:
         type:
           const: PRIS_PER_UKESVERK
-        input:
-          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
-        output:
-          $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkOutput"
-      required:
-        - type
-        - input
-        - output
+        belop:
+          type: integer
+        periode:
+          $ref: "#/components/schemas/Periode"
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+        antallUker:
+          type: number
+      required: [periode, type, belop, sats, antallPlasser, antallUker ]
 
     TilsagnBeregningPrisPerUkesverkInput:
       type: object
@@ -5993,30 +5978,20 @@ components:
         - sats
         - antallPlasser
 
-    TilsagnBeregningPrisPerUkesverkOutput:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_UKESVERK
-        belop:
-          type: integer
-      required:
-        - type
-        - belop
-
     TilsagnBeregningFri:
       type: object
       properties:
         type:
           const: FRI
-        input:
-          $ref: "#/components/schemas/TilsagnBeregningFriInput"
-        output:
-          $ref: "#/components/schemas/TilsagnBeregningFriOutput"
-      required:
-        - type
-        - input
-        - output
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnBeregningFriInputLinje"
+        prisbetingelser:
+          type: [ string, "null" ]
+        belop:
+          type: integer
+      required: [type, belop, prisbetingelser, linjer]
 
     TilsagnBeregningFriInput:
       type: object
@@ -6052,17 +6027,6 @@ components:
         - beskrivelse
         - belop
         - antall
-
-    TilsagnBeregningFriOutput:
-      type: object
-      properties:
-        type:
-          const: FRI
-        belop:
-          type: integer
-      required:
-        - type
-        - belop
 
     PrismodellDto:
       type: object
@@ -6667,7 +6631,7 @@ components:
               type: string
           required: [id, organisasjonsnummer, navn]
         beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
+          $ref: "#/components/schemas/TilsagnBeregningDto"
         bruktBelop:
           type: integer
         gjenstaendeBelop:

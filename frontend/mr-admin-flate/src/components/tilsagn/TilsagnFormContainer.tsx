@@ -1,5 +1,5 @@
-import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/prismodell/TilsagnFormPrisPerManedsverk";
-import { TilsagnFormFri } from "@/components/tilsagn/prismodell/TilsagnFormFri";
+import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
+import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
 import {
   AvtaleDto,
   GjennomforingDto,
@@ -8,7 +8,7 @@ import {
   TilsagnType,
 } from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
-import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
 import { Alert } from "@navikt/ds-react";
 

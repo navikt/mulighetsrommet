@@ -27,7 +27,7 @@ import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect } from "react";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import BeregningView from "@/components/utbetaling/beregning/BeregningView";
+import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -192,7 +192,7 @@ export function UtbetalingPage() {
                   <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
                   <Accordion.Content>
                     {utbetalingId && (
-                      <BeregningView utbetalingId={utbetalingId} beregning={beregning} />
+                      <UtbetalingBeregningView utbetalingId={utbetalingId} beregning={beregning} />
                     )}
                   </Accordion.Content>
                 </Accordion.Item>

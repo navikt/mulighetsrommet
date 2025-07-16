@@ -1,4 +1,3 @@
-import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
 import { TilsagnDto, TilsagnStatus } from "@mr/api-client-v2";
@@ -10,6 +9,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { useSortableData } from "@mr/frontend-common";
 import { useMemo } from "react";
+import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 
 interface TilsagnRow {
   periodeStart: string;
@@ -35,7 +35,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
         type: t.type,
         navnForKostnadssted: t.kostnadssted.navn,
         antallPlasser: getAntallPlasser(t),
-        belop: t.beregning.output.belop,
+        belop: t.beregning.belop,
         status: t.status,
       }));
     }, [tilsagn]),
@@ -83,7 +83,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
               <Table.DataCell>{avtaletekster.tilsagn.type(tilsagn.type)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
               <Table.DataCell align="right">{getAntallPlasser(tilsagn)}</Table.DataCell>
-              <Table.DataCell align="right">{formaterNOK(beregning.output.belop)}</Table.DataCell>
+              <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <TilsagnTag status={tilsagn.status} />
               </Table.DataCell>
@@ -107,7 +107,5 @@ export function TilsagnTabell({ tilsagn }: Props) {
 }
 
 function getAntallPlasser(tilsagn: TilsagnDto) {
-  return isBeregningPrisPerManedsverk(tilsagn.beregning)
-    ? tilsagn.beregning.input.antallPlasser
-    : null;
+  return isBeregningPrisPerManedsverk(tilsagn.beregning) ? tilsagn.beregning.antallPlasser : null;
 }

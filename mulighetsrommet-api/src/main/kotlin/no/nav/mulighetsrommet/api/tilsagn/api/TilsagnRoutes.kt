@@ -143,7 +143,7 @@ fun Route.tilsagnRoutes() {
         post("/beregn") {
             val request = call.receive<TilsagnBeregningInput>()
             val result = service.beregnTilsagn(request)
-                .map { it.output }
+                .map { TilsagnBeregningDto.from(it) }
                 .mapLeft { ValidationError(errors = it) }
 
             call.respondWithStatusResponse(result)

@@ -1,12 +1,20 @@
 import { GjennomforingDto, TilsagnBeregningFri, TilsagnBeregningType } from "@mr/api-client-v2";
-import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
+import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
-import { Alert, Button, HStack, Textarea, TextField, Tooltip, VStack } from "@navikt/ds-react";
-import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
-import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import {
+  Alert,
+  Button,
+  Heading,
+  HStack,
+  Textarea,
+  TextField,
+  Tooltip,
+  VStack,
+} from "@navikt/ds-react";
+import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TrashIcon } from "@navikt/aksel-icons";
-import { TilsagnBeregningTable } from "./TilsagnBeregningTable";
+import { InferredTilsagn } from "./TilsagnSchema";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -35,7 +43,8 @@ function BeregningInputSkjema() {
   } = useFormContext<FriTilsagn>();
 
   return (
-    <>
+    <VStack gap="4">
+      <Heading size="small">Prismodell - Annen avtalt pris</Heading>
       <div className="pb-3">
         <Textarea
           size="small"
@@ -47,7 +56,7 @@ function BeregningInputSkjema() {
       </div>
 
       <BeregningInputLinjerSkjema />
-    </>
+    </VStack>
   );
 }
 
@@ -157,7 +166,6 @@ function BeregningOutputPreview() {
           linjer: linjer,
           prisbetingelser: values.beregning?.prisbetingelser,
         }}
-        children={<TilsagnBeregningTable linjer={linjer} medRadnummer />}
       />
     </>
   );

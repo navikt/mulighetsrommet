@@ -4,7 +4,7 @@ import { NavEnhetFilter, useApiSuspenseQuery } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";
 import { beregningQuery } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
-import Beregning from "./Beregning";
+import UtbetalingBeregning from "./UtbetalingBeregning";
 
 interface Props {
   modalOpen: boolean;
@@ -12,7 +12,7 @@ interface Props {
   utbetalingId: string;
 }
 
-export function BeregningModal({ utbetalingId, modalOpen, onClose }: Props) {
+export function UtbetalingBeregningModal({ utbetalingId, modalOpen, onClose }: Props) {
   return (
     <Modal
       open={modalOpen}
@@ -61,7 +61,7 @@ function ModalBody({ utbetalingId }: BodyProps) {
         </VStack>
         <VStack>
           <div className={`max-h-[50rem] overflow-y-scroll`}>
-            <Beregning beregning={beregning} />
+            <UtbetalingBeregning beregning={beregning} />
           </div>
         </VStack>
       </HGrid>

@@ -39,21 +39,21 @@ function getTilsagnBeregningDetaljer(tilsagn: ArrangorflateTilsagn) {
   switch (tilsagn.beregning.type) {
     case "FRI":
       return [
-        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.belop) },
         { key: "Gjenstående beløp", value: formaterNOK(tilsagn.gjenstaendeBelop) },
       ];
     case "PRIS_PER_MANEDSVERK":
       return [
-        { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
-        { key: "Pris per månedsverk", value: formaterNOK(tilsagn.beregning.input.sats) },
-        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+        { key: "Antall plasser", value: String(tilsagn.beregning.antallPlasser) },
+        { key: "Pris per månedsverk", value: formaterNOK(tilsagn.beregning.sats) },
+        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.belop) },
         { key: "Gjenstående beløp", value: formaterNOK(tilsagn.gjenstaendeBelop) },
       ];
     case "PRIS_PER_UKESVERK":
       return [
-        { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
-        { key: "Pris per ukesverk", value: formaterNOK(tilsagn.beregning.input.sats) },
-        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
+        { key: "Antall plasser", value: String(tilsagn.beregning.antallPlasser) },
+        { key: "Pris per ukesverk", value: formaterNOK(tilsagn.beregning.sats) },
+        { key: "Totalt beløp", value: formaterNOK(tilsagn.beregning.belop) },
         { key: "Gjenstående beløp", value: formaterNOK(tilsagn.gjenstaendeBelop) },
       ];
   }
