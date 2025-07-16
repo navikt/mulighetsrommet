@@ -8,8 +8,7 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
-import { subDays, subMonths, max } from "date-fns";
-import { formaterDato, parseDate } from "@mr/frontend-common/utils/date";
+import { formaterDato, parseDate, subDuration, maxOf } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -72,9 +71,9 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
 
   const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato
     ? parseDate(gjennomforing.tilgjengeligForArrangorDato)!
-    : max([subDays(gjennomforingStartDato, 14), dagensDato]);
+    : maxOf([subDuration(gjennomforingStartDato, {days: 14}), dagensDato]);
 
-  const mintilgjengeligForArrangorDato = max([subMonths(gjennomforingStartDato, 2), dagensDato]);
+  const mintilgjengeligForArrangorDato = maxOf([subDuration(gjennomforingStartDato, {months: 2}), dagensDato]);
 
   if (dagensDato > gjennomforingStartDato) {
     return null;
