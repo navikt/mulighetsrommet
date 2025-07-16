@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import arrow.core.left
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -21,7 +20,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfContentMapper
@@ -226,13 +224,12 @@ fun Route.arrangorflateRoutes() {
                     relevanteForslag,
                 )
                     .onLeft {
-                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                        call.respondWithProblemDetail(ValidationError(errors = it))
                     }
                     .onRight {
                         utbetalingService.godkjentAvArrangor(utbetaling.id, it)
+                        call.respond(HttpStatusCode.OK)
                     }
-
-                call.respond(HttpStatusCode.OK)
             }
 
             get("/utbetalingsdetaljer") {

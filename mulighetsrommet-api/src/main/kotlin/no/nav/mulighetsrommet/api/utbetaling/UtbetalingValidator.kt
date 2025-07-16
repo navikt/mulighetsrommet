@@ -173,7 +173,6 @@ object UtbetalingValidator {
     fun validateOpprettKravOmUtbetaling(
         request: OpprettKravOmUtbetalingRequest,
     ): Either<List<FieldError>, OpprettUtbetaling> {
-        var validated: OpprettUtbetaling? = null
         val errors = buildList {
             val start = try {
                 LocalDate.parse(request.periodeStart)
@@ -215,16 +214,13 @@ object UtbetalingValidator {
                 add(FieldError.of(OpprettKravOmUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
             }
 
-            val kontonummer = try {
-                Kontonummer(request.kontonummer)
-            } catch (e: IllegalArgumentException) {
+            if (Kontonummer.parse(request.kontonummer) == null) {
                 add(
                     FieldError.of(
                         OpprettKravOmUtbetalingRequest::kontonummer,
                         "Ugyldig kontonummer",
                     ),
                 )
-                null
             }
             if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
                 add(
@@ -234,24 +230,20 @@ object UtbetalingValidator {
                     ),
                 )
             }
-
-            if (start != null && slutt != null && kontonummer != null) {
-                validated = OpprettUtbetaling(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = request.gjennomforingId,
-                    periodeStart = start,
-                    periodeSlutt = slutt,
-                    belop = request.belop,
-                    kontonummer = kontonummer,
-                    kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
-                    tilskuddstype = request.tilskuddstype,
-                    beskrivelse = "",
-                    vedlegg = request.vedlegg,
-                )
-            }
         }
-
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: validated!!.right()
+        return errors.takeIf { it.isNotEmpty() }?.left()
+            ?: OpprettUtbetaling(
+                id = UUID.randomUUID(),
+                gjennomforingId = request.gjennomforingId,
+                periodeStart = LocalDate.parse(request.periodeStart),
+                periodeSlutt = LocalDate.parse(request.periodeSlutt),
+                belop = request.belop,
+                kontonummer = Kontonummer(request.kontonummer),
+                kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
+                tilskuddstype = request.tilskuddstype,
+                beskrivelse = "",
+                vedlegg = request.vedlegg,
+            ).right()
     }
 
     fun validerGodkjennUtbetaling(
