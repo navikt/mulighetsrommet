@@ -25,6 +25,8 @@ export const avtaletekster = {
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
   avtaltForlengelseLabel: "Avtalt mulighet for forlengelse",
+  avtaltPrisLabel: "Avtalt pris",
+  arrangorManglerVarsel: "Arrangør mangler",
   utdanning: {
     utdanningsprogramManglerForAvtale: "Du må velge utdanningsprogram på avtalen",
     utdanningsprogram: {

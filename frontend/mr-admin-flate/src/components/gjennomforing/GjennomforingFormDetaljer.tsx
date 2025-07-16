@@ -40,8 +40,8 @@ import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdann
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
 import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -415,7 +415,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
               <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />
             </FormGroup>
           ) : (
-            <AvtaleErUtkastOgArrangorManglerMelding />
+            <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
           )}
         </SkjemaKolonne>
       </TwoColumnGrid>

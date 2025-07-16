@@ -13,13 +13,11 @@ import { NotifikasjonerPage } from "./pages/oppgaveoversikt/notifikasjoner/Notif
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
-import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
 import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
-import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
@@ -116,16 +114,6 @@ const routes: RouteObject[] = [
         path: "avtaler/:avtaleId",
         element: <AvtalePage />,
         errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
-            element: <AvtaleInfo />,
-          },
-          {
-            path: "gjennomforinger",
-            element: <GjennomforingerForAvtalePage />,
-          },
-        ],
       },
       {
         path: "avtaler/skjema",

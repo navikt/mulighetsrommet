@@ -1,15 +1,18 @@
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { ContentBox } from "@/layouts/ContentBox";
-import { Heading, Tabs, VStack } from "@navikt/ds-react";
-import React from "react";
-import { Outlet, useLocation, useMatch } from "react-router";
+import { Box, Heading, HStack, Tabs } from "@navikt/ds-react";
+import { useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "@/components/laster/Laster";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useAtom } from "jotai";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
+import { AvtaleDetaljer } from "./AvtaleDetaljer";
+import { AvtalePersonvern } from "./AvtalePersonvern";
+import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -21,60 +24,74 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
 }
 
 export function AvtalePage() {
-  const { pathname } = useLocation();
-  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
-  const currentTab = () => {
-    if (pathname.includes("gjennomforinger")) {
-      return "gjennomforinger";
-    } else {
-      return "avtale";
-    }
-  };
+  const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   return (
-    <main>
+    <>
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <div className="flex justify-start gap-6 items-center flex-wrap">
+        <HStack gap="6">
           <AvtaleIkon />
-          <VStack>
-            <Heading size="large" level="2">
-              {avtale.navn}
-            </Heading>
-          </VStack>
+          <Heading size="large" level="2">
+            {avtale.navn}
+          </Heading>
           <AvtaleStatusMedAarsakTag status={avtale.status} />
-        </div>
+        </HStack>
       </Header>
-      <Tabs value={currentTab()}>
-        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
-          <Tabs.Tab
-            value="avtale"
-            label="Avtale"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
-            aria-controls="panel"
-          />
+      <Tabs value={activeTab}>
+        <Tabs.List>
+          <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
           <Tabs.Tab
             value="gjennomforinger"
             label="Gjennomføringer"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/gjennomforinger`)}
+            onClick={() => setActiveTab("gjennomforinger")}
             aria-controls="panel"
-            data-testid="gjennomforinger-tab"
+          />
+          <Tabs.Tab
+            label="Personvern"
+            value="personvern"
+            onClick={() => setActiveTab("personvern")}
+          />
+          <Tabs.Tab
+            label="Redaksjonelt innhold"
+            value="redaksjonelt-innhold"
+            onClick={() => setActiveTab("redaksjonelt-innhold")}
           />
         </Tabs.List>
-        <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
-          <ContentBox>
-            <div id="panel">
-              <Outlet />
-            </div>
-          </ContentBox>
-        </React.Suspense>
+        <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
+          <Tabs.Panel value="detaljer">
+            <InlineErrorBoundary>
+              <AvtaleDetaljer avtale={avtale} />
+            </InlineErrorBoundary>
+          </Tabs.Panel>
+          <Tabs.Panel value="gjennomforinger">
+            <InlineErrorBoundary>
+              <GjennomforingerForAvtalePage />
+            </InlineErrorBoundary>
+          </Tabs.Panel>
+          <Tabs.Panel value="personvern">
+            <InlineErrorBoundary>
+              <AvtalePersonvern avtale={avtale} />
+            </InlineErrorBoundary>
+          </Tabs.Panel>
+          <Tabs.Panel value="redaksjonelt-innhold">
+            <InlineErrorBoundary>
+              <RedaksjoneltInnholdPreview
+                tiltakstype={avtale.tiltakstype}
+                beskrivelse={avtale.beskrivelse}
+                faneinnhold={avtale.faneinnhold}
+                kontorstruktur={avtale.kontorstruktur}
+              />
+            </InlineErrorBoundary>
+          </Tabs.Panel>
+        </Box>
       </Tabs>
-    </main>
+    </>
   );
 }

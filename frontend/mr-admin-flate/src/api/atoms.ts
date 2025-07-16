@@ -12,5 +12,5 @@ export function createSorteringProps(sortItems: z.ZodType) {
 export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 
 export const avtaleDetaljerTabAtom = atom<
-  "detaljer" | "okonomi" | "personvern" | "redaksjonelt-innhold"
+  "detaljer" | "personvern" | "redaksjonelt-innhold" | "gjennomforinger"
 >("detaljer");
