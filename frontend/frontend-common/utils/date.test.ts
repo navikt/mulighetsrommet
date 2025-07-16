@@ -4,8 +4,9 @@ import {
   isEarlier,
   isLater,
   isLaterOrSameDay,
-  formaterDatoSomYYYYMMDD,
+  yyyyMMddFormatting,
   parseDate,
+  maxOf,
 } from "./date";
 
 describe("date.ts", () => {
@@ -42,33 +43,33 @@ describe("date.ts", () => {
     });
   });
 
-  describe("formaterDatoSomYYYYMMDD()", () => {
+  describe("yyyyMMddFormatting()", () => {
     const fallback = "<fallbackDate>";
 
     test("valid dd.MM.yyyy to yyyy-MM-dd", () => {
-      expect(formaterDatoSomYYYYMMDD("31.12.2025", fallback)).toBe("2025-12-31");
+      expect(yyyyMMddFormatting("31.12.2025", fallback)).toBe("2025-12-31");
     });
     test("invalid dd.MM.yyyy to fallback", () => {
-      expect(formaterDatoSomYYYYMMDD("31.02.202", fallback)).toBe(fallback);
+      expect(yyyyMMddFormatting("31.02.202", fallback)).toBe(fallback);
     });
     test("valid yyyy-MM-dd to yyyy-MM-dd", () => {
-      expect(formaterDatoSomYYYYMMDD("2025-12-31", fallback)).toBe("2025-12-31");
+      expect(yyyyMMddFormatting("2025-12-31", fallback)).toBe("2025-12-31");
     });
     test("invalid yyyy-MM-dd to fallback", () => {
-      expect(formaterDatoSomYYYYMMDD("2025-12-3", fallback)).toBe(fallback);
+      expect(yyyyMMddFormatting("2025-12-3", fallback)).toBe(fallback);
     });
     test("valid date to yyyy-MM-dd", () => {
-      expect(formaterDatoSomYYYYMMDD(new Date(2025, 12 - 1, 31), fallback)).toBe("2025-12-31");
+      expect(yyyyMMddFormatting(new Date(2025, 12 - 1, 31), fallback)).toBe("2025-12-31");
     });
     test("invalid datestring to fallback", () => {
       // Javascripts Date objekt støtter ikke norskt format dd.MM.yyyy
-      expect(formaterDatoSomYYYYMMDD(new Date("31.12.2025"), fallback)).toBe(fallback);
+      expect(yyyyMMddFormatting(new Date("31.12.2025"), fallback)).toBe(fallback);
     });
     test("null to fallback", () => {
-      expect(formaterDatoSomYYYYMMDD(null, fallback)).toBe(fallback);
+      expect(yyyyMMddFormatting(null, fallback)).toBe(fallback);
     });
     test("undefined to fallback", () => {
-      expect(formaterDatoSomYYYYMMDD(undefined, fallback)).toBe(fallback);
+      expect(yyyyMMddFormatting(undefined, fallback)).toBe(fallback);
     });
   });
   describe("isEarlier()", () => {
@@ -160,4 +161,17 @@ describe("date.ts", () => {
       expect(inBetweenInclusive("2026-01-01", { from: "2025-12-31", to: "2026-01-02" })).toBe(true);
     });
   });
+  describe("maxOf()", () => {
+    test("invalid dates", () => {
+      expect(maxOf(["",undefined, null]).getTime()).toBe(NaN);
+    });
+    test("latest, earliest first", () => {
+      const expected = new Date(2025, 6, 17)
+      expect(maxOf([new Date(2025, 5, 17),expected]).toISOString()).toBe(expected.toISOString());
+    });
+    test("latest, latest first", () => {
+      const expected = new Date(2025, 6, 17)
+      expect(maxOf([expected, new Date(2025, 5, 17)]).toISOString()).toBe(expected.toISOString());
+    });
+  })
 });

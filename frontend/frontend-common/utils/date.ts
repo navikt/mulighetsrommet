@@ -1,4 +1,4 @@
-import { compareAsc, isAfter, isBefore, isDate, isValid, lightFormat, parse, parseISO, ParseISOOptions, sub, Duration } from "date-fns"
+import { compareAsc, isAfter, isBefore, isDate, isValid, lightFormat, parse, parseISO, ParseISOOptions, sub, Duration, max } from "date-fns"
 import { tz } from "@date-fns/tz"
 import { utc, UTCDate } from "@date-fns/utc"
 
@@ -14,7 +14,7 @@ type UnparsedDate = string | Date | undefined | null
  * @param fallback default ""
  * @returns 
  */
-export function formaterDatoSomYYYYMMDD(
+export function yyyyMMddFormatting(
   dato: UnparsedDate,
   fallback = "",
 ): string {
@@ -80,6 +80,15 @@ export function formaterPeriodeSlutt({ slutt }: Periode) {
 }
 
 /**
+ * Returnerer seneste datoen av listen, hhvis de er gyldige
+ * @param dates 
+ * @returns 
+ */
+export function maxOf(dates: UnparsedDate[]): Date {
+  return max(dates.map((it) => parseDate(it)).filter(isDate))
+}
+
+/**
  * Trekk fra gitt varighet for gitt dato, hhvis gyldig ellers undefined
  * @param dato 
  * @param duration 
@@ -133,6 +142,19 @@ export function inBetweenInclusive(dato: UnparsedDate, {from, to}: {from: Unpars
 }
 
 /**
+ * from > to = 1
+ * from === to = 0
+ * from < to = -1
+ * @returns 
+ */
+export function compare(from: UnparsedDate, to: UnparsedDate): number | undefined {
+  const parsedFrom = parseDate(from)
+  const parsedTo = parseDate(to)
+  if (parsedFrom && parsedTo) {
+    return compareAsc(parsedFrom, parsedTo)
+  }
+}
+/**
  * **date** er strengt tidligere enn **compared** hhvis det er gyldige datoer, ellers false
  * @param date 
  * @param compared 
@@ -170,7 +192,7 @@ export function isEarlier(date: UnparsedDate, compared: UnparsedDate): boolean {
  *  - ISO-8601 strenger (til UTC)
  *  - "dd.MM.yyyy" (til UTC)
  *  - "dd.MM.yyyy hh:mm" (til Europe/Oslo)
- * @returns valid date, otherwise undefined
+ * @returns valid date, ellers undefined
  */
 export function parseDate(date: UnparsedDate): Date | undefined {
   if (!date) {
@@ -199,4 +221,47 @@ export function parseDate(date: UnparsedDate): Date | undefined {
     return utcDate2
   }
   return undefined
+}
+
+/* Tidligere: */
+
+const ddMMyyyyFormat = new RegExp("^[0-9]{2}.[0-9]{2}.[0-9]{4}$");
+const yyyyMMddFormat = new RegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$");
+
+/**
+ * @deprecated Bruk yyyyMMddFormatting()
+ */
+export function formaterDatoSomYYYYMMDD(
+  dato: string | Date | null | undefined,
+  fallback = "",
+): string {
+  if (!dato) {
+    return fallback;
+  }
+
+  if (typeof dato !== "string") {
+    return dateToyyyyMMdd(dato, fallback);
+  }
+
+  if (yyyyMMddFormat.test(dato)) {
+    const [year, month, day] = dato.split("-").map(Number);
+    return dateToyyyyMMdd(new Date(year, month - 1, day), fallback)
+  }
+
+  if (ddMMyyyyFormat.test(dato)) {
+    const [day, month, year] = dato.split(".").map(Number);
+    return dateToyyyyMMdd(new Date(year, month - 1, day), fallback);
+  }
+
+  return fallback;
+}
+
+function dateToyyyyMMdd(dato: Date, fallback: string): string {
+  if (isNaN(dato.getTime())) return fallback;
+
+  const year = dato.getFullYear();
+  const month = String(dato.getMonth() + 1).padStart(2, "0");
+  const day = String(dato.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
