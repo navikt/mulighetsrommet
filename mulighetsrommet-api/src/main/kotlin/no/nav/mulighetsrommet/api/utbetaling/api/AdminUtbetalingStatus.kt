@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
-import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 
 enum class AdminUtbetalingStatus {
@@ -14,24 +12,15 @@ enum class AdminUtbetalingStatus {
     ;
 
     companion object {
-        fun fromUtbetaling(
-            utbetaling: Utbetaling,
-            delutbetalinger: List<Delutbetaling>,
+        fun fromUtbetalingStatus(
+            status: Utbetaling.UtbetalingStatus,
         ): AdminUtbetalingStatus {
-            if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status === DelutbetalingStatus.GODKJENT }) {
-                return OVERFORT_TIL_UTBETALING
-            }
-
-            return when (delutbetalinger.getOrNull(0)?.status) {
-                DelutbetalingStatus.TIL_ATTESTERING, DelutbetalingStatus.GODKJENT -> TIL_ATTESTERING
-                DelutbetalingStatus.RETURNERT -> RETURNERT
-                DelutbetalingStatus.UTBETALT -> UTBETALT
-                DelutbetalingStatus.OVERFORT_TIL_UTBETALING -> OVERFORT_TIL_UTBETALING
-                null -> if (utbetaling.innsender != null) {
-                    KLAR_TIL_BEHANDLING
-                } else {
-                    VENTER_PA_ARRANGOR
-                }
+            return when (status) {
+                Utbetaling.UtbetalingStatus.OPPRETTET -> VENTER_PA_ARRANGOR
+                Utbetaling.UtbetalingStatus.INNSENDT -> KLAR_TIL_BEHANDLING
+                Utbetaling.UtbetalingStatus.TIL_ATTESTERING -> TIL_ATTESTERING
+                Utbetaling.UtbetalingStatus.RETURNERT -> RETURNERT
+                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET -> OVERFORT_TIL_UTBETALING
             }
         }
     }

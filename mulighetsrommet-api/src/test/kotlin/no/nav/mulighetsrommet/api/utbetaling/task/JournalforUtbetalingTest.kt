@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -60,7 +61,8 @@ class JournalforUtbetalingTest : FunSpec({
         innsender = Arrangor,
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        godkjentAvArrangorTidspunkt = null,
+        godkjentAvArrangorTidspunkt = LocalDateTime.now(),
+        status = Utbetaling.UtbetalingStatus.INNSENDT,
     )
 
     val domain = MulighetsrommetTestDomain(

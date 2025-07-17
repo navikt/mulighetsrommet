@@ -29,10 +29,10 @@ data class UtbetalingDto(
     val type: UtbetalingType?,
 ) {
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: AdminUtbetalingStatus): UtbetalingDto {
+        fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
-                status = status,
+                status = AdminUtbetalingStatus.fromUtbetalingStatus(utbetaling.status),
                 periode = utbetaling.periode,
                 godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
