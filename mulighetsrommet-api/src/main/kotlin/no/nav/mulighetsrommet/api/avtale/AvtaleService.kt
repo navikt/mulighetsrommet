@@ -223,9 +223,7 @@ class AvtaleService(
 
         if (sisteOpsjon.status == OpsjonLoggStatus.OPSJON_UTLOST) {
             val nySluttDato = sisteOpsjon.forrigeSluttdato
-            if (nySluttDato == null) {
-                return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
-            }
+                ?: return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
             updateAvtaleVarighet(avtaleId, nySluttDato, today)
         }
 

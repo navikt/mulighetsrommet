@@ -106,7 +106,7 @@ fun QueryContext.setDelutbetalingStatus(
     queries.delutbetaling.setStatus(dto.id, status)
 
     when (status) {
-        DelutbetalingStatus.TIL_ATTESTERING, DelutbetalingStatus.BEHANDLES_AV_NAV -> {
+        DelutbetalingStatus.TIL_ATTESTERING -> {
             setTilGodkjenning(dto.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
         }
 

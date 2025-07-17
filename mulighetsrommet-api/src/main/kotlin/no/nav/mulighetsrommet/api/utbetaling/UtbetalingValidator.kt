@@ -67,7 +67,6 @@ object UtbetalingValidator {
                     DelutbetalingStatus.GODKJENT,
                     DelutbetalingStatus.UTBETALT,
                     DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                    DelutbetalingStatus.BEHANDLES_AV_NAV,
                     -> {
                         add(
                             FieldError.ofPointer(

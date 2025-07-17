@@ -11,7 +11,6 @@ enum class AdminUtbetalingStatus {
     TIL_ATTESTERING,
     KLAR_TIL_BEHANDLING,
     OVERFORT_TIL_UTBETALING,
-    BEHANDLES,
     ;
 
     companion object {
@@ -27,7 +26,6 @@ enum class AdminUtbetalingStatus {
                 DelutbetalingStatus.TIL_ATTESTERING, DelutbetalingStatus.GODKJENT -> TIL_ATTESTERING
                 DelutbetalingStatus.RETURNERT -> RETURNERT
                 DelutbetalingStatus.UTBETALT -> UTBETALT
-                DelutbetalingStatus.BEHANDLES_AV_NAV -> BEHANDLES
                 DelutbetalingStatus.OVERFORT_TIL_UTBETALING -> OVERFORT_TIL_UTBETALING
                 null -> if (utbetaling.innsender != null) {
                     KLAR_TIL_BEHANDLING
