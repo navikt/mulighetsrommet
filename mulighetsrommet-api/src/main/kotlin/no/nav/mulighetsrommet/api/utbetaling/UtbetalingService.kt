@@ -52,9 +52,8 @@ class UtbetalingService(
         queries.utbetaling.getByGjennomforing(id).map { utbetaling ->
             val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
-            val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
-            val (belopUtbetalt, kostnadssteder) = when (status) {
-                AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
+            val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
+                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET ->
                     Pair(
                         delutbetalinger.sumOf {
                             it.belop
@@ -63,13 +62,12 @@ class UtbetalingService(
                             queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
                         }.distinct(),
                     )
-
                 else -> (null to emptyList())
             }
 
             UtbetalingKompaktDto(
                 id = utbetaling.id,
-                status = status,
+                status = AdminUtbetalingStatus.fromUtbetalingStatus(utbetaling.status),
                 periode = utbetaling.periode,
                 kostnadssteder = kostnadssteder,
                 belopUtbetalt = belopUtbetalt,
@@ -83,13 +81,14 @@ class UtbetalingService(
         kid: Kid?,
     ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        if (utbetaling.innsender != null) {
+        if (utbetaling.status != Utbetaling.UtbetalingStatus.OPPRETTET) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
         }
 
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
+        queries.utbetaling.setStatus(utbetalingId, Utbetaling.UtbetalingStatus.INNSENDT)
         logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
 
         automatiskUtbetaling(utbetalingId)
@@ -128,6 +127,7 @@ class UtbetalingService(
                 } else {
                     null
                 },
+                status = Utbetaling.UtbetalingStatus.INNSENDT,
             ),
         )
 
@@ -153,12 +153,10 @@ class UtbetalingService(
         val utbetaling = getOrError(request.utbetalingId)
 
         val opprettDelutbetalinger = request.delutbetalinger.map { req ->
-            val previous = queries.delutbetaling.get(req.id)
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
             UtbetalingValidator.OpprettDelutbetaling(
                 id = req.id,
                 gjorOppTilsagn = req.gjorOppTilsagn,
-                previous = previous,
                 tilsagn = tilsagn,
                 belop = req.belop,
             )
@@ -179,6 +177,7 @@ class UtbetalingService(
                 delutbetalinger.forEach {
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
                 }
+                queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.TIL_ATTESTERING)
                 if (request.begrunnelseMindreBetalt != null) {
                     queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
                 }
@@ -405,6 +404,7 @@ class UtbetalingService(
             publishOpprettFaktura(delutbetaling)
         }
 
+        queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET)
         logEndring("Overført til utbetaling", utbetaling, Tiltaksadministrasjon)
     }
 
@@ -428,6 +428,7 @@ class UtbetalingService(
                 )
             }
 
+        queries.utbetaling.setStatus(delutbetaling.utbetalingId, Utbetaling.UtbetalingStatus.RETURNERT)
         logEndring(
             "Utbetaling returnert",
             getOrError(delutbetaling.utbetalingId),

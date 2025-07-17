@@ -14,20 +14,27 @@ enum class ArrFlateUtbetalingStatus {
 
     companion object {
         fun fromUtbetaling(
-            utbetaling: Utbetaling,
+            status: Utbetaling.UtbetalingStatus,
             delutbetalinger: List<Delutbetaling>,
             relevanteForslag: List<RelevanteForslag>,
-        ): ArrFlateUtbetalingStatus {
-            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.OVERFORT_TIL_UTBETALING }) {
-                OVERFORT_TIL_UTBETALING
-            } else if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
-                UTBETALT
-            } else if (utbetaling.innsender != null) {
-                BEHANDLES_AV_NAV
-            } else if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
-                VENTER_PA_ENDRING
-            } else {
-                KLAR_FOR_GODKJENNING
+        ): ArrFlateUtbetalingStatus = when (status) {
+            Utbetaling.UtbetalingStatus.OPPRETTET -> {
+                if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
+                    VENTER_PA_ENDRING
+                } else {
+                    KLAR_FOR_GODKJENNING
+                }
+            }
+            Utbetaling.UtbetalingStatus.INNSENDT,
+            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+            Utbetaling.UtbetalingStatus.RETURNERT,
+            -> BEHANDLES_AV_NAV
+            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET -> {
+                if (delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
+                    UTBETALT
+                } else {
+                    OVERFORT_TIL_UTBETALING
+                }
             }
         }
 

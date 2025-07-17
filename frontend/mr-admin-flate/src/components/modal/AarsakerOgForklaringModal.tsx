@@ -69,36 +69,34 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
           </VStack>
         </Modal.Header>
         <Modal.Body>
-          <div className="bg-surface-hover px-4 pt-6">
-            <HGrid columns={2} gap="6" align="start">
-              <CheckboxGroup
-                onChange={(val) => {
-                  setErrors(null);
-                  setValgteAarsaker(val);
-                }}
-                value={valgteAarsaker}
-                name="aarsak"
-                legend="Årsak"
-                error={errors?.aarsak}
-              >
-                {aarsaker.map(({ label, value }) => (
-                  <Checkbox key={String(value)} value={value}>
-                    {label}
-                  </Checkbox>
-                ))}
-              </CheckboxGroup>
-              <Textarea
-                error={errors?.forklaring}
-                onChange={(val) => {
-                  setErrors(null);
-                  setForklaring(val.currentTarget.value);
-                }}
-                label="Forklaring"
-                resize
-                maxLength={FORKLARING_MAX_LENGTH}
-              ></Textarea>
-            </HGrid>
-          </div>
+          <HGrid columns={2} gap="6" align="start">
+            <CheckboxGroup
+              onChange={(val) => {
+                setErrors(null);
+                setValgteAarsaker(val);
+              }}
+              value={valgteAarsaker}
+              name="aarsak"
+              legend="Årsak"
+              error={errors?.aarsak}
+            >
+              {aarsaker.map(({ label, value }) => (
+                <Checkbox key={String(value)} value={value}>
+                  {label}
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+            <Textarea
+              error={errors?.forklaring}
+              onChange={(val) => {
+                setErrors(null);
+                setForklaring(val.currentTarget.value);
+              }}
+              label="Forklaring"
+              resize
+              maxLength={FORKLARING_MAX_LENGTH}
+            ></Textarea>
+          </HGrid>
         </Modal.Body>
         <Modal.Footer>
           <Button

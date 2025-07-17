@@ -6719,7 +6719,6 @@ components:
         - RETURNERT
         - UTBETALT
         - OVERFORT_TIL_UTBETALING
-        - BEHANDLES_AV_NAV
 
     UtbetalingLinje:
       type: object

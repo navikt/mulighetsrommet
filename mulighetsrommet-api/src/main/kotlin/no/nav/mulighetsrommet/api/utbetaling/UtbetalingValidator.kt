@@ -11,8 +11,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kid
@@ -28,7 +26,6 @@ object UtbetalingValidator {
         val belop: Int,
         val gjorOppTilsagn: Boolean,
         val tilsagn: Tilsagn,
-        val previous: Delutbetaling?,
     )
 
     fun validateOpprettDelutbetalinger(
@@ -37,6 +34,13 @@ object UtbetalingValidator {
         begrunnelse: String?,
     ): Either<List<FieldError>, List<OpprettDelutbetaling>> = either {
         val errors = buildList {
+            if (utbetaling.status !in listOf(Utbetaling.UtbetalingStatus.INNSENDT, Utbetaling.UtbetalingStatus.RETURNERT)) {
+                add(
+                    FieldError.root(
+                        "Utbetaling kan ikke endres fordi den har status: ${utbetaling.status}",
+                    ),
+                )
+            }
             val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop }
             if (totalBelopUtbetales > utbetaling.beregning.output.belop) {
                 add(
@@ -61,22 +65,6 @@ object UtbetalingValidator {
             }
 
             opprettDelutbetalinger.forEachIndexed { index, req ->
-                when (req.previous?.status) {
-                    null, DelutbetalingStatus.RETURNERT -> {}
-                    DelutbetalingStatus.TIL_ATTESTERING,
-                    DelutbetalingStatus.GODKJENT,
-                    DelutbetalingStatus.UTBETALT,
-                    DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                    DelutbetalingStatus.BEHANDLES_AV_NAV,
-                    -> {
-                        add(
-                            FieldError.ofPointer(
-                                "/$index",
-                                "Utbetaling kan ikke endres fordi den har status: ${req.previous.status}",
-                            ),
-                        )
-                    }
-                }
                 if (req.belop <= 0) {
                     add(
                         FieldError.ofPointer(

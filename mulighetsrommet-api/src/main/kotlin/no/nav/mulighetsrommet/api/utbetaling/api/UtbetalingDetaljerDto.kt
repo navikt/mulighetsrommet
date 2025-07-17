@@ -44,6 +44,5 @@ fun toReadableName(delutbetalingStatus: DelutbetalingStatus): String {
         DelutbetalingStatus.RETURNERT -> "Returnert"
         DelutbetalingStatus.UTBETALT -> "Utbetalt"
         DelutbetalingStatus.OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
-        DelutbetalingStatus.BEHANDLES_AV_NAV -> "Behandles av NAV"
     }
 }

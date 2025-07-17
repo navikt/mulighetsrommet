@@ -81,10 +81,7 @@ fun Route.utbetalingRoutes() {
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 
                     UtbetalingDetaljerDto(
-                        utbetaling = UtbetalingDto.fromUtbetaling(
-                            utbetaling,
-                            AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger),
-                        ),
+                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
                         linjer = linjer,
                     )
                 }
