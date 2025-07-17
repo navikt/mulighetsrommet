@@ -36,9 +36,9 @@ import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
-import { formaterPeriode } from "~/utils/date";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse, isValidationError, errorAt } from "~/utils/validering";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
