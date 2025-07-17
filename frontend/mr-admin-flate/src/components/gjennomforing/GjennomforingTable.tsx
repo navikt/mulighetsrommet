@@ -1,7 +1,7 @@
 import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { formaterDato, formaterNavEnheter } from "@/utils/Utils";
+import { formaterNavEnheter } from "@/utils/Utils";
 import { SorteringGjennomforinger } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
@@ -14,6 +14,7 @@ import { PagineringContainer } from "../paginering/PagineringContainer";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { downloadGjennomforingerAsExcel } from "@/api/gjennomforing/downloadGjennomforingerAsExcel";
 import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;

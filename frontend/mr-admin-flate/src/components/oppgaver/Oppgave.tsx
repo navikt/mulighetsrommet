@@ -1,5 +1,5 @@
-import { formaterDato } from "@/utils/Utils";
 import { type Oppgave, OppgaveEnhet, OppgaveIconType, OppgaveType } from "@mr/api-client-v2";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BankNoteIcon, HandshakeIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { BodyShort, Box, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
 import { ReactNode } from "react";

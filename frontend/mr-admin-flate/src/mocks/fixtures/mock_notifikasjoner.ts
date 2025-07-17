@@ -1,6 +1,6 @@
 import { PaginertUserNotifications } from "@mr/api-client-v2";
 import { mockAvtaler } from "./mock_avtaler";
-import { formaterDato } from "../../utils/Utils";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 const mockAvtale = mockAvtaler.at(0);
 

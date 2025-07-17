@@ -12,9 +12,9 @@ import {
 } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useState } from "react";
-import { formaterDatoTid } from "@/utils/Utils";
 import { ReadNotificationButton } from "./ReadNotificationButton";
 import { PaperplaneIcon } from "@navikt/aksel-icons";
+import { formaterDatoTid } from "@mr/frontend-common/utils/date";
 
 interface NotifikasjonerListItemProps {
   notifikasjon: UserNotification;
