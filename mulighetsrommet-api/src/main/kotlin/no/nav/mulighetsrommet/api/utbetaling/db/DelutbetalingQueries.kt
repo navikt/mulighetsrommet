@@ -33,7 +33,9 @@ class DelutbetalingQueries(private val session: Session) {
                 lopenummer,
                 fakturanummer,
                 faktura_status,
-                faktura_status_sist_oppdatert
+                faktura_status_sist_oppdatert,
+                datastream_periode_start,
+                datastream_periode_slutt
             ) values (
                 :id::uuid,
                 :tilsagn_id::uuid,
@@ -45,7 +47,9 @@ class DelutbetalingQueries(private val session: Session) {
                 :lopenummer,
                 :fakturanummer,
                 :faktura_status,
-                :faktura_status_sist_oppdatert::date
+                :faktura_status_sist_oppdatert::date,
+                :datastream_periode_start::date,
+                :datastream_periode_slutt::date
             ) on conflict (id) do update set
                 status                        = excluded.status,
                 belop                         = excluded.belop,
@@ -54,7 +58,9 @@ class DelutbetalingQueries(private val session: Session) {
                 lopenummer                    = excluded.lopenummer,
                 fakturanummer                 = excluded.fakturanummer,
                 faktura_status                = excluded.faktura_status,
-                faktura_status_sist_oppdatert = excluded.faktura_status_sist_oppdatert
+                faktura_status_sist_oppdatert = excluded.faktura_status_sist_oppdatert,
+                datastream_periode_start      = excluded.datastream_periode_start,
+                datastream_periode_slutt      = excluded.datastream_periode_slutt
         """.trimIndent()
 
         val params = mapOf(
@@ -69,6 +75,8 @@ class DelutbetalingQueries(private val session: Session) {
             "lopenummer" to delutbetaling.lopenummer,
             "fakturanummer" to delutbetaling.fakturanummer,
             "faktura_status" to delutbetaling.fakturaStatus?.name,
+            "datastream_periode_start" to delutbetaling.periode.start,
+            "datastream_periode_slutt" to delutbetaling.periode.getLastInclusiveDate(),
         )
 
         session.execute(queryOf(query, params))
