@@ -33,6 +33,7 @@ class UtbetalingQueries(private val session: Session) {
                 tilskuddstype,
                 beskrivelse,
                 godkjent_av_arrangor_tidspunkt,
+                status,
                 datastream_periode_start,
                 datastream_periode_slutt
             ) values (
@@ -47,6 +48,7 @@ class UtbetalingQueries(private val session: Session) {
                 :tilskuddstype::tilskuddstype,
                 :beskrivelse,
                 :godkjent_av_arrangor_tidspunkt,
+                :status::utbetaling_status,
                 :datastream_periode_start::date,
                 :datastream_periode_slutt::date
             ) on conflict (id) do update set
@@ -60,6 +62,7 @@ class UtbetalingQueries(private val session: Session) {
                 tilskuddstype = excluded.tilskuddstype,
                 beskrivelse = excluded.beskrivelse,
                 godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt,
+                status = excluded.status,
                 datastream_periode_start      = excluded.datastream_periode_start,
                 datastream_periode_slutt      = excluded.datastream_periode_slutt
         """.trimIndent()
@@ -81,6 +84,7 @@ class UtbetalingQueries(private val session: Session) {
             "beskrivelse" to dbo.beskrivelse,
             "tilskuddstype" to dbo.tilskuddstype.name,
             "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
+            "status" to dbo.status.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
         )
@@ -232,6 +236,17 @@ class UtbetalingQueries(private val session: Session) {
             )
         }
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
+    }
+
+    fun setStatus(id: UUID, status: Utbetaling.UtbetalingStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling set
+                status = :status::utbetaling_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
@@ -410,6 +425,7 @@ class UtbetalingQueries(private val session: Session) {
             beskrivelse = stringOrNull("beskrivelse"),
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
+            status = Utbetaling.UtbetalingStatus.valueOf(string("status")),
         )
     }
 

@@ -193,6 +193,7 @@ class GenererUtbetalingService(
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
+            status = Utbetaling.UtbetalingStatus.OPPRETTET,
         )
     }
 

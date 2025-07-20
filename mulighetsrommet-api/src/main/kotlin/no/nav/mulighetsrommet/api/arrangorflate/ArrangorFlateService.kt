@@ -119,7 +119,7 @@ class ArrangorFlateService(
             }
     }
 
-    fun getGodkjentBelopForUtbetaling(utbetalingId: UUID): Int = db.session {
+    private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID): Int = db.session {
         return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
@@ -164,7 +164,7 @@ class ArrangorFlateService(
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
         val relevanteForslag = getRelevanteForslag(utbetaling)
         return ArrFlateUtbetalingStatus.fromUtbetaling(
-            utbetaling,
+            utbetaling.status,
             delutbetalinger,
             relevanteForslag,
         )
