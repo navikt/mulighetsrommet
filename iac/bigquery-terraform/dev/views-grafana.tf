@@ -215,3 +215,77 @@ WHERE
   bestilling_status = 'FEILET'
 EOF
 }
+
+module "grafana_utbetaling_arrangor_innsending_antall_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_arrangor_innsending_antall_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "tilskuddstype"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "total_rows"
+        type = "INTEGER"
+      },
+      {
+        mode = "NULLABLE"
+        name = "avg_days"
+        type = "FLOAT"
+      },
+      {
+        mode = "NULLABLE"
+        name = "min_days"
+        type = "INTEGER"
+      },
+      {
+        mode = "NULLABLE"
+        name = "max_days"
+        type = "INTEGER"
+      },
+      {
+        mode = "NULLABLE"
+        name = "stddev_days"
+        type = "FLOAT"
+      },
+      {
+        mode = "NULLABLE"
+        name = "median_days"
+        type = "INTEGER"
+      },
+    ]
+  )
+  view_query = <<EOF
+ WITH
+  arrangor_innsendt_utbetalinger as (select
+      tilskuddstype,
+      DATE(created_at) as date_created,
+      DATE(godkjent_av_arrangor_tidspunkt) as date_arrangor_godkjent,
+      DATE_DIFF(godkjent_av_arrangor_tidspunkt, created_at, DAY) as antall_dager_mellom
+    FROM
+      `team-mulighetsrommet-dev-a2d7.mulighetsrommet_api_datastream.public_utbetaling`
+    WHERE
+      innsender = "Arrangor" and godkjent_av_arrangor_tidspunkt is not null
+  )
+SELECT
+  tilskuddstype,
+  COUNT(*) AS total_rows,
+  AVG(antall_dager_mellom) AS avg_days,
+  MIN(antall_dager_mellom) AS min_days,
+  MAX(antall_dager_mellom) AS max_days,
+  STDDEV(antall_dager_mellom) AS stddev_days,
+  APPROX_QUANTILES(antall_dager_mellom, 2)[OFFSET(1)] AS median_days
+FROM
+  arrangor_innsendt_utbetalinger
+group by
+  tilskuddstype
+EOF
+}
+
+

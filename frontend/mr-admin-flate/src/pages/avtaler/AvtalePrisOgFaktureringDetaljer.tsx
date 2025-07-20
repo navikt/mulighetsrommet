@@ -3,11 +3,11 @@ import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { formaterDato } from "@/utils/Utils";
 import { AvtaleDto, AvtaltSatsDto, Prismodell } from "@mr/api-client-v2";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { Box, HStack, VStack } from "@navikt/ds-react";
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   avtale: AvtaleDto;

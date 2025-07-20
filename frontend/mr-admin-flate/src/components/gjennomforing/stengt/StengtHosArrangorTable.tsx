@@ -1,7 +1,7 @@
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
-import { formaterDato } from "@/utils/Utils";
 import { GjennomforingDto } from "@mr/api-client-v2";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";

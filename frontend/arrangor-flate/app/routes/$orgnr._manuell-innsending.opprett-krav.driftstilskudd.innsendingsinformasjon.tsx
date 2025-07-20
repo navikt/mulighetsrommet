@@ -41,8 +41,8 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
-import { formaterDato, subtractDays } from "~/utils/date";
+import { formaterDato, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { subtractDays } from "~/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { DateRange } from "node_modules/@navikt/ds-react/esm/date/Date.typeutils";
 
@@ -184,8 +184,8 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
-    session.set("periodeStart", formaterDatoSomYYYYMMDD(periodeStart));
-    session.set("periodeSlutt", formaterDatoSomYYYYMMDD(periodeSlutt));
+    session.set("periodeStart", yyyyMMddFormatting(periodeStart));
+    session.set("periodeSlutt", yyyyMMddFormatting(periodeSlutt));
     return redirect(pathByOrgnr(orgnr).opprettKrav.driftstilskudd.utbetaling, {
       headers: {
         "Set-Cookie": await commitSession(session),

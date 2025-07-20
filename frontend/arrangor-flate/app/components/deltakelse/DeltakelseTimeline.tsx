@@ -1,7 +1,8 @@
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { PersonIcon, ParasolBeachIcon } from "@navikt/aksel-icons";
 import { Timeline } from "@navikt/ds-react";
 import { Periode, ArrFlateUtbetalingDeltakelse, UtbetalingStengtPeriode } from "api-client";
-import { subtractDays, formaterPeriode } from "~/utils/date";
+import { subtractDays } from "~/utils/date";
 
 interface DeltakelseTimelineProps {
   utbetalingsperiode: Periode;

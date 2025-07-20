@@ -15,10 +15,11 @@ import { tekster } from "~/tekster";
 import { getBeregningDetaljer } from "~/utils/beregning";
 import css from "../root.module.css";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { formaterPeriode, getTimestamp } from "~/utils/date";
+import { getTimestamp } from "~/utils/date";
 import { problemDetailResponse } from "~/utils/validering";
 import { pathByOrgnr } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;

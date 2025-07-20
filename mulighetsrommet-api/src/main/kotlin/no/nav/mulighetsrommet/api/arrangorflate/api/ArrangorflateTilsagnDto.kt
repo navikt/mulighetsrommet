@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -20,7 +20,7 @@ data class ArrangorflateTilsagnDto(
     val tiltakstype: Tiltakstype,
     val type: TilsagnType,
     val periode: Periode,
-    val beregning: TilsagnBeregning,
+    val beregning: TilsagnBeregningDto,
     val arrangor: Arrangor,
     val status: StatusOgAarsaker,
     val bestillingsnummer: String,

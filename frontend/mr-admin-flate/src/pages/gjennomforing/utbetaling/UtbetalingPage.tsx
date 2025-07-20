@@ -6,7 +6,7 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato, formaterPeriode, utbetalingLinjeCompareFn } from "@/utils/Utils";
+import { utbetalingLinjeCompareFn } from "@/utils/Utils";
 import { AdminUtbetalingStatus, Rolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
@@ -28,6 +28,7 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect } from "react";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
+import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();

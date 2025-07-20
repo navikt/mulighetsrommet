@@ -33,7 +33,9 @@ class UtbetalingQueries(private val session: Session) {
                 tilskuddstype,
                 beskrivelse,
                 godkjent_av_arrangor_tidspunkt,
-                status
+                status,
+                datastream_periode_start,
+                datastream_periode_slutt
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -46,7 +48,9 @@ class UtbetalingQueries(private val session: Session) {
                 :tilskuddstype::tilskuddstype,
                 :beskrivelse,
                 :godkjent_av_arrangor_tidspunkt,
-                :status::utbetaling_status
+                :status::utbetaling_status,
+                :datastream_periode_start::date,
+                :datastream_periode_slutt::date
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 kontonummer = excluded.kontonummer,
@@ -58,7 +62,9 @@ class UtbetalingQueries(private val session: Session) {
                 tilskuddstype = excluded.tilskuddstype,
                 beskrivelse = excluded.beskrivelse,
                 godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt,
-                status = excluded.status
+                status = excluded.status,
+                datastream_periode_start      = excluded.datastream_periode_start,
+                datastream_periode_slutt      = excluded.datastream_periode_slutt
         """.trimIndent()
 
         val params = mapOf(
@@ -79,6 +85,8 @@ class UtbetalingQueries(private val session: Session) {
             "tilskuddstype" to dbo.tilskuddstype.name,
             "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
             "status" to dbo.status.name,
+            "datastream_periode_start" to dbo.periode.start,
+            "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
         )
 
         execute(queryOf(utbetalingQuery, params))

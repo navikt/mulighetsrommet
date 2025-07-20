@@ -1,7 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { capitalizeEveryWord, kalkulerStatusBasertPaaFraOgTilDato } from "./Utils";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
 
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   test("Skal returnere status 'Aktiv' når nå er større eller lik fra-dato og nå er mindre eller lik til-dato", () => {
@@ -60,80 +58,5 @@ describe("Utils - capitalizeEveryWord", () => {
     const tekst = "";
     const result = capitalizeEveryWord(tekst);
     expect(result).toEqual("");
-  });
-});
-
-describe("Json pointer", () => {
-  test("json pointer konvertering - simple case", () => {
-    expect(jsonPointerToFieldPath("/foo/0/bar")).toBe("foo.0.bar");
-  });
-
-  test("root path", () => {
-    expect(jsonPointerToFieldPath("/")).toBe("");
-  });
-
-  test("single level", () => {
-    expect(jsonPointerToFieldPath("/foo")).toBe("foo");
-  });
-
-  test("numeric key in path", () => {
-    expect(jsonPointerToFieldPath("/0/foo")).toBe("0.foo");
-  });
-
-  test("nested path with multiple levels", () => {
-    expect(jsonPointerToFieldPath("/foo/bar/baz")).toBe("foo.bar.baz");
-  });
-
-  test("trailing slash", () => {
-    expect(jsonPointerToFieldPath("/foo/bar/")).toBe("foo.bar");
-  });
-
-  test("leading and trailing slashes", () => {
-    expect(jsonPointerToFieldPath("//foo/bar//")).toBe("foo.bar");
-  });
-
-  test("JSON pointer escaping (~0 -> ~, ~1 -> /)", () => {
-    expect(jsonPointerToFieldPath("/foo~0bar/baz~1qux")).toBe("foo~bar.baz/qux");
-  });
-
-  test("double slashes", () => {
-    expect(jsonPointerToFieldPath("/foo//bar")).toBe("foo.bar");
-  });
-
-  test("empty input", () => {
-    expect(jsonPointerToFieldPath("")).toBe("");
-  });
-
-  test("only slash", () => {
-    expect(jsonPointerToFieldPath("/")).toBe("");
-  });
-});
-
-describe("formaterDatoSomYYYYMMDD()", () => {
-  const fallback = "<fallbackDate>";
-
-  test("valid dd.MM.yyyy to yyyy-MM-dd", () => {
-    expect(formaterDatoSomYYYYMMDD("31.12.2024", fallback)).toBe("2024-12-31");
-  });
-  test("invalid dd.MM.yyyy to fallback", () => {
-    expect(formaterDatoSomYYYYMMDD("31.02.202", fallback)).toBe(fallback);
-  });
-  test("valid yyyy-MM-dd to yyyy-MM-dd", () => {
-    expect(formaterDatoSomYYYYMMDD("2024-12-31", fallback)).toBe("2024-12-31");
-  });
-  test("invalid yyyy-MM-dd to fallback", () => {
-    expect(formaterDatoSomYYYYMMDD("2024-12-3", fallback)).toBe(fallback);
-  });
-  test("valid date to yyyy-MM-dd", () => {
-    expect(formaterDatoSomYYYYMMDD(new Date(2024, 12 - 1, 31), fallback)).toBe("2024-12-31");
-  });
-  test("invalid datestring to fallback", () => {
-    expect(formaterDatoSomYYYYMMDD(new Date("31.12.2024"), fallback)).toBe(fallback);
-  });
-  test("null to fallback", () => {
-    expect(formaterDatoSomYYYYMMDD(null, fallback)).toBe(fallback);
-  });
-  test("undefined to fallback", () => {
-    expect(formaterDatoSomYYYYMMDD(undefined, fallback)).toBe(fallback);
   });
 });

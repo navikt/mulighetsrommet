@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.pdl.tilPersonNavn
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -358,7 +359,7 @@ private fun QueryContext.toArrangorflateTilsagn(
         ),
         type = tilsagn.type,
         periode = tilsagn.periode,
-        beregning = tilsagn.beregning,
+        beregning = TilsagnBeregningDto.from(tilsagn.beregning),
         arrangor = ArrangorflateTilsagnDto.Arrangor(
             id = tilsagn.arrangor.id,
             navn = tilsagn.arrangor.navn,
