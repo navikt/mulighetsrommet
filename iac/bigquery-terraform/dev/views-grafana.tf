@@ -216,11 +216,11 @@ WHERE
 EOF
 }
 
-module "grafana_utbetaling_arrangor_innsending_antall_view" {
+module "grafana_utbetaling_arrangor_innsending_stats_view" {
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
-  view_id             = "utbetaling_arrangor_innsending_antall_view"
+  view_id             = "utbetaling_arrangor_innsending_stats_view"
   depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode(
     [
@@ -269,7 +269,7 @@ module "grafana_utbetaling_arrangor_innsending_antall_view" {
       DATE(godkjent_av_arrangor_tidspunkt) as date_arrangor_godkjent,
       DATE_DIFF(godkjent_av_arrangor_tidspunkt, created_at, DAY) as antall_dager_mellom
     FROM
-      `team-mulighetsrommet-dev-a2d7.mulighetsrommet_api_datastream.public_utbetaling`
+      `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling`
     WHERE
       innsender = "Arrangor" and godkjent_av_arrangor_tidspunkt is not null
   )
@@ -285,6 +285,60 @@ FROM
   arrangor_innsendt_utbetalinger
 group by
   tilskuddstype
+EOF
+}
+
+module "grafana_utbetaling_arrangor_utestaende_innsendinger_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_arrangor_utestaende_innsendinger_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "dag"
+        type = "DATE"
+      },
+      {
+        mode = "NULLABLE"
+        name = "antall_utestaende_innsendinger"
+        type = "INTEGER"
+      },
+    ]
+  )
+  view_query = <<EOF
+WITH dager AS (
+  SELECT
+    dag
+  FROM UNNEST(
+    GENERATE_DATE_ARRAY(
+      DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH),
+      CURRENT_DATE(),
+      INTERVAL 1 DAY
+    )
+  ) AS dag
+),
+arrangor_utbetalinger as (
+  SELECT
+    u.id,
+    DATE(u.created_at) as created_at,
+    DATE(u.godkjent_av_arrangor_tidspunkt) as godkjent_av_arrangor_tidspunkt
+  FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling` u
+  WHERE
+    (u.innsender IS NULL OR u.innsender = 'Arrangor')
+)
+SELECT
+  d.dag,
+  COUNT(u.id) AS antall_utestaende_innsendinger
+FROM
+  dager d
+LEFT JOIN arrangor_utbetalinger u
+  ON (u.created_at <= d.dag)
+     AND (u.godkjent_av_arrangor_tidspunkt IS NULL OR u.godkjent_av_arrangor_tidspunkt > d.dag)
+GROUP BY 1
+ORDER BY 1 DESC
 EOF
 }
 
