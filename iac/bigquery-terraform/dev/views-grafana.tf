@@ -412,3 +412,42 @@ GROUP BY
 order by 1 desc
 EOF
 }
+
+module "grafana_utbetaling_feilet_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_feilet_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "fakturanummer"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "sendt_til_okonomi_tidspunkt"
+        type = "DATETIME"
+      },
+      {
+        mode = "NULLABLE"
+        name = "faktura_status"
+        type = "STRING"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  du.fakturanummer,
+  DATETIME(du.sendt_til_okonomi_tidspunkt) as sendt_til_okonomi_tidspunkt,
+  du.faktura_status
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_delutbetaling` du
+WHERE
+  du.sendt_til_okonomi_tidspunkt IS NOT NULL
+ORDER BY
+  2
+EOF
+}
