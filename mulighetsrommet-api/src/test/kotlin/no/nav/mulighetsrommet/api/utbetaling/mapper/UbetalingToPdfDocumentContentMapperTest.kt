@@ -157,6 +157,7 @@ private val expectedUtbetalingsdetaljerContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Arrangør",
@@ -185,6 +186,7 @@ private val expectedUtbetalingsdetaljerContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Utbetalingsperiode",
@@ -210,6 +212,7 @@ private val expectedUtbetalingsdetaljerContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Kontonummer",
@@ -230,6 +233,7 @@ private val expectedUtbetalingsdetaljerContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Status",
@@ -252,6 +256,7 @@ private val expectedUtbetalingsdetaljerContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Tilsagn",
@@ -275,6 +280,7 @@ private val expectedUtbetalingsdetaljerContent = """
           ]
         },
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Tilsagn",
@@ -324,6 +330,7 @@ private val expectedJournalpostContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Arrangør",
@@ -352,6 +359,7 @@ private val expectedJournalpostContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Utbetalingsperiode",
@@ -377,6 +385,7 @@ private val expectedJournalpostContent = """
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Kontonummer",
@@ -397,8 +406,9 @@ private val expectedJournalpostContent = """
       },
       "blocks": [
         {
+          "type": "item-list",
           "description": "Det er registrert stengt hos arrangør i følgende perioder:",
-          "values": [
+          "items": [
             "07.01.2025 - 13.01.2025: Stengt for ferie"
           ]
         }
@@ -411,6 +421,7 @@ private val expectedJournalpostContent = """
       },
       "blocks": [
         {
+          "type": "table",
           "table": {
             "columns": [
               {
@@ -506,6 +517,7 @@ private val expectedJournalpostContent = """
       },
       "blocks": [
         {
+          "type": "table",
           "table": {
             "columns": [
               {

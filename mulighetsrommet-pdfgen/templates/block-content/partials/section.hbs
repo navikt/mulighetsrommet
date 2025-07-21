@@ -3,6 +3,6 @@
 {{/with}}
 {{#each blocks}}
     <div class="block{{#unless @last}} line_middle{{/unless}}{{#if @last}} line_bottom{{/if}}">
-        {{> utbetaling/partials/block entries=this.entries }}
+        {{> block-content/partials/block entries=this.entries }}
     </div>
 {{/each}}

@@ -241,7 +241,7 @@ fun Route.arrangorflateRoutes() {
 
                 val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
                 val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(arrflateUtbetaling)
-                val pdfContent = pdfClient.getUtbetalingKvittering(content)
+                val pdfContent = pdfClient.getPdfDocument(content)
 
                 call.response.headers.append(
                     "Content-Disposition",

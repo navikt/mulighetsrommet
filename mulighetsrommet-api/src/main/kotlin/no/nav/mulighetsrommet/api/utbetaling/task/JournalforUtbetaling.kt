@@ -68,7 +68,7 @@ class JournalforUtbetaling(
             // TODO: kan mapping gjøres fra Utbetaling -> PdfContent i stedet for å mappe Utbetaling -> ArrflateUtbetaling -> PdfContent?
             val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
             val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(arrflateUtbetaling)
-            pdf.utbetalingJournalpost(content)
+            pdf.getPdfDocument(content)
         }
 
         val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId, vedlegg)

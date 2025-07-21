@@ -1,7 +1,7 @@
 {
   "title": "Utbetaling",
-  "subject": "Krav om utbetaling fra Underenhet 1 AS",
-  "description": "Krav om utbetaling fra Underenhet 1 AS",
+  "subject": "Krav om utbetaling fra Nav",
+  "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
   "sections": [
     {
@@ -17,22 +17,23 @@
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Arrangør",
-              "value": "Underenhet 1 AS (976663934)"
+              "value": "Nav (123456789)"
             },
             {
               "label": "Dato innsendt av arrangør",
-              "value": "11.07.2025"
+              "value": "02.01.2025"
             },
             {
               "label": "Tiltaksnavn",
-              "value": "AFT 1"
+              "value": "Avklaring hos Nav"
             },
             {
               "label": "Tiltakstype",
-              "value": "Arbeidsforberedende trening"
+              "value": "Avklaringer"
             }
           ]
         }
@@ -45,18 +46,19 @@
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Utbetalingsperiode",
-              "value": "01.08.2024 - 31.08.2024"
+              "value": "01.01.2025 - 31.01.2025"
             },
             {
               "label": "Antall månedsverk",
-              "value": "0.5"
+              "value": "1.0"
             },
             {
               "label": "Beløp",
-              "value": "0",
+              "value": "100",
               "format": "NOK"
             }
           ]
@@ -70,10 +72,11 @@
       },
       "blocks": [
         {
+          "type": "description-list",
           "entries": [
             {
               "label": "Kontonummer",
-              "value": "12312312312"
+              "value": "12345678901"
             },
             {
               "label": "KID-nummer",
@@ -90,9 +93,10 @@
       },
       "blocks": [
         {
+          "type": "item-list",
           "description": "Det er registrert stengt hos arrangør i følgende perioder:",
-          "values": [
-            "01.08.2024 - 31.08.2024: Stengt for ferie"
+          "items": [
+            "07.01.2025 - 13.01.2025: Stengt for ferie"
           ]
         }
       ]
@@ -104,6 +108,7 @@
       },
       "blocks": [
         {
+          "type": "table",
           "table": {
             "columns": [
               {
@@ -130,13 +135,53 @@
               {
                 "cells": [
                   {
-                    "value": null
+                    "value": "Ola Nordmann"
                   },
                   {
-                    "value": null
+                    "value": "01.01.1989"
                   },
                   {
                     "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Kari Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "14.01.2025"
+                  },
+                  {
+                    "value": "50.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Kari Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "15.01.2025"
                   },
                   {
                     "value": "31.01.2025"
@@ -159,6 +204,7 @@
       },
       "blocks": [
         {
+          "type": "table",
           "table": {
             "columns": [
               {
@@ -177,13 +223,26 @@
               {
                 "cells": [
                   {
-                    "value": null
+                    "value": "Ola Nordmann"
                   },
                   {
-                    "value": null
+                    "value": "01.01.1989"
                   },
                   {
-                    "value": "0.5"
+                    "value": "1.0"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Kari Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "0.75"
                   }
                 ]
               }

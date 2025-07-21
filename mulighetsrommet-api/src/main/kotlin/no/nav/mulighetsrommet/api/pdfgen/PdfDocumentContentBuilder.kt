@@ -13,7 +13,7 @@ class PdfDocumentContentBuilder(
     }
 
     fun section(title: String, level: Int = 4, init: SectionBuilder.() -> Unit = {}) {
-        val builder = SectionBuilder(Section.Header(title, level))
+        val builder = SectionBuilder(Header(title, level))
         builder.init()
         sections.add(builder.build())
     }
@@ -27,8 +27,8 @@ class PdfDocumentContentBuilder(
     )
 }
 
-class SectionBuilder(private val header: Section.Header) {
-    private val blocks = mutableListOf<Section.Block>()
+class SectionBuilder(private val header: Header) {
+    private val blocks = mutableListOf<Block>()
 
     fun descriptionList(init: DescriptionListBlockBuilder.() -> Unit) {
         val builder = DescriptionListBlockBuilder()
@@ -42,8 +42,8 @@ class SectionBuilder(private val header: Section.Header) {
         blocks.add(builder.build())
     }
 
-    fun itemList(init: ValueListBlockBuilder.() -> Unit) {
-        val builder = ValueListBlockBuilder()
+    fun itemList(init: ItemListBlockBuilder.() -> Unit) {
+        val builder = ItemListBlockBuilder()
         builder.init()
         blocks.add(builder.build())
     }
@@ -52,46 +52,48 @@ class SectionBuilder(private val header: Section.Header) {
 }
 
 class DescriptionListBlockBuilder {
-    private val entries = mutableListOf<Section.Entry>()
     var description: String? = null
+    private val entries = mutableListOf<DescriptionListBlock.Entry>()
 
-    fun entry(label: String, value: Any?, format: Section.Format? = null) {
-        entries.add(Section.Entry(label, value?.toString(), format))
+    fun entry(label: String, value: Any?, format: Format? = null) {
+        entries.add(DescriptionListBlock.Entry(label, value?.toString(), format))
     }
 
-    fun build(): Section.Block = Section.Block(
+    fun build(): DescriptionListBlock = DescriptionListBlock(
         description = description,
         entries = entries,
     )
 }
 
-class ValueListBlockBuilder {
+class ItemListBlockBuilder {
     var description: String? = null
-    private val values = mutableListOf<String>()
+    private val items = mutableListOf<String>()
 
     fun item(value: String) {
-        values.add(value)
+        items.add(value)
     }
 
-    fun build(): Section.Block = Section.Block(
+    fun build(): ItemListBlock = ItemListBlock(
         description = description,
-        values = values,
+        items = items,
     )
 }
 
 class TableBlockBuilder {
-    private val columns = mutableListOf<Section.Table.Column>()
-    private val rows = mutableListOf<Section.Table.Row>()
+    var description: String? = null
+    private val columns = mutableListOf<TableBlock.Table.Column>()
+    private val rows = mutableListOf<TableBlock.Table.Row>()
 
-    fun column(name: String, align: Section.Table.Column.Align = Section.Table.Column.Align.LEFT) {
-        columns.add(Section.Table.Column(name, align))
+    fun column(name: String, align: TableBlock.Table.Column.Align = TableBlock.Table.Column.Align.LEFT) {
+        columns.add(TableBlock.Table.Column(name, align))
     }
 
-    fun row(vararg cells: Section.Table.Cell) {
-        rows.add(Section.Table.Row(cells.toList()))
+    fun row(vararg cells: TableBlock.Table.Cell) {
+        rows.add(TableBlock.Table.Row(cells.toList()))
     }
 
-    fun build(): Section.Block = Section.Block(
-        table = Section.Table(columns, rows),
+    fun build(): TableBlock = TableBlock(
+        description = description,
+        table = TableBlock.Table(columns, rows),
     )
 }

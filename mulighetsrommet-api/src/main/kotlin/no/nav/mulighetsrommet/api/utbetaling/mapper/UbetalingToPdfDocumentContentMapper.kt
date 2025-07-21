@@ -4,9 +4,10 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingDeltakelse
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
+import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
-import no.nav.mulighetsrommet.api.pdfgen.Section
+import no.nav.mulighetsrommet.api.pdfgen.TableBlock
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -141,7 +142,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrFlateU
             entry(
                 "Beløp",
                 utbetaling.beregning.belop.toString(),
-                Section.Format.NOK,
+                Format.NOK,
             )
         }
     }
@@ -162,10 +163,10 @@ private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(utbetaling: Ar
     section("Utbetalingsstatus") {
         descriptionList {
             val status = ArrFlateUtbetalingStatus.toReadableName(utbetaling.status)
-            entry("Status", status, Section.Format.STATUS_SUCCESS)
+            entry("Status", status, Format.STATUS_SUCCESS)
 
             val totaltUtbetalt = utbetaling.linjer.fold(0) { acc, linje -> acc + linje.belop }
-            entry("Godkjent beløp til utbetaling", totaltUtbetalt.toString(), Section.Format.NOK)
+            entry("Godkjent beløp til utbetaling", totaltUtbetalt.toString(), Format.NOK)
         }
     }
 
@@ -173,13 +174,13 @@ private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(utbetaling: Ar
         utbetaling.linjer.forEach {
             descriptionList {
                 entry("Tilsagn", it.tilsagn.bestillingsnummer)
-                entry("Beløp til utbetaling", it.belop.toString(), Section.Format.NOK)
-                entry("Status", toReadableName(it.status), Section.Format.STATUS_SUCCESS)
+                entry("Beløp til utbetaling", it.belop.toString(), Format.NOK)
+                entry("Status", toReadableName(it.status), Format.STATUS_SUCCESS)
                 it.statusSistOppdatert?.let { sistEndret ->
                     entry(
                         "Status endret",
                         sistEndret.toString(),
-                        Section.Format.DATE,
+                        Format.DATE,
                     )
                 }
             }
@@ -216,29 +217,29 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
     section("Deltakerperioder") {
         table {
             column("Navn")
-            column("Fødselsdato", Section.Table.Column.Align.RIGHT)
-            column("Startdato i perioden", Section.Table.Column.Align.RIGHT)
-            column("Sluttdato i perioden", Section.Table.Column.Align.RIGHT)
-            column("Deltakelsesprosent", Section.Table.Column.Align.RIGHT)
+            column("Fødselsdato", TableBlock.Table.Column.Align.RIGHT)
+            column("Startdato i perioden", TableBlock.Table.Column.Align.RIGHT)
+            column("Sluttdato i perioden", TableBlock.Table.Column.Align.RIGHT)
+            column("Deltakelsesprosent", TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
                 deltakelse.perioderMedDeltakelsesmengde.forEach { (periode, prosent) ->
                     row(
-                        Section.Table.Cell(
+                        TableBlock.Table.Cell(
                             deltakelse.person?.navn,
                         ),
-                        Section.Table.Cell(
+                        TableBlock.Table.Cell(
                             deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
                         ),
-                        Section.Table.Cell(
+                        TableBlock.Table.Cell(
                             periode.start.formaterDatoTilEuropeiskDatoformat(),
                         ),
-                        Section.Table.Cell(
+                        TableBlock.Table.Cell(
                             periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
                         ),
-                        Section.Table.Cell(
+                        TableBlock.Table.Cell(
                             prosent.toString(),
-                            Section.Format.PERCENT,
+                            Format.PERCENT,
                         ),
                     )
                 }
@@ -253,22 +254,22 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
     section("Deltakerperioder") {
         table {
             column("Navn")
-            column("Fødselsdato", Section.Table.Column.Align.RIGHT)
-            column("Startdato i perioden", Section.Table.Column.Align.RIGHT)
-            column("Sluttdato i perioden", Section.Table.Column.Align.RIGHT)
+            column("Fødselsdato", TableBlock.Table.Column.Align.RIGHT)
+            column("Startdato i perioden", TableBlock.Table.Column.Align.RIGHT)
+            column("Sluttdato i perioden", TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
                 row(
-                    Section.Table.Cell(
+                    TableBlock.Table.Cell(
                         deltakelse.person?.navn,
                     ),
-                    Section.Table.Cell(
+                    TableBlock.Table.Cell(
                         deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
                     ),
-                    Section.Table.Cell(
+                    TableBlock.Table.Cell(
                         deltakelse.periodeStartDato.formaterDatoTilEuropeiskDatoformat(),
                     ),
-                    Section.Table.Cell(
+                    TableBlock.Table.Cell(
                         deltakelse.periodeSluttDato.formaterDatoTilEuropeiskDatoformat(),
                     ),
                 )
@@ -285,18 +286,18 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     section(sectionHeader) {
         table {
             column("Navn")
-            column("Fødselsdato", Section.Table.Column.Align.RIGHT)
-            column(deltakelseFaktorColumnName, Section.Table.Column.Align.RIGHT)
+            column("Fødselsdato", TableBlock.Table.Column.Align.RIGHT)
+            column(deltakelseFaktorColumnName, TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
                 row(
-                    Section.Table.Cell(
+                    TableBlock.Table.Cell(
                         deltakelse.person?.navn,
                     ),
-                    Section.Table.Cell(
+                    TableBlock.Table.Cell(
                         deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
                     ),
-                    Section.Table.Cell(
+                    TableBlock.Table.Cell(
                         deltakelse.faktor.toString(),
                     ),
                 )

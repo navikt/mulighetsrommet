@@ -19,23 +19,13 @@ class PdfGenClient(
         }
     }
 
-    suspend fun getUtbetalingKvittering(
-        utbetaling: PdfDocumentContent,
+    suspend fun getPdfDocument(
+        content: PdfDocumentContent,
     ): ByteArray {
         return downloadPdf(
-            app = "utbetaling",
-            template = "utbetalingsdetaljer",
-            body = utbetaling,
-        )
-    }
-
-    suspend fun utbetalingJournalpost(
-        utbetaling: PdfDocumentContent,
-    ): ByteArray {
-        return downloadPdf(
-            app = "utbetaling",
-            template = "journalpost",
-            body = utbetaling,
+            app = "block-content",
+            template = "document",
+            body = content,
         )
     }
 
