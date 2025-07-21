@@ -1,8 +1,8 @@
 {{#with title}}
-    <h{{level}}>{{text}}</h{{level}}>
+    <h{{level}}{{#if blocks.length}} class="line_bottom"{{/if}}>{{text}}</h{{level}}>
 {{/with}}
 {{#each blocks}}
-    <div class="block{{#unless @last}} line_middle{{/unless}}{{#if @last}} line_bottom{{/if}}">
+    <div class="block{{#unless @last}} block_middle{{/unless}}">
         {{> block-content/partials/block entries=this.entries }}
     </div>
 {{/each}}

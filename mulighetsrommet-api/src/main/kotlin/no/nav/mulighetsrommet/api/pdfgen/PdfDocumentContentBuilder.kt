@@ -12,7 +12,7 @@ class PdfDocumentContentBuilder(
         section(title, level = 1, init)
     }
 
-    fun section(title: String, level: Int = 4, init: SectionBuilder.() -> Unit = {}) {
+    fun section(title: String, level: Int = 2, init: SectionBuilder.() -> Unit = {}) {
         val builder = SectionBuilder(Header(title, level))
         builder.init()
         sections.add(builder.build())

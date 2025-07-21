@@ -153,7 +153,7 @@ private val expectedUtbetalingsdetaljerContent = """
     {
       "title": {
         "text": "Innsending",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -182,7 +182,7 @@ private val expectedUtbetalingsdetaljerContent = """
     {
       "title": {
         "text": "Utbetaling",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -208,7 +208,7 @@ private val expectedUtbetalingsdetaljerContent = """
     {
       "title": {
         "text": "Betalingsinformasjon",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -229,7 +229,7 @@ private val expectedUtbetalingsdetaljerContent = """
     {
       "title": {
         "text": "Utbetalingsstatus",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -252,7 +252,7 @@ private val expectedUtbetalingsdetaljerContent = """
     {
       "title": {
         "text": "Tilsagn som er brukt til utbetaling",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -326,7 +326,7 @@ private val expectedJournalpostContent = """
     {
       "title": {
         "text": "Innsending",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -355,7 +355,7 @@ private val expectedJournalpostContent = """
     {
       "title": {
         "text": "Utbetaling",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -381,7 +381,7 @@ private val expectedJournalpostContent = """
     {
       "title": {
         "text": "Betalingsinformasjon",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -402,7 +402,7 @@ private val expectedJournalpostContent = """
     {
       "title": {
         "text": "Stengt hos arrangør",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -417,7 +417,7 @@ private val expectedJournalpostContent = """
     {
       "title": {
         "text": "Deltakerperioder",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -513,7 +513,7 @@ private val expectedJournalpostContent = """
     {
       "title": {
         "text": "Beregnet månedsverk",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {

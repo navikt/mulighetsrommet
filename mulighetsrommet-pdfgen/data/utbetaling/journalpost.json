@@ -13,7 +13,7 @@
     {
       "title": {
         "text": "Innsending",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -42,7 +42,7 @@
     {
       "title": {
         "text": "Utbetaling",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -68,7 +68,7 @@
     {
       "title": {
         "text": "Betalingsinformasjon",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -89,7 +89,7 @@
     {
       "title": {
         "text": "Stengt hos arrangør",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -104,7 +104,7 @@
     {
       "title": {
         "text": "Deltakerperioder",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -200,7 +200,7 @@
     {
       "title": {
         "text": "Beregnet månedsverk",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {

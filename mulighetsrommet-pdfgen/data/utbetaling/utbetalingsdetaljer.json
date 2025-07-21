@@ -13,7 +13,7 @@
     {
       "title": {
         "text": "Innsending",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -42,7 +42,7 @@
     {
       "title": {
         "text": "Utbetaling",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -68,7 +68,7 @@
     {
       "title": {
         "text": "Betalingsinformasjon",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -89,7 +89,7 @@
     {
       "title": {
         "text": "Utbetalingsstatus",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
@@ -112,7 +112,7 @@
     {
       "title": {
         "text": "Tilsagn som er brukt til utbetaling",
-        "level": 4
+        "level": 2
       },
       "blocks": [
         {
