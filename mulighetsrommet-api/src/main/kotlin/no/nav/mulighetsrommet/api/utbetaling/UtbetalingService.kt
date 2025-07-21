@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
+import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -67,7 +68,7 @@ class UtbetalingService(
 
             UtbetalingKompaktDto(
                 id = utbetaling.id,
-                status = AdminUtbetalingStatus.fromUtbetalingStatus(utbetaling.status),
+                status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
                 periode = utbetaling.periode,
                 kostnadssteder = kostnadssteder,
                 belopUtbetalt = belopUtbetalt,
@@ -131,8 +132,7 @@ class UtbetalingService(
             ),
         )
 
-        val dto = getOrError(request.id)
-        logEndring("Utbetaling sendt inn", dto, agent)
+        val dto = logEndring("Utbetaling sendt inn", getOrError(request.id), agent)
 
         if (agent is Arrangor) {
             journalforUtbetaling.schedule(
@@ -182,9 +182,7 @@ class UtbetalingService(
                     queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
                 }
 
-                val dto = getOrError(utbetaling.id)
-                logEndring("Utbetaling sendt til attestering", dto, navIdent)
-                dto
+                logEndring("Utbetaling sendt til attestering", getOrError(utbetaling.id), navIdent)
             }
     }
 
@@ -459,7 +457,7 @@ class UtbetalingService(
         operation: String,
         dto: Utbetaling,
         endretAv: Agent,
-    ) {
+    ): Utbetaling {
         queries.endringshistorikk.logEndring(
             DocumentClass.UTBETALING,
             operation,
@@ -469,6 +467,7 @@ class UtbetalingService(
         ) {
             Json.encodeToJsonElement(dto)
         }
+        return dto
     }
 
     private fun QueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
@@ -554,5 +553,31 @@ class UtbetalingService(
         }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
+    }
+
+    fun avbrytUtbetaling(
+        id: UUID,
+        agent: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<FieldError, Utbetaling> = db.transaction {
+        val utbetaling = queries.utbetaling.get(id)
+            ?: throw NotFoundException("Fant ikke utbetaling")
+
+        when (utbetaling.status) {
+            Utbetaling.UtbetalingStatus.INNSENDT,
+            Utbetaling.UtbetalingStatus.RETURNERT,
+            -> Unit
+            Utbetaling.UtbetalingStatus.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
+            Utbetaling.UtbetalingStatus.OPPRETTET,
+            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+            ->
+                return FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}").left()
+        }
+
+        queries.utbetaling.setAvbrutt(id, LocalDateTime.now(), aarsaker, forklaring)
+
+        logEndring("Utbetalingen ble avbrutt", getOrError(id), agent).right()
     }
 }

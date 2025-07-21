@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -87,6 +88,22 @@ fun Route.utbetalingRoutes() {
                 }
 
                 call.respond(utbetaling)
+            }
+        }
+
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
+            post("/avbryt") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<AvbrytUtbetalingRequest>()
+                val navIdent = getNavIdent()
+
+                utbetalingService.avbrytUtbetaling(id, navIdent, request.aarsaker, request.forklaring)
+                    .onLeft {
+                        call.respondWithProblemDetail(
+                            ValidationError("Klarte ikke avbryte Utbetaling", listOf(it)),
+                        )
+                    }
+                    .onRight { call.respond("OK") }
             }
         }
 
@@ -240,4 +257,10 @@ data class BeregningFilter(
 
 fun RoutingContext.getBeregningFilter() = BeregningFilter(
     navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList(),
+)
+
+@Serializable
+data class AvbrytUtbetalingRequest(
+    val aarsaker: List<String>,
+    val forklaring: String?,
 )

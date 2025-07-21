@@ -1,5 +1,5 @@
 import { formaterNavEnheter } from "@/utils/Utils";
-import { AdminUtbetalingStatus, NavEnhet, UtbetalingKompaktDto } from "@mr/api-client-v2";
+import { NavEnhet, UtbetalingKompaktDto, UtbetalingStatusDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -18,7 +18,7 @@ interface Props {
 interface UtbetalingRow {
   periodeStart: string;
   periodeSlutt: string;
-  status: AdminUtbetalingStatus;
+  status: UtbetalingStatusDto;
   kostnadssteder: NavEnhet[];
 }
 
@@ -111,12 +111,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 </Table.DataCell>
               )}
               <Table.DataCell>
-                {status !== AdminUtbetalingStatus.VENTER_PA_ARRANGOR && (
+                {status.type !== "VENTER_PA_ARRANGOR" && (
                   <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
-                    {[
-                      AdminUtbetalingStatus.UTBETALT,
-                      AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                    ].includes(status)
+                    {["OVERFORT_TIL_UTBETALING", "AVBRUTT"].includes(status.type)
                       ? "Detaljer"
                       : "Behandle"}
                   </Link>

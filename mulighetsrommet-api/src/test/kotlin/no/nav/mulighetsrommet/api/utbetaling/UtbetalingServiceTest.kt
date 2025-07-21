@@ -39,10 +39,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
@@ -1025,6 +1022,36 @@ class UtbetalingServiceTest : FunSpec({
                         it.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
                     }
             }
+        }
+
+        test("kan kun avbryte i status 'INNSENDT' eller 'RETURNERT'") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.INNSENDT) }
+            service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.RETURNERT) }
+            service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.OPPRETTET) }
+            service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.TIL_ATTESTERING) }
+            service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET) }
+            service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.AVBRUTT) }
+            service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
         }
     }
 

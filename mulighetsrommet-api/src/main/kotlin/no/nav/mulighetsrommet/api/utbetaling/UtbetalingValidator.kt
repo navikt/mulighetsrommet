@@ -34,12 +34,20 @@ object UtbetalingValidator {
         begrunnelse: String?,
     ): Either<List<FieldError>, List<OpprettDelutbetaling>> = either {
         val errors = buildList {
-            if (utbetaling.status !in listOf(Utbetaling.UtbetalingStatus.INNSENDT, Utbetaling.UtbetalingStatus.RETURNERT)) {
-                add(
-                    FieldError.root(
-                        "Utbetaling kan ikke endres fordi den har status: ${utbetaling.status}",
-                    ),
-                )
+            when (utbetaling.status) {
+                Utbetaling.UtbetalingStatus.INNSENDT,
+                Utbetaling.UtbetalingStatus.RETURNERT,
+                -> Unit
+                Utbetaling.UtbetalingStatus.OPPRETTET,
+                Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+                Utbetaling.UtbetalingStatus.AVBRUTT,
+                ->
+                    add(
+                        FieldError.root(
+                            "Utbetaling kan ikke endres fordi den har status: ${utbetaling.status}",
+                        ),
+                    )
             }
             val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop }
             if (totalBelopUtbetales > utbetaling.beregning.output.belop) {

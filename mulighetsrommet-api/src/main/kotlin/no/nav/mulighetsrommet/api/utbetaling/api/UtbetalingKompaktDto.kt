@@ -10,7 +10,7 @@ import java.util.*
 data class UtbetalingKompaktDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: AdminUtbetalingStatus,
+    val status: UtbetalingStatusDto,
     val periode: Periode,
     val kostnadssteder: List<NavEnhetDbo>,
     val belopUtbetalt: Int?,

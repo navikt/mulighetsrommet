@@ -1,45 +1,45 @@
-import { AdminUtbetalingStatus } from "@mr/api-client-v2";
+import { UtbetalingStatusDto } from "@mr/api-client-v2";
 import { Tag } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
-export function UtbetalingStatusTag({ status }: { status: AdminUtbetalingStatus }): ReactNode {
+export function UtbetalingStatusTag({ status }: { status: UtbetalingStatusDto }): ReactNode {
   const baseTagClasses = "w-[150px] text-center whitespace-nowrap";
 
-  switch (status) {
-    case AdminUtbetalingStatus.RETURNERT:
+  switch (status.type) {
+    case "RETURNERT":
       return (
         <Tag size="small" variant="error" className={baseTagClasses}>
           Returnert
         </Tag>
       );
-    case AdminUtbetalingStatus.TIL_ATTESTERING:
+    case "TIL_ATTESTERING":
       return (
         <Tag size="small" variant="warning" className={baseTagClasses}>
           Til attestering
         </Tag>
       );
-    case AdminUtbetalingStatus.UTBETALT:
-      return (
-        <Tag size="small" variant="success" className={baseTagClasses}>
-          Utbetalt
-        </Tag>
-      );
-    case AdminUtbetalingStatus.KLAR_TIL_BEHANDLING:
+    case "KLAR_TIL_BEHANDLING":
       return (
         <Tag size="small" variant="warning" className={baseTagClasses}>
           Klar til behandling
         </Tag>
       );
-    case AdminUtbetalingStatus.VENTER_PA_ARRANGOR:
+    case "VENTER_PA_ARRANGOR":
       return (
         <Tag size="small" variant="alt1" className={baseTagClasses}>
           Venter på arrangør
         </Tag>
       );
-    case AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING:
+    case "OVERFORT_TIL_UTBETALING":
       return (
         <Tag size="small" variant="success" className={baseTagClasses}>
           Overført til utbetaling
+        </Tag>
+      );
+    case "AVBRUTT":
+      return (
+        <Tag size="small" variant="error" className={baseTagClasses}>
+          Avbrutt
         </Tag>
       );
   }

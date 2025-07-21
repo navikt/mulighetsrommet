@@ -2004,6 +2004,24 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/utbetaling/{id}/avbryt:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Utbetaling
+      operationId: avbrytUtbetaling
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvbrytUtbetalingRequest"
+      responses:
+        200:
+          description: OK
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/utbetaling/{id}/beregning:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -6068,15 +6086,65 @@ components:
         - VENTER_PA_ENDRING
         - OVERFORT_TIL_UTBETALING
 
-    AdminUtbetalingStatus:
-      type: string
-      enum:
-        - VENTER_PA_ARRANGOR
-        - KLAR_TIL_BEHANDLING
-        - RETURNERT
-        - TIL_ATTESTERING
-        - UTBETALT
-        - OVERFORT_TIL_UTBETALING
+    UtbetalingStatusDto:
+      oneOf:
+        - $ref: "#/components/schemas/UtbetalingStatusVenterPaArrangor"
+        - $ref: "#/components/schemas/UtbetalingStatusKlarTilBehandling"
+        - $ref: "#/components/schemas/UtbetalingStatusTilAttestering"
+        - $ref: "#/components/schemas/UtbetalingStatusReturnert"
+        - $ref: "#/components/schemas/UtbetalingStatusOverfortTilUtbetaling"
+        - $ref: "#/components/schemas/UtbetalingStatusAvbrutt"
+
+    UtbetalingStatusVenterPaArrangor:
+      type: object
+      properties:
+        type:
+          const: VENTER_PA_ARRANGOR
+      required: [type]
+
+    UtbetalingStatusKlarTilBehandling:
+      type: object
+      properties:
+        type:
+          const: KLAR_TIL_BEHANDLING
+      required: [type]
+
+    UtbetalingStatusTilAttestering:
+      type: object
+      properties:
+        type:
+          const: TIL_ATTESTERING
+      required: [ type ]
+
+    UtbetalingStatusReturnert:
+      type: object
+      properties:
+        type:
+          const: RETURNERT
+      required: [ type ]
+
+    UtbetalingStatusOverfortTilUtbetaling:
+      type: object
+      properties:
+        type:
+          const: OVERFORT_TIL_UTBETALING
+      required: [ type ]
+
+    UtbetalingStatusAvbrutt:
+      type: object
+      properties:
+        type:
+          const: AVBRUTT
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+        tidspunkt:
+          type: string
+          format: datetime
+      required: [ type, aarsaker, tidspunkt ]
 
     UtbetalingDetaljerDto:
       type: object
@@ -6099,7 +6167,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/AdminUtbetalingStatus"
+          $ref: "#/components/schemas/UtbetalingStatusDto"
         periode:
           $ref: "#/components/schemas/Periode"
         belop:
@@ -6133,7 +6201,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/AdminUtbetalingStatus"
+          $ref: "#/components/schemas/UtbetalingStatusDto"
         periode:
           $ref: "#/components/schemas/Periode"
         kostnadssteder:
@@ -7021,3 +7089,14 @@ components:
             - DATE
             - NOK
       required: [key, type, sortable, align]
+
+    AvbrytUtbetalingRequest:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: [string, "null"]
+      required: [aarsaker, forklaring]

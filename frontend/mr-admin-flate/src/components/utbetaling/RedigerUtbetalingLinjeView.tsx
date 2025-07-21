@@ -34,6 +34,8 @@ import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { useAvbrytUtbetaling } from "@/api/utbetaling/useAvbrytUtbetaling";
+import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -60,12 +62,32 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
   );
 
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
+  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+
+  const avbrytMutation = useAvbrytUtbetaling();
+
+  function avbryt(aarsaker: string[], forklaring: string | null) {
+    avbrytMutation.mutate(
+      {
+        id: utbetaling.id,
+        body: { aarsaker, forklaring },
+      },
+      {
+        onValidationError: (error: ValidationError) => {
+          setError(error.errors);
+        },
+        onSuccess: () => {
+          navigate(-1);
+        },
+      },
+    );
+  }
 
   const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
 
@@ -151,6 +173,9 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
               <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
                 Hent godkjente tilsagn
               </ActionMenu.Item>
+              <ActionMenu.Item onSelect={() => setAvbrytModalOpen(true)}>
+                Avbryt utbetaling
+              </ActionMenu.Item>
             </ActionMenu.Content>
           </ActionMenu>
         </HStack>
@@ -217,6 +242,16 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
         begrunnelseOnChange={(e) => setBegrunnelseMindreBetalt(e.target.value)}
         belopUtbetaling={utbetalesTotal()}
         belopInnsendt={utbetaling.belop}
+      />
+      <AarsakerOgForklaringModal<"ANNET">
+        open={avbrytModalOpen}
+        header="Avbryt utbetaling"
+        buttonLabel="Avbryt utbetaling"
+        aarsaker={[{ value: "ANNET", label: "Annet" }]}
+        onClose={() => setAvbrytModalOpen(false)}
+        onConfirm={({ aarsaker, forklaring }) => {
+          avbryt(aarsaker, forklaring);
+        }}
       />
     </>
   );
