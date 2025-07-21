@@ -1,29 +1,28 @@
 package no.nav.mulighetsrommet.api.utbetaling.task
 
+import arrow.core.left
 import arrow.core.right
-import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
-import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
@@ -83,51 +82,50 @@ class JournalforUtbetalingTest : FunSpec({
         utbetalinger = listOf(utbetaling),
     )
 
-    beforeEach {
+    beforeSpec {
         domain.initialize(database.db)
     }
 
-    val pdl: PdlClient = mockk(relaxed = true)
-    val pdf = PdfGenClient(
-        clientEngine = createMockEngine {
-            post("http://pdfgen/api/v1/genpdf/block-content/document") {
-                respond(":)".toByteArray(), HttpStatusCode.OK)
-            }
-        },
-        baseUrl = "http://pdfgen",
-    )
-    val dokarkClient: DokarkClient = mockk()
-    val kontoregisterClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
     val arrangorFlateSerivce = { db: ApiDatabase ->
         ArrangorFlateService(
-            pdl = HentAdressebeskyttetPersonBolkPdlQuery(pdl),
             db = db,
-            kontoregisterOrganisasjonClient = kontoregisterClient,
+            pdl = mockk(relaxed = true),
+            kontoregisterOrganisasjonClient = mockk(relaxed = true),
         )
     }
+
+    val pdfGenClient = mockk<PdfGenClient>(relaxed = true)
+    val dokarkClient = mockk<DokarkClient>(relaxed = true)
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,
         dokarkClient = dokarkClient,
         arrangorFlateService = arrangorFlateSerivce(database.db),
-        pdf = pdf,
+        pdf = pdfGenClient,
     )
 
-    test("utbetaling må være godkjent") {
+    test("blir ikke journalført når pdfgen feiler") {
+        coEvery { pdfGenClient.getPdfDocument(any()) } returns PdfGenError(500, "Generering feilet").left()
+
         val task = createTask()
 
-        shouldThrow<Throwable> {
-            task.journalfor(utbetaling.id, emptyList())
-        }
+        task.journalfor(utbetaling.id, emptyList())
+            .shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=Generering feilet)")
+    }
+
+    test("blir ikke journalført når dokark feiler") {
+        coEvery { pdfGenClient.getPdfDocument(any()) } returns ":)".toByteArray().right()
+        coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkError(
+            "Feilet å laste opp til joark",
+        ).left()
+
+        val task = createTask()
+
+        task.journalfor(utbetaling.id, emptyList()).shouldBeLeft("Feil fra dokark: Feilet å laste opp til joark")
     }
 
     test("vellykket journalføring setter journalpost_id") {
-        val task = createTask()
-
-        database.run {
-            queries.utbetaling.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
-        }
-
+        coEvery { pdfGenClient.getPdfDocument(any()) } returns ":)".toByteArray().right()
         coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkResponse(
             journalpostId = "123",
             journalstatus = "ok",
@@ -136,7 +134,11 @@ class JournalforUtbetalingTest : FunSpec({
             dokumenter = emptyList(),
         ).right()
 
-        task.journalfor(utbetaling.id, emptyList())
+        val task = createTask()
+
+        task.journalfor(utbetaling.id, emptyList()).shouldBeRight().should {
+            it.journalpostId shouldBe "123"
+        }
 
         database.run {
             queries.utbetaling.get(utbetaling.id).shouldNotBeNull().journalpostId shouldBe "123"

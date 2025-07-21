@@ -17,9 +17,9 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class DokarkClient(
+    clientEngine: HttpClientEngine,
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = httpJsonClient(clientEngine).config {

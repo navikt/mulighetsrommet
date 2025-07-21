@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
@@ -179,7 +180,10 @@ fun Route.arrangorflateRoutes() {
                     val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                     requireTilgangHosArrangor(orgnr)
-                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(orgnr, listOf(Prismodell.ANNEN_AVTALT_PRIS))
+                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(
+                        orgnr,
+                        listOf(Prismodell.ANNEN_AVTALT_PRIS),
+                    )
                     call.respond(gjennomforinger)
                 }
             }
@@ -241,14 +245,18 @@ fun Route.arrangorflateRoutes() {
 
                 val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
                 val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(arrflateUtbetaling)
-                val pdfContent = pdfClient.getPdfDocument(content)
-
-                call.response.headers.append(
-                    "Content-Disposition",
-                    "attachment; filename=\"kvittering.pdf\"",
-                )
-
-                call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
+                pdfClient.getPdfDocument(content)
+                    .onRight { pdfContent ->
+                        call.response.headers.append(
+                            "Content-Disposition",
+                            "attachment; filename=\"kvittering.pdf\"",
+                        )
+                        call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
+                    }
+                    .onLeft { error ->
+                        application.log.warn("Klarte ikke hente utbetalingsdetaljer som PDF. Response fra pdfgen: $error")
+                        call.respondWithProblemDetail(InternalServerError("Klarte ikke hente utbetalingsdetaljer som PDF"))
+                    }
             }
 
             get("/tilsagn") {
