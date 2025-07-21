@@ -30,12 +30,19 @@ data class UtbetalingLinje(
 data class ArrangorUtbetalingLinje(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tilsagn: TilsagnDto,
+    val tilsagn: Tilsagn,
     val status: DelutbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val statusSistOppdatert: LocalDateTime?,
     val belop: Int,
-)
+) {
+    @Serializable
+    data class Tilsagn(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val bestillingsnummer: String,
+    )
+}
 
 fun toReadableName(delutbetalingStatus: DelutbetalingStatus): String {
     return when (delutbetalingStatus) {

@@ -6235,7 +6235,16 @@ components:
           type: string
           format: uuid
         tilsagn:
-          $ref: "#/components/schemas/TilsagnDto"
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            bestillingsnummer:
+              type: string
+          required:
+            - id
+            - bestillingsnummer
         status:
           $ref: "#/components/schemas/DelutbetalingStatus"
         statusSistOppdatert:

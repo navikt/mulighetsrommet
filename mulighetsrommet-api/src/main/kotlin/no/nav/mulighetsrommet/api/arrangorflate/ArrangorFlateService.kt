@@ -147,7 +147,10 @@ class ArrangorFlateService(
                 belop = delutbetaling.belop,
                 status = delutbetaling.status,
                 statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
-                tilsagn = tilsagn,
+                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                    id = tilsagn.id,
+                    bestillingsnummer = tilsagn.bestillingsnummer,
+                ),
             )
         }
 
