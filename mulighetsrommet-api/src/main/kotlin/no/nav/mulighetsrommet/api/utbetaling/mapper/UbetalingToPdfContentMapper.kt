@@ -54,7 +54,7 @@ object UbetalingToPdfContentMapper {
             is ArrFlateBeregning.Fri -> Unit
 
             is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
-                sections.addDeltakelsesmengderSection(utbetaling.beregning)
+                sections.addDeltakelsesmengderSection(utbetaling.beregning.deltakelser)
             }
 
             is ArrFlateBeregning.PrisPerManedsverk -> {
@@ -265,7 +265,7 @@ private fun MutableList<Section>.addStengtHosArrangorSection(
 }
 
 private fun MutableList<Section>.addDeltakelsesmengderSection(
-    beregning: ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder,
+    deltakelser: List<ArrFlateUtbetalingDeltakelse>,
 ) {
     add(
         Section(
@@ -280,7 +280,7 @@ private fun MutableList<Section>.addDeltakelsesmengderSection(
                             Section.Table.Column("Sluttdato i perioden", Section.Table.Column.Align.RIGHT),
                             Section.Table.Column("Deltakelsesprosent", Section.Table.Column.Align.RIGHT),
                         ),
-                        rows = beregning.deltakelser.flatMap { deltakelse ->
+                        rows = deltakelser.flatMap { deltakelse ->
                             deltakelse.perioderMedDeltakelsesmengde.map { (periode, prosent) ->
                                 Section.Table.Row(
                                     cells = listOf(
