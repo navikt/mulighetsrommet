@@ -150,5 +150,19 @@ module "mr_api_datastream" {
         table_id   = "utbetaling_arrangor_utestaende_innsendinger_view"
       }
     },
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "utbetaling_antall_godkjente_per_prosess_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "utbetaling_feilet_view"
+      }
+    },
   ]
 }
