@@ -342,4 +342,73 @@ ORDER BY 1 DESC
 EOF
 }
 
-
+module "grafana_utbetaling_antall_godkjente_per_prosess_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_antall_godkjente_per_prosess_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "dag"
+        type = "DATE"
+      },
+      {
+        mode = "NULLABLE"
+        name = "prosess"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "totalt_antall_godkjente"
+        type = "INTEGER"
+      },
+    ]
+  )
+  view_query = <<EOF
+WITH
+  dager AS (
+  SELECT
+    dag
+  FROM
+    UNNEST( GENERATE_DATE_ARRAY( DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH), CURRENT_DATE(), INTERVAL 1 DAY ) ) AS dag ),
+  godkjent_utbetaling_av AS (
+  SELECT
+    DISTINCT du.utbetaling_id,
+    CASE
+      WHEN t.besluttet_av = 'Tiltaksadministrasjon' THEN 'Automatisk'
+      ELSE 'Manuell'
+  END
+    AS prosess,
+    MAX(DATE(t.besluttet_tidspunkt)) AS besluttet_dag
+  FROM
+    `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_delutbetaling` du
+  INNER JOIN
+    `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` t
+  ON
+    du.id = t.entity_id
+  GROUP BY
+    du.utbetaling_id,
+    t.besluttet_av
+  HAVING
+    COUNT(*) > 0
+    AND COUNT(*) = COUNTIF(t.besluttelse = 'GODKJENT') )
+SELECT
+  d.dag,
+  gu.prosess,
+  COUNT(u.id) AS totalt_antall_godkjente
+FROM
+  dager d
+inner join
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling` u on d.dag >= DATE(u.created_at)
+INNER JOIN
+  godkjent_utbetaling_av gu
+ON
+  gu.utbetaling_id = u.id and d.dag >= gu.besluttet_dag
+GROUP BY
+  1,2
+order by 1 desc
+EOF
+}
