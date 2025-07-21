@@ -5088,6 +5088,7 @@ components:
     Toggles:
       type: string
       enum:
+        - mulighetsrommet.migrering.okonomi.avbryt-utbetaling
         - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.migrering.tilsagn
         - arrangorflate.utbetaling.opprett-utbetaling-knapp
