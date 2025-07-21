@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 
-object UbetalingToPdfContentMapper {
-    fun toInnsendtFraArrangorPdfContent(utbetaling: ArrFlateUtbetaling): PdfDocumentContent {
+object UbetalingToPdfDocumentContentMapper {
+    fun toUtbetalingsdetaljerPdfContent(utbetaling: ArrFlateUtbetaling): PdfDocumentContent {
         val sections = mutableListOf<Section>()
 
         sections.add(

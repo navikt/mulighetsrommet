@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfContentMapper
+import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -67,7 +67,7 @@ class JournalforUtbetaling(
         val pdf = run {
             // TODO: kan mapping gjøres fra Utbetaling -> PdfContent i stedet for å mappe Utbetaling -> ArrflateUtbetaling -> PdfContent?
             val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-            val content = UbetalingToPdfContentMapper.toJournalpostPdfContent(arrflateUtbetaling)
+            val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(arrflateUtbetaling)
             pdf.utbetalingJournalpost(content)
         }
 

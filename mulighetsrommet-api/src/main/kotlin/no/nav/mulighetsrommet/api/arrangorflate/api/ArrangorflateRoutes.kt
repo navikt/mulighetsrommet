@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfContentMapper
+import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -240,7 +240,7 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
                 val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-                val content = UbetalingToPdfContentMapper.toInnsendtFraArrangorPdfContent(arrflateUtbetaling)
+                val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(arrflateUtbetaling)
                 val pdfContent = pdfClient.getUtbetalingKvittering(content)
 
                 call.response.headers.append(
