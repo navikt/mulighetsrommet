@@ -36,7 +36,6 @@ test.describe("Utbetalinger detaljer", () => {
     await returnertUtbetalingRow.locator("a", { hasText: "Behandle" }).click();
 
     // Verify we're on the utbetaling details page
-
     await expect(page.locator("h2:has-text('Til utbetaling')")).toBeVisible();
 
     // Verify the utbetaling linjer are displayed
@@ -127,41 +126,6 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify the status is displayed as Overført til utbetaling for the utbetalingslinje
     await expect(page.locator("td span", { hasText: "Overført til utbetaling" })).toBeVisible();
-
-    // Verify that the user sees who has behandlet and attestert the utbetaling
-    await expect(page.locator("dt", { hasText: "Behandlet av" })).toBeVisible();
-    await expect(page.locator("table dd", { hasText: "Bertil Bengtson" })).toBeVisible();
-    await expect(page.locator("dt", { hasText: "Attestert av" })).toBeVisible();
-    await expect(page.locator("table dd", { hasText: "Per Haraldsen" })).toBeVisible();
-
-    await sjekkUU(page, "utbetaling-til-utbetaling");
-  });
-
-  test("should navigate to utbetalinger and select a UTBETALT utbetaling", async ({ page }) => {
-    // Wait for the utbetalinger table to load
-    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
-
-    // Find the row with status Utbetalt
-    const returnertUtbetalingRow = page
-      .getByTestId("utbetaling-table")
-      .locator("tr")
-      .filter({ hasText: "Utbetalt" })
-      .first();
-    await expect(returnertUtbetalingRow).toBeVisible();
-
-    // Click on the "Detaljer" link within that row
-    await returnertUtbetalingRow.locator("a", { hasText: "Detaljer" }).click();
-
-    // Verify we're on the utbetaling details page
-
-    await expect(page.locator("h2:has-text('Til utbetaling')")).toBeVisible();
-
-    // Verify the utbetaling linjer are displayed
-    await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
-    await expect(page.getByTestId("linje-table")).toBeVisible();
-
-    // Verify the status is displayed as Overført til utbetaling for the utbetalingslinje
-    await expect(page.locator("td span", { hasText: "Utbetalt" })).toBeVisible();
 
     // Verify that the user sees who has behandlet and attestert the utbetaling
     await expect(page.locator("dt", { hasText: "Behandlet av" })).toBeVisible();

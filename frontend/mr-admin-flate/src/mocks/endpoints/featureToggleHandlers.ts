@@ -3,6 +3,7 @@ import { Features } from "@/api/features/useFeatureToggle";
 import { Toggles } from "@mr/api-client-v2";
 
 const mockFeatures: Features = {
+  [Toggles.MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING]: true,
   [Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN]: true,
   [Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI]: true,
   [Toggles.ARRANGORFLATE_UTBETALING_OPPRETT_UTBETALING_KNAPP]: true,

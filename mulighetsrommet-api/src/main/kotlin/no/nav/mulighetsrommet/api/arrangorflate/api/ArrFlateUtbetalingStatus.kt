@@ -10,6 +10,7 @@ enum class ArrFlateUtbetalingStatus {
     UTBETALT,
     VENTER_PA_ENDRING,
     OVERFORT_TIL_UTBETALING,
+    AVBRUTT,
     ;
 
     companion object {
@@ -36,6 +37,7 @@ enum class ArrFlateUtbetalingStatus {
                     OVERFORT_TIL_UTBETALING
                 }
             }
+            Utbetaling.UtbetalingStatus.AVBRUTT -> AVBRUTT
         }
 
         fun toReadableName(status: ArrFlateUtbetalingStatus): String {
@@ -45,6 +47,7 @@ enum class ArrFlateUtbetalingStatus {
                 UTBETALT -> "Utbetalt"
                 VENTER_PA_ENDRING -> "Venter på endring"
                 OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
+                AVBRUTT -> "Avbrutt"
             }
         }
     }

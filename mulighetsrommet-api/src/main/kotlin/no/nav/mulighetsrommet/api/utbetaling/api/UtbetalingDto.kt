@@ -13,7 +13,7 @@ import java.util.*
 data class UtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: AdminUtbetalingStatus,
+    val status: UtbetalingStatusDto,
     val periode: Periode,
     val belop: Int,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -32,7 +32,7 @@ data class UtbetalingDto(
         fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
-                status = AdminUtbetalingStatus.fromUtbetalingStatus(utbetaling.status),
+                status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
                 periode = utbetaling.periode,
                 godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
                 betalingsinformasjon = utbetaling.betalingsinformasjon,

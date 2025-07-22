@@ -1,5 +1,5 @@
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { subtractDays, utbetalingLinjeCompareFn } from "@/utils/Utils";
+import { utbetalingLinjeCompareFn } from "@/utils/Utils";
 import {
   DelutbetalingRequest,
   FieldError,
@@ -8,6 +8,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
+  Toggles,
   UtbetalingDto,
   UtbetalingLinje,
   ValidationError,
@@ -33,7 +34,10 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { useAvbrytUtbetaling } from "@/api/utbetaling/useAvbrytUtbetaling";
+import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -59,13 +63,37 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
     linjer.length === 0 ? genrererUtbetalingLinjer(tilsagn) : linjer,
   );
 
+  const { data: enableAvbrytUtbetaling } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING,
+  );
+
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
+  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+
+  const avbrytMutation = useAvbrytUtbetaling();
+
+  function avbryt(aarsaker: string[], forklaring: string | null) {
+    avbrytMutation.mutate(
+      {
+        id: utbetaling.id,
+        body: { aarsaker, forklaring },
+      },
+      {
+        onValidationError: (error: ValidationError) => {
+          setError(error.errors);
+        },
+        onSuccess: () => {
+          navigate(-1);
+        },
+      },
+    );
+  }
 
   const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
 
@@ -77,7 +105,7 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
         `?type=${tilsagnsTypeFraTilskudd}` +
         `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
-        `&periodeSlutt=${formaterDatoSomYYYYMMDD(subtractDays(utbetaling.periode.slutt, 1))}` +
+        `&periodeSlutt=${yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 }))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
     );
   }
@@ -151,6 +179,11 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
               <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
                 Hent godkjente tilsagn
               </ActionMenu.Item>
+              {enableAvbrytUtbetaling && (
+                <ActionMenu.Item onSelect={() => setAvbrytModalOpen(true)}>
+                  Avbryt utbetaling
+                </ActionMenu.Item>
+              )}
             </ActionMenu.Content>
           </ActionMenu>
         </HStack>
@@ -217,6 +250,16 @@ export function RedigerUtbetalingLinjeView({ linjer, utbetaling, tilsagn }: Prop
         begrunnelseOnChange={(e) => setBegrunnelseMindreBetalt(e.target.value)}
         belopUtbetaling={utbetalesTotal()}
         belopInnsendt={utbetaling.belop}
+      />
+      <AarsakerOgForklaringModal<"ANNET">
+        open={avbrytModalOpen}
+        header="Avbryt utbetaling"
+        buttonLabel="Avbryt utbetaling"
+        aarsaker={[{ value: "ANNET", label: "Annet" }]}
+        onClose={() => setAvbrytModalOpen(false)}
+        onConfirm={({ aarsaker, forklaring }) => {
+          avbryt(aarsaker, forklaring);
+        }}
       />
     </>
   );

@@ -7,6 +7,7 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -307,6 +308,26 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "begrunnelse" to begrunnelse)))
     }
 
+    fun setAvbrutt(id: UUID, tidspunkt: LocalDateTime, aarsaker: List<String>, forklaring: String?) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling set
+                status = 'AVBRUTT',
+                avbrutt_aarsaker = :aarsaker,
+                avbrutt_forklaring = :forklaring,
+                avbrutt_tidspunkt = :tidspunkt
+            where id = :id::uuid
+        """.trimIndent()
+        val params = mapOf(
+            "id" to id,
+            "tidspunkt" to tidspunkt,
+            "aarsaker" to aarsaker.let { session.createTextArray(it) },
+            "forklaring" to forklaring,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun getOrError(id: UUID): Utbetaling {
         return checkNotNull(get(id)) { "Utbetaling med id $id finnes ikke" }
     }
@@ -426,6 +447,13 @@ class UtbetalingQueries(private val session: Session) {
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
             status = Utbetaling.UtbetalingStatus.valueOf(string("status")),
+            avbrutt = localDateTimeOrNull("avbrutt_tidspunkt")?.let {
+                Utbetaling.Avbrutt(
+                    aarsaker = arrayOrNull<String>("avbrutt_aarsaker")?.toList() ?: emptyList(),
+                    forklaring = stringOrNull("avbrutt_forklaring"),
+                    tidspunkt = it,
+                )
+            },
         )
     }
 

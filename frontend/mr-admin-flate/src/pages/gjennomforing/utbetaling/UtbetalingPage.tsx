@@ -7,7 +7,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { utbetalingLinjeCompareFn } from "@/utils/Utils";
-import { AdminUtbetalingStatus, Rolle, TilsagnStatus } from "@mr/api-client-v2";
+import { Rolle, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import { Accordion, Alert, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
@@ -29,6 +29,7 @@ import { useEffect } from "react";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
+import { AarsakerOgForklaring } from "../tilsagn/AarsakerOgForklaring";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -95,6 +96,14 @@ export function UtbetalingPage() {
               padding="4"
               className="border-gray-300 border-1 rounded-lg"
             >
+              {utbetaling.status.type === "AVBRUTT" && (
+                <AarsakerOgForklaring
+                  heading="Utbetaling avbrutt"
+                  tekster={[`Tidspunkt ${formaterDato(utbetaling.status.tidspunkt)}`]}
+                  aarsaker={utbetaling.status.aarsaker}
+                  forklaring={utbetaling.status.forklaring}
+                />
+              )}
               <HGrid columns="1fr 1fr 0.25fr">
                 <VStack>
                   <Heading size="medium" level="2" spacing data-testid="utbetaling-til-utbetaling">
@@ -188,34 +197,39 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
-              <Accordion>
-                <Accordion.Item>
-                  <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
-                  <Accordion.Content>
-                    {utbetalingId && (
-                      <UtbetalingBeregningView utbetalingId={utbetalingId} beregning={beregning} />
-                    )}
-                  </Accordion.Content>
-                </Accordion.Item>
-              </Accordion>
-              {tilsagn.every(
-                (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
-              ) && (
-                <Alert variant="info">
-                  Det finnes ingen godkjente tilsagn for utbetalingsperioden
-                </Alert>
-              )}
-              {erSaksbehandlerOkonomi &&
-              [AdminUtbetalingStatus.KLAR_TIL_BEHANDLING, AdminUtbetalingStatus.RETURNERT].includes(
-                utbetaling.status,
-              ) ? (
-                <RedigerUtbetalingLinjeView
-                  tilsagn={tilsagn}
-                  utbetaling={utbetaling}
-                  linjer={linjer}
-                />
-              ) : (
-                <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
+              {utbetaling.status.type != "AVBRUTT" && (
+                <>
+                  <Accordion>
+                    <Accordion.Item>
+                      <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
+                      <Accordion.Content>
+                        {utbetalingId && (
+                          <UtbetalingBeregningView
+                            utbetalingId={utbetalingId}
+                            beregning={beregning}
+                          />
+                        )}
+                      </Accordion.Content>
+                    </Accordion.Item>
+                  </Accordion>
+                  {tilsagn.every(
+                    (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
+                  ) && (
+                    <Alert variant="info">
+                      Det finnes ingen godkjente tilsagn for utbetalingsperioden
+                    </Alert>
+                  )}
+                  {erSaksbehandlerOkonomi &&
+                  ["KLAR_TIL_BEHANDLING", "RETURNERT"].includes(utbetaling.status.type) ? (
+                    <RedigerUtbetalingLinjeView
+                      tilsagn={tilsagn}
+                      utbetaling={utbetaling}
+                      linjer={linjer}
+                    />
+                  ) : (
+                    <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
+                  )}
+                </>
               )}
             </VStack>
           </VStack>
