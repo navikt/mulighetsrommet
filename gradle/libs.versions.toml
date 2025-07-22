@@ -35,7 +35,7 @@ assertj-db = "org.assertj:assertj-db:3.0.0"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.2"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:15.6.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:16.0.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
