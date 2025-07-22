@@ -491,3 +491,40 @@ FROM
   `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utdanning`
 EOF
 }
+
+module "mr_api_gjennomforing_utdanningsprogram_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_id             = "gjennomforing_utdanningsprogram_view"
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_id"
+        type        = "STRING"
+        description = "ID for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utdanningsprogram_id"
+        type        = "STRING"
+        description = "ID for utdanningsprogram"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utdanning_id"
+        type        = "STRING"
+        description = "ID for utdanning"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  gjennomforing_id,
+  utdanningsprogram_id,
+  utdanning_id
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing_utdanningsprogram`
+EOF
+}
