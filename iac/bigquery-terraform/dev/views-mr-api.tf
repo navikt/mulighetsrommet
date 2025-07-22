@@ -359,3 +359,135 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
 WHERE delt_fra_fylke IS NOT NULL
 EOF
 }
+
+module "mr_api_utdanningsprogram_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_id             = "utdanningsprogram_view"
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "id"
+        type        = "STRING"
+        description = "ID for utdanningsprogrammet"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "navn"
+        type        = "STRING"
+        description = "Navn på utdanningsprogram"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "nus_koder"
+        type        = "JSON"
+        description = "Norsk standard for utdanningsgruppering koder"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "programomradekode"
+        type        = "STRING"
+        description = "Programområdets alfanumeriske kode på 10 posisjoner"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utdanningsprogram_type"
+        type        = "STRING"
+        description = "Overordnet type utdanningsprogram"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "opprettet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Når utdanningsprogrammet ble opprettet (i databasen)"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "oppdatert_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Når utdanningsprogrammet ble sist oppdatert (i databasen)"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  id,
+  navn,
+  nus_koder,
+  programomradekode,
+  utdanningsprogram_type,
+  created_at as opprettet_tidspunkt,
+  updated_at as oppdatert_tidspunkt
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utdanningsprogram`
+EOF
+}
+
+
+
+module "mr_api_utdanning_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_id             = "utdanning_view"
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "id"
+        type        = "STRING"
+        description = "ID for utdanning"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "navn"
+        type        = "STRING"
+        description = "Navn på utdanning"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "nus_koder"
+        type        = "JSON"
+        description = "Norsk standard for utdanningsgruppering koder"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "programomradekode"
+        type        = "STRING"
+        description = "Programområdets alfanumeriske kode på 10 posisjoner"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "sluttkompetanse"
+        type        = "STRING"
+        description = "Oppnådd sluttkompetanse ved fullført utdanning"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "opprettet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Når utdanningen ble opprettet (i databasen)"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "oppdatert_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Når utdanningen sist ble oppdatert (i databasen)."
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  id,
+  navn,
+  nus_koder,
+  programomradekode,
+  sluttkompetanse,
+  created_at as opprettet_tidspunkt,
+  updated_at as oppdatert_tidspunkt
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utdanning`
+EOF
+}
