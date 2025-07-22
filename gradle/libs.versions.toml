@@ -1,11 +1,11 @@
 [versions]
 common-java-modules = "3.2025.06.23_14.50-3af3985d8555"
-flyway = "11.10.2"
+flyway = "11.10.3"
 koin = "4.1.0-Beta8"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.2.0"
-ktor = "3.2.1"
+ktor = "3.2.2"
 logback = "1.5.18"
 metrics = "4.2.33"
 arrow = "2.1.2"
@@ -40,10 +40,10 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:15.6.0"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.25.1"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.25.2"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.53.3"
 
-hikaricp = "com.zaxxer:HikariCP:6.3.0"
+hikaricp = "com.zaxxer:HikariCP:6.3.1"
 
 koin-ktor = { module = "io.insert-koin:koin-ktor3", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
@@ -98,7 +98,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 
 micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.15.2"
 
-mockk = "io.mockk:mockk:1.14.4"
+mockk = "io.mockk:mockk:1.14.5"
 
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
