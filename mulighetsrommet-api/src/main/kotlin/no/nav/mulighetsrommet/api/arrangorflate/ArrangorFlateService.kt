@@ -55,8 +55,8 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 )
 
 class ArrangorFlateService(
-    val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val db: ApiDatabase,
+    val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
@@ -147,7 +147,10 @@ class ArrangorFlateService(
                 belop = delutbetaling.belop,
                 status = delutbetaling.status,
                 statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
-                tilsagn = tilsagn,
+                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                    id = tilsagn.id,
+                    bestillingsnummer = tilsagn.bestillingsnummer,
+                ),
             )
         }
 

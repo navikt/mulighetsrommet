@@ -79,7 +79,7 @@ class ArrangorflateServiceTest : FunSpec({
         domain.initialize(database.db)
         pdlClient = mockPdlClient(ArrangorflateTestUtils.createPdlMockEngine())
         query = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient)
-        arrangorflateService = ArrangorFlateService(query, database.db, kontoregisterOrganisasjon)
+        arrangorflateService = ArrangorFlateService(database.db, query, kontoregisterOrganisasjon)
     }
 
     afterEach {

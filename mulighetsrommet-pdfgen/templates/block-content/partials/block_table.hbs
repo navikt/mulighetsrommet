@@ -1,0 +1,22 @@
+<table class="block block-table">
+    <thead>
+    <tr>
+        {{#each this.table.columns}}
+            <th{{#eq align "RIGHT"}} class="text-align-right"{{/eq}}>{{title}}</th>
+        {{/each}}
+    </tr>
+    </thead>
+    <tbody>
+    {{#each this.table.rows}}
+        <tr>
+            {{#each cells}}
+                {{#with (lookup ../../table.columns @index) as |col|}}
+                    <td{{#eq col.align "RIGHT"}} class="text-align-right"{{/eq}}>
+                        {{> block-content/partials/format_value this}}
+                    </td>
+                {{/with}}
+            {{/each}}
+        </tr>
+    {{/each}}
+    </tbody>
+</table>

@@ -22,12 +22,13 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfContentMapper
+import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
@@ -179,7 +180,10 @@ fun Route.arrangorflateRoutes() {
                     val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                     requireTilgangHosArrangor(orgnr)
-                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(orgnr, listOf(Prismodell.ANNEN_AVTALT_PRIS))
+                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(
+                        orgnr,
+                        listOf(Prismodell.ANNEN_AVTALT_PRIS),
+                    )
                     call.respond(gjennomforinger)
                 }
             }
@@ -240,15 +244,19 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
                 val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-                val content = UbetalingToPdfContentMapper.toInnsendtFraArrangorPdfContent(arrflateUtbetaling)
-                val pdfContent = pdfClient.getUtbetalingKvittering(content)
-
-                call.response.headers.append(
-                    "Content-Disposition",
-                    "attachment; filename=\"kvittering.pdf\"",
-                )
-
-                call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
+                val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(arrflateUtbetaling)
+                pdfClient.getPdfDocument(content)
+                    .onRight { pdfContent ->
+                        call.response.headers.append(
+                            "Content-Disposition",
+                            "attachment; filename=\"kvittering.pdf\"",
+                        )
+                        call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
+                    }
+                    .onLeft { error ->
+                        application.log.warn("Klarte ikke hente utbetalingsdetaljer som PDF. Response fra pdfgen: $error")
+                        call.respondWithProblemDetail(InternalServerError("Klarte ikke hente utbetalingsdetaljer som PDF"))
+                    }
             }
 
             get("/tilsagn") {
