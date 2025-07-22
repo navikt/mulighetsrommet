@@ -19,7 +19,7 @@
     "@sanity/client": "7.8.0",
     "@sanity/ui": "2.16.7",
     "@sanity/util": "3.99.0",
-    "@sanity/vision": "3.99.0",
+    "@sanity/vision": "4.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-icons": "5.5.0",
