@@ -127,6 +127,13 @@ module "mr_api_datastream" {
         table_id   = "utdanning_view"
       }
     },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_utdanningsprogram_view"
+      }
+    },
     # Grafana dataset read access:
     {
       view = {
