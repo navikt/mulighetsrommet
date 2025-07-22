@@ -43,7 +43,7 @@ flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.25.2"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.53.3"
 
-hikaricp = "com.zaxxer:HikariCP:6.3.1"
+hikaricp = "com.zaxxer:HikariCP:6.3.0"
 
 koin-ktor = { module = "io.insert-koin:koin-ktor3", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
