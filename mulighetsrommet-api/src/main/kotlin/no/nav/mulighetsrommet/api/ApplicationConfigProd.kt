@@ -30,7 +30,8 @@ val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
-    ) { metricRegistry = Metrics.micrometerRegistry },
+        micrometerRegistry = Metrics.micrometerRegistry,
+    ),
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),

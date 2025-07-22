@@ -11,7 +11,8 @@ val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
-    ) { metricRegistry = Metrics.micrometerRegistry },
+        micrometerRegistry = Metrics.micrometerRegistry,
+    ),
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),

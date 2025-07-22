@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.database
 
-import com.zaxxer.hikari.HikariConfig
+import io.micrometer.core.instrument.MeterRegistry
 
 private const val JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql://"
 
@@ -9,7 +9,7 @@ data class DatabaseConfig(
     val schema: String? = null,
     val maximumPoolSize: Int,
     val googleCloudSqlInstance: String? = null,
-    val additionalConfig: HikariConfig.() -> Unit = {},
+    val micrometerRegistry: MeterRegistry? = null,
 ) {
     init {
         require(jdbcUrl.startsWith(JDBC_POSTGRESQL_PREFIX)) { "jdbcUrl must start with '$JDBC_POSTGRESQL_PREFIX'" }
