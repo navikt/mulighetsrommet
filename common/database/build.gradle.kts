@@ -31,6 +31,9 @@ dependencies {
     // Logging
     implementation(libs.slf4j)
 
+    // Metrics
+    api(libs.micrometer.core)
+
     // Test
     testFixturesImplementation(libs.kotest.junit)
     testFixturesImplementation(libs.assertj.db)

@@ -4,6 +4,6 @@ plugins {
 }
 
 dependencies {
-    // Metrikker
+    api(libs.micrometer.core)
     api(libs.micrometer.registry.prometheus)
 }

@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
@@ -37,6 +38,7 @@ val ApplicationConfigLocal = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp",
         maximumPoolSize = 10,
+        micrometerRegistry = Metrics.micrometerRegistry,
     ),
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,

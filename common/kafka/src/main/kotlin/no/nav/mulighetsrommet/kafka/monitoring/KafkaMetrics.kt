@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.kafka.monitoring
 
 import io.micrometer.core.instrument.Gauge
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.micrometer.core.instrument.MeterRegistry
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.requireSingle
@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 class KafkaMetrics(
     private val database: Database,
 ) {
-    private val metricsRegistrations = mutableListOf<(PrometheusMeterRegistry) -> Unit>()
+    private val metricsRegistrations = mutableListOf<(MeterRegistry) -> Unit>()
 
     fun withCountStaleConsumerRecords(minutesSinceCreatedAt: Int): KafkaMetrics {
         metricsRegistrations.add { registry ->
@@ -32,7 +32,7 @@ class KafkaMetrics(
         return this
     }
 
-    fun register(registry: PrometheusMeterRegistry) {
+    fun register(registry: MeterRegistry) {
         metricsRegistrations.forEach { registerMetric ->
             registerMetric(registry)
         }
