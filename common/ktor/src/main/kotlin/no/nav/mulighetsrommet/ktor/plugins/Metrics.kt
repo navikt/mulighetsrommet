@@ -19,7 +19,7 @@ fun Application.configureMetrics() {
 
     routing {
         get("/internal/prometheus") {
-            call.respond(Metrics.micrometerRegistry.scrape())
+            call.respond(Metrics.scrapePrometheusMetrics())
         }
     }
 }
