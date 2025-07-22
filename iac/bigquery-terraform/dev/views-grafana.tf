@@ -451,3 +451,43 @@ ORDER BY
   2
 EOF
 }
+
+module "grafana_utbetaling_admin_korreksjoner_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_admin_korreksjoner_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "created_at"
+        type = "DATETIME"
+      },
+      {
+        mode = "NULLABLE"
+        name = "beregning_type"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "status"
+        type = "STRING"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  DATETIME(created_at) as created_at,
+  beregning_type,
+  status
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling`
+WHERE
+  innsender IS NOT NULL
+  AND innsender != 'Arrangor'
+  AND tilskuddstype = 'TILTAK_DRIFTSTILSKUDD'
+order by 1 desc
+EOF
+}
