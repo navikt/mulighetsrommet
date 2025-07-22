@@ -590,8 +590,8 @@ importers:
         specifier: 2.16.7
         version: 2.16.7(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react-is@18.3.1)(react@19.0.0)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       '@sanity/util':
-        specifier: 3.99.0
-        version: 3.99.0(@types/react@19.0.3)(debug@4.4.1)
+        specifier: 4.1.0
+        version: 4.1.0(@types/react@19.0.3)
       '@sanity/vision':
         specifier: 3.99.0
         version: 3.99.0(@babel/runtime@7.27.6)(@codemirror/lint@6.8.5)(@codemirror/theme-one-dark@6.1.2)(@emotion/is-prop-valid@1.3.1)(codemirror@6.0.1)(react-dom@19.0.0(react@19.0.0))(react-is@18.3.1)(react@19.0.0)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
@@ -3068,6 +3068,11 @@ packages:
     peerDependencies:
       '@types/react': 18 || 19
 
+  '@sanity/types@4.1.0':
+    resolution: {integrity: sha512-0+upw9VJrcxb7Md35whX4BvPkjTxmggXlR8sADyJFBGHKAqxEjD6yooFShIJGG4SlrcECovSslqeEZl8Lm6T9A==}
+    peerDependencies:
+      '@types/react': 18 || 19
+
   '@sanity/ui@2.16.7':
     resolution: {integrity: sha512-gRTX/QyUR2Bg8mu7rZBWxt+eE1EFsnGgiqv9OZhQ5Yvy2tZ00W6TNLfCVdBBTDRScIWL2ytnGR7X8Tcb3Ie+gA==}
     engines: {node: '>=14.0.0'}
@@ -3084,6 +3089,10 @@ packages:
   '@sanity/util@3.99.0':
     resolution: {integrity: sha512-+yuMi2nTZfyohlS4tFryYMTG9gkjw7aToMM3A3TrtfbQPGi+9ZVBPNeer2r/uaJFChPaxEC9hZV0gXZQpPiJ0w==}
     engines: {node: '>=18'}
+
+  '@sanity/util@4.1.0':
+    resolution: {integrity: sha512-ispUAcEPVSqr1AkBx/plqjlMZB6XiIyEkkwfEll32G/xRqOMBTj8PaNLrbrRA0Ci1mVn7BdWOPGgqzexHbsS4A==}
+    engines: {node: '>=20.19'}
 
   '@sanity/uuid@3.0.2':
     resolution: {integrity: sha512-vzdhqOrX7JGbMyK40KuIwwyXHm7GMLOGuYgn3xlC09e4ZVNofUO5mgezQqnRv0JAMthIRhofqs9f6ufUjMKOvw==}
@@ -11832,6 +11841,14 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  '@sanity/types@4.1.0(@types/react@19.0.3)':
+    dependencies:
+      '@sanity/client': 7.8.0(debug@4.4.1)
+      '@sanity/media-library-types': 1.0.0
+      '@types/react': 19.0.3
+    transitivePeerDependencies:
+      - debug
+
   '@sanity/ui@2.16.7(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react-is@18.3.1)(react@19.0.0)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))':
     dependencies:
       '@floating-ui/react-dom': 2.1.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -11867,6 +11884,19 @@ snapshots:
       '@date-fns/utc': 2.1.0
       '@sanity/client': 7.8.0(debug@4.4.1)
       '@sanity/types': 3.99.0(@types/react@19.0.3)(debug@4.4.1)
+      date-fns: 4.1.0
+      get-random-values-esm: 1.0.2
+      rxjs: 7.8.2
+    transitivePeerDependencies:
+      - '@types/react'
+      - debug
+
+  '@sanity/util@4.1.0(@types/react@19.0.3)':
+    dependencies:
+      '@date-fns/tz': 1.2.0
+      '@date-fns/utc': 2.1.0
+      '@sanity/client': 7.8.0(debug@4.4.1)
+      '@sanity/types': 4.1.0(@types/react@19.0.3)
       date-fns: 4.1.0
       get-random-values-esm: 1.0.2
       rxjs: 7.8.2
