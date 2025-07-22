@@ -133,20 +133,20 @@ module "mr_api_datastream" {
         table_id   = "del_med_bruker_view"
       }
     },
-    #{
-    #  view = {
-    #    dataset_id = "mulighetsrommet_api_datastream"
-    #    project_id = var.gcp_project["project"]
-    #    table_id   = "utdanningsprogram_view"
-    #  }
-    #},
-    #{
-    #  view = {
-    #    dataset_id = "mulighetsrommet_api_datastream"
-    #    project_id = var.gcp_project["project"]
-    #    table_id   = "utdanning_view"
-    #  }
-    #},
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "utdanningsprogram_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "utdanning_view"
+      }
+    },
     # Grafana dataset read access:
     {
       view = {
