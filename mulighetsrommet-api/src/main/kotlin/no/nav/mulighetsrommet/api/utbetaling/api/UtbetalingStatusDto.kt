@@ -48,11 +48,11 @@ sealed class UtbetalingStatusDto {
                 Utbetaling.UtbetalingStatus.RETURNERT -> Returnert
                 Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET -> OverfortTilUtbetaling
                 Utbetaling.UtbetalingStatus.AVBRUTT -> {
-                    requireNotNull(utbetaling.avbruttTidspunkt)
+                    requireNotNull(utbetaling.avbrutt)
                     Avbrutt(
-                        tidspunkt = utbetaling.avbruttTidspunkt,
-                        aarsaker = utbetaling.avbruttAarsaker,
-                        forklaring = utbetaling.avbruttForklaring,
+                        tidspunkt = utbetaling.avbrutt.tidspunkt,
+                        aarsaker = utbetaling.avbrutt.aarsaker,
+                        forklaring = utbetaling.avbrutt.forklaring,
                     )
                 }
             }
