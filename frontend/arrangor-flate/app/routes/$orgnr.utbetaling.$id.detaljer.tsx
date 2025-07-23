@@ -190,7 +190,7 @@ interface DeltakerModalProps {
 
 function DeltakerModal({ utbetaling, relevanteForslag, deltakerlisteUrl }: DeltakerModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  if (utbetaling.beregning.type === "FRI" || utbetaling.erTolvUkerEtterInnsending) {
+  if (utbetaling.beregning.type === "FRI" || !utbetaling.kanViseBeregning) {
     return null;
   }
   return (
@@ -204,6 +204,7 @@ function DeltakerModal({ utbetaling, relevanteForslag, deltakerlisteUrl }: Delta
         header={{ heading: "Beregning" }}
         onClose={() => modalRef.current?.close()}
         width="80rem"
+        closeOnBackdropClick
       >
         <Modal.Body>
           {utbetaling.beregning.stengt.length > 0 && (
