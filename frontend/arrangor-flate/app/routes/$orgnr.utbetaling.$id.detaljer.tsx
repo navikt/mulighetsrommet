@@ -1,10 +1,13 @@
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Box, Heading, HStack, Link, Spacer, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, Heading, HStack, Link, Modal, Spacer, VStack } from "@navikt/ds-react";
 import {
   ArrangorflateService,
+  ArrFlateBeregning,
   ArrFlateUtbetaling,
   ArrFlateUtbetalingStatus,
+  Periode,
+  RelevanteForslag,
   UtbetalingType,
 } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
@@ -17,12 +20,17 @@ import css from "../root.module.css";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { getTimestamp } from "~/utils/date";
 import { problemDetailResponse } from "~/utils/validering";
-import { pathByOrgnr } from "~/utils/navigation";
+import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
+import { getEnvironment } from "~/services/environment";
+import { useRef } from "react";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
+  relevanteForslag: RelevanteForslag[];
+  deltakerlisteUrl: string;
 };
 
 export const meta: MetaFunction = () => {
@@ -36,13 +44,21 @@ export const loader: LoaderFunction = async ({
   request,
   params,
 }): Promise<UtbetalingDetaljerSideData> => {
+  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
   const { id } = params;
   if (!id) {
     throw new Response("Mangler id", { status: 400 });
   }
 
-  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
+  const [
+    { data: utbetaling, error: utbetalingError },
+    { data: relevanteForslag, error: relevanteForslagError },
+  ] = await Promise.all([
     ArrangorflateService.getArrFlateUtbetaling({
+      path: { id },
+      headers: await apiHeaders(request),
+    }),
+    ArrangorflateService.getRelevanteForslag({
       path: { id },
       headers: await apiHeaders(request),
     }),
@@ -51,12 +67,16 @@ export const loader: LoaderFunction = async ({
   if (utbetalingError || !utbetaling) {
     throw problemDetailResponse(utbetalingError);
   }
+  if (relevanteForslagError || !relevanteForslag) {
+    throw problemDetailResponse(relevanteForslagError);
+  }
 
-  return { utbetaling };
+  return { utbetaling, relevanteForslag, deltakerlisteUrl };
 };
 
 export default function UtbetalingDetaljerSide() {
-  const { utbetaling } = useLoaderData<UtbetalingDetaljerSideData>();
+  const { utbetaling, relevanteForslag, deltakerlisteUrl } =
+    useLoaderData<UtbetalingDetaljerSideData>();
 
   const innsendtTidspunkt = getTimestamp(utbetaling);
 
@@ -108,6 +128,12 @@ export default function UtbetalingDetaljerSide() {
           ...getBeregningDetaljer(utbetaling.beregning),
         ]}
       />
+      <DeltakerModal
+        periode={utbetaling.periode}
+        beregning={utbetaling.beregning}
+        relevanteForslag={relevanteForslag}
+        deltakerlisteUrl={deltakerlisteUrl}
+      />
       <Definisjonsliste
         title="Betalingsinformasjon"
         headingLevel="3"
@@ -157,4 +183,59 @@ function getUtbetalingTypeNavn(type: UtbetalingType) {
     case UtbetalingType.INVESTERING:
       return "Utbetaling for investering";
   }
+}
+
+interface DeltakerModalProps {
+  periode: Periode;
+  beregning: ArrFlateBeregning;
+  relevanteForslag: RelevanteForslag[];
+  deltakerlisteUrl: string;
+}
+
+function DeltakerModal({
+  periode,
+  beregning,
+  relevanteForslag,
+  deltakerlisteUrl,
+}: DeltakerModalProps) {
+  const modalRef = useRef<HTMLDialogElement>(null);
+  if (beregning.type === "FRI") {
+    return null;
+  }
+  return (
+    <HStack gap="2">
+      <Button variant="secondary" size="small" onClick={() => modalRef.current?.showModal()}>
+        Åpne deltakerliste
+      </Button>
+      <Modal
+        ref={modalRef}
+        size="medium"
+        header={{ heading: "Deltakere" }}
+        onClose={() => modalRef.current?.close()}
+        width="80rem"
+      >
+        <Modal.Body>
+          {beregning.stengt.length > 0 && (
+            <Alert variant={"info"}>
+              {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+              <ul>
+                {beregning.stengt.map(({ periode, beskrivelse }) => (
+                  <li key={periode.start + periode.slutt}>
+                    {formaterPeriode(periode)}: {beskrivelse}
+                  </li>
+                ))}
+              </ul>
+            </Alert>
+          )}
+          <DeltakelserTable
+            periode={periode}
+            beregning={beregning}
+            relevanteForslag={relevanteForslag}
+            deltakerlisteUrl={deltakerlisteUrl}
+          />
+          <Definisjonsliste definitions={getBeregningDetaljer(beregning)} className="my-2" />
+        </Modal.Body>
+      </Modal>
+    </HStack>
+  );
 }

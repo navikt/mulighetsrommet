@@ -1,5 +1,6 @@
 import { useParams } from "react-router";
 import { Tabs } from "~/routes/$orgnr_.oversikt";
+import { Environment } from "~/services/environment";
 
 export function getCurrentTab(request: Request): Tabs {
   return (new URL(request.url).searchParams.get("forside-tab") as Tabs) || "aktive";
@@ -37,3 +38,10 @@ export const pathByOrgnr = (orgnr: string) => {
     tilsagn: (id: string) => `/${orgnr}/tilsagn/${id}`,
   };
 };
+
+export function deltakerOversiktLenke(env: Environment): string {
+  if (env === Environment.DevGcp) {
+    return "https://amt.intern.dev.nav.no/deltakeroversikt";
+  }
+  return "https://nav.no/deltakeroversikt";
+}
