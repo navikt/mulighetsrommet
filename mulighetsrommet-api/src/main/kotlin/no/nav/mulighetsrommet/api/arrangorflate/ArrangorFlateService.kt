@@ -166,7 +166,7 @@ class ArrangorFlateService(
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
             linjer = linjer,
-            erTolvUkerEtterInnsending = erTolvUkerEtterInnsending,
+            kanViseBeregning = erTolvUkerEtterInnsending,
         )
     }
 

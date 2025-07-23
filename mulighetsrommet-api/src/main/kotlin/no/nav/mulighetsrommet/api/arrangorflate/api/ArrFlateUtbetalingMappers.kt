@@ -13,7 +13,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
     deltakere: List<Deltaker>,
     personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelsePerson>,
     linjer: List<ArrangorUtbetalingLinje>,
-    erTolvUkerEtterInnsending: Boolean,
+    kanViseBeregning: Boolean,
 ): ArrFlateUtbetaling {
     val beregning = when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningFri -> ArrFlateBeregning.Fri(
@@ -30,11 +30,8 @@ fun mapUtbetalingToArrFlateUtbetaling(
             val deltakelser = perioderById.map { (id, deltakelse) ->
                 val deltaker = deltakereById[id]
                 val manedsverk = manedsverkById.getValue(id).manedsverk
-                val person = if (erTolvUkerEtterInnsending) {
-                    null
-                } else {
+                val person =
                     deltaker?.norskIdent?.let { personerByNorskIdent[it] }
-                }
 
                 val forstePeriode = deltakelse.perioder.first()
                 val sistePeriode = deltakelse.perioder.last()
@@ -144,7 +141,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
         id = utbetaling.id,
         status = status,
         godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-        erTolvUkerEtterInnsending = erTolvUkerEtterInnsending,
+        kanViseBeregning = kanViseBeregning,
         createdAt = utbetaling.createdAt,
         tiltakstype = utbetaling.tiltakstype,
         gjennomforing = utbetaling.gjennomforing,

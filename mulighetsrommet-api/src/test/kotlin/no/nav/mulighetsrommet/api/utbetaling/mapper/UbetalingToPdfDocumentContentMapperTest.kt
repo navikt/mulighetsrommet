@@ -31,7 +31,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         id = UUID.randomUUID(),
         status = ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
         godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
-        erTolvUkerEtterInnsending = false,
+        kanViseBeregning = false,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         tiltakstype = Utbetaling.Tiltakstype("Avklaring", Tiltakskode.AVKLARING),
         gjennomforing = Utbetaling.Gjennomforing(UUID.randomUUID(), "Avklaring hos Nav"),

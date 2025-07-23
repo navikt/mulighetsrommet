@@ -196,12 +196,12 @@ function DeltakerModal({ utbetaling, relevanteForslag, deltakerlisteUrl }: Delta
   return (
     <HStack gap="2">
       <Button variant="secondary" size="small" onClick={() => modalRef.current?.showModal()}>
-        Åpne deltakerliste
+        Åpne beregning
       </Button>
       <Modal
         ref={modalRef}
         size="medium"
-        header={{ heading: "Deltakere" }}
+        header={{ heading: "Beregning" }}
         onClose={() => modalRef.current?.close()}
         width="80rem"
       >
