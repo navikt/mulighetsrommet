@@ -168,6 +168,7 @@ class ArrangorflateServiceTest : FunSpec({
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
             linjer = emptyList(),
+            erTolvUkerEtterInnsending = false,
         )
 
         result.id shouldBe utbetaling.id
@@ -188,6 +189,7 @@ class ArrangorflateServiceTest : FunSpec({
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
             linjer = emptyList(),
+            erTolvUkerEtterInnsending = false,
         )
 
         result.id shouldBe utbetaling.id
@@ -204,6 +206,7 @@ class ArrangorflateServiceTest : FunSpec({
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
             linjer = emptyList(),
+            erTolvUkerEtterInnsending = false,
         )
 
         result.id shouldBe friUtbetaling.id

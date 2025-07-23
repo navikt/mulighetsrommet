@@ -3,10 +3,8 @@ import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, Heading, HStack, Link, Modal, Spacer, VStack } from "@navikt/ds-react";
 import {
   ArrangorflateService,
-  ArrFlateBeregning,
   ArrFlateUtbetaling,
   ArrFlateUtbetalingStatus,
-  Periode,
   RelevanteForslag,
   UtbetalingType,
 } from "api-client";
@@ -129,8 +127,7 @@ export default function UtbetalingDetaljerSide() {
         ]}
       />
       <DeltakerModal
-        periode={utbetaling.periode}
-        beregning={utbetaling.beregning}
+        utbetaling={utbetaling}
         relevanteForslag={relevanteForslag}
         deltakerlisteUrl={deltakerlisteUrl}
       />
@@ -186,20 +183,14 @@ function getUtbetalingTypeNavn(type: UtbetalingType) {
 }
 
 interface DeltakerModalProps {
-  periode: Periode;
-  beregning: ArrFlateBeregning;
+  utbetaling: ArrFlateUtbetaling;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 }
 
-function DeltakerModal({
-  periode,
-  beregning,
-  relevanteForslag,
-  deltakerlisteUrl,
-}: DeltakerModalProps) {
+function DeltakerModal({ utbetaling, relevanteForslag, deltakerlisteUrl }: DeltakerModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  if (beregning.type === "FRI") {
+  if (utbetaling.beregning.type === "FRI" || utbetaling.erTolvUkerEtterInnsending) {
     return null;
   }
   return (
@@ -215,11 +206,11 @@ function DeltakerModal({
         width="80rem"
       >
         <Modal.Body>
-          {beregning.stengt.length > 0 && (
+          {utbetaling.beregning.stengt.length > 0 && (
             <Alert variant={"info"}>
               {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
               <ul>
-                {beregning.stengt.map(({ periode, beskrivelse }) => (
+                {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
                   <li key={periode.start + periode.slutt}>
                     {formaterPeriode(periode)}: {beskrivelse}
                   </li>
@@ -228,12 +219,15 @@ function DeltakerModal({
             </Alert>
           )}
           <DeltakelserTable
-            periode={periode}
-            beregning={beregning}
+            periode={utbetaling.periode}
+            beregning={utbetaling.beregning}
             relevanteForslag={relevanteForslag}
             deltakerlisteUrl={deltakerlisteUrl}
           />
-          <Definisjonsliste definitions={getBeregningDetaljer(beregning)} className="my-2" />
+          <Definisjonsliste
+            definitions={getBeregningDetaljer(utbetaling.beregning)}
+            className="my-2"
+          />
         </Modal.Body>
       </Modal>
     </HStack>

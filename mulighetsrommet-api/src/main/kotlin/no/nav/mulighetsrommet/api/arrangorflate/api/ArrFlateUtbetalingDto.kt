@@ -22,6 +22,7 @@ data class ArrFlateUtbetaling(
     val status: ArrFlateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    val erTolvUkerEtterInnsending: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime?,
     val tiltakstype: Utbetaling.Tiltakstype,
