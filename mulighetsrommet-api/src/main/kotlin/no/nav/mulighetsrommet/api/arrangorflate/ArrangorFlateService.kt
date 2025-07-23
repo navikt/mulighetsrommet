@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
@@ -123,8 +124,9 @@ class ArrangorFlateService(
         return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
-    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
+    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling, relativeDate: LocalDateTime = LocalDateTime.now()): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
+        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt?.let { it.plusWeeks(12) <= relativeDate } ?: false
         val deltakere = when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> emptyList()
 
@@ -132,7 +134,11 @@ class ArrangorFlateService(
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
             -> {
-                queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                if (erTolvUkerEtterInnsending) {
+                    emptyList()
+                } else {
+                    queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                }
             }
         }
         val personerByNorskIdent = if (deltakere.isNotEmpty()) getPersoner(deltakere) else emptyMap()
@@ -160,6 +166,7 @@ class ArrangorFlateService(
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
             linjer = linjer,
+            kanViseBeregning = !erTolvUkerEtterInnsending,
         )
     }
 

@@ -6266,6 +6266,8 @@ components:
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
+        kanViseBeregning:
+          type: boolean
         createdAt:
           type: [string, "null"]
           format: date-time
