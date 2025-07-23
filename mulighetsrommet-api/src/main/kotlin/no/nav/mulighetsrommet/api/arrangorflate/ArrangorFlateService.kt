@@ -124,9 +124,9 @@ class ArrangorFlateService(
         return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
-    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
+    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling, relativeDate: LocalDateTime = LocalDateTime.now()): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
-        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt?.let { it.plusWeeks(12) <= LocalDateTime.now() } ?: false
+        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt?.let { it.plusWeeks(12) <= relativeDate } ?: false
         val deltakere = when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> emptyList()
 
@@ -166,7 +166,7 @@ class ArrangorFlateService(
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
             linjer = linjer,
-            kanViseBeregning = erTolvUkerEtterInnsending,
+            kanViseBeregning = !erTolvUkerEtterInnsending,
         )
     }
 

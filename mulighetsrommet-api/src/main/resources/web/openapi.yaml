@@ -6266,7 +6266,7 @@ components:
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
-        erTolvUkerEtterInnsending:
+        kanViseBeregning:
           type: boolean
         createdAt:
           type: [string, "null"]

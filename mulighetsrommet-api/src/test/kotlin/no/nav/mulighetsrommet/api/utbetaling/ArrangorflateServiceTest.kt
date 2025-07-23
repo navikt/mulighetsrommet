@@ -2,9 +2,11 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import no.nav.amt.model.Melding
@@ -26,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class ArrangorflateServiceTest : FunSpec({
@@ -214,5 +217,32 @@ class ArrangorflateServiceTest : FunSpec({
         result.beregning.shouldBeInstanceOf<ArrFlateBeregning.Fri> {
             it.belop shouldBe 5000
         }
+    }
+
+    test("toArrFlateUtbetaling should map successfully with kanViseBeregning = true for recently approved utbetaling") {
+        val date = LocalDateTime.now()
+        val godkjentAvArrangorUtbetaling = getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = date.minusDays(1))
+        val result = arrangorflateService.toArrFlateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = date)
+
+        result.shouldNotBeNull()
+        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+            it.deltakelser shouldHaveSize 1
+        }
+        result.kanViseBeregning shouldBe true
+    }
+
+    test("toArrFlateUtbetaling should map successfully with kanViseBeregning = false for 12 weeks old approved utbetaling") {
+        val now = LocalDateTime.now()
+        val godkjentAvArrangorUtbetaling = getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = now.minusWeeks(12))
+        val result = arrangorflateService.toArrFlateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = now)
+
+        result.shouldNotBeNull()
+        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+            it.deltakelser shouldHaveSize 1
+            it.deltakelser[0].person.shouldBeNull()
+        }
+        result.kanViseBeregning shouldBe false
     }
 })
