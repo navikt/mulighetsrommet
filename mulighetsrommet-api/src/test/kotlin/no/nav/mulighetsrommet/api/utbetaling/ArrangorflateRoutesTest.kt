@@ -265,6 +265,7 @@ class ArrangorflateRoutesTest : FunSpec({
     test("feil mot dokark gir fortsatt 200 på godkjenn siden det skjer i en task") {
         val clientEngine = createMockEngine {
             ArrangorflateTestUtils.mockAltinnAuthorizedParties(this)
+            ArrangorflateTestUtils.mockTexas(this)
 
             post("/dokark/rest/journalpostapi/v1/journalpost") {
                 respondError(HttpStatusCode.InternalServerError)

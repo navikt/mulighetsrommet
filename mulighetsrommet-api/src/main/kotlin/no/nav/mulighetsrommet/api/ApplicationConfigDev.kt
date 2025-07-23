@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
@@ -378,5 +379,10 @@ val ApplicationConfigDev = AppConfig(
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",
+    ),
+    texas = TexasClient.Config(
+        tokenEndpoint = System.getenv("NAIS_TOKEN_ENDPOINT"),
+        tokenExchangeEndpoint = System.getenv("NAIS_TOKEN_EXCHANGE_ENDPOINT"),
+        tokenIntrospectionEndpoint = System.getenv("NAIS_TOKEN_INTROSPECTION_ENDPOINT"),
     ),
 )

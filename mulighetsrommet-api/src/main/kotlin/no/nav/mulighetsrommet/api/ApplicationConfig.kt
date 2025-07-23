@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import java.time.LocalDate
@@ -51,6 +52,7 @@ data class AppConfig(
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
+    val texas: TexasClient.Config,
     val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,

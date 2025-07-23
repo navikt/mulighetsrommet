@@ -28,6 +28,8 @@ import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.tokenprovider.TokenReponse
+import no.nav.mulighetsrommet.tokenprovider.TokenReponse.TokenType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -192,7 +194,7 @@ object ArrangorflateTestUtils {
         }
     }
 
-    private fun mockJournalpost(builder: MockEngineBuilder) {
+    fun mockJournalpost(builder: MockEngineBuilder) {
         builder.post("/dokark/rest/journalpostapi/v1/journalpost") {
             respondJson(
                 DokarkResponse(
@@ -206,9 +208,21 @@ object ArrangorflateTestUtils {
         }
     }
 
-    private fun mockClamAvScan(builder: MockEngineBuilder) {
+    fun mockClamAvScan(builder: MockEngineBuilder) {
         builder.post("/scan") {
             respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
+        }
+    }
+
+    fun mockTexas(builder: MockEngineBuilder) {
+        builder.post("/api/v1/token") {
+            respondJson(
+                TokenReponse(
+                    access_token = "dummy",
+                    token_type = TokenType.Bearer,
+                    expires_in = 1000_000,
+                ),
+            )
         }
     }
 
@@ -218,6 +232,7 @@ object ArrangorflateTestUtils {
             mockAltinnAuthorizedParties(this)
             mockJournalpost(this)
             mockClamAvScan(this)
+            mockTexas(this)
         },
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,

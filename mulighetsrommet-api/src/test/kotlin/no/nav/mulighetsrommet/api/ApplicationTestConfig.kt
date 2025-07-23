@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-api")
@@ -47,7 +46,7 @@ fun createAuthConfig(
         audience = audience,
         jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
         tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
-        privateJwk = createMockRSAKey("azure"),
+        privateJwk = "azure",
     ),
     roles = roles,
     tokenx = AuthProvider(
@@ -55,13 +54,13 @@ fun createAuthConfig(
         audience = audience,
         jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
         tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
-        privateJwk = createMockRSAKey("tokenx"),
+        privateJwk = "tokenx",
     ),
     maskinporten = AuthProvider(
         issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
         audience = audience,
         jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
         tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
-        privateJwk = createMockRSAKey("maskinporten"),
+        privateJwk = "maskinporten",
     ),
 )

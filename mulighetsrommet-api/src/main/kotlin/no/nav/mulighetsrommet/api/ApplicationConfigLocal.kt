@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
@@ -67,21 +67,21 @@ val ApplicationConfigLocal = AppConfig(
             jwksUri = "http://localhost:8081/azure/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/azure/token",
-            privateJwk = createMockRSAKey("azure"),
+            privateJwk = "azure",
         ),
         tokenx = AuthProvider(
             issuer = "http://localhost:8081/tokenx",
             jwksUri = "http://localhost:8081/tokenx/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/tokenx/token",
-            privateJwk = createMockRSAKey("tokenx"),
+            privateJwk = "tokenx",
         ),
         maskinporten = AuthProvider(
             issuer = "http://localhost:8081/maskinporten",
             jwksUri = "http://localhost:8081/maskinporten/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/maskinporten/token",
-            privateJwk = createMockRSAKey("maskinporten"),
+            privateJwk = "maskinporten",
         ),
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
@@ -315,5 +315,10 @@ val ApplicationConfigLocal = AppConfig(
     ),
     clamav = HttpClientConfig(
         url = "http://localhost:8090",
+    ),
+    texas = TexasClient.Config(
+        tokenEndpoint = "http://localhost:8082/api/v1/token",
+        tokenExchangeEndpoint = "http://localhost:8082/api/v1/token/exchange",
+        tokenIntrospectionEndpoint = "http://localhost:8082/api/v1/introspect",
     ),
 )

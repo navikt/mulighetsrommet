@@ -95,8 +95,9 @@ import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
-import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
+import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.MaskinportenTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
@@ -211,19 +212,14 @@ private fun kafka(appConfig: AppConfig) = module {
 }
 
 private fun services(appConfig: AppConfig) = module {
-    val azure = appConfig.auth.azure
-    val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl, azure.privateJwk)
-    val maskinportenTokenProvider = createMaskinportenM2mTokenClient(
-        clientId = appConfig.auth.maskinporten.audience,
-        issuer = appConfig.auth.maskinporten.issuer,
-        tokenEndpointUrl = appConfig.auth.maskinporten.tokenEndpointUrl,
-        privateJwk = appConfig.auth.maskinporten.privateJwk,
-    )
+    val texasClient = TexasClient(appConfig.texas, appConfig.engine)
+    val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
+    val maskinportenTokenProvider = MaskinportenTokenProvider(texasClient)
 
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarboppfolgingConfig.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.veilarboppfolgingConfig.scope),
             clientEngine = appConfig.engine,
         )
     }
@@ -236,21 +232,21 @@ private fun services(appConfig: AppConfig) = module {
     single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),
             clientEngine = appConfig.engine,
         )
     }
     single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbdialogConfig.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.veilarbdialogConfig.scope),
             clientEngine = appConfig.engine,
         )
     }
     single {
         PdlClient(
             config = PdlClient.Config(appConfig.pdl.url, maxRetries = 3),
-            tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.pdl.scope),
             clientEngine = appConfig.pdl.engine ?: appConfig.engine,
         )
     }
@@ -263,7 +259,7 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.poaoTilgang.url,
             tokenProvider = {
                 runBlocking {
-                    cachedTokenProvider.withScope(appConfig.poaoTilgang.scope).exchange(AccessType.M2M)
+                    azureAdTokenProvider.withScope(appConfig.poaoTilgang.scope).exchange(AccessType.M2M)
                 }
             },
         )
@@ -272,20 +268,20 @@ private fun services(appConfig: AppConfig) = module {
         MsGraphClient(
             engine = appConfig.engine,
             baseUrl = appConfig.msGraphConfig.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.msGraphConfig.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.msGraphConfig.scope),
         )
     }
     single {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.arenaAdapter.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.arenaAdapter.scope),
             clientEngine = appConfig.engine,
         )
     }
     single {
         TiltakshistorikkClient(
             baseUrl = appConfig.tiltakshistorikk.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.tiltakshistorikk.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.tiltakshistorikk.scope),
             clientEngine = appConfig.engine,
         )
     }
@@ -308,14 +304,14 @@ private fun services(appConfig: AppConfig) = module {
         AmtDeltakerClient(
             baseUrl = appConfig.amtDeltakerConfig.url,
             clientEngine = appConfig.engine,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.amtDeltakerConfig.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.amtDeltakerConfig.scope),
         )
     }
     single {
         PamOntologiClient(
             baseUrl = appConfig.pamOntologi.url,
             clientEngine = appConfig.engine,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.pamOntologi.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.pamOntologi.scope),
         )
     }
     single { UtdanningClient(baseUrl = appConfig.utdanning.url) }
@@ -323,9 +319,9 @@ private fun services(appConfig: AppConfig) = module {
         AltinnClient(
             baseUrl = appConfig.altinn.url,
             clientEngine = appConfig.engine,
-            tokenProvider = maskinportenTokenProvider.withScope(
+            tokenProvider = maskinportenTokenProvider.withScopeAndResource(
                 scope = appConfig.altinn.scope,
-                targetAudience = appConfig.altinn.url,
+                resource = appConfig.altinn.url,
             ),
         )
     }
@@ -333,21 +329,21 @@ private fun services(appConfig: AppConfig) = module {
         IsoppfolgingstilfelleClient(
             baseUrl = appConfig.isoppfolgingstilfelleConfig.url,
             clientEngine = appConfig.engine,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.isoppfolgingstilfelleConfig.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.isoppfolgingstilfelleConfig.scope),
         )
     }
     single {
         DokarkClient(
             baseUrl = appConfig.dokark.url,
             clientEngine = appConfig.engine,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.dokark.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.dokark.scope),
         )
     }
     single {
         KontoregisterOrganisasjonClient(
             clientEngine = appConfig.kontoregisterOrganisasjon.engine ?: appConfig.engine,
             baseUrl = appConfig.kontoregisterOrganisasjon.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.kontoregisterOrganisasjon.scope),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.kontoregisterOrganisasjon.scope),
         )
     }
     single {
