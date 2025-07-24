@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.routes
 
+import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -13,9 +14,11 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.TiltakDeltMedBruker
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
@@ -27,7 +30,30 @@ fun Route.delMedBrukerRoutes() {
     val delMedBrukerService: DelMedBrukerService by inject()
 
     route("del-med-bruker") {
-        post {
+        post({
+            summary = "Del tiltak med bruker"
+            description = "Deler tiltak med bruker ved å sende melding til dialogen. Krever tilgang til brukeren."
+            tags = setOf("Del med bruker")
+            operationId = "delTiltakMedBruker"
+            request {
+                body<DelTiltakMedBrukerRequest> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tiltak har blitt delt med bruker"
+                    body<DelTiltakMedBrukerResponse>()
+                }
+                code(HttpStatusCode.Conflict) {
+                    description = "Tiltak ble ikke delt med bruker"
+                }
+                default {
+                    description = "Feil ved deling av tiltak med bruker"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<DelTiltakMedBrukerRequest>()
             val navIdent = getNavIdent()
 
@@ -82,7 +108,31 @@ fun Route.delMedBrukerRoutes() {
                 }
         }
 
-        post("status") {
+        post("status", {
+            summary = "Hent status for deling av tiltak med bruker"
+            description =
+                "Henter informasjon om et tiltak er delt med en bruker basert på norskIdent og tiltakId. Krever tilgang til brukeren."
+            tags = setOf("Del med bruker")
+            operationId = "getDelMedBruker"
+            request {
+                body<GetDelMedBrukerRequest> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tiltak er delt med bruker"
+                    body<DelMedBrukerDbo>()
+                }
+                code(HttpStatusCode.NoContent) {
+                    description = "Ingen informasjon funnet for tiltaket"
+                }
+                default {
+                    description = "Feil ved henting av status"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<GetDelMedBrukerRequest>()
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
@@ -93,7 +143,31 @@ fun Route.delMedBrukerRoutes() {
             call.respond(deltMedBruker)
         }
 
-        post("alle") {
+        post("alle", {
+            summary = "Hent alle tiltak delt med bruker"
+            description =
+                "Henter siste informasjon om alle tiltak delt med en bruker basert på norskIdent. Krever tilgang til brukeren."
+            tags = setOf("Del med bruker")
+            operationId = "getAlleTiltakDeltMedBruker"
+            request {
+                body<GetAlleDeltMedBrukerRequest> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Siste informasjon om alle tiltak delt med bruker"
+                    body<List<DelMedBrukerDbo>>()
+                }
+                code(HttpStatusCode.NoContent) {
+                    description = "Ingen informasjon funnet"
+                }
+                default {
+                    description = "Feil ved henting av delte tiltak"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<GetAlleDeltMedBrukerRequest>()
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
@@ -101,7 +175,31 @@ fun Route.delMedBrukerRoutes() {
             call.respond(delMedBrukerService.getAlleDistinkteTiltakDeltMedBruker(request.norskIdent))
         }
 
-        post("historikk") {
+        post("historikk", {
+            summary = "Hent historikk for tiltak delt med bruker"
+            description =
+                "Henter historikk om alle tiltak delt med en bruker basert på norskIdent. Krever tilgang til brukeren."
+            tags = setOf("Del med bruker")
+            operationId = "getHistorikkForDeltMedBruker"
+            request {
+                body<GetAlleDeltMedBrukerRequest> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Historikk for tiltak delt med bruker"
+                    body<List<TiltakDeltMedBruker>>()
+                }
+                code(HttpStatusCode.NoContent) {
+                    description = "Ingen informasjon funnet"
+                }
+                default {
+                    description = "Feil ved henting av historikk"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<GetAlleDeltMedBrukerRequest>()
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)

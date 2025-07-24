@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.routes
 
+import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.auditlog.AuditLog
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
@@ -30,7 +32,27 @@ fun Route.brukerRoutes() {
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("bruker") {
-        post {
+        post({
+            summary = "Hent brukerdata for en bruker"
+            description = "Henter brukerdata for en bruker basert på norskIdent. Krever tilgang til brukeren."
+            tags = setOf("Bruker")
+            operationId = "getBrukerdata"
+            request {
+                body<GetBrukerRequest> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Data om bruker"
+                    body<BrukerService.Brukerdata>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<GetBrukerRequest>()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
@@ -39,7 +61,28 @@ fun Route.brukerRoutes() {
             call.respond(brukerService.hentBrukerdata(request.norskIdent, obo))
         }
 
-        post("tiltakshistorikk") {
+        post("tiltakshistorikk", {
+            summary = "Hent tiltakshistorikk for en bruker"
+            description =
+                "Henter aktive eller historiske tiltaksdeltakelser for en bruker basert på norskIdent og type. Krever tilgang til brukeren."
+            tags = setOf("Historikk")
+            operationId = "getTiltakshistorikk"
+            request {
+                body<GetDeltakelserForBrukerRequest> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tiltakshistorikk for bruker"
+                    body<GetDeltakelserForBrukerResponse>()
+                }
+                default {
+                    description = "Feil ved henting av tiltakshistorikk"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val (norskIdent, type) = call.receive<GetDeltakelserForBrukerRequest>()
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())
@@ -69,7 +112,31 @@ fun Route.brukerRoutes() {
             call.respond(response)
         }
 
-        post("deltakelse") {
+        post("deltakelse", {
+            summary = "Hent aktiv deltakelse for en bruker"
+            description =
+                "Henter en aktiv deltakelse for en bruker basert på norskIdent og tiltakId. Krever tilgang til brukeren."
+            tags = setOf("Historikk")
+            operationId = "hentDeltakelse"
+            request {
+                body<GetAktivDeltakelseForBrukerRequest> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Aktiv deltakelse for bruker"
+                    body<Deltakelse.DeltakelseGruppetiltak>()
+                }
+                code(HttpStatusCode.NotFound) {
+                    description = "Fant ikke aktiv deltakelse for tiltak"
+                }
+                default {
+                    description = "Feil ved henting av aktiv deltakelse"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val (norskIdent, tiltakId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
             val obo = AccessType.OBO(call.getAccessToken())
 

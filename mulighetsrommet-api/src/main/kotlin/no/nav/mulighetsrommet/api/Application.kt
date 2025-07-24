@@ -1,11 +1,17 @@
 package no.nav.mulighetsrommet.api
 
 import com.github.kagkarlsson.scheduler.Scheduler
+import io.github.smiley4.ktoropenapi.OpenApi
+import io.github.smiley4.ktoropenapi.config.OutputFormat
+import io.github.smiley4.ktoropenapi.config.SchemaGenerator
+import io.github.smiley4.ktoropenapi.config.SchemaOverwriteModule
+import io.github.smiley4.schemakenerator.swagger.data.RefType
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
+import io.swagger.v3.oas.models.media.Schema
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.mulighetsrommet.api.plugins.*
@@ -56,6 +62,53 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
     configureStatusPages()
+
+    install(OpenApi) {
+        outputFormat = OutputFormat.YAML
+        pathFilter = { method, url ->
+            url.contains("veilederflate")
+        }
+
+        schemas {
+            generator = SchemaGenerator.kotlinx {
+                overwrite(
+                    SchemaOverwriteModule(
+                        identifier = "UUIDCustom",
+                        schema = {
+                            Schema<Any>().also {
+                                it.types = setOf("string")
+                                it.format = "uuid"
+                            }
+                        },
+                    ),
+                )
+                overwrite(
+                    SchemaOverwriteModule(
+                        identifier = "LocalDateTime",
+                        schema = {
+                            Schema<Any>().also {
+                                it.types = setOf("string")
+                                it.format = "date-time"
+                            }
+                        },
+                    ),
+                )
+                overwrite(
+                    SchemaOverwriteModule(
+                        identifier = "LocalDate",
+                        schema = {
+                            Schema<Any>().also {
+                                it.types = setOf("string")
+                                it.format = "date"
+                            }
+                        },
+                    ),
+                )
+                referencePath = RefType.SIMPLE
+                title = null
+            }
+        }
+    }
 
     FlywayMigrationManager(config.flyway).migrate(db)
 

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.veilederflate.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -20,6 +21,7 @@ data class VeilederflateInnsatsgruppe(
 )
 
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
     abstract val navn: String
@@ -33,7 +35,7 @@ sealed class VeilederflateTiltak {
 }
 
 @Serializable
-@SerialName("TILTAK_GRUPPE")
+@SerialName("VeilederflateTiltakGruppe")
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -66,7 +68,7 @@ data class VeilederflateTiltakGruppe(
 }
 
 @Serializable
-@SerialName("TILTAK_ENKELTPLASS_ANSKAFFET")
+@SerialName("VeilederflateTiltakEnkeltplassAnskaffet")
 data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -83,7 +85,7 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("TILTAK_EGEN_REGI")
+@SerialName("VeilederflateTiltakEgenRegi")
 data class VeilederflateTiltakEgenRegi(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -99,7 +101,7 @@ data class VeilederflateTiltakEgenRegi(
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("TILTAK_ENKELTPLASS")
+@SerialName("VeilederflateTiltakEnkeltplass")
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,

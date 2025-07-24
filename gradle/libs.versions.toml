@@ -32,6 +32,12 @@ logging = [
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
+ktor-openapi = "io.github.smiley4:ktor-openapi:5.1.0"
+schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.2.0"
+schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.2.0"
+schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.2.0"
+schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.2.0"
+
 assertj-db = "org.assertj:assertj-db:3.0.0"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.2"
