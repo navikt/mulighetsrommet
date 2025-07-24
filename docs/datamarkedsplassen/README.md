@@ -16,6 +16,6 @@ Lenker:
 - [Nav enhet for gjennomføring](gjennomforing_nav_enhet_view.md)
 - [Del med bruker](del_med_bruker_view.md)
 
-### Tilknytsningstabeller
+### Tilknytningstabeller
 
 - [Gjennomføring - Utdanningsprogram - Utdanning](gjennomforing_utdanningsprogram_view.md)
