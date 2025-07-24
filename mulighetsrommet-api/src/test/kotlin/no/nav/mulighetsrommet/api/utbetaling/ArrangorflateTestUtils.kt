@@ -28,8 +28,6 @@ import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.tokenprovider.TokenReponse
-import no.nav.mulighetsrommet.tokenprovider.TokenReponse.TokenType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -214,25 +212,12 @@ object ArrangorflateTestUtils {
         }
     }
 
-    fun mockTexas(builder: MockEngineBuilder) {
-        builder.post("/api/v1/token") {
-            respondJson(
-                TokenReponse(
-                    access_token = "dummy",
-                    token_type = TokenType.Bearer,
-                    expires_in = 1000_000,
-                ),
-            )
-        }
-    }
-
     fun appConfig(
         oauth: MockOAuth2Server,
         engine: MockEngine = createMockEngine {
             mockAltinnAuthorizedParties(this)
             mockJournalpost(this)
             mockClamAvScan(this)
-            mockTexas(this)
         },
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,

@@ -52,7 +52,6 @@ data class AppConfig(
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
-    val texas: TexasClient.Config,
     val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,
@@ -67,6 +66,7 @@ data class AuthConfig(
     val tokenx: AuthProvider,
     val maskinporten: AuthProvider,
     val roles: Set<EntraGroupNavAnsattRolleMapping>,
+    val texas: TexasClient.Config,
 )
 
 data class EntraGroupNavAnsattRolleMapping(

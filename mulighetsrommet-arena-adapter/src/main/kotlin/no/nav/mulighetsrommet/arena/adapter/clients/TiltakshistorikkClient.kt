@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class TiltakshistorikkClient(
-    engine: HttpClientEngine = CIO.create(),
+    engine: HttpClientEngine,
     config: Config = Config(),
     baseUri: String,
     private val tokenProvider: TokenProvider,
@@ -24,31 +24,27 @@ class TiltakshistorikkClient(
     )
 
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val client: HttpClient
+    private val client: HttpClient = httpJsonClient(engine).config {
+        install(HttpRequestRetry) {
+            retryOnException(config.maxRetries, retryOnTimeout = true)
+            exponentialDelay()
 
-    init {
-        client = httpJsonClient(engine).config {
-            install(HttpRequestRetry) {
-                retryOnException(config.maxRetries, retryOnTimeout = true)
-                exponentialDelay()
-
-                modifyRequest {
-                    response?.let {
-                        logger.info("Request failed with response_status=${it.status}")
-                    }
-                    logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
+            modifyRequest {
+                response?.let {
+                    logger.info("Request failed with response_status=${it.status}")
                 }
+                logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
             }
+        }
 
-            defaultRequest {
-                contentType(ContentType.Application.Json)
+        defaultRequest {
+            contentType(ContentType.Application.Json)
 
-                url.takeFrom(
-                    URLBuilder().takeFrom(baseUri).apply {
-                        encodedPath += url.encodedPath
-                    },
-                )
-            }
+            url.takeFrom(
+                URLBuilder().takeFrom(baseUri).apply {
+                    encodedPath += url.encodedPath
+                },
+            )
         }
     }
 

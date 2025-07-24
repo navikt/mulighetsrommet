@@ -4,6 +4,7 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.*
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
@@ -25,6 +26,7 @@ import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import no.nav.mulighetsrommet.tokenprovider.TokenReponse
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
@@ -92,6 +94,24 @@ val ApplicationConfigLocal = AppConfig(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.BESLUTTER_TILSAGN),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.ATTESTANT_UTBETALING),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.KONTAKTPERSON),
+        ),
+        texas = TexasClient.Config(
+            tokenEndpoint = "http://localhost:8090/api/v1/token",
+            tokenExchangeEndpoint = "http://localhost:8090/api/v1/token/exchange",
+            tokenIntrospectionEndpoint = "http://localhost:8090/api/v1/introspect",
+            engine = MockEngine { _ ->
+                respond(
+                    content = Json.encodeToString(
+                        TokenReponse(
+                            access_token = "dummy",
+                            token_type = TokenReponse.TokenType.Bearer,
+                            expires_in = 1_000_1000,
+                        ),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            },
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(setOf()),
@@ -315,10 +335,5 @@ val ApplicationConfigLocal = AppConfig(
     ),
     clamav = HttpClientConfig(
         url = "http://localhost:8090",
-    ),
-    texas = TexasClient.Config(
-        tokenEndpoint = "http://localhost:8082/api/v1/token",
-        tokenExchangeEndpoint = "http://localhost:8082/api/v1/token/exchange",
-        tokenIntrospectionEndpoint = "http://localhost:8082/api/v1/introspect",
     ),
 )

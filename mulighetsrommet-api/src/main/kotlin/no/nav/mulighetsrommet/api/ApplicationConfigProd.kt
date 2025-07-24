@@ -62,6 +62,11 @@ val ApplicationConfigProd = AppConfig(
             tokenEndpointUrl = System.getenv("MASKINPORTEN_TOKEN_ENDPOINT"),
             privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
         ),
+        texas = TexasClient.Config(
+            tokenEndpoint = System.getenv("NAIS_TOKEN_ENDPOINT"),
+            tokenExchangeEndpoint = System.getenv("NAIS_TOKEN_EXCHANGE_ENDPOINT"),
+            tokenIntrospectionEndpoint = System.getenv("NAIS_TOKEN_INTROSPECTION_ENDPOINT"),
+        ),
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(
                 entraGroupId = teamMulighetsrommetAdGruppeId,
@@ -367,10 +372,5 @@ val ApplicationConfigProd = AppConfig(
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",
-    ),
-    texas = TexasClient.Config(
-        tokenEndpoint = System.getenv("NAIS_TOKEN_ENDPOINT"),
-        tokenExchangeEndpoint = System.getenv("NAIS_TOKEN_EXCHANGE_ENDPOINT"),
-        tokenIntrospectionEndpoint = System.getenv("NAIS_TOKEN_INTROSPECTION_ENDPOINT"),
     ),
 )

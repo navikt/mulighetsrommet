@@ -63,4 +63,5 @@ fun createAuthConfig(
         tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
         privateJwk = "maskinporten",
     ),
+    texas = ApplicationConfigLocal.auth.texas,
 )

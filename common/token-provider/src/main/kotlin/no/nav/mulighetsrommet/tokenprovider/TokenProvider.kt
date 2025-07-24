@@ -12,9 +12,19 @@ class AzureAdTokenProvider(private val texasClient: TexasClient) {
     fun withScope(scope: String): TokenProvider {
         return TokenProvider exchange@{ accessType ->
             when (accessType) {
-                AccessType.M2M -> texasClient.requestMachineToken(target = scope, IdentityProvider.AZURE_AD, null)
-                is AccessType.OBO -> texasClient.exchangeToken(token = accessType.token)
-            }
+                AccessType.M2M -> texasClient.requestM2MToken(
+                    target = scope,
+                    IdentityProvider.azuread,
+                    resource = null,
+                    skipCache = false,
+                )
+                is AccessType.OBO -> texasClient.exchangeOBOToken(
+                    token = accessType.token,
+                    identityProvider = IdentityProvider.azuread,
+                    target = scope,
+                    skipCache = false,
+                )
+            }.access_token
         }
     }
 }
@@ -25,11 +35,12 @@ class MaskinportenTokenProvider(private val texasClient: TexasClient) {
         resource: String,
     ): M2MTokenProvider {
         return M2MTokenProvider exchange@{ _ ->
-            texasClient.requestMachineToken(
+            texasClient.requestM2MToken(
                 target = scope,
-                IdentityProvider.MASKINPORTEN,
-                resource,
-            )
+                identityProvider = IdentityProvider.maskinporten,
+                resource = resource,
+                skipCache = false,
+            ).access_token
         }
     }
 }

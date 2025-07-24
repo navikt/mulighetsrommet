@@ -212,7 +212,10 @@ private fun kafka(appConfig: AppConfig) = module {
 }
 
 private fun services(appConfig: AppConfig) = module {
-    val texasClient = TexasClient(appConfig.texas, appConfig.engine)
+    val texasClient = TexasClient(
+        appConfig.auth.texas,
+        appConfig.auth.texas.engine ?: appConfig.engine,
+    )
     val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
     val maskinportenTokenProvider = MaskinportenTokenProvider(texasClient)
 
