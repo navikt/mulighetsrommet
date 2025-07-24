@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.arena.adapter
 
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
+import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
@@ -8,7 +11,8 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
-import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import no.nav.mulighetsrommet.tokenprovider.TokenReponse
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 private val arenaAdapterConsumerProperties = KafkaPropertiesBuilder.consumerBuilder()
@@ -97,7 +101,25 @@ val ApplicationConfigLocal = AppConfig(
             jwksUri = "http://localhost:8081/azure/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/azure/token",
-            privateJwk = createMockRSAKey("azure"),
+            privateJwk = "azure",
+        ),
+        texas = TexasClient.Config(
+            tokenEndpoint = "http://localhost:8090/api/v1/token",
+            tokenExchangeEndpoint = "http://localhost:8090/api/v1/token/exchange",
+            tokenIntrospectionEndpoint = "http://localhost:8090/api/v1/introspect",
+            engine = MockEngine { _ ->
+                respond(
+                    content = Json.encodeToString(
+                        TokenReponse(
+                            access_token = "dummy",
+                            token_type = TokenReponse.TokenType.Bearer,
+                            expires_in = 1_000_1000,
+                        ),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            },
         ),
     ),
     slack = SlackConfig(

@@ -192,7 +192,7 @@ object ArrangorflateTestUtils {
         }
     }
 
-    private fun mockJournalpost(builder: MockEngineBuilder) {
+    fun mockJournalpost(builder: MockEngineBuilder) {
         builder.post("/dokark/rest/journalpostapi/v1/journalpost") {
             respondJson(
                 DokarkResponse(
@@ -206,7 +206,7 @@ object ArrangorflateTestUtils {
         }
     }
 
-    private fun mockClamAvScan(builder: MockEngineBuilder) {
+    fun mockClamAvScan(builder: MockEngineBuilder) {
         builder.post("/scan") {
             respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
         }

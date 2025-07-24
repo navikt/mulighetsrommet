@@ -105,7 +105,6 @@ mockk = "io.mockk:mockk:1.14.5"
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
-nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.07.04_08.56-814fa50f6740"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.2.1"
 

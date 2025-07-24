@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class ArenaOrdsProxyClientImpl(
-    engine: HttpClientEngine = CIO.create(),
+    engine: HttpClientEngine,
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
 ) : ArenaOrdsProxyClient {
