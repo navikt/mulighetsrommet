@@ -18,12 +18,12 @@ View: `avtale_view`
 
 ## Avtale status
 
-| Navn        | Beskrivelse                                                 |
-|-------------|-------------------------------------------------------------|
-| `UTKAST`    | Avtalen er delvis utfylt, eller er ikke satt aktiv          |
-| `AKTIV`     | Avtalen er aktiv                                            |
-| `AVBRUTT`   | Tiltaksadministrator har avsluttet avtalen før `slutt_dato` |
-| `AVSLUTTET` | Avtalen har passert `slutt_dato` og automatisk avsluttes    |
+| Navn        | Beskrivelse                                                                    |
+|-------------|--------------------------------------------------------------------------------|
+| `UTKAST`    | Hvis arrangør mangler på avtalen, ansees den som et utkast                     |
+| `AKTIV`     | Har avtalen en arrangør, og `slutt_dato` er ikke passert, ansees den som aktiv |
+| `AVBRUTT`   | Tiltaksadministrator har avsluttet avtalen før `slutt_dato`                    |
+| `AVSLUTTET` | Avtalen har passert `slutt_dato` og automatisk avsluttes                       |
 
 ## Avtaletype
 
