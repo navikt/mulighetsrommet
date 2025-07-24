@@ -1,0 +1,8 @@
+# Arbeidsmarkedstiltak (Valp)
+
+Lenker:
+ - [Datamarkedsplassen](https://data.ansatt.nav.no/dataproduct/48c6dab9-d236-4088-bb48-0a59007148c9/Arbeidsmarkedstiltak%20%28Valp%29)
+ - [Teamkatalogen](https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997)
+
+## Data vi deler:
+ - [Gjennomføringer](gjennomforing_view.md)
