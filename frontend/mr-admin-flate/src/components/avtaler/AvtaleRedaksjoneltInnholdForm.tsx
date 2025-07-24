@@ -3,9 +3,9 @@ import { AvtaleDto, EmbeddedTiltakstype } from "@mr/api-client-v2";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
-import { AvtaleListe } from "./AvtaleListe";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
+import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleListe } from "./AvtaleListe";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -17,7 +17,7 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
 
-  const { setValue } = useFormContext<InferredAvtaleSchema>();
+  const { setValue } = useFormContext<AvtaleFormValues>();
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);

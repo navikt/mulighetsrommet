@@ -12,9 +12,9 @@ import {
 } from "@navikt/ds-react";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { useFormContext } from "react-hook-form";
-import { Separator } from "../detaljside/Metadata";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
+import { Separator } from "@/components/detaljside/Metadata";
+import { AvtaleFormValues } from "@/schemas/avtale";
+import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { EmbeddedTiltakstype, PersonopplysningData } from "@mr/api-client-v2";
 
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function AvtalePersonvernForm({ tiltakstype }: Props) {
-  const { register, setValue, watch } = useFormContext<InferredAvtaleSchema>();
+  const { register, setValue, watch } = useFormContext<AvtaleFormValues>();
   const { data: personopplysninger } = usePersonopplysninger();
 
   const watchPersonopplysninger = watch("personopplysninger");

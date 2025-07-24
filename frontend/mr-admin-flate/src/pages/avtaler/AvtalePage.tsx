@@ -2,7 +2,7 @@ import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { Box, Heading, HStack, Tabs } from "@navikt/ds-react";
-import { useMatch } from "react-router";
+import { useLocation, useMatch, useNavigate } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
@@ -13,6 +13,13 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
+import { QueryKeys } from "@/api/QueryKeys";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useQueryClient } from "@tanstack/react-query";
+import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
+import { AvtaleFormDetaljer } from "@/components/avtaler/AvtaleFormDetaljer";
+import { defaultAvtaleData } from "@/schemas/avtale";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -25,7 +32,13 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
 
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const location = useLocation();
+
   const { data: avtale } = useAvtale(avtaleId);
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: ansatt } = useHentAnsatt();
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
@@ -48,12 +61,6 @@ export function AvtalePage() {
         <Tabs.List>
           <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
           <Tabs.Tab
-            value="gjennomforinger"
-            label="Gjennomføringer"
-            onClick={() => setActiveTab("gjennomforinger")}
-            aria-controls="panel"
-          />
-          <Tabs.Tab
             label="Personvern"
             value="personvern"
             onClick={() => setActiveTab("personvern")}
@@ -63,11 +70,36 @@ export function AvtalePage() {
             value="redaksjonelt-innhold"
             onClick={() => setActiveTab("redaksjonelt-innhold")}
           />
+          <Tabs.Tab
+            value="gjennomforinger"
+            label="Gjennomføringer"
+            onClick={() => setActiveTab("gjennomforinger")}
+            aria-controls="panel"
+          />
         </Tabs.List>
         <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
           <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
-              <AvtaleDetaljer avtale={avtale} />
+              {location.pathname.includes("skjema") ? (
+                <RedigerAvtaleContainer
+                  onSuccess={async (id) => {
+                    await queryClient.invalidateQueries({
+                      queryKey: QueryKeys.avtale(avtale?.id),
+                      refetchType: "all",
+                    });
+                    navigate(`/avtaler/${id}`);
+                  }}
+                  avtale={avtale}
+                  defaultValues={defaultAvtaleData(
+                    ansatt,
+                    location.state?.dupliserAvtale ?? avtale,
+                  )}
+                >
+                  <AvtaleFormDetaljer tiltakstyper={tiltakstyper} ansatt={ansatt} avtale={avtale} />
+                </RedigerAvtaleContainer>
+              ) : (
+                <AvtaleDetaljer avtale={avtale} />
+              )}
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="gjennomforinger">

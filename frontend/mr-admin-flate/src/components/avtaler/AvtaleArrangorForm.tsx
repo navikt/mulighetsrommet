@@ -11,10 +11,10 @@ import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledS
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { ArrangorKontaktpersonerModal } from "@/components/arrangor/ArrangorKontaktpersonerModal";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { AvtaleFormValues } from "@/schemas/avtale";
+import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { useSokBrregHovedenhet } from "@/api/virksomhet/useSokBrregHovedenhet";
@@ -30,7 +30,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
   const [sokArrangor, setSokArrangor] = useState("");
   const { data: brregVirksomheter = [] } = useSokBrregHovedenhet(sokArrangor);
 
-  const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
+  const { register, watch, setValue } = useFormContext<DeepPartial<AvtaleFormValues>>();
   const watchedArrangor = watch("arrangorHovedenhet") ?? "";
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);

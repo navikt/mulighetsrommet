@@ -12,7 +12,6 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { NotifikasjonerPage } from "./pages/oppgaveoversikt/notifikasjoner/NotifikasjonerPage";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
-import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
@@ -122,7 +121,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "avtaler/:avtaleId/skjema",
-        element: <AvtaleFormPage />,
+        element: <AvtalePage />,
         errorElement: <ErrorPage />,
       },
       {

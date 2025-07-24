@@ -1,5 +1,5 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { Button } from "@navikt/ds-react";
+import { Button, Heading, Spacer } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
@@ -13,6 +13,10 @@ export function AvtaleFormKnapperad({ redigeringsModus, onClose }: Props) {
   const setGjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
   return (
     <SkjemaKnapperad>
+      <Heading size="medium" level="2">
+        {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
+      </Heading>
+      <Spacer />
       <ValideringsfeilOppsummering />
       <Button size="small" onClick={onClose} variant="tertiary" type="button">
         Avbryt

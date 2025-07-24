@@ -3,18 +3,18 @@ import { addYear } from "@/utils/Utils";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
-import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import { AvtaleFormValues } from "@/schemas/avtale";
+import { FormGroup } from "@/components/skjema/FormGroup";
 
 interface Props {
   avtale?: AvtaleDto;
 }
 
 export function AvtaleDatoContainer({ avtale }: Props) {
-  const { watch } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
+  const { watch } = useFormContext<DeepPartial<AvtaleFormValues>>();
 
-  const { startDato } = watch("startOgSluttDato") ?? {};
+  const startDato = watch("startDato");
   // Uten useMemo for sluttDatoFraDato så trigges rerendering av children hver gang sluttdato kalkuleres på nytt ved endring av startdato
   const sluttDatoFraDato = useMemo(
     () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),

@@ -1,16 +1,16 @@
 import { AvtaleDto, Avtaletype, OpsjonStatus } from "@mr/api-client-v2";
-import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
+import { HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { FieldError, useFormContext } from "react-hook-form";
 import { MIN_START_DATO_FOR_AVTALER } from "@/constants";
-import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
-import { ControlledDateInput } from "../../skjema/ControlledDateInput";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { RegistrerteOpsjoner } from "../opsjoner/RegistrerteOpsjoner";
 import {
   hentGjeldendeOpsjonsmodeller,
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 interface Props {
   avtale?: AvtaleDto;
@@ -35,7 +35,7 @@ export function AvtaleVarighet({
     watch,
     formState: { errors },
     control,
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<AvtaleFormValues>();
 
   const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(avtaletype);
 
@@ -48,14 +48,14 @@ export function AvtaleVarighet({
 
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
 
-  const { startDato } = watch("startOgSluttDato");
+  const startDato = watch("startDato");
   const readonly = opsjonsmodell?.value !== "ANNET" || skalIkkeKunneRedigereOpsjoner;
 
   useEffect(() => {
     if (startDato && opsjonsmodell && antallOpsjonerUtlost === 0) {
       if (opsjonsmodell.initialSluttdatoEkstraAar) {
         setValue(
-          "startOgSluttDato.sluttDato",
+          "sluttDato",
           kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
         );
       }
@@ -70,12 +70,8 @@ export function AvtaleVarighet({
 
   return (
     <>
-      <Heading size="small" as="h3">
-        Avtalens varighet
-      </Heading>
-
-      <HGrid columns={2}>
-        {avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
+      {avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
+        <HGrid columns={2}>
           <Select
             readOnly={skalIkkeKunneRedigereOpsjoner}
             label="Avtalt mulighet for forlengelse"
@@ -100,8 +96,8 @@ export function AvtaleVarighet({
               </option>
             ))}
           </Select>
-        ) : null}
-      </HGrid>
+        </HGrid>
+      ) : null}
 
       {opsjonsmodell?.value === "ANNET" ? (
         <TextField
@@ -123,7 +119,7 @@ export function AvtaleVarighet({
             readOnly={skalIkkeKunneRedigereOpsjoner}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.startDato")}
+            {...register("startDato")}
             format={"iso-string"}
             control={control}
           />
@@ -133,7 +129,7 @@ export function AvtaleVarighet({
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.sluttDato")}
+            {...register("sluttDato")}
             format={"iso-string"}
             invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${maksAar} år`}
             control={control}
@@ -156,7 +152,7 @@ export function AvtaleVarighet({
             label={avtaletekster.startdatoLabel}
             fromDate={MIN_START_DATO_FOR_AVTALER}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.startDato")}
+            {...register("startDato")}
             format={"iso-string"}
             control={control}
           />
@@ -169,7 +165,7 @@ export function AvtaleVarighet({
             }
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.sluttDato")}
+            {...register("sluttDato")}
             format={"iso-string"}
             control={control}
           />
