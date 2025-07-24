@@ -6,7 +6,8 @@ View: `del_med_bruker_view`
 
 ## Beskrivelse
 
-Datasettet inneholder data om hvilke tiltakstype som er delt med bruker via Arbeidsmarkedstiltak i Modia. I tillegg er det registrert fylke som delte og lokalkontoret (enheten) som delte tiltaket.
+Datasettet inneholder data om hvilke tiltakstype som er delt med bruker via Arbeidsmarkedstiltak i Modia. I tillegg er
+det registrert fylke som delte og lokalkontoret (enheten) som delte tiltaket.
 
 | Feltnavn           | Type      | Beskrivelse                                                              |
 |--------------------|-----------|--------------------------------------------------------------------------|
