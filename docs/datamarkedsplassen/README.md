@@ -6,3 +6,9 @@ Lenker:
 
 ## Data vi deler:
  - [Gjennomføringer](gjennomforing_view.md)
+ - [Tiltakstyper](tiltakstype_view.md)
+ - [Utdanningsprogram](utdanningsprogram_view.md)
+ - [Utdanning](utdanning_view.md)
+
+### Tilknytsningstabeller
+ - [Gjennomføring - Utdanningsprogram - Utdanning](gjennomforing_utdanningsprogram_view.md)
