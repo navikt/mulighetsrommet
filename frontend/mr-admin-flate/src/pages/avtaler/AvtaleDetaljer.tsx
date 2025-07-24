@@ -1,4 +1,3 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
@@ -18,7 +17,6 @@ import {
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Box, Heading, HelpText, HStack, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
-import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
@@ -44,7 +42,6 @@ export function AvtaleDetaljer({ avtale }: Props) {
     utdanningslop,
     opsjonsmodell,
   } = avtale;
-  const { data: ansatt } = useHentAnsatt();
   const { data: prismodeller } = usePrismodeller(avtale.tiltakstype.tiltakskode);
 
   const prismodell = prismodeller.find(({ type }) => type === avtale.prismodell) ?? {
@@ -169,43 +166,39 @@ export function AvtaleDetaljer({ avtale }: Props) {
   ];
 
   return (
-    <VStack className="pb-6">
-      <AvtaleKnapperad ansatt={ansatt} avtale={avtale} />
-      <Separator />
-      <TwoColumnGrid separator>
-        <VStack>
-          <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
-          <Separator />
-          <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
-          <Separator />
-          {enableTilsagn ? <PrismodellDetaljer avtale={avtale} /> : avtale.prisbetingelser}
-          <Separator />
-          {amoKategorisering && (
-            <>
-              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
-              <Separator />
-            </>
-          )}
-          {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
-          <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
-          {avtale.opsjonerRegistrert.length > 0 ? (
-            <RegistrerteOpsjoner readOnly avtale={avtale} />
-          ) : null}
-        </VStack>
-        <VStack>
-          {administratorer && (
-            <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
-          )}
-          <Separator />
-          {arrangor ? (
-            <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-          ) : (
-            <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
-          )}
-          <Separator />
-        </VStack>
-      </TwoColumnGrid>
-    </VStack>
+    <TwoColumnGrid separator>
+      <VStack>
+        <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
+        <Separator />
+        <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
+        <Separator />
+        {enableTilsagn ? <PrismodellDetaljer avtale={avtale} /> : avtale.prisbetingelser}
+        <Separator />
+        {amoKategorisering && (
+          <>
+            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+            <Separator />
+          </>
+        )}
+        {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
+        <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
+        {avtale.opsjonerRegistrert.length > 0 ? (
+          <RegistrerteOpsjoner readOnly avtale={avtale} />
+        ) : null}
+      </VStack>
+      <VStack>
+        {administratorer && (
+          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
+        )}
+        <Separator />
+        {arrangor ? (
+          <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
+        ) : (
+          <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
+        )}
+        <Separator />
+      </VStack>
+    </TwoColumnGrid>
   );
 }
 

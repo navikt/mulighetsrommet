@@ -8,7 +8,6 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useAtom } from "jotai";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
@@ -20,6 +19,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
 import { AvtaleFormDetaljer } from "@/components/avtaler/AvtaleFormDetaljer";
 import { defaultAvtaleData } from "@/schemas/avtale";
+import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
+import { AvtalePageLayout } from "./AvtalePageLayout";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -79,28 +81,25 @@ export function AvtalePage() {
         </Tabs.List>
         <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
           <Tabs.Panel value="detaljer">
-            <InlineErrorBoundary>
-              {location.pathname.includes("skjema") ? (
-                <RedigerAvtaleContainer
-                  onSuccess={async (id) => {
-                    await queryClient.invalidateQueries({
-                      queryKey: QueryKeys.avtale(avtale?.id),
-                      refetchType: "all",
-                    });
-                    navigate(`/avtaler/${id}`);
-                  }}
-                  avtale={avtale}
-                  defaultValues={defaultAvtaleData(
-                    ansatt,
-                    location.state?.dupliserAvtale ?? avtale,
-                  )}
-                >
-                  <AvtaleFormDetaljer tiltakstyper={tiltakstyper} ansatt={ansatt} avtale={avtale} />
-                </RedigerAvtaleContainer>
-              ) : (
+            {location.pathname.includes("skjema") ? (
+              <RedigerAvtaleContainer
+                onSuccess={async (id) => {
+                  await queryClient.invalidateQueries({
+                    queryKey: QueryKeys.avtale(avtale?.id),
+                    refetchType: "all",
+                  });
+                  navigate(`/avtaler/${id}`);
+                }}
+                avtale={avtale}
+                defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale ?? avtale)}
+              >
+                <AvtaleFormDetaljer tiltakstyper={tiltakstyper} ansatt={ansatt} avtale={avtale} />
+              </RedigerAvtaleContainer>
+            ) : (
+              <AvtalePageLayout avtale={avtale} ansatt={ansatt}>
                 <AvtaleDetaljer avtale={avtale} />
-              )}
-            </InlineErrorBoundary>
+              </AvtalePageLayout>
+            )}
           </Tabs.Panel>
           <Tabs.Panel value="gjennomforinger">
             <InlineErrorBoundary>
@@ -108,19 +107,35 @@ export function AvtalePage() {
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="personvern">
-            <InlineErrorBoundary>
-              <AvtalePersonvern avtale={avtale} />
-            </InlineErrorBoundary>
+            {location.pathname.includes("skjema") ? (
+              <RedigerAvtaleContainer
+                onSuccess={async (id) => {
+                  await queryClient.invalidateQueries({
+                    queryKey: QueryKeys.avtale(avtale?.id),
+                    refetchType: "all",
+                  });
+                  navigate(`/avtaler/${id}`);
+                }}
+                avtale={avtale}
+                defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale ?? avtale)}
+              >
+                <AvtalePersonvernForm />
+              </RedigerAvtaleContainer>
+            ) : (
+              <AvtalePageLayout avtale={avtale} ansatt={ansatt}>
+                <AvtalePersonvern avtale={avtale} />
+              </AvtalePageLayout>
+            )}
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
-            <InlineErrorBoundary>
+            <AvtalePageLayout avtale={avtale} ansatt={ansatt}>
               <RedaksjoneltInnholdPreview
                 tiltakstype={avtale.tiltakstype}
                 beskrivelse={avtale.beskrivelse}
                 faneinnhold={avtale.faneinnhold}
                 kontorstruktur={avtale.kontorstruktur}
               />
-            </InlineErrorBoundary>
+            </AvtalePageLayout>
           </Tabs.Panel>
         </Box>
       </Tabs>

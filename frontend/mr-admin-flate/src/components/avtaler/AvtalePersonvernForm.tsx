@@ -16,19 +16,16 @@ import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { EmbeddedTiltakstype, PersonopplysningData } from "@mr/api-client-v2";
+import { PersonopplysningData } from "@mr/api-client-v2";
 
-interface Props {
-  tiltakstype?: EmbeddedTiltakstype;
-}
-
-export function AvtalePersonvernForm({ tiltakstype }: Props) {
+export function AvtalePersonvernForm() {
   const { register, setValue, watch } = useFormContext<AvtaleFormValues>();
   const { data: personopplysninger } = usePersonopplysninger();
 
   const watchPersonopplysninger = watch("personopplysninger");
+  const watchTiltakstype = watch("tiltakstype");
 
-  if (!tiltakstype) {
+  if (!watchTiltakstype) {
     return <Alert variant="info">Tiltakstype må velges før personvern kan redigeres.</Alert>;
   }
 
