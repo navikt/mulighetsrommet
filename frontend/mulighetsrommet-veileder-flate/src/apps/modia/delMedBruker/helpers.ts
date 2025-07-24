@@ -1,15 +1,15 @@
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Bruker, NavEnhet, VeilederflateTiltak } from "@mr/api-client-v2";
+import { Brukerdata, NavEnhetDbo, VeilederflateTiltak } from "@api-client";
 
 export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,
-  bruker: Bruker,
+  bruker: Brukerdata,
 ): boolean {
   if (filter.navEnheter.length !== bruker.enheter.length) return true;
 
   return (
     bruker.enheter
-      .map((enhet: NavEnhet) => enhet.enhetsnummer)
+      .map((enhet: NavEnhetDbo) => enhet.enhetsnummer)
       .sort()
       .join(",") !== filter.navEnheter.sort().join(",")
   );
@@ -27,11 +27,11 @@ function hilsenTekst(veiledernavn?: string) {
   return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}`;
 }
 
-export function getDelMedBrukerTekst(tiltak: VeilederflateTiltak): string | undefined {
+export function getDelMedBrukerTekst(tiltak: VeilederflateTiltak): string | null {
   return tiltak.faneinnhold?.delMedBruker ?? tiltak.tiltakstype.delingMedBruker;
 }
 
-export function erBrukerReservertMotDigitalKommunikasjon(brukerdata: Bruker): {
+export function erBrukerReservertMotDigitalKommunikasjon(brukerdata: Brukerdata): {
   reservert: boolean;
   melding: string | null;
 } {

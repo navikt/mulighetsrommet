@@ -1,6 +1,6 @@
 import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
-import { NavEnheterService } from "@mr/api-client-v2";
+import { NavEnheterService } from "@api-client";
 
 export function useOverordnetEnhet(enhetsnummer: string) {
   return useApiQuery({

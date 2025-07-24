@@ -94,8 +94,8 @@ fun Route.brukerRoutes() {
             val response = GetDeltakelserForBrukerResponse(
                 meldinger = tiltakshistorikk.meldinger,
                 deltakelser = when (type) {
-                    DeltakelsesType.AKTIVE -> tiltakshistorikk.aktive
-                    DeltakelsesType.HISTORISKE -> tiltakshistorikk.historiske
+                    BrukerDeltakelseType.AKTIVE -> tiltakshistorikk.aktive
+                    BrukerDeltakelseType.HISTORISKE -> tiltakshistorikk.historiske
                 },
             )
 
@@ -160,7 +160,7 @@ data class GetBrukerRequest(
     val norskIdent: NorskIdent,
 )
 
-enum class DeltakelsesType {
+enum class BrukerDeltakelseType {
     AKTIVE,
     HISTORISKE,
 }
@@ -168,7 +168,7 @@ enum class DeltakelsesType {
 @Serializable
 data class GetDeltakelserForBrukerRequest(
     val norskIdent: NorskIdent,
-    val type: DeltakelsesType,
+    val type: BrukerDeltakelseType,
 )
 
 @Serializable

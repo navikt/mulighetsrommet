@@ -1,7 +1,7 @@
 import { useApiQuery } from "@mr/frontend-common";
-import { FeatureToggleService, Tiltakskode, Toggles } from "@mr/api-client-v2";
+import { FeatureToggle, FeatureToggleService, Tiltakskode } from "@api-client";
 
-export type Features = Record<Toggles, boolean>;
+export type Features = Record<FeatureToggle, boolean>;
 
 /**
  * Hook for å bruke en spesifikk feature toggle for å skjule eller vise funksjonalitet
@@ -9,7 +9,7 @@ export type Features = Record<Toggles, boolean>;
  * @param tiltakskoder Input til "by-tiltakskode"-stategi
  * @returns true hvis toggle er skrudd på, eller false hvis ikke
  */
-export function useFeatureToggle(feature: Toggles, tiltakskoder: Tiltakskode[] = []) {
+export function useFeatureToggle(feature: FeatureToggle, tiltakskoder: Tiltakskode[] = []) {
   return useApiQuery({
     queryKey: ["feature", feature, tiltakskoder],
     queryFn: () =>

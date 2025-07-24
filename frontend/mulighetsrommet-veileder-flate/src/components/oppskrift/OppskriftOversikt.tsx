@@ -1,5 +1,5 @@
 import { Alert, Skeleton } from "@navikt/ds-react";
-import { Oppskrift } from "@mr/api-client-v2";
+import { Oppskrift } from "@api-client";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
 import { Suspense } from "react";

@@ -101,7 +101,7 @@ class TiltakshistorikkService(
                 startDato = deltakelse.startDato,
                 sluttDato = deltakelse.sluttDato,
             ),
-            status = Deltakelse.DeltakelseArena.Status(
+            status = Deltakelse.DeltakelseArena.DeltakelseArenaStatus(
                 type = deltakelse.status,
                 visningstekst = deltakelse.status.description,
             ),
@@ -123,7 +123,7 @@ class TiltakshistorikkService(
                 startDato = deltakelse.startDato,
                 sluttDato = deltakelse.sluttDato,
             ),
-            status = Deltakelse.DeltakelseGruppetiltak.Status(
+            status = Deltakelse.DeltakelseGruppetiltak.DeltakelseGruppetiltakStatus(
                 type = deltakelse.status.type,
                 visningstekst = deltakelse.status.type.description,
                 aarsak = deltakelse.status.aarsak?.description,
@@ -160,7 +160,7 @@ class TiltakshistorikkService(
                 startDato = deltakelse.startDato,
                 sluttDato = deltakelse.sluttDato,
             ),
-            status = Deltakelse.DeltakelseArbeidsgiverAvtale.Status(
+            status = Deltakelse.DeltakelseArbeidsgiverAvtale.DeltakelseArbeidsgiverAvtaleStatus(
                 type = deltakelse.status,
                 visningstekst = deltakelse.status.description,
             ),
@@ -184,13 +184,13 @@ class TiltakshistorikkService(
             )
 
             is Deltakelse.DeltakelseGruppetiltak -> kort.status.type in listOf(
-                DeltakerStatus.Type.VENTER_PA_OPPSTART,
-                DeltakerStatus.Type.DELTAR,
-                DeltakerStatus.Type.VURDERES,
-                DeltakerStatus.Type.VENTELISTE,
-                DeltakerStatus.Type.UTKAST_TIL_PAMELDING,
-                DeltakerStatus.Type.SOKT_INN,
-                DeltakerStatus.Type.PABEGYNT_REGISTRERING,
+                DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
+                DeltakerStatus.DeltakerStatusType.DELTAR,
+                DeltakerStatus.DeltakerStatusType.VURDERES,
+                DeltakerStatus.DeltakerStatusType.VENTELISTE,
+                DeltakerStatus.DeltakerStatusType.UTKAST_TIL_PAMELDING,
+                DeltakerStatus.DeltakerStatusType.SOKT_INN,
+                DeltakerStatus.DeltakerStatusType.PABEGYNT_REGISTRERING,
             )
 
             is Deltakelse.DeltakelseArbeidsgiverAvtale -> kort.status.type in listOf(
@@ -268,7 +268,7 @@ private fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
         eierskap = Deltakelse.Eierskap.TEAM_KOMET,
         tittel = tittel,
         tiltakstypeNavn = tiltakstype.navn,
-        status = Deltakelse.DeltakelseGruppetiltak.Status(
+        status = Deltakelse.DeltakelseGruppetiltak.DeltakelseGruppetiltakStatus(
             type = status.type,
             visningstekst = status.visningstekst,
             aarsak = status.aarsak,

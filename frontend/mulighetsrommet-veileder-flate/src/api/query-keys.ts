@@ -1,4 +1,9 @@
-import { JoyrideType, LagretFilterType, NavEnhetStatus, NavEnhetType } from "@mr/api-client-v2";
+import {
+  JoyrideType,
+  LagretFilterType,
+  NavEnhetStatus,
+  Norg2Type as NavEnhetType,
+} from "@api-client";
 
 export const QueryKeys = {
   Veilederdata: "veilederdata",

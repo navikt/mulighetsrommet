@@ -11,7 +11,7 @@ object DeltakerFixtures {
         gjennomforingId: UUID,
         startDato: LocalDate = LocalDate.now(),
         sluttDato: LocalDate = LocalDate.now().plusMonths(1),
-        statusType: DeltakerStatus.Type = DeltakerStatus.Type.DELTAR,
+        statusType: DeltakerStatus.DeltakerStatusType = DeltakerStatus.DeltakerStatusType.DELTAR,
         deltakelsesprosent: Double = 100.0,
         deltakelsesmengder: List<DeltakerDbo.Deltakelsesmengde> = listOf(
             DeltakerDbo.Deltakelsesmengde(
@@ -40,7 +40,7 @@ object DeltakerFixtures {
         gjennomforingId: UUID,
         startDato: LocalDate,
         sluttDato: LocalDate,
-        statusType: DeltakerStatus.Type,
+        statusType: DeltakerStatus.DeltakerStatusType,
     ) = DeltakerDbo(
         id = UUID.randomUUID(),
         startDato = startDato,

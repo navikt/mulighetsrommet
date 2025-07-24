@@ -188,7 +188,7 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = null,
                         sluttDato = null,
                         status = DeltakerStatus(
-                            type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
+                            type = DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
@@ -381,7 +381,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         startDato = null,
         sluttDato = null,
         status = DeltakerStatus(
-            type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
+            type = DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,
             opprettetDato = deltakelsesdato,
         ),

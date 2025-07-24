@@ -2,8 +2,8 @@ import {
   ArbeidsgiverAvtaleStatus,
   ArenaDeltakerStatus,
   Deltakelse,
-  GruppetiltakDeltakerStatus,
-} from "@mr/api-client-v2";
+  DeltakerStatusType as DeltakerStatusType,
+} from "@api-client";
 import {
   BodyShort,
   Box,
@@ -57,14 +57,15 @@ function Knapper({ deltakelse, aktiv }: Props) {
         route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
         deltakerId: deltakelse.id,
       });
+      const gjennomforingId = "gjennomforingId" in deltakelse ? deltakelse.gjennomforingId : null;
       return (
         <VStack gap="2">
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
-          {aktiv && (
+          {aktiv && gjennomforingId && (
             <Link
-              to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
+              to={`/arbeidsmarkedstiltak/tiltak/${gjennomforingId}`}
               className="text-center no-underline text-[16px] hover:underline"
             >
               Gå til tiltak
@@ -84,18 +85,14 @@ function Knapper({ deltakelse, aktiv }: Props) {
   }
 }
 
-function isKladd(
-  type: ArenaDeltakerStatus | GruppetiltakDeltakerStatus | ArbeidsgiverAvtaleStatus,
-) {
-  return type === GruppetiltakDeltakerStatus.KLADD || type === ArbeidsgiverAvtaleStatus.PAABEGYNT;
+function isKladd(type: ArenaDeltakerStatus | DeltakerStatusType | ArbeidsgiverAvtaleStatus) {
+  return type === DeltakerStatusType.KLADD || type === ArbeidsgiverAvtaleStatus.PAABEGYNT;
 }
 
-function isUtkast(
-  type: ArenaDeltakerStatus | GruppetiltakDeltakerStatus | ArbeidsgiverAvtaleStatus,
-) {
+function isUtkast(type: ArenaDeltakerStatus | DeltakerStatusType | ArbeidsgiverAvtaleStatus) {
   return (
-    type === GruppetiltakDeltakerStatus.UTKAST_TIL_PAMELDING ||
-    type === GruppetiltakDeltakerStatus.PABEGYNT_REGISTRERING ||
+    type === DeltakerStatusType.UTKAST_TIL_PAMELDING ||
+    type === DeltakerStatusType.PABEGYNT_REGISTRERING ||
     type === ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING
   );
 }
@@ -136,7 +133,7 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
 }
 
 interface StatusProps {
-  status: ArenaDeltakerStatus | GruppetiltakDeltakerStatus | ArbeidsgiverAvtaleStatus;
+  status: ArenaDeltakerStatus | DeltakerStatusType | ArbeidsgiverAvtaleStatus;
   visningstekst: string;
 }
 
@@ -150,13 +147,13 @@ function Status({ status, visningstekst }: StatusProps) {
 }
 
 function resolveStatusStyle(
-  status: ArenaDeltakerStatus | GruppetiltakDeltakerStatus | ArbeidsgiverAvtaleStatus,
+  status: ArenaDeltakerStatus | DeltakerStatusType | ArbeidsgiverAvtaleStatus,
 ): {
   variant: TagProps["variant"];
   style?: any;
 } {
   switch (status) {
-    case GruppetiltakDeltakerStatus.DELTAR:
+    case DeltakerStatusType.DELTAR:
     case ArenaDeltakerStatus.GJENNOMFORES:
     case ArbeidsgiverAvtaleStatus.GJENNOMFORES:
       return {
@@ -166,22 +163,22 @@ function resolveStatusStyle(
           border: "1px solid var(--a-border-default)",
         },
       };
-    case GruppetiltakDeltakerStatus.PABEGYNT_REGISTRERING:
-    case GruppetiltakDeltakerStatus.KLADD:
+    case DeltakerStatusType.PABEGYNT_REGISTRERING:
+    case DeltakerStatusType.KLADD:
     case ArbeidsgiverAvtaleStatus.PAABEGYNT:
       return { variant: "warning" };
 
     case ArenaDeltakerStatus.INFORMASJONSMOTE:
     case ArenaDeltakerStatus.TILBUD:
-    case GruppetiltakDeltakerStatus.UTKAST_TIL_PAMELDING:
+    case DeltakerStatusType.UTKAST_TIL_PAMELDING:
     case ArbeidsgiverAvtaleStatus.KLAR_FOR_OPPSTART:
     case ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING:
       return { variant: "info" };
 
-    case GruppetiltakDeltakerStatus.IKKE_AKTUELL:
-    case GruppetiltakDeltakerStatus.FEILREGISTRERT:
-    case GruppetiltakDeltakerStatus.AVBRUTT:
-    case GruppetiltakDeltakerStatus.AVBRUTT_UTKAST:
+    case DeltakerStatusType.IKKE_AKTUELL:
+    case DeltakerStatusType.FEILREGISTRERT:
+    case DeltakerStatusType.AVBRUTT:
+    case DeltakerStatusType.AVBRUTT_UTKAST:
     case ArenaDeltakerStatus.IKKE_AKTUELL:
     case ArenaDeltakerStatus.FEILREGISTRERT:
     case ArenaDeltakerStatus.AVSLAG:
@@ -194,21 +191,21 @@ function resolveStatusStyle(
     case ArbeidsgiverAvtaleStatus.ANNULLERT:
       return { variant: "neutral" };
 
-    case GruppetiltakDeltakerStatus.VENTELISTE:
-    case GruppetiltakDeltakerStatus.HAR_SLUTTET:
-    case GruppetiltakDeltakerStatus.FULLFORT:
+    case DeltakerStatusType.VENTELISTE:
+    case DeltakerStatusType.HAR_SLUTTET:
+    case DeltakerStatusType.FULLFORT:
     case ArenaDeltakerStatus.VENTELISTE:
     case ArenaDeltakerStatus.FULLFORT:
     case ArbeidsgiverAvtaleStatus.AVSLUTTET:
       return { variant: "alt1" };
 
-    case GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART:
+    case DeltakerStatusType.VENTER_PA_OPPSTART:
     case ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD:
     case ArenaDeltakerStatus.AKTUELL:
       return { variant: "alt3" };
 
-    case GruppetiltakDeltakerStatus.SOKT_INN:
-    case GruppetiltakDeltakerStatus.VURDERES:
+    case DeltakerStatusType.SOKT_INN:
+    case DeltakerStatusType.VURDERES:
       return { variant: "alt2" };
   }
 }

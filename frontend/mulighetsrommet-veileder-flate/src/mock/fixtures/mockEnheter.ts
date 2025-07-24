@@ -1,4 +1,9 @@
-import { NavEnhet, NavEnhetStatus, NavEnhetType, NavRegion } from "@mr/api-client-v2";
+import {
+  NavEnhetDbo as NavEnhet,
+  NavEnhetStatus,
+  Norg2Type as NavEnhetType,
+  NavRegionDto,
+} from "@api-client";
 
 export const mockEnheter: {
   [navn: string]: NavEnhet;
@@ -122,7 +127,7 @@ export const mockEnheter: {
   },
 };
 
-export const mockRegioner: NavRegion[] = [
+export const mockRegioner: NavRegionDto[] = [
   {
     navn: "Nav Oslo",
     type: NavEnhetType.FYLKE,

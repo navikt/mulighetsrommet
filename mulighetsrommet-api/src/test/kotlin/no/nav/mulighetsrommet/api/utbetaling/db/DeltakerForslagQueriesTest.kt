@@ -18,7 +18,7 @@ class DeltakerForslagQueriesTest : FunSpec({
 
     val deltaker = DeltakerFixtures.createDeltaker(
         GjennomforingFixtures.Oppfolging1.id,
-        statusType = DeltakerStatus.Type.VENTER_PA_OPPSTART,
+        statusType = DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
     )
 
     val domain = MulighetsrommetTestDomain(

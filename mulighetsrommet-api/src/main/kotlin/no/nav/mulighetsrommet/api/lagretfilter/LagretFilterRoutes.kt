@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.lagretfilter
 
+import io.github.smiley4.ktoropenapi.delete
+import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -16,19 +19,24 @@ fun Route.lagretFilterRoutes() {
     val lagretFilterService: LagretFilterService by inject()
 
     route("/lagret-filter") {
-        get("mine/{dokumenttype}") {
-            val navIdent = getNavIdent()
-            val dokumenttype: String by call.parameters
-
-            val filter = lagretFilterService.getLagredeFiltereForBruker(
-                brukerId = navIdent.value,
-                dokumentType = LagretFilterType.valueOf(dokumenttype),
-            )
-
-            call.respond(filter)
-        }
-
-        post {
+        post({
+            tags = setOf("LagretFilter")
+            operationId = "upsertFilter"
+            request {
+                body<LagretFilter> {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Filteret ble lagret"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val navIdent = getNavIdent()
             val request = call.receive<LagretFilter>()
 
@@ -41,7 +49,55 @@ fun Route.lagretFilterRoutes() {
                 }
         }
 
-        delete("{id}") {
+        get("mine/{dokumenttype}", {
+            tags = setOf("LagretFilter")
+            operationId = "getMineFilterForDokumenttype"
+            request {
+                pathParameter<LagretFilterType>("dokumenttype") {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Filter for gitt dokumenttype"
+                    body<List<LagretFilter>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val navIdent = getNavIdent()
+            val dokumenttype: String by call.parameters
+
+            val filter = lagretFilterService.getLagredeFiltereForBruker(
+                brukerId = navIdent.value,
+                dokumentType = LagretFilterType.valueOf(dokumenttype),
+            )
+
+            call.respond(filter)
+        }
+
+        delete("{id}", {
+            tags = setOf("LagretFilter")
+            operationId = "slettLagretFilter"
+            request {
+                pathParameter<String>("id") {
+                    description = "Id til filter som skal slettes"
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Filteret ble slettet"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val navIdent = getNavIdent()
             val id: UUID by call.parameters
 

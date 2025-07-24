@@ -6,12 +6,12 @@ import java.time.LocalDateTime
 
 @Serializable
 data class DeltakerStatus(
-    val type: Type,
+    val type: DeltakerStatusType,
     val aarsak: Aarsak?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val opprettetDato: LocalDateTime,
 ) {
-    enum class Type(val description: String) {
+    enum class DeltakerStatusType(val description: String) {
         AVBRUTT("Avbrutt"),
         AVBRUTT_UTKAST("Avbrutt utkast"),
         DELTAR("Deltar"),

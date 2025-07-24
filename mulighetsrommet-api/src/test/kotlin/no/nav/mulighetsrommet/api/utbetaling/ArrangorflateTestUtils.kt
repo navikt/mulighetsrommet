@@ -50,7 +50,7 @@ object ArrangorflateTestUtils {
         deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
-            type = DeltakerStatus.Type.DELTAR,
+            type = DeltakerStatus.DeltakerStatusType.DELTAR,
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),

@@ -1,17 +1,16 @@
 import {
-  EstimertVentetidEnhet,
   GjennomforingOppstartstype,
   GjennomforingStatus,
   NavEnhetStatus,
-  NavEnhetType,
+  Norg2Type as NavEnhetType,
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakGruppe,
-} from "@mr/api-client-v2";
+} from "@api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
-export const tiltakAvklaring: VeilederflateTiltakGruppe = {
-  type: "TILTAK_GRUPPE",
+export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   tiltaksnummer: "123123",
   id: "f4cea25b-c372-4d4c-8106-535ab10cd586",
   oppstartsdato: "2024-01-01",
@@ -23,7 +22,7 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
   oppstart: GjennomforingOppstartstype.LOPENDE,
   estimertVentetid: {
     verdi: 3,
-    enhet: EstimertVentetidEnhet.MANED,
+    enhet: "maned",
   },
   stedForGjennomforing:
     "Valpekullsveien 69, 1424" +
@@ -44,14 +43,15 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
         beskrivelse: null,
       },
     ],
+    organisasjonsnummer: null,
   },
   fylker: ["0200"],
+  enheter: [],
   kontaktinfo: {
     tiltaksansvarlige: [
       {
         navn: "Sindre",
         telefon: "12345678",
-        _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
         enhet: {
           enhetsnummer: "1928",
           navn: "Nav Oslo",
@@ -60,10 +60,11 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
           overordnetEnhet: null,
         },
         epost: "test@example.com",
+        beskrivelse: null,
       },
     ],
   },
-  faneinnhold: {
+  faneinnhold: <any>{
     lenker: [
       {
         lenke: "https://www.google.com",
@@ -113,10 +114,11 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
       },
     ],
   },
+  beskrivelse: null,
 };
 
-export const tiltakMentor: VeilederflateTiltakEnkeltplass = {
-  type: "TILTAK_ENKELTPLASS",
+export const tiltakMentor: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
   sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
   navn: "Sindres mentorordning med Yoda",
   oppstart: GjennomforingOppstartstype.LOPENDE,
@@ -127,7 +129,6 @@ export const tiltakMentor: VeilederflateTiltakEnkeltplass = {
       {
         navn: "Sindre",
         telefon: "12345678",
-        _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
         enhet: {
           enhetsnummer: "1928",
           status: NavEnhetStatus.AKTIV,
@@ -136,14 +137,18 @@ export const tiltakMentor: VeilederflateTiltakEnkeltplass = {
           overordnetEnhet: null,
         },
         epost: "test@example.com",
+        beskrivelse: null,
       },
     ],
   },
   fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  faneinnhold: null,
 };
 
-export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
-  type: "TILTAK_GRUPPE",
+export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "00097090-1ba8-47a4-a82f-6aaad488994e",
   status: {
     type: GjennomforingStatus.GJENNOMFORES,
@@ -170,8 +175,10 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
         beskrivelse: null,
       },
     ],
+    organisasjonsnummer: null,
   },
   fylker: ["0800"],
+  enheter: [],
   beskrivelse:
     "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå. Her kommer det masse spennende informasjon om tiltaket.",
   kontaktinfo: {
@@ -187,11 +194,11 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
           overordnetEnhet: null,
         },
         epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
+        beskrivelse: null,
       },
     ],
   },
-  faneinnhold: {
+  faneinnhold: <any>{
     lenker: [
       {
         lenke: "https://www.google.com",
@@ -253,10 +260,11 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
       },
     ],
   },
+  estimertVentetid: null,
 };
 
-export const tiltakVta: VeilederflateTiltakGruppe = {
-  type: "TILTAK_GRUPPE",
+export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "3b597090-1ba8-47a4-a82f-6aaad488994e",
   navn: "VTA hos Fretex",
   status: {
@@ -282,6 +290,7 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
         beskrivelse: null,
       },
     ],
+    organisasjonsnummer: null,
   },
   kontaktinfo: {
     tiltaksansvarlige: [
@@ -296,11 +305,11 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
           overordnetEnhet: null,
         },
         epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
+        beskrivelse: null,
       },
     ],
   },
-  faneinnhold: {
+  faneinnhold: <any>{
     forHvem: [
       {
         style: "normal",
@@ -349,10 +358,14 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
     ],
   },
   fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  tiltaksnummer: null,
+  estimertVentetid: null,
 };
 
-export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
-  type: "TILTAK_GRUPPE",
+export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "ff887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Jobbklubb (med Lars Monsen)",
   status: {
@@ -370,6 +383,7 @@ export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
   arrangor: {
     selskapsnavn: "LARS MONSEN AS AVD FINNMARK",
     kontaktpersoner: [],
+    organisasjonsnummer: null,
   },
   kontaktinfo: {
     tiltaksansvarlige: [
@@ -384,11 +398,11 @@ export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
           status: NavEnhetStatus.AKTIV,
         },
         epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
+        beskrivelse: null,
       },
     ],
   },
-  faneinnhold: {
+  faneinnhold: <any>{
     forHvem: [
       {
         style: "normal",
@@ -403,10 +417,14 @@ export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
     ],
   },
   fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  tiltaksnummer: null,
+  estimertVentetid: null,
 };
 
-export const tiltakAft: VeilederflateTiltakGruppe = {
-  type: "TILTAK_GRUPPE",
+export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
   navn: "AFT",
   stedForGjennomforing: "Sinsen",
@@ -432,6 +450,7 @@ export const tiltakAft: VeilederflateTiltakGruppe = {
         beskrivelse: null,
       },
     ],
+    organisasjonsnummer: null,
   },
   kontaktinfo: {
     tiltaksansvarlige: [
@@ -446,15 +465,20 @@ export const tiltakAft: VeilederflateTiltakGruppe = {
           status: NavEnhetStatus.AKTIV,
         },
         epost: "pelle.pilotbruker@nav.no",
-        _id: "56767",
+        beskrivelse: null,
       },
     ],
   },
   fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  faneinnhold: null,
+  tiltaksnummer: null,
+  estimertVentetid: null,
 };
 
-export const tiltakOppfolging: VeilederflateTiltakGruppe = {
-  type: "TILTAK_GRUPPE",
+export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "3c110e8c-5867-4ece-b343-e9b1c547f548",
   navn: "Oppfølging",
   stedForGjennomforing: "Sinsen",
@@ -480,15 +504,21 @@ export const tiltakOppfolging: VeilederflateTiltakGruppe = {
         beskrivelse: null,
       },
     ],
+    organisasjonsnummer: null,
   },
   kontaktinfo: {
     tiltaksansvarlige: [],
   },
   fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  faneinnhold: null,
+  tiltaksnummer: null,
+  estimertVentetid: null,
 };
 
-export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakEnkeltplass = {
-  type: "TILTAK_ENKELTPLASS",
+export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
   sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Opplæring Fag og Yrke",
   stedForGjennomforing: "Oslo",
@@ -497,13 +527,18 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakEnkeltplass = {
   kontaktinfo: {
     tiltaksansvarlige: [
       {
-        _id: "1",
         navn: "Truls Svendsen",
         epost: "test@example.com",
+        telefon: null,
+        enhet: null,
+        beskrivelse: null,
       },
     ],
   },
   fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  faneinnhold: null,
 };
 
 export const mockGjennomforinger: VeilederflateTiltak[] = [

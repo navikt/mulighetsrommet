@@ -15,16 +15,7 @@ interface NavEnhet {
     enhetsnummer: string;
     overordnetEnhet: string | null;
     navn: string;
-    type: NavEnhetType;
-}
-
-enum NavEnhetType {
-    LOKAL = 'LOKAL',
-    FYLKE = 'FYLKE',
-    TILTAK = 'TILTAK',
-    ALS = 'ALS',
-    KO = 'KO',
-    ARK = 'ARK'
+    type: string;
 }
 
 interface RegionMap {
@@ -78,7 +69,9 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
     onChange(
       regionMapToNavEnheter({
         ...regionMap,
-        [region.enhetsnummer]: count > 0 ? [] : region.enheter.filter((enhet) => enhet.type == NavEnhetType.LOKAL),
+        // TODO: satt til sjekk direkte med "LOKAL" for å gjøre det enklere (på kort sikt)
+        //       det er mu logikk rundt nav-enheter som trenger en overhaling...
+        [region.enhetsnummer]: count > 0 ? [] : region.enheter.filter((enhet) => enhet.type == "LOKAL"),
       }),
     );
   }
