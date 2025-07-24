@@ -6,12 +6,10 @@ import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
   AvtaleDto,
   Avtaletype,
-  NavAnsatt,
   OpsjonsmodellType,
   OpsjonStatus,
   Prismodell,
   Tiltakskode,
-  TiltakstypeDto,
   Toggles,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
@@ -26,15 +24,17 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 
 interface Props {
-  tiltakstyper: TiltakstypeDto[];
-  ansatt: NavAnsatt;
   avtale: AvtaleDto;
 }
 
-export function AvtaleFormDetaljer({ tiltakstyper, ansatt, avtale }: Props) {
+export function AvtaleFormDetaljer({ avtale }: Props) {
   const { data: administratorer } = useAvtaleAdministratorer();
+  const { data: ansatt } = useHentAnsatt();
+  const { data: tiltakstyper } = useTiltakstyper();
 
   const {
     register,
@@ -104,7 +104,6 @@ export function AvtaleFormDetaljer({ tiltakstyper, ansatt, avtale }: Props) {
             {...register("navn")}
           />
         </FormGroup>
-
         <FormGroup>
           <HGrid align="start" gap="4" columns={2}>
             <TextField

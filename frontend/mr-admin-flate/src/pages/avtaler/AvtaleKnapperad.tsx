@@ -7,24 +7,25 @@ import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { AvtaleDto, NavAnsatt, Opphav, AvtaleStatus } from "@mr/api-client-v2";
+import { AvtaleDto, Opphav, AvtaleStatus } from "@mr/api-client-v2";
 import { useRef } from "react";
 import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useSetAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 
 interface Props {
-  ansatt: NavAnsatt;
   avtale: AvtaleDto;
 }
 
-export function AvtaleKnapperad({ ansatt, avtale }: Props) {
+export function AvtaleKnapperad({ avtale }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
   const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
+  const { data: ansatt } = useHentAnsatt();
 
   function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
     return !!avtale.opsjonsmodell.opsjonMaksVarighet;

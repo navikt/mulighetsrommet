@@ -1,5 +1,10 @@
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
-import { AvtaleFormValues, AvtaleFormInput, avtaleFormSchema } from "@/schemas/avtale";
+import {
+  AvtaleFormValues,
+  AvtaleFormInput,
+  avtaleFormSchema,
+  defaultAvtaleData,
+} from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AvtaleDto,
@@ -12,23 +17,27 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { inneholderUrl } from "@/utils/Utils";
 import { useNavigate } from "react-router";
 import { useCallback } from "react";
-import { DeepPartial, FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@/api/QueryKeys";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 
 interface Props {
-  onSuccess: (id: string) => void;
   avtale: AvtaleDto;
-  defaultValues: DeepPartial<AvtaleFormValues>;
   children: React.ReactNode;
 }
 
-export function RedigerAvtaleContainer({ onSuccess, avtale, defaultValues, children }: Props) {
+export function RedigerAvtaleContainer({ avtale, children }: Props) {
   const mutation = useUpsertAvtale();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { data: ansatt } = useHentAnsatt();
+
   const methods = useForm<AvtaleFormInput, any, AvtaleFormValues>({
     resolver: zodResolver(avtaleFormSchema),
-    defaultValues,
+    defaultValues: defaultAvtaleData(ansatt, avtale),
   });
   const redigeringsModus = avtale ? inneholderUrl(avtale.id) : false;
 
@@ -62,17 +71,19 @@ export function RedigerAvtaleContainer({ onSuccess, avtale, defaultValues, child
     };
 
     mutation.mutate(requestBody, {
-      onSuccess: handleSuccess,
+      onSuccess: (dto: { data: AvtaleDto }) => {
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.avtale(avtale?.id),
+          refetchType: "all",
+        });
+        navigate(`/avtaler/${dto.data.id}`);
+      },
       onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
     });
   };
 
-  const handleSuccess = useCallback(
-    (dto: { data: AvtaleDto }) => onSuccess(dto.data.id),
-    [onSuccess],
-  );
   const handleValidationError = useCallback(
     (validation: ValidationError) => {
       validation.errors.forEach((error) => {

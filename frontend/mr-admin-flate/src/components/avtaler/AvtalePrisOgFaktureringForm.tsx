@@ -10,7 +10,6 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { EmbeddedTiltakstype, Prismodell, PrismodellDto, Tiltakskode } from "@mr/api-client-v2";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -21,6 +20,7 @@ import { useEffect } from "react";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 interface AvtalPrisOgFaktureringProps {
   tiltakstype?: EmbeddedTiltakstype;
@@ -58,7 +58,7 @@ function SelectPrismodell({ prismodeller }: SelectPrismodellProps) {
     register,
     formState: { errors },
     setValue,
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<AvtaleFormValues>();
 
   const preselectPrismodell: false | Prismodell = prismodeller.length === 1 && prismodeller[0].type;
 
@@ -85,7 +85,7 @@ function SelectPrismodell({ prismodeller }: SelectPrismodellProps) {
 }
 
 function PrismodellDetaljerForm({ tiltakstype }: Required<AvtalPrisOgFaktureringProps>) {
-  const { watch } = useFormContext<InferredAvtaleSchema>();
+  const { watch } = useFormContext<AvtaleFormValues>();
 
   const prismodell = watch("prismodell");
 
@@ -163,14 +163,15 @@ function AvtalteSatser() {
     register,
     watch,
     formState: { errors },
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<AvtaleFormValues>();
 
   const { fields, append, remove } = useFieldArray({
     name: "satser",
     control,
   });
 
-  const { startDato, sluttDato } = watch("startOgSluttDato");
+  const startDato = watch("startDato");
+  const sluttDato = watch("sluttDato");
 
   return (
     <VStack gap="4">
@@ -249,7 +250,7 @@ function Prisbetingelser() {
   const {
     register,
     formState: { errors },
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<AvtaleFormValues>();
 
   return (
     <Textarea
