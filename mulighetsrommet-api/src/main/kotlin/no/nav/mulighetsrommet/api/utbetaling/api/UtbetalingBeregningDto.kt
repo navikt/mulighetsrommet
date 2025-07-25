@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.utbetaling.PersonEnhetOgRegion
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
@@ -28,7 +29,7 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Pris per månedsverk"
 
         companion object {
-            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
+            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
                 columns = manedsverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
                     manedsverkDeltakelseRow(deltakelse.faktor, sats, person)
@@ -54,7 +55,7 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            private fun manedsverkDeltakelseRow(manedsverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
+            private fun manedsverkDeltakelseRow(manedsverk: Double, sats: Int, person: PersonEnhetOgRegion?) = Fri.friDeltakelseRow(person).plus(
                 mapOf(
                     "manedsverk" to JsonPrimitive(manedsverk),
                     "belop" to JsonPrimitive(sats.toDouble() * manedsverk),
@@ -75,7 +76,7 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Pris per ukesverk"
 
         companion object {
-            fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>, sats: Int) = DataDrivenTableDto(
+            fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
                 columns = ukesverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
                     ukesverkDeltakelseRow(deltakelse.faktor, sats, person)
@@ -101,7 +102,7 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            private fun ukesverkDeltakelseRow(ukesverk: Double, sats: Int, person: Person?) = Fri.friDeltakelseRow(person).plus(
+            private fun ukesverkDeltakelseRow(ukesverk: Double, sats: Int, person: PersonEnhetOgRegion?) = Fri.friDeltakelseRow(person).plus(
                 mapOf(
                     "ukesverk" to JsonPrimitive(ukesverk),
                     "belop" to JsonPrimitive(sats.toDouble() * ukesverk),
@@ -120,7 +121,7 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Annen avtalt pris"
 
         companion object {
-            fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>) = DataDrivenTableDto(
+            fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>) = DataDrivenTableDto(
                 columns = friDeltakelseColumns(),
                 rows = deltakelsePersoner.map {
                     friDeltakelseRow(it.second)
@@ -146,18 +147,18 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            fun friDeltakelseRow(person: Person?) = mapOf<String, JsonElement>(
-                "navn" to JsonPrimitive(person?.navn),
+            fun friDeltakelseRow(person: PersonEnhetOgRegion?) = mapOf<String, JsonElement>(
+                "navn" to JsonPrimitive(person?.person?.navn),
                 "geografiskEnhet" to JsonPrimitive(person?.geografiskEnhet?.navn),
                 "region" to JsonPrimitive(person?.region?.navn),
-                "foedselsdato" to JsonPrimitive(person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat()),
+                "foedselsdato" to JsonPrimitive(person?.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat()),
             )
         }
     }
     companion object {
         fun from(
             utbetaling: Utbetaling,
-            deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, Person?>>,
+            deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>,
             regioner: List<NavEnhetService.NavRegionDto>,
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {

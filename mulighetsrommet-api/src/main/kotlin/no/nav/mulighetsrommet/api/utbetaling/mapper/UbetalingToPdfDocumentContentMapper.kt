@@ -127,7 +127,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrFlateU
             entry("Utbetalingsperiode", "$start - $slutt")
 
             when (utbetaling.beregning) {
-                is ArrFlateBeregning.Fri -> null
+                is ArrFlateBeregning.Fri -> Unit
 
                 is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder ->
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
@@ -229,7 +229,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
                             deltakelse.person?.navn,
                         ),
                         TableBlock.Table.Cell(
-                            deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                            deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
                         ),
                         TableBlock.Table.Cell(
                             periode.start.formaterDatoTilEuropeiskDatoformat(),
@@ -264,7 +264,7 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
                         deltakelse.person?.navn,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
                     ),
                     TableBlock.Table.Cell(
                         deltakelse.periodeStartDato.formaterDatoTilEuropeiskDatoformat(),
@@ -295,7 +295,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
                         deltakelse.person?.navn,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.person?.fodselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
                     ),
                     TableBlock.Table.Cell(
                         deltakelse.faktor.toString(),

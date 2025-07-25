@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.buildRegionList
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -541,18 +542,34 @@ class UtbetalingService(
             .filter { it.id in utbetaling.beregning.output.deltakelser.map { it.deltakelseId } }
             .associate { it.id to it.norskIdent }
 
-        val personer = personService.getPersoner(norskIdentById.values.mapNotNull { it })
+        val personerOgGeografiskEnhet = personService.getPersonerMedGeografiskEnhet(norskIdentById.values.mapNotNull { it })
+            .map {
+                val geografiskEnhet = it.second?.let { hentEnhet(it) }
+                PersonEnhetOgRegion(
+                    person = it.first,
+                    geografiskEnhet = geografiskEnhet,
+                    region = geografiskEnhet?.overordnetEnhet?.let { hentEnhet(it) },
+                )
+            }
+            .associateBy { it.person.norskIdent }
+
         val regioner = buildRegionList(
-            personer.mapNotNull { it.value.geografiskEnhet } + personer.mapNotNull { it.value.region },
+            personerOgGeografiskEnhet
+                .map { listOfNotNull(it.value.geografiskEnhet, it.value.region) }
+                .flatten(),
         )
 
         val deltakelsePersoner = utbetaling.beregning.output.deltakelser.map {
             val norskIdent = norskIdentById.getValue(it.deltakelseId)
-            val person = norskIdent?.let { personer.getValue(norskIdent) }
+            val person = norskIdent?.let { personerOgGeografiskEnhet.getValue(norskIdent) }
             it to person
         }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
+    }
+
+    private fun QueryContext.hentEnhet(enhetNummer: NavEnhetNummer): NavEnhetDbo? {
+        return queries.enhet.get(enhetNummer)
     }
 
     fun avbrytUtbetaling(
@@ -581,3 +598,9 @@ class UtbetalingService(
         logEndring("Utbetalingen ble avbrutt", getOrError(id), agent).right()
     }
 }
+
+data class PersonEnhetOgRegion(
+    val person: Person,
+    val geografiskEnhet: NavEnhetDbo?,
+    val region: NavEnhetDbo?,
+)

@@ -36,7 +36,7 @@ data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.caclulateBelopForDeltakelse(manedsverk, input.sats)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(manedsverk, input.sats)
 
             return UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(input, Output(belop, manedsverk))
         }

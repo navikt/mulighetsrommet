@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
@@ -90,7 +91,7 @@ data class ArrFlateUtbetalingDeltakelse(
     val periodeSluttDato: LocalDate,
     val faktor: Double,
     val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
-    val person: UtbetalingDeltakelsePerson?,
+    val person: Person?,
 )
 
 @Serializable

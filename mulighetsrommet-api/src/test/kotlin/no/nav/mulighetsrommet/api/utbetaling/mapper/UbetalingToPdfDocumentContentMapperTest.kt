@@ -6,15 +6,13 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
+import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
@@ -57,10 +55,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = UtbetalingDeltakelsePerson(
+                    person = Person(
                         navn = "Ola Nordmann",
-                        fodselsdato = LocalDate.of(1989, 1, 1),
-                        fodselsaar = 1989,
+                        foedselsdato = LocalDate.of(1989, 1, 1),
+                        norskIdent = NorskIdent("01010199999"),
                     ),
                 ),
                 ArrFlateUtbetalingDeltakelse(
@@ -79,10 +77,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = UtbetalingDeltakelsePerson(
+                    person = Person(
                         navn = "Kari Nordmann",
-                        fodselsdato = LocalDate.of(1989, 1, 1),
-                        fodselsaar = 1989,
+                        foedselsdato = LocalDate.of(1989, 1, 1),
+                        norskIdent = NorskIdent("22010199998"),
                     ),
                 ),
             ),

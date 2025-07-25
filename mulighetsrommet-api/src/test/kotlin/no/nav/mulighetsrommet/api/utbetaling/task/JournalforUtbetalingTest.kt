@@ -89,7 +89,7 @@ class JournalforUtbetalingTest : FunSpec({
     val arrangorFlateSerivce = { db: ApiDatabase ->
         ArrangorFlateService(
             db = db,
-            pdl = mockk(relaxed = true),
+            personService = mockk(relaxed = true),
             kontoregisterOrganisasjonClient = mockk(relaxed = true),
         )
     }

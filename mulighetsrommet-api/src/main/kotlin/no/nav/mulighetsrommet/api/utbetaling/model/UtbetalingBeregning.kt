@@ -79,12 +79,12 @@ object UtbetalingBeregningHelpers {
     /**
      * Presisjon underveis for å oppnå en god beregning av totalbeløpet.
      */
-    const val CALCULATION_PRECISION = 20
+    private const val CALCULATION_PRECISION = 20
 
     /**
      * Presisjon for den delen av beregningen som blir med i output og tilgjengelig for innsyn, test, etc.
      */
-    const val OUTPUT_PRECISION = 5
+    private const val OUTPUT_PRECISION = 5
 
     fun calculateManedsverkForDeltakelsesprosent(
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
@@ -157,7 +157,7 @@ object UtbetalingBeregningHelpers {
         return days.divide(BigDecimal(7), CALCULATION_PRECISION, RoundingMode.HALF_UP)
     }
 
-    fun caclulateBelopForDeltakelse(deltakelser: Set<UtbetalingBeregningDeltakelse>, sats: Int): Int {
+    fun calculateBelopForDeltakelse(deltakelser: Set<UtbetalingBeregningDeltakelse>, sats: Int): Int {
         return deltakelser
             .fold(BigDecimal.ZERO) { sum, deltakelse ->
                 sum.add(BigDecimal(deltakelse.faktor))

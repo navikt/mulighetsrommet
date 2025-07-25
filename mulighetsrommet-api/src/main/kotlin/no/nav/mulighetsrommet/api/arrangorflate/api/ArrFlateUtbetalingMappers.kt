@@ -1,17 +1,17 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.model.NorskIdent
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.*
 
 fun mapUtbetalingToArrFlateUtbetaling(
     utbetaling: Utbetaling,
     status: ArrFlateUtbetalingStatus,
-    deltakere: List<Deltaker>,
-    personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelsePerson>,
+    deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>>,
     linjer: List<ArrangorUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrFlateUtbetaling {
@@ -23,15 +23,12 @@ fun mapUtbetalingToArrFlateUtbetaling(
 
         // TODO: forenkle mapping av beregninger som inkluderer deltakelser
         is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
-            val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
             val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
 
             val deltakelser = perioderById.map { (id, deltakelse) ->
-                val deltaker = deltakereById[id]
+                val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
                 val manedsverk = manedsverkById.getValue(id).manedsverk
-                val person =
-                    deltaker?.norskIdent?.let { personerByNorskIdent[it] }
 
                 val forstePeriode = deltakelse.perioder.first()
                 val sistePeriode = deltakelse.perioder.last()
@@ -63,14 +60,12 @@ fun mapUtbetalingToArrFlateUtbetaling(
         }
 
         is UtbetalingBeregningPrisPerManedsverk -> {
-            val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
             val ukesverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
 
             val deltakelser = perioderById.map { (id, deltakelse) ->
-                val deltaker = deltakereById[id]
+                val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
                 val manedsverk = ukesverkById.getValue(id).manedsverk
-                val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
 
                 ArrFlateUtbetalingDeltakelse(
                     id = id,
@@ -100,14 +95,12 @@ fun mapUtbetalingToArrFlateUtbetaling(
         }
 
         is UtbetalingBeregningPrisPerUkesverk -> {
-            val deltakereById = deltakere.associateBy { it.id }
             val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
             val ukesverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
 
             val deltakelser = perioderById.map { (id, deltakelse) ->
-                val deltaker = deltakereById[id]
+                val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
                 val ukesverk = ukesverkById.getValue(id).ukesverk
-                val person = deltaker?.norskIdent?.let { personerByNorskIdent[it] }
 
                 ArrFlateUtbetalingDeltakelse(
                     id = id,
