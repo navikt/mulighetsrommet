@@ -70,7 +70,7 @@ object GjennomforingFixtures {
         sluttDato = Oppfolging1.sluttDato,
         antallPlasser = Oppfolging1.antallPlasser,
         administratorer = listOf(NavIdent("DD1")),
-        navEnheter = setOf(NavEnhetNummer("2990")),
+        navEnheter = setOf(NavEnhetNummer("0400")),
         oppstart = Oppfolging1.oppstart,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),

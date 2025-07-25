@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 
 data class MulighetsrommetTestDomain(
-    val navEnheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+    val navEnheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
     val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
     val arrangorer: List<ArrangorDto> = listOf(
         ArrangorFixtures.hovedenhet,

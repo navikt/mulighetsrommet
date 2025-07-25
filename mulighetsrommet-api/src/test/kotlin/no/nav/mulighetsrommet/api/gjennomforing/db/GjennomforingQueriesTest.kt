@@ -23,9 +23,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.IT
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
@@ -123,7 +123,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("navEnheter crud") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, IT),
+                    navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, Oslo),
                     arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
@@ -153,10 +153,10 @@ class GjennomforingQueriesTest : FunSpec({
                 }
 
                 queries.upsert(
-                    Oppfolging1.copy(navEnheter = setOf(IT.enhetsnummer)),
+                    Oppfolging1.copy(navEnheter = setOf(Oslo.enhetsnummer)),
                 )
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].region shouldBe IT
+                    it.kontorstruktur[0].region shouldBe Oslo
                 }
                 queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
                     it.kontorstruktur[0].kontorer.shouldBeEmpty()
