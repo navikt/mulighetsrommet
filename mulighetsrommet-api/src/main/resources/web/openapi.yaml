@@ -1306,7 +1306,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavRegion"
+                  $ref: "#/components/schemas/NavRegionDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -4155,7 +4155,7 @@ components:
         - enhetsnummer
         - type
 
-    NavRegion:
+    NavRegionDto:
       type: object
       properties:
         enhetsnummer:
@@ -6467,7 +6467,7 @@ components:
         deltakerRegioner:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegion"
+            $ref: "#/components/schemas/NavRegionDto"
         deltakerTableData:
           $ref: "#/components/schemas/DataDrivenTableDto"
         heading:
@@ -6484,7 +6484,7 @@ components:
         deltakerRegioner:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegion"
+            $ref: "#/components/schemas/NavRegionDto"
         deltakerTableData:
           $ref: "#/components/schemas/DataDrivenTableDto"
         sats:
@@ -6505,7 +6505,7 @@ components:
         deltakerRegioner:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegion"
+            $ref: "#/components/schemas/NavRegionDto"
         deltakerTableData:
           $ref: "#/components/schemas/DataDrivenTableDto"
         sats:

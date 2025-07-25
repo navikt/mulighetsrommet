@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { NavEnhetDto, NavRegion } from "@mr/api-client-v2";
+import { NavEnhetDto, NavRegionDto } from "@mr/api-client-v2";
 import { mockEnheter, mockRegioner } from "../../fixtures/mockEnheter";
 
 export const enhetHandlers = [
@@ -7,7 +7,7 @@ export const enhetHandlers = [
     HttpResponse.json(Object.values(mockEnheter)),
   ),
 
-  http.get<PathParams, NavRegion[]>("*/api/v1/intern/nav-enheter/regioner", () =>
+  http.get<PathParams, NavRegionDto[]>("*/api/v1/intern/nav-enheter/regioner", () =>
     HttpResponse.json(Object.values(mockRegioner)),
   ),
 
