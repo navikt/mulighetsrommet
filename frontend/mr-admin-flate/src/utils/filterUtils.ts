@@ -3,7 +3,7 @@ import {
   AvtaleStatus,
   Avtaletype,
   GjennomforingStatus,
-  NavEnhetDto,
+  NavEnhet,
   NavEnhetType,
   TiltakstypeDto,
 } from "@mr/api-client-v2";
@@ -69,7 +69,7 @@ export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [
   },
 ];
 
-export function regionOptions(enheter: NavEnhetDto[]) {
+export function regionOptions(enheter: NavEnhet[]) {
   return enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
     .sort()

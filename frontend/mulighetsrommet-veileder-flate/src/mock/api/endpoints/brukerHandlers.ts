@@ -2,13 +2,14 @@ import { deltakelserAktive } from "@/mock/fixtures/mockDeltakelserAktive";
 import {
   Bruker,
   BrukerVarsel,
-  Deltakelse,
   DeltakelserMelding,
+  Deltakelse,
   GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
   GetDeltakelserForBrukerRequest,
   GetDeltakelserForBrukerResponse,
   Innsatsgruppe,
+  NavEnhetStatus,
   NavEnhetType,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
@@ -35,6 +36,7 @@ export const brukerHandlers = [
             enhetsnummer: "0105",
             overordnetEnhet: "0200",
             type: NavEnhetType.LOKAL,
+            status: NavEnhetStatus.AKTIV,
           },
         ],
         varsler: [BrukerVarsel.LOKAL_OPPFOLGINGSENHET],

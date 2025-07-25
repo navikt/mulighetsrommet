@@ -9,7 +9,7 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
-  NavEnhetDto,
+  NavEnhet,
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
@@ -97,6 +97,15 @@ export function addYear(date: Date, numYears: number): Date {
 }
 
 /**
+ * @deprecated bruk `addDuration(date, {months: number})`
+ */
+export function addMonths(date: Date, numOfMonths: number): Date {
+  const newDate = new Date(date);
+  newDate.setMonth(date.getMonth() + numOfMonths);
+  return newDate;
+}
+
+/**
  * @deprecated Bruk `subDuration(date, {months: number})`
  */
 export function subtractMonths(date: Date, numMonths: number): Date {
@@ -134,7 +143,7 @@ export function max(a: Date, b: Date): Date {
   return a > b ? a : b;
 }
 
-export function sorterPaRegionsnavn(a: { region: NavEnhetDto }, b: { region: NavEnhetDto }) {
+export function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
   return a.region.navn.localeCompare(b.region.navn);
 }
 
@@ -353,6 +362,18 @@ export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeA
 export function isValidationError(error: unknown): error is ValidationError {
   return typeof error === "object" && error !== null && "errors" in error;
 }
+
+export function joinWithCommaAndOg(aarsaker: string[]): string {
+  if (aarsaker.length === 0) return "";
+  if (aarsaker.length === 1) return aarsaker[0];
+  return `${aarsaker.slice(0, -1).join(", ")} og ${aarsaker[aarsaker.length - 1]}`;
+}
+
+export function capitalizeFirstLetter(text: string): string {
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
 export function navnEllerIdent(agent: AgentDto): string {
   switch (agent.type) {
     case "NAV_ANSATT":
@@ -363,6 +384,14 @@ export function navnEllerIdent(agent: AgentDto): string {
       return "Tiltaksarrangør";
   }
 }
+
+export function navnIdentEllerPlaceholder(agent?: AgentDto): string {
+  if (!agent) {
+    return "-";
+  }
+  return navnEllerIdent(agent);
+}
+
 export function utbetalingLinjeCompareFn(linje1: UtbetalingLinje, linje2: UtbetalingLinje): number {
   return linje1.tilsagn.bestillingsnummer.localeCompare(linje2.tilsagn.bestillingsnummer);
 }

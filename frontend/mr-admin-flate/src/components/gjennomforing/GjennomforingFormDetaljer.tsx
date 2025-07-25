@@ -13,7 +13,7 @@ import {
   GjennomforingDto,
   GjennomforingKontaktperson,
   GjennomforingOppstartstype,
-  NavEnhetDto,
+  NavEnhet,
   Tiltakskode,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -47,7 +47,7 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 interface Props {
   gjennomforing?: GjennomforingDto;
   avtale: AvtaleDto;
-  enheter: NavEnhetDto[];
+  enheter: NavEnhet[];
 }
 
 export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Props) {

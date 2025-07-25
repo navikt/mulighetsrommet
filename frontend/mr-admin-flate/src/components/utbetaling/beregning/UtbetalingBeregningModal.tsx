@@ -1,5 +1,5 @@
 import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
-import { NavEnhetDto } from "@mr/api-client-v2";
+import { NavEnhet } from "@mr/api-client-v2";
 import { NavEnhetFilter, useApiSuspenseQuery } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";
@@ -38,7 +38,7 @@ interface BodyProps {
 }
 
 function ModalBody({ utbetalingId }: BodyProps) {
-  const [navEnheter, setNavEnheter] = useState<NavEnhetDto[]>([]);
+  const [navEnheter, setNavEnheter] = useState<NavEnhet[]>([]);
   const { data: beregning } = useApiSuspenseQuery(
     beregningQuery({ navEnheter: navEnheter.map((e) => e.enhetsnummer) }, utbetalingId),
   );

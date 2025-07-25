@@ -1,7 +1,7 @@
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator } from "@/filter/filter-validator";
 import { PAGE_SIZE } from "@/constants";
-import { GjennomforingStatus, NavEnhetDto, SorteringGjennomforinger } from "@mr/api-client-v2";
+import { GjennomforingStatus, NavEnhet, SorteringGjennomforinger } from "@mr/api-client-v2";
 import { z } from "zod";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atom, WritableAtom } from "jotai";
@@ -9,7 +9,7 @@ import { atomFamily } from "jotai/utils";
 
 export const GjennomforingFilterSchema = z.object({
   search: z.string(),
-  navEnheter: z.custom<NavEnhetDto>().array(),
+  navEnheter: z.custom<NavEnhet>().array(),
   tiltakstyper: z.string().array(),
   statuser: z.custom<GjennomforingStatus>().array(),
   sortering: createSorteringProps(z.custom<SorteringGjennomforinger>()),

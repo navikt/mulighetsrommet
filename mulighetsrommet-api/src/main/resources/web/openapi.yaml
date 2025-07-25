@@ -1281,6 +1281,21 @@ paths:
       tags:
         - NavEnheter
       operationId: getEnheter
+      parameters:
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhetStatus"
+          description: Hvilke status skal enheten ha
+        - in: query
+          name: typer
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/NavEnhetType"
+          description: Hvilke typer enheter man spør på
       responses:
         200:
           description: Alle enheter filterert på filter
@@ -1289,7 +1304,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavEnhetDto"
+                  $ref: "#/components/schemas/NavEnhet"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1306,7 +1321,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavRegionDto"
+                  $ref: "#/components/schemas/NavRegion"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1331,7 +1346,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavEnhetDto"
+                  $ref: "#/components/schemas/NavEnhet"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1353,7 +1368,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NavEnhetDto"
+                $ref: "#/components/schemas/NavEnhet"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -3713,7 +3728,7 @@ components:
         enheter:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/NavEnhet"
         fornavn:
           type: string
         manuellStatus:
@@ -4138,7 +4153,7 @@ components:
       required:
         - enhetsnummer
 
-    NavEnhetDto:
+    NavEnhet:
       type: object
       properties:
         enhetsnummer:
@@ -4147,29 +4162,33 @@ components:
           type: [string, "null"]
         navn:
           type: string
+        status:
+          $ref: "#/components/schemas/NavEnhetStatus"
         type:
           $ref: "#/components/schemas/NavEnhetType"
-      required:
-        - navn
-        - overordnetEnhet
-        - enhetsnummer
-        - type
+      required: [navn, overordnetEnhet, enhetsnummer, status, type]
 
-    NavRegionDto:
+    NavRegion:
       type: object
       properties:
         enhetsnummer:
           type: string
         navn:
           type: string
+        status:
+          $ref: "#/components/schemas/NavEnhetStatus"
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
         enheter:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/NavEnhet"
       required:
         - navn
         - enheter
         - enhetsnummer
+        - status
+        - type
 
     AvtaleArrangorHovedenhet:
       type: object
@@ -4700,7 +4719,7 @@ components:
         navn:
           type: string
         enhet:
-          $ref: "#/components/schemas/NavEnhetDto"
+          $ref: "#/components/schemas/NavEnhet"
         telefon:
           type: string
         epost:
@@ -4711,6 +4730,14 @@ components:
         - _id
         - navn
         - epost
+
+    NavEnhetStatus:
+      type: string
+      enum:
+        - UNDER_ETABLERING
+        - AKTIV
+        - UNDER_AVVIKLING
+        - NEDLAGT
 
     NavEnhetType:
       type: string
@@ -5110,11 +5137,11 @@ components:
         type: object
         properties:
           region:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/NavEnhet"
           kontorer:
             type: array
             items:
-              $ref: "#/components/schemas/NavEnhetDto"
+              $ref: "#/components/schemas/NavEnhet"
         required:
           - region
           - kontorer
@@ -5771,7 +5798,7 @@ components:
         belopGjenstaende:
           type: integer
         kostnadssted:
-          $ref: "#/components/schemas/NavEnhetDto"
+          $ref: "#/components/schemas/NavEnhet"
         beregning:
           $ref: "#/components/schemas/TilsagnBeregningDto"
         status:
@@ -6181,7 +6208,7 @@ components:
         kostnadssteder:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/NavEnhet"
         belopUtbetalt:
           type: [number, "null"]
         type:
@@ -6467,7 +6494,7 @@ components:
         deltakerRegioner:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegionDto"
+            $ref: "#/components/schemas/NavRegion"
         deltakerTableData:
           $ref: "#/components/schemas/DataDrivenTableDto"
         heading:
@@ -6484,7 +6511,7 @@ components:
         deltakerRegioner:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegionDto"
+            $ref: "#/components/schemas/NavRegion"
         deltakerTableData:
           $ref: "#/components/schemas/DataDrivenTableDto"
         sats:
@@ -6505,7 +6532,7 @@ components:
         deltakerRegioner:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegionDto"
+            $ref: "#/components/schemas/NavRegion"
         deltakerTableData:
           $ref: "#/components/schemas/DataDrivenTableDto"
         sats:
