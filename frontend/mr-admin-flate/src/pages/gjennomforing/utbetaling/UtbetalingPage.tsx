@@ -99,7 +99,7 @@ export function UtbetalingPage() {
               {utbetaling.status.type === "AVBRUTT" && (
                 <AarsakerOgForklaring
                   heading="Utbetaling avbrutt"
-                  tekster={[`Tidspunkt ${formaterDato(utbetaling.status.tidspunkt)}`]}
+                  tekster={[`Dato ${formaterDato(utbetaling.status.tidspunkt)}`]}
                   aarsaker={utbetaling.status.aarsaker}
                   forklaring={utbetaling.status.forklaring}
                 />
