@@ -19,7 +19,10 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -105,7 +108,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
         beforeEach {
             MulighetsrommetTestDomain(
-                navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.IPS),
                 avtaler = listOf(),
             ).initialize(database.db)
@@ -168,7 +171,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
         beforeEach {
             MulighetsrommetTestDomain(
-                navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
             ).initialize(database.db)
@@ -214,7 +217,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 navEnheter = listOf(
-                    NavEnhetFixtures.IT,
                     NavEnhetFixtures.Innlandet,
                     NavEnhetFixtures.Gjovik,
                     NavEnhetFixtures.Oslo,
@@ -274,7 +276,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 navEnheter = listOf(
-                    NavEnhetFixtures.IT,
                     NavEnhetFixtures.Innlandet,
                     NavEnhetFixtures.Gjovik,
                     NavEnhetFixtures.Oslo,
@@ -315,9 +316,11 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             database.run {
-                queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
-                    tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                    aarsak = AvbruttAarsak.EndringHosArrangor,
+                queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status.shouldBe(
+                    GjennomforingStatusDto.Avbrutt(
+                        tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                        aarsak = AvbruttAarsak.EndringHosArrangor,
+                    ),
                 )
             }
         }
@@ -326,7 +329,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val gjennomforing1 = GjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
-                navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),

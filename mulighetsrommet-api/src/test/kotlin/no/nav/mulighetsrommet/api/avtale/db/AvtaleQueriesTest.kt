@@ -13,16 +13,10 @@ import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.IT
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
@@ -234,12 +228,12 @@ class AvtaleQueriesTest : FunSpec({
 
         test("Nav-enheter uten overordnet enhet hentes med riktig kontorstruktur") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                navEnheter = listOf(Innlandet.enhetsnummer, IT.enhetsnummer, Gjovik.enhetsnummer),
+                navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Oslo.enhetsnummer),
             )
 
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    navEnheter = listOf(Innlandet, IT, Gjovik),
+                    navEnheter = listOf(Innlandet, Oslo, Gjovik),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
                 ).setup(session)
@@ -253,7 +247,7 @@ class AvtaleQueriesTest : FunSpec({
                             kontorer = listOf(Gjovik),
                         ),
                         Kontorstruktur(
-                            region = IT,
+                            region = Oslo,
                             kontorer = emptyList(),
                         ),
                     )
