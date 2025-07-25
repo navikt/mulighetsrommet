@@ -109,7 +109,6 @@ export const mockEnheter: {
 export const mockRegioner: NavRegion[] = [
   {
     navn: "Nav Oslo",
-    type: NavEnhetType.FYLKE,
     enhetsnummer: "0300",
     enheter: [
       mockEnheter._0313,
@@ -121,7 +120,6 @@ export const mockRegioner: NavRegion[] = [
   },
   {
     navn: "Nav Innlandet",
-    type: NavEnhetType.FYLKE,
     enhetsnummer: "0400",
     enheter: [
       mockEnheter._0425,
@@ -134,7 +132,6 @@ export const mockRegioner: NavRegion[] = [
   },
   {
     navn: "Nav Øst-Viken",
-    type: NavEnhetType.FYLKE,
     enhetsnummer: "0200",
     enheter: [mockEnheter._0106, mockEnheter._0105],
   },

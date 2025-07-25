@@ -77,7 +77,6 @@ fun buildRegionList(enheter: List<NavEnhetDto>): List<NavRegionDto> {
             NavRegionDto(
                 enhetsnummer = region.enhetsnummer,
                 navn = region.navn,
-                type = region.type,
                 enheter = enheter
                     .filter { it.overordnetEnhet == region.enhetsnummer }
                     .toSet()

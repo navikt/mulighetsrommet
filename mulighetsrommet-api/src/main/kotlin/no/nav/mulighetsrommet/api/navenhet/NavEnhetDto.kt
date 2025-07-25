@@ -25,6 +25,5 @@ data class NavEnhetDto(
 data class NavRegionDto(
     val enhetsnummer: NavEnhetNummer,
     val navn: String,
-    val type: NavEnhetType,
     val enheter: List<NavEnhetDto>,
 )

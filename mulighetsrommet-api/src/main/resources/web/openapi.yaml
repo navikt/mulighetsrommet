@@ -4170,8 +4170,6 @@ components:
           type: string
         navn:
           type: string
-        type:
-          $ref: "#/components/schemas/NavEnhetType"
         enheter:
           type: array
           items:
@@ -4180,7 +4178,6 @@ components:
         - navn
         - enheter
         - enhetsnummer
-        - type
 
     AvtaleArrangorHovedenhet:
       type: object
