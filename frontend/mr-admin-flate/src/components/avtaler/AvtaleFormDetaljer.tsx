@@ -8,7 +8,7 @@ import {
   AvtaleDto,
   Avtaletype,
   NavAnsatt,
-  NavEnhet,
+  NavEnhetDto,
   NavEnhetType,
   OpsjonsmodellType,
   OpsjonStatus,
@@ -38,7 +38,7 @@ interface Props {
   tiltakstyper: TiltakstypeDto[];
   ansatt: NavAnsatt;
   avtale?: AvtaleDto;
-  enheter: NavEnhet[];
+  enheter: NavEnhetDto[];
   okonomiTabEnabled?: boolean;
 }
 
@@ -283,8 +283,8 @@ export function AvtaleFormDetaljer({
 }
 
 function velgAlleLokaleUnderenheter(
-  selectedOptions: MultiValue<SelectOption<string>>,
-  enheter: NavEnhet[],
+  selectedOptions: MultiValue<SelectOption>,
+  enheter: NavEnhetDto[],
 ): string[] {
   const regioner = selectedOptions?.map((option) => option.value);
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);

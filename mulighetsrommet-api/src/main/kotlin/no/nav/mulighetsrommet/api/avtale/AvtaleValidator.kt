@@ -10,9 +10,9 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -318,11 +318,11 @@ class AvtaleValidator(
     private fun MutableList<FieldError>.validateNavEnheter(navEnheter: List<NavEnhetNummer>) {
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
-        if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
+        if (!actualNavEnheter.any { it.value.type == NavEnhetType.FYLKE }) {
             add(FieldError.ofPointer("/navRegioner", "Du må velge minst én Nav-region"))
         }
 
-        if (!actualNavEnheter.any { it.value.type != Norg2Type.FYLKE }) {
+        if (!actualNavEnheter.any { it.value.type != NavEnhetType.FYLKE }) {
             add(FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet"))
         }
 
@@ -331,10 +331,10 @@ class AvtaleValidator(
         }
     }
 
-    private fun resolveNavEnheter(enhetsnummer: List<NavEnhetNummer>): Map<NavEnhetNummer, NavEnhetDbo> {
+    private fun resolveNavEnheter(enhetsnummer: List<NavEnhetNummer>): Map<NavEnhetNummer, NavEnhetDto> {
         val navEnheter = enhetsnummer.mapNotNull { navEnheterService.hentEnhet(it) }
         return navEnheter
-            .filter { it.type == Norg2Type.FYLKE }
+            .filter { it.type == NavEnhetType.FYLKE }
             .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
             .associateBy { it.enhetsnummer }
     }

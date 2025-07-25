@@ -1,7 +1,6 @@
 import {
   Besluttelse,
   DelutbetalingStatus,
-  NavEnhetStatus,
   NavEnhetType,
   TilsagnStatus,
   TilsagnType,
@@ -153,7 +152,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
         overordnetEnhet: null,
-        status: NavEnhetStatus.AKTIV,
         type: NavEnhetType.TILTAK,
       },
       beregning: {
@@ -196,7 +194,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
         overordnetEnhet: null,
-        status: NavEnhetStatus.AKTIV,
         type: NavEnhetType.TILTAK,
       },
       beregning: {
@@ -246,7 +243,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
         overordnetEnhet: null,
-        status: NavEnhetStatus.AKTIV,
         type: NavEnhetType.TILTAK,
       },
       beregning: {
@@ -297,7 +293,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
         overordnetEnhet: null,
-        status: NavEnhetStatus.AKTIV,
         type: NavEnhetType.TILTAK,
       },
       beregning: {
@@ -341,7 +336,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
         overordnetEnhet: null,
-        status: NavEnhetStatus.AKTIV,
         type: NavEnhetType.TILTAK,
       },
       beregning: {
@@ -394,7 +388,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
         overordnetEnhet: null,
-        status: NavEnhetStatus.AKTIV,
         type: NavEnhetType.TILTAK,
       },
       beregning: {

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDate
@@ -28,6 +28,6 @@ data class Person(
     val norskIdent: NorskIdent,
     val foedselsdato: LocalDate?,
     val navn: String,
-    val geografiskEnhet: NavEnhetDbo?,
-    val region: NavEnhetDbo?,
+    val geografiskEnhet: NavEnhetDto?,
+    val region: NavEnhetDto?,
 )

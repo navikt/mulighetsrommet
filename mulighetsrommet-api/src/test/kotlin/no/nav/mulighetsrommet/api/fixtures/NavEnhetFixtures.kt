@@ -13,13 +13,6 @@ object NavEnhetFixtures {
         type = Norg2Type.DIR,
         overordnetEnhet = null,
     )
-    val ITAvdelingen = NavEnhetDbo(
-        navn = "IT-avdelinger",
-        enhetsnummer = NavEnhetNummer("2910"),
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.IT,
-        overordnetEnhet = null,
-    )
     val Innlandet = NavEnhetDbo(
         navn = "Nav Innlandet",
         enhetsnummer = NavEnhetNummer("0400"),
