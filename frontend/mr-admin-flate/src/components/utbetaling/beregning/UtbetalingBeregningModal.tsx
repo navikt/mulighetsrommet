@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";
 import { beregningQuery } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import UtbetalingBeregning from "./UtbetalingBeregning";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 
 interface Props {
   modalOpen: boolean;
@@ -38,6 +39,7 @@ interface BodyProps {
 }
 
 function ModalBody({ utbetalingId }: BodyProps) {
+  const { data: enheter } = useNavEnheter();
   const [navEnheter, setNavEnheter] = useState<NavEnhetDto[]>([]);
   const { data: beregning } = useApiSuspenseQuery(
     beregningQuery({ navEnheter: navEnheter.map((e) => e.enhetsnummer) }, utbetalingId),
@@ -49,13 +51,11 @@ function ModalBody({ utbetalingId }: BodyProps) {
         <VStack>
           <NavEnhetFilter
             value={navEnheter}
-            onChange={(enheter) =>
-              setNavEnheter(
-                beregning.deltakerRegioner
-                  .flatMap((region) => region.enheter)
-                  .filter((enhet) => enheter.includes(enhet.enhetsnummer)),
-              )
-            }
+            onChange={(navEnheter) => {
+              return setNavEnheter(
+                enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
+              );
+            }}
             regioner={beregning.deltakerRegioner}
           />
         </VStack>

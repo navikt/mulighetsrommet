@@ -1,10 +1,33 @@
 package no.nav.mulighetsrommet.api.navenhet
 
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object NavEnhetHelpers {
+    fun buildNavRegioner(enheter: List<NavEnhetDto>): List<NavRegionDto> {
+        return enheter
+            .filter { it.type == NavEnhetType.FYLKE }
+            .toSet()
+            .map { region ->
+                val underliggendeEnheter = enheter
+                    .filter { it.overordnetEnhet == region.enhetsnummer }
+                    .mapNotNull {
+                        NavRegionUnderenhetDto(
+                            navn = it.navn,
+                            enhetsnummer = it.enhetsnummer,
+                            overordnetEnhet = it.overordnetEnhet ?: return@mapNotNull null,
+                            erStandardvalg = it.type == NavEnhetType.LOKAL,
+                        )
+                    }
+                    .sortedByDescending { it.erStandardvalg }
+
+                NavRegionDto(
+                    enhetsnummer = region.enhetsnummer,
+                    navn = region.navn,
+                    enheter = underliggendeEnheter,
+                )
+            }
+    }
+
     fun erGeografiskEnhet(type: NavEnhetType): Boolean {
         return type == NavEnhetType.FYLKE || type == NavEnhetType.LOKAL
     }

@@ -4165,11 +4165,28 @@ components:
         enheter:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/NavRegionUnderenhetDto"
       required:
         - navn
-        - enheter
         - enhetsnummer
+        - enheter
+
+    NavRegionUnderenhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        overordnetEnhet:
+          type: string
+        erStandardvalg:
+          type: boolean
+      required:
+        - navn
+        - enhetsnummer
+        - overordnetEnhet
+        - erStandardvalg
 
     AvtaleArrangorHovedenhet:
       type: object

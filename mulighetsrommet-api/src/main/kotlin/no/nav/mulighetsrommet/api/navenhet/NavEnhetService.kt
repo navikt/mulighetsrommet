@@ -57,7 +57,7 @@ class NavEnhetService(
         val alleEnheter = hentAlleEnheter(relevanteEnheter)
             .filter { NavEnhetHelpers.erGeografiskEnhet(it.type) || NavEnhetHelpers.erSpesialenhetSomKanVelgesIModia(it.enhetsnummer) }
 
-        return buildRegionList(alleEnheter)
+        return NavEnhetHelpers.buildNavRegioner(alleEnheter)
     }
 
     fun hentKostnadssted(regioner: List<NavEnhetNummer>): List<NavEnhetDto> = db.session {
@@ -67,23 +67,6 @@ class NavEnhetService(
     private fun QueryContext.getNavEnhetDto(enhetsnummer: NavEnhetNummer): NavEnhetDto? {
         return queries.enhet.get(enhetsnummer)?.let { toNavEnhetDto(it) }
     }
-}
-
-fun buildRegionList(enheter: List<NavEnhetDto>): List<NavRegionDto> {
-    return enheter
-        .filter { it.type == NavEnhetType.FYLKE }
-        .toSet()
-        .map { region ->
-            NavRegionDto(
-                enhetsnummer = region.enhetsnummer,
-                navn = region.navn,
-                enheter = enheter
-                    .filter { it.overordnetEnhet == region.enhetsnummer }
-                    .toSet()
-                    // K er før L så egne ansatte (som er KO) legger seg nederst (med desc)
-                    .sortedByDescending { it.type },
-            )
-        }
 }
 
 private fun toNavEnhetDto(dbo: NavEnhetDbo) = NavEnhetDto(

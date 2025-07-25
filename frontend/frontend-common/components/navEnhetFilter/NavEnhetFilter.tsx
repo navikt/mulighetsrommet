@@ -5,26 +5,23 @@ import { useState } from "react";
 import styles from "./NavEnhetFilter.module.scss";
 import { addOrRemove } from "../../utils/utils";
 
-interface NavRegionDto {
-    enhetsnummer: string;
-    navn: string;
-    enheter: Array<NavEnhet>;
+interface NavRegion {
+  enhetsnummer: string;
+  navn: string;
+  enheter: Array<NavRegionUnderenhet>;
+}
+
+interface NavRegionUnderenhet {
+  navn: string;
+  enhetsnummer: string;
+  overordnetEnhet: string;
+  erStandardvalg: boolean;
 }
 
 interface NavEnhet {
-    enhetsnummer: string;
-    overordnetEnhet: string | null;
-    navn: string;
-    type: NavEnhetType;
-}
-
-enum NavEnhetType {
-    LOKAL = 'LOKAL',
-    FYLKE = 'FYLKE',
-    TILTAK = 'TILTAK',
-    ALS = 'ALS',
-    KO = 'KO',
-    ARK = 'ARK'
+  navn: string;
+  enhetsnummer: string;
+  overordnetEnhet: string | null;
 }
 
 interface RegionMap {
@@ -34,7 +31,7 @@ interface RegionMap {
 interface Props {
   value: NavEnhet[];
   onChange: (navEnheter: string[]) => void;
-  regioner: NavRegionDto[];
+  regioner: NavRegion[];
 }
 
 export function NavEnhetFilter({ value, onChange, regioner }: Props) {
@@ -42,7 +39,9 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
 
   function regionMapToNavEnheter(regionMap: RegionMap): string[] {
-    return Array.from(Object.values(regionMap)).flat(1).map(e => e.enhetsnummer);
+    return Array.from(Object.values(regionMap))
+      .flat(1)
+      .map((e) => e.enhetsnummer);
   }
 
   function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
@@ -59,43 +58,44 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
     return map;
   }
 
-  function underenhetCount(region: NavRegionDto): number {
+  function underenhetCount(region: NavRegion): number {
     return regionMap[region.enhetsnummer]?.length ?? 0;
   }
 
-  function regionIsIndeterminate(region: NavRegionDto): boolean {
+  function regionIsIndeterminate(region: NavRegion): boolean {
     const count = underenhetCount(region);
     return count > 0 && count < region.enheter.length;
   }
 
-  function regionIsChecked(region: NavRegionDto): boolean {
+  function regionIsChecked(region: NavRegion): boolean {
     return underenhetCount(region) === region.enheter.length;
   }
 
-  function regionOnChange(region: NavRegionDto) {
+  function regionOnChange(region: NavRegion) {
     const count = underenhetCount(region);
 
+    const underenheter = count > 0 ? [] : region.enheter.filter((enhet) => enhet.erStandardvalg);
     onChange(
       regionMapToNavEnheter({
         ...regionMap,
-        [region.enhetsnummer]: count > 0 ? [] : region.enheter.filter((enhet) => enhet.type == NavEnhetType.LOKAL),
+        [region.enhetsnummer]: underenheter,
       }),
     );
   }
 
-  function underenhetIsChecked(enhet: NavEnhet, region: NavRegionDto): boolean {
+  function underenhetIsChecked(enhet: NavEnhet, region: NavRegion): boolean {
     return (regionMap[region.enhetsnummer] ?? []).some(
       (e) => e.enhetsnummer === enhet.enhetsnummer,
     );
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
-    onChange(addOrRemove(value, enhet).map(e => e.enhetsnummer));
+    onChange(addOrRemove(value, enhet).map((e) => e.enhetsnummer));
   }
 
   return (
     <>
-      {regioner?.map((region: NavRegionDto) => (
+      {regioner?.map((region: NavRegion) => (
         <div key={region.enhetsnummer}>
           <div
             className={styles.checkbox_and_caret}

@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.buildRegionList
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
@@ -544,7 +544,7 @@ class UtbetalingService(
             .associate { it.id to it.norskIdent }
 
         val personer = personService.getPersoner(norskIdentById.values.mapNotNull { it })
-        val regioner = buildRegionList(
+        val regioner = NavEnhetHelpers.buildNavRegioner(
             personer.mapNotNull { it.value.geografiskEnhet } + personer.mapNotNull { it.value.region },
         )
 
