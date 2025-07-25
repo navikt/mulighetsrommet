@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.OppfolgingstilfelleError
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
@@ -19,9 +20,10 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
+import no.nav.mulighetsrommet.api.navenhet.NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP
+import no.nav.mulighetsrommet.api.navenhet.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
@@ -160,7 +162,7 @@ class BrukerService(
             erUnderOppfolging = erUnderOppfolging,
             erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
             varsler = buildList {
-                if (erOppfolgingsenhetEnAnnenGeografiskEnhet(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
+                if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
                     add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
                 }
 
@@ -173,7 +175,7 @@ class BrukerService(
         )
     }
 
-    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytning: GeografiskTilknytning): NavEnhetDto? {
+    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
         val norgResult = when (geografiskTilknytning) {
             is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
             is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
@@ -197,7 +199,7 @@ class BrukerService(
     data class Brukerdata(
         val fnr: NorskIdent,
         val innsatsgruppe: Innsatsgruppe?,
-        val enheter: List<NavEnhetDto>,
+        val enheter: List<NavEnhetDbo>,
         val fornavn: String?,
         val manuellStatus: ManuellStatusDto,
         val erUnderOppfolging: Boolean,
@@ -222,25 +224,33 @@ private fun toInnsatsgruppe(innsatsgruppe: InnsatsgruppeV2): Innsatsgruppe {
     }
 }
 
-fun erOppfolgingsenhetEnAnnenGeografiskEnhet(
-    geografiskEnhet: NavEnhetDto?,
-    oppfolgingsenhet: NavEnhetDto?,
+fun oppfolgingsenhetLokalOgUlik(
+    geografiskEnhet: NavEnhetDbo?,
+    oppfolgingsenhet: NavEnhetDbo?,
 ): Boolean {
-    return oppfolgingsenhet?.type != null &&
-        NavEnhetHelpers.erGeografiskEnhet(oppfolgingsenhet.type) &&
-        oppfolgingsenhet.enhetsnummer != geografiskEnhet?.enhetsnummer
+    return oppfolgingsenhet?.type == Norg2Type.LOKAL && oppfolgingsenhet.enhetsnummer != geografiskEnhet?.enhetsnummer
 }
 
 fun getRelevanteEnheterForBruker(
-    geografiskEnhet: NavEnhetDto?,
-    oppfolgingsenhet: NavEnhetDto?,
-): List<NavEnhetDto> {
-    val actualGeografiskEnhet = oppfolgingsenhet
-        ?.takeIf { NavEnhetHelpers.erGeografiskEnhet(it.type) }
-        ?: geografiskEnhet
+    geografiskEnhet: NavEnhetDbo?,
+    oppfolgingsenhet: NavEnhetDbo?,
+): List<NavEnhetDbo> {
+    val actualGeografiskEnhet = if (oppfolgingsenhet?.type == Norg2Type.LOKAL) {
+        oppfolgingsenhet
+    } else {
+        geografiskEnhet
+    }
 
-    val virtuellOppfolgingsenhet = oppfolgingsenhet
-        ?.takeIf { NavEnhetHelpers.erSpesialenhetSomKanVelgesIModia(it.enhetsnummer) }
-
+    val virtuellOppfolgingsenhet = if (
+        oppfolgingsenhet != null &&
+        (
+            NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer.value) ||
+                NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer.value)
+            )
+    ) {
+        oppfolgingsenhet
+    } else {
+        null
+    }
     return listOfNotNull(actualGeografiskEnhet, virtuellOppfolgingsenhet)
 }

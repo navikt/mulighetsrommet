@@ -1,4 +1,4 @@
-import { JoyrideType, LagretFilterType } from "@mr/api-client-v2";
+import { JoyrideType, LagretFilterType, NavEnhetStatus, NavEnhetType } from "@mr/api-client-v2";
 
 export const QueryKeys = {
   Veilederdata: "veilederdata",
@@ -18,6 +18,11 @@ export const QueryKeys = {
     tiltakById: (id: string) => ["gjennomforing", id],
     previewTiltakById: (id: string) => ["gjennomforing", "preview", id],
   },
+  navEnheter: (statuser: NavEnhetStatus[], typer: NavEnhetType[]) => [
+    statuser,
+    typer,
+    "navEnheter",
+  ],
   navRegioner: ["navRegioner"],
   oppskrifter: (tiltakstypeId: string) => [tiltakstypeId, "oppskrifter"],
   harFullfortJoyride: (joyrideType: JoyrideType) => [joyrideType, "joyride"],

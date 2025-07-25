@@ -7,7 +7,7 @@ import {
   AvtaleRequest,
   EmbeddedTiltakstype,
   NavAnsatt,
-  NavEnhetDto,
+  NavEnhet,
   Prismodell,
   Tiltakskode,
   TiltakstypeDto,
@@ -39,7 +39,7 @@ interface Props {
   tiltakstyper: TiltakstypeDto[];
   ansatt: NavAnsatt;
   avtale?: AvtaleDto;
-  enheter: NavEnhetDto[];
+  enheter: NavEnhet[];
   redigeringsModus: boolean;
   defaultValues: DeepPartial<InferredAvtaleSchema>;
 }

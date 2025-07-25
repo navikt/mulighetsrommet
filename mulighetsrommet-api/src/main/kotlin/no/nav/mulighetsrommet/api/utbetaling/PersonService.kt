@@ -3,25 +3,26 @@ package no.nav.mulighetsrommet.api.utbetaling
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.pdl.tilPersonNavn
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Person
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class PersonService(
+    private val db: ApiDatabase,
     private val pdlQuery: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
     private val norg2Client: Norg2Client,
-    private val navEnhetService: NavEnhetService,
 ) {
     suspend fun getPersoner(identer: List<NorskIdent>): Map<NorskIdent, Person> {
         val pdlPersonData = getPdlPersonData(identer)
@@ -38,7 +39,7 @@ class PersonService(
                     navn = if (person.navn.isNotEmpty()) tilPersonNavn(person.navn) else "Ukjent",
                     foedselsdato = if (person.foedselsdato.isNotEmpty()) person.foedselsdato.first().foedselsdato else null,
                     geografiskEnhet = navEnhet,
-                    region = navEnhet?.overordnetEnhet?.let { navEnhetService.hentEnhet(it) },
+                    region = navEnhet?.overordnetEnhet?.let { hentNavEnhet(it) },
                 )
             } else {
                 Person(
@@ -66,7 +67,7 @@ class PersonService(
         }
     }
 
-    private suspend fun hentEnhetForGeografiskTilknytning(geografiskTilknytning: GeografiskTilknytning): NavEnhetDto? {
+    private suspend fun hentEnhetForGeografiskTilknytning(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
         val norgEnhet = when (geografiskTilknytning) {
             is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(
                 geografiskTilknytning.value,
@@ -80,7 +81,7 @@ class PersonService(
         }
 
         return norgEnhet
-            .map { navEnhetService.hentEnhet(it.enhetNr) }
+            .map { hentNavEnhet(it.enhetNr) }
             .getOrElse {
                 when (it) {
                     NorgError.NotFound -> null
@@ -90,5 +91,9 @@ class PersonService(
                     )
                 }
             }
+    }
+
+    private fun hentNavEnhet(enhetsNummer: NavEnhetNummer) = db.session {
+        queries.enhet.get(enhetsNummer)
     }
 }

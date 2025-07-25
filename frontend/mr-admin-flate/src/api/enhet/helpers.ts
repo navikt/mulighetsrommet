@@ -1,26 +1,26 @@
-import { ArenaNavEnhet, NavEnhetDto, NavEnhetType } from "@mr/api-client-v2";
+import { ArenaNavEnhet, NavEnhet, NavEnhetType } from "@mr/api-client-v2";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { MultiValue } from "react-select";
 
-export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet) {
+export function getDisplayName(enhet: NavEnhet | ArenaNavEnhet) {
   const { enhetsnummer, navn } = enhet;
   return navn ? `${enhetsnummer} ${navn}` : enhetsnummer;
 }
 
 function getUnderenheterAsSelectOptionsBy(
   navRegioner: (string | undefined)[],
-  enheter: NavEnhetDto[],
-  predicate: (item: NavEnhetDto) => boolean,
+  enheter: NavEnhet[],
+  predicate: (item: NavEnhet) => boolean,
 ) {
   return enheter
-    .filter((enhet) => {
+    .filter((enhet: NavEnhet) => {
       return (
         enhet.overordnetEnhet != null &&
         navRegioner.includes(enhet?.overordnetEnhet) &&
         predicate(enhet)
       );
     })
-    .map((enhet) => ({
+    .map((enhet: NavEnhet) => ({
       label: enhet.navn,
       value: enhet.enhetsnummer,
     }));
@@ -28,7 +28,7 @@ function getUnderenheterAsSelectOptionsBy(
 
 export function getLokaleUnderenheterAsSelectOptions(
   navRegioner: (string | undefined)[],
-  enheter: NavEnhetDto[],
+  enheter: NavEnhet[],
 ) {
   return getUnderenheterAsSelectOptionsBy(
     navRegioner,
@@ -38,10 +38,9 @@ export function getLokaleUnderenheterAsSelectOptions(
 }
 
 const andreEnheter = [NavEnhetType.KO, NavEnhetType.ARK];
-
 export function getAndreUnderenheterAsSelectOptions(
   navRegioner: (string | undefined)[],
-  enheter: NavEnhetDto[],
+  enheter: NavEnhet[],
 ) {
   return getUnderenheterAsSelectOptionsBy(navRegioner, enheter, (enhet) =>
     andreEnheter.includes(enhet.type),
@@ -50,18 +49,18 @@ export function getAndreUnderenheterAsSelectOptions(
 
 export function velgAlleLokaleUnderenheter(
   selectedOptions: MultiValue<SelectOption<string>>,
-  enheter: NavEnhetDto[],
+  enheter: NavEnhet[],
 ): string[] {
   const regioner = selectedOptions?.map((option) => option.value);
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
 export interface TypeSplittedNavEnheter {
-  navKontorEnheter: NavEnhetDto[];
-  navAndreEnheter: NavEnhetDto[];
+  navKontorEnheter: NavEnhet[];
+  navAndreEnheter: NavEnhet[];
 }
 
-export function splitNavEnheterByType(navEnheter: NavEnhetDto[]): TypeSplittedNavEnheter {
+export function splitNavEnheterByType(navEnheter: NavEnhet[]): TypeSplittedNavEnheter {
   const initial = { navKontorEnheter: [], navAndreEnheter: [] };
   if (!navEnheter.length) {
     return initial;

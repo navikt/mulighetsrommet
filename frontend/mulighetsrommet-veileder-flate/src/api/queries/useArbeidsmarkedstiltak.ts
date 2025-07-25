@@ -4,7 +4,7 @@ import {
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { useApiQuery } from "@mr/frontend-common";
-import { VeilederTiltakService } from "@mr/api-client-v2";
+import { NavEnhet, VeilederTiltakService } from "@mr/api-client-v2";
 
 export function useModiaArbeidsmarkedstiltak() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
@@ -42,7 +42,7 @@ function useGetArbeidsmarkedstiltakFilterAsQuery() {
       search: filter.search || undefined,
       apentForPamelding: filter.apentForPamelding,
       innsatsgruppe: filter.innsatsgruppe?.nokkel,
-      enheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
+      enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
       tiltakstyper,
       erSykmeldtMedArbeidsgiver: filter.erSykmeldtMedArbeidsgiver,
     },

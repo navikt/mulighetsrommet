@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.koin.ktor.ext.inject
@@ -13,18 +14,8 @@ fun Route.navEnhetRoutes() {
 
     route("nav-enheter") {
         get {
-            val defaultFilter = EnhetFilter(
-                statuser = listOf(
-                    NavEnhetStatus.AKTIV,
-                    NavEnhetStatus.UNDER_AVVIKLING,
-                    NavEnhetStatus.UNDER_ETABLERING,
-                ),
-            )
-
-            // TODO: ikke returner _alle_ enheter her, de fleste typene er egentlig ikke relevante i adminflate
-            val enheter = navEnhetService.hentAlleEnheter(defaultFilter)
-
-            call.respond(enheter)
+            val filter = getEnhetFilter()
+            call.respond(navEnhetService.hentAlleEnheter(filter))
         }
 
         get("regioner") {
@@ -50,8 +41,12 @@ fun Route.navEnhetRoutes() {
     }
 }
 
-data class EnhetFilter(
-    val statuser: List<NavEnhetStatus>? = null,
-    val typer: List<NavEnhetType>? = null,
-    val overordnetEnhet: NavEnhetNummer? = null,
-)
+fun RoutingContext.getEnhetFilter(): EnhetFilter {
+    val statuser = call.parameters.getAll("statuser")
+        ?.map { NavEnhetStatus.valueOf(it) }
+
+    val typer = call.parameters.getAll("typer")
+        ?.map { Norg2Type.valueOf(it) }
+
+    return EnhetFilter(statuser = statuser, typer = typer)
+}
