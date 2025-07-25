@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -60,7 +59,6 @@ class BrukerServiceTest : FunSpec({
     val navEgneAnsatteEnhet = NavEnhetDto(
         navn = "Nav egne ansatte Lerkendal",
         enhetsnummer = NavEnhetNummer("1683"),
-        status = NavEnhetStatus.AKTIV,
         type = NavEnhetType.KO,
         overordnetEnhet = NavEnhetNummer("0500"),
     )
@@ -68,7 +66,6 @@ class BrukerServiceTest : FunSpec({
     val navLerkendalEnhet = NavEnhetDto(
         navn = "Nav Lerkendal",
         enhetsnummer = NavEnhetNummer("0501"),
-        status = NavEnhetStatus.AKTIV,
         type = NavEnhetType.LOKAL,
         overordnetEnhet = NavEnhetNummer("0500"),
     )
@@ -76,7 +73,6 @@ class BrukerServiceTest : FunSpec({
     val navVikafossenEnhet = NavEnhetDto(
         navn = "Nav Vikafossen",
         enhetsnummer = NavEnhetNummer("2103"),
-        status = NavEnhetStatus.AKTIV,
         type = NavEnhetType.KO,
         overordnetEnhet = NavEnhetNummer("2100"),
     )
@@ -124,7 +120,6 @@ class BrukerServiceTest : FunSpec({
         coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0106")) } returns NavEnhetDto(
             navn = "Nav Fredrikstad",
             enhetsnummer = NavEnhetNummer("0106"),
-            status = NavEnhetStatus.AKTIV,
             type = NavEnhetType.LOKAL,
             overordnetEnhet = NavEnhetNummer("0100"),
         )
@@ -149,7 +144,6 @@ class BrukerServiceTest : FunSpec({
                         enhetsnummer = NavEnhetNummer("0106"),
                         type = NavEnhetType.LOKAL,
                         overordnetEnhet = NavEnhetNummer("0100"),
-                        status = NavEnhetStatus.AKTIV,
                     ),
                 ),
                 erUnderOppfolging = true,
@@ -200,14 +194,12 @@ class BrukerServiceTest : FunSpec({
                 geografiskEnhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("1234"),
-                    status = NavEnhetStatus.AKTIV,
                     type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("1000"),
                 ),
                 oppfolgingsenhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("4321"),
-                    status = NavEnhetStatus.AKTIV,
                     type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("4000"),
                 ),
@@ -219,14 +211,12 @@ class BrukerServiceTest : FunSpec({
                 geografiskEnhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("1234"),
-                    status = NavEnhetStatus.AKTIV,
                     type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("1000"),
                 ),
                 oppfolgingsenhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("1234"),
-                    status = NavEnhetStatus.AKTIV,
                     type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("1000"),
                 ),

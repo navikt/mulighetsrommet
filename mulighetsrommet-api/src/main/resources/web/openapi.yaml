@@ -1283,13 +1283,6 @@ paths:
       operationId: getEnheter
       parameters:
         - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/NavEnhetStatus"
-          description: Hvilke status skal enheten ha
-        - in: query
           name: typer
           schema:
             type: array
@@ -4162,11 +4155,13 @@ components:
           type: [string, "null"]
         navn:
           type: string
-        status:
-          $ref: "#/components/schemas/NavEnhetStatus"
         type:
           $ref: "#/components/schemas/NavEnhetType"
-      required: [navn, overordnetEnhet, enhetsnummer, status, type]
+      required:
+        - navn
+        - overordnetEnhet
+        - enhetsnummer
+        - type
 
     NavRegion:
       type: object
@@ -4175,8 +4170,6 @@ components:
           type: string
         navn:
           type: string
-        status:
-          $ref: "#/components/schemas/NavEnhetStatus"
         type:
           $ref: "#/components/schemas/NavEnhetType"
         enheter:
@@ -4187,7 +4180,6 @@ components:
         - navn
         - enheter
         - enhetsnummer
-        - status
         - type
 
     AvtaleArrangorHovedenhet:
@@ -4730,14 +4722,6 @@ components:
         - _id
         - navn
         - epost
-
-    NavEnhetStatus:
-      type: string
-      enum:
-        - UNDER_ETABLERING
-        - AKTIV
-        - UNDER_AVVIKLING
-        - NEDLAGT
 
     NavEnhetType:
       type: string

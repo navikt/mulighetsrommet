@@ -13,7 +13,13 @@ fun Route.navEnhetRoutes() {
 
     route("nav-enheter") {
         get {
-            val filter = getEnhetFilter()
+            val typer = call.parameters.getAll("typer")
+                ?.map { NavEnhetType.valueOf(it) }
+
+            val statuser = listOf(NavEnhetStatus.AKTIV, NavEnhetStatus.UNDER_AVVIKLING, NavEnhetStatus.UNDER_ETABLERING)
+
+            val filter = EnhetFilter(statuser = statuser, typer = typer)
+
             call.respond(navEnhetService.hentAlleEnheter(filter))
         }
 
@@ -45,13 +51,3 @@ data class EnhetFilter(
     val typer: List<NavEnhetType>? = null,
     val overordnetEnhet: NavEnhetNummer? = null,
 )
-
-fun RoutingContext.getEnhetFilter(): EnhetFilter {
-    val statuser = call.parameters.getAll("statuser")
-        ?.map { NavEnhetStatus.valueOf(it) }
-
-    val typer = call.parameters.getAll("typer")
-        ?.map { NavEnhetType.valueOf(it) }
-
-    return EnhetFilter(statuser = statuser, typer = typer)
-}

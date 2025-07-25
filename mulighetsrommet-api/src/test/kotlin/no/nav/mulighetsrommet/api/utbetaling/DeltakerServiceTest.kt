@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlNavn
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Person
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
@@ -117,7 +116,6 @@ class DeltakerServiceTest : FunSpec({
     val navInnlandet = NavEnhetDto(
         navn = "Nav Innlandet",
         enhetsnummer = NavEnhetNummer("0400"),
-        status = NavEnhetStatus.AKTIV,
         type = NavEnhetType.FYLKE,
         overordnetEnhet = null,
     )
@@ -126,7 +124,6 @@ class DeltakerServiceTest : FunSpec({
     val navGjovik = NavEnhetDto(
         navn = "Nav Gjøvik",
         enhetsnummer = NavEnhetNummer("0502"),
-        status = NavEnhetStatus.AKTIV,
         type = NavEnhetType.LOKAL,
         overordnetEnhet = NavEnhetNummer("0400"),
     )
