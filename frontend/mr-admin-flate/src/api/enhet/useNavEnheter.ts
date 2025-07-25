@@ -4,7 +4,7 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useNavEnheter() {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.enheter({}),
+    queryKey: QueryKeys.navEnheter(),
 
     queryFn: () => {
       return NavEnheterService.getEnheter();

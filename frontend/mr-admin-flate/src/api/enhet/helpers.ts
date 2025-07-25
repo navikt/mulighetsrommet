@@ -13,14 +13,14 @@ function getUnderenheterAsSelectOptionsBy(
   predicate: (item: NavEnhetDto) => boolean,
 ) {
   return enheter
-    .filter((enhet: NavEnhetDto) => {
+    .filter((enhet) => {
       return (
         enhet.overordnetEnhet != null &&
         navRegioner.includes(enhet?.overordnetEnhet) &&
         predicate(enhet)
       );
     })
-    .map((enhet: NavEnhetDto) => ({
+    .map((enhet) => ({
       label: enhet.navn,
       value: enhet.enhetsnummer,
     }));

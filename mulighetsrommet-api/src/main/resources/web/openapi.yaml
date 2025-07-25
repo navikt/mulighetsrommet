@@ -1281,14 +1281,6 @@ paths:
       tags:
         - NavEnheter
       operationId: getEnheter
-      parameters:
-        - in: query
-          name: typer
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/NavEnhetType"
-          description: Hvilke typer enheter man spør på
       responses:
         200:
           description: Alle enheter filterert på filter

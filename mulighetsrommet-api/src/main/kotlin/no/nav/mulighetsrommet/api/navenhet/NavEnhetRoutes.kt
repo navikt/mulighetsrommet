@@ -13,14 +13,18 @@ fun Route.navEnhetRoutes() {
 
     route("nav-enheter") {
         get {
-            val typer = call.parameters.getAll("typer")
-                ?.map { NavEnhetType.valueOf(it) }
+            val defaultFilter = EnhetFilter(
+                statuser = listOf(
+                    NavEnhetStatus.AKTIV,
+                    NavEnhetStatus.UNDER_AVVIKLING,
+                    NavEnhetStatus.UNDER_ETABLERING,
+                ),
+            )
 
-            val statuser = listOf(NavEnhetStatus.AKTIV, NavEnhetStatus.UNDER_AVVIKLING, NavEnhetStatus.UNDER_ETABLERING)
+            // TODO: ikke returner _alle_ enheter her, de fleste typene er egentlig ikke relevante i adminflate
+            val enheter = navEnhetService.hentAlleEnheter(defaultFilter)
 
-            val filter = EnhetFilter(statuser = statuser, typer = typer)
-
-            call.respond(navEnhetService.hentAlleEnheter(filter))
+            call.respond(enheter)
         }
 
         get("regioner") {
