@@ -5,7 +5,7 @@ import { useState } from "react";
 import styles from "./NavEnhetFilter.module.scss";
 import { addOrRemove } from "../../utils/utils";
 
-interface NavRegion {
+interface NavRegionDto {
     enhetsnummer: string;
     navn: string;
     enheter: Array<NavEnhet>;
@@ -34,7 +34,7 @@ interface RegionMap {
 interface Props {
   value: NavEnhet[];
   onChange: (navEnheter: string[]) => void;
-  regioner: NavRegion[];
+  regioner: NavRegionDto[];
 }
 
 export function NavEnhetFilter({ value, onChange, regioner }: Props) {
@@ -59,20 +59,20 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
     return map;
   }
 
-  function underenhetCount(region: NavRegion): number {
+  function underenhetCount(region: NavRegionDto): number {
     return regionMap[region.enhetsnummer]?.length ?? 0;
   }
 
-  function regionIsIndeterminate(region: NavRegion): boolean {
+  function regionIsIndeterminate(region: NavRegionDto): boolean {
     const count = underenhetCount(region);
     return count > 0 && count < region.enheter.length;
   }
 
-  function regionIsChecked(region: NavRegion): boolean {
+  function regionIsChecked(region: NavRegionDto): boolean {
     return underenhetCount(region) === region.enheter.length;
   }
 
-  function regionOnChange(region: NavRegion) {
+  function regionOnChange(region: NavRegionDto) {
     const count = underenhetCount(region);
 
     onChange(
@@ -83,7 +83,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
     );
   }
 
-  function underenhetIsChecked(enhet: NavEnhet, region: NavRegion): boolean {
+  function underenhetIsChecked(enhet: NavEnhet, region: NavRegionDto): boolean {
     return (regionMap[region.enhetsnummer] ?? []).some(
       (e) => e.enhetsnummer === enhet.enhetsnummer,
     );
@@ -95,7 +95,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
 
   return (
     <>
-      {regioner?.map((region: NavRegion) => (
+      {regioner?.map((region: NavRegionDto) => (
         <div key={region.enhetsnummer}>
           <div
             className={styles.checkbox_and_caret}

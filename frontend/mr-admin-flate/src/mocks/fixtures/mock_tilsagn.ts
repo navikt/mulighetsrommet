@@ -1,10 +1,4 @@
-import {
-  NavEnhetStatus,
-  NavEnhetType,
-  TilsagnDto,
-  TilsagnStatus,
-  TilsagnType,
-} from "@mr/api-client-v2";
+import { NavEnhetType, TilsagnDto, TilsagnStatus, TilsagnType } from "@mr/api-client-v2";
 import { mockAvtaler } from "./mock_avtaler";
 
 export const mockTilsagn: TilsagnDto[] = [
@@ -23,7 +17,6 @@ export const mockTilsagn: TilsagnDto[] = [
       enhetsnummer: "0300",
       navn: "Nav Oslo",
       overordnetEnhet: null,
-      status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
     periode: {
@@ -48,7 +41,6 @@ export const mockTilsagn: TilsagnDto[] = [
       enhetsnummer: "0300",
       navn: "Nav Oslo",
       overordnetEnhet: null,
-      status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
     periode: {
@@ -73,7 +65,6 @@ export const mockTilsagn: TilsagnDto[] = [
       enhetsnummer: "0300",
       navn: "Nav Oslo",
       overordnetEnhet: null,
-      status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
     periode: {
@@ -98,7 +89,6 @@ export const mockTilsagn: TilsagnDto[] = [
       enhetsnummer: "0300",
       navn: "Nav Oslo",
       overordnetEnhet: null,
-      status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
     periode: {
@@ -123,7 +113,6 @@ export const mockTilsagn: TilsagnDto[] = [
       enhetsnummer: "0300",
       navn: "Nav Oslo",
       overordnetEnhet: null,
-      status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
     },
     periode: {

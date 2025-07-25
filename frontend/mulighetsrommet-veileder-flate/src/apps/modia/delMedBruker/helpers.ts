@@ -1,5 +1,5 @@
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Bruker, NavEnhet, VeilederflateTiltak } from "@mr/api-client-v2";
+import { Bruker, VeilederflateTiltak } from "@mr/api-client-v2";
 
 export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,
@@ -9,7 +9,7 @@ export function brukersEnhetFilterHasChanged(
 
   return (
     bruker.enheter
-      .map((enhet: NavEnhet) => enhet.enhetsnummer)
+      .map((enhet) => enhet.enhetsnummer)
       .sort()
       .join(",") !== filter.navEnheter.sort().join(",")
   );
