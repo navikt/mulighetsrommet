@@ -1,7 +1,7 @@
 import { useModiaContext } from "./useModiaContext";
 import { QueryKeys } from "@/api/query-keys";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { BrukerService } from "@mr/api-client-v2";
+import { BrukerService } from "@api-client";
 
 export function useBrukerdata() {
   const { fnr: norskIdent } = useModiaContext();

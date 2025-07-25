@@ -233,7 +233,7 @@ private fun Row.toGruppetiltakDeltakelse() = Tiltakshistorikk.GruppetiltakDeltak
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
     status = DeltakerStatus(
-        type = DeltakerStatus.Type.valueOf(string("status_type")),
+        type = DeltakerStatus.DeltakerStatusType.valueOf(string("status_type")),
         aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
             DeltakerStatus.Aarsak.valueOf(aarsak)
         },

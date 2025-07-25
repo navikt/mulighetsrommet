@@ -1,5 +1,5 @@
 import { Box } from "@navikt/ds-react";
-import { VeilederflateTiltak } from "@mr/api-client-v2";
+import { VeilederflateTiltak } from "@api-client";
 
 interface Props {
   tiltak: VeilederflateTiltak;

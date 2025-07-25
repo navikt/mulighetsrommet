@@ -1,10 +1,10 @@
 import { Alert } from "@navikt/ds-react";
-import { Bruker, BrukerVarsel } from "@mr/api-client-v2";
+import { Brukerdata, BrukerVarsel } from "@api-client";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 
 interface Props {
-  brukerdata: Bruker;
+  brukerdata: Brukerdata;
 }
 
 export function BrukersOppfolgingsenhetVarsel({ brukerdata }: Props) {

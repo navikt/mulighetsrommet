@@ -34,7 +34,7 @@ class DeltakerQueriesTest : FunSpec({
         endretTidspunkt = opprettetTidspunkt,
         deltakelsesprosent = 100.0,
         status = DeltakerStatus(
-            DeltakerStatus.Type.VENTER_PA_OPPSTART,
+            DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,
             opprettetDato = opprettetTidspunkt,
         ),
@@ -58,7 +58,7 @@ class DeltakerQueriesTest : FunSpec({
 
             val avsluttetDeltaker2 = deltaker2.copy(
                 status = DeltakerStatus(
-                    DeltakerStatus.Type.HAR_SLUTTET,
+                    DeltakerStatus.DeltakerStatusType.HAR_SLUTTET,
                     aarsak = null,
                     opprettetDato = LocalDateTime.of(2023, 3, 2, 0, 0, 0),
                 ),

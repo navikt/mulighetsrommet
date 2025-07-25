@@ -1,4 +1,4 @@
-import { VeilederflateTiltak } from "@mr/api-client-v2";
+import { VeilederflateTiltak } from "@api-client";
 import { isTiltakAktivt, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { BodyLong, BodyShort, Heading, HStack, VStack } from "@navikt/ds-react";
 import { StatusTag } from "@mr/frontend-common";

@@ -32,7 +32,7 @@ class AmtDeltakerV1KafkaConsumer(
                 queries.deltaker.deleteKometDeltaker(key)
             }
 
-            amtDeltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
+            amtDeltaker.status.type == DeltakerStatus.DeltakerStatusType.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker med id=$key fordi den var feilregistrert")
                 queries.deltaker.deleteKometDeltaker(key)
             }

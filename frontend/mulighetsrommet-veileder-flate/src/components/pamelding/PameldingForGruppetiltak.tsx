@@ -1,10 +1,6 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
-import {
-  DeltakelseGruppetiltak,
-  GruppetiltakDeltakerStatus,
-  VeilederflateTiltakGruppe,
-} from "@mr/api-client-v2";
+import { DeltakelseGruppetiltak, DeltakerStatusType, VeilederflateTiltakGruppe } from "@api-client";
 import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
@@ -87,43 +83,43 @@ interface Tekst {
 
 function utledTekster(deltakelse: DeltakelseGruppetiltak): Tekst {
   switch (deltakelse.status.type) {
-    case GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART:
+    case DeltakerStatusType.VENTER_PA_OPPSTART:
       return {
         overskrift: "Venter på oppstart",
         variant: "info",
         lenketekst: "Les om brukerens deltakelse",
       };
-    case GruppetiltakDeltakerStatus.DELTAR:
+    case DeltakerStatusType.DELTAR:
       return {
         overskrift: "Brukeren deltar på tiltaket",
         variant: "success",
         lenketekst: "Les om brukerens deltakelse",
       };
-    case GruppetiltakDeltakerStatus.UTKAST_TIL_PAMELDING:
+    case DeltakerStatusType.UTKAST_TIL_PAMELDING:
       return {
         overskrift: "Utkastet er delt og venter på godkjenning",
         variant: "info",
         lenketekst: "Gå til utkastet",
       };
-    case GruppetiltakDeltakerStatus.KLADD:
+    case DeltakerStatusType.KLADD:
       return {
         overskrift: "Kladden er ikke delt",
         lenketekst: "Gå til kladden",
         variant: "warning",
       };
-    case GruppetiltakDeltakerStatus.SOKT_INN:
+    case DeltakerStatusType.SOKT_INN:
       return {
         overskrift: "Brukeren er søkt inn",
         lenketekst: "Les om brukerens deltakelse",
         variant: "info",
       };
-    case GruppetiltakDeltakerStatus.VENTELISTE:
+    case DeltakerStatusType.VENTELISTE:
       return {
         overskrift: "Brukeren er på venteliste",
         lenketekst: "Les om brukerens deltakelse",
         variant: "info",
       };
-    case GruppetiltakDeltakerStatus.VURDERES:
+    case DeltakerStatusType.VURDERES:
       return {
         overskrift: "Brukeren er søkt inn",
         lenketekst: "Les om brukerens deltakelse",

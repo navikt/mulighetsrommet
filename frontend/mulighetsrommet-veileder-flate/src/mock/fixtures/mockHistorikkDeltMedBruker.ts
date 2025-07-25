@@ -1,11 +1,11 @@
-import { TiltakDeltMedBruker, Tiltakskode, TiltakskodeArena } from "@mr/api-client-v2";
+import { TiltakDeltMedBruker, Tiltakskode } from "@api-client";
 
 export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
   {
     navn: "Jobbklubb",
     tiltakstype: {
       tiltakskode: Tiltakskode.JOBBKLUBB,
-      arenakode: undefined,
+      arenakode: null,
       navn: "Jobbklubb",
     },
     dialogId: "1",
@@ -16,7 +16,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     navn: "Jobbklubb",
     tiltakstype: {
       tiltakskode: Tiltakskode.JOBBKLUBB,
-      arenakode: undefined,
+      arenakode: null,
       navn: "Jobbklubb",
     },
     dialogId: "2",
@@ -27,7 +27,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     navn: "Jobbklubb",
     tiltakstype: {
       tiltakskode: Tiltakskode.JOBBKLUBB,
-      arenakode: undefined,
+      arenakode: null,
       navn: "Jobbklubb",
     },
     dialogId: "3",
@@ -38,7 +38,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     navn: "Avklaring",
     tiltakstype: {
       tiltakskode: Tiltakskode.AVKLARING,
-      arenakode: undefined,
+      arenakode: null,
       navn: "Avklaring",
     },
     dialogId: "4",
@@ -49,7 +49,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     navn: "Avklaring",
     tiltakstype: {
       tiltakskode: Tiltakskode.AVKLARING,
-      arenakode: undefined,
+      arenakode: null,
       navn: "Avklaring",
     },
     dialogId: "5",
@@ -59,8 +59,8 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
   {
     navn: "Mentor",
     tiltakstype: {
-      tiltakskode: undefined,
-      arenakode: TiltakskodeArena.MENTOR,
+      tiltakskode: null,
+      arenakode: "MENTOR",
       navn: "Mentor",
     },
     dialogId: "6",

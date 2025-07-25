@@ -1,4 +1,4 @@
-import { LagretFilterService } from "@mr/api-client-v2";
+import { LagretFilterService } from "@api-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
 

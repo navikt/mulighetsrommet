@@ -1,6 +1,6 @@
 import { TimerPauseFillIcon } from "@navikt/aksel-icons";
 import { BodyShort } from "@navikt/ds-react";
-import { EstimertVentetid as EstimertVentetidType, EstimertVentetidEnhet } from "@mr/api-client-v2";
+import { EstimertVentetid as EstimertVentetidType } from "@api-client";
 
 interface Props {
   estimertVentetid: EstimertVentetidType;
@@ -19,11 +19,11 @@ export function EstimertVentetid({ estimertVentetid }: Props) {
   );
 }
 
-function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {
+function formatertVentetid(verdi: number, enhet: string): string {
   switch (enhet) {
-    case EstimertVentetidEnhet.UKE:
+    case "uke":
       return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case EstimertVentetidEnhet.MANED:
+    case "maned":
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";

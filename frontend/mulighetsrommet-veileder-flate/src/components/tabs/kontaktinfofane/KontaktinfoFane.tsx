@@ -1,5 +1,5 @@
 import { Alert, HGrid, VStack } from "@navikt/ds-react";
-import { VeilederflateTiltak } from "@mr/api-client-v2";
+import { VeilederflateTiltak } from "@api-client";
 import { TiltakDetaljerFaneContainer } from "../TiltakDetaljerFaneContainer";
 import ArrangorInfo from "./ArrangorInfo";
 import NavKontaktpersonInfo from "./NavKontaktpersonInfo";

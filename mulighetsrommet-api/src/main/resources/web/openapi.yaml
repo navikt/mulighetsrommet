@@ -1755,25 +1755,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/joyride/lagre:
-    post:
-      tags:
-        - Joyride
-      operationId: lagreJoyrideHarKjort
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/VeilederJoyrideRequest"
-      responses:
-        204:
-          description: "Lagret ok"
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/joyride/{joyrideType}/har-fullfort:
     parameters:

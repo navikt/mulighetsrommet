@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { LagretFilter, LagretFilterService } from "@mr/api-client-v2";
+import { LagretFilter, LagretFilterService } from "@api-client";
 import { QueryKeys } from "../query-keys";
 
 export function useLagreFilter() {

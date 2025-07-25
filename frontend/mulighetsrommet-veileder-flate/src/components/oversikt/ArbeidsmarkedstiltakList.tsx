@@ -3,7 +3,11 @@ import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstil
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useAtom } from "jotai";
-import { DelMedBruker, GjennomforingOppstartstype, VeilederflateTiltak } from "@mr/api-client-v2";
+import {
+  DelMedBrukerDbo as DelMedBruker,
+  GjennomforingOppstartstype,
+  VeilederflateTiltak,
+} from "@api-client";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { ArbeidsmarkedstiltakListItem } from "./ArbeidsmarkedstiltakListItem";
@@ -184,9 +188,13 @@ function sorter(
 
       if (orderBy === "oppstart") {
         const dateB =
-          b.oppstart === GjennomforingOppstartstype.FELLES ? new Date(b.oppstartsdato) : new Date();
+          b.oppstart === GjennomforingOppstartstype.FELLES && "oppstartsdato" in b
+            ? new Date(b.oppstartsdato)
+            : new Date();
         const dateA =
-          a.oppstart === GjennomforingOppstartstype.FELLES ? new Date(a.oppstartsdato) : new Date();
+          a.oppstart === GjennomforingOppstartstype.FELLES && "oppstartsdato" in a
+            ? new Date(a.oppstartsdato)
+            : new Date();
         return compare(dateA, dateB);
       } else if (orderBy === "tiltakstype") {
         return compare(a.tiltakstype.navn, b.tiltakstype.navn);

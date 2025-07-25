@@ -1,14 +1,14 @@
-import { PortableTextTypedObject } from "@mr/api-client-v2";
+import { JsonElement } from "@api-client";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 import { TiltakDetaljerFaneContainer } from "./TiltakDetaljerFaneContainer";
 
 interface DetaljerFaneProps {
-  gjennomforingAlert?: string;
-  tiltakstypeAlert?: string;
-  gjennomforing?: PortableTextTypedObject[];
-  tiltakstype?: PortableTextTypedObject[];
+  gjennomforingAlert?: string | null;
+  tiltakstypeAlert?: string | null;
+  gjennomforing?: JsonElement[] | null;
+  tiltakstype?: JsonElement[] | null;
 }
 
 export function TiltakDetaljerFane({

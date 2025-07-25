@@ -50,13 +50,13 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
     context("konsumering av deltakere") {
         val amtDeltaker1 = createAmtDeltakerV1Dto(
             gjennomforingId = Oppfolging1.id,
-            status = DeltakerStatus.Type.VENTER_PA_OPPSTART,
+            status = DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678910",
         )
 
         val amtDeltaker2 = createAmtDeltakerV1Dto(
             gjennomforingId = Oppfolging1.id,
-            status = DeltakerStatus.Type.VENTER_PA_OPPSTART,
+            status = DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678911",
         )
 
@@ -121,7 +121,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer()
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
                 status = DeltakerStatus(
-                    type = DeltakerStatus.Type.FEILREGISTRERT,
+                    type = DeltakerStatus.DeltakerStatusType.FEILREGISTRERT,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
                 ),
@@ -169,7 +169,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 
         val amtDeltaker1 = createAmtDeltakerV1Dto(
             gjennomforingId = AFT1.id,
-            status = DeltakerStatus.Type.DELTAR,
+            status = DeltakerStatus.DeltakerStatusType.DELTAR,
             personIdent = "12345678910",
         )
 
@@ -194,12 +194,12 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             forAll(
-                row(DeltakerStatus.Type.VENTER_PA_OPPSTART, null),
-                row(DeltakerStatus.Type.IKKE_AKTUELL, null),
-                row(DeltakerStatus.Type.DELTAR, NorskIdent("12345678910")),
-                row(DeltakerStatus.Type.FULLFORT, NorskIdent("12345678910")),
-                row(DeltakerStatus.Type.HAR_SLUTTET, NorskIdent("12345678910")),
-                row(DeltakerStatus.Type.AVBRUTT, NorskIdent("12345678910")),
+                row(DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART, null),
+                row(DeltakerStatus.DeltakerStatusType.IKKE_AKTUELL, null),
+                row(DeltakerStatus.DeltakerStatusType.DELTAR, NorskIdent("12345678910")),
+                row(DeltakerStatus.DeltakerStatusType.FULLFORT, NorskIdent("12345678910")),
+                row(DeltakerStatus.DeltakerStatusType.HAR_SLUTTET, NorskIdent("12345678910")),
+                row(DeltakerStatus.DeltakerStatusType.AVBRUTT, NorskIdent("12345678910")),
             ) { status, expectedNorskIdent ->
                 val deltaker = amtDeltaker1.copy(
                     status = amtDeltaker1.status.copy(type = status),
@@ -249,7 +249,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 
 private fun createAmtDeltakerV1Dto(
     gjennomforingId: UUID,
-    status: DeltakerStatus.Type,
+    status: DeltakerStatus.DeltakerStatusType,
     personIdent: String,
     opprettetDato: LocalDateTime = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
 ) = AmtDeltakerV1Dto(

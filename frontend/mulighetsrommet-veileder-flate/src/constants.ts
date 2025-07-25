@@ -4,7 +4,7 @@ export const APPLICATION_NAME = "mulighetsrommet-veileder-flate";
 export const APPLICATION_WEB_COMPONENT_NAME = "mulighetsrommet-arbeidsmarkedstiltak";
 export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401";
 
-export const PORTEN_URL_FOR_TILBAKEMELDING = (tiltaksnummer: string = "", fylke: string = "") =>
+export const PORTEN_URL_FOR_TILBAKEMELDING = (tiltaksnummer: string, fylke: string) =>
   `${PORTEN_URL_CONFIG.prod.baseUrl}?${PORTEN_URL_CONFIG.prod.customField_fylke}=${fylke}&${PORTEN_URL_CONFIG.prod.customField_tiltaksnummer}=${encodeURIComponent(tiltaksnummer)}`;
 
 const PORTEN_URL_CONFIG = {

@@ -1,4 +1,4 @@
-import { JoyrideType } from "@mr/api-client-v2";
+import { JoyrideType } from "@api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { useJoyride } from "@/api/queries/useJoyride";
 import { JoyrideKnapp } from "./JoyrideKnapp";

@@ -1,10 +1,10 @@
-import { Toggles } from "@mr/api-client-v2";
+import { FeatureToggle } from "@api-client";
 import { ReactNode } from "react";
 import { useFeatureToggle } from "../../api/feature-toggles";
 
 interface Props {
   children: ReactNode;
-  toggle: Toggles;
+  toggle: FeatureToggle;
 }
 
 export function VisibleWhenToggledOn({ children, toggle }: Props) {

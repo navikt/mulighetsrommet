@@ -188,7 +188,7 @@ private fun Row.toDeltaker() = Deltaker(
     endretTidspunkt = localDateTime("endret_tidspunkt"),
     deltakelsesprosent = doubleOrNull("deltakelsesprosent"),
     status = DeltakerStatus(
-        type = DeltakerStatus.Type.valueOf(string("status_type")),
+        type = DeltakerStatus.DeltakerStatusType.valueOf(string("status_type")),
         aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatus.Aarsak.valueOf(it) },
         opprettetDato = localDateTime("status_opprettet_tidspunkt"),
     ),

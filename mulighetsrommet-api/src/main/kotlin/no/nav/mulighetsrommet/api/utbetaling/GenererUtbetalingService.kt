@@ -331,10 +331,10 @@ fun isRelevantForUtbetalingsperide(
     periode: Periode,
 ): Boolean {
     val relevantDeltakerStatusForUtbetaling = listOf(
-        DeltakerStatus.Type.AVBRUTT,
-        DeltakerStatus.Type.DELTAR,
-        DeltakerStatus.Type.FULLFORT,
-        DeltakerStatus.Type.HAR_SLUTTET,
+        DeltakerStatus.DeltakerStatusType.AVBRUTT,
+        DeltakerStatus.DeltakerStatusType.DELTAR,
+        DeltakerStatus.DeltakerStatusType.FULLFORT,
+        DeltakerStatus.DeltakerStatusType.HAR_SLUTTET,
     )
     if (deltaker.status.type !in relevantDeltakerStatusForUtbetaling) {
         return false

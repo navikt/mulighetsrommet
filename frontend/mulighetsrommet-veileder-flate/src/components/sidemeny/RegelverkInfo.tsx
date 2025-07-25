@@ -1,4 +1,4 @@
-import { RegelverkLenke } from "@mr/api-client-v2";
+import { RegelverkLenke } from "@api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 
 interface RegelverkInfoProps {

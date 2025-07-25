@@ -6,10 +6,10 @@ import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import { Alert } from "@navikt/ds-react";
-import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client-v2";
+import { Innsatsgruppe, NavEnhetStatus, Norg2Type as NavEnhetType } from "@api-client";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
-import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { Lenke, LenkeListe } from "@/components/sidemeny/Lenker";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data: tiltak } = usePreviewArbeidsmarkedstiltakById();
@@ -56,7 +56,10 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                 <PersonvernContainer tiltak={tiltak} />
               </ArbeidsmarkedstiltakErrorBoundary>
             ) : null}
-            <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
+            {/* TODO: fix hacky types */}
+            {tiltak.faneinnhold?.lenker && (
+              <LenkeListe lenker={tiltak.faneinnhold.lenker as unknown as Lenke[]} />
+            )}
           </>
         }
       />

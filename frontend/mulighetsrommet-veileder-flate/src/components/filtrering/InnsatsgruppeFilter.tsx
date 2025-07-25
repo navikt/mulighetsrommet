@@ -1,6 +1,6 @@
 import { Accordion, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@mr/api-client-v2";
+import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@api-client";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";

@@ -1,12 +1,12 @@
-import { TiltakDeltMedBruker } from "@mr/api-client-v2";
+import { TiltakDeltMedBruker } from "@api-client";
 import { BodyShort, Box, Button, HStack, List, Table, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
+import { Link } from "react-router";
 import { VisningsnavnForTiltak } from "../../../components/oversikt/VisningsnavnForTiltak";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
-import { Link } from "react-router";
 
 function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();

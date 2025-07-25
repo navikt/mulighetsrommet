@@ -1,5 +1,5 @@
 import { QueryKeys } from "../query-keys";
-import { VeilederTiltakService } from "@mr/api-client-v2";
+import { VeilederTiltakService } from "@api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useTiltakstyper() {

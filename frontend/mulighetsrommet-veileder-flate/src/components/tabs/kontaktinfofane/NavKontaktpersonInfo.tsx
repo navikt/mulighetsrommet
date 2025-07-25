@@ -1,14 +1,11 @@
-import {
-  VeilederflateKontaktInfo,
-  VeilederflateKontaktinfoTiltaksansvarlig,
-} from "@mr/api-client-v2";
+import { VeilederflateKontaktinfo, VeilederflateKontaktinfoTiltaksansvarlig } from "@api-client";
 import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject, useRef } from "react";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
 interface NavKontaktpersonInfoProps {
-  kontaktinfo?: VeilederflateKontaktInfo;
+  kontaktinfo?: VeilederflateKontaktinfo;
 }
 
 const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
@@ -68,7 +65,7 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
                     ) : null}
                   </dl>
                 </BodyShort>
-                <PersonsensitiveOpplysningerModal modalRef={modalRef} epost={epost} />
+                {epost && <PersonsensitiveOpplysningerModal modalRef={modalRef} epost={epost} />}
               </div>
             );
           })}

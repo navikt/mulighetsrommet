@@ -29,7 +29,7 @@ class VeilederflateService(
         return Innsatsgruppe.entries.map {
             VeilederflateInnsatsgruppe(
                 tittel = it.tittel,
-                nokkel = it.name,
+                nokkel = it,
                 order = it.order,
             )
         }
@@ -180,7 +180,6 @@ class VeilederflateService(
                 )
             } ?: emptyList()
             VeilederflateArrangor(
-                arrangorId = arrangor._id,
                 selskapsnavn = arrangor.navn,
                 organisasjonsnummer = arrangor.organisasjonsnummer?.value,
                 kontaktpersoner = kontaktpersoner,

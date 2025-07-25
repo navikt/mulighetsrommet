@@ -6,10 +6,12 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
-import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { Lenke, LenkeListe } from "@/components/sidemeny/Lenker";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
   const { data: tiltak } = useNavArbeidsmarkedstiltakById();
+
+  const lenker = tiltak.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder);
 
   return (
     <ViewTiltakDetaljer
@@ -22,9 +24,8 @@ export function NavArbeidsmarkedstiltakDetaljer() {
               <PersonvernContainer tiltak={tiltak} />
             </ArbeidsmarkedstiltakErrorBoundary>
           ) : null}
-          <LenkeListe
-            lenker={tiltak.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder)}
-          />
+          {/* TODO: fix hacky types */}
+          {lenker && <LenkeListe lenker={lenker as unknown as Lenke[]} />}
         </>
       }
     />

@@ -2,7 +2,7 @@ import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Tabs } from "@navikt/ds-react";
-import { VeilederflateTiltak } from "@mr/api-client-v2";
+import { VeilederflateTiltak } from "@api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
 import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";

@@ -94,7 +94,7 @@ data class DeltakelseFraKomet(
 
     @Serializable
     data class Status(
-        val type: DeltakerStatus.Type,
+        val type: DeltakerStatus.DeltakerStatusType,
         val visningstekst: String,
         val aarsak: String? = null,
     )

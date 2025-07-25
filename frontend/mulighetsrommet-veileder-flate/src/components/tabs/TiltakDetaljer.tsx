@@ -1,5 +1,5 @@
 import { Tabs } from "@navikt/ds-react";
-import { VeilederflateTiltak } from "@mr/api-client-v2";
+import { VeilederflateTiltak } from "@api-client";
 import { OppskriftOversikt } from "../oppskrift/OppskriftOversikt";
 import { TiltakDetaljerFane } from "./TiltakDetaljerFane";
 import styles from "./TiltakDetaljer.module.scss";

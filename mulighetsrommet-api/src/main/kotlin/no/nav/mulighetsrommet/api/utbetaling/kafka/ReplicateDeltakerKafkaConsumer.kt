@@ -39,7 +39,7 @@ class ReplicateDeltakerKafkaConsumer(
                 queries.deltaker.delete(key)
             }
 
-            deltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
+            deltaker.status.type == DeltakerStatus.DeltakerStatusType.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
                 queries.deltaker.delete(key)
             }
@@ -71,10 +71,10 @@ class ReplicateDeltakerKafkaConsumer(
 
         if (
             deltaker.status.type !in setOf(
-                DeltakerStatus.Type.AVBRUTT,
-                DeltakerStatus.Type.DELTAR,
-                DeltakerStatus.Type.HAR_SLUTTET,
-                DeltakerStatus.Type.FULLFORT,
+                DeltakerStatus.DeltakerStatusType.AVBRUTT,
+                DeltakerStatus.DeltakerStatusType.DELTAR,
+                DeltakerStatus.DeltakerStatusType.HAR_SLUTTET,
+                DeltakerStatus.DeltakerStatusType.FULLFORT,
             )
         ) {
             return false

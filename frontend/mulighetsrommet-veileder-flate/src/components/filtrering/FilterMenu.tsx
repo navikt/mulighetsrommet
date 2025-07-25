@@ -1,7 +1,7 @@
 import { useRegioner } from "@/api/queries/useRegioner";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { ApentForPamelding } from "@mr/api-client-v2";
+import { ApentForPamelding } from "@api-client";
 import { FilterAccordionHeader, NavEnhetFilter } from "@mr/frontend-common";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";

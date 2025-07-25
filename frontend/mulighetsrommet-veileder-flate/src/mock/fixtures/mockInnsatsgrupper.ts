@@ -1,4 +1,4 @@
-import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@mr/api-client-v2";
+import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@api-client";
 
 export const mockInnsatsgrupper: VeilederflateInnsatsgruppe[] = [
   {

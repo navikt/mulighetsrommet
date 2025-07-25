@@ -88,6 +88,12 @@ dependencies {
     implementation(libs.ktor.server.swagger)
     testImplementation(libs.ktor.server.testHost)
 
+    implementation(libs.ktor.openapi)
+    implementation(libs.schema.kenerator.core)
+    implementation(libs.schema.kenerator.reflection)
+    implementation(libs.schema.kenerator.serialization)
+    implementation(libs.schema.kenerator.swagger)
+
     // GCP
     implementation(libs.google.cloud.storage)
 

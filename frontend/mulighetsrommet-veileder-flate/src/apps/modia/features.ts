@@ -1,4 +1,4 @@
-import { VeilederflateTiltak } from "@mr/api-client-v2";
+import { VeilederflateTiltak } from "@api-client";
 
 /**
  * Bestemmer tilgang til en lenke som peker veileder til et eget skjema i Porten for tilbakemeldinger på innhold om

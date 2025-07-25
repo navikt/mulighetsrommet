@@ -2,10 +2,14 @@ package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
+import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
+import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.swagger.v3.oas.models.media.Schema
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -13,10 +17,14 @@ import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgruppe
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltak
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -65,22 +73,184 @@ fun Route.arbeidsmarkedstiltakRoutes() {
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    route("/veileder") {
-        get("/innsatsgrupper") {
-            val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
-
-            call.respond(innsatsgrupper)
+    get("/innsatsgrupper", {
+        tags = setOf("VeilederTiltak")
+        operationId = "getInnsatsgrupper"
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Hent innsatsgrupper"
+                body<List<VeilederflateInnsatsgruppe>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
         }
+    }) {
+        val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
 
-        get("/tiltakstyper") {
-            val tiltakstyper = veilederflateService.hentTiltakstyper()
+        call.respond(innsatsgrupper)
+    }
 
-            call.respond(tiltakstyper)
+    get("/tiltakstyper", {
+        tags = setOf("VeilederTiltak")
+        operationId = "getVeilederflateTiltakstyper"
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Hent tiltakstyper"
+                body<List<VeilederflateTiltakstype>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
         }
+    }) {
+        val tiltakstyper = veilederflateService.hentTiltakstyper()
 
-        get("/gjennomforinger") {
-            poaoTilgangService.verifyAccessToModia(getNavAnsattEntraObjectId())
+        call.respond(tiltakstyper)
+    }
 
+    get("/gjennomforinger", {
+        tags = setOf("VeilederTiltak")
+        operationId = "getAllVeilederTiltak"
+        request {
+            queryParameter<Innsatsgruppe>("innsatsgruppe")
+            queryParameter<List<String>>("enheter") {
+                explode = true
+            }
+            queryParameter<String>("search")
+            queryParameter<ApentForPamelding>("apentForPamelding")
+            queryParameter<List<String>>("tiltakstyper") {
+                explode = true
+            }
+            queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Alle tiltak som matcher filteret"
+                body<List<VeilederflateTiltak>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        poaoTilgangService.verifyAccessToModia(getNavAnsattEntraObjectId())
+
+        val filter = getArbeidsmarkedstiltakFilter()
+
+        val result = veilederflateService.hentTiltaksgjennomforinger(
+            enheter = filter.enheter,
+            innsatsgruppe = filter.innsatsgruppe,
+            tiltakstypeIds = filter.tiltakstyper,
+            search = filter.search,
+            apentForPamelding = filter.apentForPamelding,
+            erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
+            cacheUsage = CacheUsage.UseCache,
+        )
+
+        call.respond(result)
+    }
+
+    get("/gjennomforinger/{id}", {
+        tags = setOf("VeilederTiltak")
+        operationId = "getVeilederTiltak"
+        request {
+            // TODO: fant ikke noen god måte å spesifere uuid, men det er kanskje bare like greit å dokumentere det en string
+            pathParameter(
+                "id",
+                Schema<Any>().also {
+                    it.types = setOf("string")
+                    it.format = "uuid"
+                },
+            ) {
+                required = true
+            }
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Tiltak for gitt id"
+                body<VeilederflateTiltak>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        poaoTilgangService.verifyAccessToModia(getNavAnsattEntraObjectId())
+
+        val id: UUID by call.parameters
+
+        val result = veilederflateService.hentTiltaksgjennomforing(
+            id = id,
+            sanityPerspective = SanityPerspective.PUBLISHED,
+        )
+
+        call.respond(result)
+    }
+
+    get("/oppskrifter/{tiltakstypeId}", {
+        tags = setOf("Oppskrifter")
+        operationId = "getOppskrifter"
+        request {
+            pathParameter<String>("tiltakstypeId") {
+                required = true
+            }
+            queryParameter<SanityPerspective>("perspective") {
+                description = "Hvilket Sanity-perspective du vil bruke"
+            }
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Liste med oppskrifter tilknyttet tiltakstypen"
+                body<Oppskrifter>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        val tiltakstypeId: UUID by call.parameters
+        val perspective = call.request.queryParameters["perspective"]
+            ?.let { SanityPerspective.valueOf(it) }
+            ?: SanityPerspective.PUBLISHED
+
+        val oppskrifter = veilederflateService.hentOppskrifter(tiltakstypeId, perspective)
+
+        call.respond(Oppskrifter(data = oppskrifter))
+    }
+
+    route("/nav") {
+        get("/gjennomforinger", {
+            tags = setOf("VeilederTiltak")
+            operationId = "getAllNavTiltak"
+            request {
+                queryParameter<Innsatsgruppe>("innsatsgruppe")
+                queryParameter<List<String>>("enheter") {
+                    explode = true
+                }
+                queryParameter<String>("search")
+                queryParameter<ApentForPamelding>("apentForPamelding")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
+                queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Alle tiltak som matcher filteret"
+                    body<List<VeilederflateTiltak>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val filter = getArbeidsmarkedstiltakFilter()
 
             val result = veilederflateService.hentTiltaksgjennomforinger(
@@ -96,9 +266,25 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             call.respond(result)
         }
 
-        get("/gjennomforinger/{id}") {
-            poaoTilgangService.verifyAccessToModia(getNavAnsattEntraObjectId())
-
+        get("/gjennomforinger/{id}", {
+            tags = setOf("VeilederTiltak")
+            operationId = "getNavTiltak"
+            request {
+                pathParameter<String>("id") {
+                    required = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tiltak for gitt id"
+                    body<VeilederflateTiltak>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
 
             val result = veilederflateService.hentTiltaksgjennomforing(
@@ -108,26 +294,36 @@ fun Route.arbeidsmarkedstiltakRoutes() {
 
             call.respond(result)
         }
+    }
 
-        get("/oppskrifter/{tiltakstypeId}") {
-            val tiltakstypeId: UUID by call.parameters
-            val perspective = call.request.queryParameters["perspective"]
-                ?.let {
-                    when (it) {
-                        "published" -> SanityPerspective.PUBLISHED
-                        "raw" -> SanityPerspective.RAW
-                        else -> SanityPerspective.PREVIEW_DRAFTS
+    authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+        route("/preview") {
+            get("/gjennomforinger", {
+                tags = setOf("VeilederTiltak")
+                operationId = "getAllPreviewTiltak"
+                request {
+                    queryParameter<Innsatsgruppe>("innsatsgruppe")
+                    queryParameter<List<String>>("enheter") {
+                        explode = true
+                    }
+                    queryParameter<String>("search")
+                    queryParameter<ApentForPamelding>("apentForPamelding")
+                    queryParameter<List<String>>("tiltakstyper") {
+                        explode = true
+                    }
+                    queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Alle tiltak som matcher filteret"
+                        body<List<VeilederflateTiltak>>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
                     }
                 }
-                ?: SanityPerspective.PUBLISHED
-
-            val oppskrifter = veilederflateService.hentOppskrifter(tiltakstypeId, perspective)
-
-            call.respond(Oppskrifter(data = oppskrifter))
-        }
-
-        route("/nav") {
-            get("/gjennomforinger") {
+            }) {
                 val filter = getArbeidsmarkedstiltakFilter()
 
                 val result = veilederflateService.hentTiltaksgjennomforinger(
@@ -137,53 +333,40 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                     search = filter.search,
                     apentForPamelding = filter.apentForPamelding,
                     erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-                    cacheUsage = CacheUsage.UseCache,
+                    cacheUsage = CacheUsage.NoCache,
                 )
 
                 call.respond(result)
             }
 
-            get("/gjennomforinger/{id}") {
-                val id: UUID by call.parameters
+            get("/gjennomforinger/{id}", {
+                tags = setOf("VeilederTiltak")
+                operationId = "getPreviewTiltak"
+                request {
+                    pathParameter<String>("id") {
+                        required = true
+                    }
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Tiltak for gitt id"
+                        body<VeilederflateTiltak>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail("id")
+                    .let { UUID.fromString(it.replace("drafts.", "")) }
 
                 val result = veilederflateService.hentTiltaksgjennomforing(
                     id = id,
-                    sanityPerspective = SanityPerspective.PUBLISHED,
+                    sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
                 )
 
                 call.respond(result)
-            }
-        }
-
-        authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
-            route("/preview") {
-                get("/gjennomforinger") {
-                    val filter = getArbeidsmarkedstiltakFilter()
-
-                    val result = veilederflateService.hentTiltaksgjennomforinger(
-                        enheter = filter.enheter,
-                        innsatsgruppe = filter.innsatsgruppe,
-                        tiltakstypeIds = filter.tiltakstyper,
-                        search = filter.search,
-                        apentForPamelding = filter.apentForPamelding,
-                        erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-                        cacheUsage = CacheUsage.NoCache,
-                    )
-
-                    call.respond(result)
-                }
-
-                get("/gjennomforinger/{id}") {
-                    val id = call.parameters.getOrFail("id")
-                        .let { UUID.fromString(it.replace("drafts.", "")) }
-
-                    val result = veilederflateService.hentTiltaksgjennomforing(
-                        id = id,
-                        sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
-                    )
-
-                    call.respond(result)
-                }
             }
         }
     }
