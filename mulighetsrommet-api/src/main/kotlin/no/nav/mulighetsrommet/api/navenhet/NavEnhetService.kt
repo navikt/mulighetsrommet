@@ -76,21 +76,6 @@ private fun toNavEnhetDto(dbo: NavEnhetDbo) = NavEnhetDto(
     overordnetEnhet = dbo.overordnetEnhet,
 )
 
-private fun toNorg2Type(type: NavEnhetType): Norg2Type = when (type) {
-    NavEnhetType.FYLKE -> Norg2Type.FYLKE
-    NavEnhetType.LOKAL -> Norg2Type.LOKAL
-    NavEnhetType.TILTAK -> Norg2Type.TILTAK
-    NavEnhetType.ALS -> Norg2Type.ALS
-    NavEnhetType.KO -> Norg2Type.KO
-    NavEnhetType.ARK -> Norg2Type.ARK
-}
+private fun toNorg2Type(type: NavEnhetType) = Norg2Type.valueOf(type.name)
 
-private fun toNavEnhetType(type: Norg2Type): NavEnhetType = when (type) {
-    Norg2Type.FYLKE -> NavEnhetType.FYLKE
-    Norg2Type.LOKAL -> NavEnhetType.LOKAL
-    Norg2Type.TILTAK -> NavEnhetType.TILTAK
-    Norg2Type.ALS -> NavEnhetType.ALS
-    Norg2Type.KO -> NavEnhetType.KO
-    Norg2Type.ARK -> NavEnhetType.ARK
-    else -> throw IllegalArgumentException("Norg2Type er er ikke en støttet NavEnhetType: $type")
-}
+private fun toNavEnhetType(type: Norg2Type) = NavEnhetType.valueOf(type.name)
