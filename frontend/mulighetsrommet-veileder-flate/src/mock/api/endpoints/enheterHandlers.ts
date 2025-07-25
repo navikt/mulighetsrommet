@@ -1,9 +1,9 @@
-import { HttpResponse, PathParams, http } from "msw";
-import { NavEnhet, NavRegion } from "@mr/api-client-v2";
+import { http, HttpResponse, PathParams } from "msw";
+import { NavEnhetDto, NavRegion } from "@mr/api-client-v2";
 import { mockEnheter, mockRegioner } from "../../fixtures/mockEnheter";
 
 export const enhetHandlers = [
-  http.get<PathParams, NavEnhet[]>("*/api/v1/intern/nav-enheter", () =>
+  http.get<PathParams, NavEnhetDto[]>("*/api/v1/intern/nav-enheter", () =>
     HttpResponse.json(Object.values(mockEnheter)),
   ),
 
@@ -11,7 +11,7 @@ export const enhetHandlers = [
     HttpResponse.json(Object.values(mockRegioner)),
   ),
 
-  http.get<PathParams, NavEnhet[]>(
+  http.get<PathParams, NavEnhetDto[]>(
     "*/api/v1/intern/nav-enheter/:enhetsnummer/overordnet",
     ({ params }) => {
       const { enhetsnummer } = params;

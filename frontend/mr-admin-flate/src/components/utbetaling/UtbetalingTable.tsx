@@ -1,5 +1,5 @@
 import { formaterNavEnheter } from "@/utils/Utils";
-import { NavEnhet, UtbetalingKompaktDto, UtbetalingStatusDto } from "@mr/api-client-v2";
+import { NavEnhetDto, UtbetalingKompaktDto, UtbetalingStatusDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -19,7 +19,7 @@ interface UtbetalingRow {
   periodeStart: string;
   periodeSlutt: string;
   status: UtbetalingStatusDto;
-  kostnadssteder: NavEnhet[];
+  kostnadssteder: NavEnhetDto[];
 }
 
 export function UtbetalingTable({ utbetalinger }: Props) {

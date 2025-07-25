@@ -4,7 +4,6 @@ import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.koin.ktor.ext.inject
@@ -41,12 +40,18 @@ fun Route.navEnhetRoutes() {
     }
 }
 
+data class EnhetFilter(
+    val statuser: List<NavEnhetStatus>? = null,
+    val typer: List<NavEnhetType>? = null,
+    val overordnetEnhet: NavEnhetNummer? = null,
+)
+
 fun RoutingContext.getEnhetFilter(): EnhetFilter {
     val statuser = call.parameters.getAll("statuser")
         ?.map { NavEnhetStatus.valueOf(it) }
 
     val typer = call.parameters.getAll("typer")
-        ?.map { Norg2Type.valueOf(it) }
+        ?.map { NavEnhetType.valueOf(it) }
 
     return EnhetFilter(statuser = statuser, typer = typer)
 }

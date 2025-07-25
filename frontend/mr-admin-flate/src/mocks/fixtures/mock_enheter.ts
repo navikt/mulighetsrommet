@@ -1,7 +1,7 @@
-import { NavEnhet, NavEnhetStatus, NavEnhetType, NavRegion } from "@mr/api-client-v2";
+import { NavEnhetDto, NavEnhetStatus, NavEnhetType, NavRegion } from "@mr/api-client-v2";
 
 export const mockEnheter: {
-  [navn: string]: NavEnhet;
+  [navn: string]: NavEnhetDto;
 } = {
   // Innlandet
   _0425: {

@@ -1304,7 +1304,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavEnhet"
+                  $ref: "#/components/schemas/NavEnhetDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1346,7 +1346,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavEnhet"
+                  $ref: "#/components/schemas/NavEnhetDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1368,7 +1368,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NavEnhet"
+                $ref: "#/components/schemas/NavEnhetDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -3728,7 +3728,7 @@ components:
         enheter:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhet"
+            $ref: "#/components/schemas/NavEnhetDto"
         fornavn:
           type: string
         manuellStatus:
@@ -4153,7 +4153,7 @@ components:
       required:
         - enhetsnummer
 
-    NavEnhet:
+    NavEnhetDto:
       type: object
       properties:
         enhetsnummer:
@@ -4182,7 +4182,7 @@ components:
         enheter:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhet"
+            $ref: "#/components/schemas/NavEnhetDto"
       required:
         - navn
         - enheter
@@ -4719,7 +4719,7 @@ components:
         navn:
           type: string
         enhet:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/NavEnhetDto"
         telefon:
           type: string
         epost:
@@ -5137,11 +5137,11 @@ components:
         type: object
         properties:
           region:
-            $ref: "#/components/schemas/NavEnhet"
+            $ref: "#/components/schemas/NavEnhetDto"
           kontorer:
             type: array
             items:
-              $ref: "#/components/schemas/NavEnhet"
+              $ref: "#/components/schemas/NavEnhetDto"
         required:
           - region
           - kontorer
@@ -5798,7 +5798,7 @@ components:
         belopGjenstaende:
           type: integer
         kostnadssted:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/NavEnhetDto"
         beregning:
           $ref: "#/components/schemas/TilsagnBeregningDto"
         status:
@@ -6208,7 +6208,7 @@ components:
         kostnadssteder:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhet"
+            $ref: "#/components/schemas/NavEnhetDto"
         belopUtbetalt:
           type: [number, "null"]
         type:
