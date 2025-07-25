@@ -28,7 +28,15 @@
       "dependsOn": ["build:api-client"],
       "outputs": ["dist"]
     },
-    "build:*": {
+    "build:lokal": {
+      "dependsOn": ["build:api-client", "^build"],
+      "outputs": ["dist"]
+    },
+    "build:modia": {
+      "dependsOn": ["build:api-client", "^build"],
+      "outputs": ["dist"]
+    },
+    "build:nav": {
       "dependsOn": ["build:api-client", "^build"],
       "outputs": ["dist"]
     }
