@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.navenhet
 
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object NavEnhetHelpers {

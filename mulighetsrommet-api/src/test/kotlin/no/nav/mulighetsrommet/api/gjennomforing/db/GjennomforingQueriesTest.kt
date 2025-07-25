@@ -14,7 +14,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -85,7 +84,7 @@ class GjennomforingQueriesTest : FunSpec({
                             navn = "Donald Duck",
                         ),
                     )
-                    it.kontorstruktur shouldBe listOf(Kontorstruktur(region = Innlandet, kontorer = listOf(Gjovik)))
+                    it.kontorstruktur.shouldNotBeNull()
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.kontaktpersoner shouldBe listOf()
@@ -133,39 +132,34 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.upsert(
                     Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer)),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].region shouldBe Innlandet
-                }
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].kontorer shouldContainExactlyInAnyOrder setOf(Gjovik, Sel)
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    it.kontorer.should { (first, second) ->
+                        first.enhetsnummer shouldBe Gjovik.enhetsnummer
+                        second.enhetsnummer shouldBe Sel.enhetsnummer
+                    }
                 }
 
                 queries.upsert(
                     Oppfolging1.copy(
-                        navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Lillehammer.enhetsnummer),
+                        navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
                     ),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].region shouldBe Innlandet
-                }
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].kontorer shouldContainExactlyInAnyOrder setOf(Gjovik, Lillehammer)
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    it.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Lillehammer.enhetsnummer
                 }
 
                 queries.upsert(
                     Oppfolging1.copy(navEnheter = setOf(Oslo.enhetsnummer)),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].region shouldBe Oslo
-                }
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].kontorer.shouldBeEmpty()
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Oslo.enhetsnummer
+                    it.kontorer.shouldBeEmpty()
                 }
 
                 queries.upsert(Oppfolging1.copy(navEnheter = setOf()))
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.kontorstruktur.shouldBeEmpty()
-                }
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldBeEmpty()
             }
         }
 

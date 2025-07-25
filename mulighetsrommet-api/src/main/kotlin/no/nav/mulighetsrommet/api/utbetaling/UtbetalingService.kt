@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.buildRegionList
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -63,6 +64,7 @@ class UtbetalingService(
                             queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
                         }.distinct(),
                     )
+
                 else -> (null to emptyList())
             }
 
@@ -70,7 +72,7 @@ class UtbetalingService(
                 id = utbetaling.id,
                 status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
                 periode = utbetaling.periode,
-                kostnadssteder = kostnadssteder,
+                kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                 belopUtbetalt = belopUtbetalt,
                 type = UtbetalingType.from(utbetaling),
             )
@@ -546,11 +548,13 @@ class UtbetalingService(
             personer.mapNotNull { it.value.geografiskEnhet } + personer.mapNotNull { it.value.region },
         )
 
-        val deltakelsePersoner = utbetaling.beregning.output.deltakelser.map {
-            val norskIdent = norskIdentById.getValue(it.deltakelseId)
-            val person = norskIdent?.let { personer.getValue(norskIdent) }
-            it to person
-        }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+        val deltakelsePersoner = utbetaling.beregning.output.deltakelser
+            .map {
+                val norskIdent = norskIdentById.getValue(it.deltakelseId)
+                val person = norskIdent?.let { personer.getValue(norskIdent) }
+                it to person
+            }
+            .filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
@@ -568,12 +572,15 @@ class UtbetalingService(
             Utbetaling.UtbetalingStatus.INNSENDT,
             Utbetaling.UtbetalingStatus.RETURNERT,
             -> Unit
+
             Utbetaling.UtbetalingStatus.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
+
             Utbetaling.UtbetalingStatus.OPPRETTET,
             Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
             Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-            ->
+            -> {
                 return FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}").left()
+            }
         }
 
         queries.utbetaling.setAvbrutt(id, LocalDateTime.now(), aarsaker, forklaring)

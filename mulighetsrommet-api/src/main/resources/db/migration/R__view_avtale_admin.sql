@@ -64,7 +64,6 @@ from avtale
                                                    'enhetsnummer', avtale_nav_enhet.enhetsnummer,
                                                    'navn', nav_enhet.navn,
                                                    'type', nav_enhet.type,
-                                                   'status', nav_enhet.status,
                                                    'overordnetEnhet', nav_enhet.overordnet_enhet
                                            )
                                    ) as nav_enheter_json

@@ -1,7 +1,6 @@
 import {
   Besluttelse,
   DelutbetalingStatus,
-  NavEnhetType,
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
@@ -147,12 +146,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         start: "2024-01-01",
         slutt: "2024-06-30",
       },
-
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
-        overordnetEnhet: null,
-        type: NavEnhetType.TILTAK,
       },
       beregning: {
         type: "FRI",
@@ -193,8 +189,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
-        overordnetEnhet: null,
-        type: NavEnhetType.TILTAK,
       },
       beregning: {
         type: "FRI",
@@ -242,8 +236,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
-        overordnetEnhet: null,
-        type: NavEnhetType.TILTAK,
       },
       beregning: {
         type: "FRI",
@@ -292,8 +284,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
-        overordnetEnhet: null,
-        type: NavEnhetType.TILTAK,
       },
       beregning: {
         type: "FRI",
@@ -335,8 +325,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
-        overordnetEnhet: null,
-        type: NavEnhetType.TILTAK,
       },
       beregning: {
         type: "FRI",
@@ -387,8 +375,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       kostnadssted: {
         enhetsnummer: "0300",
         navn: "Nav Oslo",
-        overordnetEnhet: null,
-        type: NavEnhetType.TILTAK,
       },
       beregning: {
         type: "FRI",

@@ -3072,7 +3072,7 @@ components:
         antallPlasser:
           type: [number, "null"]
         kontorstruktur:
-          $ref: "#/components/schemas/NavKontorStruktur"
+          $ref: "#/components/schemas/Kontorstruktur"
         opphav:
           $ref: "#/components/schemas/Opphav"
         beskrivelse:
@@ -3442,7 +3442,7 @@ components:
           items:
             $ref: "#/components/schemas/GjennomforingAdministrator"
         kontorstruktur:
-          $ref: "#/components/schemas/NavKontorStruktur"
+          $ref: "#/components/schemas/Kontorstruktur"
         sanityId:
           type: string
           format: uuid
@@ -5115,7 +5115,7 @@ components:
         beskrivelse:
           type: string
 
-    NavKontorStruktur:
+    Kontorstruktur:
       type: array
       items:
         type: object
@@ -5782,7 +5782,7 @@ components:
         belopGjenstaende:
           type: integer
         kostnadssted:
-          $ref: "#/components/schemas/NavEnhetDto"
+          $ref: "#/components/schemas/KostnadsstedDto"
         beregning:
           $ref: "#/components/schemas/TilsagnBeregningDto"
         status:
@@ -5799,6 +5799,17 @@ components:
         - beregning
         - status
         - bestillingsnummer
+
+    KostnadsstedDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+        - navn
+        - enhetsnummer
 
     TilsagnDetaljerDto:
       type: object
@@ -6192,7 +6203,7 @@ components:
         kostnadssteder:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/KostnadsstedDto"
         belopUtbetalt:
           type: [number, "null"]
         type:
