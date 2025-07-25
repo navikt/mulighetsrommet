@@ -4700,7 +4700,7 @@ components:
         navn:
           type: string
         enhet:
-          $ref: "#/components/schemas/NavEnhetDto"
+          $ref: "#/components/schemas/VeilederflateTiltaksansvarligHovedenhet"
         telefon:
           type: string
         epost:
@@ -4711,6 +4711,17 @@ components:
         - _id
         - navn
         - epost
+
+    VeilederflateTiltaksansvarligHovedenhet:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+        - navn
+        - enhetsnummer
 
     NavEnhetType:
       type: string
@@ -5952,7 +5963,7 @@ components:
           type: integer
         antallUker:
           type: number
-      required: [periode, type, belop, sats, antallPlasser, antallUker ]
+      required: [periode, type, belop, sats, antallPlasser, antallUker]
 
     TilsagnBeregningPrisPerUkesverkInput:
       type: object
@@ -5981,7 +5992,7 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnBeregningFriInputLinje"
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
         belop:
           type: integer
       required: [type, belop, prisbetingelser, linjer]
@@ -6088,21 +6099,21 @@ components:
       properties:
         type:
           const: TIL_ATTESTERING
-      required: [ type ]
+      required: [type]
 
     UtbetalingStatusReturnert:
       type: object
       properties:
         type:
           const: RETURNERT
-      required: [ type ]
+      required: [type]
 
     UtbetalingStatusOverfortTilUtbetaling:
       type: object
       properties:
         type:
           const: OVERFORT_TIL_UTBETALING
-      required: [ type ]
+      required: [type]
 
     UtbetalingStatusAvbrutt:
       type: object
@@ -6118,7 +6129,7 @@ components:
         tidspunkt:
           type: string
           format: datetime
-      required: [ type, aarsaker, tidspunkt ]
+      required: [type, aarsaker, tidspunkt]
 
     UtbetalingDetaljerDto:
       type: object

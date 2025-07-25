@@ -163,7 +163,7 @@ class VeilederflateService(
                 VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,
                     telefon = it.telefonnummer,
-                    enhet = it.enhetsnummer?.let { enhet -> navEnhetService.hentEnhet(enhet) },
+                    enhet = it.enhetsnummer?.let { enhet -> getTiltaksansvarligEnhet(enhet) },
                     epost = it.epost,
                     beskrivelse = it.beskrivelse,
                 )
@@ -257,6 +257,12 @@ class VeilederflateService(
                 fylker = fylker,
                 enheter = enheter,
             )
+        }
+    }
+
+    private fun getTiltaksansvarligEnhet(enhet: NavEnhetNummer): VeilederflateTiltaksansvarligHovedenhet? {
+        return navEnhetService.hentEnhet(enhet)?.let {
+            VeilederflateTiltaksansvarligHovedenhet(it.navn, it.enhetsnummer)
         }
     }
 

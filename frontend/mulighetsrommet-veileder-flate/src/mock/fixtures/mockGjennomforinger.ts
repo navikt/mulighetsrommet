@@ -2,7 +2,6 @@ import {
   EstimertVentetidEnhet,
   GjennomforingOppstartstype,
   GjennomforingStatus,
-  NavEnhetType,
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakGruppe,
@@ -54,8 +53,6 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
         enhet: {
           enhetsnummer: "1928",
           navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
         },
         epost: "test@example.com",
       },
@@ -129,8 +126,6 @@ export const tiltakMentor: VeilederflateTiltakEnkeltplass = {
         enhet: {
           enhetsnummer: "1928",
           navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
         },
         epost: "test@example.com",
       },
@@ -179,8 +174,6 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
         enhet: {
           enhetsnummer: "1928",
           navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
         },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",
@@ -287,8 +280,6 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
         enhet: {
           enhetsnummer: "1928",
           navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
         },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",
@@ -374,8 +365,6 @@ export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
         enhet: {
           enhetsnummer: "1928",
           navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
         },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",
@@ -435,8 +424,6 @@ export const tiltakAft: VeilederflateTiltakGruppe = {
         enhet: {
           enhetsnummer: "1928",
           navn: "Nav Oslo",
-          type: NavEnhetType.LOKAL,
-          overordnetEnhet: null,
         },
         epost: "pelle.pilotbruker@nav.no",
         _id: "56767",

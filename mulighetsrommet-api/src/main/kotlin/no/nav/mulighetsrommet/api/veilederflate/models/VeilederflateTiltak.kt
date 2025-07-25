@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.sanity.RegelverkLenke
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -117,9 +116,15 @@ data class VeilederflateTiltakEnkeltplass(
 data class VeilederflateKontaktinfoTiltaksansvarlig(
     val navn: String? = null,
     val telefon: String? = null,
-    val enhet: NavEnhetDto? = null,
+    val enhet: VeilederflateTiltaksansvarligHovedenhet? = null,
     val epost: String? = null,
     val beskrivelse: String? = null,
+)
+
+@Serializable
+data class VeilederflateTiltaksansvarligHovedenhet(
+    val navn: String,
+    val enhetsnummer: NavEnhetNummer,
 )
 
 @Serializable
