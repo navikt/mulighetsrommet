@@ -1,23 +1,19 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { AvtaleDto, EmbeddedTiltakstype } from "@mr/api-client-v2";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
-import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { AvtaleListe } from "./AvtaleListe";
 
-interface Props {
-  tiltakstype?: EmbeddedTiltakstype;
-}
-
-export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
+export function AvtaleRedaksjoneltInnholdForm() {
   const [key, setKey] = useState(0);
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
 
-  const { setValue } = useFormContext<AvtaleFormValues>();
+  const { setValue, watch } = useFormContext<AvtaleFormValues>();
+  const tiltakstype = watch("tiltakstype");
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);
@@ -32,28 +28,19 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
 
   return (
     <>
-      <RedaksjoneltInnholdToppKnapperad>
-        <HStack justify="end">
-          <Button
-            size="small"
-            variant="tertiary"
-            type="button"
-            title="Kopier redaksjonelt innhold fra en annen avtale under samme tiltakstype"
-            onClick={() => setModalOpen(true)}
-          >
-            Kopier redaksjonelt innhold fra avtale
-          </Button>
-        </HStack>
-      </RedaksjoneltInnholdToppKnapperad>
-
+      <HStack>
+        <Button
+          size="small"
+          variant="tertiary"
+          type="button"
+          title="Kopier redaksjonelt innhold fra en annen avtale under samme tiltakstype"
+          onClick={() => setModalOpen(true)}
+        >
+          Kopier redaksjonelt innhold fra avtale
+        </Button>
+      </HStack>
       <RedaksjoneltInnholdForm key={`redaksjonelt-innhold-${key}`} tiltakstype={tiltakstype} />
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        style={{ maxHeight: "70rem" }}
-        aria-label="modal"
-        width="50rem"
-      >
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} aria-label="modal">
         <Modal.Header closeButton>
           <Heading size="medium">Kopier redaksjonelt innhold fra avtale</Heading>
         </Modal.Header>

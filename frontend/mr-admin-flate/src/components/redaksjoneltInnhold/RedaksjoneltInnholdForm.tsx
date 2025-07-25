@@ -1,6 +1,11 @@
-import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "@mr/api-client-v2";
+import {
+  EmbeddedTiltakstype,
+  NavEnhet,
+  NavEnhetType,
+  VeilederflateTiltakstype,
+} from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
@@ -13,6 +18,16 @@ import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import {
+  getLokaleUnderenheterAsSelectOptions,
+  getAndreUnderenheterAsSelectOptions,
+} from "@/api/enhet/helpers";
+import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
+import { MultiValue } from "react-select";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -33,13 +48,11 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
   return (
-    <>
-      <HStack justify="space-between" align="start" gap="2">
+    <TwoColumnGrid separator>
+      <RedaksjoneltInnholdContainer>
         <Alert size="small" variant="info">
           Ikke del personopplysninger i fritekstfeltene
         </Alert>
-      </HStack>
-      <RedaksjoneltInnholdContainer>
         <Textarea
           {...register("beskrivelse")}
           description="Beskrivelse av formålet med tiltaksgjennomføringen."
@@ -125,7 +138,9 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
           </Tabs.Panel>
         </Tabs>
       </RedaksjoneltInnholdContainer>
-    </>
+
+      <RegionerOgEnheter />
+    </TwoColumnGrid>
   );
 }
 
@@ -266,3 +281,74 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
     </VStack>
   );
 };
+
+function velgAlleLokaleUnderenheter(
+  selectedOptions: MultiValue<SelectOption<string>>,
+  enheter: NavEnhet[],
+): string[] {
+  const regioner = selectedOptions?.map((option) => option.value);
+  return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
+}
+
+function RegionerOgEnheter() {
+  const { register, setValue, watch } = useFormContext();
+  const { data: enheter } = useNavEnheter();
+
+  const navRegionerOptions = enheter
+    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
+    .map((enhet) => ({
+      value: enhet.enhetsnummer,
+      label: enhet.navn,
+    }));
+
+  return (
+    <>
+      <Heading size="medium" spacing level="3">
+        Geografisk tilgjengelighet
+      </Heading>
+      <VStack gap="2">
+        <ControlledMultiSelect
+          inputId={"navRegioner"}
+          size="small"
+          placeholder="Velg en"
+          label={avtaletekster.navRegionerLabel}
+          {...register("navRegioner")}
+          name={"navRegioner"}
+          additionalOnChange={(selectedOptions) => {
+            if ((watch("navRegioner")?.length ?? 0) > 1) {
+              const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(selectedOptions, enheter);
+              setValue("navKontorer", alleLokaleUnderenheter as [string, ...string[]]);
+            } else {
+              const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(selectedOptions, enheter);
+              const navKontorer = watch("navKontorer")?.filter((enhet: string) =>
+                alleLokaleUnderenheter.includes(enhet ?? ""),
+              );
+              setValue("navKontorer", navKontorer as [string, ...string[]]);
+            }
+          }}
+          options={navRegionerOptions}
+        />
+        <ControlledMultiSelect
+          inputId={"navKontorer"}
+          size="small"
+          velgAlle
+          placeholder="Velg en"
+          label={avtaletekster.navEnheterLabel}
+          helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
+          {...register("navKontorer")}
+          options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
+        />
+        <ControlledMultiSelect
+          inputId={"navAndreEnheter"}
+          size="small"
+          velgAlle
+          placeholder="Velg en (valgfritt)"
+          label={avtaletekster.navAndreEnheterLabel}
+          helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
+          {...register("navAndreEnheter")}
+          options={getAndreUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
+        />
+      </VStack>
+    </>
+  );
+}
