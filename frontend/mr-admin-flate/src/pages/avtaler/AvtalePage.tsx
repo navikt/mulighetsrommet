@@ -74,7 +74,10 @@ export function AvtalePage() {
           <Tabs.Panel value="detaljer">
             {location.pathname.includes("skjema") ? (
               <RedigerAvtaleContainer avtale={avtale}>
-                <AvtaleFormDetaljer avtale={avtale} />
+                <AvtaleFormDetaljer
+                  opsjonerRegistrert={avtale.opsjonerRegistrert}
+                  avtalenummer={avtale.avtalenummer}
+                />
               </RedigerAvtaleContainer>
             ) : (
               <AvtalePageLayout avtale={avtale}>

@@ -82,7 +82,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
                 )}
               </BodyLong>
               {avtale.opsjonerRegistrert.length > 0 ? (
-                <RegistrerteOpsjoner readOnly={false} avtale={avtale} />
+                <RegistrerteOpsjoner readOnly={false} />
               ) : null}
             </VStack>
           </Modal.Body>
@@ -105,7 +105,7 @@ interface ModalProps {
   avtale: AvtaleDto;
 }
 
-function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef, avtale }: ModalProps) {
+function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef }: ModalProps) {
   return (
     <VarselModal
       headingIconType="info"
@@ -119,7 +119,7 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef, avtale }: Moda
             Du kan ikke registrere flere opsjoner for avtalen. Avtalens sluttdato er samme som maks
             varighet for avtalen.
           </BodyShort>
-          <RegistrerteOpsjoner readOnly={false} avtale={avtale} />
+          <RegistrerteOpsjoner readOnly={false} />
         </VStack>
       }
     />

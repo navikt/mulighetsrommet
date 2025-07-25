@@ -4,8 +4,8 @@ import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
-  AvtaleDto,
   Avtaletype,
+  OpsjonLoggRegistrert,
   OpsjonsmodellType,
   OpsjonStatus,
   Prismodell,
@@ -22,16 +22,18 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
-import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { AvtaleVarighet } from "./AvtaleVarighet";
 
-interface Props {
-  avtale: AvtaleDto;
-}
-
-export function AvtaleFormDetaljer({ avtale }: Props) {
+export function AvtaleFormDetaljer({
+  opsjonerRegistrert,
+  avtalenummer,
+}: {
+  opsjonerRegistrert?: OpsjonLoggRegistrert[];
+  avtalenummer?: string;
+}) {
   const { data: administratorer } = useAvtaleAdministratorer();
   const { data: ansatt } = useHentAnsatt();
   const { data: tiltakstyper } = useTiltakstyper();
@@ -44,6 +46,7 @@ export function AvtaleFormDetaljer({ avtale }: Props) {
   } = useFormContext<AvtaleFormValues>();
 
   const watchedTiltakstype = watch("tiltakstype");
+  const watchedAdministratorer = watch("administratorer");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
   const watchedOpsjonsmodellType = watch("opsjonsmodell.type");
 
@@ -85,8 +88,9 @@ export function AvtaleFormDetaljer({ avtale }: Props) {
   }
 
   const antallOpsjonerUtlost = (
-    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
+    opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
   ).length;
+
   const { data: enableTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     watchedTiltakstype?.tiltakskode ? [watchedTiltakstype.tiltakskode] : [],
@@ -110,7 +114,7 @@ export function AvtaleFormDetaljer({ avtale }: Props) {
               size="small"
               readOnly
               label={avtaletekster.avtalenummerLabel}
-              value={avtale?.avtalenummer}
+              value={avtalenummer}
               placeholder="Genereres automatisk ved opprettelse"
             />
             <TextField
@@ -178,9 +182,9 @@ export function AvtaleFormDetaljer({ avtale }: Props) {
             <AvtaleUtdanningslopForm />
           ) : null}
         </FormGroup>
-
-        <AvtaleDatoContainer avtale={avtale} />
-
+        <FormGroup>
+          <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
+        </FormGroup>
         {!enableTilsagn && (
           <FormGroup>
             <Textarea
@@ -197,7 +201,7 @@ export function AvtaleFormDetaljer({ avtale }: Props) {
             placeholder="Administratorer"
             label={avtaletekster.administratorerForAvtalenLabel}
             {...register("administratorer")}
-            options={AdministratorOptions(ansatt, avtale?.administratorer, administratorer)}
+            options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
           />
         </FormGroup>
       </VStack>

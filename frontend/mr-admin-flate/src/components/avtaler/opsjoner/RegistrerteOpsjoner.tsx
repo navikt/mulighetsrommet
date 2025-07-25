@@ -1,15 +1,18 @@
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { formaterDato } from "@/utils/Utils";
-import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
+import { OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
 
 interface Props {
-  avtale: AvtaleDto;
   readOnly: boolean;
 }
 
-export function RegistrerteOpsjoner({ avtale, readOnly }: Props) {
+export function RegistrerteOpsjoner({ readOnly }: Props) {
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: avtale } = useAvtale(avtaleId);
   const logg = avtale.opsjonerRegistrert;
   const mutation = useSlettOpsjon(avtale.id);
 
