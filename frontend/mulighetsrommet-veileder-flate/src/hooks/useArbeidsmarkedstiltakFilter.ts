@@ -1,4 +1,4 @@
-import { ApentForPamelding, Innsatsgruppe, LagretFilterType, NavEnhet } from "@mr/api-client-v2";
+import { ApentForPamelding, Innsatsgruppe, LagretFilterType } from "@mr/api-client-v2";
 import {
   atomWithStorage,
   createJSONStorage,
@@ -17,7 +17,13 @@ import { useCallback, useEffect } from "react";
 
 export const ArbeidsmarkedstiltakFilterSchema = z.object({
   search: z.string(),
-  navEnheter: z.custom<NavEnhet>().array(),
+  navEnheter: z
+    .object({
+      navn: z.string(),
+      enhetsnummer: z.string(),
+      overordnetEnhet: z.string().nullable(),
+    })
+    .array(),
   innsatsgruppe: z
     .object({
       tittel: z.string(),

@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -537,7 +537,7 @@ class AvtaleQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<AvtaleDto.Administrator>>(it) }
             ?: emptyList()
         val navEnheter = stringOrNull("nav_enheter_json")
-            ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
+            ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
             ?: emptyList()
         val kontorstruktur = fromNavEnheter(navEnheter)
 

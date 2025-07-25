@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -17,7 +16,7 @@ data class TilsagnDto(
     val periode: Periode,
     val belopBrukt: Int,
     val belopGjenstaende: Int,
-    val kostnadssted: NavEnhetDbo,
+    val kostnadssted: KostnadsstedDto,
     // TODO: eksponere en forenklet beregningsmodell, tilsavarende UtbetalingDto?
     val beregning: TilsagnBeregningDto,
     val lopenummer: Int,
@@ -31,7 +30,7 @@ data class TilsagnDto(
             periode = tilsagn.periode,
             belopBrukt = tilsagn.belopBrukt,
             belopGjenstaende = tilsagn.gjenstaendeBelop(),
-            kostnadssted = tilsagn.kostnadssted,
+            kostnadssted = KostnadsstedDto.fromNavEnhetDbo(tilsagn.kostnadssted),
             beregning = TilsagnBeregningDto.from(tilsagn.beregning),
             lopenummer = tilsagn.lopenummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,

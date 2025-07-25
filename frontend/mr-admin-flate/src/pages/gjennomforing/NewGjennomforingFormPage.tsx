@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "react-router";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
-import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 
 function useGjennomforingFormData() {

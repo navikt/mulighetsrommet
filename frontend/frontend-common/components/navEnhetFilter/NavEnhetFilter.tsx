@@ -6,25 +6,22 @@ import styles from "./NavEnhetFilter.module.scss";
 import { addOrRemove } from "../../utils/utils";
 
 interface NavRegion {
-    enhetsnummer: string;
-    navn: string;
-    enheter: Array<NavEnhet>;
+  enhetsnummer: string;
+  navn: string;
+  enheter: Array<NavRegionUnderenhet>;
+}
+
+interface NavRegionUnderenhet {
+  navn: string;
+  enhetsnummer: string;
+  overordnetEnhet: string;
+  erStandardvalg: boolean;
 }
 
 interface NavEnhet {
-    enhetsnummer: string;
-    overordnetEnhet: string | null;
-    navn: string;
-    type: NavEnhetType;
-}
-
-enum NavEnhetType {
-    LOKAL = 'LOKAL',
-    FYLKE = 'FYLKE',
-    TILTAK = 'TILTAK',
-    ALS = 'ALS',
-    KO = 'KO',
-    ARK = 'ARK'
+  navn: string;
+  enhetsnummer: string;
+  overordnetEnhet: string | null;
 }
 
 interface RegionMap {
@@ -42,7 +39,9 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
 
   function regionMapToNavEnheter(regionMap: RegionMap): string[] {
-    return Array.from(Object.values(regionMap)).flat(1).map(e => e.enhetsnummer);
+    return Array.from(Object.values(regionMap))
+      .flat(1)
+      .map((e) => e.enhetsnummer);
   }
 
   function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
@@ -75,10 +74,11 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   function regionOnChange(region: NavRegion) {
     const count = underenhetCount(region);
 
+    const underenheter = count > 0 ? [] : region.enheter.filter((enhet) => enhet.erStandardvalg);
     onChange(
       regionMapToNavEnheter({
         ...regionMap,
-        [region.enhetsnummer]: count > 0 ? [] : region.enheter.filter((enhet) => enhet.type == NavEnhetType.LOKAL),
+        [region.enhetsnummer]: underenheter,
       }),
     );
   }
@@ -90,7 +90,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
-    onChange(addOrRemove(value, enhet).map(e => e.enhetsnummer));
+    onChange(addOrRemove(value, enhet).map((e) => e.enhetsnummer));
   }
 
   return (

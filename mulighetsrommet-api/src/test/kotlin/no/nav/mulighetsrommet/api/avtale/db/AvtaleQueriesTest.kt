@@ -215,13 +215,12 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    it.kontorstruktur shouldBe listOf(
-                        Kontorstruktur(
-                            region = Innlandet,
-                            kontorer = listOf(Gjovik, Sel),
-                        ),
-                    )
+                queries.get(avtale.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    it.kontorer.should { (first, second) ->
+                        first.enhetsnummer shouldBe Gjovik.enhetsnummer
+                        second.enhetsnummer shouldBe Sel.enhetsnummer
+                    }
                 }
             }
         }
@@ -240,17 +239,12 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    it.kontorstruktur shouldBe listOf(
-                        Kontorstruktur(
-                            region = Innlandet,
-                            kontorer = listOf(Gjovik),
-                        ),
-                        Kontorstruktur(
-                            region = Oslo,
-                            kontorer = emptyList(),
-                        ),
-                    )
+                queries.get(avtale.id).shouldNotBeNull().kontorstruktur.should { (first, second) ->
+                    first.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    first.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Gjovik.enhetsnummer
+
+                    second.region.enhetsnummer shouldBe Oslo.enhetsnummer
+                    second.kontorer.shouldBeEmpty()
                 }
             }
         }

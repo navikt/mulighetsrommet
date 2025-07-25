@@ -1,7 +1,6 @@
 import {
   GetArrangorerData,
   type GetAvtalerData,
-  GetEnheterData,
   GetGjennomforingerData,
   LagretFilterType,
   NotificationStatus,
@@ -26,7 +25,7 @@ export const QueryKeys = {
     ["avtaler", mine, avtaleFilter] as const,
   avtale: (id?: string) => ["avtale", id] as const,
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
-  enheter: (filter?: Pick<GetEnheterData, "query">) => ["enheter", filter],
+  navEnheter: () => ["nav-enheter"],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],
   arrangorer: (filter?: Pick<GetArrangorerData, "query">) => ["arrangorer", filter] as const,
   arrangorById: (id: string) => ["arrangor", id],
