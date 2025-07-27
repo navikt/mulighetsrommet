@@ -244,11 +244,12 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
-
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+            is UtbetalingBeregningFri,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
+            -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
+
+            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
             -> Unit
         }
 
