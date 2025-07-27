@@ -1196,9 +1196,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseArbeidsgiverAvtale: "#/components/schemas/DeltakelseArbeidsgiverAvtale"
-          no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseArena: "#/components/schemas/DeltakelseArena"
-          no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak: "#/components/schemas/DeltakelseGruppetiltak"
+          no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale: "#/components/schemas/DeltakelseArbeidsgiverAvtale"
+          no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArena: "#/components/schemas/DeltakelseArena"
+          no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak: "#/components/schemas/DeltakelseGruppetiltak"
     DeltakelseArbeidsgiverAvtale:
       type: object
       properties:
@@ -1206,7 +1206,7 @@ components:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/Eierskap"
+          $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
         tiltakstypeNavn:
@@ -1222,7 +1222,7 @@ components:
           - string
           format: date
         periode:
-          $ref: "#/components/schemas/Periode"
+          $ref: "#/components/schemas/DeltakelsePeriode"
         status:
           $ref: "#/components/schemas/DeltakelseArbeidsgiverAvtaleStatus"
       required:
@@ -1234,13 +1234,13 @@ components:
       - status
       - tiltakstypeNavn
       - tittel
-    Eierskap:
+    DeltakelseEierskap:
       type: string
       enum:
       - ARENA
       - TEAM_KOMET
       - TEAM_TILTAK
-    Periode:
+    DeltakelsePeriode:
       type: object
       properties:
         startDato:
@@ -1283,7 +1283,7 @@ components:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/Eierskap"
+          $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
         tiltakstypeNavn:
@@ -1299,7 +1299,7 @@ components:
           - string
           format: date
         periode:
-          $ref: "#/components/schemas/Periode"
+          $ref: "#/components/schemas/DeltakelsePeriode"
         status:
           $ref: "#/components/schemas/DeltakelseArenaStatus"
       required:
@@ -1346,7 +1346,7 @@ components:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/Eierskap"
+          $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
         tiltakstypeNavn:
@@ -1362,7 +1362,7 @@ components:
           - string
           format: date
         periode:
-          $ref: "#/components/schemas/Periode"
+          $ref: "#/components/schemas/DeltakelsePeriode"
         status:
           $ref: "#/components/schemas/DeltakelseGruppetiltakStatus"
         gjennomforingId:

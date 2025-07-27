@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
@@ -126,7 +127,7 @@ fun Route.brukerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Aktiv deltakelse for bruker"
-                    body<Deltakelse.DeltakelseGruppetiltak>()
+                    body<DeltakelseGruppetiltak>()
                 }
                 code(HttpStatusCode.NotFound) {
                     description = "Fant ikke aktiv deltakelse for tiltak"
@@ -146,7 +147,7 @@ fun Route.brukerRoutes() {
 
             val response = deltakelser.aktive
                 .firstOrNull {
-                    it is Deltakelse.DeltakelseGruppetiltak && it.gjennomforingId == tiltakId
+                    it is DeltakelseGruppetiltak && it.gjennomforingId == tiltakId
                 }
                 ?: HttpStatusCode.NoContent
 

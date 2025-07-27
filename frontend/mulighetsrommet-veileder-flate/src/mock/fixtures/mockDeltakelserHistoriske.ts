@@ -1,9 +1,14 @@
-import { ArbeidsgiverAvtaleStatus, Deltakelse, DeltakerStatusType, Eierskap } from "@api-client";
+import {
+  ArbeidsgiverAvtaleStatus,
+  Deltakelse,
+  DeltakelseEierskap,
+  DeltakerStatusType,
+} from "@api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
 
 export const deltakelserHistoriske: Deltakelse[] = [
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstypeNavn: "Oppfølging",
     id: window.crypto.randomUUID(),
@@ -15,11 +20,11 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: { startDato: null, sluttDato: null },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseArbeidsgiverAvtale",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale",
     tittel: "Mentor hos Fretex AS",
     tiltakstypeNavn: "Mentor",
     id: window.crypto.randomUUID(),
@@ -29,11 +34,11 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
-    eierskap: Eierskap.TEAM_TILTAK,
+    eierskap: DeltakelseEierskap.TEAM_TILTAK,
     periode: { startDato: null, sluttDato: null },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstypeNavn: "Oppfølging",
     id: window.crypto.randomUUID(),
@@ -45,11 +50,11 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: null,
     innsoktDato: "2024-03-02",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: { startDato: null, sluttDato: null },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     periode: {
       startDato: "2023-05-10",
       sluttDato: "2023-12-12",
@@ -65,10 +70,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: null,
     innsoktDato: "2024-03-02",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     periode: {
       startDato: "2023-01.01",
       sluttDato: "2024-02-01",
@@ -85,10 +90,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     periode: {
       startDato: "2023-01.01",
       sluttDato: "2024-02-01",
@@ -104,10 +109,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Avklaring med Anne",
     tiltakstypeNavn: "Avklaring",
     id: window.crypto.randomUUID(),
@@ -119,11 +124,11 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: { startDato: null, sluttDato: null },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Gammel Avklaring med Anne",
     tiltakstypeNavn: "Avklaring",
     id: window.crypto.randomUUID(),
@@ -135,7 +140,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     },
     sistEndretDato: null,
     innsoktDato: "2017-02-03",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: { startDato: null, sluttDato: null },
   },
 ];

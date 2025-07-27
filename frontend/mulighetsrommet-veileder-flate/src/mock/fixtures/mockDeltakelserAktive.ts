@@ -1,9 +1,14 @@
-import { ArbeidsgiverAvtaleStatus, Deltakelse, DeltakerStatusType, Eierskap } from "@api-client";
+import {
+  ArbeidsgiverAvtaleStatus,
+  Deltakelse,
+  DeltakelseEierskap,
+  DeltakerStatusType,
+} from "@api-client";
 import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockGjennomforinger";
 
 export const deltakelserAktive: Deltakelse[] = [
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakAft.id,
     innsoktDato: "2024-03-02",
@@ -15,11 +20,11 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstypeNavn: "Arbeidsforberedende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: { startDato: null, sluttDato: null },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakAvklaring.id,
     innsoktDato: "2024-02-01",
@@ -31,11 +36,11 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: { startDato: null, sluttDato: null },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
@@ -51,10 +56,10 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tittel: "Jobbklubb hos Fretex",
     sistEndretDato: null,
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseGruppetiltak",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
@@ -70,10 +75,10 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     sistEndretDato: null,
     tittel: "Jobbklubb hos Fretex",
-    eierskap: Eierskap.TEAM_KOMET,
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.DeltakelseArbeidsgiverAvtale",
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale",
     id: window.crypto.randomUUID(),
     innsoktDato: "2024-02-01",
     status: {
@@ -87,6 +92,6 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tittel: "Arbeidstrening hos Fretex",
     sistEndretDato: null,
-    eierskap: Eierskap.TEAM_TILTAK,
+    eierskap: DeltakelseEierskap.TEAM_TILTAK,
   },
 ];
