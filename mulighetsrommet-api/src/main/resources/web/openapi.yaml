@@ -5070,11 +5070,11 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet.migrering.okonomi.avbryt-utbetaling
-        - mulighetsrommet.tiltakstype.migrering.okonomi
-        - mulighetsrommet.tiltakstype.migrering.tilsagn
-        - arrangorflate.utbetaling.opprett-utbetaling-knapp
-        - arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris
+        - MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING
+        - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
+        - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
+        - ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER
+        - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
 
     PublisertRequest:
       type: object

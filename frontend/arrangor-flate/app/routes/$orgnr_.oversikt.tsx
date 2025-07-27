@@ -36,13 +36,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const opprettKravOmUtbetalingToggle = await toggleIsEnabled({
     orgnr,
-    feature: Toggles.ARRANGORFLATE_UTBETALING_OPPRETT_UTBETALING_KNAPP,
+    feature: Toggles.ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER,
     tiltakskoder: [],
     headers: await apiHeaders(request),
   });
   const opprettUtbetalingsKravAnnenAvtaltPrisToggle = await toggleIsEnabled({
     orgnr,
-    feature: Toggles.ARRANGORFLATE_UTBETALING_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
+    feature: Toggles.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
     tiltakskoder: [],
     headers: await apiHeaders(request),
   });
