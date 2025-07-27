@@ -45,22 +45,25 @@ fun Route.apiRoutes() {
         arenaAdapterRoutes()
     }
 
-    route("/api/v1") {
+    route("/api") {
         route("/veilederflate") {
             route("api.yaml") {
                 openApi()
             }
 
             authenticate(AuthProvider.NAV_ANSATT) {
-                featureTogglesRoute()
                 lagretFilterRoutes()
                 navEnhetRoutes()
                 veilederflateRoutes()
             }
         }
 
-        route("/intern") {
+        route("/v1/intern") {
             authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+                featureTogglesRoute()
+                lagretFilterRoutes()
+                navEnhetRoutes()
+
                 authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
                     adminflateRoutes()
                 }

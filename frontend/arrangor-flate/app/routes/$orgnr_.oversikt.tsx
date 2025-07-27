@@ -14,7 +14,7 @@ import { useTabState } from "~/hooks/useTabState";
 import { toggleIsEnabled } from "~/services/featureToggle/featureToggleService";
 import { tekster } from "~/tekster";
 import css from "../root.module.css";
-import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { PageHeading } from "~/components/common/PageHeading";
 import { ChevronDownIcon } from "@navikt/aksel-icons";

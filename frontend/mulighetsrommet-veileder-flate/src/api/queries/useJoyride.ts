@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { QueryKeys } from "../query-keys";
-import { JoyrideService, JoyrideType } from "@mr/api-client-v2";
+import { JoyrideService, JoyrideType } from "@api-client";
 import { useApiQuery } from "@mr/frontend-common";
 
 export function useJoyride(joyrideType: JoyrideType) {
@@ -9,7 +9,7 @@ export function useJoyride(joyrideType: JoyrideType) {
     queryKey: QueryKeys.harFullfortJoyride(joyrideType),
     queryFn: () => {
       return JoyrideService.veilederHarFullfortJoyride({
-        path: { joyrideType },
+        path: { type: joyrideType },
       });
     },
   });

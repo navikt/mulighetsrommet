@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -50,7 +51,7 @@ object ArrangorflateTestUtils {
         deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
-            type = DeltakerStatus.Type.DELTAR,
+            type = DeltakerStatusType.DELTAR,
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),

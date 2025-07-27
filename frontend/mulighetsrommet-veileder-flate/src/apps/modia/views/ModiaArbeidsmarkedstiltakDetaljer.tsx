@@ -25,13 +25,12 @@ import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import {
-  Bruker,
+  Brukerdata,
   Innsatsgruppe,
-  NavVeileder,
+  NavVeilederDto,
   Tiltakskode,
-  TiltakskodeArena,
   VeilederflateTiltakstype,
-} from "@mr/api-client-v2";
+} from "@api-client";
 import { TilbakemeldingsLenke } from "@mr/frontend-common";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
@@ -159,12 +158,11 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 <PersonvernContainer tiltak={tiltak} />
               </ArbeidsmarkedstiltakErrorBoundary>
             ) : null}
-
-            <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
+            {tiltak.faneinnhold?.lenker && <LenkeListe lenker={tiltak.faneinnhold.lenker} />}
 
             {isTilbakemeldingerEnabled(tiltak) && (
               <TilbakemeldingsLenke
-                url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer, fylke)}
+                url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer ?? "", fylke ?? "")}
                 tekst="Gi tilbakemelding via Porten"
               />
             )}
@@ -175,29 +173,27 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   );
 }
 
-const whiteListOpprettAvtaleKnapp: TiltakskodeArena[] = [
-  TiltakskodeArena.MIDLONTIL,
-  TiltakskodeArena.ARBTREN,
-  TiltakskodeArena.VARLONTIL,
-  TiltakskodeArena.MENTOR,
-  TiltakskodeArena.INKLUTILS,
-  TiltakskodeArena.TILSJOBB,
-  TiltakskodeArena.VATIAROR,
+// TODO: enten fikse enum for arena-koder, eller introdusere Team tiltak sine koder
+const whiteListOpprettAvtaleKnapp: string[] = [
+  "MIDLONTIL",
+  "ARBTREN",
+  "VARLONTIL",
+  "MENTOR",
+  "INKLUTILS",
+  "TILSJOBB",
+  "VATIAROR",
 ];
 
-function resolveName(ansatt: NavVeileder) {
+function resolveName(ansatt: NavVeilederDto) {
   return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
 }
 
 function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
-  return (
-    tiltakstype.arenakode !== undefined &&
-    whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode)
-  );
+  return !!tiltakstype.arenakode && whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode);
 }
 
 function harBrukerRettPaaValgtTiltak(
-  bruker: Bruker,
+  bruker: Brukerdata,
   tiltakstype: VeilederflateTiltakstype,
 ): boolean {
   if (!bruker.erUnderOppfolging || !bruker.innsatsgruppe) {

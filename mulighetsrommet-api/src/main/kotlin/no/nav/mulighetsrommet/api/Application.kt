@@ -12,6 +12,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.media.Schema
+import kotlinx.serialization.json.Json
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.mulighetsrommet.api.plugins.*
@@ -71,7 +72,28 @@ fun Application.configure(config: AppConfig) {
         }
 
         schemas {
-            generator = SchemaGenerator.kotlinx {
+            generator = SchemaGenerator.kotlinx(
+                Json {
+                    /**
+                     * Hvis vi setter denne til true så vil generert skjema for nullable felter ha "null" som et valg,
+                     * f.eks. allOf: ["null", "string"] og property blir samtidig markert som required.
+                     */
+                    explicitNulls = true
+                    /**
+                     * Gjør at felter som har en default-verdi i Kotlin blir markert som required i skjemaet.
+                     */
+                    encodeDefaults = true
+                },
+            ) {
+                /**
+                 * Gjør at generert skjema ikke har "null" som et valg for nullable felter - altså at property
+                 * ikke eksplisitt kan settes til null, men må tas ut av f.eks. en request.
+                 *
+                 * Default er true, noe som gjør at skjema blir generert med både f.eks. allOf: ["null", "string"]
+                 * og at property ikke er required.
+                 */
+                //  explicitNullTypes = false
+
                 overwrite(
                     SchemaOverwriteModule(
                         identifier = "UUIDCustom",

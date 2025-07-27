@@ -6,7 +6,7 @@ import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import { Alert } from "@navikt/ds-react";
-import { Innsatsgruppe, NavEnhetType } from "@mr/api-client-v2";
+import { Innsatsgruppe, NavEnhetType } from "@api-client";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
@@ -55,7 +55,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                 <PersonvernContainer tiltak={tiltak} />
               </ArbeidsmarkedstiltakErrorBoundary>
             ) : null}
-            <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
+            {tiltak.faneinnhold?.lenker && <LenkeListe lenker={tiltak.faneinnhold.lenker} />}
           </>
         }
       />

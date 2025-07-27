@@ -1,15 +1,19 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class Deltakelse {
     abstract val id: UUID
     abstract val eierskap: Eierskap
@@ -46,10 +50,10 @@ sealed class Deltakelse {
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
-        val status: Status,
+        val status: DeltakelseArenaStatus,
     ) : Deltakelse() {
         @Serializable
-        data class Status(
+        data class DeltakelseArenaStatus(
             val type: ArenaDeltakerStatus,
             val visningstekst: String,
         )
@@ -67,13 +71,13 @@ sealed class Deltakelse {
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
-        val status: Status,
+        val status: DeltakelseGruppetiltakStatus,
         @Serializable(with = UUIDSerializer::class)
         val gjennomforingId: UUID,
     ) : Deltakelse() {
         @Serializable
-        data class Status(
-            val type: DeltakerStatus.Type,
+        data class DeltakelseGruppetiltakStatus(
+            val type: DeltakerStatusType,
             val visningstekst: String,
             val aarsak: String?,
         )
@@ -91,10 +95,10 @@ sealed class Deltakelse {
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
-        val status: Status,
+        val status: DeltakelseArbeidsgiverAvtaleStatus,
     ) : Deltakelse() {
         @Serializable
-        data class Status(
+        data class DeltakelseArbeidsgiverAvtaleStatus(
             val type: ArbeidsgiverAvtaleStatus,
             val visningstekst: String,
         )

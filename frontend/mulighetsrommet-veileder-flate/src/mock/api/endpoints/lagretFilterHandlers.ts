@@ -1,9 +1,9 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { LagretFilterType, LagretFilter } from "@mr/api-client-v2";
+import { LagretFilterType, LagretFilter } from "@api-client";
 
 export const lagretFilterHandlers = [
   http.get<PathParams, LagretFilter[] | undefined>(
-    "*/api/v1/intern/lagret-filter/mine/:dokumenttype",
+    "*/api/veilederflate/lagret-filter/mine/:dokumenttype",
     () => {
       return HttpResponse.json<LagretFilter[]>([
         {

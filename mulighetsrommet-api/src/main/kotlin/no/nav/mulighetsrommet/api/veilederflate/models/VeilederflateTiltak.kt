@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
-import kotlinx.serialization.SerialName
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -14,10 +14,11 @@ import java.util.*
 @Serializable
 data class VeilederflateInnsatsgruppe(
     val tittel: String,
-    val nokkel: String,
+    val nokkel: Innsatsgruppe,
     val order: Int,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("type")
 sealed class VeilederflateTiltak {
@@ -33,7 +34,6 @@ sealed class VeilederflateTiltak {
 }
 
 @Serializable
-@SerialName("VeilederflateTiltakGruppe")
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -66,7 +66,6 @@ data class VeilederflateTiltakGruppe(
 }
 
 @Serializable
-@SerialName("VeilederflateTiltakEnkeltplassAnskaffet")
 data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -83,7 +82,6 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("VeilederflateTiltakEgenRegi")
 data class VeilederflateTiltakEgenRegi(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -99,7 +97,6 @@ data class VeilederflateTiltakEgenRegi(
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("VeilederflateTiltakEnkeltplass")
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -149,8 +146,6 @@ data class VeilederflateTiltakstype(
 
 @Serializable
 data class VeilederflateArrangor(
-    @Serializable(with = UUIDSerializer::class)
-    val arrangorId: UUID,
     val selskapsnavn: String?,
     val organisasjonsnummer: String?,
     val kontaktpersoner: List<VeilederflateArrangorKontaktperson>,
@@ -176,8 +171,16 @@ data class Oppskrift(
     val _id: String,
     val navn: String,
     val beskrivelse: String,
-    val steg: List<PortableTextTypedObject>,
+    val steg: List<OppskriftSteg>,
     val _updatedAt: String,
+)
+
+@Serializable
+data class OppskriftSteg(
+    val _type: String,
+    val _key: String,
+    val navn: String,
+    val innhold: List<PortableTextTypedObject>,
 )
 
 @Serializable

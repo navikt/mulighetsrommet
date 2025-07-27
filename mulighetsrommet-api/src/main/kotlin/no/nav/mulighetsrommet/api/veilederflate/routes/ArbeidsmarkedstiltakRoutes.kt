@@ -115,15 +115,15 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         tags = setOf("VeilederTiltak")
         operationId = "getAllVeilederTiltak"
         request {
-            queryParameter<Innsatsgruppe>("innsatsgruppe") {
-                required = true
-            }
+            queryParameter<Innsatsgruppe>("innsatsgruppe")
             queryParameter<List<String>>("enheter") {
-                required = true
+                explode = true
             }
             queryParameter<String>("search")
             queryParameter<ApentForPamelding>("apentForPamelding")
-            queryParameter<List<String>>("tiltakstyper")
+            queryParameter<List<String>>("tiltakstyper") {
+                explode = true
+            }
             queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
         }
         response {
@@ -225,19 +225,19 @@ fun Route.arbeidsmarkedstiltakRoutes() {
     }
 
     route("/nav") {
-        get({
+        get("/gjennomforinger", {
             tags = setOf("VeilederTiltak")
             operationId = "getAllNavTiltak"
             request {
-                queryParameter<Innsatsgruppe>("innsatsgruppe") {
-                    required = true
-                }
+                queryParameter<Innsatsgruppe>("innsatsgruppe")
                 queryParameter<List<String>>("enheter") {
-                    required = true
+                    explode = true
                 }
                 queryParameter<String>("search")
                 queryParameter<ApentForPamelding>("apentForPamelding")
-                queryParameter<List<String>>("tiltakstyper")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
                 queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
             }
             response {
@@ -266,7 +266,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             call.respond(result)
         }
 
-        get({
+        get("/gjennomforinger/{id}", {
             tags = setOf("VeilederTiltak")
             operationId = "getNavTiltak"
             request {
@@ -298,19 +298,19 @@ fun Route.arbeidsmarkedstiltakRoutes() {
 
     authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
         route("/preview") {
-            get({
+            get("/gjennomforinger", {
                 tags = setOf("VeilederTiltak")
                 operationId = "getAllPreviewTiltak"
                 request {
-                    queryParameter<Innsatsgruppe>("innsatsgruppe") {
-                        required = true
-                    }
+                    queryParameter<Innsatsgruppe>("innsatsgruppe")
                     queryParameter<List<String>>("enheter") {
-                        required = true
+                        explode = true
                     }
                     queryParameter<String>("search")
                     queryParameter<ApentForPamelding>("apentForPamelding")
-                    queryParameter<List<String>>("tiltakstyper")
+                    queryParameter<List<String>>("tiltakstyper") {
+                        explode = true
+                    }
                     queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
                 }
                 response {
@@ -339,7 +339,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 call.respond(result)
             }
 
-            get({
+            get("/gjennomforinger/{id}", {
                 tags = setOf("VeilederTiltak")
                 operationId = "getPreviewTiltak"
                 request {

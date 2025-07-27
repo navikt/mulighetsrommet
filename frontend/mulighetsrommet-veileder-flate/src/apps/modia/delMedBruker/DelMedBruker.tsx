@@ -2,7 +2,7 @@ import { Alert, Button } from "@navikt/ds-react";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
-import { Bruker, DelMedBruker as DelMedBrukerInfo, VeilederflateTiltak } from "@mr/api-client-v2";
+import { Brukerdata, DelMedBrukerDbo as DelMedBrukerInfo, VeilederflateTiltak } from "@api-client";
 import { formaterDato } from "@/utils/Utils";
 import {
   erBrukerReservertMotDigitalKommunikasjon,
@@ -11,7 +11,7 @@ import {
 
 interface Props {
   veiledernavn: string;
-  bruker: Bruker;
+  bruker: Brukerdata;
   tiltak: VeilederflateTiltak;
   delMedBrukerInfo?: DelMedBrukerInfo;
   veilederEnhet: string;

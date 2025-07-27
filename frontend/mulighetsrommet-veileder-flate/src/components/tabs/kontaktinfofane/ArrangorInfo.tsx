@@ -1,10 +1,10 @@
-import { PortableTextTypedObject, VeilderflateArrangor } from "@mr/api-client-v2";
+import { PortableTextTypedObject, VeilederflateArrangor } from "@api-client";
 import { BodyLong, BodyShort, Heading, Link } from "@navikt/ds-react";
 import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 
 interface ArrangorInfoProps {
-  arrangor: VeilderflateArrangor;
-  faneinnhold?: Array<PortableTextTypedObject>;
+  arrangor: VeilederflateArrangor;
+  faneinnhold?: Array<PortableTextTypedObject> | null;
 }
 
 const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {

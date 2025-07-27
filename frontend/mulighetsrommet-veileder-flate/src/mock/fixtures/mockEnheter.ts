@@ -1,4 +1,4 @@
-import { NavEnhetDto, NavEnhetType, NavRegionDto } from "@mr/api-client-v2";
+import { NavEnhetDto, NavEnhetType, NavRegionDto } from "@api-client";
 
 export const mockEnheter: {
   [navn: string]: NavEnhetDto;

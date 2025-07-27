@@ -4,7 +4,7 @@ import {
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { useApiQuery } from "@mr/frontend-common";
-import { VeilederTiltakService } from "@mr/api-client-v2";
+import { VeilederTiltakService } from "@api-client";
 
 export function useModiaArbeidsmarkedstiltak() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
