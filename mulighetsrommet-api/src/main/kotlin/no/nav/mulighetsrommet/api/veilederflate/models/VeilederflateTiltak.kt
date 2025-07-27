@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.veilederflate.models
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.sanity.RegelverkLenke
 import no.nav.mulighetsrommet.model.*
@@ -177,7 +176,7 @@ data class Oppskrift(
     val _id: String,
     val navn: String,
     val beskrivelse: String,
-    val steg: List<JsonObject>,
+    val steg: List<PortableTextTypedObject>,
     val _updatedAt: String,
 )
 

@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import org.koin.ktor.ext.inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -100,6 +101,30 @@ fun Application.configure(config: AppConfig) {
                             Schema<Any>().also {
                                 it.types = setOf("string")
                                 it.format = "date"
+                            }
+                        },
+                    ),
+                )
+                overwrite(
+                    SchemaOverwriteModule(
+                        identifier = "PortableTextTypedObject",
+                        schema = {
+                            Schema<PortableTextTypedObject>().apply {
+                                type = "object"
+                                addProperty(
+                                    "_type",
+                                    Schema<String>().apply {
+                                        types = setOf("string")
+                                    },
+                                )
+                                addProperty(
+                                    "_key",
+                                    Schema<String>().apply {
+                                        types = setOf("string")
+                                    },
+                                )
+                                required = listOf("_type")
+                                additionalProperties = Schema<Any>()
                             }
                         },
                     ),
