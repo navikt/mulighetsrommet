@@ -9,7 +9,7 @@
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
     "@date-fns/utc": "^2.1.0",
-    "@hookform/resolvers": "5.1.1",
+    "@hookform/resolvers": "5.2.0",
     "@navikt/aksel-icons": "7.25.1",
     "@navikt/ds-css": "7.25.1",
     "@navikt/ds-react": "7.25.1",
@@ -20,11 +20,11 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-error-boundary": "6.0.0",
-    "react-hook-form": "7.60.0",
-    "react-router": "7.7.0",
+    "react-hook-form": "7.61.1",
+    "react-router": "7.7.1",
     "react-select": "5.10.2",
     "use-resize-observer": "9.1.0",
-    "zod": "4.0.5"
+    "zod": "4.0.10"
   },
   "scripts": {
     "test": "vitest"
