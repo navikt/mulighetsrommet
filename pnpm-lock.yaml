@@ -632,9 +632,6 @@ importers:
       '@grafana/faro-web-sdk':
         specifier: 1.19.0
         version: 1.19.0
-      '@mr/api-client-v2':
-        specifier: workspace:*
-        version: link:../api-client-v2
       '@mr/frontend-common':
         specifier: workspace:*
         version: link:../frontend-common
@@ -711,6 +708,9 @@ importers:
       '@axe-core/playwright':
         specifier: 4.10.2
         version: 4.10.2(playwright-core@1.54.1)
+      '@hey-api/openapi-ts':
+        specifier: 0.79.2
+        version: 0.79.2(typescript@5.8.3)
       '@mr/eslint-config-react-app':
         specifier: workspace:*
         version: link:../eslint-config-react-app

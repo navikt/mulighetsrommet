@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/query-keys";
-import { DelMedBrukerService } from "@mr/api-client-v2";
+import { DelMedBrukerService } from "@api-client";
 import { useQuery } from "@tanstack/react-query";
 
 export function useDelMedBrukerStatus(norskIdent: string, gjennomforingId: string) {

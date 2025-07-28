@@ -1,5 +1,5 @@
 import { Alert, ErrorMessage, Textarea } from "@navikt/ds-react";
-import { DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
+import { DelMedBrukerDbo, VeilederflateTiltak } from "@api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
 import { Actions, State } from "./DelemodalActions";
@@ -12,8 +12,8 @@ interface Props {
   state: State;
   dispatch: Dispatch<Actions>;
   veiledernavn?: string;
-  brukernavn?: string;
-  harDeltMedBruker?: DelMedBruker;
+  brukernavn: string | null;
+  harDeltMedBruker?: DelMedBrukerDbo;
   tiltak: VeilederflateTiltak;
   enableRedigerDeletekst: boolean;
 }

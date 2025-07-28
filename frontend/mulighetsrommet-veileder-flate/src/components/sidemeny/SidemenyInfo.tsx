@@ -3,7 +3,7 @@ import {
   GjennomforingOppstartstype,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
-} from "@mr/api-client-v2";
+} from "@api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import RegelverkInfo from "./RegelverkInfo";
@@ -89,12 +89,14 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
                   regelverkLenkeNavn: "Avslag og klage",
                   regelverkUrl:
                     "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+                  beskrivelse: null,
                 },
                 {
                   _id: "vurdering",
                   regelverkLenkeNavn: "Tiltak hos familie/nærstående",
                   regelverkUrl:
                     "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+                  beskrivelse: null,
                 },
               ]}
             />

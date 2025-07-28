@@ -51,7 +51,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             startDato = null,
             sluttDato = null,
             status = DeltakerStatus(
-                type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
+                type = DeltakerStatusType.VENTER_PA_OPPSTART,
                 aarsak = null,
                 opprettetDato = deltakelsesdato,
             ),
@@ -97,7 +97,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
                 status = DeltakerStatus(
-                    type = DeltakerStatus.Type.FEILREGISTRERT,
+                    type = DeltakerStatusType.FEILREGISTRERT,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
                 ),

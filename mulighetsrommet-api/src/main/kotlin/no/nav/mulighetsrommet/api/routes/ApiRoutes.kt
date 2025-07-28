@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.routes
 
+import io.github.smiley4.ktoropenapi.openApi
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
@@ -44,22 +45,33 @@ fun Route.apiRoutes() {
         arenaAdapterRoutes()
     }
 
-    route("/api/v1/intern") {
-        authenticate(AuthProvider.NAV_ANSATT) {
-            featureTogglesRoute()
-            lagretFilterRoutes()
-            navEnhetRoutes()
-            veilederflateRoutes()
-        }
+    route("/api") {
+        route("/veilederflate") {
+            route("api.yaml") {
+                openApi()
+            }
 
-        authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
-            authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
-                adminflateRoutes()
+            authenticate(AuthProvider.NAV_ANSATT) {
+                lagretFilterRoutes()
+                navEnhetRoutes()
+                veilederflateRoutes()
             }
         }
 
-        authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
-            arrangorflateRoutes()
+        route("/v1/intern") {
+            authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+                featureTogglesRoute()
+                lagretFilterRoutes()
+                navEnhetRoutes()
+
+                authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
+                    adminflateRoutes()
+                }
+            }
+
+            authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
+                arrangorflateRoutes()
+            }
         }
     }
 }

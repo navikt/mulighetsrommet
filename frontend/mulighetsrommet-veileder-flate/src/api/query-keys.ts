@@ -1,4 +1,4 @@
-import { JoyrideType, LagretFilterType } from "@mr/api-client-v2";
+import { JoyrideType, LagretFilterType } from "@api-client";
 
 export const QueryKeys = {
   Veilederdata: "veilederdata",

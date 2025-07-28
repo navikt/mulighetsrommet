@@ -1,6 +1,6 @@
 import { Alert } from "@navikt/ds-react";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
-import { Innsatsgruppe } from "@mr/api-client-v2";
+import { Innsatsgruppe } from "@api-client";
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 interface FiltrertFeilInnsatsgruppeVarselProps {

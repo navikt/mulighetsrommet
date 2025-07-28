@@ -1,5 +1,5 @@
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
-import { HistorikkService } from "@mr/api-client-v2";
+import { HistorikkService } from "@api-client";
 import { QueryKeys } from "../query-keys";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { useQuery } from "@tanstack/react-query";

@@ -1,7 +1,7 @@
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { BrukerDeltakelseType, HistorikkService } from "@mr/api-client-v2";
+import { BrukerDeltakelseType, HistorikkService } from "@api-client";
 
 export function useTiltakshistorikkForBruker(type: BrukerDeltakelseType) {
   const { fnr: norskIdent } = useModiaContext();

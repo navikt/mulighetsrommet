@@ -1,8 +1,8 @@
-import { HttpResponse, PathParams, http } from "msw";
-import { NavVeileder } from "@mr/api-client-v2";
+import { http, HttpResponse, PathParams } from "msw";
+import { NavVeilederDto } from "@api-client";
 
 export const veilederHandlers = [
-  http.get<PathParams, NavVeileder>("*/api/v1/intern/veileder/me", () =>
+  http.get<PathParams, NavVeilederDto>("*/api/veilederflate/me", () =>
     HttpResponse.json({
       navIdent: "V12345",
       etternavn: "Veiledersen",

@@ -1,19 +1,19 @@
-import { ApentForPamelding, Innsatsgruppe, LagretFilterType } from "@mr/api-client-v2";
+import { ApentForPamelding, Innsatsgruppe, LagretFilterType } from "@api-client";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
+import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
+import { dequal } from "dequal";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   atomWithStorage,
   createJSONStorage,
   unstable_withStorageValidator as withStorageValidator,
 } from "jotai/utils";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
-import { z } from "zod";
-import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
-import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { dequal } from "dequal";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 import { useCallback, useEffect } from "react";
+import { z } from "zod";
 
 export const ArbeidsmarkedstiltakFilterSchema = z.object({
   search: z.string(),

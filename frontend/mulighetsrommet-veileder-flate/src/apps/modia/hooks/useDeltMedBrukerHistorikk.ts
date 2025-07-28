@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/query-keys";
-import { DelMedBrukerService } from "@mr/api-client-v2";
+import { DelMedBrukerService } from "@api-client";
 import { useModiaContext } from "./useModiaContext";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 

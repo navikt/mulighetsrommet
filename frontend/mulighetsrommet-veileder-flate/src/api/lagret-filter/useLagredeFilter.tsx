@@ -1,4 +1,4 @@
-import { LagretFilterType, LagretFilterService } from "@mr/api-client-v2";
+import { LagretFilterType, LagretFilterService } from "@api-client";
 import { QueryKeys } from "../query-keys";
 import { useApiQuery } from "@mr/frontend-common";
 

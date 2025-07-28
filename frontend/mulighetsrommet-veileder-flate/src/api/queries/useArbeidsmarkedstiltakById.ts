@@ -3,15 +3,18 @@ import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
   GjennomforingStatus,
   VeilederflateTiltak,
+  VeilederflateTiltakEgenRegi,
   VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakEnkeltplassAnskaffet,
   VeilederflateTiltakGruppe,
   VeilederTiltakService,
-} from "@mr/api-client-v2";
+} from "@api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {
-  return tiltak.type === "TILTAK_GRUPPE";
+  return (
+    tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe"
+  );
 }
 
 export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
@@ -20,20 +23,27 @@ export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
 
 export function isTiltakEgenRegi(
   tiltak: VeilederflateTiltak,
-): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
-  return tiltak.type === "TILTAK_EGEN_REGI";
+): tiltak is VeilederflateTiltakEgenRegi {
+  return (
+    tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi"
+  );
 }
 
 export function isTiltakEnkeltplass(
   tiltak: VeilederflateTiltak,
 ): tiltak is VeilederflateTiltakEnkeltplass {
-  return tiltak.type === "TILTAK_ENKELTPLASS";
+  return (
+    tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass"
+  );
 }
 
 export function isTiltakEnkeltplassAnskaffet(
   tiltak: VeilederflateTiltak,
 ): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
-  return tiltak.type === "TILTAK_ENKELTPLASS_ANSKAFFET";
+  return (
+    tiltak.type ===
+    "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet"
+  );
 }
 
 export function isTiltakMedArrangor(

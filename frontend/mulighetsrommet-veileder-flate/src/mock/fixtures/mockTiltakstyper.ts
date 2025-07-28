@@ -1,23 +1,22 @@
-import {
-  Innsatsgruppe,
-  Tiltakskode,
-  TiltakskodeArena,
-  VeilederflateTiltakstype,
-} from "@mr/api-client-v2";
+import { Innsatsgruppe, Tiltakskode, VeilederflateTiltakstype } from "@api-client";
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {
     sanityId: "02509279-0a0f-4bd6-b506-f40111e4ba14",
+    arenakode: null,
+    tiltakskode: null,
     regelverkLenker: [
       {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     faneinnhold: {
@@ -157,6 +156,15 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           markDefs: [],
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighet: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og  er et tilbud for deg som får uføretrygd. Du jobber i en skjermet bedrift med arbeidsoppgaver som er tilpasset deg. Du kan også jobbe i en ordinær bedrift.\n\nDu kan lese mer om tiltaket på www.nav.no/varig-tilrettelagt-arbeid",
@@ -171,6 +179,10 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Opplæringstiltak i form av Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) er opplæring som fører frem mot fag- eller svennebrev, praksisbrev eller kompetansebevis som lærekandidat. \n\nOpplæringen skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
     navn: "Opplæring - Enkeltplass Fag- og yrkesopplæring",
+    regelverkLenker: null,
+    delingMedBruker: null,
+    arenakode: null,
+    tiltakskode: null,
     faneinnhold: {
       forHvem: [
         {
@@ -269,6 +281,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           _type: "block",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
@@ -292,11 +312,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     beskrivelse:
@@ -535,8 +557,17 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           style: "normal",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     kanKombineresMed: [],
+    arenakode: null,
+    tiltakskode: null,
   },
   jobbklubb: {
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
@@ -548,11 +579,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     faneinnhold: {
@@ -804,6 +837,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           _type: "block",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.GODE_MULIGHETER,
@@ -816,6 +857,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Jobbklubb er et kortvarig tiltak for de som søker jobb. Ved deltagelse på jobbklubb får brukeren støtte og hjelp til å orientere seg på arbeidsmarkedet og være en aktiv jobbsøker.",
     navn: "Jobbklubb",
     kanKombineresMed: [],
+    arenakode: null,
   },
   digital_jobbklubb: {
     innsatsgrupper: [
@@ -1289,6 +1331,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           ],
         },
       ],
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     sanityId: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
     regelverkLenker: [
@@ -1296,14 +1345,18 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     kanKombineresMed: [],
+    arenakode: null,
+    tiltakskode: null,
   },
   opplaring_fagskole: {
     regelverkLenker: [
@@ -1311,11 +1364,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     beskrivelse:
@@ -1402,6 +1457,15 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           markDefs: [],
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnhold: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
@@ -1411,6 +1475,9 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     sanityId: "50878ad5-90d0-496d-a0d0-a53091800760",
     kanKombineresMed: [],
+    delingMedBruker: null,
+    arenakode: null,
+    tiltakskode: null,
   },
   oppfolging: {
     faneinnhold: {
@@ -1704,6 +1771,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           _key: "067716417e48",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
@@ -1720,16 +1795,20 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     beskrivelse:
       "Oppfølging skal gi bistand med sikte på at tiltaksdeltakere skaffer seg og/eller beholder lønnet arbeid. Målet er at tiltaksdeltaker i størst mulig grad skal bli selvforsørget med en varig tilknytning til arbeidslivet. ",
     kanKombineresMed: [],
+    arenakode: null,
+    tiltakskode: null,
   },
   varig_lonnstilskudd: {
     delingMedBruker:
@@ -1741,11 +1820,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     navn: "Varig lønnstilskudd",
@@ -1904,10 +1985,19 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           _type: "block",
         },
       ],
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [Innsatsgruppe.JOBBE_DELVIS, Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE],
     sanityId: "6de22004-9fb8-4c84-9b75-dc8132a78cd2",
     kanKombineresMed: [],
+    arenakode: null,
+    tiltakskode: null,
   },
   grufagyrke: {
     faneinnhold: {
@@ -1961,6 +2051,16 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           listItem: "bullet",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnhold: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighet: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
@@ -1975,6 +2075,9 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Opplæringstiltak i form av Gruppe Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
     kanKombineresMed: [],
+    regelverkLenker: null,
+    arenakode: null,
+    tiltakskode: null,
   },
   VTAO: {
     faneinnhold: {
@@ -2012,6 +2115,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       ],
       forHvemInfoboks:
         "Tiltaket er rettet mot personer som mottar eller i nær fremtid ventes å få innvilget uføretrygd, og som har behov for spesiell tilrettelegging og tett oppfølging. ",
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighet: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [Innsatsgruppe.JOBBE_DELVIS, Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE],
     regelverkLenker: [
@@ -2019,11 +2130,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     navn: "VTA-O - Varig tilrettelagt arbeid i ordinær virksomhet",
@@ -2032,6 +2145,9 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "VTA-O er et tiltak som skal gi brukeren arbeid med oppgaver tilpasset den enkeltes arbeidsevne.",
     kanKombineresMed: [],
+    delingMedBruker: null,
+    arenakode: null,
+    tiltakskode: null,
   },
   midlertidig_lonnstilskudd: {
     faneinnhold: {
@@ -2225,6 +2341,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           ],
         },
       ],
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
@@ -2239,9 +2362,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Lønnstilskudd skal gi bistand til tiltaksdeltakere slik at de skaffer seg og/eller beholder, lønnet arbeid. Målet er at tiltaksdeltaker i størst mulig grad skal bli selvforsørget med en varig tilknytning til arbeidslivet.",
     navn: "Midlertidig lønnstilskudd",
     kanKombineresMed: [],
+    regelverkLenker: null,
+    arenakode: null,
+    tiltakskode: null,
   },
   mentor: {
-    arenakode: TiltakskodeArena.MENTOR,
+    arenakode: "MENTOR",
     faneinnhold: {
       pameldingOgVarighet: [
         {
@@ -2325,6 +2451,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           _type: "block",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     delingMedBruker:
       "Vi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et" +
@@ -2349,11 +2483,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     kanKombineresMed: [
@@ -2370,6 +2506,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "IPS (individuell jobbstøtte)",
       "IPS (ung)",
     ],
+    tiltakskode: null,
   },
   enkeltplass_amo: {
     innsatsgrupper: [
@@ -2384,11 +2521,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     faneinnhold: {
@@ -2502,11 +2641,22 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           _type: "block",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     beskrivelse:
       "Opplæringstiltak i form av Enkeltplass AMO (jf. tiltaksforskriften § 7-2 a) består av kortvarige kurs basert på behov i arbeidsmarkedet, og skal bidra til at arbeidssøkere kvalifiseres til ledige jobber.",
     navn: "Opplæring - Enkeltplass AMO",
     kanKombineresMed: [],
+    delingMedBruker: null,
+    arenakode: null,
+    tiltakskode: null,
   },
   AFT: {
     beskrivelse:
@@ -2517,11 +2667,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     sanityId: "d03363e0-7d46-411b-aec4-fb9449e30eb8",
@@ -2699,6 +2851,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           _key: "f531b753b7d7",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
@@ -2708,6 +2868,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\nDu kan lese mer om kurset på www.nav.no/arbeidsforberedende-trening",
     kanKombineresMed: [],
+    arenakode: null,
+    tiltakskode: null,
   },
   arbeidstrening: {
     innsatsgrupper: [
@@ -2787,6 +2949,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           style: "normal",
         },
       ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     delingMedBruker:
       "Arbeidstrening gir deg trening så du er klar for arbeidslivet.\nOm dette er noe for deg så send meg en melding i Dialogen.",
@@ -2795,19 +2965,23 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     beskrivelse:
       "Arbeidstrening skal bidra til å styrke tiltaksdeltakers muligheter for å komme i jobb. Arbeidstrening kan ha flere ulike formål i form av arbeidserfaring for å mestre en bestemt jobb, eller behov for en referanse mens man søker ordinært arbeid",
     kanKombineresMed: [],
+    arenakode: null,
+    tiltakskode: null,
   },
   gruppe_amo: {
-    arenakode: TiltakskodeArena.GRUPPEAMO,
+    arenakode: "GRUPPEAMO",
     tiltakskode: Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
@@ -2817,11 +2991,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     faneinnhold: {
@@ -2908,6 +3084,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           ],
         },
       ],
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
@@ -2921,17 +3104,19 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     kanKombineresMed: [],
   },
   avklaring: {
-    arenakode: TiltakskodeArena.AVKLARAG,
+    arenakode: "AVKLARAG",
     regelverkLenker: [
       {
         _id: "123",
         regelverkLenkeNavn: "Regelverk",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
       {
         _id: "1234",
         regelverkLenkeNavn: "Rundskriv",
         regelverkUrl: "https://www.google.no",
+        beskrivelse: null,
       },
     ],
     beskrivelse:
@@ -3185,6 +3370,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           ],
         },
       ],
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
     },
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
@@ -3196,5 +3388,6 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\n[Du kan lese mer om kurset på Nav.no](www.nav.no/avklaring)",
     navn: "Avklaring",
+    tiltakskode: null,
   },
 };

@@ -19,7 +19,7 @@ export function UtbetalingerForGjennomforingContainer() {
   });
 
   const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
     gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
   );
 
