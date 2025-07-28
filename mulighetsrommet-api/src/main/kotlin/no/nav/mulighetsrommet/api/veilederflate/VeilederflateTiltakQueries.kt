@@ -122,7 +122,7 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         },
         personvernBekreftet = boolean("personvern_bekreftet"),
         personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
-        status = VeilederflateTiltakGruppe.Status(
+        status = VeilederflateTiltakGruppeStatus(
             type = status,
             beskrivelse = status.beskrivelse,
         ),

@@ -1617,7 +1617,7 @@ components:
       - GRUPPE_FAG_OG_YRKESOPPLAERING
       - ARBEIDSRETTET_REHABILITERING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-    Hovedenhet:
+    NavVeilederHovedenhet:
       type: object
       properties:
         enhetsnummer:
@@ -1637,7 +1637,7 @@ components:
         etternavn:
           type: string
         hovedenhet:
-          $ref: "#/components/schemas/Hovedenhet"
+          $ref: "#/components/schemas/NavVeilederHovedenhet"
       required:
       - etternavn
       - fornavn
@@ -2143,7 +2143,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/Status"
+          $ref: "#/components/schemas/VeilederflateTiltakGruppeStatus"
         tiltaksnummer:
           type:
           - "null"
@@ -2190,7 +2190,7 @@ components:
       - stedForGjennomforing
       - tiltaksnummer
       - tiltakstype
-    Status:
+    VeilederflateTiltakGruppeStatus:
       type: object
       properties:
         type:

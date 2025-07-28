@@ -46,7 +46,7 @@ data class VeilederflateTiltakGruppe(
     override val enheter: List<NavEnhetNummer>,
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: Status,
+    val status: VeilederflateTiltakGruppeStatus,
     val tiltaksnummer: String?,
     val apentForPamelding: Boolean,
     @Serializable(with = LocalDateSerializer::class)
@@ -57,13 +57,13 @@ data class VeilederflateTiltakGruppe(
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<PersonopplysningData>,
-) : VeilederflateTiltak() {
-    @Serializable
-    data class Status(
-        val type: GjennomforingStatus,
-        val beskrivelse: String,
-    )
-}
+) : VeilederflateTiltak()
+
+@Serializable
+data class VeilederflateTiltakGruppeStatus(
+    val type: GjennomforingStatus,
+    val beskrivelse: String,
+)
 
 @Serializable
 data class VeilederflateTiltakEnkeltplassAnskaffet(
