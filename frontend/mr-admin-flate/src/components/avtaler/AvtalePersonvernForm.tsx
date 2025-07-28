@@ -1,17 +1,16 @@
 import {
-  Alert,
   BodyShort,
   Checkbox,
+  CheckboxGroup,
   GuidePanel,
   HelpText,
   HStack,
-  Label,
   Link,
+  Loader,
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
@@ -19,65 +18,14 @@ import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { PersonopplysningData } from "@mr/api-client-v2";
 
 export function AvtalePersonvernForm() {
-  const { register, setValue, watch } = useFormContext<AvtaleFormValues>();
+  const { register, control, setValue } = useFormContext<AvtaleFormValues>();
   const { data: personopplysninger } = usePersonopplysninger();
 
-  const watchPersonopplysninger = watch("personopplysninger");
-  const watchTiltakstype = watch("tiltakstype");
+  const watchedPersonopplysninger = useWatch({
+    name: "personopplysninger",
+  });
 
-  if (!watchTiltakstype) {
-    return <Alert variant="info">Tiltakstype må velges før personvern kan redigeres.</Alert>;
-  }
-
-  function PersonopplysningCheckboxList(props: {
-    label: string;
-    description: string;
-    personopplysninger: PersonopplysningData[];
-  }) {
-    return (
-      <VStack>
-        <Label size="small">{props.label}</Label>
-        <BodyShort spacing size="small" textColor="subtle">
-          {props.description}
-        </BodyShort>
-        <Checkbox
-          checked={watchPersonopplysninger.length === props.personopplysninger.length}
-          onChange={() => {
-            if (watchPersonopplysninger.length < props.personopplysninger.length) {
-              setValue(
-                "personopplysninger",
-                props.personopplysninger.map((p) => p.personopplysning),
-              );
-            } else {
-              setValue("personopplysninger", []);
-            }
-          }}
-          size="small"
-        >
-          Velg alle
-        </Checkbox>
-        <Separator />
-        {props.personopplysninger?.map((p: PersonopplysningData) => (
-          <HStack align="start" gap="1" key={p.personopplysning}>
-            <Checkbox
-              checked={watchPersonopplysninger.includes(p.personopplysning)}
-              id={p.personopplysning}
-              onChange={() =>
-                setValue(
-                  "personopplysninger",
-                  addOrRemove(watchPersonopplysninger, p.personopplysning),
-                )
-              }
-              size="small"
-            >
-              <span className="max-w-[65ch] inline-block"> {p.tittel}</span>
-            </Checkbox>
-            {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
-          </HStack>
-        ))}
-      </VStack>
-    );
-  }
+  if (!personopplysninger) return <Loader />;
 
   return (
     <VStack gap="4">
@@ -85,32 +33,61 @@ export function AvtalePersonvernForm() {
         Huk av de personopplysningene som er avtalt i databehandleravtalen. Nav tiltaksenhet/fylke
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>
-      <HStack wrap gap="10">
-        <VStack gap="5">
-          {personopplysninger && (
-            <PersonopplysningCheckboxList
-              label="Personopplysninger om deltager"
-              description="Huk av de personopplysningene som kan behandles i denne avtalen."
-              personopplysninger={personopplysninger}
-            />
-          )}
-          <BodyShort size="small">
-            *Se egne retningslinjer om dette i{" "}
-            <Link
-              target="_blank"
-              href="https://navno.sharepoint.com/sites/fag-og-ytelser-veileder-for-arbeidsrettet-brukeroppfolging/SitePages/Arbeidsrettede-tiltak.aspx"
-            >
-              veileder for arbeidsrettet brukeroppfølging
-            </Link>{" "}
-            pkt. 4.3.
-          </BodyShort>
-        </VStack>
-      </HStack>
+      <Controller
+        control={control}
+        name="personopplysninger"
+        render={({ field: { onChange, value } }) => (
+          <CheckboxGroup
+            legend="Personopplysninger om deltaker"
+            description="Huk av de personopplysningene som kan behandles i denne avtalen."
+            onChange={onChange}
+            value={value}
+          >
+            {personopplysninger.map((p: PersonopplysningData) => (
+              <Checkbox key={p.personopplysning} value={p.personopplysning} size="small">
+                <HStack gap="2" align="center">
+                  {p.tittel}
+                  {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
+                </HStack>
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        )}
+      />
+      <Checkbox
+        checked={watchedPersonopplysninger?.length === personopplysninger.length}
+        indeterminate={
+          watchedPersonopplysninger?.length > 0 &&
+          watchedPersonopplysninger?.length !== personopplysninger.length
+        }
+        onChange={() => {
+          if (watchedPersonopplysninger?.length === personopplysninger.length) {
+            setValue("personopplysninger", []);
+          } else {
+            setValue(
+              "personopplysninger",
+              personopplysninger.map(({ personopplysning }) => personopplysning),
+            );
+          }
+        }}
+        size="small"
+      >
+        <b>Velg alle</b>
+      </Checkbox>
+      <BodyShort size="small">
+        *Se egne retningslinjer om dette i{" "}
+        <Link
+          target="_blank"
+          href="https://navno.sharepoint.com/sites/fag-og-ytelser-veileder-for-arbeidsrettet-brukeroppfolging/SitePages/Arbeidsrettede-tiltak.aspx"
+        >
+          veileder for arbeidsrettet brukeroppfølging
+        </Link>{" "}
+        pkt. 4.3.
+      </BodyShort>
       <Separator />
       <ControlledRadioGroup
         size="small"
-        legend="Ta stillingen til om personvernopplysningene stemmer eller om avtalen ikke er ferdig signert"
-        hideLegend
+        legend="Kan personopplysningene som kan behandles vises til veileder?"
         {...register("personvernBekreftet")}
       >
         <VStack align="start" justify="start" gap="2">
