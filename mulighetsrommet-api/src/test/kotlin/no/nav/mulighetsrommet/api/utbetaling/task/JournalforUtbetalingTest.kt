@@ -65,7 +65,7 @@ class JournalforUtbetalingTest : FunSpec({
     )
 
     val domain = MulighetsrommetTestDomain(
-        navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+        navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(

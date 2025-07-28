@@ -1,71 +1,53 @@
 import { http, HttpResponse } from "msw";
-import { Innsatsgruppe, VeilederflateTiltak } from "@mr/api-client-v2";
+import { Innsatsgruppe, VeilederflateTiltak } from "@api-client";
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { mockGjennomforinger } from "@/mock/fixtures/mockGjennomforinger";
 
 export const tiltakHandlers = [
-  http.get("*/api/v1/intern/veileder/innsatsgrupper", async () => {
+  http.get("*/api/veilederflate/innsatsgrupper", async () => {
     return HttpResponse.json(mockInnsatsgrupper);
   }),
 
-  http.get("*/api/v1/intern/veileder/tiltakstyper", async () => {
+  http.get("*/api/veilederflate/tiltakstyper", async () => {
     return HttpResponse.json(Object.values(mockTiltakstyper));
   }),
 
-  http.get("*/api/v1/intern/tiltakstyper/stotterPameldingIModia", async () => {
-    const tiltakstyperMedPamelding = [
-      "AVKLARING",
-      "OPPFOLGING",
-      "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
-      "JOBBKLUBB",
-      "DIGITALT_OPPFOLGINGSTILTAK",
-      "ARBEIDSFORBEREDENDE_TRENING",
-      "GRUPPE_FAG_OG_YRKESOPPLAERING",
-      "ARBEIDSRETTET_REHABILITERING",
-      "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
-    ];
-    return HttpResponse.json(tiltakstyperMedPamelding);
-  }),
-
-  http.get("*/api/v1/intern/veileder/gjennomforinger", async ({ request }) => {
+  http.get("*/api/veilederflate/gjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);
     return HttpResponse.json(results);
   }),
 
-  http.get<{ id: string }>("*/api/v1/intern/veileder/gjennomforinger/:id", async ({ params }) => {
+  http.get<{ id: string }>("*/api/veilederflate/gjennomforinger/:id", async ({ params }) => {
     const { id } = params;
     const gjennomforing = findArbeidsmarkedstiltak(id);
     return HttpResponse.json(gjennomforing);
   }),
 
-  http.get("*/api/v1/intern/veileder/nav/gjennomforinger", async ({ request }) => {
+  http.get("*/api/veilederflate/nav/gjennomforinger", async ({ request }) => {
+    const url = new URL(request.url);
+    const results = getFilteredArbeidsmarkedstiltak(url);
+    return HttpResponse.json(results);
+  }),
+
+  http.get<{ id: string }>("*/api/veilederflate/nav/gjennomforinger/:id", async ({ params }) => {
+    const { id } = params;
+
+    const gjennomforing = findArbeidsmarkedstiltak(id);
+
+    return HttpResponse.json(gjennomforing);
+  }),
+
+  http.get("*/api/veilederflate/preview/gjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);
     return HttpResponse.json(results);
   }),
 
   http.get<{ id: string }>(
-    "*/api/v1/intern/veileder/nav/gjennomforinger/:id",
-    async ({ params }) => {
-      const { id } = params;
-
-      const gjennomforing = findArbeidsmarkedstiltak(id);
-
-      return HttpResponse.json(gjennomforing);
-    },
-  ),
-
-  http.get("*/api/v1/intern/veileder/preview/gjennomforinger", async ({ request }) => {
-    const url = new URL(request.url);
-    const results = getFilteredArbeidsmarkedstiltak(url);
-    return HttpResponse.json(results);
-  }),
-
-  http.get<{ id: string }>(
-    "*/api/v1/intern/veileder/preview/gjennomforinger/:id",
+    "*/api/veilederflate/preview/gjennomforinger/:id",
     async ({ params }) => {
       const { id } = params;
       const gjennomforing = findArbeidsmarkedstiltak(id);

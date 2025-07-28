@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -11,7 +12,7 @@ object DeltakerFixtures {
         gjennomforingId: UUID,
         startDato: LocalDate = LocalDate.now(),
         sluttDato: LocalDate = LocalDate.now().plusMonths(1),
-        statusType: DeltakerStatus.Type = DeltakerStatus.Type.DELTAR,
+        statusType: DeltakerStatusType = DeltakerStatusType.DELTAR,
         deltakelsesprosent: Double = 100.0,
         deltakelsesmengder: List<DeltakerDbo.Deltakelsesmengde> = listOf(
             DeltakerDbo.Deltakelsesmengde(
@@ -40,7 +41,7 @@ object DeltakerFixtures {
         gjennomforingId: UUID,
         startDato: LocalDate,
         sluttDato: LocalDate,
-        statusType: DeltakerStatus.Type,
+        statusType: DeltakerStatusType,
     ) = DeltakerDbo(
         id = UUID.randomUUID(),
         startDato = startDato,

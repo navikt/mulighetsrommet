@@ -6,20 +6,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object NavEnhetFixtures {
-    val IT = NavEnhetDbo(
-        navn = "IT",
-        enhetsnummer = NavEnhetNummer("2990"),
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.DIR,
-        overordnetEnhet = null,
-    )
-    val ITAvdelingen = NavEnhetDbo(
-        navn = "IT-avdelinger",
-        enhetsnummer = NavEnhetNummer("2910"),
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.IT,
-        overordnetEnhet = null,
-    )
     val Innlandet = NavEnhetDbo(
         navn = "Nav Innlandet",
         enhetsnummer = NavEnhetNummer("0400"),

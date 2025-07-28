@@ -106,7 +106,6 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
             tiltaksansvarlige = tiltaksansvarlige,
         ),
         arrangor = VeilederflateArrangor(
-            arrangorId = uuid("arrangor_id"),
             organisasjonsnummer = string("arrangor_organisasjonsnummer"),
             selskapsnavn = stringOrNull("arrangor_navn"),
             kontaktpersoner = arrangorKontaktpersoner,

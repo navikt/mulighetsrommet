@@ -1,6 +1,6 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
-import { Deltakelse, DeltakelserMelding, BrukerDeltakelseType } from "@mr/api-client-v2";
+import { Deltakelse, DeltakelserMelding, BrukerDeltakelseType } from "@api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,

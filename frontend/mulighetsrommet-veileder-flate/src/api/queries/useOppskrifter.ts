@@ -1,7 +1,7 @@
 import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
 import { erPreview } from "@/utils/Utils";
-import { OppskrifterService, SanityPerspective } from "@mr/api-client-v2";
+import { OppskrifterService, SanityPerspective } from "@api-client";
 
 export function useOppskrifter(tiltakstypeId?: string) {
   return useApiQuery({

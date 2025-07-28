@@ -25,9 +25,9 @@ import no.nav.mulighetsrommet.api.clients.vedtak.Gjeldende14aVedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.HovedmalMedOkeDeltakelse
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -56,27 +56,24 @@ class BrukerServiceTest : FunSpec({
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
 
-    val navEgneAnsatteEnhet = NavEnhetDbo(
+    val navEgneAnsatteEnhet = NavEnhetDto(
         navn = "Nav egne ansatte Lerkendal",
         enhetsnummer = NavEnhetNummer("1683"),
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.KO,
+        type = NavEnhetType.KO,
         overordnetEnhet = NavEnhetNummer("0500"),
     )
 
-    val navLerkendalEnhet = NavEnhetDbo(
+    val navLerkendalEnhet = NavEnhetDto(
         navn = "Nav Lerkendal",
         enhetsnummer = NavEnhetNummer("0501"),
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.LOKAL,
+        type = NavEnhetType.LOKAL,
         overordnetEnhet = NavEnhetNummer("0500"),
     )
 
-    val navVikafossenEnhet = NavEnhetDbo(
+    val navVikafossenEnhet = NavEnhetDto(
         navn = "Nav Vikafossen",
         enhetsnummer = NavEnhetNummer("2103"),
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.KO,
+        type = NavEnhetType.KO,
         overordnetEnhet = NavEnhetNummer("2100"),
     )
 
@@ -120,11 +117,10 @@ class BrukerServiceTest : FunSpec({
             fattetDato = ZonedDateTime.now(),
         ).right()
 
-        coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0106")) } returns NavEnhetDbo(
+        coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0106")) } returns NavEnhetDto(
             navn = "Nav Fredrikstad",
             enhetsnummer = NavEnhetNummer("0106"),
-            status = NavEnhetStatus.AKTIV,
-            type = Norg2Type.LOKAL,
+            type = NavEnhetType.LOKAL,
             overordnetEnhet = NavEnhetNummer("0100"),
         )
     }
@@ -143,12 +139,11 @@ class BrukerServiceTest : FunSpec({
                     ),
                 ),
                 enheter = listOf(
-                    NavEnhetDbo(
+                    NavEnhetDto(
                         navn = "Nav Fredrikstad",
                         enhetsnummer = NavEnhetNummer("0106"),
-                        type = Norg2Type.LOKAL,
+                        type = NavEnhetType.LOKAL,
                         overordnetEnhet = NavEnhetNummer("0100"),
-                        status = NavEnhetStatus.AKTIV,
                     ),
                 ),
                 erUnderOppfolging = true,
@@ -180,7 +175,7 @@ class BrukerServiceTest : FunSpec({
 
         test("Hent relevante enheter returnerer liste med oppfølgingsenhet enhet hvis oppfølgingsenhet er Lokal") {
             val oppfolgingsenhet =
-                navEgneAnsatteEnhet.copy(enhetsnummer = NavEnhetNummer("0502"), type = Norg2Type.LOKAL)
+                navEgneAnsatteEnhet.copy(enhetsnummer = NavEnhetNummer("0502"), type = NavEnhetType.LOKAL)
             getRelevanteEnheterForBruker(navLerkendalEnhet, oppfolgingsenhet).should {
                 it shouldContainExactly listOf(oppfolgingsenhet)
             }
@@ -195,38 +190,34 @@ class BrukerServiceTest : FunSpec({
 
     context("Varsler ang. bruker til veileder") {
         test("Skal returnere true når oppfolgingsenhet er lokal enhet og oppfølgingsenhet er ulik geografisk enhet") {
-            val result = oppfolgingsenhetLokalOgUlik(
-                NavEnhetDbo(
+            val result = erOppfolgingsenhetEnAnnenGeografiskEnhet(
+                geografiskEnhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("1234"),
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
+                    type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("1000"),
                 ),
-                NavEnhetDbo(
+                oppfolgingsenhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("4321"),
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
+                    type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("4000"),
                 ),
             )
             result shouldBe true
         }
         test("Skal returnere false når oppfolgingsenhet er lokal enhet og oppfølgingsenhet er lik geografisk enhet") {
-            val result = oppfolgingsenhetLokalOgUlik(
-                NavEnhetDbo(
+            val result = erOppfolgingsenhetEnAnnenGeografiskEnhet(
+                geografiskEnhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("1234"),
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
+                    type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("1000"),
                 ),
-                NavEnhetDbo(
+                oppfolgingsenhet = NavEnhetDto(
                     navn = "",
                     enhetsnummer = NavEnhetNummer("1234"),
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
+                    type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("1000"),
                 ),
             )

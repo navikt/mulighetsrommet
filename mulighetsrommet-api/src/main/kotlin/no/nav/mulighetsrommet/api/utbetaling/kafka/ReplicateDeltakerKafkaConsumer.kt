@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -39,7 +39,7 @@ class ReplicateDeltakerKafkaConsumer(
                 queries.deltaker.delete(key)
             }
 
-            deltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
+            deltaker.status.type == DeltakerStatusType.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
                 queries.deltaker.delete(key)
             }
@@ -71,10 +71,10 @@ class ReplicateDeltakerKafkaConsumer(
 
         if (
             deltaker.status.type !in setOf(
-                DeltakerStatus.Type.AVBRUTT,
-                DeltakerStatus.Type.DELTAR,
-                DeltakerStatus.Type.HAR_SLUTTET,
-                DeltakerStatus.Type.FULLFORT,
+                DeltakerStatusType.AVBRUTT,
+                DeltakerStatusType.DELTAR,
+                DeltakerStatusType.HAR_SLUTTET,
+                DeltakerStatusType.FULLFORT,
             )
         ) {
             return false

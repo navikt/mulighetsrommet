@@ -1,10 +1,9 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
-import kotlinx.serialization.SerialName
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.sanity.RegelverkLenke
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -15,11 +14,13 @@ import java.util.*
 @Serializable
 data class VeilederflateInnsatsgruppe(
     val tittel: String,
-    val nokkel: String,
+    val nokkel: Innsatsgruppe,
     val order: Int,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
     abstract val navn: String
@@ -33,7 +34,6 @@ sealed class VeilederflateTiltak {
 }
 
 @Serializable
-@SerialName("TILTAK_GRUPPE")
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -66,7 +66,6 @@ data class VeilederflateTiltakGruppe(
 }
 
 @Serializable
-@SerialName("TILTAK_ENKELTPLASS_ANSKAFFET")
 data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -83,7 +82,6 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("TILTAK_EGEN_REGI")
 data class VeilederflateTiltakEgenRegi(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -99,7 +97,6 @@ data class VeilederflateTiltakEgenRegi(
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("TILTAK_ENKELTPLASS")
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -117,9 +114,15 @@ data class VeilederflateTiltakEnkeltplass(
 data class VeilederflateKontaktinfoTiltaksansvarlig(
     val navn: String? = null,
     val telefon: String? = null,
-    val enhet: NavEnhetDbo? = null,
+    val enhet: VeilederflateTiltaksansvarligHovedenhet? = null,
     val epost: String? = null,
     val beskrivelse: String? = null,
+)
+
+@Serializable
+data class VeilederflateTiltaksansvarligHovedenhet(
+    val navn: String,
+    val enhetsnummer: NavEnhetNummer,
 )
 
 @Serializable
@@ -143,8 +146,6 @@ data class VeilederflateTiltakstype(
 
 @Serializable
 data class VeilederflateArrangor(
-    @Serializable(with = UUIDSerializer::class)
-    val arrangorId: UUID,
     val selskapsnavn: String?,
     val organisasjonsnummer: String?,
     val kontaktpersoner: List<VeilederflateArrangorKontaktperson>,
@@ -170,8 +171,16 @@ data class Oppskrift(
     val _id: String,
     val navn: String,
     val beskrivelse: String,
-    val steg: List<JsonObject>,
+    val steg: List<OppskriftSteg>,
     val _updatedAt: String,
+)
+
+@Serializable
+data class OppskriftSteg(
+    val _type: String,
+    val _key: String,
+    val navn: String,
+    val innhold: List<PortableTextTypedObject>,
 )
 
 @Serializable

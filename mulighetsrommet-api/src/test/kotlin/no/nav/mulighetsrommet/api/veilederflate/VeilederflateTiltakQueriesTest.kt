@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.veilederflate
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
@@ -11,10 +12,14 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArbeidsrettetRehabilitering
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltaksansvarligHovedenhet
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -278,6 +283,53 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
     }
 
+    context("kontaktpersoner") {
+        val domain = MulighetsrommetTestDomain(
+            ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+            navEnheter = listOf(Innlandet, Gjovik),
+            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
+            gjennomforinger = listOf(Oppfolging1),
+        ) {
+            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+            queries.gjennomforing.upsert(
+                Oppfolging1.copy(
+                    navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+                    kontaktpersoner = listOf(
+                        GjennomforingKontaktpersonDbo(
+                            navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                            navEnheter = listOf(Gjovik.enhetsnummer),
+                            beskrivelse = "Tiltaksansvarlig",
+                        ),
+                    ),
+                ),
+            )
+        }
+
+        test("henter tiltaksansvarlige som er koblet til tiltaket") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = VeilederflateTiltakQueries(session)
+
+                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                    it.kontaktinfo.tiltaksansvarlige shouldBe listOf(
+                        VeilederflateKontaktinfoTiltaksansvarlig(
+                            navn = "Donald Duck",
+                            telefon = "12345678",
+                            enhet = VeilederflateTiltaksansvarligHovedenhet(
+                                navn = "Nav Innlandet",
+                                enhetsnummer = NavEnhetNummer("0400"),
+                            ),
+                            epost = "donald.duck@nav.no",
+                            beskrivelse = "Tiltaksansvarlig",
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
     context("tiltak uten avtale") {
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(Innlandet, Gjovik),
@@ -292,20 +344,22 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
         }
 
-        database.runAndRollback { session ->
-            domain.setup(session)
+        test("er ikke avhengig av å være koblet til en avtale for å kunne hentes") {
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-            val queries = VeilederflateTiltakQueries(session)
+                val queries = VeilederflateTiltakQueries(session)
 
-            val res = queries.getAll(
-                innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                brukersEnheter = listOf(NavEnhetNummer("0502")),
-            )
-            res.size shouldBe 1
+                val res = queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+                    brukersEnheter = listOf(NavEnhetNummer("0502")),
+                )
+                res.size shouldBe 1
 
-            val tiltak = res[0]
-            tiltak.personopplysningerSomKanBehandles shouldBe emptyList()
-            tiltak.personvernBekreftet shouldBe false
+                val tiltak = res[0]
+                tiltak.personopplysningerSomKanBehandles shouldBe emptyList()
+                tiltak.personvernBekreftet shouldBe false
+            }
         }
     }
 })

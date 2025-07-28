@@ -11,6 +11,8 @@ import { LenkeListe } from "@/components/sidemeny/Lenker";
 export function NavArbeidsmarkedstiltakDetaljer() {
   const { data: tiltak } = useNavArbeidsmarkedstiltakById();
 
+  const lenker = tiltak.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder);
+
   return (
     <ViewTiltakDetaljer
       tiltak={tiltak}
@@ -22,9 +24,7 @@ export function NavArbeidsmarkedstiltakDetaljer() {
               <PersonvernContainer tiltak={tiltak} />
             </ArbeidsmarkedstiltakErrorBoundary>
           ) : null}
-          <LenkeListe
-            lenker={tiltak.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder)}
-          />
+          {lenker && <LenkeListe lenker={lenker} />}
         </>
       }
     />

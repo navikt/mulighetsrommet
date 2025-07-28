@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
@@ -127,7 +126,6 @@ class GjennomforingServiceTest : FunSpec({
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(navIdent),
-                navEnheter = setOf(NavEnhetNummer("2990")),
             )
             service.upsert(gjennomforing, navIdent).shouldBeRight()
 
@@ -140,7 +138,6 @@ class GjennomforingServiceTest : FunSpec({
 
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(identAnsatt2, identAnsatt1),
-                navEnheter = setOf(NavEnhetNummer("2990")),
             )
             service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
 

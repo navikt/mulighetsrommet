@@ -88,6 +88,8 @@ dependencies {
     implementation(libs.ktor.server.swagger)
     testImplementation(libs.ktor.server.testHost)
 
+    implementation(libs.bundles.ktor.openapi)
+
     // GCP
     implementation(libs.google.cloud.storage)
 

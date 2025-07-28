@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
 import no.nav.mulighetsrommet.api.utbetaling.PersonEnhetOgRegion
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -15,7 +15,7 @@ sealed class UtbetalingBeregningDto {
     abstract val belop: Int
     abstract val heading: String
     abstract val deltakerTableData: DataDrivenTableDto
-    abstract val deltakerRegioner: List<NavEnhetService.NavRegionDto>
+    abstract val deltakerRegioner: List<NavRegionDto>
 
     @Serializable
     @SerialName("PRIS_PER_MANEDSVERK")
@@ -23,7 +23,7 @@ sealed class UtbetalingBeregningDto {
         val sats: Int,
         val manedsverkTotal: Double,
         override val belop: Int,
-        override val deltakerRegioner: List<NavEnhetService.NavRegionDto>,
+        override val deltakerRegioner: List<NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
         override val heading = "Pris per månedsverk"
@@ -70,7 +70,7 @@ sealed class UtbetalingBeregningDto {
         val sats: Int,
         val ukesverkTotal: Double,
         override val belop: Int,
-        override val deltakerRegioner: List<NavEnhetService.NavRegionDto>,
+        override val deltakerRegioner: List<NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
         override val heading = "Pris per ukesverk"
@@ -115,7 +115,7 @@ sealed class UtbetalingBeregningDto {
     @SerialName("FRI")
     data class Fri(
         override val belop: Int,
-        override val deltakerRegioner: List<NavEnhetService.NavRegionDto>,
+        override val deltakerRegioner: List<NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
         override val heading = "Annen avtalt pris"
@@ -159,7 +159,7 @@ sealed class UtbetalingBeregningDto {
         fun from(
             utbetaling: Utbetaling,
             deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>,
-            regioner: List<NavEnhetService.NavRegionDto>,
+            regioner: List<NavRegionDto>,
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {
                 is UtbetalingBeregningFri -> Fri(

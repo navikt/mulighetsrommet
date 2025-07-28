@@ -1,23 +1,22 @@
 import { deltakelserAktive } from "@/mock/fixtures/mockDeltakelserAktive";
 import {
-  Bruker,
+  Brukerdata,
   BrukerVarsel,
-  DeltakelserMelding,
   Deltakelse,
+  DeltakelserMelding,
   GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
   GetDeltakelserForBrukerRequest,
   GetDeltakelserForBrukerResponse,
   Innsatsgruppe,
-  NavEnhetStatus,
   NavEnhetType,
-} from "@mr/api-client-v2";
+} from "@api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { deltakelserHistoriske } from "../../fixtures/mockDeltakelserHistoriske";
 
 export const brukerHandlers = [
-  http.post<PathParams, GetBrukerRequest, Bruker | string>(
-    "*/api/v1/intern/bruker",
+  http.post<PathParams, GetBrukerRequest, Brukerdata | string>(
+    "*/api/veilederflate/bruker",
     async ({ request }) => {
       const { norskIdent } = await request.json();
 
@@ -25,7 +24,7 @@ export const brukerHandlers = [
         return HttpResponse.json("'fnr' must be specified", { status: 400 });
       }
 
-      const bruker: Bruker = {
+      const bruker: Brukerdata = {
         fnr: norskIdent,
         innsatsgruppe: Innsatsgruppe.TRENGER_VEILEDNING,
         erUnderOppfolging: true,
@@ -36,7 +35,6 @@ export const brukerHandlers = [
             enhetsnummer: "0105",
             overordnetEnhet: "0200",
             type: NavEnhetType.LOKAL,
-            status: NavEnhetStatus.AKTIV,
           },
         ],
         varsler: [BrukerVarsel.LOKAL_OPPFOLGINGSENHET],
@@ -55,7 +53,7 @@ export const brukerHandlers = [
   ),
 
   http.post<PathParams, GetDeltakelserForBrukerRequest, GetDeltakelserForBrukerResponse>(
-    "*/api/v1/intern/bruker/tiltakshistorikk",
+    "*/api/veilederflate/bruker/tiltakshistorikk",
     async ({ request }) => {
       const { type } = await request.json();
       const response: GetDeltakelserForBrukerResponse = {
@@ -67,7 +65,7 @@ export const brukerHandlers = [
   ),
 
   http.post<PathParams, GetDeltakelserForBrukerRequest, Deltakelse[]>(
-    "*/api/v1/intern/bruker/historikk",
+    "*/api/veilederflate/bruker/tiltakshistorikk",
     async ({ request }) => {
       const { type } = await request.json();
       if (type === "AKTIVE") {
@@ -79,7 +77,7 @@ export const brukerHandlers = [
   ),
 
   http.post<PathParams, GetAktivDeltakelseForBrukerRequest, Deltakelse>(
-    "*/api/v1/intern/bruker/deltakelse",
+    "*/api/veilederflate/bruker/deltakelse",
     async ({ request }) => {
       const { tiltakId } = await request.json();
       const found = deltakelserAktive.find((deltakelse) => {

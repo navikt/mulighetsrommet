@@ -65,6 +65,7 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
         personService = personService,
+        navEnhetService = mockk(relaxed = true),
     )
 
     context("opprett utbetaling") {

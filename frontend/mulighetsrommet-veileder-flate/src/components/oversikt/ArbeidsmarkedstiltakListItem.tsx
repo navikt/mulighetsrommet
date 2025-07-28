@@ -7,7 +7,11 @@ import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
-import { DelMedBruker, GjennomforingOppstartstype, VeilederflateTiltak } from "@mr/api-client-v2";
+import {
+  DelMedBrukerDbo as DelMedBruker,
+  GjennomforingOppstartstype,
+  VeilederflateTiltak,
+} from "@api-client";
 import {
   isTiltakEnkeltplass,
   isTiltakGruppe,
@@ -77,7 +81,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
           <div
             className={`grid [grid-area:metadata] grid-cols-[repeat(auto-fill,minmax(5rem,15rem))] gap-[5px] lg:gap-4 justify-[initial] lg:justify-evenly`}
           >
-            {isTiltakMedArrangor(tiltak) ? (
+            {isTiltakMedArrangor(tiltak) && tiltak.arrangor.selskapsnavn ? (
               <BodyShort size="small" title={tiltak.arrangor.selskapsnavn}>
                 {tiltak.arrangor.selskapsnavn}
               </BodyShort>

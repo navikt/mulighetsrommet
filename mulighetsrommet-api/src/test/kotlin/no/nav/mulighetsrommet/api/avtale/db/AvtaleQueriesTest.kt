@@ -13,16 +13,10 @@ import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.IT
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
@@ -221,42 +215,36 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    it.kontorstruktur shouldBe listOf(
-                        Kontorstruktur(
-                            region = Innlandet,
-                            kontorer = listOf(Gjovik, Sel),
-                        ),
-                    )
+                queries.get(avtale.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    it.kontorer.should { (first, second) ->
+                        first.enhetsnummer shouldBe Gjovik.enhetsnummer
+                        second.enhetsnummer shouldBe Sel.enhetsnummer
+                    }
                 }
             }
         }
 
         test("Nav-enheter uten overordnet enhet hentes med riktig kontorstruktur") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                navEnheter = listOf(Innlandet.enhetsnummer, IT.enhetsnummer, Gjovik.enhetsnummer),
+                navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Oslo.enhetsnummer),
             )
 
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    navEnheter = listOf(Innlandet, IT, Gjovik),
+                    navEnheter = listOf(Innlandet, Oslo, Gjovik),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
                 ).setup(session)
 
                 val queries = AvtaleQueries(session)
 
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    it.kontorstruktur shouldBe listOf(
-                        Kontorstruktur(
-                            region = Innlandet,
-                            kontorer = listOf(Gjovik),
-                        ),
-                        Kontorstruktur(
-                            region = IT,
-                            kontorer = emptyList(),
-                        ),
-                    )
+                queries.get(avtale.id).shouldNotBeNull().kontorstruktur.should { (first, second) ->
+                    first.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    first.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Gjovik.enhetsnummer
+
+                    second.region.enhetsnummer shouldBe Oslo.enhetsnummer
+                    second.kontorer.shouldBeEmpty()
                 }
             }
         }

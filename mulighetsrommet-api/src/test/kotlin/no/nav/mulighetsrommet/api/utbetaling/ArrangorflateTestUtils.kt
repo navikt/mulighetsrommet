@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -50,7 +51,7 @@ object ArrangorflateTestUtils {
         deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
-            type = DeltakerStatus.Type.DELTAR,
+            type = DeltakerStatusType.DELTAR,
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),
@@ -149,7 +150,7 @@ object ArrangorflateTestUtils {
         tilsagn: TilsagnDbo = createTestTilsagn(),
         utbetalinger: List<UtbetalingDbo> = listOf(createTestUtbetalingForhandsgodkjent(deltaker.id)),
     ): MulighetsrommetTestDomain = MulighetsrommetTestDomain(
-        navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+        navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(

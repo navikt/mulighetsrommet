@@ -17,7 +17,7 @@ import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingOppstartstype,
-  NavKontorStruktur,
+  Kontorstruktur,
 } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
@@ -303,7 +303,7 @@ function HentTiltaksnummer({ id }: { id: string }) {
   );
 }
 
-function RegionOgLokalkontorer({ kontorstruktur }: { kontorstruktur: NavKontorStruktur }) {
+function RegionOgLokalkontorer({ kontorstruktur }: { kontorstruktur: Kontorstruktur }) {
   const [openRegions, setOpenRegions] = useState<string[]>([]);
 
   const toggleRegion = (enhetsnummer: string) => {

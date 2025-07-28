@@ -1,8 +1,8 @@
 import { Alert } from "@navikt/ds-react";
-import { Bruker, Innsatsgruppe } from "@mr/api-client-v2";
+import { Brukerdata, Innsatsgruppe } from "@api-client";
 
 interface Props {
-  brukerdata: Bruker;
+  brukerdata: Brukerdata;
 }
 
 export function BrukerErSykmeldtMedArbeidsgiverVarsel({ brukerdata }: Props) {

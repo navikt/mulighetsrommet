@@ -13,10 +13,12 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.buildRegionList
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -43,6 +45,7 @@ class UtbetalingService(
     private val tilsagnService: TilsagnService,
     private val personService: PersonService,
     private val journalforUtbetaling: JournalforUtbetaling,
+    private val navEnhetService: NavEnhetService,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -64,6 +67,7 @@ class UtbetalingService(
                             queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
                         }.distinct(),
                     )
+
                 else -> (null to emptyList())
             }
 
@@ -71,7 +75,7 @@ class UtbetalingService(
                 id = utbetaling.id,
                 status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
                 periode = utbetaling.periode,
-                kostnadssteder = kostnadssteder,
+                kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                 belopUtbetalt = belopUtbetalt,
                 type = UtbetalingType.from(utbetaling),
             )
@@ -243,11 +247,12 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
-
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+            is UtbetalingBeregningFri,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
+            -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
+
+            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
             -> Unit
         }
 
@@ -544,16 +549,16 @@ class UtbetalingService(
 
         val personerOgGeografiskEnhet = personService.getPersonerMedGeografiskEnhet(norskIdentById.values.mapNotNull { it })
             .map {
-                val geografiskEnhet = it.second?.let { hentEnhet(it) }
+                val geografiskEnhet = it.second?.let { navEnhetService.hentEnhet(it) }
                 PersonEnhetOgRegion(
                     person = it.first,
                     geografiskEnhet = geografiskEnhet,
-                    region = geografiskEnhet?.overordnetEnhet?.let { hentEnhet(it) },
+                    region = geografiskEnhet?.overordnetEnhet?.let { navEnhetService.hentEnhet(it) },
                 )
             }
             .associateBy { it.person.norskIdent }
 
-        val regioner = buildRegionList(
+        val regioner = NavEnhetHelpers.buildNavRegioner(
             personerOgGeografiskEnhet
                 .map { listOfNotNull(it.value.geografiskEnhet, it.value.region) }
                 .flatten(),
@@ -566,10 +571,6 @@ class UtbetalingService(
         }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
-    }
-
-    private fun QueryContext.hentEnhet(enhetNummer: NavEnhetNummer): NavEnhetDbo? {
-        return queries.enhet.get(enhetNummer)
     }
 
     fun avbrytUtbetaling(
@@ -585,12 +586,15 @@ class UtbetalingService(
             Utbetaling.UtbetalingStatus.INNSENDT,
             Utbetaling.UtbetalingStatus.RETURNERT,
             -> Unit
+
             Utbetaling.UtbetalingStatus.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
+
             Utbetaling.UtbetalingStatus.OPPRETTET,
             Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
             Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-            ->
+            -> {
                 return FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}").left()
+            }
         }
 
         queries.utbetaling.setAvbrutt(id, LocalDateTime.now(), aarsaker, forklaring)
@@ -601,6 +605,6 @@ class UtbetalingService(
 
 data class PersonEnhetOgRegion(
     val person: Person,
-    val geografiskEnhet: NavEnhetDbo?,
-    val region: NavEnhetDbo?,
+    val geografiskEnhet: NavEnhetDto?,
+    val region: NavEnhetDto?,
 )

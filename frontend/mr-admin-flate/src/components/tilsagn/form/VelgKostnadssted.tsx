@@ -1,10 +1,10 @@
-import { NavEnhet } from "@mr/api-client-v2";
+import { NavEnhetDto } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 
 interface Props {
-  kostnadssteder: NavEnhet[] | undefined;
+  kostnadssteder: NavEnhetDto[] | undefined;
 }
 
 export function VelgKostnadssted({ kostnadssteder }: Props) {
