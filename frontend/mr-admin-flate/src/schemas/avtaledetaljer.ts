@@ -8,6 +8,7 @@ import {
 } from "@mr/api-client-v2";
 import z from "zod";
 import { okonomiSchema, validateOkonomi } from "./okonomi";
+import { AvtaleFormValues } from "./avtale";
 
 export const avtaleDetaljerSchema = z.object({
   navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
@@ -33,7 +34,7 @@ export const avtaleDetaljerSchema = z.object({
     opsjonMaksVarighet: z.string().optional().nullable(),
     customOpsjonsmodellNavn: z.string().optional().nullable(),
   }),
-  administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
+  administratorer: z.array(z.string()).min(1, "Du må velge minst én administrator"),
   sakarkivNummer: z
     .string()
     .nullable()
@@ -132,4 +133,19 @@ export function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
     utdanningsprogram: data.utdanningsprogram.id,
     utdanninger: data.utdanninger.map((utdanning) => utdanning.id),
   };
+}
+
+/**
+ * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
+ */
+export function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | null {
+  if (data.tiltakstype.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+    return null;
+  }
+
+  if (!data.utdanningslop?.utdanningsprogram || !data.utdanningslop?.utdanninger) {
+    return null;
+  }
+
+  return data.utdanningslop;
 }

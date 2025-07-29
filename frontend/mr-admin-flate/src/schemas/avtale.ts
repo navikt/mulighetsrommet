@@ -17,9 +17,6 @@ export const RedaksjoneltInnholdSchema = z.object({
     .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
     .nullable(),
   faneinnhold: FaneinnholdSchema.nullable(),
-});
-
-export const geografiskTilhorlighetSchema = z.object({
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
   navKontorer: z.string().array(),
   navAndreEnheter: z.string().array(),
@@ -35,7 +32,6 @@ export const avtaleFormSchema = avtaleDetaljerSchema
   .merge(okonomiSchema)
   .merge(PersonopplysningerSchema)
   .merge(RedaksjoneltInnholdSchema)
-  .merge(geografiskTilhorlighetSchema)
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);
