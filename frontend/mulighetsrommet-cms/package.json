@@ -17,7 +17,7 @@
     "@navikt/aksel-icons": "7.25.1",
     "@portabletext/react": "3.2.1",
     "@sanity/client": "7.8.1",
-    "@sanity/ui": "2.16.7",
+    "@sanity/ui": "3.0.2",
     "@sanity/util": "4.1.1",
     "@sanity/vision": "4.1.1",
     "react": "19.0.0",
