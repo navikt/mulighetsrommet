@@ -5164,6 +5164,94 @@ components:
         - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
 
+    ArrFlateBeregningDeltakelse:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/ArrFlateBeregningFriDeltakelse"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkDeltakelse"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverkDeltakelse"
+
+    ArrFlateBeregningFriDeltakelse:
+      type: object
+      properties:
+        type:
+          const: FRI
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        faktor:
+          type: number
+        person:
+          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+      required: [type, id, periode, faktor]
+
+    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        faktor:
+          type: number
+        perioderMedDeltakelsesmengde:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingDeltakelsePeriode"
+        person:
+          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+      required: [type, id, periode, faktor, perioderMedDeltakelsesmengde]
+
+    ArrFlateBeregningPrisPerManedsverkDeltakelse:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_MANEDSVERK
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        faktor:
+          type: number
+        person:
+          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+      required: [type, id, periode, faktor]
+
+    ArrFlateBeregningPrisPerUkesverkDeltakelse:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_UKESVERK
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        faktor:
+          type: number
+        person:
+          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+      required: [type, id, periode, faktor]
+
     ArrFlateBeregningFri:
       type: object
       properties:
@@ -5173,10 +5261,11 @@ components:
           type: integer
         digest:
           type: string
-      required:
-        - type
-        - belop
-        - digest
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateBeregningFriDeltakelse"
+      required: [type, belop, digest, deltakelser]
 
     ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder:
       type: object
@@ -5190,20 +5279,14 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingDeltakelse"
+            $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingStengtPeriode"
         antallManedsverk:
           type: number
-      required:
-        - type
-        - belop
-        - digest
-        - deltakelser
-        - stengt
-        - antallManedsverk
+      required: [type, belop, digest, deltakelser, stengt, antallManedsverk]
 
     ArrFlateBeregningPrisPerManedsverk:
       type: object
@@ -5217,20 +5300,14 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingDeltakelse"
+            $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkDeltakelse"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingStengtPeriode"
         antallManedsverk:
           type: number
-      required:
-        - type
-        - belop
-        - digest
-        - deltakelser
-        - stengt
-        - antallManedsverk
+      required: [type, belop, digest, deltakelser, stengt, antallManedsverk]
 
     ArrFlateBeregningPrisPerUkesverk:
       type: object
@@ -5244,20 +5321,14 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingDeltakelse"
+            $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverkDeltakelse"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingStengtPeriode"
         antallUkesverk:
           type: number
-      required:
-        - type
-        - belop
-        - digest
-        - deltakelser
-        - stengt
-        - antallUkesverk
+      required: [type, belop, digest, deltakelser, stengt, antallUkesverk]
 
     UtbetalingBeregningType:
       type: string
@@ -5343,36 +5414,6 @@ components:
         - periode
         - beskrivelse
 
-    ArrFlateUtbetalingDeltakelse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        deltakerStartDato:
-          type: string
-          format: date
-        periodeStartDato:
-          type: string
-          format: date
-        periodeSluttDato:
-          type: string
-          format: date
-        faktor:
-          type: number
-        perioderMedDeltakelsesmengde:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingDeltakelsePeriode"
-        person:
-          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
-      required:
-        - id
-        - periodeStartDato
-        - periodeSluttDato
-        - faktor
-        - perioderMedDeltakelsesmengde
-
     UtbetalingDeltakelsePeriode:
       type: object
       properties:
@@ -5389,13 +5430,10 @@ components:
       properties:
         navn:
           type: string
-        fodselsdato:
+        foedselsdato:
           type: string
           format: date
-        fodselsaar:
-          type: integer
-      required:
-        - navn
+      required: [navn]
 
     UtdanningslopDbo:
       type: object

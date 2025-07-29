@@ -119,6 +119,8 @@ class UtbetalingService(
                 beregning = UtbetalingBeregningFri.beregn(
                     input = UtbetalingBeregningFri.Input(
                         belop = request.belop,
+                        // TODO: Lagre deltakelser for fri modell
+                        deltakelser = emptySet(),
                     ),
                 ),
                 periode = Periode.fromInclusiveDates(

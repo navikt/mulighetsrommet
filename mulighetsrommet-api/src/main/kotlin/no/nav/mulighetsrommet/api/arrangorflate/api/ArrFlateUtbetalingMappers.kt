@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.model.Periode
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -16,10 +17,26 @@ fun mapUtbetalingToArrFlateUtbetaling(
     kanViseBeregning: Boolean,
 ): ArrFlateUtbetaling {
     val beregning = when (val beregning = utbetaling.beregning) {
-        is UtbetalingBeregningFri -> ArrFlateBeregning.Fri(
-            belop = beregning.output.belop,
-            digest = beregning.getDigest(),
-        )
+        is UtbetalingBeregningFri -> {
+            val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
+
+            val deltakelser = perioderById.map { (id, deltakelse) ->
+                val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
+
+                ArrFlateBeregning.Fri.Deltakelse(
+                    id = id,
+                    deltakerStartDato = deltaker?.startDato,
+                    periode = deltakelse.periode,
+                    person = person,
+                )
+            }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
+
+            ArrFlateBeregning.Fri(
+                belop = beregning.output.belop,
+                digest = beregning.getDigest(),
+                deltakelser = deltakelser,
+            )
+        }
 
         // TODO: forenkle mapping av beregninger som inkluderer deltakelser
         is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
@@ -28,17 +45,13 @@ fun mapUtbetalingToArrFlateUtbetaling(
 
             val deltakelser = perioderById.map { (id, deltakelse) ->
                 val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
-                val manedsverk = manedsverkById.getValue(id).manedsverk
+                val faktor = manedsverkById.getValue(id).faktor
 
-                val forstePeriode = deltakelse.perioder.first()
-                val sistePeriode = deltakelse.perioder.last()
-
-                ArrFlateUtbetalingDeltakelse(
+                ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder.Deltakelse(
                     id = id,
                     deltakerStartDato = deltaker?.startDato,
-                    periodeStartDato = forstePeriode.periode.start,
-                    periodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
-                    faktor = manedsverk,
+                    periode = Periode.Companion.fromRange(deltakelse.perioder.map { it.periode }),
+                    faktor = faktor,
                     perioderMedDeltakelsesmengde = deltakelse.perioder,
                     person = person,
                 )
@@ -65,16 +78,13 @@ fun mapUtbetalingToArrFlateUtbetaling(
 
             val deltakelser = perioderById.map { (id, deltakelse) ->
                 val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
-                val manedsverk = ukesverkById.getValue(id).manedsverk
+                val faktor = ukesverkById.getValue(id).faktor
 
-                ArrFlateUtbetalingDeltakelse(
+                ArrFlateBeregning.PrisPerManedsverk.Deltakelse(
                     id = id,
                     deltakerStartDato = deltaker?.startDato,
-                    periodeStartDato = deltakelse.periode.start,
-                    periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
-                    faktor = manedsverk,
-                    // TODO: deltakelsesmengder er egentlig ikke relevant for denne beregningen
-                    perioderMedDeltakelsesmengde = listOf(DeltakelsesprosentPeriode(deltakelse.periode, 100.0)),
+                    periode = deltakelse.periode,
+                    faktor = faktor,
                     person = person,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
@@ -100,16 +110,13 @@ fun mapUtbetalingToArrFlateUtbetaling(
 
             val deltakelser = perioderById.map { (id, deltakelse) ->
                 val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
-                val ukesverk = ukesverkById.getValue(id).ukesverk
+                val faktor = ukesverkById.getValue(id).faktor
 
-                ArrFlateUtbetalingDeltakelse(
+                ArrFlateBeregning.PrisPerUkesverk.Deltakelse(
                     id = id,
                     deltakerStartDato = deltaker?.startDato,
-                    periodeStartDato = deltakelse.periode.start,
-                    periodeSluttDato = deltakelse.periode.getLastInclusiveDate(),
-                    faktor = ukesverk,
-                    // TODO: deltakelsesmengder er egentlig ikke relevant for denne beregningen
-                    perioderMedDeltakelsesmengde = listOf(DeltakelsesprosentPeriode(deltakelse.periode, 100.0)),
+                    periode = deltakelse.periode,
+                    faktor = faktor,
                     person = person,
                 )
             }.sortedWith(compareBy(nullsLast()) { it.person?.navn })

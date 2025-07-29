@@ -43,11 +43,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             belop = 100,
             digest = "digest",
             deltakelser = listOf(
-                ArrFlateUtbetalingDeltakelse(
+                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2025, 1, 1),
-                    periodeStartDato = LocalDate.of(2025, 1, 1),
-                    periodeSluttDato = LocalDate.of(2025, 1, 31),
+                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
                     faktor = 1.0,
                     perioderMedDeltakelsesmengde = listOf(
                         DeltakelsesprosentPeriode(
@@ -61,11 +60,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         norskIdent = NorskIdent("01010199999"),
                     ),
                 ),
-                ArrFlateUtbetalingDeltakelse(
+                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2024, 1, 1),
-                    periodeStartDato = LocalDate.of(2025, 1, 1),
-                    periodeSluttDato = LocalDate.of(2025, 1, 31),
+                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
                     faktor = 0.75,
                     perioderMedDeltakelsesmengde = listOf(
                         DeltakelsesprosentPeriode(

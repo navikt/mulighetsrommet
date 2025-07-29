@@ -119,7 +119,8 @@ class ArrangorFlateService(
 
     suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling, relativeDate: LocalDateTime = LocalDateTime.now()): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
-        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt?.let { it.plusWeeks(12) <= relativeDate } ?: false
+        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
+            ?.let { it.plusWeeks(12) <= relativeDate } ?: false
 
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
@@ -135,30 +136,33 @@ class ArrangorFlateService(
             .associateBy { it.id }
             .mapValues { it.value to it.value.norskIdent?.let { personerByNorskIdent.getValue(it) } }
 
-        val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
-            val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
-                TilsagnDto.fromTilsagn(it)
-            }
-
-            ArrangorUtbetalingLinje(
-                id = delutbetaling.id,
-                belop = delutbetaling.belop,
-                status = delutbetaling.status,
-                statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
-                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
-                    id = tilsagn.id,
-                    bestillingsnummer = tilsagn.bestillingsnummer,
-                ),
-            )
-        }
-
         return mapUtbetalingToArrFlateUtbetaling(
             utbetaling = utbetaling,
             status = status,
             deltakerPersoner = deltakerPersoner,
-            linjer = linjer,
+            linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
         )
+    }
+
+    private fun QueryContext.getLinjer(utbetalingId: UUID): List<ArrangorUtbetalingLinje> {
+        return queries.delutbetaling.getByUtbetalingId(utbetalingId)
+            .map { delutbetaling ->
+                val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                    TilsagnDto.fromTilsagn(it)
+                }
+
+                ArrangorUtbetalingLinje(
+                    id = delutbetaling.id,
+                    belop = delutbetaling.belop,
+                    status = delutbetaling.status,
+                    statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
+                    tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                        id = tilsagn.id,
+                        bestillingsnummer = tilsagn.bestillingsnummer,
+                    ),
+                )
+            }
     }
 
     private fun QueryContext.getArrFlateUtbetalingStatus(utbetaling: Utbetaling): ArrFlateUtbetalingStatus {

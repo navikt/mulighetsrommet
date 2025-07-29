@@ -481,6 +481,7 @@ class UtbetalingQueries(private val session: Session) {
             UtbetalingBeregningFri(
                 input = UtbetalingBeregningFri.Input(
                     belop = it.int("belop_beregnet"),
+                    deltakelser = emptySet(),
                 ),
                 output = UtbetalingBeregningFri.Output(
                     belop = it.int("belop_beregnet"),

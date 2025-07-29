@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingDeltakelse
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
@@ -212,7 +211,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
-    deltakelser: List<ArrFlateUtbetalingDeltakelse>,
+    deltakelser: List<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder.Deltakelse>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -249,7 +248,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
-    deltakelser: List<ArrFlateUtbetalingDeltakelse>,
+    deltakelser: List<ArrFlateBeregning.Deltakelse>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -267,10 +266,10 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
                         deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.periodeStartDato.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.periode.start.formaterDatoTilEuropeiskDatoformat(),
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.periodeSluttDato.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
                     ),
                 )
             }
@@ -281,7 +280,7 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
 private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     sectionHeader: String,
     deltakelseFaktorColumnName: String,
-    deltakelser: List<ArrFlateUtbetalingDeltakelse>,
+    deltakelser: List<ArrFlateBeregning.Deltakelse>,
 ) {
     section(sectionHeader) {
         table {
@@ -298,7 +297,8 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
                         deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.faktor.toString(),
+                        "asdf",
+                        // deltakelse.faktor.toString(),
                     ),
                 )
             }

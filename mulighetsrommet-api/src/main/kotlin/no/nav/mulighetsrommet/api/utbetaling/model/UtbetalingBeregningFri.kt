@@ -13,6 +13,7 @@ data class UtbetalingBeregningFri(
     @Serializable
     data class Input(
         val belop: Int,
+        val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput()
 
     @Serializable
