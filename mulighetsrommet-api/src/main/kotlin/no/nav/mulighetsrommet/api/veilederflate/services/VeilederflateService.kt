@@ -29,7 +29,7 @@ class VeilederflateService(
         return Innsatsgruppe.entries.map {
             VeilederflateInnsatsgruppe(
                 tittel = it.tittel,
-                nokkel = it.name,
+                nokkel = it,
                 order = it.order,
             )
         }
@@ -163,7 +163,7 @@ class VeilederflateService(
                 VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,
                     telefon = it.telefonnummer,
-                    enhet = it.enhetsnummer?.let { enhet -> navEnhetService.hentEnhet(enhet) },
+                    enhet = it.enhetsnummer?.let { enhet -> getTiltaksansvarligEnhet(enhet) },
                     epost = it.epost,
                     beskrivelse = it.beskrivelse,
                 )
@@ -180,7 +180,6 @@ class VeilederflateService(
                 )
             } ?: emptyList()
             VeilederflateArrangor(
-                arrangorId = arrangor._id,
                 selskapsnavn = arrangor.navn,
                 organisasjonsnummer = arrangor.organisasjonsnummer?.value,
                 kontaktpersoner = kontaktpersoner,
@@ -257,6 +256,12 @@ class VeilederflateService(
                 fylker = fylker,
                 enheter = enheter,
             )
+        }
+    }
+
+    private fun getTiltaksansvarligEnhet(enhet: NavEnhetNummer): VeilederflateTiltaksansvarligHovedenhet? {
+        return navEnhetService.hentEnhet(enhet)?.let {
+            VeilederflateTiltaksansvarligHovedenhet(it.navn, it.enhetsnummer)
         }
     }
 

@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -34,7 +35,7 @@ class DeltakerQueriesTest : FunSpec({
         endretTidspunkt = opprettetTidspunkt,
         deltakelsesprosent = 100.0,
         status = DeltakerStatus(
-            DeltakerStatus.Type.VENTER_PA_OPPSTART,
+            DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,
             opprettetDato = opprettetTidspunkt,
         ),
@@ -58,7 +59,7 @@ class DeltakerQueriesTest : FunSpec({
 
             val avsluttetDeltaker2 = deltaker2.copy(
                 status = DeltakerStatus(
-                    DeltakerStatus.Type.HAR_SLUTTET,
+                    DeltakerStatusType.HAR_SLUTTET,
                     aarsak = null,
                     opprettetDato = LocalDateTime.of(2023, 3, 2, 0, 0, 0),
                 ),

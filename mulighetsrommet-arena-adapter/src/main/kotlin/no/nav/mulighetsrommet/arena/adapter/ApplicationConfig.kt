@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
@@ -7,8 +9,10 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 
 data class AppConfig(
+    val engine: HttpClientEngine = CIO.create(),
     val server: ServerConfig,
     val enableFailedRecordProcessor: Boolean,
     val tasks: TaskConfig,
@@ -34,6 +38,7 @@ data class ServiceConfig(
 
 data class AuthConfig(
     val azure: AuthProvider,
+    val texas: TexasClient.Config,
 )
 
 data class AuthProvider(

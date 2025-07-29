@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
+import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -12,9 +13,10 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.buildRegionList
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -52,9 +54,8 @@ class UtbetalingService(
         queries.utbetaling.getByGjennomforing(id).map { utbetaling ->
             val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
-            val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
-            val (belopUtbetalt, kostnadssteder) = when (status) {
-                AdminUtbetalingStatus.UTBETALT, AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING ->
+            val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
+                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET ->
                     Pair(
                         delutbetalinger.sumOf {
                             it.belop
@@ -69,9 +70,9 @@ class UtbetalingService(
 
             UtbetalingKompaktDto(
                 id = utbetaling.id,
-                status = status,
+                status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
                 periode = utbetaling.periode,
-                kostnadssteder = kostnadssteder,
+                kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                 belopUtbetalt = belopUtbetalt,
                 type = UtbetalingType.from(utbetaling),
             )
@@ -83,13 +84,14 @@ class UtbetalingService(
         kid: Kid?,
     ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        if (utbetaling.innsender != null) {
+        if (utbetaling.status != Utbetaling.UtbetalingStatus.OPPRETTET) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
         }
 
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
+        queries.utbetaling.setStatus(utbetalingId, Utbetaling.UtbetalingStatus.INNSENDT)
         logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
 
         automatiskUtbetaling(utbetalingId)
@@ -128,11 +130,11 @@ class UtbetalingService(
                 } else {
                     null
                 },
+                status = Utbetaling.UtbetalingStatus.INNSENDT,
             ),
         )
 
-        val dto = getOrError(request.id)
-        logEndring("Utbetaling sendt inn", dto, agent)
+        val dto = logEndring("Utbetaling sendt inn", getOrError(request.id), agent)
 
         if (agent is Arrangor) {
             journalforUtbetaling.schedule(
@@ -153,12 +155,10 @@ class UtbetalingService(
         val utbetaling = getOrError(request.utbetalingId)
 
         val opprettDelutbetalinger = request.delutbetalinger.map { req ->
-            val previous = queries.delutbetaling.get(req.id)
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
             UtbetalingValidator.OpprettDelutbetaling(
                 id = req.id,
                 gjorOppTilsagn = req.gjorOppTilsagn,
-                previous = previous,
                 tilsagn = tilsagn,
                 belop = req.belop,
             )
@@ -179,13 +179,12 @@ class UtbetalingService(
                 delutbetalinger.forEach {
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
                 }
+                queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.TIL_ATTESTERING)
                 if (request.begrunnelseMindreBetalt != null) {
                     queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
                 }
 
-                val dto = getOrError(utbetaling.id)
-                logEndring("Utbetaling sendt til attestering", dto, navIdent)
-                dto
+                logEndring("Utbetaling sendt til attestering", getOrError(utbetaling.id), navIdent)
             }
     }
 
@@ -245,11 +244,12 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
-
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+            is UtbetalingBeregningFri,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
+            -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
+
+            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
             -> Unit
         }
 
@@ -405,6 +405,7 @@ class UtbetalingService(
             publishOpprettFaktura(delutbetaling)
         }
 
+        queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET)
         logEndring("Overført til utbetaling", utbetaling, Tiltaksadministrasjon)
     }
 
@@ -428,6 +429,7 @@ class UtbetalingService(
                 )
             }
 
+        queries.utbetaling.setStatus(delutbetaling.utbetalingId, Utbetaling.UtbetalingStatus.RETURNERT)
         logEndring(
             "Utbetaling returnert",
             getOrError(delutbetaling.utbetalingId),
@@ -458,7 +460,7 @@ class UtbetalingService(
         operation: String,
         dto: Utbetaling,
         endretAv: Agent,
-    ) {
+    ): Utbetaling {
         queries.endringshistorikk.logEndring(
             DocumentClass.UTBETALING,
             operation,
@@ -468,6 +470,7 @@ class UtbetalingService(
         ) {
             Json.encodeToJsonElement(dto)
         }
+        return dto
     }
 
     private fun QueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
@@ -542,16 +545,47 @@ class UtbetalingService(
             .associate { it.id to it.norskIdent }
 
         val personer = personService.getPersoner(norskIdentById.values.mapNotNull { it })
-        val regioner = buildRegionList(
+        val regioner = NavEnhetHelpers.buildNavRegioner(
             personer.mapNotNull { it.value.geografiskEnhet } + personer.mapNotNull { it.value.region },
         )
 
-        val deltakelsePersoner = utbetaling.beregning.output.deltakelser.map {
-            val norskIdent = norskIdentById.getValue(it.deltakelseId)
-            val person = norskIdent?.let { personer.getValue(norskIdent) }
-            it to person
-        }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+        val deltakelsePersoner = utbetaling.beregning.output.deltakelser
+            .map {
+                val norskIdent = norskIdentById.getValue(it.deltakelseId)
+                val person = norskIdent?.let { personer.getValue(norskIdent) }
+                it to person
+            }
+            .filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
+    }
+
+    fun avbrytUtbetaling(
+        id: UUID,
+        agent: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<FieldError, Utbetaling> = db.transaction {
+        val utbetaling = queries.utbetaling.get(id)
+            ?: throw NotFoundException("Fant ikke utbetaling")
+
+        when (utbetaling.status) {
+            Utbetaling.UtbetalingStatus.INNSENDT,
+            Utbetaling.UtbetalingStatus.RETURNERT,
+            -> Unit
+
+            Utbetaling.UtbetalingStatus.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
+
+            Utbetaling.UtbetalingStatus.OPPRETTET,
+            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+            -> {
+                return FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}").left()
+            }
+        }
+
+        queries.utbetaling.setAvbrutt(id, LocalDateTime.now(), aarsaker, forklaring)
+
+        logEndring("Utbetalingen ble avbrutt", getOrError(id), agent).right()
     }
 }

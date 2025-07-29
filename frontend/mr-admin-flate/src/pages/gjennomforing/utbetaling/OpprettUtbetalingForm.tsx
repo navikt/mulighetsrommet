@@ -32,30 +32,30 @@ const MAKS_BEGRUNNELSE_LENGDE = 300;
 
 const Schema = z
   .object({
-    periodeStart: z.string({ required_error: "Du må velge periodestart" }),
-    periodeSlutt: z.string({ required_error: "Du må velge periodelsutt" }),
+    periodeStart: z.string({ error: "Du må velge periodestart" }),
+    periodeSlutt: z.string({ error: "Du må velge periodelsutt" }),
     beskrivelse: z
-      .string({ required_error: "Du må oppgi en begrunnelse for utbetalingen" })
+      .string({ error: "Du må oppgi en begrunnelse for utbetalingen" })
       .min(MIN_BEGRUNNELSE_LENGDE, {
-        message: `Begrunnelsen er for kort (minimum ${MIN_BEGRUNNELSE_LENGDE} tegn).`,
+        error: `Begrunnelsen er for kort (minimum ${MIN_BEGRUNNELSE_LENGDE} tegn).`,
       })
       .max(MAKS_BEGRUNNELSE_LENGDE, {
-        message: `Begrunnelsen er for lang (maks ${MAKS_BEGRUNNELSE_LENGDE} tegn).`,
+        error: `Begrunnelsen er for lang (maks ${MAKS_BEGRUNNELSE_LENGDE} tegn).`,
       }),
     kontonummer: z
-      .string({ required_error: "Du må skrive inn kontonummer" })
-      .regex(/^\d{11}$/, { message: "Kontonummer må være 11 siffer" }),
+      .string({ error: "Du må skrive inn kontonummer" })
+      .regex(/^\d{11}$/, { error: "Kontonummer må være 11 siffer" }),
     kidNummer: z.string().optional(),
     belop: z
-      .string({ required_error: "Du må skrive inn et beløp" })
-      .min(1, { message: "Du må skrive inn et beløp" }),
+      .string({ error: "Du må skrive inn et beløp" })
+      .min(1, { error: "Du må skrive inn et beløp" }),
   })
   .refine(
     (data) => {
       return !!data.periodeStart;
     },
     {
-      message: "Du må sette startdato for perioden",
+      error: "Du må sette startdato for perioden",
       path: ["periodeStart"],
     },
   )
@@ -64,7 +64,7 @@ const Schema = z
       return !!data.periodeSlutt;
     },
     {
-      message: "Du må sette sluttdato for perioden",
+      error: "Du må sette sluttdato for perioden",
       path: ["periodeSlutt"],
     },
   );

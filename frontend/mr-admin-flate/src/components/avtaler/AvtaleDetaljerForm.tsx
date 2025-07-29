@@ -23,8 +23,8 @@ import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { AvtaleVarighet } from "./AvtaleVarighet";
 import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
+import { AvtaleVarighet } from "./AvtaleVarighet";
 
 export function AvtaleDetaljerForm({
   opsjonerRegistrert,

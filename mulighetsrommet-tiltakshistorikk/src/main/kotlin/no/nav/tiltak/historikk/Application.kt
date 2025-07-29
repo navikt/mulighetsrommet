@@ -12,7 +12,8 @@ import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.metrics.Metrics
-import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.AmtDeltakerV1KafkaConsumer
@@ -61,16 +62,13 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
 
-    val cachedTokenProvider = CachedTokenProvider.init(
-        config.auth.azure.audience,
-        config.auth.azure.tokenEndpointUrl,
-        config.auth.azure.privateJwk,
-    )
+    val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
+    val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
 
     val tiltakDatadelingClient = TiltakDatadelingClient(
         engine = config.httpClientEngine,
         baseUrl = config.clients.tiltakDatadeling.url,
-        tokenProvider = cachedTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
+        tokenProvider = azureAdTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
     )
 
     val tiltakshistorikkService = TiltakshistorikkService(

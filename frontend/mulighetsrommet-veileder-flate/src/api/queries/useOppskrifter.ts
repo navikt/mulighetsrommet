@@ -1,7 +1,7 @@
 import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
 import { erPreview } from "@/utils/Utils";
-import { OppskrifterService } from "@mr/api-client-v2";
+import { OppskrifterService, SanityPerspective } from "@api-client";
 
 export function useOppskrifter(tiltakstypeId?: string) {
   return useApiQuery({
@@ -12,7 +12,7 @@ export function useOppskrifter(tiltakstypeId?: string) {
           tiltakstypeId: tiltakstypeId!,
         },
         query: {
-          perspective: erPreview() ? "previewDrafts" : "published",
+          perspective: erPreview() ? SanityPerspective.PREVIEW_DRAFTS : SanityPerspective.PUBLISHED,
         },
       }),
     enabled: !!tiltakstypeId,

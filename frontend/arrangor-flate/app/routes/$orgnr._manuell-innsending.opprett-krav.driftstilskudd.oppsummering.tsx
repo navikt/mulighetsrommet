@@ -27,8 +27,7 @@ import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
-import { formaterPeriode } from "~/utils/date";
+import { yyyyMMddFormatting, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 
@@ -84,15 +83,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kontonummer = session.get("kontonummer");
     kid = session.get("kid");
   }
-  if (
-    !orgnr ||
-    !gjennomforingId ||
-    !tilsagnId ||
-    !periodeStart ||
-    !periodeSlutt ||
-    !belop ||
-    !kontonummer
-  )
+  if (!gjennomforingId || !tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
     throw new Error("Formdata mangler");
 
   const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
@@ -169,8 +160,8 @@ export const action: ActionFunction = async ({ request }) => {
       belop: belop!,
       gjennomforingId: gjennomforingId!,
       tilsagnId: tilsagnId!,
-      periodeStart: formaterDatoSomYYYYMMDD(periodeStart!),
-      periodeSlutt: formaterDatoSomYYYYMMDD(periodeSlutt!),
+      periodeStart: yyyyMMddFormatting(periodeStart!),
+      periodeSlutt: yyyyMMddFormatting(periodeSlutt!),
       kontonummer: kontonummer!,
       kidNummer: kid || null,
       tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,

@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class MulighetsrommetApiClient(
-    engine: HttpClientEngine = CIO.create(),
+    engine: HttpClientEngine,
     config: Config = Config(),
     baseUri: String,
     private val tokenProvider: TokenProvider,
@@ -25,34 +25,30 @@ class MulighetsrommetApiClient(
     )
 
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val client: HttpClient
-
-    init {
-        client = httpJsonClient(engine).config {
-            install(HttpRequestRetry) {
-                retryIf(config.maxRetries) { _, response ->
-                    response.status.value.let { it in 500..599 } || response.status == HttpStatusCode.Conflict
-                }
-
-                exponentialDelay()
-
-                modifyRequest {
-                    response?.let {
-                        logger.info("Request failed with response_status=${it.status}")
-                    }
-                    logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
-                }
+    private val client: HttpClient = httpJsonClient(engine).config {
+        install(HttpRequestRetry) {
+            retryIf(config.maxRetries) { _, response ->
+                response.status.value.let { it in 500..599 } || response.status == HttpStatusCode.Conflict
             }
 
-            defaultRequest {
-                contentType(ContentType.Application.Json)
+            exponentialDelay()
 
-                url.takeFrom(
-                    URLBuilder().takeFrom(baseUri).apply {
-                        encodedPath += url.encodedPath
-                    },
-                )
+            modifyRequest {
+                response?.let {
+                    logger.info("Request failed with response_status=${it.status}")
+                }
+                logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
             }
+        }
+
+        defaultRequest {
+            contentType(ContentType.Application.Json)
+
+            url.takeFrom(
+                URLBuilder().takeFrom(baseUri).apply {
+                    encodedPath += url.encodedPath
+                },
+            )
         }
     }
 

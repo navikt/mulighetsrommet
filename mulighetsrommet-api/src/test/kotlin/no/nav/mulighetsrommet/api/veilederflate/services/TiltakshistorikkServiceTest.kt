@@ -18,7 +18,14 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArena
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArenaStatus
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltakStatus
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
@@ -43,7 +50,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         norskIdent = NorskIdent("12345678910"),
         status = DeltakerStatus(
-            type = DeltakerStatus.Type.VENTELISTE,
+            type = DeltakerStatusType.VENTELISTE,
             opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
             aarsak = null,
         ),
@@ -82,7 +89,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = GruppeTiltakstype.INDOPPFAG,
         ),
         status = DeltakelseFraKomet.Status(
-            type = DeltakerStatus.Type.VENTELISTE,
+            type = DeltakerStatusType.VENTELISTE,
             visningstekst = "Venteliste",
             aarsak = null,
         ),
@@ -94,50 +101,50 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
     )
 
-    val deltakelseOppfolging = Deltakelse.DeltakelseGruppetiltak(
+    val deltakelseOppfolging = DeltakelseGruppetiltak(
         id = tiltakshistorikkOppfolging.id,
         gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
-        eierskap = Deltakelse.Eierskap.TEAM_KOMET,
+        eierskap = DeltakelseEierskap.TEAM_KOMET,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
-        status = Deltakelse.DeltakelseGruppetiltak.Status(
-            type = DeltakerStatus.Type.VENTELISTE,
+        status = DeltakelseGruppetiltakStatus(
+            type = DeltakerStatusType.VENTELISTE,
             visningstekst = "Venteliste",
             aarsak = null,
         ),
-        periode = Deltakelse.Periode(
+        periode = DeltakelsePeriode(
             startDato = LocalDate.of(2019, 1, 1),
             sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
     )
-    val deltakelseAvklaring = Deltakelse.DeltakelseArena(
+    val deltakelseAvklaring = DeltakelseArena(
         id = tiltakshistorikkAvklaring.id,
-        eierskap = Deltakelse.Eierskap.ARENA,
+        eierskap = DeltakelseEierskap.ARENA,
         tittel = "Avklaring hos Hovedenhet AS",
         tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
-        status = Deltakelse.DeltakelseArena.Status(
+        status = DeltakelseArenaStatus(
             type = ArenaDeltakerStatus.VENTELISTE,
             visningstekst = "Venteliste",
         ),
-        periode = Deltakelse.Periode(
+        periode = DeltakelsePeriode(
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = null,
         innsoktDato = null,
     )
-    val deltakelseArbeidstrening = Deltakelse.DeltakelseArbeidsgiverAvtale(
+    val deltakelseArbeidstrening = DeltakelseArbeidsgiverAvtale(
         id = tiltakshistorikkArbeidstrening.id,
-        eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
+        eierskap = DeltakelseEierskap.TEAM_TILTAK,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstypeNavn = "Arbeidstrening",
-        status = Deltakelse.DeltakelseArbeidsgiverAvtale.Status(
+        status = DeltakelseArbeidsgiverAvtaleStatus(
             type = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
             visningstekst = "Gjennomføres",
         ),
-        periode = Deltakelse.Periode(
+        periode = DeltakelsePeriode(
             startDato = LocalDate.of(2020, 1, 1),
             sluttDato = LocalDate.of(2021, 12, 31),
         ),
@@ -271,7 +278,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val deltakelseOppfolgingUtenStartdato = deltakelseOppfolgingFraKomet.copy(
             deltakerId = UUID.randomUUID(),
-            status = DeltakelseFraKomet.Status(type = DeltakerStatus.Type.KLADD, visningstekst = "Kladd"),
+            status = DeltakelseFraKomet.Status(type = DeltakerStatusType.KLADD, visningstekst = "Kladd"),
             periode = null,
         )
 
@@ -291,8 +298,8 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val expectedDeltakelseUtenStartdato = deltakelseOppfolging.copy(
             id = deltakelseOppfolgingUtenStartdato.deltakerId,
-            periode = Deltakelse.Periode(null, null),
-            status = Deltakelse.DeltakelseGruppetiltak.Status(DeltakerStatus.Type.KLADD, "Kladd", null),
+            periode = DeltakelsePeriode(null, null),
+            status = DeltakelseGruppetiltakStatus(DeltakerStatusType.KLADD, "Kladd", null),
         )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),

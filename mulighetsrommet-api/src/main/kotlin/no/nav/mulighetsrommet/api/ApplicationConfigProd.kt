@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
@@ -30,7 +31,8 @@ val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
-    ) { metricRegistry = Metrics.micrometerRegistry },
+        micrometerRegistry = Metrics.micrometerRegistry,
+    ),
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
@@ -59,6 +61,11 @@ val ApplicationConfigProd = AppConfig(
             audience = System.getenv("MASKINPORTEN_CLIENT_ID"),
             tokenEndpointUrl = System.getenv("MASKINPORTEN_TOKEN_ENDPOINT"),
             privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
+        ),
+        texas = TexasClient.Config(
+            tokenEndpoint = System.getenv("NAIS_TOKEN_ENDPOINT"),
+            tokenExchangeEndpoint = System.getenv("NAIS_TOKEN_EXCHANGE_ENDPOINT"),
+            tokenIntrospectionEndpoint = System.getenv("NAIS_TOKEN_INTROSPECTION_ENDPOINT"),
         ),
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(

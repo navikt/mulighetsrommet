@@ -46,6 +46,10 @@ module "mr_api_datastream" {
         {
           table   = "del_med_bruker",
           columns = ["id", "tiltakstype_navn", "delt_fra_fylke", "delt_fra_enhet", "created_at"]
+        },
+        {
+          table   = "totrinnskontroll",
+          columns = ["id", "entity_id", "behandlet_tidspunkt", "behandlet_av", "besluttet_av", "besluttet_tidspunkt", "besluttelse"]
         }
       ]
     }
@@ -127,6 +131,27 @@ module "mr_api_datastream" {
         dataset_id = "mulighetsrommet_api_datastream"
         project_id = var.gcp_project["project"]
         table_id   = "del_med_bruker_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "utdanningsprogram_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "utdanning_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_utdanningsprogram_view"
       }
     },
     # Grafana dataset read access:

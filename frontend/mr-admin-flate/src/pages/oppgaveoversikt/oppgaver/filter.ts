@@ -5,8 +5,8 @@ import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@/filter/filter-validator";
 
 export const OppgaverFilterSchema = z.object({
-  type: z.nativeEnum(OppgaveType).array(),
-  tiltakstyper: z.nativeEnum(Tiltakskode).array(),
+  type: z.enum(OppgaveType).array(),
+  tiltakstyper: z.enum(Tiltakskode).array(),
   regioner: z.array(z.string()),
 });
 

@@ -81,7 +81,7 @@ class NavEnheterSyncService(
                     navn = enhet.navn,
                     enhetsnummer = enhet.enhetNr,
                     status = NavEnhetStatus.valueOf(enhet.status.name),
-                    type = Norg2Type.valueOf(enhet.type.name),
+                    type = enhet.type,
                     overordnetEnhet = overordnetEnhet ?: tryResolveOverordnetEnhet(enhet),
                 ),
             )

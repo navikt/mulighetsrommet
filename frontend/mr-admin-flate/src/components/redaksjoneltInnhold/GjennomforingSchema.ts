@@ -12,45 +12,42 @@ export const GjennomforingSchema = z
       .object({
         startDato: z
           .string({
-            required_error: "Du må legge inn startdato for gjennomføringen",
+            error: "Du må legge inn startdato for gjennomføringen",
           })
           .min(8, "Du må legge inn startdato for gjennomføringen"),
         sluttDato: z.string().optional().nullable(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
-        message: "Startdato må være før sluttdato",
+        error: "Startdato må være før sluttdato",
         path: ["startDato"],
       }),
     antallPlasser: z
       .number({
-        invalid_type_error: "Du må legge inn antall plasser",
+        error: "Du må legge inn antall plasser",
       })
       .int()
       .positive(),
     deltidsprosent: z.number({
-      invalid_type_error: "Du må velge deltidsprosent mellom 0 og 100",
-      required_error: "Du må velge deltidsprosent mellom 0 og 100",
+      error: "Du må velge deltidsprosent mellom 0 og 100",
     }),
     navRegioner: z.string().array().nonempty({
-      message: "Du må velge minst én region",
+      error: "Du må velge minst én region",
     }),
     navKontorer: z.string().array(),
     navEnheterAndre: z.string().array(),
     kontaktpersoner: z
       .object({
-        navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),
+        navIdent: z.string({ error: "Du må velge en kontaktperson" }),
         navEnheter: z
-          .string({ required_error: "Du må velge Nav-enheter kontaktpersonen er tilgjengelig for" })
+          .string({ error: "Du må velge Nav-enheter kontaktpersonen er tilgjengelig for" })
           .array(),
         beskrivelse: z.string().nullable().optional(),
       })
       .array()
       .optional(),
-    arrangorId: z
-      .string({
-        required_error: "Du må velge en underenhet for tiltaksarrangør",
-      })
-      .uuid("Du må velge en underenhet for tiltaksarrangør"),
+    arrangorId: z.uuid({
+      error: "Du må velge en underenhet for tiltaksarrangør",
+    }),
     stedForGjennomforing: z
       .string()
       .nullable()
@@ -62,28 +59,26 @@ export const GjennomforingSchema = z
           return val.length <= STED_FOR_GJENNOMFORING_MAX_LENGTH;
         },
         {
-          message: `Du kan bare skrive ${STED_FOR_GJENNOMFORING_MAX_LENGTH} tegn i "Sted for gjennomføring"`,
+          error: `Du kan bare skrive ${STED_FOR_GJENNOMFORING_MAX_LENGTH} tegn i "Sted for gjennomføring"`,
         },
       ),
-    arrangorKontaktpersoner: z.string().uuid().array(),
+    arrangorKontaktpersoner: z.uuid().array(),
     administratorer: z
-      .string({ required_error: "Du må velge minst én administrator" })
+      .string({ error: "Du må velge minst én administrator" })
       .array()
       .min(1, "Du må velge minst én administrator"),
     oppstart: z.custom<GjennomforingOppstartstype>((val) => !!val, "Du må velge oppstartstype"),
     beskrivelse: z.string().nullable(),
     faneinnhold: FaneinnholdSchema.nullable(),
-    opphav: z.nativeEnum(Opphav),
+    opphav: z.enum(Opphav),
     visEstimertVentetid: z.boolean(),
     estimertVentetid: z
       .object({
         verdi: z.number({
-          required_error: "Du må sette en verdi for estimert ventetid",
-          invalid_type_error: "Du må sette en verdi for estimert ventetid",
+          error: "Du må sette en verdi for estimert ventetid",
         }),
         enhet: z.enum(["uke", "maned"], {
-          required_error: "Du må sette en enhet for estimert ventetid",
-          invalid_type_error: "Du må sette en enhet for estimert ventetid",
+          error: "Du må sette en enhet for estimert ventetid",
         }),
       })
       .nullable(),
@@ -91,20 +86,22 @@ export const GjennomforingSchema = z
     amoKategorisering: AmoKategoriseringSchema.nullish(),
     utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
   })
-  .superRefine((data, ctx) => {
-    data.kontaktpersoner?.forEach((kontaktperson, index) => {
+  .check((ctx) => {
+    ctx.value.kontaktpersoner?.forEach((kontaktperson, index) => {
       if (kontaktperson.navIdent == null) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Du må velge en kontaktperson",
+        ctx.issues.push({
+          code: "custom",
+          error: "Du må velge en kontaktperson",
           path: [`kontaktpersoner.${index}.navIdent`],
+          input: kontaktperson,
         });
       }
       if (kontaktperson.navEnheter.length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Du må velge minst én enhet",
+        ctx.issues.push({
+          code: "custom",
+          error: "Du må velge minst én enhet",
           path: [`kontaktpersoner.${index}.navEnheter`],
+          input: kontaktperson.navEnheter,
         });
       }
     });

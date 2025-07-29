@@ -1,8 +1,8 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { formaterDato } from "@/utils/Utils";
 import { OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
 

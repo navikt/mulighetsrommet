@@ -7,7 +7,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
+import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AvtaleDto, Avtaletype, Prismodell, Toggles } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Box, Heading, HelpText, HStack, VStack } from "@navikt/ds-react";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";

@@ -54,7 +54,6 @@ from gjennomforing
                                                    'enhetsnummer', enhet.enhetsnummer,
                                                    'navn', enhet.navn,
                                                    'type', enhet.type,
-                                                   'status', enhet.status,
                                                    'overordnetEnhet', enhet.overordnet_enhet
                                            )
                                    ) as nav_enheter_json

@@ -1,0 +1,15 @@
+{{#if this.description}}
+    <p>{{this.description}}</p>
+{{/if}}
+
+{{#eq this.type "description-list"}}
+    {{> block-content/partials/block_description-list this}}
+{{/eq}}
+
+{{#eq this.type "item-list"}}
+    {{> block-content/partials/block_item-list this}}
+{{/eq}}
+
+{{#eq this.type "table"}}
+    {{> block-content/partials/block_table this}}
+{{/eq}}

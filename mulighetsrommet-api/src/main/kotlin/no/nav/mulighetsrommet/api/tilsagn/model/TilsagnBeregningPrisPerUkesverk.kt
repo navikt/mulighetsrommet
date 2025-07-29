@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
+import java.math.BigDecimal
 import java.math.RoundingMode
 
 /**
@@ -35,9 +36,7 @@ data class TilsagnBeregningPrisPerUkesverk(
         fun beregn(input: Input): TilsagnBeregningPrisPerUkesverk {
             val (periode, sats, antallPlasser) = input
 
-            val days = periode.getDurationInDays().toBigDecimal()
-            val ukesverk = days.divide(7.toBigDecimal(), CALCULATION_PRECISION, RoundingMode.HALF_UP)
-            val belop = ukesverk
+            val belop = ukesverk(periode)
                 .multiply(sats.toBigDecimal())
                 .multiply(antallPlasser.toBigDecimal())
                 .setScale(0, RoundingMode.HALF_UP)
@@ -45,5 +44,10 @@ data class TilsagnBeregningPrisPerUkesverk(
 
             return TilsagnBeregningPrisPerUkesverk(input, Output(belop))
         }
+
+        fun ukesverk(periode: Periode): BigDecimal = periode
+            .getDurationInDays()
+            .toBigDecimal()
+            .divide(7.toBigDecimal(), CALCULATION_PRECISION, RoundingMode.HALF_UP)
     }
 }

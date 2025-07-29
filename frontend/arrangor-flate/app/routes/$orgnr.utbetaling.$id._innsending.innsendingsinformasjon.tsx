@@ -6,9 +6,9 @@ import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { formaterPeriode } from "~/utils/date";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 export const meta: MetaFunction = () => {
   return [

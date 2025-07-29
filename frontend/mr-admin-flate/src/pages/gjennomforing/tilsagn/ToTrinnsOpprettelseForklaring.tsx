@@ -1,6 +1,7 @@
 import { Besluttelse, TilsagnAvvisningAarsak, TotrinnskontrollDto } from "@mr/api-client-v2";
 import { AarsakerOgForklaring } from "./AarsakerOgForklaring";
-import { formaterDato, navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 type Props = {
   opprettelse: TotrinnskontrollDto;

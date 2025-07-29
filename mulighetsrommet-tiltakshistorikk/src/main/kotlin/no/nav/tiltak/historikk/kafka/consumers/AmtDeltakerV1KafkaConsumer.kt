@@ -7,7 +7,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import org.slf4j.LoggerFactory
@@ -32,7 +32,7 @@ class AmtDeltakerV1KafkaConsumer(
                 queries.deltaker.deleteKometDeltaker(key)
             }
 
-            amtDeltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
+            amtDeltaker.status.type == DeltakerStatusType.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker med id=$key fordi den var feilregistrert")
                 queries.deltaker.deleteKometDeltaker(key)
             }

@@ -3,9 +3,11 @@ package no.nav.mulighetsrommet.database
 import com.codahale.metrics.health.HealthCheckRegistry
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotliquery.*
+import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.action.*
+import kotliquery.sessionOf
 import java.io.Closeable
 import java.sql.Array
 import java.util.*
@@ -36,7 +38,9 @@ class Database(val config: DatabaseConfig) : Closeable {
                 }
             }
 
-            config.additionalConfig.invoke(this)
+            config.micrometerRegistry?.let {
+                metricsTrackerFactory = MicrometerMetricsTrackerFactory(config.micrometerRegistry)
+            }
 
             validate()
         }

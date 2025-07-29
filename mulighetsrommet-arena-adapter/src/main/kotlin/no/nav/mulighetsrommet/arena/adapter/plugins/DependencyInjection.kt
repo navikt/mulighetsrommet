@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
+import io.ktor.client.engine.*
 import io.ktor.server.application.*
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
@@ -21,7 +22,8 @@ import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
-import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
@@ -30,18 +32,16 @@ import org.koin.logger.SLF4JLogger
 fun Application.configureDependencyInjection(
     appConfig: AppConfig,
 ) {
-    val tokenProvider = CachedTokenProvider.init(
-        appConfig.auth.azure.audience,
-        appConfig.auth.azure.tokenEndpointUrl,
-        appConfig.auth.azure.privateJwk,
-    )
+    val texasClient = TexasClient(appConfig.auth.texas, appConfig.auth.texas.engine ?: appConfig.engine)
+    val tokenProvider = AzureAdTokenProvider(texasClient)
+
     install(KoinIsolated) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
             kafka(appConfig.kafka),
             repositories(),
-            services(appConfig.services, tokenProvider),
+            services(appConfig.services, tokenProvider, appConfig.engine),
             tasks(appConfig.tasks),
             slack(appConfig.slack),
         )
@@ -109,12 +109,13 @@ private fun repositories() = module {
     single { AvtaleRepository(get()) }
 }
 
-private fun services(services: ServiceConfig, tokenProvider: CachedTokenProvider): Module = module {
+private fun services(services: ServiceConfig, tokenProvider: AzureAdTokenProvider, engine: HttpClientEngine): Module = module {
     single {
         MulighetsrommetApiClient(
             config = MulighetsrommetApiClient.Config(maxRetries = 2),
             baseUri = services.mulighetsrommetApi.url,
             tokenProvider = tokenProvider.withScope(services.mulighetsrommetApi.scope),
+            engine = engine,
         )
     }
     single {
@@ -122,12 +123,14 @@ private fun services(services: ServiceConfig, tokenProvider: CachedTokenProvider
             config = TiltakshistorikkClient.Config(maxRetries = 2),
             baseUri = services.tiltakshistorikk.url,
             tokenProvider = tokenProvider.withScope(services.tiltakshistorikk.scope),
+            engine = engine,
         )
     }
     single<ArenaOrdsProxyClient> {
         ArenaOrdsProxyClientImpl(
             baseUrl = services.arenaOrdsProxy.url,
             tokenProvider = tokenProvider.withScope(services.arenaOrdsProxy.scope),
+            engine = engine,
         )
     }
     single {

@@ -40,7 +40,7 @@ dependencies {
     implementation(libs.bundles.logging)
 
     // Ktor
-    testImplementation(libs.ktor.client.mock)
+    implementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.contentNegotiation)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.server.auth)

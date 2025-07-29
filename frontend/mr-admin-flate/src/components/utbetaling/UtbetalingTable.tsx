@@ -1,5 +1,5 @@
-import { formaterNavEnheter, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
-import { AdminUtbetalingStatus, NavEnhet, UtbetalingKompaktDto } from "@mr/api-client-v2";
+import { formaterNavEnheter } from "@/utils/Utils";
+import { NavEnhetDto, UtbetalingKompaktDto, UtbetalingStatusDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -9,6 +9,7 @@ import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { useSortableData } from "@mr/frontend-common";
+import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 
 interface Props {
   utbetalinger: UtbetalingKompaktDto[];
@@ -17,8 +18,8 @@ interface Props {
 interface UtbetalingRow {
   periodeStart: string;
   periodeSlutt: string;
-  status: AdminUtbetalingStatus;
-  kostnadssteder: NavEnhet[];
+  status: UtbetalingStatusDto;
+  kostnadssteder: NavEnhetDto[];
 }
 
 export function UtbetalingTable({ utbetalinger }: Props) {
@@ -110,12 +111,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 </Table.DataCell>
               )}
               <Table.DataCell>
-                {status !== AdminUtbetalingStatus.VENTER_PA_ARRANGOR && (
+                {status.type !== "VENTER_PA_ARRANGOR" && (
                   <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
-                    {[
-                      AdminUtbetalingStatus.UTBETALT,
-                      AdminUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                    ].includes(status)
+                    {["OVERFORT_TIL_UTBETALING", "AVBRUTT"].includes(status.type)
                       ? "Detaljer"
                       : "Behandle"}
                   </Link>

@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -50,7 +51,7 @@ object ArrangorflateTestUtils {
         deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
-            type = DeltakerStatus.Type.DELTAR,
+            type = DeltakerStatusType.DELTAR,
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),
@@ -119,6 +120,7 @@ object ArrangorflateTestUtils {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
+        status = Utbetaling.UtbetalingStatus.OPPRETTET,
     )
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
@@ -140,6 +142,7 @@ object ArrangorflateTestUtils {
         beskrivelse = "Test utbetaling",
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
+        status = Utbetaling.UtbetalingStatus.OPPRETTET,
     )
 
     fun createTestDomain(
@@ -147,7 +150,7 @@ object ArrangorflateTestUtils {
         tilsagn: TilsagnDbo = createTestTilsagn(),
         utbetalinger: List<UtbetalingDbo> = listOf(createTestUtbetalingForhandsgodkjent(deltaker.id)),
     ): MulighetsrommetTestDomain = MulighetsrommetTestDomain(
-        navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+        navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(
@@ -190,7 +193,7 @@ object ArrangorflateTestUtils {
         }
     }
 
-    private fun mockJournalpost(builder: MockEngineBuilder) {
+    fun mockJournalpost(builder: MockEngineBuilder) {
         builder.post("/dokark/rest/journalpostapi/v1/journalpost") {
             respondJson(
                 DokarkResponse(
@@ -204,7 +207,7 @@ object ArrangorflateTestUtils {
         }
     }
 
-    private fun mockClamAvScan(builder: MockEngineBuilder) {
+    fun mockClamAvScan(builder: MockEngineBuilder) {
         builder.post("/scan") {
             respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
         }

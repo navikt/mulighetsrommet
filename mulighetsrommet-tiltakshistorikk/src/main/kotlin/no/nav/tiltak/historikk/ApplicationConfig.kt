@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
 
@@ -32,6 +33,7 @@ data class ClientConfig(
 
 data class AuthConfig(
     val azure: AuthProvider,
+    val texas: TexasClient.Config,
 )
 
 data class AuthProvider(

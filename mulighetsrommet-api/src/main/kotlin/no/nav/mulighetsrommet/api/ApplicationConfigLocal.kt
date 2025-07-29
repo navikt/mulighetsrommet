@@ -4,6 +4,7 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.*
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
@@ -21,9 +22,11 @@ import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import no.nav.mulighetsrommet.tokenprovider.TokenReponse
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
@@ -37,6 +40,7 @@ val ApplicationConfigLocal = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp",
         maximumPoolSize = 10,
+        micrometerRegistry = Metrics.micrometerRegistry,
     ),
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
@@ -65,21 +69,21 @@ val ApplicationConfigLocal = AppConfig(
             jwksUri = "http://localhost:8081/azure/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/azure/token",
-            privateJwk = createMockRSAKey("azure"),
+            privateJwk = "azure",
         ),
         tokenx = AuthProvider(
             issuer = "http://localhost:8081/tokenx",
             jwksUri = "http://localhost:8081/tokenx/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/tokenx/token",
-            privateJwk = createMockRSAKey("tokenx"),
+            privateJwk = "tokenx",
         ),
         maskinporten = AuthProvider(
             issuer = "http://localhost:8081/maskinporten",
             jwksUri = "http://localhost:8081/maskinporten/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/maskinporten/token",
-            privateJwk = createMockRSAKey("maskinporten"),
+            privateJwk = "maskinporten",
         ),
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
@@ -90,6 +94,24 @@ val ApplicationConfigLocal = AppConfig(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.BESLUTTER_TILSAGN),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.ATTESTANT_UTBETALING),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.KONTAKTPERSON),
+        ),
+        texas = TexasClient.Config(
+            tokenEndpoint = "http://localhost:8090/api/v1/token",
+            tokenExchangeEndpoint = "http://localhost:8090/api/v1/token/exchange",
+            tokenIntrospectionEndpoint = "http://localhost:8090/api/v1/introspect",
+            engine = MockEngine { _ ->
+                respond(
+                    content = Json.encodeToString(
+                        TokenReponse(
+                            access_token = "dummy",
+                            token_type = TokenReponse.TokenType.Bearer,
+                            expires_in = 1_000_1000,
+                        ),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            },
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(setOf()),

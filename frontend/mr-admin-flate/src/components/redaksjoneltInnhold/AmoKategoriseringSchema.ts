@@ -2,14 +2,14 @@ import { Bransje, ForerkortKlasse, InnholdElement, Sertifisering } from "@mr/api
 import z from "zod";
 
 const InnholdElementerSchema = z
-  .nativeEnum(InnholdElement, { errorMap: () => ({ message: "Du må velge minst ett element" }) })
+  .enum(InnholdElement, { error: "Du må velge minst ett element" })
   .array()
   .nonempty("Du må velge minst ett element");
 
 export const AmoKategoriseringSchema = z.discriminatedUnion("kurstype", [
   z.object({
     kurstype: z.literal("BRANSJE_OG_YRKESRETTET"),
-    bransje: z.nativeEnum(Bransje, { errorMap: () => ({ message: "Du må velge bransje" }) }),
+    bransje: z.enum(Bransje, { error: "Du må velge bransje" }),
     sertifiseringer: z
       .custom<Sertifisering>()
       .array()
@@ -21,7 +21,7 @@ export const AmoKategoriseringSchema = z.discriminatedUnion("kurstype", [
         return val;
       })
       .pipe(z.custom<Sertifisering>().array()),
-    forerkort: z.nativeEnum(ForerkortKlasse).array().default([]),
+    forerkort: z.enum(ForerkortKlasse).array().default([]),
     innholdElementer: InnholdElementerSchema,
   }),
   z.object({

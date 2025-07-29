@@ -4,7 +4,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnRequest } from "@mr/api-client-v2";
+import { TilsagnBeregningDto, TilsagnBeregningInput, TilsagnRequest } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
@@ -64,7 +64,7 @@ export function RedigerTilsagnFormPage() {
     periodeStart: tilsagn.periode.start,
     periodeSlutt: formaterDatoSomYYYYMMDD(subtractDays(tilsagn.periode.slutt, 1)),
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-    beregning: tilsagn.beregning.input,
+    beregning: tilsagnBeregningInput(tilsagn.beregning),
     gjennomforingId: gjennomforing.id,
   };
 
@@ -107,4 +107,29 @@ export function RedigerTilsagnFormPage() {
       </ContentBox>
     </main>
   );
+}
+
+function tilsagnBeregningInput(beregning: TilsagnBeregningDto): TilsagnBeregningInput {
+  switch (beregning.type) {
+    case "FRI":
+      return {
+        type: "FRI",
+        linjer: beregning.linjer,
+        prisbetingelser: beregning.prisbetingelser,
+      };
+    case "PRIS_PER_MANEDSVERK":
+      return {
+        type: "PRIS_PER_MANEDSVERK",
+        periode: beregning.periode,
+        sats: beregning.sats,
+        antallPlasser: beregning.antallPlasser,
+      };
+    case "PRIS_PER_UKESVERK":
+      return {
+        type: "PRIS_PER_UKESVERK",
+        periode: beregning.periode,
+        sats: beregning.sats,
+        antallPlasser: beregning.antallPlasser,
+      };
+  }
 }

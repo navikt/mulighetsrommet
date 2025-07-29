@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusAarsak
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -188,8 +190,8 @@ private fun Row.toDeltaker() = Deltaker(
     endretTidspunkt = localDateTime("endret_tidspunkt"),
     deltakelsesprosent = doubleOrNull("deltakelsesprosent"),
     status = DeltakerStatus(
-        type = DeltakerStatus.Type.valueOf(string("status_type")),
-        aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatus.Aarsak.valueOf(it) },
+        type = DeltakerStatusType.valueOf(string("status_type")),
+        aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsak.valueOf(it) },
         opprettetDato = localDateTime("status_opprettet_tidspunkt"),
     ),
 )

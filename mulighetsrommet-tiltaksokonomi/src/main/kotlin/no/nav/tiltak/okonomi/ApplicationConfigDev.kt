@@ -4,6 +4,7 @@ import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 
@@ -11,7 +12,8 @@ val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
-    ) { metricRegistry = Metrics.micrometerRegistry },
+        micrometerRegistry = Metrics.micrometerRegistry,
+    ),
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),
@@ -19,6 +21,11 @@ val ApplicationConfigDev = AppConfig(
             audience = System.getenv("AZURE_APP_CLIENT_ID"),
             tokenEndpointUrl = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
             privateJwk = System.getenv("AZURE_APP_JWK"),
+        ),
+        texas = TexasClient.Config(
+            tokenEndpoint = System.getenv("NAIS_TOKEN_ENDPOINT"),
+            tokenExchangeEndpoint = System.getenv("NAIS_TOKEN_EXCHANGE_ENDPOINT"),
+            tokenIntrospectionEndpoint = System.getenv("NAIS_TOKEN_INTROSPECTION_ENDPOINT"),
         ),
     ),
     clients = ClientConfig(

@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -540,7 +540,6 @@ class GjennomforingQueries(private val session: Session) {
                             'enhetsnummer', nav_enhet.enhetsnummer,
                             'navn', nav_enhet.navn,
                             'type', nav_enhet.type,
-                            'status', nav_enhet.status,
                             'overordnetEnhet', nav_enhet.overordnet_enhet
                         )
                     )
@@ -554,7 +553,6 @@ class GjennomforingQueries(private val session: Session) {
                         'enhetsnummer', nav_enhet_arena.enhetsnummer,
                         'navn', nav_enhet_arena.navn,
                         'type', nav_enhet_arena.type,
-                        'status', nav_enhet_arena.status,
                         'overordnetEnhet', nav_enhet_arena.overordnet_enhet
                     )
                 end as arena_ansvarlig_enhet_json
@@ -575,9 +573,9 @@ class GjennomforingQueries(private val session: Session) {
 
         return session.list(queryOf(query, params)) {
             val arenaAnsvarligEnhet = it.stringOrNull("arena_ansvarlig_enhet_json")
-                ?.let { Json.decodeFromString<NavEnhetDbo?>(it) }
+                ?.let { json -> Json.decodeFromString<NavEnhetDto?>(json) }
             val navEnheter = it.stringOrNull("nav_enheter_json")
-                ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
+                ?.let { json -> Json.decodeFromString<List<NavEnhetDto>>(json) }
                 ?.plus(arenaAnsvarligEnhet)
                 ?.filterNotNull()
                 ?: emptyList()
@@ -620,7 +618,7 @@ class GjennomforingQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<GjennomforingDto.Administrator>>(it) }
             ?: emptyList()
         val navEnheter = stringOrNull("nav_enheter_json")
-            ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
+            ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
             ?: emptyList()
         val kontorstruktur = fromNavEnheter(navEnheter)
 

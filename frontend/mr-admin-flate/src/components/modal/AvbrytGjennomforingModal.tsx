@@ -11,23 +11,10 @@ import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
 
-export const AvbrytGjennomforingModalSchema = z
-  .object({
-    aarsak: z.nativeEnum(
-      { ...AvbrytGjennomforingAarsak, ...AnnetEnum },
-      { required_error: "Mangler årsak" },
-    ),
-    customAarsak: z.string().max(100, "Beskrivelse kan ikke inneholde mer enn 100 tegn").optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.aarsak === AnnetEnum.ANNET && !data.customAarsak) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["customAarsak"],
-        message: "Beskrivelse er obligatorisk når “Annet” er valgt som årsak",
-      });
-    }
-  });
+export const AvbrytGjennomforingModalSchema = z.object({
+  aarsak: z.enum({ ...AvbrytGjennomforingAarsak, ...AnnetEnum }, { error: "Mangler årsak" }),
+  customAarsak: z.string().optional(),
+});
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;

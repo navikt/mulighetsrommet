@@ -53,11 +53,7 @@ from gjennomforing
                                                    'enhet',
                                                    json_build_object(
                                                            'navn', nav_enhet.navn,
-                                                           'enhetsnummer', nav_enhet.enhetsnummer,
-                                                           'status', nav_enhet.status,
-                                                           'type', nav_enhet.type,
-                                                           'overordnetEnhet',
-                                                           nav_enhet.overordnet_enhet
+                                                           'enhetsnummer', nav_enhet.enhetsnummer
                                                    ),
                                                    'epost', nav_ansatt.epost,
                                                    'beskrivelse', k.beskrivelse

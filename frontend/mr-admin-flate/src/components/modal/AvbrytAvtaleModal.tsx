@@ -14,23 +14,10 @@ import { useNavigate } from "react-router";
 import z from "zod";
 import classNames from "classnames";
 
-export const AvbrytAvtaleModalSchema = z
-  .object({
-    aarsak: z.nativeEnum(
-      { ...AvbrytAvtaleAarsak, ...AnnetEnum },
-      { required_error: "Mangler årsak" },
-    ),
-    customAarsak: z.string().max(100, "Beskrivelse kan ikke inneholde mer enn 100 tegn").optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.aarsak === AnnetEnum.ANNET && !data.customAarsak) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["customAarsak"],
-        message: "Beskrivelse er obligatorisk når “Annet” er valgt som årsak",
-      });
-    }
-  });
+export const AvbrytAvtaleModalSchema = z.object({
+  aarsak: z.enum({ ...AvbrytAvtaleAarsak, ...AnnetEnum }, { error: "Mangler årsak" }),
+  customAarsak: z.string().optional(),
+});
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;

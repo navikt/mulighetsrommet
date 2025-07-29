@@ -31,15 +31,14 @@ import {
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Separator } from "~/components/common/Separator";
-import { getOrError, getOrThrowError } from "~/utils/form-helpers";
 import { Definisjonsliste } from "../components/common/Definisjonsliste";
 import { tekster } from "../tekster";
 import { getBeregningDetaljer } from "../utils/beregning";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
-import { formaterPeriode } from "~/utils/date";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse, isValidationError, errorAt } from "~/utils/validering";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
@@ -102,25 +101,33 @@ export const action: ActionFunction = async ({ params, request }) => {
 
   const formData = await request.formData();
 
-  const utbetalingDigest = getOrThrowError(formData, "utbetalingDigest").toString();
-  const orgnr = getOrThrowError(formData, "orgnr").toString();
+  const utbetalingDigest = formData.get("utbetalingDigest")?.toString();
+  if (!utbetalingDigest) {
+    throw new Error(`Mangler ${utbetalingDigest}`);
+  }
+  const orgnr = formData.get("orgnr")?.toString();
+  if (!orgnr) {
+    throw new Error(`Mangler ${orgnr}`);
+  }
 
-  const { error: bekreftelseError } = getOrError(
-    formData,
-    "bekreftelse",
-    "Du må bekrefte at opplysningene er korrekte",
-  );
-  const { error: kontonummerError } = getOrError(
-    formData,
-    "kontonummer",
-    "Kontonummer eksisterer ikke",
-  );
+  const errors: FieldError[] = [];
+
+  if (!formData.get("bekreftelse")) {
+    errors.push({
+      pointer: "/bekreftelse",
+      detail: "Du må bekrefte at opplysningene er korrekte",
+    });
+  }
+  if (!formData.get("kontonummer")) {
+    errors.push({
+      pointer: "/kontonummer",
+      detail: "Kontonummer eksisterer ikke",
+    });
+  }
   const kid = formData.get("kid")?.toString() || null;
 
-  if (kontonummerError || bekreftelseError) {
-    return {
-      errors: [kontonummerError, bekreftelseError].filter((error) => error !== undefined),
-    };
+  if (errors.length > 0) {
+    return { errors };
   }
 
   const { error } = await ArrangorflateService.godkjennUtbetaling({

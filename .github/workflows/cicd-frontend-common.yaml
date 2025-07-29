@@ -1,0 +1,37 @@
+name: CI/CD (frontend-common)
+
+on:
+  push:
+    paths:
+      - .github/workflows/cicd-frontend-common.yaml
+      - .github/workflows/actions/*
+      - package.json
+      - pnpm-lock.yaml
+      - turbo.json
+      - frontend/frontend-common/**
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  TZ: Europe/Amsterdam
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Test
+        run: npx turbo run test --filter=@mr/frontend-common

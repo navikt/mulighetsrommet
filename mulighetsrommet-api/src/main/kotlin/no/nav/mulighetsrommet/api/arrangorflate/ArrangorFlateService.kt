@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.pdl.tilPersonNavn
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -38,6 +39,7 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
@@ -54,8 +56,8 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 )
 
 class ArrangorFlateService(
-    val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val db: ApiDatabase,
+    val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
@@ -118,12 +120,13 @@ class ArrangorFlateService(
             }
     }
 
-    fun getGodkjentBelopForUtbetaling(utbetalingId: UUID): Int = db.session {
+    private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID): Int = db.session {
         return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
-    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
+    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling, relativeDate: LocalDateTime = LocalDateTime.now()): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
+        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt?.let { it.plusWeeks(12) <= relativeDate } ?: false
         val deltakere = when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> emptyList()
 
@@ -131,7 +134,11 @@ class ArrangorFlateService(
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
             -> {
-                queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                if (erTolvUkerEtterInnsending) {
+                    emptyList()
+                } else {
+                    queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                }
             }
         }
         val personerByNorskIdent = if (deltakere.isNotEmpty()) getPersoner(deltakere) else emptyMap()
@@ -146,7 +153,10 @@ class ArrangorFlateService(
                 belop = delutbetaling.belop,
                 status = delutbetaling.status,
                 statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
-                tilsagn = tilsagn,
+                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                    id = tilsagn.id,
+                    bestillingsnummer = tilsagn.bestillingsnummer,
+                ),
             )
         }
 
@@ -156,6 +166,7 @@ class ArrangorFlateService(
             deltakere = deltakere,
             personerByNorskIdent = personerByNorskIdent,
             linjer = linjer,
+            kanViseBeregning = !erTolvUkerEtterInnsending,
         )
     }
 
@@ -163,7 +174,7 @@ class ArrangorFlateService(
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
         val relevanteForslag = getRelevanteForslag(utbetaling)
         return ArrFlateUtbetalingStatus.fromUtbetaling(
-            utbetaling,
+            utbetaling.status,
             delutbetalinger,
             relevanteForslag,
         )
@@ -358,7 +369,7 @@ private fun QueryContext.toArrangorflateTilsagn(
         ),
         type = tilsagn.type,
         periode = tilsagn.periode,
-        beregning = tilsagn.beregning,
+        beregning = TilsagnBeregningDto.from(tilsagn.beregning),
         arrangor = ArrangorflateTilsagnDto.Arrangor(
             id = tilsagn.arrangor.id,
             navn = tilsagn.arrangor.navn,

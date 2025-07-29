@@ -2,46 +2,52 @@ import {
   ArbeidsgiverAvtaleStatus,
   Deltakelse,
   DeltakelseEierskap,
-  GruppetiltakDeltakerStatus,
-} from "@mr/api-client-v2";
+  DeltakerStatusType,
+} from "@api-client";
 import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockGjennomforinger";
 
 export const deltakelserAktive: Deltakelse[] = [
   {
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakAft.id,
     innsoktDato: "2024-03-02",
     sistEndretDato: "2024-03-27",
     status: {
-      type: GruppetiltakDeltakerStatus.KLADD,
+      type: DeltakerStatusType.KLADD,
       visningstekst: "Kladden er ikke delt",
+      aarsak: null,
     },
     tiltakstypeNavn: "Arbeidsforberedende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    periode: {},
+    periode: { startDato: null, sluttDato: null },
   },
   {
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakAvklaring.id,
     innsoktDato: "2024-02-01",
     sistEndretDato: "2024-03-27",
     status: {
-      type: GruppetiltakDeltakerStatus.UTKAST_TIL_PAMELDING,
+      type: DeltakerStatusType.UTKAST_TIL_PAMELDING,
       visningstekst: "Utkastet er delt og venter på godkjenning",
+      aarsak: null,
     },
     tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    periode: {},
+    periode: { startDato: null, sluttDato: null },
   },
   {
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
-      type: GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART,
+      type: DeltakerStatusType.VENTER_PA_OPPSTART,
       visningstekst: "Venter på oppstart",
+      aarsak: null,
     },
     tiltakstypeNavn: "Jobbklubb",
     periode: {
@@ -49,25 +55,30 @@ export const deltakelserAktive: Deltakelse[] = [
       sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
+    sistEndretDato: null,
     eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
-      type: GruppetiltakDeltakerStatus.DELTAR,
+      type: DeltakerStatusType.DELTAR,
       visningstekst: "Deltar",
+      aarsak: null,
     },
     tiltakstypeNavn: "Jobbklubb",
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
     },
+    sistEndretDato: null,
     tittel: "Jobbklubb hos Fretex",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
+    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale",
     id: window.crypto.randomUUID(),
     innsoktDato: "2024-02-01",
     status: {
@@ -77,8 +88,10 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstypeNavn: "Arbeidstrening",
     periode: {
       startDato: "2023-08-10",
+      sluttDato: null,
     },
     tittel: "Arbeidstrening hos Fretex",
+    sistEndretDato: null,
     eierskap: DeltakelseEierskap.TEAM_TILTAK,
   },
 ];

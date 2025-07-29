@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.LocalDate
 import java.util.*
 
@@ -18,7 +18,7 @@ class DeltakerForslagQueriesTest : FunSpec({
 
     val deltaker = DeltakerFixtures.createDeltaker(
         GjennomforingFixtures.Oppfolging1.id,
-        statusType = DeltakerStatus.Type.VENTER_PA_OPPSTART,
+        statusType = DeltakerStatusType.VENTER_PA_OPPSTART,
     )
 
     val domain = MulighetsrommetTestDomain(

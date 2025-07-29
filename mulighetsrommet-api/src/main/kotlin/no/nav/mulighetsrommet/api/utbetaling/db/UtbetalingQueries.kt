@@ -7,6 +7,7 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -32,7 +33,10 @@ class UtbetalingQueries(private val session: Session) {
                 innsender,
                 tilskuddstype,
                 beskrivelse,
-                godkjent_av_arrangor_tidspunkt
+                godkjent_av_arrangor_tidspunkt,
+                status,
+                datastream_periode_start,
+                datastream_periode_slutt
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -44,7 +48,10 @@ class UtbetalingQueries(private val session: Session) {
                 :innsender,
                 :tilskuddstype::tilskuddstype,
                 :beskrivelse,
-                :godkjent_av_arrangor_tidspunkt
+                :godkjent_av_arrangor_tidspunkt,
+                :status::utbetaling_status,
+                :datastream_periode_start::date,
+                :datastream_periode_slutt::date
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 kontonummer = excluded.kontonummer,
@@ -55,7 +62,10 @@ class UtbetalingQueries(private val session: Session) {
                 innsender = excluded.innsender,
                 tilskuddstype = excluded.tilskuddstype,
                 beskrivelse = excluded.beskrivelse,
-                godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt
+                godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt,
+                status = excluded.status,
+                datastream_periode_start      = excluded.datastream_periode_start,
+                datastream_periode_slutt      = excluded.datastream_periode_slutt
         """.trimIndent()
 
         val params = mapOf(
@@ -75,6 +85,9 @@ class UtbetalingQueries(private val session: Session) {
             "beskrivelse" to dbo.beskrivelse,
             "tilskuddstype" to dbo.tilskuddstype.name,
             "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
+            "status" to dbo.status.name,
+            "datastream_periode_start" to dbo.periode.start,
+            "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
         )
 
         execute(queryOf(utbetalingQuery, params))
@@ -226,6 +239,17 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
     }
 
+    fun setStatus(id: UUID, status: Utbetaling.UtbetalingStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling set
+                status = :status::utbetaling_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
+    }
+
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
@@ -282,6 +306,26 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id, "begrunnelse" to begrunnelse)))
+    }
+
+    fun setAvbrutt(id: UUID, tidspunkt: LocalDateTime, aarsaker: List<String>, forklaring: String?) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling set
+                status = 'AVBRUTT',
+                avbrutt_aarsaker = :aarsaker,
+                avbrutt_forklaring = :forklaring,
+                avbrutt_tidspunkt = :tidspunkt
+            where id = :id::uuid
+        """.trimIndent()
+        val params = mapOf(
+            "id" to id,
+            "tidspunkt" to tidspunkt,
+            "aarsaker" to aarsaker.let { session.createTextArray(it) },
+            "forklaring" to forklaring,
+        )
+
+        session.execute(queryOf(query, params))
     }
 
     fun getOrError(id: UUID): Utbetaling {
@@ -402,6 +446,14 @@ class UtbetalingQueries(private val session: Session) {
             beskrivelse = stringOrNull("beskrivelse"),
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
+            status = Utbetaling.UtbetalingStatus.valueOf(string("status")),
+            avbrutt = localDateTimeOrNull("avbrutt_tidspunkt")?.let {
+                Utbetaling.Avbrutt(
+                    aarsaker = arrayOrNull<String>("avbrutt_aarsaker")?.toList() ?: emptyList(),
+                    forklaring = stringOrNull("avbrutt_forklaring"),
+                    tidspunkt = it,
+                )
+            },
         )
     }
 

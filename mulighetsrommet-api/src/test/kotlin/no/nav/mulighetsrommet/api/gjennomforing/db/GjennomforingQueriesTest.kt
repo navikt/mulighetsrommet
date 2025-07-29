@@ -14,7 +14,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -23,9 +22,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.IT
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
@@ -85,7 +84,7 @@ class GjennomforingQueriesTest : FunSpec({
                             navn = "Donald Duck",
                         ),
                     )
-                    it.kontorstruktur shouldBe listOf(Kontorstruktur(region = Innlandet, kontorer = listOf(Gjovik)))
+                    it.kontorstruktur.shouldNotBeNull()
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.kontaktpersoner shouldBe listOf()
@@ -123,7 +122,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("navEnheter crud") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, IT),
+                    navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, Oslo),
                     arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
@@ -133,39 +132,34 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.upsert(
                     Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer)),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].region shouldBe Innlandet
-                }
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].kontorer shouldContainExactlyInAnyOrder setOf(Gjovik, Sel)
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    it.kontorer.should { (first, second) ->
+                        first.enhetsnummer shouldBe Gjovik.enhetsnummer
+                        second.enhetsnummer shouldBe Sel.enhetsnummer
+                    }
                 }
 
                 queries.upsert(
                     Oppfolging1.copy(
-                        navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Lillehammer.enhetsnummer),
+                        navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
                     ),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].region shouldBe Innlandet
-                }
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].kontorer shouldContainExactlyInAnyOrder setOf(Gjovik, Lillehammer)
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                    it.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Lillehammer.enhetsnummer
                 }
 
                 queries.upsert(
-                    Oppfolging1.copy(navEnheter = setOf(IT.enhetsnummer)),
+                    Oppfolging1.copy(navEnheter = setOf(Oslo.enhetsnummer)),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].region shouldBe IT
-                }
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
-                    it.kontorstruktur[0].kontorer.shouldBeEmpty()
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                    it.region.enhetsnummer shouldBe Oslo.enhetsnummer
+                    it.kontorer.shouldBeEmpty()
                 }
 
                 queries.upsert(Oppfolging1.copy(navEnheter = setOf()))
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.kontorstruktur.shouldBeEmpty()
-                }
+                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldBeEmpty()
             }
         }
 

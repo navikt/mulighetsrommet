@@ -7,13 +7,13 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { addYear, formaterDato, isKursTiltak } from "@/utils/Utils";
+import { addYear, isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingKontaktperson,
   GjennomforingOppstartstype,
-  NavEnhet,
+  NavEnhetDto,
   Tiltakskode,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -42,11 +42,12 @@ import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
   avtale: AvtaleDto;
-  enheter: NavEnhet[];
+  enheter: NavEnhetDto[];
 }
 
 export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Props) {
@@ -306,7 +307,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
               {...register("administratorer")}
               options={AdministratorOptions(
                 ansatt,
-                gjennomforing?.administratorer,
+                gjennomforing?.administratorer.map((g) => g.navIdent) || [],
                 administratorer,
               )}
             />

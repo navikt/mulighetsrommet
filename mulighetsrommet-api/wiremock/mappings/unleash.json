@@ -46,6 +46,11 @@
           "name": "arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.migrering.okonomi.avbryt-utbetaling",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },

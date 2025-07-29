@@ -4,10 +4,10 @@ import { ArrFlateUtbetalingKompakt } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { UtbetalingTextLink } from "./UtbetalingTextLink";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { formaterPeriode } from "~/utils/date";
 import { useOrgnrFromUrl } from "~/utils/navigation";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { useSortState } from "~/hooks/useSortState";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];

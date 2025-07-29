@@ -10,7 +10,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -94,7 +94,7 @@ data class DeltakelseFraKomet(
 
     @Serializable
     data class Status(
-        val type: DeltakerStatus.Type,
+        val type: DeltakerStatusType,
         val visningstekst: String,
         val aarsak: String? = null,
     )

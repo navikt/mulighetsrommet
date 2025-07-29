@@ -14,7 +14,7 @@ import { useTabState } from "~/hooks/useTabState";
 import { toggleIsEnabled } from "~/services/featureToggle/featureToggleService";
 import { tekster } from "~/tekster";
 import css from "../root.module.css";
-import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { PageHeading } from "~/components/common/PageHeading";
 import { ChevronDownIcon } from "@navikt/aksel-icons";
@@ -36,13 +36,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const opprettKravOmUtbetalingToggle = await toggleIsEnabled({
     orgnr,
-    feature: Toggles.ARRANGORFLATE_UTBETALING_OPPRETT_UTBETALING_KNAPP,
+    feature: Toggles.ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER,
     tiltakskoder: [],
     headers: await apiHeaders(request),
   });
   const opprettUtbetalingsKravAnnenAvtaltPrisToggle = await toggleIsEnabled({
     orgnr,
-    feature: Toggles.ARRANGORFLATE_UTBETALING_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
+    feature: Toggles.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
     tiltakskoder: [],
     headers: await apiHeaders(request),
   });

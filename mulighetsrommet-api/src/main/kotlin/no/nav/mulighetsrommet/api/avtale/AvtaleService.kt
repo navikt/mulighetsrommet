@@ -135,6 +135,9 @@ class AvtaleService(
         if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.isBlank()) {
             return FieldError.root("Beskrivelse er obligatorisk når “Annet” er valgt som årsak").left()
         }
+        if (aarsak.beskrivelse.length > 100) {
+            return FieldError.root("Beskrivelse kan ikke inneholde mer enn 100 tegn").left()
+        }
 
         when (avtale.status) {
             is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
@@ -220,9 +223,7 @@ class AvtaleService(
 
         if (sisteOpsjon.status == OpsjonLoggStatus.OPSJON_UTLOST) {
             val nySluttDato = sisteOpsjon.forrigeSluttdato
-            if (nySluttDato == null) {
-                return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
-            }
+                ?: return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
             updateAvtaleVarighet(avtaleId, nySluttDato, today)
         }
 

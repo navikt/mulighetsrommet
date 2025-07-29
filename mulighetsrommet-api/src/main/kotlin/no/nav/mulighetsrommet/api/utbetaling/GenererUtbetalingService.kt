@@ -193,6 +193,7 @@ class GenererUtbetalingService(
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
+            status = Utbetaling.UtbetalingStatus.OPPRETTET,
         )
     }
 
@@ -330,10 +331,10 @@ fun isRelevantForUtbetalingsperide(
     periode: Periode,
 ): Boolean {
     val relevantDeltakerStatusForUtbetaling = listOf(
-        DeltakerStatus.Type.AVBRUTT,
-        DeltakerStatus.Type.DELTAR,
-        DeltakerStatus.Type.FULLFORT,
-        DeltakerStatus.Type.HAR_SLUTTET,
+        DeltakerStatusType.AVBRUTT,
+        DeltakerStatusType.DELTAR,
+        DeltakerStatusType.FULLFORT,
+        DeltakerStatusType.HAR_SLUTTET,
     )
     if (deltaker.status.type !in relevantDeltakerStatusForUtbetaling) {
         return false

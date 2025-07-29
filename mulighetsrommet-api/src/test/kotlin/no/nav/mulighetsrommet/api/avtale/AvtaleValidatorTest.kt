@@ -27,7 +27,6 @@ class AvtaleValidatorTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(
-            NavEnhetFixtures.IT,
             NavEnhetFixtures.Oslo,
             NavEnhetFixtures.Sagene,
             NavEnhetFixtures.Innlandet,

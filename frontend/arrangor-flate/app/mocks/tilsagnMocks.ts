@@ -24,19 +24,14 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     },
     beregning: {
       type: "PRIS_PER_MANEDSVERK",
-      input: {
-        type: "PRIS_PER_MANEDSVERK",
-        periode: {
-          start: "2025-01-01",
-          slutt: "2025-07-01",
-        },
-        sats: 20975,
-        antallPlasser: 42,
+      periode: {
+        start: "2025-01-01",
+        slutt: "2025-07-01",
       },
-      output: {
-        type: "PRIS_PER_MANEDSVERK",
-        belop: 5285700,
-      },
+      sats: 20975,
+      antallPlasser: 42,
+      belop: 5285700,
+      antallManeder: 13,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -67,22 +62,16 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     },
     beregning: {
       type: "FRI",
-      input: {
-        type: "FRI",
-        linjer: [
-          {
-            id: "8890342e-cde8-4680-8122-f4af7d988492",
-            beskrivelse: "Investering av avtalt sum",
-            belop: 123456,
-            antall: 1,
-          },
-        ],
-        prisbetingelser: null,
-      },
-      output: {
-        type: "FRI",
-        belop: 5285700,
-      },
+      linjer: [
+        {
+          id: "8890342e-cde8-4680-8122-f4af7d988492",
+          beskrivelse: "Investering av avtalt sum",
+          belop: 123456,
+          antall: 1,
+        },
+      ],
+      prisbetingelser: null,
+      belop: 5285700,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -113,22 +102,16 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     },
     beregning: {
       type: "FRI",
-      input: {
-        type: "FRI",
-        linjer: [
-          {
-            id: "1433b63b-0caa-4b53-9c0e-00cd38d94841",
-            beskrivelse: "<mangler beskrivelse>",
-            belop: 39000,
-            antall: 1,
-          },
-        ],
-        prisbetingelser: null,
-      },
-      output: {
-        type: "FRI",
-        belop: 39000,
-      },
+      linjer: [
+        {
+          id: "1433b63b-0caa-4b53-9c0e-00cd38d94841",
+          beskrivelse: "<mangler beskrivelse>",
+          belop: 39000,
+          antall: 1,
+        },
+      ],
+      prisbetingelser: null,
+      belop: 39000,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -159,19 +142,14 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     },
     beregning: {
       type: "PRIS_PER_MANEDSVERK",
-      input: {
-        type: "PRIS_PER_MANEDSVERK",
-        periode: {
-          start: "2025-03-18",
-          slutt: "2025-04-02",
-        },
-        sats: 20975,
-        antallPlasser: 114,
+      periode: {
+        start: "2025-03-18",
+        slutt: "2025-04-02",
       },
-      output: {
-        type: "PRIS_PER_MANEDSVERK",
-        belop: 1147752,
-      },
+      sats: 20975,
+      antallPlasser: 114,
+      antallManeder: 14,
+      belop: 1147752,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -195,16 +173,11 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     periode: { start: "2025-04-01", slutt: "2025-10-01" },
     beregning: {
       type: "PRIS_PER_MANEDSVERK",
-      input: {
-        type: "PRIS_PER_MANEDSVERK",
-        periode: { start: "2025-04-01", slutt: "2025-10-01" },
-        sats: 16848,
-        antallPlasser: 30,
-      },
-      output: {
-        type: "PRIS_PER_MANEDSVERK",
-        belop: 6000,
-      },
+      periode: { start: "2025-04-01", slutt: "2025-10-01" },
+      sats: 16848,
+      antallPlasser: 30,
+      belop: 6000,
+      antallManeder: 13,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",

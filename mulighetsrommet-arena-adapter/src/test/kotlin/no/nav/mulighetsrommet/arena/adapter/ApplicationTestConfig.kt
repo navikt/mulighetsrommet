@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
-import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-arena-adapter")
@@ -33,7 +32,7 @@ fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
     audience: String = "default",
-    privateJwk: String = createMockRSAKey("azure"),
+    privateJwk: String = "azure",
 ): AuthConfig {
     return AuthConfig(
         azure = AuthProvider(
@@ -43,5 +42,6 @@ fun createAuthConfig(
             tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
             privateJwk = privateJwk,
         ),
+        texas = ApplicationConfigLocal.auth.texas,
     )
 }

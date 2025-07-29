@@ -1,5 +1,5 @@
-import { formaterDato } from "@/utils/Utils";
 import { type Oppgave, OppgaveEnhet, OppgaveIconType, OppgaveType } from "@mr/api-client-v2";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BankNoteIcon, HandshakeIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { BodyShort, Box, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
 import { ReactNode } from "react";
@@ -59,16 +59,16 @@ function OppgaveIcon(props: { type: OppgaveIconType; fontSize?: string }) {
 
 function getOppgaveVariant(type: OppgaveType): TagProps["variant"] {
   switch (type) {
-    case (OppgaveType.TILSAGN_TIL_ANNULLERING,
-    OppgaveType.TILSAGN_TIL_OPPGJOR,
-    OppgaveType.TILSAGN_RETURNERT,
-    OppgaveType.UTBETALING_RETURNERT,
-    OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
-    OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR):
+    case OppgaveType.TILSAGN_TIL_ANNULLERING:
+    case OppgaveType.TILSAGN_TIL_OPPGJOR:
+    case OppgaveType.TILSAGN_RETURNERT:
+    case OppgaveType.UTBETALING_RETURNERT:
+    case OppgaveType.AVTALE_MANGLER_ADMINISTRATOR:
+    case OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR:
       return "warning-moderate";
-    case (OppgaveType.TILSAGN_TIL_GODKJENNING,
-    OppgaveType.UTBETALING_TIL_ATTESTERING,
-    OppgaveType.UTBETALING_TIL_BEHANDLING):
+    case OppgaveType.TILSAGN_TIL_GODKJENNING:
+    case OppgaveType.UTBETALING_TIL_ATTESTERING:
+    case OppgaveType.UTBETALING_TIL_BEHANDLING:
       return "error-moderate";
     default:
       return "warning-moderate";

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.task
 
 import arrow.core.Either
+import arrow.core.flatMap
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
@@ -8,11 +9,10 @@ import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfContentMapper
+import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -42,7 +42,9 @@ class JournalforUtbetaling(
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            journalfor(inst.data.utbetalingId, inst.data.vedlegg)
+            journalfor(inst.data.utbetalingId, inst.data.vedlegg).onLeft { message ->
+                throw Exception("Feil ved journalføring av utbetaling med id=${inst.data.utbetalingId}: $message")
+            }
         }
 
     fun schedule(utbetalingId: UUID, startTime: Instant, tx: TransactionalSession, vedlegg: List<Vedlegg>): UUID {
@@ -53,33 +55,34 @@ class JournalforUtbetaling(
         return id
     }
 
-    suspend fun journalfor(id: UUID, vedlegg: List<Vedlegg>): Either<DokarkError, DokarkResponse> = db.session {
+    suspend fun journalfor(id: UUID, vedlegg: List<Vedlegg>): Either<String, DokarkResponse> = db.session {
         logger.info("Journalfører utbetaling med id: $id")
 
         val utbetaling = requireNotNull(queries.utbetaling.get(id)) { "Fant ikke utbetaling med id=$id" }
-        require(utbetaling.innsender != null) { "utbetaling må være godkjent" }
 
         val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }
 
         val fagsakId = gjennomforing.tiltaksnummer ?: gjennomforing.lopenummer
 
-        val pdf = run {
-            // TODO: kan mapping gjøres fra Utbetaling -> PdfContent i stedet for å mappe Utbetaling -> ArrflateUtbetaling -> PdfContent?
-            val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
-            val content = UbetalingToPdfContentMapper.toJournalpostPdfContent(arrflateUtbetaling)
-            pdf.utbetalingJournalpost(content)
-        }
-
-        val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId, vedlegg)
-
-        dokarkClient.opprettJournalpost(journalpost, AccessType.M2M)
+        generatePdf(utbetaling)
+            .flatMap { pdf ->
+                val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId, vedlegg)
+                dokarkClient
+                    .opprettJournalpost(journalpost, AccessType.M2M)
+                    .mapLeft { error -> "Feil fra dokark: ${error.message}" }
+            }
             .onRight {
                 queries.utbetaling.setJournalpostId(id, it.journalpostId)
             }
-            .onLeft {
-                throw Exception("Feil ved opprettelse av journalpost. Message: ${it.message}")
-            }
+    }
+
+    private suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
+        val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
+        val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(arrflateUtbetaling)
+        return pdf
+            .getPdfDocument(content)
+            .mapLeft { error -> "Feil fra pdfgen: $error" }
     }
 }
 

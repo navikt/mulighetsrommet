@@ -10,7 +10,7 @@ import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingRequest,
-  NavEnhet,
+  NavEnhetDto,
   Tiltakskode,
   ValidationError,
 } from "@mr/api-client-v2";
@@ -33,7 +33,7 @@ interface Props {
   avtale: AvtaleDto;
   gjennomforing?: GjennomforingDto;
   defaultValues: DeepPartial<InferredGjennomforingSchema>;
-  enheter: NavEnhet[];
+  enheter: NavEnhetDto[];
 }
 
 export function GjennomforingFormContainer({
@@ -74,6 +74,7 @@ export function GjennomforingFormContainer({
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
+          navEnheter: "navKontorer",
           arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
           utdanningslop: "utdanningslop.utdanninger",
         };

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>{{title}}</title>
+    <meta name="subject" content="{{subject}}"/>
+    <meta name="description" content="{{description}}"/>
+    <meta name="author" content="{{author}}"/>
+    {{> block-content/partials/styles}}
+</head>
+
+<body>
+{{> block-content/partials/navlogo}}
+{{#each sections}}
+    {{> block-content/partials/section}}
+{{/each}}
+</body>
+
+</html>

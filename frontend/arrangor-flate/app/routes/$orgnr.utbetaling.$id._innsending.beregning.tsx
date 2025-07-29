@@ -12,14 +12,14 @@ import { ArrangorflateService, ArrFlateUtbetaling, RelevanteForslag } from "api-
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { Environment, getEnvironment } from "~/services/environment";
+import { getEnvironment } from "~/services/environment";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { getBeregningDetaljer } from "~/utils/beregning";
-import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { deltakerOversiktLenke, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
-import { formaterPeriode } from "~/utils/date";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,13 +30,6 @@ export const meta: MetaFunction = () => {
     },
   ];
 };
-
-function deltakerOversiktLenke(env: Environment): string {
-  if (env === Environment.DevGcp) {
-    return "https://amt.intern.dev.nav.no/deltakeroversikt";
-  }
-  return "https://nav.no/deltakeroversikt";
-}
 
 type LoaderData = {
   utbetaling: ArrFlateUtbetaling;

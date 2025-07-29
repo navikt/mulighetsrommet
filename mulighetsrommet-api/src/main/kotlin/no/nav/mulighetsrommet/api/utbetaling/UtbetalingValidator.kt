@@ -11,8 +11,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kid
@@ -28,7 +26,6 @@ object UtbetalingValidator {
         val belop: Int,
         val gjorOppTilsagn: Boolean,
         val tilsagn: Tilsagn,
-        val previous: Delutbetaling?,
     )
 
     fun validateOpprettDelutbetalinger(
@@ -37,6 +34,21 @@ object UtbetalingValidator {
         begrunnelse: String?,
     ): Either<List<FieldError>, List<OpprettDelutbetaling>> = either {
         val errors = buildList {
+            when (utbetaling.status) {
+                Utbetaling.UtbetalingStatus.INNSENDT,
+                Utbetaling.UtbetalingStatus.RETURNERT,
+                -> Unit
+                Utbetaling.UtbetalingStatus.OPPRETTET,
+                Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+                Utbetaling.UtbetalingStatus.AVBRUTT,
+                ->
+                    add(
+                        FieldError.root(
+                            "Utbetaling kan ikke endres fordi den har status: ${utbetaling.status}",
+                        ),
+                    )
+            }
             val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop }
             if (totalBelopUtbetales > utbetaling.beregning.output.belop) {
                 add(
@@ -61,22 +73,6 @@ object UtbetalingValidator {
             }
 
             opprettDelutbetalinger.forEachIndexed { index, req ->
-                when (req.previous?.status) {
-                    null, DelutbetalingStatus.RETURNERT -> {}
-                    DelutbetalingStatus.TIL_ATTESTERING,
-                    DelutbetalingStatus.GODKJENT,
-                    DelutbetalingStatus.UTBETALT,
-                    DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                    DelutbetalingStatus.BEHANDLES_AV_NAV,
-                    -> {
-                        add(
-                            FieldError.ofPointer(
-                                "/$index",
-                                "Utbetaling kan ikke endres fordi den har status: ${req.previous.status}",
-                            ),
-                        )
-                    }
-                }
                 if (req.belop <= 0) {
                     add(
                         FieldError.ofPointer(
@@ -173,7 +169,6 @@ object UtbetalingValidator {
     fun validateOpprettKravOmUtbetaling(
         request: OpprettKravOmUtbetalingRequest,
     ): Either<List<FieldError>, OpprettUtbetaling> {
-        var validated: OpprettUtbetaling? = null
         val errors = buildList {
             val start = try {
                 LocalDate.parse(request.periodeStart)
@@ -215,16 +210,13 @@ object UtbetalingValidator {
                 add(FieldError.of(OpprettKravOmUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
             }
 
-            val kontonummer = try {
-                Kontonummer(request.kontonummer)
-            } catch (e: IllegalArgumentException) {
+            if (Kontonummer.parse(request.kontonummer) == null) {
                 add(
                     FieldError.of(
                         OpprettKravOmUtbetalingRequest::kontonummer,
                         "Ugyldig kontonummer",
                     ),
                 )
-                null
             }
             if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
                 add(
@@ -234,24 +226,20 @@ object UtbetalingValidator {
                     ),
                 )
             }
-
-            if (start != null && slutt != null && kontonummer != null) {
-                validated = OpprettUtbetaling(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = request.gjennomforingId,
-                    periodeStart = start,
-                    periodeSlutt = slutt,
-                    belop = request.belop,
-                    kontonummer = kontonummer,
-                    kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
-                    tilskuddstype = request.tilskuddstype,
-                    beskrivelse = "",
-                    vedlegg = request.vedlegg,
-                )
-            }
         }
-
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: validated!!.right()
+        return errors.takeIf { it.isNotEmpty() }?.left()
+            ?: OpprettUtbetaling(
+                id = UUID.randomUUID(),
+                gjennomforingId = request.gjennomforingId,
+                periodeStart = LocalDate.parse(request.periodeStart),
+                periodeSlutt = LocalDate.parse(request.periodeSlutt),
+                belop = request.belop,
+                kontonummer = Kontonummer(request.kontonummer),
+                kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
+                tilskuddstype = request.tilskuddstype,
+                beskrivelse = "",
+                vedlegg = request.vedlegg,
+            ).right()
     }
 
     fun validerGodkjennUtbetaling(

@@ -26,7 +26,8 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
-import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.avstemming.AvstemmingService
 import no.nav.tiltak.okonomi.avstemming.SftpClient
@@ -79,16 +80,13 @@ fun Application.configure(config: AppConfig) {
     configureStatusPages()
     configureHTTP()
 
-    val cachedTokenProvider = CachedTokenProvider.init(
-        config.auth.azure.audience,
-        config.auth.azure.tokenEndpointUrl,
-        config.auth.azure.privateJwk,
-    )
+    val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
+    val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
 
     val oebs = OebsPoApClient(
         engine = config.httpClientEngine,
         baseUrl = config.clients.oebsPoAp.url,
-        tokenProvider = cachedTokenProvider.withScope(config.clients.oebsPoAp.scope),
+        tokenProvider = azureAdTokenProvider.withScope(config.clients.oebsPoAp.scope),
     )
 
     val brreg = BrregClient(config.httpClientEngine)

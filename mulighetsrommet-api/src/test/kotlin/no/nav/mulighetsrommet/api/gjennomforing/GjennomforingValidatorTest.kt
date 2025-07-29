@@ -70,13 +70,6 @@ class GjennomforingValidatorTest : FunSpec({
                 type = Norg2Type.LOKAL,
                 overordnetEnhet = NavEnhetNummer("0400"),
             ),
-            NavEnhetDbo(
-                navn = "Nav IT",
-                enhetsnummer = NavEnhetNummer("2990"),
-                status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.IT,
-                overordnetEnhet = null,
-            ),
         ),
         arrangorer = listOf(
             ArrangorFixtures.hovedenhet,

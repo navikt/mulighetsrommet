@@ -1,16 +1,16 @@
-import { http, HttpResponse, PathParams } from "msw";
 import {
-  DelMedBruker,
+  DelMedBrukerDbo as DelMedBruker,
   DelTiltakMedBrukerResponse,
   GetAlleDeltMedBrukerRequest,
   GetDelMedBrukerRequest,
   TiltakDeltMedBruker,
-} from "@mr/api-client-v2";
+} from "@api-client";
+import { http, HttpResponse, PathParams } from "msw";
 import { mockDeltMedBruker } from "../../fixtures/mockDeltMedBruker";
 import { mockHistorikkDeltMedBruker } from "../../fixtures/mockHistorikkDeltMedBruker";
 
 export const delMedBrukerHandlers = [
-  http.post<PathParams, DelTiltakMedBrukerResponse>("*/api/v1/intern/del-med-bruker", () => {
+  http.post<PathParams, DelTiltakMedBrukerResponse>("*/api/veilederflate/del-med-bruker", () => {
     const body: DelTiltakMedBrukerResponse = {
       dialogId: "12345",
     };
@@ -18,7 +18,7 @@ export const delMedBrukerHandlers = [
   }),
 
   http.post<PathParams, GetDelMedBrukerRequest>(
-    "*/api/v1/intern/del-med-bruker/status",
+    "*/api/veilederflate/del-med-bruker/status",
     async ({ request }) => {
       const data = (await request.json()) as GetDelMedBrukerRequest;
 
@@ -35,14 +35,14 @@ export const delMedBrukerHandlers = [
   ),
 
   http.post<PathParams, GetAlleDeltMedBrukerRequest, DelMedBruker[]>(
-    "*/api/v1/intern/del-med-bruker/alle",
+    "*/api/veilederflate/del-med-bruker/alle",
     () => {
       return HttpResponse.json(mockDeltMedBruker);
     },
   ),
 
   http.post<PathParams, GetAlleDeltMedBrukerRequest, TiltakDeltMedBruker[]>(
-    "*/api/v1/intern/del-med-bruker/historikk",
+    "*/api/veilederflate/del-med-bruker/historikk",
     () => {
       return HttpResponse.json(mockHistorikkDeltMedBruker);
     },
