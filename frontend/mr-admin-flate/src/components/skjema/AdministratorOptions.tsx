@@ -3,7 +3,7 @@ import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 
 export function AdministratorOptions(
   ansatt: NavAnsatt,
-  administratorer?: string[],
+  administratorer: string[],
   eksisterendeAdministratorer?: NavAnsatt[],
 ): SelectOption[] {
   if (!ansatt || !eksisterendeAdministratorer) {

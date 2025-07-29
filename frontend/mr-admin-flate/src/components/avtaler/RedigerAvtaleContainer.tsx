@@ -6,15 +6,8 @@ import {
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  AvtaleDto,
-  Prismodell,
-  Tiltakskode,
-  UtdanningslopDbo,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { AvtaleDto, Prismodell, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { inneholderUrl } from "@/utils/Utils";
 import { useNavigate } from "react-router";
 import { useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -23,6 +16,7 @@ import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { getUtdanningslop } from "@/schemas/avtaledetaljer";
 
 interface Props {
   avtale: AvtaleDto;
@@ -39,7 +33,6 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
     resolver: zodResolver(avtaleFormSchema),
     defaultValues: defaultAvtaleData(ansatt, avtale),
   });
-  const redigeringsModus = avtale ? inneholderUrl(avtale.id) : false;
 
   const postData = async (data: AvtaleFormValues) => {
     const requestBody = {
@@ -72,10 +65,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
 
     mutation.mutate(requestBody, {
       onSuccess: (dto: { data: AvtaleDto }) => {
-        queryClient.invalidateQueries({
-          queryKey: QueryKeys.avtale(avtale?.id),
-          refetchType: "all",
-        });
+        queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
         navigate(`/avtaler/${dto.data.id}`);
       },
       onValidationError: (error: ValidationError) => {
@@ -108,25 +98,10 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(postData)}>
-        <AvtaleFormKnapperad redigeringsModus={redigeringsModus} onClose={() => navigate(-1)} />
+        <AvtaleFormKnapperad />
         <Separator />
         {children}
       </form>
     </FormProvider>
   );
-}
-
-/**
- * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
- */
-function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | null {
-  if (data.tiltakstype.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-    return null;
-  }
-
-  if (!data.utdanningslop?.utdanningsprogram || !data.utdanningslop?.utdanninger) {
-    return null;
-  }
-
-  return data.utdanningslop;
 }

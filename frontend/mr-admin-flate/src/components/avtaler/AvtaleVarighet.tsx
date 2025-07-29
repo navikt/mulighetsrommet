@@ -64,14 +64,14 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
       }
     }
   }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
-  const avtaletype = watch("avtaletype");
-  if (!avtaletype) {
+
+  if (!watchedAvtaletype) {
     return null;
   }
 
   return (
     <>
-      {!forhandsgodkjent ? (
+      {!forhandsgodkjent && (
         <HGrid columns={2}>
           <Select
             readOnly={skalIkkeKunneRedigereOpsjoner}
@@ -98,9 +98,9 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
             ))}
           </Select>
         </HGrid>
-      ) : null}
+      )}
 
-      {opsjonsmodell?.value === "ANNET" ? (
+      {opsjonsmodell?.value === "ANNET" && (
         <TextField
           label="Opsjonsnavn"
           readOnly={readonly}
@@ -110,7 +110,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
           size="small"
           {...register("opsjonsmodell.customOpsjonsmodellNavn")}
         />
-      ) : null}
+      )}
 
       {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3} gap="5" align="end">
@@ -172,7 +172,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
           />
         </HGrid>
       )}
-      {antallOpsjonerUtlost && <RegistrerteOpsjoner readOnly />}
+      {antallOpsjonerUtlost > 0 && <RegistrerteOpsjoner readOnly />}
     </>
   );
 }

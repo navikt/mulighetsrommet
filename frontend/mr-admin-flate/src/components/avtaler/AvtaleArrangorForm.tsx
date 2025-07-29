@@ -82,8 +82,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
           velgAlle
           options={arrangorUnderenhetOptions}
         />
-      </FormGroup>
-      <FormGroup>
+
         <VStack>
           <ControlledMultiSelect
             size="small"
