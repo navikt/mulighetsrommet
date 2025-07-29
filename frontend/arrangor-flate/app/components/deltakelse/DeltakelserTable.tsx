@@ -108,19 +108,19 @@ const columns: {
       render: (d) => d.perioderMedDeltakelsesmengde.at(-1)?.deltakelsesprosent,
     },
     { key: "7", label: "Månedsverk", align: "right", render: (d) => d.faktor },
-    { key: "8", label: "", render: () => "" },
+    { key: "8", label: "", render: () => null },
   ],
   PRIS_PER_MANEDSVERK: [
     ...baseColumns,
     { key: "7", label: "Månedsverk", align: "right", render: (d) => d.faktor },
-    { key: "8", label: "", render: () => "" },
+    { key: "8", label: "", render: () => null },
   ],
   PRIS_PER_UKESVERK: [
     ...baseColumns,
     { key: "7", label: "Månedsverk", align: "right", render: (d) => d.faktor },
-    { key: "8", label: "", render: () => "" },
+    { key: "8", label: "", render: () => null },
   ],
-  FRI: [...baseColumns, { key: "8", label: "", render: () => "" }],
+  FRI: [...baseColumns, { key: "8", label: "", render: () => null }],
 };
 
 export function DeltakelserTable({
@@ -200,17 +200,18 @@ export function DeltakelserTable({
                       : "" // zebra stripes gjøres her fordi den overskriver warning background
                 }
               >
-                {cols.map((col) =>
-                  col.headerCell ? (
-                    <Table.HeaderCell>
-                      {col.render(deltakelse, hasRelevanteForslag(deltakelse.id))}
-                    </Table.HeaderCell>
+                {cols.map((col) => {
+                  const children = col.render(deltakelse, hasRelevanteForslag(deltakelse.id));
+                  if (children === null) {
+                    return null;
+                  }
+
+                  return col.headerCell ? (
+                    <Table.HeaderCell>{children}</Table.HeaderCell>
                   ) : (
-                    <Table.DataCell>
-                      {col.render(deltakelse, hasRelevanteForslag(deltakelse.id))}
-                    </Table.DataCell>
-                  ),
-                )}
+                    <Table.DataCell>{children}</Table.DataCell>
+                  );
+                })}
               </Table.ExpandableRow>
             );
           })}

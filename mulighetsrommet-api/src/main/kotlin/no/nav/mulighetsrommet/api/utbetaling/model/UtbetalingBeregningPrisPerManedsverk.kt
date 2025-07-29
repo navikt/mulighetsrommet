@@ -14,7 +14,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
         val periode: Periode,
         val sats: Int,
         val stengt: Set<StengtPeriode>,
-        val deltakelser: Set<DeltakelsePeriode>,
+        override val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput()
 
     @Serializable

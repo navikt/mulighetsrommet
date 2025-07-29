@@ -29,7 +29,7 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Pris per månedsverk"
 
         companion object {
-            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
+            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
                 columns = manedsverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
                     manedsverkDeltakelseRow(deltakelse.faktor, sats, person)
@@ -76,7 +76,7 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Pris per ukesverk"
 
         companion object {
-            fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
+            fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
                 columns = ukesverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
                     ukesverkDeltakelseRow(deltakelse.faktor, sats, person)
@@ -121,7 +121,7 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Annen avtalt pris"
 
         companion object {
-            fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>) = DataDrivenTableDto(
+            fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>) = DataDrivenTableDto(
                 columns = friDeltakelseColumns(),
                 rows = deltakelsePersoner.map {
                     friDeltakelseRow(it.second)
@@ -158,7 +158,7 @@ sealed class UtbetalingBeregningDto {
     companion object {
         fun from(
             utbetaling: Utbetaling,
-            deltakelsePersoner: List<Pair<UtbetalingBeregningDeltakelse, PersonEnhetOgRegion?>>,
+            deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>,
             regioner: List<NavRegionDto>,
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {

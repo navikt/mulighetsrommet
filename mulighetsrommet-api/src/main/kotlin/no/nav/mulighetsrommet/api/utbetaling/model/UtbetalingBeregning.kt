@@ -17,16 +17,23 @@ sealed class UtbetalingBeregning {
     }
 }
 
-sealed class UtbetalingBeregningInput
+sealed class UtbetalingBeregningInput {
+    abstract val deltakelser: Set<UtbetalingBeregningInputDeltakelse>
+}
+
+sealed class UtbetalingBeregningInputDeltakelse {
+    abstract val deltakelseId: UUID
+    abstract fun periode(): Periode
+}
 
 sealed class UtbetalingBeregningOutput {
     abstract val belop: Int
-    abstract val deltakelser: Set<UtbetalingBeregningDeltakelse>
+    abstract val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>
 }
 
-interface UtbetalingBeregningDeltakelse {
-    val deltakelseId: UUID
-    val faktor: Double
+sealed class UtbetalingBeregningOutputDeltakelse {
+    abstract val deltakelseId: UUID
+    abstract val faktor: Double
 }
 
 @Serializable
@@ -38,9 +45,11 @@ data class StengtPeriode(
 @Serializable
 data class DeltakelseDeltakelsesprosentPerioder(
     @Serializable(with = UUIDSerializer::class)
-    val deltakelseId: UUID,
+    override val deltakelseId: UUID,
     val perioder: List<DeltakelsesprosentPeriode>,
-)
+) : UtbetalingBeregningInputDeltakelse() {
+    override fun periode() = Periode.fromRange(perioder.map { it.periode })
+}
 
 @Serializable
 data class DeltakelsesprosentPeriode(
@@ -53,7 +62,7 @@ data class DeltakelseManedsverk(
     @Serializable(with = UUIDSerializer::class)
     override val deltakelseId: UUID,
     val manedsverk: Double,
-) : UtbetalingBeregningDeltakelse {
+) : UtbetalingBeregningOutputDeltakelse() {
     override val faktor: Double
         get() = manedsverk
 }
@@ -61,16 +70,18 @@ data class DeltakelseManedsverk(
 @Serializable
 data class DeltakelsePeriode(
     @Serializable(with = UUIDSerializer::class)
-    val deltakelseId: UUID,
+    override val deltakelseId: UUID,
     val periode: Periode,
-)
+) : UtbetalingBeregningInputDeltakelse() {
+    override fun periode() = periode
+}
 
 @Serializable
 data class DeltakelseUkesverk(
     @Serializable(with = UUIDSerializer::class)
     override val deltakelseId: UUID,
     val ukesverk: Double,
-) : UtbetalingBeregningDeltakelse {
+) : UtbetalingBeregningOutputDeltakelse() {
     override val faktor: Double
         get() = ukesverk
 }
@@ -157,7 +168,7 @@ object UtbetalingBeregningHelpers {
         return days.divide(BigDecimal(7), CALCULATION_PRECISION, RoundingMode.HALF_UP)
     }
 
-    fun calculateBelopForDeltakelse(deltakelser: Set<UtbetalingBeregningDeltakelse>, sats: Int): Int {
+    fun calculateBelopForDeltakelse(deltakelser: Set<UtbetalingBeregningOutputDeltakelse>, sats: Int): Int {
         return deltakelser
             .fold(BigDecimal.ZERO) { sum, deltakelse ->
                 sum.add(BigDecimal(deltakelse.faktor))

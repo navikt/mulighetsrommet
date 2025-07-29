@@ -40,103 +40,101 @@ data class ArrFlateUtbetaling(
 sealed class ArrFlateBeregning {
     abstract val belop: Int
     abstract val digest: String
-
-    @Serializable
-    sealed class Deltakelse {
-        abstract val id: UUID
-        abstract val type: String
-        abstract val deltakerStartDato: LocalDate?
-        abstract val periode: Periode
-        abstract val person: Person?
-    }
+    abstract val deltakelser: List<ArrFlateBeregningDeltakelse>
 
     @Serializable
     @SerialName("PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER")
     data class PrisPerManedsverkMedDeltakelsesmengder(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<Deltakelse>,
+        override val deltakelser: List<ArrFlateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
-    ) : ArrFlateBeregning() {
-        @Serializable
-        data class Deltakelse(
-            @Serializable(with = UUIDSerializer::class)
-            override val id: UUID,
-            @Serializable(with = LocalDateSerializer::class)
-            override val deltakerStartDato: LocalDate?,
-            val faktor: Double,
-            val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
-            override val periode: Periode,
-            override val person: Person?,
-        ) : ArrFlateBeregning.Deltakelse() {
-            override val type = "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER"
-        }
-    }
+    ) : ArrFlateBeregning()
 
     @Serializable
     @SerialName("PRIS_PER_MANEDSVERK")
     data class PrisPerManedsverk(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<Deltakelse>,
+        override val deltakelser: List<ArrFlateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
-    ) : ArrFlateBeregning() {
-        @Serializable
-        data class Deltakelse(
-            @Serializable(with = UUIDSerializer::class)
-            override val id: UUID,
-            @Serializable(with = LocalDateSerializer::class)
-            override val deltakerStartDato: LocalDate?,
-            val faktor: Double,
-            override val periode: Periode,
-            override val person: Person?,
-        ) : ArrFlateBeregning.Deltakelse() {
-            override val type = "PRIS_PER_MANEDSVERK"
-        }
-    }
+    ) : ArrFlateBeregning()
 
     @Serializable
     @SerialName("PRIS_PER_UKESVERK")
     data class PrisPerUkesverk(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<Deltakelse>,
+        override val deltakelser: List<ArrFlateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallUkesverk: Double,
-    ) : ArrFlateBeregning() {
-        @Serializable
-        data class Deltakelse(
-            @Serializable(with = UUIDSerializer::class)
-            override val id: UUID,
-            @Serializable(with = LocalDateSerializer::class)
-            override val deltakerStartDato: LocalDate?,
-            val faktor: Double,
-            override val periode: Periode,
-            override val person: Person?,
-        ) : ArrFlateBeregning.Deltakelse() {
-            override val type = "PRIS_PER_UKESVERK"
-        }
-    }
+    ) : ArrFlateBeregning()
 
     @Serializable
     @SerialName("FRI")
     data class Fri(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<Deltakelse>,
-    ) : ArrFlateBeregning() {
-        @Serializable
-        data class Deltakelse(
-            @Serializable(with = UUIDSerializer::class)
-            override val id: UUID,
-            @Serializable(with = LocalDateSerializer::class)
-            override val deltakerStartDato: LocalDate?,
-            override val person: Person?,
-            override val periode: Periode,
-        ) : ArrFlateBeregning.Deltakelse() {
-            override val type = "FRI"
-        }
-    }
+        override val deltakelser: List<ArrFlateBeregningDeltakelse>,
+    ) : ArrFlateBeregning()
+}
+
+@Serializable
+sealed class ArrFlateBeregningDeltakelse {
+    abstract val id: UUID
+    abstract val deltakerStartDato: LocalDate?
+    abstract val periode: Periode
+    abstract val person: Person?
+    abstract val faktor: Double
+
+    @Serializable
+    @SerialName("PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER")
+    data class PrisPerManedsverkMedDeltakelsesmengder(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = LocalDateSerializer::class)
+        override val deltakerStartDato: LocalDate?,
+        override val faktor: Double,
+        val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
+        override val periode: Periode,
+        override val person: Person?,
+    ) : ArrFlateBeregningDeltakelse()
+
+    @Serializable
+    @SerialName("PRIS_PER_MANEDSVERK")
+    data class PrisPerManedsverk(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = LocalDateSerializer::class)
+        override val deltakerStartDato: LocalDate?,
+        override val faktor: Double,
+        override val periode: Periode,
+        override val person: Person?,
+    ) : ArrFlateBeregningDeltakelse()
+
+    @Serializable
+    @SerialName("PRIS_PER_UKESVERK")
+    data class PrisPerUkesverk(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = LocalDateSerializer::class)
+        override val deltakerStartDato: LocalDate?,
+        override val faktor: Double,
+        override val periode: Periode,
+        override val person: Person?,
+    ) : ArrFlateBeregningDeltakelse()
+
+    @Serializable
+    @SerialName("FRI")
+    data class Fri(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = LocalDateSerializer::class)
+        override val deltakerStartDato: LocalDate?,
+        override val faktor: Double,
+        override val person: Person?,
+        override val periode: Periode,
+    ) : ArrFlateBeregningDeltakelse()
 }

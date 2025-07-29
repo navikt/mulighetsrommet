@@ -125,7 +125,7 @@ class UtbetalingQueries(private val session: Session) {
         sats: Int,
         stengtPerioder: Set<StengtPeriode>,
         deltakelserPeriode: Set<DeltakelsePeriode>,
-        deltakelserFaktor: Set<UtbetalingBeregningDeltakelse>,
+        deltakelserFaktor: Set<UtbetalingBeregningOutputDeltakelse>,
     ) {
         upsertUtbetalingBeregningInputSats(utbetalingId, sats)
         upsertUtbetalingBeregningInputStengt(utbetalingId, stengtPerioder)
@@ -213,7 +213,7 @@ class UtbetalingQueries(private val session: Session) {
 
     private fun Session.upsertUtbetalingBeregningOutputDeltakelseFaktor(
         id: UUID,
-        deltakelser: Set<UtbetalingBeregningDeltakelse>,
+        deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     ) {
         @Language("PostgreSQL")
         val deleteDeltakelseFaktor = """
