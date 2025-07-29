@@ -38,7 +38,7 @@
     "@tailwindcss/postcss": "4.1.11",
     "@tailwindcss/vite": "4.1.11",
     "compression": "1.8.1",
-    "cross-env": "7.0.3",
+    "cross-env": "10.0.0",
     "csp-header": "6.1.0",
     "express": "5.1.0",
     "express-prom-bundle": "8.0.0",
