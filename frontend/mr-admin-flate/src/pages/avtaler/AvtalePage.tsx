@@ -13,7 +13,7 @@ import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
 import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
-import { AvtaleFormDetaljer } from "@/components/avtaler/AvtaleFormDetaljer";
+import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { AvtaleRedaksjoneltInnholdForm } from "@/components/avtaler/AvtaleRedaksjoneltInnholdForm";
@@ -74,7 +74,7 @@ export function AvtalePage() {
           <Tabs.Panel value="detaljer">
             {location.pathname.includes("skjema") ? (
               <RedigerAvtaleContainer avtale={avtale}>
-                <AvtaleFormDetaljer
+                <AvtaleDetaljerForm
                   opsjonerRegistrert={avtale.opsjonerRegistrert}
                   avtalenummer={avtale.avtalenummer}
                 />

@@ -10,26 +10,24 @@ import {
   OpsjonStatus,
   Prismodell,
   Tiltakskode,
-  Toggles,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { HGrid, List, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { HGrid, List, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
 
-export function AvtaleFormDetaljer({
+export function AvtaleDetaljerForm({
   opsjonerRegistrert,
-  avtalenummer,
 }: {
   opsjonerRegistrert?: OpsjonLoggRegistrert[];
   avtalenummer?: string;
@@ -41,20 +39,17 @@ export function AvtaleFormDetaljer({
   const {
     register,
     formState: { errors },
-    watch,
+    getValues,
     setValue,
+    watch,
   } = useFormContext<AvtaleFormValues>();
 
-  const watchedTiltakstype = watch("tiltakstype");
+  const avtaletype = watch("avtaletype");
+  const tiltakskode = watch("tiltakstype.tiltakskode");
   const watchedAdministratorer = watch("administratorer");
-  const tiltakskode = watchedTiltakstype?.tiltakskode;
-  const watchedOpsjonsmodellType = watch("opsjonsmodell.type");
 
-  function handleChangeTiltakstype(
-    currentTiltakskode?: Tiltakskode,
-    nextTiltakskode?: Tiltakskode,
-  ) {
-    if (nextTiltakskode !== currentTiltakskode) {
+  function handleChangeTiltakstype(nextTiltakskode?: Tiltakskode) {
+    if (nextTiltakskode !== tiltakskode) {
       setValue("amoKategorisering", null);
       setValue("utdanningslop", null);
     }
@@ -72,9 +67,9 @@ export function AvtaleFormDetaljer({
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else if (watchedOpsjonsmodellType) {
+    } else if (getValues("opsjonsmodell.type")) {
       setValue("opsjonsmodell", {
-        type: watchedOpsjonsmodellType,
+        type: getValues("opsjonsmodell.type"),
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
@@ -91,14 +86,9 @@ export function AvtaleFormDetaljer({
     opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
   ).length;
 
-  const { data: enableTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    watchedTiltakstype?.tiltakskode ? [watchedTiltakstype.tiltakskode] : [],
-  );
-
   return (
     <TwoColumnGrid separator>
-      <VStack gap="2">
+      <VStack>
         <FormGroup>
           <TextField
             size="small"
@@ -110,13 +100,6 @@ export function AvtaleFormDetaljer({
         </FormGroup>
         <FormGroup>
           <HGrid align="start" gap="4" columns={2}>
-            <TextField
-              size="small"
-              readOnly
-              label={avtaletekster.avtalenummerLabel}
-              value={avtalenummer}
-              placeholder="Genereres automatisk ved opprettelse"
-            />
             <TextField
               size="small"
               placeholder="åå/12345"
@@ -151,8 +134,7 @@ export function AvtaleFormDetaljer({
               label={avtaletekster.tiltakstypeLabel}
               {...register("tiltakstype")}
               onChange={(event) => {
-                const nextTiltakskode = event.target?.value?.tiltakskode ?? undefined;
-                handleChangeTiltakstype(tiltakskode, nextTiltakskode);
+                handleChangeTiltakstype(event.target?.value?.tiltakskode);
               }}
               options={tiltakstyper.map((tiltakstype) => ({
                 value: {
@@ -182,18 +164,18 @@ export function AvtaleFormDetaljer({
             <AvtaleUtdanningslopForm />
           ) : null}
         </FormGroup>
-        <FormGroup>
-          <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
-        </FormGroup>
-        {!enableTilsagn && (
+        {avtaletype && (
           <FormGroup>
-            <Textarea
-              size="small"
-              label={avtaletekster.prisOgBetalingLabel}
-              {...register("prisbetingelser")}
-            />
+            <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
           </FormGroup>
         )}
+        {tiltakskode && (
+          <FormGroup>
+            <AvtalePrisOgFaktureringForm tiltakskode={tiltakskode} />
+          </FormGroup>
+        )}
+      </VStack>
+      <VStack>
         <FormGroup>
           <ControlledMultiSelect
             size="small"
@@ -204,8 +186,8 @@ export function AvtaleFormDetaljer({
             options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
           />
         </FormGroup>
+        <AvtaleArrangorForm readOnly={false} />
       </VStack>
-      <AvtaleArrangorForm readOnly={false} />
     </TwoColumnGrid>
   );
 }
