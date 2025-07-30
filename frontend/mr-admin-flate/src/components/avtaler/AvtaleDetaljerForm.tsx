@@ -10,10 +10,11 @@ import {
   OpsjonStatus,
   Prismodell,
   Tiltakskode,
+  Toggles,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { HGrid, List, TextField, VStack } from "@navikt/ds-react";
+import { HGrid, List, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -25,6 +26,7 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 export function AvtaleDetaljerForm({
   opsjonerRegistrert,
@@ -47,6 +49,11 @@ export function AvtaleDetaljerForm({
   const avtaletype = watch("avtaletype");
   const tiltakskode = watch("tiltakstype.tiltakskode");
   const watchedAdministratorer = watch("administratorer");
+
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    tiltakskode ? [tiltakskode] : [],
+  );
 
   function handleChangeTiltakstype(nextTiltakskode?: Tiltakskode) {
     if (nextTiltakskode !== tiltakskode) {
@@ -169,10 +176,17 @@ export function AvtaleDetaljerForm({
             <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
           </FormGroup>
         )}
-        {tiltakskode && (
+        {tiltakskode && enableTilsagn ? (
           <FormGroup>
             <AvtalePrisOgFaktureringForm tiltakskode={tiltakskode} />
           </FormGroup>
+        ) : (
+          <Textarea
+            size="small"
+            error={errors.prisbetingelser?.message}
+            label={avtaletekster.prisOgBetalingLabel}
+            {...register("prisbetingelser")}
+          />
         )}
       </VStack>
       <VStack>

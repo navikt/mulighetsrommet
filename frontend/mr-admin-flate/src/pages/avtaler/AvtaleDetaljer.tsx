@@ -189,8 +189,37 @@ export function AvtaleDetaljer({ avtale }: Props) {
   );
 }
 
-export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
+export function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
   const { data: satser = [] } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
+  return (
+    <Box>
+      <Heading level="3" size="small" spacing>
+        {avtaletekster.avtaltPrisLabel}
+      </Heading>
+      {satser.map((sats) => (
+        <HStack
+          gap="4"
+          padding="4"
+          key={sats.periodeStart}
+          className="border-bg-subtle border-1 rounded-md"
+        >
+          <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+          <Metadata header={avtaletekster.prismodell.pris.label} verdi={formaterTall(sats.pris)} />
+          <Metadata
+            header={avtaletekster.prismodell.periodeStart.label}
+            verdi={formaterDato(sats.periodeStart)}
+          />
+          <Metadata
+            header={avtaletekster.prismodell.periodeSlutt.label}
+            verdi={formaterDato(sats.periodeSlutt)}
+          />
+        </HStack>
+      ))}
+    </Box>
+  );
+}
+
+export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
   const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
 
   const beskrivelse =
@@ -198,6 +227,7 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
 
   switch (avtale.prismodell) {
     case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      return <AvtalteSatser avtale={avtale} />;
     case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
     case Prismodell.AVTALT_PRIS_PER_UKESVERK:
       return (
@@ -209,7 +239,7 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
             <Definisjonsliste
               definitions={[{ key: avtaletekster.prismodell.label, value: beskrivelse }]}
             />
-            {satser.map((sats) => (
+            {avtale.satser.map((sats) => (
               <HStack
                 gap="4"
                 padding="4"
