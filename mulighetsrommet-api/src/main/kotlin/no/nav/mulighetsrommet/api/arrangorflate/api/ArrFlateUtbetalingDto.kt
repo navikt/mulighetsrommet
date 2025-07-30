@@ -50,6 +50,7 @@ sealed class ArrFlateBeregning {
         override val deltakelser: List<ArrFlateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
+        val sats: Int,
     ) : ArrFlateBeregning()
 
     @Serializable
@@ -60,6 +61,7 @@ sealed class ArrFlateBeregning {
         override val deltakelser: List<ArrFlateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
+        val sats: Int,
     ) : ArrFlateBeregning()
 
     @Serializable
@@ -70,6 +72,7 @@ sealed class ArrFlateBeregning {
         override val deltakelser: List<ArrFlateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallUkesverk: Double,
+        val sats: Int,
     ) : ArrFlateBeregning()
 
     @Serializable
