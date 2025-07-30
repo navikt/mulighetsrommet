@@ -6,16 +6,14 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
-import no.nav.mulighetsrommet.api.arrangorflate.api.UtbetalingDeltakelsePerson
-import no.nav.mulighetsrommet.api.arrangorflate.api.mapUtbetalingToArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -24,8 +22,8 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -46,25 +44,12 @@ class ArrangorflateServiceTest : FunSpec({
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
 
-    lateinit var pdlClient: no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-    lateinit var query: HentAdressebeskyttetPersonBolkPdlQuery
+    lateinit var pdlClient: PdlClient
+    lateinit var personService: PersonService
     lateinit var arrangorflateService: ArrangorFlateService
 
     fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
-        val utbetaling = queries.utbetaling.get(id)
-        utbetaling.shouldNotBeNull()
-        utbetaling
-    }
-
-    fun getDeltakereForUtbetaling(utbetalingDto: Utbetaling) = database.db.session {
-        queries.deltaker.getAll(gjennomforingId = utbetalingDto.gjennomforing.id)
-    }
-
-    fun createMappingTestData(id: UUID, status: ArrFlateUtbetalingStatus) = database.db.session {
-        val utbetalingDto = getUtbetalingDto(id)
-        val deltakere = getDeltakereForUtbetaling(utbetalingDto)
-        val personerByNorskIdent = mapOf<NorskIdent, UtbetalingDeltakelsePerson>()
-        Triple(utbetalingDto, deltakere, personerByNorskIdent) to status
+        return requireNotNull(queries.utbetaling.get(id))
     }
 
     fun verifyForhandsgodkjentBeregning(
@@ -81,8 +66,12 @@ class ArrangorflateServiceTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
         pdlClient = mockPdlClient(ArrangorflateTestUtils.createPdlMockEngine())
-        query = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient)
-        arrangorflateService = ArrangorFlateService(database.db, query, kontoregisterOrganisasjon)
+        personService = PersonService(
+            hentPersonOgGeografiskTilknytningQuery = HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(pdlClient),
+            hentPersonQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient),
+            norg2Client = mockk(),
+        )
+        arrangorflateService = ArrangorFlateService(database.db, personService, kontoregisterOrganisasjon)
     }
 
     afterEach {
@@ -161,18 +150,7 @@ class ArrangorflateServiceTest : FunSpec({
                 ),
             )
         }
-
-        val (testData, status) = createMappingTestData(utbetaling.id, ArrFlateUtbetalingStatus.VENTER_PA_ENDRING)
-        val (utbetalingDto, deltakere, personerByNorskIdent) = testData
-
-        val result = mapUtbetalingToArrFlateUtbetaling(
-            utbetaling = utbetalingDto,
-            status = status,
-            deltakere = deltakere,
-            personerByNorskIdent = personerByNorskIdent,
-            linjer = emptyList(),
-            kanViseBeregning = false,
-        )
+        val result = arrangorflateService.toArrFlateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
 
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
@@ -183,34 +161,13 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("mapUtbetalingToArrFlateUtbetaling should have status KLAR_FOR_GODKJENNING") {
-        val (testData, status) = createMappingTestData(utbetaling.id, ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING)
-        val (utbetalingDto, deltakere, personerByNorskIdent) = testData
-
-        val result = mapUtbetalingToArrFlateUtbetaling(
-            utbetaling = utbetalingDto,
-            status = status,
-            deltakere = deltakere,
-            personerByNorskIdent = personerByNorskIdent,
-            linjer = emptyList(),
-            kanViseBeregning = false,
-        )
-
+        val result = arrangorflateService.toArrFlateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 
     test("mapUtbetalingToArrFlateUtbetaling should convert a fri utbetaling") {
-        val (testData, status) = createMappingTestData(friUtbetaling.id, ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING)
-        val (utbetalingDto, deltakere, personerByNorskIdent) = testData
-
-        val result = mapUtbetalingToArrFlateUtbetaling(
-            utbetaling = utbetalingDto,
-            status = status,
-            deltakere = deltakere,
-            personerByNorskIdent = personerByNorskIdent,
-            linjer = emptyList(),
-            kanViseBeregning = false,
-        )
+        val result = arrangorflateService.toArrFlateUtbetaling(arrangorflateService.getUtbetaling(friUtbetaling.id)!!)
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING

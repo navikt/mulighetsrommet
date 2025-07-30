@@ -65,6 +65,7 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
         personService = personService,
+        navEnhetService = mockk(relaxed = true),
     )
 
     context("opprett utbetaling") {
@@ -521,7 +522,7 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10),
+                    input = UtbetalingBeregningFri.Input(10, emptySet()),
                     output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
@@ -575,7 +576,7 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10),
+                    input = UtbetalingBeregningFri.Input(10, emptySet()),
                     output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
@@ -630,7 +631,7 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10),
+                    input = UtbetalingBeregningFri.Input(10, emptySet()),
                     output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
@@ -905,7 +906,7 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10),
+                    input = UtbetalingBeregningFri.Input(10, emptySet()),
                     output = UtbetalingBeregningFri.Output(10, emptySet()),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
@@ -1283,7 +1284,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(
                     utbetaling1Forhandsgodkjent.copy(
                         beregning = UtbetalingBeregningFri(
-                            input = UtbetalingBeregningFri.Input(1),
+                            input = UtbetalingBeregningFri.Input(1, emptySet()),
                             output = UtbetalingBeregningFri.Output(1, emptySet()),
                         ),
                     ),

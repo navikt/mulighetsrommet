@@ -395,6 +395,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single { PersonService(get(), get(), get()) }

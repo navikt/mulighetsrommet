@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
-import arrow.core.getOrElse
-import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotliquery.Row
@@ -14,9 +12,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
-import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.clients.pdl.tilPersonNavn
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -24,15 +19,13 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.Person
+import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
-import no.nav.mulighetsrommet.api.utbetaling.pdl.HentPersonBolkResponse
 import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -56,9 +49,9 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 )
 
 class ArrangorFlateService(
-    val db: ApiDatabase,
-    val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
-    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
+    private val db: ApiDatabase,
+    private val personService: PersonService,
+    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
         return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
@@ -126,48 +119,50 @@ class ArrangorFlateService(
 
     suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling, relativeDate: LocalDateTime = LocalDateTime.now()): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
-        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt?.let { it.plusWeeks(12) <= relativeDate } ?: false
-        val deltakere = when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> emptyList()
+        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
+            ?.let { it.plusWeeks(12) <= relativeDate } ?: false
 
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
-            -> {
-                if (erTolvUkerEtterInnsending) {
-                    emptyList()
-                } else {
-                    queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                }
-            }
+        val deltakere = if (erTolvUkerEtterInnsending) {
+            emptyList()
+        } else {
+            queries.deltaker
+                .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                .filter { it.id in utbetaling.beregning.output.deltakelser.map { it.deltakelseId } }
         }
-        val personerByNorskIdent = if (deltakere.isNotEmpty()) getPersoner(deltakere) else emptyMap()
 
-        val linjer = queries.delutbetaling.getByUtbetalingId(utbetaling.id).map { delutbetaling ->
-            val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
-                TilsagnDto.fromTilsagn(it)
-            }
-
-            ArrangorUtbetalingLinje(
-                id = delutbetaling.id,
-                belop = delutbetaling.belop,
-                status = delutbetaling.status,
-                statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
-                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
-                    id = tilsagn.id,
-                    bestillingsnummer = tilsagn.bestillingsnummer,
-                ),
-            )
-        }
+        val personerByNorskIdent = personService.getPersoner(deltakere.mapNotNull { it.norskIdent })
+            .associateBy { it.norskIdent }
+        val deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>> = deltakere
+            .associateBy { it.id }
+            .mapValues { it.value to it.value.norskIdent?.let { personerByNorskIdent.getValue(it) } }
 
         return mapUtbetalingToArrFlateUtbetaling(
             utbetaling = utbetaling,
             status = status,
-            deltakere = deltakere,
-            personerByNorskIdent = personerByNorskIdent,
-            linjer = linjer,
+            deltakerPersoner = deltakerPersoner,
+            linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
         )
+    }
+
+    private fun QueryContext.getLinjer(utbetalingId: UUID): List<ArrangorUtbetalingLinje> {
+        return queries.delutbetaling.getByUtbetalingId(utbetalingId)
+            .map { delutbetaling ->
+                val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                    TilsagnDto.fromTilsagn(it)
+                }
+
+                ArrangorUtbetalingLinje(
+                    id = delutbetaling.id,
+                    belop = delutbetaling.belop,
+                    status = delutbetaling.status,
+                    statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
+                    tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                        id = tilsagn.id,
+                        bestillingsnummer = tilsagn.bestillingsnummer,
+                    ),
+                )
+            }
     }
 
     private fun QueryContext.getArrFlateUtbetalingStatus(utbetaling: Utbetaling): ArrFlateUtbetalingStatus {
@@ -178,50 +173,6 @@ class ArrangorFlateService(
             delutbetalinger,
             relevanteForslag,
         )
-    }
-
-    private suspend fun getPersoner(deltakere: List<Deltaker>): Map<NorskIdent, UtbetalingDeltakelsePerson> {
-        val identer = deltakere
-            .mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }
-            .toNonEmptySetOrNull()
-            ?: return mapOf()
-
-        return pdl.hentPersonBolk(identer)
-            .map {
-                buildMap {
-                    it.entries.forEach { (ident, person) ->
-                        val utbetalingPerson = toUtbetalingPerson(person)
-                        put(NorskIdent(ident.value), utbetalingPerson)
-                    }
-                }
-            }
-            .getOrElse {
-                throw StatusException(
-                    status = HttpStatusCode.InternalServerError,
-                    detail = "Klarte ikke hente informasjon om deltakere i utbetalingen",
-                )
-            }
-    }
-
-    private fun toUtbetalingPerson(person: HentPersonBolkResponse.Person): UtbetalingDeltakelsePerson {
-        val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
-        return when (gradering) {
-            PdlGradering.UGRADERT -> {
-                val navn = if (person.navn.isNotEmpty()) tilPersonNavn(person.navn) else "Ukjent"
-                val foedselsdato = if (person.foedselsdato.isNotEmpty()) person.foedselsdato.first() else null
-                UtbetalingDeltakelsePerson(
-                    navn = navn,
-                    fodselsaar = foedselsdato?.foedselsaar,
-                    fodselsdato = foedselsdato?.foedselsdato,
-                )
-            }
-
-            else -> UtbetalingDeltakelsePerson(
-                navn = "Adressebeskyttet",
-                fodselsaar = null,
-                fodselsdato = null,
-            )
-        }
     }
 
     fun getGjennomforinger(orgnr: Organisasjonsnummer): List<ArrangorflateGjennomforing> = db.session {

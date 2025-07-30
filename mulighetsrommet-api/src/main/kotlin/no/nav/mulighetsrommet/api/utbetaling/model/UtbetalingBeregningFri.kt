@@ -13,6 +13,7 @@ data class UtbetalingBeregningFri(
     @Serializable
     data class Input(
         val belop: Int,
+        override val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput()
 
     @Serializable
@@ -38,7 +39,7 @@ data class UtbetalingBeregningFri(
     data class Deltakelse(
         @Serializable(with = UUIDSerializer::class)
         override val deltakelseId: UUID,
-    ) : UtbetalingBeregningDeltakelse {
-        override val faktor = 1.0
+    ) : UtbetalingBeregningOutputDeltakelse() {
+        override val faktor = 0.0
     }
 }

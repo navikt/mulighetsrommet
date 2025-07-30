@@ -22,7 +22,7 @@ object UtbetalingFixtures {
         gjennomforingId = AFT1.id,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(1000),
+            input = UtbetalingBeregningFri.Input(1000, emptySet()),
             output = UtbetalingBeregningFri.Output(1000, emptySet()),
         ),
         kontonummer = Kontonummer("11111111111"),
@@ -39,7 +39,7 @@ object UtbetalingFixtures {
         gjennomforingId = AFT1.id,
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(500),
+            input = UtbetalingBeregningFri.Input(500, emptySet()),
             output = UtbetalingBeregningFri.Output(500, emptySet()),
         ),
         kontonummer = Kontonummer("11111111111"),
@@ -56,7 +56,7 @@ object UtbetalingFixtures {
         gjennomforingId = GjennomforingFixtures.VTA1.id,
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(500),
+            input = UtbetalingBeregningFri.Input(500, emptySet()),
             output = UtbetalingBeregningFri.Output(500, emptySet()),
         ),
         kontonummer = Kontonummer("11111111111"),

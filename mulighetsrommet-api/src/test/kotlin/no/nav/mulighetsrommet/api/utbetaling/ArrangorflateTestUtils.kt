@@ -129,6 +129,7 @@ object ArrangorflateTestUtils {
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(
                 belop = 5000,
+                deltakelser = emptySet(),
             ),
             output = UtbetalingBeregningFri.Output(
                 belop = 5000,

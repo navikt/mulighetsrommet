@@ -13,7 +13,9 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
@@ -43,6 +45,7 @@ class UtbetalingService(
     private val tilsagnService: TilsagnService,
     private val personService: PersonService,
     private val journalforUtbetaling: JournalforUtbetaling,
+    private val navEnhetService: NavEnhetService,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -116,6 +119,8 @@ class UtbetalingService(
                 beregning = UtbetalingBeregningFri.beregn(
                     input = UtbetalingBeregningFri.Input(
                         belop = request.belop,
+                        // TODO: Lagre deltakelser for fri modell
+                        deltakelser = emptySet(),
                     ),
                 ),
                 periode = Periode.fromInclusiveDates(
@@ -544,18 +549,28 @@ class UtbetalingService(
             .filter { it.id in utbetaling.beregning.output.deltakelser.map { it.deltakelseId } }
             .associate { it.id to it.norskIdent }
 
-        val personer = personService.getPersoner(norskIdentById.values.mapNotNull { it })
+        val personerOgGeografiskEnhet = personService.getPersonerMedGeografiskEnhet(norskIdentById.values.mapNotNull { it })
+            .map {
+                val geografiskEnhet = it.second?.let { navEnhetService.hentEnhet(it) }
+                PersonEnhetOgRegion(
+                    person = it.first,
+                    geografiskEnhet = geografiskEnhet,
+                    region = geografiskEnhet?.overordnetEnhet?.let { navEnhetService.hentEnhet(it) },
+                )
+            }
+            .associateBy { it.person.norskIdent }
+
         val regioner = NavEnhetHelpers.buildNavRegioner(
-            personer.mapNotNull { it.value.geografiskEnhet } + personer.mapNotNull { it.value.region },
+            personerOgGeografiskEnhet
+                .map { listOfNotNull(it.value.geografiskEnhet, it.value.region) }
+                .flatten(),
         )
 
-        val deltakelsePersoner = utbetaling.beregning.output.deltakelser
-            .map {
-                val norskIdent = norskIdentById.getValue(it.deltakelseId)
-                val person = norskIdent?.let { personer.getValue(norskIdent) }
-                it to person
-            }
-            .filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+        val deltakelsePersoner = utbetaling.beregning.output.deltakelser.map {
+            val norskIdent = norskIdentById.getValue(it.deltakelseId)
+            val person = norskIdent?.let { personerOgGeografiskEnhet.getValue(norskIdent) }
+            it to person
+        }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
@@ -589,3 +604,9 @@ class UtbetalingService(
         logEndring("Utbetalingen ble avbrutt", getOrError(id), agent).right()
     }
 }
+
+data class PersonEnhetOgRegion(
+    val person: Person,
+    val geografiskEnhet: NavEnhetDto?,
+    val region: NavEnhetDto?,
+)

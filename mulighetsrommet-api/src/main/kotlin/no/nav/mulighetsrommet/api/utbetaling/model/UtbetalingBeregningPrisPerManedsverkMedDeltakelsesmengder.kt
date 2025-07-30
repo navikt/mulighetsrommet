@@ -14,7 +14,7 @@ data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
         val periode: Periode,
         val sats: Int,
         val stengt: Set<StengtPeriode>,
-        val deltakelser: Set<DeltakelseDeltakelsesprosentPerioder>,
+        override val deltakelser: Set<DeltakelseDeltakelsesprosentPerioder>,
     ) : UtbetalingBeregningInput()
 
     @Serializable
@@ -36,7 +36,7 @@ data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.caclulateBelopForDeltakelse(manedsverk, input.sats)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(manedsverk, input.sats)
 
             return UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(input, Output(belop, manedsverk))
         }

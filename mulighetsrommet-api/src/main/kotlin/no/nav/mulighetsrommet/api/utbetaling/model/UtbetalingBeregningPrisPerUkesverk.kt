@@ -14,7 +14,7 @@ data class UtbetalingBeregningPrisPerUkesverk(
         val periode: Periode,
         val sats: Int,
         val stengt: Set<StengtPeriode>,
-        val deltakelser: Set<DeltakelsePeriode>,
+        override val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput()
 
     @Serializable
@@ -33,7 +33,7 @@ data class UtbetalingBeregningPrisPerUkesverk(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.caclulateBelopForDeltakelse(ukesverk, input.sats)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(ukesverk, input.sats)
 
             return UtbetalingBeregningPrisPerUkesverk(input, Output(belop, ukesverk))
         }
