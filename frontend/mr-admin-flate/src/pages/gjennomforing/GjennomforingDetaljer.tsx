@@ -1,4 +1,7 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { Bolk } from "@/components/detaljside/Bolk";
@@ -13,26 +16,31 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
-import {
-  AvtaleDto,
-  GjennomforingDto,
-  GjennomforingOppstartstype,
-  Kontorstruktur,
-} from "@mr/api-client-v2";
+import { GjennomforingOppstartstype, Kontorstruktur } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
+import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
 
-interface Props {
-  gjennomforing: GjennomforingDto;
-  avtale?: AvtaleDto;
+function useGjennomforingInfoData() {
+  const { gjennomforingId } = useParams();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: ansatt } = useHentAnsatt();
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
+
+  return {
+    gjennomforing,
+    ansatt,
+    avtale,
+  };
 }
 
-export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
+export function GjennomforingDetaljer() {
+  const { gjennomforing, avtale, ansatt } = useGjennomforingInfoData();
   const kontorer = gjennomforing.kontorstruktur.flatMap((struktur) => struktur.kontorer);
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -74,6 +82,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
 
   return (
     <>
+      <GjennomforingKnapperad ansatt={ansatt} avtale={avtale} gjennomforing={gjennomforing} />
       <TwoColumnGrid separator>
         <VStack justify={"space-between"}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">

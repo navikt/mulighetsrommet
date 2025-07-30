@@ -4,7 +4,6 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
-import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { GjennomforingOppstartstype, GjennomforingStatus, Toggles } from "@mr/api-client-v2";
@@ -12,19 +11,23 @@ import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
-import { Outlet, useLocation } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/GjennomforingStatusMedAarsakTag";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-
-type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
+import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
+import { useAtom } from "jotai";
+import { DeltakerlisteContainer } from "./deltakerliste/DeltakerlisteContainer";
+import { TilsagnForGjennomforingPage } from "./tilsagn/TilsagnForGjennomforingPage";
+import { UtbetalingerForGjennomforingContainer } from "./utbetaling/UtbetalingerForGjennomforingContainer";
 
 export function GjennomforingPage() {
-  const { pathname } = useLocation();
-  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const { data: enableTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
@@ -36,19 +39,6 @@ export function GjennomforingPage() {
     gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
   );
 
-  function getCurrentTab(): GjennomforingTab {
-    if (pathname.includes("tilsagn")) {
-      return "tilsagn";
-    } else if (pathname.includes("deltakerliste")) {
-      return "deltakerliste";
-    } else if (pathname.includes("utbetalinger")) {
-      return "utbetalinger";
-    } else {
-      return "gjennomforing";
-    }
-  }
-
-  const currentTab = getCurrentTab();
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
       tittel: "Gjennomføringer",
@@ -56,15 +46,16 @@ export function GjennomforingPage() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: currentTab === "gjennomforing" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
+      lenke: activeTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
-    currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
-    currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
-    currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
+    activeTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
+    activeTab === "redaksjonelt-innhold" ? { tittel: "Redaksjonelt innhold" } : undefined,
+    activeTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
+    activeTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
 
   return (
-    <main>
+    <>
       <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
@@ -94,53 +85,69 @@ export function GjennomforingPage() {
           )}
         </div>
       </Header>
-      <Tabs value={currentTab}>
+      <Tabs value={activeTab}>
         <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
+          <Tabs.Tab value="detaljer" label="Detaljer" onClick={() => setActiveTab("detaljer")} />
           <Tabs.Tab
-            value="gjennomforing"
-            label="Gjennomføring"
-            onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}`)}
-            aria-controls="panel"
+            value="redaksjonelt-innhold"
+            label="Redaksjonelt innhold"
+            onClick={() => setActiveTab("redaksjonelt-innhold")}
           />
           {enableTilsagn ? (
-            <Tabs.Tab
-              value="tilsagn"
-              label="Tilsagn"
-              onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)}
-              aria-controls="panel"
-            />
+            <Tabs.Tab value="tilsagn" label="Tilsagn" onClick={() => setActiveTab("tilsagn")} />
           ) : null}
           {enableOkonomi ? (
             <Tabs.Tab
               value="utbetalinger"
               label="Utbetalinger"
-              onClick={() =>
-                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
-              }
-              aria-controls="panel"
+              onClick={() => setActiveTab("utbetalinger")}
             />
           ) : null}
           {gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
             <Tabs.Tab
               value="deltakerliste"
               label="Deltakerliste"
-              onClick={() =>
-                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`)
-              }
-              aria-controls="panel"
+              onClick={() => setActiveTab("deltakerliste")}
             />
           )}
         </Tabs.List>
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
           <ContentBox>
             <WhitePaddedBox>
-              <div id="panel">
-                <Outlet />
-              </div>
+              <Tabs.Panel value="detaljer" data-testid="gjennomforing_info-container">
+                <InlineErrorBoundary>
+                  <GjennomforingDetaljer />
+                </InlineErrorBoundary>
+              </Tabs.Panel>
+              <Tabs.Panel value="redaksjonelt-innhold">
+                <InlineErrorBoundary>
+                  <RedaksjoneltInnholdPreview
+                    tiltakstype={gjennomforing.tiltakstype}
+                    beskrivelse={gjennomforing.beskrivelse}
+                    faneinnhold={gjennomforing.faneinnhold}
+                    kontorstruktur={gjennomforing.kontorstruktur}
+                  />
+                </InlineErrorBoundary>
+              </Tabs.Panel>
+              <Tabs.Panel value="tilsagn">
+                <InlineErrorBoundary>
+                  <TilsagnForGjennomforingPage />
+                </InlineErrorBoundary>
+              </Tabs.Panel>
+              <Tabs.Panel value="utbetalinger">
+                <InlineErrorBoundary>
+                  <UtbetalingerForGjennomforingContainer />
+                </InlineErrorBoundary>
+              </Tabs.Panel>
+              <Tabs.Panel value="deltakerliste">
+                <InlineErrorBoundary>
+                  <DeltakerlisteContainer />
+                </InlineErrorBoundary>
+              </Tabs.Panel>
             </WhitePaddedBox>
           </ContentBox>
         </React.Suspense>
       </Tabs>
-    </main>
+    </>
   );
 }
