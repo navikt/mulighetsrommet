@@ -42,7 +42,6 @@ export function GjennomforingFormContainer({
   defaultValues,
   onClose,
   onSuccess,
-  enheter,
 }: Props) {
   const redigeringsModus = !!gjennomforing;
   const mutation = useUpsertGjennomforing();
