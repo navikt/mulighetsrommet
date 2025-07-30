@@ -162,7 +162,19 @@ export function AvtaleDetaljer({ avtale }: Props) {
         <Separator />
         <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
         <Separator />
-        {enableTilsagn ? <PrismodellDetaljer avtale={avtale} /> : avtale.prisbetingelser}
+        {enableTilsagn ? (
+          <PrismodellDetaljer avtale={avtale} />
+        ) : (
+          <Definisjonsliste
+            title={avtaletekster.avtaltPrisLabel}
+            definitions={[
+              {
+                key: avtaletekster.prisOgBetalingLabel,
+                value: avtale.prisbetingelser ?? "-",
+              },
+            ]}
+          />
+        )}
         <Separator />
         {amoKategorisering && (
           <>

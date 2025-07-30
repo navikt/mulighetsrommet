@@ -35,6 +35,8 @@ export function AvtalePage() {
   const location = useLocation();
   const { data: avtale } = useAvtale(avtaleId);
 
+  const redigeringsmodus = location.pathname.includes("skjema");
+
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
@@ -65,17 +67,19 @@ export function AvtalePage() {
             value="redaksjonelt-innhold"
             onClick={() => setActiveTab("redaksjonelt-innhold")}
           />
-          <Tabs.Tab
-            value="gjennomforinger"
-            label="Gjennomføringer"
-            onClick={() => setActiveTab("gjennomforinger")}
-            data-testid="gjennomforinger-tab"
-          />
+          {!redigeringsmodus && (
+            <Tabs.Tab
+              value="gjennomforinger"
+              label="Gjennomføringer"
+              onClick={() => setActiveTab("gjennomforinger")}
+              data-testid="gjennomforinger-tab"
+            />
+          )}
         </Tabs.List>
         <ContentBox>
           <WhitePaddedBox>
             <Tabs.Panel value="detaljer">
-              {location.pathname.includes("skjema") ? (
+              {redigeringsmodus ? (
                 <RedigerAvtaleContainer avtale={avtale}>
                   <AvtaleDetaljerForm
                     opsjonerRegistrert={avtale.opsjonerRegistrert}
@@ -89,7 +93,7 @@ export function AvtalePage() {
               )}
             </Tabs.Panel>
             <Tabs.Panel value="personvern">
-              {location.pathname.includes("skjema") ? (
+              {redigeringsmodus ? (
                 <RedigerAvtaleContainer avtale={avtale}>
                   <AvtalePersonvernForm />
                 </RedigerAvtaleContainer>
@@ -100,7 +104,7 @@ export function AvtalePage() {
               )}
             </Tabs.Panel>
             <Tabs.Panel value="redaksjonelt-innhold">
-              {location.pathname.includes("skjema") ? (
+              {redigeringsmodus ? (
                 <RedigerAvtaleContainer avtale={avtale}>
                   <AvtaleRedaksjoneltInnholdForm />
                 </RedigerAvtaleContainer>
