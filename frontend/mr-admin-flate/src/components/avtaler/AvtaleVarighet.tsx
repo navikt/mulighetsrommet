@@ -1,61 +1,59 @@
-import { AvtaleDto, Avtaletype, OpsjonStatus } from "@mr/api-client-v2";
-import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
-import { useEffect } from "react";
+import { Avtaletype } from "@mr/api-client-v2";
+import { HGrid, Select, TextField } from "@navikt/ds-react";
+import { useEffect, useMemo } from "react";
 import { FieldError, useFormContext } from "react-hook-form";
-import { MIN_START_DATO_FOR_AVTALER } from "@/constants";
-import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
-import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { RegistrerteOpsjoner } from "../opsjoner/RegistrerteOpsjoner";
+import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { RegistrerteOpsjoner } from "./opsjoner/RegistrerteOpsjoner";
 import {
   hentGjeldendeOpsjonsmodeller,
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
+import { AvtaleFormValues } from "@/schemas/avtale";
+import { addYear } from "@/utils/Utils";
 
 interface Props {
-  avtale?: AvtaleDto;
-  avtaletype: Avtaletype;
-  minStartDato: Date;
-  sluttDatoFraDato: Date;
-  sluttDatoTilDato: Date;
-  maksAar: number;
+  antallOpsjonerUtlost: number;
 }
 
-export function AvtaleVarighet({
-  avtale,
-  avtaletype,
-  minStartDato,
-  sluttDatoFraDato,
-  sluttDatoTilDato,
-  maksAar,
-}: Props) {
+export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
   const {
     register,
     setValue,
     watch,
     formState: { errors },
     control,
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<AvtaleFormValues>();
 
-  const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(avtaletype);
+  const startDato = watch("startDato");
+  // Uten useMemo for sluttDatoFraDato så trigges rerendering av children hver gang sluttdato kalkuleres på nytt ved endring av startdato
+  const sluttDatoFraDato = useMemo(
+    () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),
+    [startDato],
+  );
+  const sluttDatoTilDato = useMemo(
+    () => addYear(startDato ? new Date(startDato) : new Date(), MAKS_AAR_FOR_AVTALER),
+    [startDato],
+  );
+
+  const watchedAvtaletype = watch("avtaletype");
+  const watchedMaksVarighet = watch("opsjonsmodell.opsjonMaksVarighet");
+  const forhandsgodkjent = watchedAvtaletype === Avtaletype.FORHANDSGODKJENT;
+  const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(watchedAvtaletype);
 
   const opsjonsmodellType = watch("opsjonsmodell.type");
   const opsjonsmodell = opsjonsmodellType ? hentOpsjonsmodell(opsjonsmodellType) : undefined;
 
-  const antallOpsjonerUtlost = (
-    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
-  ).length;
-
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
 
-  const { startDato } = watch("startOgSluttDato");
   const readonly = opsjonsmodell?.value !== "ANNET" || skalIkkeKunneRedigereOpsjoner;
 
   useEffect(() => {
     if (startDato && opsjonsmodell && antallOpsjonerUtlost === 0) {
       if (opsjonsmodell.initialSluttdatoEkstraAar) {
         setValue(
-          "startOgSluttDato.sluttDato",
+          "sluttDato",
           kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
         );
       }
@@ -70,12 +68,8 @@ export function AvtaleVarighet({
 
   return (
     <>
-      <Heading size="small" as="h3">
-        Avtalens varighet
-      </Heading>
-
-      <HGrid columns={2}>
-        {avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
+      {!forhandsgodkjent && (
+        <HGrid columns={2}>
           <Select
             readOnly={skalIkkeKunneRedigereOpsjoner}
             label="Avtalt mulighet for forlengelse"
@@ -100,10 +94,10 @@ export function AvtaleVarighet({
               </option>
             ))}
           </Select>
-        ) : null}
-      </HGrid>
+        </HGrid>
+      )}
 
-      {opsjonsmodell?.value === "ANNET" ? (
+      {opsjonsmodell?.value === "ANNET" && (
         <TextField
           label="Opsjonsnavn"
           readOnly={readonly}
@@ -113,7 +107,7 @@ export function AvtaleVarighet({
           size="small"
           {...register("opsjonsmodell.customOpsjonsmodellNavn")}
         />
-      ) : null}
+      )}
 
       {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3} gap="5" align="end">
@@ -121,9 +115,9 @@ export function AvtaleVarighet({
             size="small"
             label={avtaletekster.startdatoLabel}
             readOnly={skalIkkeKunneRedigereOpsjoner}
-            fromDate={minStartDato}
+            fromDate={MIN_START_DATO_FOR_AVTALER}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.startDato")}
+            {...register("startDato")}
             format={"iso-string"}
             control={control}
           />
@@ -133,21 +127,23 @@ export function AvtaleVarighet({
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.sluttDato")}
+            {...register("sluttDato")}
             format={"iso-string"}
-            invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${maksAar} år`}
+            invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${MAKS_AAR_FOR_AVTALER} år`}
             control={control}
           />
-          <ControlledDateInput
-            size="small"
-            label={avtaletekster.maksVarighetLabel}
-            readOnly={readonly}
-            fromDate={sluttDatoFraDato}
-            toDate={sluttDatoTilDato}
-            {...register("opsjonsmodell.opsjonMaksVarighet")}
-            format={"iso-string"}
-            control={control}
-          />
+          {watchedMaksVarighet && (
+            <ControlledDateInput
+              size="small"
+              label={avtaletekster.maksVarighetLabel}
+              readOnly={readonly}
+              fromDate={sluttDatoFraDato}
+              toDate={sluttDatoTilDato}
+              {...register("opsjonsmodell.opsjonMaksVarighet")}
+              format={"iso-string"}
+              control={control}
+            />
+          )}
         </HGrid>
       ) : (
         <HGrid columns={3} gap="10">
@@ -156,28 +152,26 @@ export function AvtaleVarighet({
             label={avtaletekster.startdatoLabel}
             fromDate={MIN_START_DATO_FOR_AVTALER}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.startDato")}
+            {...register("startDato")}
             format={"iso-string"}
             control={control}
           />
           <ControlledDateInput
             size="small"
             label={
-              avtaletype === Avtaletype.FORHANDSGODKJENT
-                ? avtaletekster.valgfriSluttdatoLabel(avtaletype)
+              forhandsgodkjent
+                ? avtaletekster.valgfriSluttdatoLabel(watchedAvtaletype)
                 : avtaletekster.sluttdatoLabel(false)
             }
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            {...register("startOgSluttDato.sluttDato")}
+            {...register("sluttDato")}
             format={"iso-string"}
             control={control}
           />
         </HGrid>
       )}
-      {avtale && avtale.opsjonerRegistrert.length > 0 && (
-        <RegistrerteOpsjoner readOnly avtale={avtale} />
-      )}
+      {antallOpsjonerUtlost > 0 && <RegistrerteOpsjoner readOnly />}
     </>
   );
 }

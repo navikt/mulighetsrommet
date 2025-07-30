@@ -1,79 +1,68 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
-  AvtaleDto,
   Avtaletype,
-  NavAnsatt,
-  NavEnhetDto,
-  NavEnhetType,
+  OpsjonLoggRegistrert,
   OpsjonsmodellType,
   OpsjonStatus,
   Prismodell,
   Tiltakskode,
-  TiltakstypeDto,
+  Toggles,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
-import { HGrid, Textarea, TextField } from "@navikt/ds-react";
-import { DeepPartial, useFormContext } from "react-hook-form";
-import { MultiValue } from "react-select";
+import { HGrid, List, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
-import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import {
-  getAndreUnderenheterAsSelectOptions,
-  getLokaleUnderenheterAsSelectOptions,
-} from "@/api/enhet/helpers";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
+import { AvtaleVarighet } from "./AvtaleVarighet";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
-interface Props {
-  tiltakstyper: TiltakstypeDto[];
-  ansatt: NavAnsatt;
-  avtale?: AvtaleDto;
-  enheter: NavEnhetDto[];
-  okonomiTabEnabled?: boolean;
-}
-
-export function AvtaleFormDetaljer({
-  tiltakstyper,
-  ansatt,
-  avtale,
-  enheter,
-  okonomiTabEnabled,
-}: Props) {
+export function AvtaleDetaljerForm({
+  opsjonerRegistrert,
+}: {
+  opsjonerRegistrert?: OpsjonLoggRegistrert[];
+  avtalenummer?: string;
+}) {
   const { data: administratorer } = useAvtaleAdministratorer();
+  const { data: ansatt } = useHentAnsatt();
+  const { data: tiltakstyper } = useTiltakstyper();
 
   const {
     register,
     formState: { errors },
-    watch,
+    getValues,
     setValue,
-  } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
+    watch,
+  } = useFormContext<AvtaleFormValues>();
 
-  const watchedTiltakstype = watch("tiltakstype");
-  const tiltakskode = watchedTiltakstype?.tiltakskode;
+  const avtaletype = watch("avtaletype");
+  const tiltakskode = watch("tiltakstype.tiltakskode");
+  const watchedAdministratorer = watch("administratorer");
 
-  const watchedOpsjonsmodellType = watch("opsjonsmodell.type");
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    tiltakskode ? [tiltakskode] : [],
+  );
 
-  function handleChangeTiltakstype(
-    currentTiltakskode?: Tiltakskode,
-    nextTiltakskode?: Tiltakskode,
-  ) {
-    if (nextTiltakskode !== currentTiltakskode) {
+  function handleChangeTiltakstype(nextTiltakskode?: Tiltakskode) {
+    if (nextTiltakskode !== tiltakskode) {
       setValue("amoKategorisering", null);
       setValue("utdanningslop", null);
     }
 
     const options = nextTiltakskode ? getAvtaletypeOptions(nextTiltakskode) : [];
-    const avtaletype = options.length === 1 ? options[0].value : undefined;
+    const avtaletype = options[0].value;
     setValue("avtaletype", avtaletype);
     handleChangeAvtaletype(avtaletype);
   }
@@ -85,9 +74,9 @@ export function AvtaleFormDetaljer({
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else if (!watchedOpsjonsmodellType) {
+    } else if (getValues("opsjonsmodell.type")) {
       setValue("opsjonsmodell", {
-        type: undefined,
+        type: getValues("opsjonsmodell.type"),
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
@@ -100,20 +89,13 @@ export function AvtaleFormDetaljer({
     }
   }
 
-  const navRegionerOptions = enheter
-    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-    .map((enhet) => ({
-      value: enhet.enhetsnummer,
-      label: enhet.navn,
-    }));
-
   const antallOpsjonerUtlost = (
-    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
+    opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
   ).length;
 
   return (
     <TwoColumnGrid separator>
-      <SkjemaKolonne>
+      <VStack>
         <FormGroup>
           <TextField
             size="small"
@@ -123,16 +105,8 @@ export function AvtaleFormDetaljer({
             {...register("navn")}
           />
         </FormGroup>
-
         <FormGroup>
           <HGrid align="start" gap="4" columns={2}>
-            <TextField
-              size="small"
-              readOnly
-              label={avtaletekster.avtalenummerLabel}
-              value={avtale?.avtalenummer}
-              placeholder="Genereres automatisk ved opprettelse"
-            />
             <TextField
               size="small"
               placeholder="åå/12345"
@@ -143,14 +117,16 @@ export function AvtaleFormDetaljer({
                   helpTextTitle={avtaletekster.sakarkivNummerHelpTextTitle}
                 >
                   I Public 360 skal det opprettes tre typer arkivsaker med egne saksnummer:
-                  <ol>
-                    <li>En sak for hver anskaffelse.</li>
-                    <li>En sak for kontrakt/avtale med hver leverandør (Avtalesaken).</li>
-                    <li>
+                  <List>
+                    <List.Item>En sak for hver anskaffelse.</List.Item>
+                    <List.Item>
+                      En sak for kontrakt/avtale med hver leverandør (Avtalesaken).
+                    </List.Item>
+                    <List.Item>
                       En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
-                    </li>
-                  </ol>
-                  Det er <b>2) Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
+                    </List.Item>
+                  </List>
+                  Det er <b>2. Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
                 </LabelWithHelpText>
               }
               {...register("sakarkivNummer")}
@@ -165,8 +141,7 @@ export function AvtaleFormDetaljer({
               label={avtaletekster.tiltakstypeLabel}
               {...register("tiltakstype")}
               onChange={(event) => {
-                const nextTiltakskode = event.target?.value?.tiltakskode ?? undefined;
-                handleChangeTiltakstype(tiltakskode, nextTiltakskode);
+                handleChangeTiltakstype(event.target?.value?.tiltakskode);
               }}
               options={tiltakstyper.map((tiltakstype) => ({
                 value: {
@@ -196,21 +171,25 @@ export function AvtaleFormDetaljer({
             <AvtaleUtdanningslopForm />
           ) : null}
         </FormGroup>
-
-        <AvtaleDatoContainer avtale={avtale} />
-
-        {okonomiTabEnabled === false && (
-          <>
-            <FormGroup>
-              <Textarea
-                size="small"
-                error={errors.prisbetingelser?.message}
-                label={avtaletekster.prisOgBetalingLabel}
-                {...register("prisbetingelser")}
-              />
-            </FormGroup>
-          </>
+        {avtaletype && (
+          <FormGroup>
+            <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
+          </FormGroup>
         )}
+        {tiltakskode && enableTilsagn ? (
+          <FormGroup>
+            <AvtalePrisOgFaktureringForm tiltakskode={tiltakskode} />
+          </FormGroup>
+        ) : (
+          <Textarea
+            size="small"
+            error={errors.prisbetingelser?.message}
+            label={avtaletekster.prisOgBetalingLabel}
+            {...register("prisbetingelser")}
+          />
+        )}
+      </VStack>
+      <VStack>
         <FormGroup>
           <ControlledMultiSelect
             size="small"
@@ -218,76 +197,13 @@ export function AvtaleFormDetaljer({
             placeholder="Administratorer"
             label={avtaletekster.administratorerForAvtalenLabel}
             {...register("administratorer")}
-            options={AdministratorOptions(ansatt, avtale?.administratorer, administratorer)}
+            options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
           />
         </FormGroup>
-      </SkjemaKolonne>
-      <SkjemaKolonne>
-        <div>
-          <FormGroup>
-            <ControlledMultiSelect
-              inputId={"navRegioner"}
-              size="small"
-              placeholder="Velg en"
-              label={avtaletekster.navRegionerLabel}
-              {...register("navRegioner")}
-              name={"navRegioner"}
-              additionalOnChange={(selectedOptions) => {
-                if ((watch("navRegioner")?.length ?? 0) > 1) {
-                  const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
-                    selectedOptions,
-                    enheter,
-                  );
-                  setValue("navKontorer", alleLokaleUnderenheter as [string, ...string[]]);
-                } else {
-                  const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
-                    selectedOptions,
-                    enheter,
-                  );
-                  const navKontorer = watch("navKontorer")?.filter((enhet) =>
-                    alleLokaleUnderenheter.includes(enhet ?? ""),
-                  );
-                  setValue("navKontorer", navKontorer as [string, ...string[]]);
-                }
-              }}
-              options={navRegionerOptions}
-            />
-            <ControlledMultiSelect
-              inputId={"navKontorer"}
-              size="small"
-              velgAlle
-              placeholder="Velg en"
-              label={avtaletekster.navEnheterLabel}
-              helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
-              {...register("navKontorer")}
-              options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
-            />
-            <ControlledMultiSelect
-              inputId={"navAndreEnheter"}
-              size="small"
-              velgAlle
-              placeholder="Velg en (valgfritt)"
-              label={avtaletekster.navAndreEnheterLabel}
-              helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-              {...register("navAndreEnheter")}
-              options={getAndreUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
-            />
-          </FormGroup>
-        </div>
-        <FormGroup>
-          <AvtaleArrangorForm readOnly={false} />
-        </FormGroup>
-      </SkjemaKolonne>
+        <AvtaleArrangorForm readOnly={false} />
+      </VStack>
     </TwoColumnGrid>
   );
-}
-
-function velgAlleLokaleUnderenheter(
-  selectedOptions: MultiValue<SelectOption>,
-  enheter: NavEnhetDto[],
-): string[] {
-  const regioner = selectedOptions?.map((option) => option.value);
-  return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
 function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {

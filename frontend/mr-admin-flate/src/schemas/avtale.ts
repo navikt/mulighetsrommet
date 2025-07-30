@@ -1,18 +1,50 @@
+import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
+import { ArrangorKontaktperson, AvtaleDto, NavAnsatt, Personopplysning } from "@mr/api-client-v2";
+import z from "zod";
 import {
-  ArrangorKontaktperson,
-  AvtaleDto,
-  NavAnsatt,
-  Utdanningslop,
-  UtdanningslopDbo,
-} from "@mr/api-client-v2";
-import { DeepPartial } from "react-hook-form";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+  avtaleDetaljerSchema,
+  arrangorSchema,
+  validateArrangor,
+  validateAvtaledetaljer,
+  toUtdanningslopDbo,
+} from "./avtaledetaljer";
+import { okonomiSchema, validateOkonomi } from "./okonomi";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
+import { DeepPartial } from "react-hook-form";
+
+export const RedaksjoneltInnholdSchema = z.object({
+  beskrivelse: z
+    .string({ error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
+    .nullable(),
+  faneinnhold: FaneinnholdSchema.nullable(),
+  navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
+  navKontorer: z.string().array(),
+  navAndreEnheter: z.string().array(),
+});
+
+export const PersonopplysningerSchema = z.object({
+  personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
+  personopplysninger: z.enum(Personopplysning).array(),
+});
+
+export const avtaleFormSchema = avtaleDetaljerSchema
+  .extend(arrangorSchema.shape)
+  .extend(okonomiSchema.shape)
+  .extend(PersonopplysningerSchema.shape)
+  .extend(RedaksjoneltInnholdSchema.shape)
+  .superRefine((data, ctx) => {
+    validateArrangor(ctx, data);
+    validateAvtaledetaljer(ctx, data);
+    validateOkonomi(ctx, data);
+  });
+
+export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
+export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
 export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: AvtaleDto,
-): DeepPartial<InferredAvtaleSchema> {
+): DeepPartial<AvtaleFormValues> {
   const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
 
   const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
@@ -20,7 +52,7 @@ export function defaultAvtaleData(
 
   return {
     tiltakstype: avtale?.tiltakstype,
-    navRegioner,
+    navRegioner: navRegioner,
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
@@ -32,10 +64,8 @@ export function defaultAvtaleData(
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
     arrangorKontaktpersoner:
       avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    startOgSluttDato: {
-      startDato: avtale?.startDato ? avtale.startDato : undefined,
-      sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
-    },
+    startDato: avtale?.startDato ? avtale.startDato : undefined,
+    sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
     sakarkivNummer: avtale?.sakarkivNummer,
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
@@ -47,12 +77,5 @@ export function defaultAvtaleData(
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     prismodell: avtale?.prismodell ?? null,
     satser: avtale?.satser ?? [],
-  };
-}
-
-function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
-  return {
-    utdanningsprogram: data.utdanningsprogram.id,
-    utdanninger: data.utdanninger.map((utdanning) => utdanning.id),
   };
 }

@@ -1,23 +1,25 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { AvtaleDto, EmbeddedTiltakstype } from "@mr/api-client-v2";
+import { AvtaleDto, NavEnhetType } from "@mr/api-client-v2";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
+import { AvtaleFormValues } from "@/schemas/avtale";
 import { AvtaleListe } from "./AvtaleListe";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import {
+  getLokaleUnderenheterAsSelectOptions,
+  getAndreUnderenheterAsSelectOptions,
+} from "@/api/enhet/helpers";
 
-interface Props {
-  tiltakstype?: EmbeddedTiltakstype;
-}
-
-export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
+export function AvtaleRedaksjoneltInnholdForm() {
   const [key, setKey] = useState(0);
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
+  const { data: enheter } = useNavEnheter();
 
-  const { setValue } = useFormContext<InferredAvtaleSchema>();
+  const { setValue, watch } = useFormContext<AvtaleFormValues>();
+  const tiltakstype = watch("tiltakstype");
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);
@@ -30,30 +32,43 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
     );
   }
 
+  const regionerOptions = enheter
+    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
+    .map((enhet) => ({
+      value: enhet.enhetsnummer,
+      label: enhet.navn,
+    }));
+
+  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(
+    watch("navRegioner") ?? [],
+    enheter,
+  );
+  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(
+    watch("navRegioner") ?? [],
+    enheter,
+  );
+
   return (
     <>
-      <RedaksjoneltInnholdToppKnapperad>
-        <HStack justify="end">
-          <Button
-            size="small"
-            variant="tertiary"
-            type="button"
-            title="Kopier redaksjonelt innhold fra en annen avtale under samme tiltakstype"
-            onClick={() => setModalOpen(true)}
-          >
-            Kopier redaksjonelt innhold fra avtale
-          </Button>
-        </HStack>
-      </RedaksjoneltInnholdToppKnapperad>
-
-      <RedaksjoneltInnholdForm key={`redaksjonelt-innhold-${key}`} tiltakstype={tiltakstype} />
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        style={{ maxHeight: "70rem" }}
-        aria-label="modal"
-        width="50rem"
-      >
+      <HStack>
+        <Button
+          size="small"
+          variant="tertiary"
+          type="button"
+          title="Kopier redaksjonelt innhold fra en annen avtale under samme tiltakstype"
+          onClick={() => setModalOpen(true)}
+        >
+          Kopier redaksjonelt innhold fra avtale
+        </Button>
+      </HStack>
+      <RedaksjoneltInnholdForm
+        key={`redaksjonelt-innhold-${key}`}
+        tiltakstype={tiltakstype}
+        regionerOptions={regionerOptions}
+        kontorerOptions={kontorEnheterOptions}
+        andreEnheterOptions={andreEnheterOptions}
+      />
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} aria-label="modal">
         <Modal.Header closeButton>
           <Heading size="medium">Kopier redaksjonelt innhold fra avtale</Heading>
         </Modal.Header>

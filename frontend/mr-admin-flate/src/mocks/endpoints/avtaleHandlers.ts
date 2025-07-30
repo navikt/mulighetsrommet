@@ -1,5 +1,11 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { AvtaleDto, EndringshistorikkEntry, PaginertAvtale } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  AvtaltSatsDto,
+  EndringshistorikkEntry,
+  PaginertAvtale,
+  PrismodellDto,
+} from "@mr/api-client-v2";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
@@ -68,6 +74,24 @@ export const avtaleHandlers = [
     return HttpResponse.json({
       id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
     });
+  }),
+
+  http.get<PathParams, AvtaltSatsDto | undefined>(
+    "/api/v1/intern/prismodeller/forhandsgodkjente-satser",
+    () => {
+      return HttpResponse.json([
+        {
+          periodeStart: "2025-01-01",
+          periodeSlutt: "2025-12-01",
+          pris: 23000,
+          valuta: "NOK",
+        },
+      ]);
+    },
+  ),
+
+  http.get<PathParams, PrismodellDto | undefined>("/api/v1/intern/prismodeller", () => {
+    return HttpResponse.json([]);
   }),
 
   http.get<PathParams, EndringshistorikkEntry>("*/api/v1/intern/avtaler/:id/historikk", () => {

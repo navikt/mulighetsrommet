@@ -42,7 +42,6 @@ export function GjennomforingFormContainer({
   defaultValues,
   onClose,
   onSuccess,
-  enheter,
 }: Props) {
   const redigeringsModus = !!gjennomforing;
   const mutation = useUpsertGjennomforing();
@@ -156,11 +155,7 @@ export function GjennomforingFormContainer({
             <InlineErrorBoundary>
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
                 <Box marginBlock="4">
-                  <GjennomforingFormDetaljer
-                    avtale={avtale}
-                    gjennomforing={gjennomforing}
-                    enheter={enheter}
-                  />
+                  <GjennomforingFormDetaljer avtale={avtale} gjennomforing={gjennomforing} />
                 </Box>
               </React.Suspense>
             </InlineErrorBoundary>

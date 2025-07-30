@@ -3,10 +3,10 @@ import { Suspense, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { useUtdanningsprogrammer } from "@/api/utdanning/useUtdanningsprogrammer";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { Laster } from "../laster/Laster";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 export function AvtaleUtdanningslopForm() {
   return (
@@ -25,7 +25,7 @@ function SelectAvtaleUtdanning() {
     watch,
     setValue,
     formState: { errors },
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<AvtaleFormValues>();
 
   const utdanningsprogram = watch("utdanningslop.utdanningsprogram");
   const utdanningsprogrammer = useMemo(

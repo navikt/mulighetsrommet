@@ -6,6 +6,7 @@ import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/Gj
 import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
+import { splitNavEnheterByType } from "@/api/enhet/helpers";
 
 interface Props {
   avtale: AvtaleDto;
@@ -16,7 +17,7 @@ export function GjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
 
-  const { setValue } = useFormContext<InferredGjennomforingSchema>();
+  const { setValue, watch } = useFormContext<InferredGjennomforingSchema>();
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: GjennomforingDto | AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);
@@ -25,6 +26,25 @@ export function GjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
     // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
     setKey(key + 1);
   }
+  const navRegioner = watch("navRegioner");
+
+  const regionerOptions = avtale.kontorstruktur
+    .map((struk) => struk.region)
+    .map((kontor) => ({ value: kontor.enhetsnummer, label: kontor.navn }));
+
+  const navEnheter = avtale.kontorstruktur
+    .flatMap((struk) => struk.kontorer)
+    .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? ""));
+
+  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter);
+  const kontorEnheterOptions = navKontorEnheter.map((enhet) => ({
+    label: enhet.navn,
+    value: enhet.enhetsnummer,
+  }));
+  const andreEnheterOptions = navAndreEnheter.map((enhet) => ({
+    label: enhet.navn,
+    value: enhet.enhetsnummer,
+  }));
 
   return (
     <>
@@ -56,6 +76,9 @@ export function GjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
       <RedaksjoneltInnholdForm
         key={`redaksjonelt-innhold-${key}`}
         tiltakstype={avtale.tiltakstype}
+        regionerOptions={regionerOptions}
+        kontorerOptions={kontorEnheterOptions}
+        andreEnheterOptions={andreEnheterOptions}
       />
       <Modal
         open={modalOpen}

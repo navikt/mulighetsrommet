@@ -53,6 +53,7 @@ export function GjennomforingInfo() {
               tiltakstype={gjennomforing.tiltakstype}
               beskrivelse={gjennomforing.beskrivelse}
               faneinnhold={gjennomforing.faneinnhold}
+              kontorstruktur={gjennomforing.kontorstruktur}
             />
           </InlineErrorBoundary>
         </Tabs.Panel>

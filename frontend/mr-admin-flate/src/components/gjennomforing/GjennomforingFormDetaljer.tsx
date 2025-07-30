@@ -13,7 +13,6 @@ import {
   GjennomforingDto,
   GjennomforingKontaktperson,
   GjennomforingOppstartstype,
-  NavEnhetDto,
   Tiltakskode,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -40,17 +39,15 @@ import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdann
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { AvtaleErUtkastOgArrangorManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
-import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
   avtale: AvtaleDto;
-  enheter: NavEnhetDto[];
 }
 
-export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Props) {
+export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   const { data: administratorer } = useGjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
@@ -76,7 +73,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
   });
 
   const watchVisEstimertVentetid = watch("visEstimertVentetid");
-  const navRegioner = watch("navRegioner");
 
   useEffect(() => {
     const resetEstimertVentetid = () => {
@@ -111,24 +107,11 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
     }
   }
 
-  const regionerOptions = avtale.kontorstruktur
-    .map((struk) => struk.region)
-    .map((kontor) => ({ value: kontor.enhetsnummer, label: kontor.navn }));
-
+  const navRegioner = watch("navRegioner");
   const navEnheter = avtale.kontorstruktur
     .flatMap((struk) => struk.kontorer)
     .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? ""));
   const navEnheterOptions = navEnheter.map((enhet) => ({
-    label: enhet.navn,
-    value: enhet.enhetsnummer,
-  }));
-
-  const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter);
-  const navKontorEnheterOptions = navKontorEnheter.map((enhet) => ({
-    label: enhet.navn,
-    value: enhet.enhetsnummer,
-  }));
-  const navAndreEnheterOptions = navAndreEnheter.map((enhet) => ({
     label: enhet.navn,
     value: enhet.enhetsnummer,
   }));
@@ -307,7 +290,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
               {...register("administratorer")}
               options={AdministratorOptions(
                 ansatt,
-                gjennomforing?.administratorer,
+                gjennomforing?.administratorer.map((g) => g.navIdent) || [],
                 administratorer,
               )}
             />
@@ -315,56 +298,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
         </SkjemaKolonne>
         <SkjemaKolonne>
           <div>
-            <FormGroup>
-              <ControlledMultiSelect
-                inputId={"navRegioner"}
-                size="small"
-                label={gjennomforingTekster.tilgjengeligIModiaLabel}
-                placeholder="Velg en"
-                {...register("navRegioner")}
-                velgAlle
-                options={regionerOptions}
-                additionalOnChange={(selectedOptions) => {
-                  if ((watch("navRegioner")?.length ?? 0) > 1) {
-                    const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
-                      selectedOptions,
-                      enheter,
-                    );
-                    setValue("navKontorer", alleLokaleUnderenheter as [string, ...string[]]);
-                  } else {
-                    const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
-                      selectedOptions,
-                      enheter,
-                    );
-                    const navKontorer = watch("navKontorer")?.filter((enhet) =>
-                      alleLokaleUnderenheter.includes(enhet ?? ""),
-                    );
-                    setValue("navKontorer", navKontorer as [string, ...string[]]);
-                  }
-                }}
-              />
-              <ControlledMultiSelect
-                inputId={"navKontorer"}
-                size="small"
-                velgAlle
-                placeholder={"Velg en"}
-                label={gjennomforingTekster.navEnheterKontorerLabel}
-                helpText={gjennomforingTekster.navEnheterKontorerTooltip}
-                {...register("navKontorer")}
-                options={navKontorEnheterOptions}
-              />
-              <ControlledMultiSelect
-                inputId={"navEnheterAndre"}
-                size="small"
-                velgAlle
-                placeholder={"Velg en (valgfritt)"}
-                label={gjennomforingTekster.navEnheterAndreLabel}
-                helpText={gjennomforingTekster.navEnheterAndreTooltip}
-                {...register("navEnheterAndre")}
-                options={navAndreEnheterOptions}
-              />
-            </FormGroup>
-
             <FormGroup>
               <div>
                 {kontaktpersonFields?.map((field, index) => {
@@ -416,7 +349,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Pr
               <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />
             </FormGroup>
           ) : (
-            <AvtaleErUtkastOgArrangorManglerMelding />
+            <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
           )}
         </SkjemaKolonne>
       </TwoColumnGrid>

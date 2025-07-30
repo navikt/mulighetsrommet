@@ -1,41 +1,46 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client-v2";
+import { EmbeddedTiltakstype, Faneinnhold, Kontorstruktur } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
-import React from "react";
+import React, { Fragment } from "react";
 import { Laster } from "../laster/Laster";
 import { LenkerList } from "../lenker/LenkerList";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { sorterPaRegionsnavn } from "@/utils/Utils";
+import { Metadata } from "../detaljside/Metadata";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
   beskrivelse?: string;
   faneinnhold?: Faneinnhold;
+  kontorstruktur: Kontorstruktur;
 }
 
 export function RedaksjoneltInnholdPreview(props: RedaksjoneltInnholdPreviewProps) {
   return (
-    <InlineErrorBoundary>
-      <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-        <RedaksjoneltInnhold {...props} />
-      </React.Suspense>
-    </InlineErrorBoundary>
+    <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+      <RedaksjoneltInnhold {...props} />
+    </React.Suspense>
   );
 }
 
 function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
-  const { tiltakstype, beskrivelse, faneinnhold } = props;
+  const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = props;
 
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
   return (
-    <div className="prose prose-headings:mb-0 min-w-1/2">
+    <TwoColumnGrid separator>
       <RedaksjoneltInnholdContainer>
         {tiltakstypeSanityData?.beskrivelse && (
-          <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap" }}>
-            {tiltakstypeSanityData.beskrivelse}
-          </BodyLong>
+          <>
+            <Heading size="medium">Generell informasjon</Heading>
+            <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
+              {tiltakstypeSanityData.beskrivelse}
+            </BodyLong>
+          </>
         )}
         {beskrivelse && (
           <LokalInformasjonContainer>
@@ -121,7 +126,43 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
           </>
         ) : null}
       </RedaksjoneltInnholdContainer>
-    </div>
+      <RedaksjoneltInnholdContainer>
+        <Heading size="medium" level="3">
+          Geografisk tilgjengelighet
+        </Heading>
+        {kontorstruktur.length > 1 ? (
+          <Metadata
+            header={avtaletekster.fylkessamarbeidLabel}
+            verdi={
+              <ul>
+                {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
+                  return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
+                })}
+              </ul>
+            }
+          />
+        ) : (
+          kontorstruktur.map((struktur, index) => {
+            return (
+              <Fragment key={index}>
+                <Metadata header={avtaletekster.navRegionerLabel} verdi={struktur.region.navn} />
+
+                <Metadata
+                  header={avtaletekster.navEnheterLabel}
+                  verdi={
+                    <ul className="columns-2">
+                      {struktur.kontorer.map((kontor) => (
+                        <li key={kontor.enhetsnummer}>{kontor.navn}</li>
+                      ))}
+                    </ul>
+                  }
+                />
+              </Fragment>
+            );
+          })
+        )}
+      </RedaksjoneltInnholdContainer>
+    </TwoColumnGrid>
   );
 }
 

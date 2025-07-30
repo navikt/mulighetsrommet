@@ -1,15 +1,25 @@
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { ContentBox } from "@/layouts/ContentBox";
-import { Heading, Tabs, VStack } from "@navikt/ds-react";
-import React from "react";
-import { Outlet, useLocation, useMatch } from "react-router";
+import { Heading, HStack, Tabs } from "@navikt/ds-react";
+import { useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "@/components/laster/Laster";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useAtom } from "jotai";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
+import { AvtaleDetaljer } from "./AvtaleDetaljer";
+import { AvtalePersonvern } from "./AvtalePersonvern";
+import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
+import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
+import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
+import { AvtalePageLayout } from "./AvtalePageLayout";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { AvtaleRedaksjoneltInnholdForm } from "@/components/avtaler/AvtaleRedaksjoneltInnholdForm";
+import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { ContentBox } from "@/layouts/ContentBox";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -21,60 +31,102 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
 }
 
 export function AvtalePage() {
-  const { pathname } = useLocation();
-  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const location = useLocation();
   const { data: avtale } = useAvtale(avtaleId);
+
+  const redigeringsmodus = location.pathname.includes("skjema");
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
-  const currentTab = () => {
-    if (pathname.includes("gjennomforinger")) {
-      return "gjennomforinger";
-    } else {
-      return "avtale";
-    }
-  };
+  const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   return (
-    <main>
+    <div data-testid="avtale_info-container">
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <div className="flex justify-start gap-6 items-center flex-wrap">
+        <HStack gap="6">
           <AvtaleIkon />
-          <VStack>
-            <Heading size="large" level="2">
-              {avtale.navn}
-            </Heading>
-          </VStack>
+          <Heading size="large" level="2">
+            {avtale.navn}
+          </Heading>
           <AvtaleStatusMedAarsakTag status={avtale.status} />
-        </div>
+        </HStack>
       </Header>
-      <Tabs value={currentTab()}>
-        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
+      <Tabs value={activeTab}>
+        <Tabs.List>
+          <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
           <Tabs.Tab
-            value="avtale"
-            label="Avtale"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
-            aria-controls="panel"
+            label="Personvern"
+            value="personvern"
+            onClick={() => setActiveTab("personvern")}
           />
           <Tabs.Tab
-            value="gjennomforinger"
-            label="Gjennomføringer"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/gjennomforinger`)}
-            aria-controls="panel"
-            data-testid="gjennomforinger-tab"
+            label="Redaksjonelt innhold"
+            value="redaksjonelt-innhold"
+            onClick={() => setActiveTab("redaksjonelt-innhold")}
           />
+          {!redigeringsmodus && (
+            <Tabs.Tab
+              value="gjennomforinger"
+              label="Gjennomføringer"
+              onClick={() => setActiveTab("gjennomforinger")}
+              data-testid="gjennomforinger-tab"
+            />
+          )}
         </Tabs.List>
-        <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
-          <ContentBox>
-            <div id="panel">
-              <Outlet />
-            </div>
-          </ContentBox>
-        </React.Suspense>
+        <ContentBox>
+          <WhitePaddedBox>
+            <Tabs.Panel value="detaljer">
+              {redigeringsmodus ? (
+                <RedigerAvtaleContainer avtale={avtale}>
+                  <AvtaleDetaljerForm
+                    opsjonerRegistrert={avtale.opsjonerRegistrert}
+                    avtalenummer={avtale.avtalenummer}
+                  />
+                </RedigerAvtaleContainer>
+              ) : (
+                <AvtalePageLayout avtale={avtale}>
+                  <AvtaleDetaljer avtale={avtale} />
+                </AvtalePageLayout>
+              )}
+            </Tabs.Panel>
+            <Tabs.Panel value="personvern">
+              {redigeringsmodus ? (
+                <RedigerAvtaleContainer avtale={avtale}>
+                  <AvtalePersonvernForm />
+                </RedigerAvtaleContainer>
+              ) : (
+                <AvtalePageLayout avtale={avtale}>
+                  <AvtalePersonvern avtale={avtale} />
+                </AvtalePageLayout>
+              )}
+            </Tabs.Panel>
+            <Tabs.Panel value="redaksjonelt-innhold">
+              {redigeringsmodus ? (
+                <RedigerAvtaleContainer avtale={avtale}>
+                  <AvtaleRedaksjoneltInnholdForm />
+                </RedigerAvtaleContainer>
+              ) : (
+                <AvtalePageLayout avtale={avtale}>
+                  <RedaksjoneltInnholdPreview
+                    tiltakstype={avtale.tiltakstype}
+                    beskrivelse={avtale.beskrivelse}
+                    faneinnhold={avtale.faneinnhold}
+                    kontorstruktur={avtale.kontorstruktur}
+                  />
+                </AvtalePageLayout>
+              )}
+            </Tabs.Panel>
+          </WhitePaddedBox>
+        </ContentBox>
+        <Tabs.Panel value="gjennomforinger">
+          <InlineErrorBoundary>
+            <GjennomforingerForAvtalePage />
+          </InlineErrorBoundary>
+        </Tabs.Panel>
       </Tabs>
-    </main>
+    </div>
   );
 }

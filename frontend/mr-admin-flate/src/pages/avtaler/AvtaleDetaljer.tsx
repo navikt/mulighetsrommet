@@ -2,27 +2,32 @@ import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
 import { hentOpsjonsmodell } from "@/components/avtaler/opsjoner/opsjonsmodeller";
-import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { avtaletypeTilTekst, sorterPaRegionsnavn } from "@/utils/Utils";
-import { AvtaleDto, Avtaletype } from "@mr/api-client-v2";
+import { avtaletypeTilTekst } from "@/utils/Utils";
+import { AvtaleDto, Avtaletype, Prismodell, Toggles } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import {
+  Definition,
+  Definisjonsliste,
+} from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
+import { Alert, Box, Heading, HelpText, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { Fragment } from "react";
 import { Link } from "react-router";
+import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
+import { formaterTall } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   avtale: AvtaleDto;
-  okonomiTabEnabled?: boolean;
 }
 
-export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
+export function AvtaleDetaljer({ avtale }: Props) {
   const {
     navn,
     avtalenummer,
@@ -32,7 +37,6 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
     sluttDato,
     administratorer,
     sakarkivNummer,
-    kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
     amoKategorisering,
@@ -40,31 +44,137 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
     opsjonsmodell,
   } = avtale;
 
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    avtale?.tiltakstype.tiltakskode ? [avtale.tiltakstype.tiltakskode] : [],
+  );
+
+  const avtaleMeta: Definition[] = [
+    { key: avtaletekster.avtalenavnLabel, value: navn },
+    { key: avtaletekster.avtalenummerLabel, value: avtalenummer },
+    { key: avtaletekster.sakarkivNummerLabel, value: sakarkivNummer ?? "-" },
+  ];
+
+  const tiltakMeta: Definition[] = [
+    {
+      key: avtaletekster.tiltakstypeLabel,
+      value: <Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>,
+    },
+    { key: avtaletekster.avtaletypeLabel, value: avtaletypeTilTekst(avtaletype) },
+  ];
+
+  const varighet: Definition[] = [
+    { key: avtaletekster.startdatoLabel, value: formaterDato(startDato) },
+    {
+      key: avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0),
+      value: sluttDato ? formaterDato(sluttDato) : "-",
+    },
+    ...(avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT
+      ? [
+          {
+            key: avtaletekster.avtaltForlengelseLabel,
+            value:
+              opsjonsmodell.customOpsjonsmodellNavn ?? hentOpsjonsmodell(opsjonsmodell.type)?.label,
+          },
+        ]
+      : []),
+    ...(opsjonsmodell.opsjonMaksVarighet
+      ? [
+          {
+            key: avtaletekster.maksVarighetLabel,
+            value: formaterDato(opsjonsmodell.opsjonMaksVarighet),
+          },
+        ]
+      : []),
+  ];
+
+  const administratorMeta: Definition[] = [
+    {
+      key: avtaletekster.administratorerForAvtalenLabel,
+      value: administratorer?.length ? (
+        <ul>
+          {administratorer.map((admin) => {
+            return (
+              <li key={admin.navIdent}>
+                <Lenke to={`${NOM_ANSATT_SIDE}${admin.navIdent}`} isExternal>
+                  {`${admin.navn} - ${admin.navIdent}`}{" "}
+                </Lenke>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        avtaletekster.ingenAdministratorerSattLabel
+      ),
+    },
+    {
+      key: avtaletekster.ansvarligEnhetFraArenaLabel,
+      value: arenaAnsvarligEnhet ? (
+        <HStack gap="2">
+          {getDisplayName(arenaAnsvarligEnhet)}
+          <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
+            Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når det
+            opprettes avtale i Arena.
+          </HelpText>
+        </HStack>
+      ) : (
+        "-"
+      ),
+    },
+  ];
+
+  const arrangorMeta: Definition[] = [
+    {
+      key: avtaletekster.tiltaksarrangorHovedenhetLabel,
+      value: (
+        <Link to={`/arrangorer/${arrangor?.id}`}>
+          {arrangor?.navn} - {arrangor?.organisasjonsnummer}
+        </Link>
+      ),
+    },
+    {
+      key: avtaletekster.tiltaksarrangorUnderenheterLabel,
+      value: (
+        <ul>
+          {arrangor?.underenheter.map((enhet) => (
+            <li key={enhet.organisasjonsnummer}>
+              {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    {
+      key: avtaletekster.kontaktpersonerHosTiltaksarrangorLabel,
+      value:
+        arrangor && arrangor.kontaktpersoner.length > 0
+          ? arrangor.kontaktpersoner.map((kontaktperson) => (
+              <ArrangorKontaktpersonDetaljer key={kontaktperson.id} kontaktperson={kontaktperson} />
+            ))
+          : "-",
+    },
+  ];
+
   return (
     <TwoColumnGrid separator>
       <VStack>
-        <Bolk aria-label="Avtalenavn">
-          <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
-        </Bolk>
-
+        <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
         <Separator />
-
-        <Bolk aria-label="Eksterne referanser">
-          <Metadata header={avtaletekster.avtalenummerLabel} verdi={avtalenummer} />
-          {sakarkivNummer ? (
-            <Metadata header={avtaletekster.sakarkivNummerLabel} verdi={sakarkivNummer} />
-          ) : null}
-        </Bolk>
-
+        <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
         <Separator />
-
-        <Bolk aria-label={avtaletekster.tiltakstypeLabel}>
-          <Metadata
-            header={avtaletekster.tiltakstypeLabel}
-            verdi={<Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>}
+        {enableTilsagn ? (
+          <PrismodellDetaljer avtale={avtale} />
+        ) : (
+          <Definisjonsliste
+            title={avtaletekster.avtaltPrisLabel}
+            definitions={[
+              {
+                key: avtaletekster.prisOgBetalingLabel,
+                value: avtale.prisbetingelser ?? "-",
+              },
+            ]}
           />
-          <Metadata header={avtaletekster.avtaletypeLabel} verdi={avtaletypeTilTekst(avtaletype)} />
-        </Bolk>
+        )}
         <Separator />
         {amoKategorisering && (
           <>
@@ -72,186 +182,112 @@ export function AvtaleDetaljer({ avtale, okonomiTabEnabled }: Props) {
             <Separator />
           </>
         )}
-
         {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
-
-        <Heading size="small" as="h3">
-          Avtalens varighet
-        </Heading>
-
-        {avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT ? (
-          <>
-            <Bolk aria-label="Opsjonsmodell">
-              <Metadata
-                header={avtaletekster.avtaltForlengelseLabel}
-                verdi={
-                  opsjonsmodell.customOpsjonsmodellNavn ??
-                  hentOpsjonsmodell(opsjonsmodell.type)?.label
-                }
-              />
-            </Bolk>
-          </>
-        ) : null}
-
-        <Bolk aria-label="Start- og sluttdato">
-          <Metadata header={avtaletekster.startdatoLabel} verdi={formaterDato(startDato)} />
-          <Metadata
-            header={avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0)}
-            verdi={sluttDato ? formaterDato(sluttDato) : "-"}
-          />
-          {opsjonsmodell.opsjonMaksVarighet ? (
-            <Metadata
-              header={avtaletekster.maksVarighetLabel}
-              verdi={formaterDato(opsjonsmodell.opsjonMaksVarighet)}
-            />
-          ) : null}
-        </Bolk>
-
-        {avtale.opsjonerRegistrert.length > 0 ? (
-          <RegistrerteOpsjoner readOnly avtale={avtale} />
-        ) : null}
-
-        <Separator />
-
-        <VStack gap="5">
-          <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
-            {okonomiTabEnabled === false && (
-              <Metadata
-                header={avtaletekster.prisOgBetalingLabel}
-                verdi={avtale.prisbetingelser ?? "-"}
-              />
-            )}
-          </Bolk>
-
-          {administratorer ? (
-            <Bolk aria-label={avtaletekster.administratorerForAvtalenLabel}>
-              <Metadata
-                header={avtaletekster.administratorerForAvtalenLabel}
-                verdi={
-                  administratorer.length ? (
-                    <ul>
-                      {administratorer.map((admin) => {
-                        return (
-                          <li key={admin.navIdent}>
-                            <Lenke to={`${NOM_ANSATT_SIDE}${admin.navIdent}`} isExternal>
-                              {`${admin.navn} - ${admin.navIdent}`}{" "}
-                            </Lenke>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    avtaletekster.ingenAdministratorerSattLabel
-                  )
-                }
-              />
-            </Bolk>
-          ) : null}
-        </VStack>
+        <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
+        {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
       </VStack>
       <VStack>
-        {kontorstruktur.length > 1 ? (
-          <Bolk>
-            <Metadata
-              header={avtaletekster.fylkessamarbeidLabel}
-              verdi={
-                <ul>
-                  {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
-                    return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
-                  })}
-                </ul>
-              }
-            />
-          </Bolk>
-        ) : (
-          kontorstruktur.map((struktur, index) => {
-            return (
-              <Fragment key={index}>
-                <Bolk aria-label={avtaletekster.navRegionerLabel}>
-                  <Metadata header={avtaletekster.navRegionerLabel} verdi={struktur.region.navn} />
-                </Bolk>
-
-                <Bolk aria-label={avtaletekster.navEnheterLabel}>
-                  <Metadata
-                    header={avtaletekster.navEnheterLabel}
-                    verdi={
-                      <ul className="columns-2">
-                        {struktur.kontorer.map((kontor) => (
-                          <li key={kontor.enhetsnummer}>{kontor.navn}</li>
-                        ))}
-                      </ul>
-                    }
-                  />
-                </Bolk>
-              </Fragment>
-            );
-          })
+        {administratorer && (
+          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
         )}
-        {arenaAnsvarligEnhet ? (
-          <div style={{ display: "flex", gap: "1rem", margin: "0.5rem 0" }}>
-            <dl style={{ margin: "0" }}>
-              <Metadata
-                header={avtaletekster.ansvarligEnhetFraArenaLabel}
-                verdi={getDisplayName(arenaAnsvarligEnhet)}
-              />
-            </dl>
-            <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-              Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når
-              det opprettes avtale i Arena.
-            </HelpText>
-          </div>
-        ) : null}
-
         <Separator />
         {arrangor ? (
-          <VStack gap="5">
-            <Metadata
-              header={avtaletekster.tiltaksarrangorHovedenhetLabel}
-              verdi={
-                <Link to={`/arrangorer/${arrangor.id}`}>
-                  {arrangor.navn} - {arrangor.organisasjonsnummer}
-                </Link>
-              }
-            />
-
-            <Metadata
-              header={avtaletekster.tiltaksarrangorUnderenheterLabel}
-              verdi={
-                <ul>
-                  {arrangor.underenheter.map((enhet) => (
-                    <li key={enhet.organisasjonsnummer}>
-                      {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
-                    </li>
-                  ))}
-                </ul>
-              }
-            />
-          </VStack>
+          <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
         ) : (
-          <AvtaleErUtkastOgArrangorManglerMelding />
-        )}
-
-        <Separator />
-        {arrangor && arrangor.kontaktpersoner.length > 0 && (
-          <Metadata
-            header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
-            verdi={
-              <VStack>
-                {arrangor.kontaktpersoner.map((kontaktperson) => (
-                  <ArrangorKontaktpersonDetaljer
-                    key={kontaktperson.id}
-                    kontaktperson={kontaktperson}
-                  />
-                ))}
-              </VStack>
-            }
-          />
+          <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
         )}
       </VStack>
     </TwoColumnGrid>
   );
 }
 
-export const AvtaleErUtkastOgArrangorManglerMelding = () => {
-  return <Alert variant="warning">Arrangør mangler</Alert>;
-};
+export function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
+  const { data: satser = [] } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
+  return (
+    <Box>
+      <Heading level="3" size="small" spacing>
+        {avtaletekster.avtaltPrisLabel}
+      </Heading>
+      {satser.map((sats) => (
+        <HStack
+          gap="4"
+          padding="4"
+          key={sats.periodeStart}
+          className="border-bg-subtle border-1 rounded-md"
+        >
+          <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+          <Metadata header={avtaletekster.prismodell.pris.label} verdi={formaterTall(sats.pris)} />
+          <Metadata
+            header={avtaletekster.prismodell.periodeStart.label}
+            verdi={formaterDato(sats.periodeStart)}
+          />
+          <Metadata
+            header={avtaletekster.prismodell.periodeSlutt.label}
+            verdi={formaterDato(sats.periodeSlutt)}
+          />
+        </HStack>
+      ))}
+    </Box>
+  );
+}
+
+export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
+  const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
+
+  const beskrivelse =
+    prismodeller.find(({ type }) => type === avtale.prismodell)?.beskrivelse ?? avtale.prismodell;
+
+  switch (avtale.prismodell) {
+    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      return <AvtalteSatser avtale={avtale} />;
+    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
+    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+      return (
+        <Box>
+          <Heading level="3" size="small" spacing>
+            {avtaletekster.avtaltPrisLabel}
+          </Heading>
+          <VStack gap="4">
+            <Definisjonsliste
+              definitions={[{ key: avtaletekster.prismodell.label, value: beskrivelse }]}
+            />
+            {avtale.satser.map((sats) => (
+              <HStack
+                gap="4"
+                padding="4"
+                key={sats.periodeStart}
+                className="border-bg-subtle border-1 rounded-md"
+              >
+                <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+                <Metadata
+                  header={avtaletekster.prismodell.pris.label}
+                  verdi={formaterTall(sats.pris)}
+                />
+                <Metadata
+                  header={avtaletekster.prismodell.periodeStart.label}
+                  verdi={formaterDato(sats.periodeStart)}
+                />
+                <Metadata
+                  header={avtaletekster.prismodell.periodeSlutt.label}
+                  verdi={formaterDato(sats.periodeSlutt)}
+                />
+              </HStack>
+            ))}
+          </VStack>
+        </Box>
+      );
+
+    case Prismodell.ANNEN_AVTALT_PRIS:
+      return (
+        <Definisjonsliste
+          title={avtaletekster.avtaltPrisLabel}
+          definitions={[
+            {
+              key: avtaletekster.prisOgBetalingLabel,
+              value: avtale.prisbetingelser ?? "-",
+            },
+          ]}
+        />
+      );
+  }
+}

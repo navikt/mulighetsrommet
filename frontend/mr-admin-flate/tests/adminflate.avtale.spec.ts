@@ -8,34 +8,34 @@ test.beforeEach(async ({ page }) => {
 
 const fyllInnAvtale = async (page: Page) => {
   await page.locator("text=Opprett ny avtale").click();
-  const heading = page.locator("h2");
-  await test.expect(heading).toHaveText("Opprett ny avtale");
+  await expect(page.getByText("Opprett ny avtale")).toBeVisible();
   await locateAndFillInput(page, "navn", "Testavtale fra Playwright");
   await locateAndFillInput(page, "sakarkivNummer", "24/123");
   await locateAndFillComboboxFirst(page, "input#tiltakstype", "AFT");
   await page.fill('.navds-form-field:has(label:text("Startdato")) input', "01.02.2025");
   await locateAndFillComboboxFirst(page, "input#tiltakstype", "AFT");
 
-  await page.click("input#navRegioner");
-  await page.keyboard.press("Enter");
+  await page.getByRole("button", { name: "Neste" }).click();
 
-  await page.click("input#navKontorer");
-  await page.keyboard.press("Enter");
+  await page.getByRole("checkbox", { name: "Velg alle" }).check();
+  await page.locator("input#bekreft-personopplysninger").check();
+
+  await page.getByRole("button", { name: "Neste" }).click();
 };
 
 test("Opprett ny avtale AFT", async ({ page }) => {
   await fyllInnAvtale(page);
 
-  await page.click("button[type=submit]");
+  await page.locator('button:has-text("Opprett avtale")').click();
   const errorMessages = await page.locator(".navds-error-summary__list li").allTextContents();
-  expect(errorMessages).toContain("Du må ta stilling til personvern");
+  expect(errorMessages).toContain("Du må velge minst én region");
 
-  await page.locator('button:has-text("Personvern")').click();
-  await page.locator("input#NAVN").check();
+  await page.click("input#navRegioner");
+  await page.keyboard.press("Enter");
 
-  await page.locator("input#bekreft-personopplysninger").check();
-
-  await page.click("button[type=submit]");
+  await page.click("input#navKontorer");
+  await page.keyboard.press("Enter");
+  await page.locator('button:has-text("Opprett avtale")').click();
 
   const response = await page.waitForResponse(
     (response) => response.url().includes("/intern/avtaler") && response.status() === 200,
