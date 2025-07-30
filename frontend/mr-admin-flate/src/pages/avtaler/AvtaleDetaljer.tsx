@@ -93,17 +93,15 @@ export function AvtaleDetaljer({ avtale }: Props) {
       key: avtaletekster.administratorerForAvtalenLabel,
       value: administratorer?.length ? (
         <ul>
-          <VStack gap="2">
-            {administratorer.map((admin) => {
-              return (
-                <li key={admin.navIdent}>
-                  <Lenke to={`${NOM_ANSATT_SIDE}${admin.navIdent}`} isExternal>
-                    {`${admin.navn} - ${admin.navIdent}`}{" "}
-                  </Lenke>
-                </li>
-              );
-            })}
-          </VStack>
+          {administratorer.map((admin) => {
+            return (
+              <li key={admin.navIdent}>
+                <Lenke to={`${NOM_ANSATT_SIDE}${admin.navIdent}`} isExternal>
+                  {`${admin.navn} - ${admin.navIdent}`}{" "}
+                </Lenke>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         avtaletekster.ingenAdministratorerSattLabel
@@ -138,13 +136,11 @@ export function AvtaleDetaljer({ avtale }: Props) {
       key: avtaletekster.tiltaksarrangorUnderenheterLabel,
       value: (
         <ul>
-          <VStack gap="2">
-            {arrangor?.underenheter.map((enhet) => (
-              <li key={enhet.organisasjonsnummer}>
-                {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
-              </li>
-            ))}
-          </VStack>
+          {arrangor?.underenheter.map((enhet) => (
+            <li key={enhet.organisasjonsnummer}>
+              {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
+            </li>
+          ))}
         </ul>
       ),
     },

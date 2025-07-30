@@ -5,15 +5,13 @@ const mockAvtaleId = "d1f163b7-1a41-4547-af16-03fd4492b7ba";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
-  await page.goto(`/avtaler/${mockAvtaleId}/gjennomforinger`);
+  await page.goto(`/avtaler/${mockAvtaleId}`);
 });
 
 const fyllInnGjennomforing = async (page: Page) => {
+  await page.getByTestId("gjennomforinger-tab").click();
   await page.locator("text=Opprett ny gjennomføring").click();
   await locateAndFillInput(page, "antallPlasser", "20");
-
-  await page.click("input#navRegioner");
-  await page.keyboard.press("Enter");
 
   await page.click("input#arrangorId");
   await page.keyboard.press("Enter");
@@ -25,6 +23,9 @@ const fyllInnGjennomforing = async (page: Page) => {
 
   await page.click('div[role="textbox"]');
   await page.keyboard.insertText("dette er en test");
+
+  await page.click("input#navRegioner");
+  await page.keyboard.press("Enter");
 
   await page.click("button[type=submit]");
 

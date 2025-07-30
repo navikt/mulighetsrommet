@@ -40,7 +40,7 @@ export function AvtalePage() {
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   return (
-    <>
+    <div data-testid="avtale_info-container">
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
@@ -70,6 +70,7 @@ export function AvtalePage() {
             label="Gjennomføringer"
             onClick={() => setActiveTab("gjennomforinger")}
             aria-controls="panel"
+            data-testid="gjennomforinger-tab"
           />
         </Tabs.List>
         <ContentBox>
@@ -123,6 +124,6 @@ export function AvtalePage() {
           </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
-    </>
+    </div>
   );
 }
