@@ -69,7 +69,6 @@ export function AvtalePage() {
             value="gjennomforinger"
             label="Gjennomføringer"
             onClick={() => setActiveTab("gjennomforinger")}
-            aria-controls="panel"
             data-testid="gjennomforinger-tab"
           />
         </Tabs.List>
