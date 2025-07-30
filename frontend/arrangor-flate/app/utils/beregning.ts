@@ -10,11 +10,13 @@ export function getBeregningDetaljer(beregning: ArrFlateBeregning): Definition[]
     case "PRIS_PER_MANEDSVERK":
       return [
         { key: "Antall månedsverk", value: String(beregning.antallManedsverk) },
+        { key: "Sats", value: formaterNOK(beregning.sats) },
         { key: "Beløp", value: formaterNOK(beregning.belop) },
       ];
     case "PRIS_PER_UKESVERK":
       return [
         { key: "Antall ukesverk", value: String(beregning.antallUkesverk) },
+        { key: "Sats", value: formaterNOK(beregning.sats) },
         { key: "Beløp", value: formaterNOK(beregning.belop) },
       ];
   }

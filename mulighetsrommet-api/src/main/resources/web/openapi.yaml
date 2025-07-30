@@ -5156,14 +5156,6 @@ components:
         - navn
         - slettet
 
-    ArrFlateBeregning:
-      type: object
-      oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningFri"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
-
     ArrFlateBeregningDeltakelse:
       type: object
       oneOf:
@@ -5252,6 +5244,14 @@ components:
           $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
       required: [type, id, periode, faktor]
 
+    ArrFlateBeregning:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/ArrFlateBeregningFri"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
+
     ArrFlateBeregningFri:
       type: object
       properties:
@@ -5284,9 +5284,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingStengtPeriode"
+        sats:
+          type: integer
         antallManedsverk:
           type: number
-      required: [type, belop, digest, deltakelser, stengt, antallManedsverk]
+      required: [type, sats, belop, digest, deltakelser, stengt, antallManedsverk]
 
     ArrFlateBeregningPrisPerManedsverk:
       type: object
@@ -5305,9 +5307,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingStengtPeriode"
+        sats:
+          type: integer
         antallManedsverk:
           type: number
-      required: [type, belop, digest, deltakelser, stengt, antallManedsverk]
+      required: [type, sats, belop, digest, deltakelser, stengt, antallManedsverk]
 
     ArrFlateBeregningPrisPerUkesverk:
       type: object
@@ -5326,9 +5330,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingStengtPeriode"
+        sats:
+          type: integer
         antallUkesverk:
           type: number
-      required: [type, belop, digest, deltakelser, stengt, antallUkesverk]
+      required: [type, sats, belop, digest, deltakelser, stengt, antallUkesverk]
 
     UtbetalingBeregningType:
       type: string

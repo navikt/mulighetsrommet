@@ -89,6 +89,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 ),
             ),
             antallManedsverk = 1.0,
+            sats = 34,
         ),
         betalingsinformasjon = Utbetaling.Betalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),

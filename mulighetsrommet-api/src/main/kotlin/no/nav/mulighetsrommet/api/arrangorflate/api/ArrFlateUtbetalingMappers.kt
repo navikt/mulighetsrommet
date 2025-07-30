@@ -50,6 +50,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
+                sats = beregning.input.sats,
             )
         }
 
@@ -60,6 +61,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
+                sats = beregning.input.sats,
             )
         }
 
@@ -70,6 +72,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
                 deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallUkesverk = totalFaktor,
+                sats = beregning.input.sats,
             )
         }
     }

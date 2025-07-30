@@ -61,7 +61,7 @@ const baseColumns: Column<ArrFlateBeregningDeltakelse>[] = [
             <ExclamationmarkTriangleIcon fontSize="1.5rem" />
           </Tooltip>
         )}
-        {d.person?.navn}
+        {d.person?.navn ?? "-"}
       </HStack>
     ),
   },
@@ -108,7 +108,7 @@ const columns: {
   ],
   PRIS_PER_UKESVERK: [
     ...baseColumns,
-    { label: "Månedsverk", align: "right", render: (d) => d.faktor },
+    { label: "Ukesverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
   FRI: [...baseColumns, { label: "", render: () => null }],
