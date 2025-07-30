@@ -1,11 +1,6 @@
 import { Alert, BodyLong, Heading, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import {
-  EmbeddedTiltakstype,
-  NavEnhetDto,
-  NavEnhetType,
-  VeilederflateTiltakstype,
-} from "@mr/api-client-v2";
+import { EmbeddedTiltakstype, NavEnhetDto, VeilederflateTiltakstype } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
@@ -19,10 +14,7 @@ import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/R
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import {
-  getLokaleUnderenheterAsSelectOptions,
-  getAndreUnderenheterAsSelectOptions,
-} from "@/api/enhet/helpers";
+import { getLokaleUnderenheterAsSelectOptions } from "@/api/enhet/helpers";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { MultiValue } from "react-select";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
@@ -31,19 +23,42 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
+  regionerOptions: kontorOption[];
+  kontorerOptions: kontorOption[];
+  andreEnheterOptions: kontorOption[];
 }
 
-export function RedaksjoneltInnholdForm({ tiltakstype }: RedaksjoneltInnholdFormProps) {
+export type kontorOption = {
+  value: string;
+  label: string;
+};
+
+export function RedaksjoneltInnholdForm({
+  tiltakstype,
+  kontorerOptions,
+  regionerOptions,
+  andreEnheterOptions,
+}: RedaksjoneltInnholdFormProps) {
   return (
     <InlineErrorBoundary>
       <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-        <RedaksjoneltInnhold tiltakstype={tiltakstype} />
+        <RedaksjoneltInnhold
+          tiltakstype={tiltakstype}
+          regionerOptions={regionerOptions}
+          kontorerOptions={kontorerOptions}
+          andreEnheterOptions={andreEnheterOptions}
+        />
       </React.Suspense>
     </InlineErrorBoundary>
   );
 }
 
-function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype }) {
+function RedaksjoneltInnhold({
+  tiltakstype,
+  regionerOptions,
+  kontorerOptions,
+  andreEnheterOptions,
+}: RedaksjoneltInnholdFormProps) {
   const { register } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
@@ -139,7 +154,11 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
         </Tabs>
       </RedaksjoneltInnholdContainer>
 
-      <RegionerOgEnheter />
+      <RegionerOgEnheter
+        regionerOptions={regionerOptions}
+        kontorerOptions={kontorerOptions}
+        andreEnheterOptions={andreEnheterOptions}
+      />
     </TwoColumnGrid>
   );
 }
@@ -290,16 +309,17 @@ function velgAlleLokaleUnderenheter(
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
-function RegionerOgEnheter() {
+function RegionerOgEnheter({
+  regionerOptions,
+  kontorerOptions,
+  andreEnheterOptions,
+}: {
+  regionerOptions: kontorOption[];
+  kontorerOptions: kontorOption[];
+  andreEnheterOptions: kontorOption[];
+}) {
   const { register, setValue, watch } = useFormContext();
   const { data: enheter } = useNavEnheter();
-
-  const navRegionerOptions = enheter
-    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-    .map((enhet) => ({
-      value: enhet.enhetsnummer,
-      label: enhet.navn,
-    }));
 
   return (
     <>
@@ -326,7 +346,7 @@ function RegionerOgEnheter() {
               setValue("navKontorer", navKontorer as [string, ...string[]]);
             }
           }}
-          options={navRegionerOptions}
+          options={regionerOptions}
         />
         <ControlledMultiSelect
           inputId={"navKontorer"}
@@ -336,7 +356,7 @@ function RegionerOgEnheter() {
           label={avtaletekster.navEnheterLabel}
           helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
           {...register("navKontorer")}
-          options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
+          options={kontorerOptions}
         />
         <ControlledMultiSelect
           inputId={"navAndreEnheter"}
@@ -346,7 +366,7 @@ function RegionerOgEnheter() {
           label={avtaletekster.navAndreEnheterLabel}
           helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
           {...register("navAndreEnheter")}
-          options={getAndreUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
+          options={andreEnheterOptions}
         />
       </VStack>
     </>

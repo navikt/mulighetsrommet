@@ -1,16 +1,22 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { AvtaleDto } from "@mr/api-client-v2";
+import { AvtaleDto, NavEnhetType } from "@mr/api-client-v2";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { AvtaleListe } from "./AvtaleListe";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import {
+  getLokaleUnderenheterAsSelectOptions,
+  getAndreUnderenheterAsSelectOptions,
+} from "@/api/enhet/helpers";
 
 export function AvtaleRedaksjoneltInnholdForm() {
   const [key, setKey] = useState(0);
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
+  const { data: enheter } = useNavEnheter();
 
   const { setValue, watch } = useFormContext<AvtaleFormValues>();
   const tiltakstype = watch("tiltakstype");
@@ -26,6 +32,22 @@ export function AvtaleRedaksjoneltInnholdForm() {
     );
   }
 
+  const regionerOptions = enheter
+    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
+    .map((enhet) => ({
+      value: enhet.enhetsnummer,
+      label: enhet.navn,
+    }));
+
+  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(
+    watch("navRegioner") ?? [],
+    enheter,
+  );
+  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(
+    watch("navRegioner") ?? [],
+    enheter,
+  );
+
   return (
     <>
       <HStack>
@@ -39,7 +61,13 @@ export function AvtaleRedaksjoneltInnholdForm() {
           Kopier redaksjonelt innhold fra avtale
         </Button>
       </HStack>
-      <RedaksjoneltInnholdForm key={`redaksjonelt-innhold-${key}`} tiltakstype={tiltakstype} />
+      <RedaksjoneltInnholdForm
+        key={`redaksjonelt-innhold-${key}`}
+        tiltakstype={tiltakstype}
+        regionerOptions={regionerOptions}
+        kontorerOptions={kontorEnheterOptions}
+        andreEnheterOptions={andreEnheterOptions}
+      />
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} aria-label="modal">
         <Modal.Header closeButton>
           <Heading size="medium">Kopier redaksjonelt innhold fra avtale</Heading>
