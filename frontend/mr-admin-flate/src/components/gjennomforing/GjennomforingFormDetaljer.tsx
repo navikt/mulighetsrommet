@@ -13,7 +13,6 @@ import {
   GjennomforingDto,
   GjennomforingKontaktperson,
   GjennomforingOppstartstype,
-  NavEnhetDto,
   Tiltakskode,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -40,17 +39,15 @@ import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdann
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { velgAlleLokaleUnderenheter, splitNavEnheterByType } from "@/api/enhet/helpers";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
   avtale: AvtaleDto;
-  enheter: NavEnhetDto[];
 }
 
-export function GjennomforingFormDetaljer({ gjennomforing, avtale, enheter }: Props) {
+export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   const { data: administratorer } = useGjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
 
