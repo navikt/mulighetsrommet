@@ -41,7 +41,6 @@ function getDeltakerSelector(
 
 interface Column<T> {
   label: string;
-  key: string;
   sortable?: boolean;
   sortKey?: DeltakerSortKey;
   headerCell?: boolean;
@@ -51,7 +50,6 @@ interface Column<T> {
 
 const baseColumns: Column<ArrFlateBeregningDeltakelse>[] = [
   {
-    key: "1",
     label: "Navn",
     sortable: true,
     sortKey: DeltakerSortKey.PERSON_NAVN,
@@ -67,21 +65,15 @@ const baseColumns: Column<ArrFlateBeregningDeltakelse>[] = [
       </HStack>
     ),
   },
-  { key: "2", label: "Fødselsdato", render: (d) => formaterDato(d.person?.foedselsdato, "-") },
+  { label: "Fødselsdato", render: (d) => formaterDato(d.person?.foedselsdato, "-") },
+  { label: "Startdato i tiltaket", render: (d) => formaterDato(d.deltakerStartDato, "-") },
   {
-    key: "3",
-    label: "Startdato i tiltaket",
-    render: (d) => formaterDato(d.deltakerStartDato, "-"),
-  },
-  {
-    key: "4",
     label: "Startdato i perioden",
     sortable: true,
     sortKey: DeltakerSortKey.PERIODE_START,
     render: (d) => formaterPeriodeStart(d.periode),
   },
   {
-    key: "5",
     label: "Sluttdato i perioden",
     sortable: true,
     sortKey: DeltakerSortKey.PERIODE_SLUTT,
@@ -102,25 +94,24 @@ const columns: {
   PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER: [
     ...baseColumns,
     {
-      key: "6",
       label: "Deltakelsesprosent",
       align: "right",
       render: (d) => d.perioderMedDeltakelsesmengde.at(-1)?.deltakelsesprosent,
     },
-    { key: "7", label: "Månedsverk", align: "right", render: (d) => d.faktor },
-    { key: "8", label: "", render: () => null },
+    { label: "Månedsverk", align: "right", render: (d) => d.faktor },
+    { label: "", render: () => null },
   ],
   PRIS_PER_MANEDSVERK: [
     ...baseColumns,
-    { key: "7", label: "Månedsverk", align: "right", render: (d) => d.faktor },
-    { key: "8", label: "", render: () => null },
+    { label: "Månedsverk", align: "right", render: (d) => d.faktor },
+    { label: "", render: () => null },
   ],
   PRIS_PER_UKESVERK: [
     ...baseColumns,
-    { key: "7", label: "Månedsverk", align: "right", render: (d) => d.faktor },
-    { key: "8", label: "", render: () => null },
+    { label: "Månedsverk", align: "right", render: (d) => d.faktor },
+    { label: "", render: () => null },
   ],
-  FRI: [...baseColumns, { key: "8", label: "", render: () => null }],
+  FRI: [...baseColumns, { label: "", render: () => null }],
 };
 
 export function DeltakelserTable({
@@ -162,9 +153,9 @@ export function DeltakelserTable({
       <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey as DeltakerSortKey)}>
         <Table.Header>
           <Table.Row>
-            {columns[beregning.type].map((col) => (
+            {columns[beregning.type].map((col, index) => (
               <Table.ColumnHeader
-                key={col.key}
+                key={index}
                 scope="col"
                 sortable={col.sortable}
                 sortKey={col.sortKey}
