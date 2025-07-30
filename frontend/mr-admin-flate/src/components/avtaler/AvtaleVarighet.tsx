@@ -38,6 +38,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
   );
 
   const watchedAvtaletype = watch("avtaletype");
+  const watchedMaksVarighet = watch("opsjonsmodell.opsjonMaksVarighet");
   const forhandsgodkjent = watchedAvtaletype === Avtaletype.FORHANDSGODKJENT;
   const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(watchedAvtaletype);
 
@@ -64,10 +65,6 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
       }
     }
   }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
-
-  if (!watchedAvtaletype) {
-    return null;
-  }
 
   return (
     <>
@@ -135,16 +132,18 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
             invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${MAKS_AAR_FOR_AVTALER} år`}
             control={control}
           />
-          <ControlledDateInput
-            size="small"
-            label={avtaletekster.maksVarighetLabel}
-            readOnly={readonly}
-            fromDate={sluttDatoFraDato}
-            toDate={sluttDatoTilDato}
-            {...register("opsjonsmodell.opsjonMaksVarighet")}
-            format={"iso-string"}
-            control={control}
-          />
+          {watchedMaksVarighet && (
+            <ControlledDateInput
+              size="small"
+              label={avtaletekster.maksVarighetLabel}
+              readOnly={readonly}
+              fromDate={sluttDatoFraDato}
+              toDate={sluttDatoTilDato}
+              {...register("opsjonsmodell.opsjonMaksVarighet")}
+              format={"iso-string"}
+              control={control}
+            />
+          )}
         </HGrid>
       ) : (
         <HGrid columns={3} gap="10">

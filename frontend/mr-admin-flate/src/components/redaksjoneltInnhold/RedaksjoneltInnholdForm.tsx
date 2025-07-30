@@ -2,7 +2,7 @@ import { Alert, BodyLong, Heading, Tabs, Textarea, VStack } from "@navikt/ds-rea
 import { PortableText } from "@portabletext/react";
 import {
   EmbeddedTiltakstype,
-  NavEnhet,
+  NavEnhetDto,
   NavEnhetType,
   VeilederflateTiltakstype,
 } from "@mr/api-client-v2";
@@ -284,7 +284,7 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
 
 function velgAlleLokaleUnderenheter(
   selectedOptions: MultiValue<SelectOption<string>>,
-  enheter: NavEnhet[],
+  enheter: NavEnhetDto[],
 ): string[] {
   const regioner = selectedOptions?.map((option) => option.value);
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);

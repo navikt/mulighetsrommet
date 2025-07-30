@@ -177,7 +177,7 @@ export function NewAvtaleFormPage() {
       if (result.success) {
         onSubmit(result.data);
       } else
-        result.error.errors.forEach((err) => {
+        result.error.issues.forEach((err) => {
           methods.setError(err.path.join("."), {
             type: "manual",
             message: err.message,

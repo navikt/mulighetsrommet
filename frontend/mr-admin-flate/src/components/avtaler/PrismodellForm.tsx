@@ -2,12 +2,12 @@ import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { memo } from "react";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { formaterDato } from "@/utils/Utils";
 import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
 import { XMarkIcon, PlusIcon } from "@navikt/aksel-icons";
 import { VStack, Box, HStack, TextField, Select, Button, Textarea } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   tiltakskode: Tiltakskode;

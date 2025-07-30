@@ -1,7 +1,7 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, Faneinnhold, NavKontorStruktur } from "@mr/api-client-v2";
+import { EmbeddedTiltakstype, Faneinnhold, Kontorstruktur } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import React, { Fragment } from "react";
 import { Laster } from "../laster/Laster";
@@ -16,7 +16,7 @@ interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
   beskrivelse?: string;
   faneinnhold?: Faneinnhold;
-  kontorstruktur: NavKontorStruktur;
+  kontorstruktur: Kontorstruktur;
 }
 
 export function RedaksjoneltInnholdPreview(props: RedaksjoneltInnholdPreviewProps) {
