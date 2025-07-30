@@ -2,14 +2,14 @@ import { List } from "@navikt/ds-react";
 import { Bransje } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { bransjeToString } from "../../utils/Utils";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 import { ForerkortForm } from "./ForerkortForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 export function AvtaleBransjeForm() {
-  const { register } = useFormContext<InferredAvtaleSchema>();
+  const { register } = useFormContext<AvtaleFormValues>();
 
   return (
     <>
@@ -62,9 +62,9 @@ export function AvtaleBransjeForm() {
           },
         ]}
       />
-      <ForerkortForm<InferredAvtaleSchema> path="amoKategorisering.forerkort" />
-      <SertifiseringerSkjema<InferredAvtaleSchema> path="amoKategorisering.sertifiseringer" />
-      <InnholdElementerForm<InferredAvtaleSchema> path={"amoKategorisering.innholdElementer"} />
+      <ForerkortForm<AvtaleFormValues> path="amoKategorisering.forerkort" />
+      <SertifiseringerSkjema<AvtaleFormValues> path="amoKategorisering.sertifiseringer" />
+      <InnholdElementerForm<AvtaleFormValues> path={"amoKategorisering.innholdElementer"} />
     </>
   );
 }

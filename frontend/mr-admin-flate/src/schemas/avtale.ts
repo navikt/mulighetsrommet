@@ -14,7 +14,7 @@ import { DeepPartial } from "react-hook-form";
 
 export const RedaksjoneltInnholdSchema = z.object({
   beskrivelse: z
-    .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
+    .string({ error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
     .nullable(),
   faneinnhold: FaneinnholdSchema.nullable(),
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
@@ -23,15 +23,15 @@ export const RedaksjoneltInnholdSchema = z.object({
 });
 
 export const PersonopplysningerSchema = z.object({
-  personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
-  personopplysninger: z.nativeEnum(Personopplysning).array(),
+  personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
+  personopplysninger: z.enum(Personopplysning).array(),
 });
 
 export const avtaleFormSchema = avtaleDetaljerSchema
-  .merge(arrangorSchema)
-  .merge(okonomiSchema)
-  .merge(PersonopplysningerSchema)
-  .merge(RedaksjoneltInnholdSchema)
+  .extend(arrangorSchema.shape)
+  .extend(okonomiSchema.shape)
+  .extend(PersonopplysningerSchema.shape)
+  .extend(RedaksjoneltInnholdSchema.shape)
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);

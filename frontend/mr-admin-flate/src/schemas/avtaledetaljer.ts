@@ -15,21 +15,21 @@ export const avtaleDetaljerSchema = z.object({
   tiltakstype: z.object(
     {
       navn: z.string(),
-      tiltakskode: z.nativeEnum(Tiltakskode),
+      tiltakskode: z.enum(Tiltakskode),
       id: z.string(),
     },
-    { required_error: "Du må velge en tiltakstype" },
+    { error: "Du må velge en tiltakstype" },
   ),
-  avtaletype: z.nativeEnum(Avtaletype, {
-    required_error: "Du må velge en avtaletype",
+  avtaletype: z.enum(Avtaletype, {
+    error: "Du må velge en avtaletype",
   }),
   startDato: z
-    .string({ required_error: "Du må legge inn startdato for avtalen" })
+    .string({ error: "Du må legge inn startdato for avtalen" })
     .min(10, "Du må legge inn startdato for avtalen"),
   sluttDato: z.string().nullable(),
   opsjonsmodell: z.object({
-    type: z.nativeEnum(OpsjonsmodellType, {
-      required_error: "Du må velge avtalt mulighet for forlengelse",
+    type: z.enum(OpsjonsmodellType, {
+      error: "Du må velge avtalt mulighet for forlengelse",
     }),
     opsjonMaksVarighet: z.string().optional().nullable(),
     customOpsjonsmodellNavn: z.string().optional().nullable(),
@@ -54,13 +54,13 @@ export const avtaleDetaljerSchema = z.object({
 export const arrangorSchema = z.object({
   arrangorHovedenhet: z.string().optional(),
   arrangorUnderenheter: z.array(z.string()).optional(),
-  arrangorKontaktpersoner: z.string().uuid().array().optional(),
+  arrangorKontaktpersoner: z.uuid().array().optional(),
 });
 
 export const validateArrangor = (ctx: z.RefinementCtx, data: z.infer<typeof arrangorSchema>) => {
   if (!data.arrangorHovedenhet && data.arrangorUnderenheter?.length) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "Underenheter kan bare være tom dersom hovedenhet er tom",
       path: ["arrangorUnderenheter"],
     });
@@ -76,7 +76,7 @@ export const validateAvtaledetaljer = (
     !data.sakarkivNummer
   ) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "Du må skrive inn saksnummer til avtalesaken",
       path: ["sakarkivNummer"],
     });
@@ -84,7 +84,7 @@ export const validateAvtaledetaljer = (
   if (data.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
     if (!data.opsjonsmodell.type) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "Du må velge avtalt mulighet for forlengelse",
         path: ["opsjonsmodell.type"],
       });
@@ -94,7 +94,7 @@ export const validateAvtaledetaljer = (
       !data.opsjonsmodell.customOpsjonsmodellNavn
     ) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "Du må gi oppsjonsmodellen et navn",
         path: ["opsjonsmodell.customOpsjonsmodellNavn"],
       });
@@ -102,7 +102,7 @@ export const validateAvtaledetaljer = (
   }
   if (data.sluttDato && data.startDato >= data.sluttDato) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "Startdato må være før sluttdato",
       path: ["startDato"],
     });
@@ -112,7 +112,7 @@ export const validateAvtaledetaljer = (
     !data.amoKategorisering
   ) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "Du må velge en kurstype",
       path: ["amoKategorisering.kurstype"],
     });
@@ -120,8 +120,8 @@ export const validateAvtaledetaljer = (
 };
 
 export const avtaleDetaljerFormSchema = avtaleDetaljerSchema
-  .merge(arrangorSchema)
-  .merge(okonomiSchema)
+  .extend(arrangorSchema.shape)
+  .extend(okonomiSchema.shape)
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);

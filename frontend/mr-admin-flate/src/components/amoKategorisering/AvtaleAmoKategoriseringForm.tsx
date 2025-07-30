@@ -2,18 +2,18 @@ import { HGrid, Select } from "@navikt/ds-react";
 import { Kurstype } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { kurstypeToString } from "@/utils/Utils";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { AvtaleBransjeForm } from "./AvtaleBransjeForm";
 import { NorksopplaeringForm } from "./NorskopplaeringForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 export function AvtaleAmoKategoriseringForm() {
   const {
     setValue,
     watch,
     formState: { errors },
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<AvtaleFormValues>();
 
   const amoKategorisering = watch("amoKategorisering");
 
@@ -47,13 +47,13 @@ export function AvtaleAmoKategoriseringForm() {
       </Select>
       {amoKategorisering?.kurstype === Kurstype.BRANSJE_OG_YRKESRETTET && <AvtaleBransjeForm />}
       {amoKategorisering?.kurstype === Kurstype.NORSKOPPLAERING && (
-        <NorksopplaeringForm<InferredAvtaleSchema>
+        <NorksopplaeringForm<AvtaleFormValues>
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
         />
       )}
       {amoKategorisering?.kurstype === Kurstype.GRUNNLEGGENDE_FERDIGHETER && (
-        <InnholdElementerForm<InferredAvtaleSchema> path="amoKategorisering.innholdElementer" />
+        <InnholdElementerForm<AvtaleFormValues> path="amoKategorisering.innholdElementer" />
       )}
     </HGrid>
   );
