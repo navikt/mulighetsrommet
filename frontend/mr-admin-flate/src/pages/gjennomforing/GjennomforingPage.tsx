@@ -137,7 +137,7 @@ export function GjennomforingPage() {
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
           <ContentBox>
             <WhitePaddedBox>
-              <Tabs.Panel value={currentTab}>
+              <Tabs.Panel value={currentTab} data-testid="gjennomforing_info-container">
                 <Outlet />
               </Tabs.Panel>
             </WhitePaddedBox>
