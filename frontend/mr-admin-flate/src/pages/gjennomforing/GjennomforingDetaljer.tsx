@@ -71,7 +71,7 @@ export function GjennomforingDetaljer() {
   } = gjennomforing;
 
   return (
-    <GjennomforingPageLayout>
+    <GjennomforingPageLayout data-testid="gjennomforing_info-container">
       <TwoColumnGrid separator>
         <VStack justify={"space-between"}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
