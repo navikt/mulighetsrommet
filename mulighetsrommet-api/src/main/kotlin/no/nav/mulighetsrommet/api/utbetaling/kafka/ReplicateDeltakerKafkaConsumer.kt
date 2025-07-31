@@ -33,18 +33,22 @@ class ReplicateDeltakerKafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         val deltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
 
+        val gjennomforingId: UUID?
         when {
             deltaker == null -> {
+                gjennomforingId = queries.deltaker.get(key)?.gjennomforingId
                 logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
                 queries.deltaker.delete(key)
             }
 
             deltaker.status.type == DeltakerStatusType.FEILREGISTRERT -> {
+                gjennomforingId = deltaker.gjennomforingId
                 logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
                 queries.deltaker.delete(key)
             }
 
             else -> {
+                gjennomforingId = deltaker.gjennomforingId
                 val prismodell = queries.gjennomforing.getPrismodell(deltaker.gjennomforingId)
 
                 logger.info("Lagrer deltaker deltakerId=$key")
@@ -52,10 +56,11 @@ class ReplicateDeltakerKafkaConsumer(
 
                 if (prismodell != null && isRelevantForUtbetaling(deltaker, prismodell)) {
                     queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
-
-                    scheduleOppdateringAvUtbetaling(deltaker.gjennomforingId)
                 }
             }
+        }
+        if (gjennomforingId != null) {
+            scheduleOppdateringAvUtbetaling(gjennomforingId)
         }
     }
 
