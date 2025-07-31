@@ -354,7 +354,6 @@ val ApplicationConfigProd = AppConfig(
             cronPattern = "0 55 23 * * *",
         ),
         generateUtbetaling = GenerateUtbetaling.Config(
-            disabled = true,
             cronPattern = "0 0 5 7 * *",
         ),
     ),
