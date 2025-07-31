@@ -15,7 +15,6 @@ import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
-import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
@@ -139,10 +138,6 @@ const routes: RouteObject[] = [
         element: <GjennomforingPage />,
         errorElement: <ErrorPage />,
         children: [
-          {
-            index: true,
-            element: <GjennomforingInfo />,
-          },
           {
             path: "deltakerliste/*",
             element: <DeltakerlisteContainer />,

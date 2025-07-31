@@ -16,16 +16,18 @@ import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/Gj
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useAtom } from "jotai";
 import { DeltakerlisteContainer } from "./deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingPage } from "./tilsagn/TilsagnForGjennomforingPage";
 import { UtbetalingerForGjennomforingContainer } from "./utbetaling/UtbetalingerForGjennomforingContainer";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
 
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
@@ -115,34 +117,28 @@ export function GjennomforingPage() {
           <ContentBox>
             <WhitePaddedBox>
               <Tabs.Panel value="detaljer" data-testid="gjennomforing_info-container">
-                <InlineErrorBoundary>
-                  <GjennomforingDetaljer />
-                </InlineErrorBoundary>
+                <GjennomforingPageLayout>
+                  <GjennomforingDetaljer avtale={avtale} gjennomforing={gjennomforing} />
+                </GjennomforingPageLayout>
               </Tabs.Panel>
               <Tabs.Panel value="redaksjonelt-innhold">
-                <InlineErrorBoundary>
+                <GjennomforingPageLayout>
                   <RedaksjoneltInnholdPreview
                     tiltakstype={gjennomforing.tiltakstype}
                     beskrivelse={gjennomforing.beskrivelse}
                     faneinnhold={gjennomforing.faneinnhold}
                     kontorstruktur={gjennomforing.kontorstruktur}
                   />
-                </InlineErrorBoundary>
+                </GjennomforingPageLayout>
               </Tabs.Panel>
               <Tabs.Panel value="tilsagn">
-                <InlineErrorBoundary>
-                  <TilsagnForGjennomforingPage />
-                </InlineErrorBoundary>
+                <TilsagnForGjennomforingPage />
               </Tabs.Panel>
               <Tabs.Panel value="utbetalinger">
-                <InlineErrorBoundary>
-                  <UtbetalingerForGjennomforingContainer />
-                </InlineErrorBoundary>
+                <UtbetalingerForGjennomforingContainer />
               </Tabs.Panel>
               <Tabs.Panel value="deltakerliste">
-                <InlineErrorBoundary>
-                  <DeltakerlisteContainer />
-                </InlineErrorBoundary>
+                <DeltakerlisteContainer />
               </Tabs.Panel>
             </WhitePaddedBox>
           </ContentBox>
