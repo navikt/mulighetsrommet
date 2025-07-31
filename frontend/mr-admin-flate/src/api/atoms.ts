@@ -9,7 +9,9 @@ export function createSorteringProps<T>(sortItems: T) {
   });
 }
 
-export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
+export const gjennomforingDetaljerTabAtom = atom<
+  "tilsagn" | "deltakerliste" | "utbetalinger" | "detaljer" | "redaksjonelt-innhold"
+>("detaljer");
 
 export const avtaleDetaljerTabAtom = atom<
   "detaljer" | "personvern" | "redaksjonelt-innhold" | "gjennomforinger"
