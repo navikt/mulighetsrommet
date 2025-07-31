@@ -14,22 +14,29 @@ import React from "react";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/GjennomforingStatusMedAarsakTag";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
-import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
-import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useAtom } from "jotai";
-import { DeltakerlisteContainer } from "./deltakerliste/DeltakerlisteContainer";
-import { TilsagnForGjennomforingPage } from "./tilsagn/TilsagnForGjennomforingPage";
-import { UtbetalingerForGjennomforingContainer } from "./utbetaling/UtbetalingerForGjennomforingContainer";
-import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
-import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
+import { Outlet, useLocation } from "react-router";
+import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 
+function getCurrentTab(pathname: string) {
+  if (pathname.includes("tilsagn")) {
+    return "tilsagn";
+  } else if (pathname.includes("redaksjonelt-innhold")) {
+    return "redaksjonelt-innhold";
+  } else if (pathname.includes("deltakerliste")) {
+    return "deltakerliste";
+  } else if (pathname.includes("utbetalinger")) {
+    return "utbetalinger";
+  } else {
+    return "detaljer";
+  }
+}
 export function GjennomforingPage() {
+  const { pathname } = useLocation();
+  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
+  const currentTab = getCurrentTab(pathname);
+
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
-  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-
-  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const { data: enableTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
@@ -48,12 +55,12 @@ export function GjennomforingPage() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: activeTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
+      lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
-    activeTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
-    activeTab === "redaksjonelt-innhold" ? { tittel: "Redaksjonelt innhold" } : undefined,
-    activeTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
-    activeTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
+    currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
+    currentTab === "redaksjonelt-innhold" ? { tittel: "Redaksjonelt innhold" } : undefined,
+    currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
+    currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
 
   return (
@@ -87,58 +94,51 @@ export function GjennomforingPage() {
           )}
         </div>
       </Header>
-      <Tabs value={activeTab}>
+      <Tabs value={currentTab}>
         <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
-          <Tabs.Tab value="detaljer" label="Detaljer" onClick={() => setActiveTab("detaljer")} />
+          <Tabs.Tab
+            value="detaljer"
+            label="Detaljer"
+            onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}`)}
+          />
           <Tabs.Tab
             value="redaksjonelt-innhold"
             label="Redaksjonelt innhold"
-            onClick={() => setActiveTab("redaksjonelt-innhold")}
+            onClick={() =>
+              navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/redaksjonelt-innhold`)
+            }
           />
           {enableTilsagn ? (
-            <Tabs.Tab value="tilsagn" label="Tilsagn" onClick={() => setActiveTab("tilsagn")} />
+            <Tabs.Tab
+              value="tilsagn"
+              label="Tilsagn"
+              onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)}
+            />
           ) : null}
           {enableOkonomi ? (
             <Tabs.Tab
               value="utbetalinger"
               label="Utbetalinger"
-              onClick={() => setActiveTab("utbetalinger")}
+              onClick={() =>
+                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
+              }
             />
           ) : null}
           {gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
             <Tabs.Tab
               value="deltakerliste"
               label="Deltakerliste"
-              onClick={() => setActiveTab("deltakerliste")}
+              onClick={() =>
+                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`)
+              }
             />
           )}
         </Tabs.List>
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
           <ContentBox>
             <WhitePaddedBox>
-              <Tabs.Panel value="detaljer" data-testid="gjennomforing_info-container">
-                <GjennomforingPageLayout>
-                  <GjennomforingDetaljer avtale={avtale} gjennomforing={gjennomforing} />
-                </GjennomforingPageLayout>
-              </Tabs.Panel>
-              <Tabs.Panel value="redaksjonelt-innhold">
-                <GjennomforingPageLayout>
-                  <RedaksjoneltInnholdPreview
-                    tiltakstype={gjennomforing.tiltakstype}
-                    beskrivelse={gjennomforing.beskrivelse}
-                    faneinnhold={gjennomforing.faneinnhold}
-                    kontorstruktur={gjennomforing.kontorstruktur}
-                  />
-                </GjennomforingPageLayout>
-              </Tabs.Panel>
-              <Tabs.Panel value="tilsagn">
-                <TilsagnForGjennomforingPage />
-              </Tabs.Panel>
-              <Tabs.Panel value="utbetalinger">
-                <UtbetalingerForGjennomforingContainer />
-              </Tabs.Panel>
-              <Tabs.Panel value="deltakerliste">
-                <DeltakerlisteContainer />
+              <Tabs.Panel value={currentTab}>
+                <Outlet />
               </Tabs.Panel>
             </WhitePaddedBox>
           </ContentBox>

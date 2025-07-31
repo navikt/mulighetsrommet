@@ -32,6 +32,8 @@ import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage"
 import { NewAvtaleFormPage } from "./pages/avtaler/NewAvtaleFormPage";
 import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
+import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
+import { RedaksjoneltInnholdGjennomforing } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdGjennomforing";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -138,6 +140,14 @@ const routes: RouteObject[] = [
         element: <GjennomforingPage />,
         errorElement: <ErrorPage />,
         children: [
+          {
+            index: true,
+            element: <GjennomforingDetaljer />,
+          },
+          {
+            path: "redaksjonelt-innhold",
+            element: <RedaksjoneltInnholdGjennomforing />,
+          },
           {
             path: "deltakerliste/*",
             element: <DeltakerlisteContainer />,

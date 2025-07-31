@@ -22,7 +22,7 @@ test.describe("Utbetalinger detaljer", () => {
     page,
   }) => {
     // Wait for the utbetalinger table to load
-    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
+    await expect(page.getByTestId("utbetaling-table")).toBeVisible();
 
     // Find the row with status Til attestering
     const returnertUtbetalingRow = page
@@ -63,7 +63,7 @@ test.describe("Utbetalinger detaljer", () => {
 
   test("should navigate to utbetalinger and select a RETURNERT utbetaling", async ({ page }) => {
     // Wait for the utbetalinger table to load
-    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
+    await expect(page.getByTestId("utbetaling-table")).toBeVisible();
 
     // Find the row with status RETURNERT
     const returnertUtbetalingRow = page
@@ -103,7 +103,7 @@ test.describe("Utbetalinger detaljer", () => {
     page,
   }) => {
     // Wait for the utbetalinger table to load
-    await expect(page.getByTestId('utbetaling-table')).toBeVisible();
+    await expect(page.getByTestId("utbetaling-table")).toBeVisible();
 
     // Find the row with status Overført til utbetaling
     const returnertUtbetalingRow = page
