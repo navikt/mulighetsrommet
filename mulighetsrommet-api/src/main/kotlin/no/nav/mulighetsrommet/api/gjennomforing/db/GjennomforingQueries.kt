@@ -293,7 +293,7 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { row ->
-            row.stringOrNull("prismodell")?.let { Prismodell.valueOf(it) }
+            Prismodell.valueOf(row.string("prismodell"))
         }
     }
 

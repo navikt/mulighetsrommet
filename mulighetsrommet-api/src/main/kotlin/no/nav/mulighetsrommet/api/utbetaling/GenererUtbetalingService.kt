@@ -65,14 +65,12 @@ class GenererUtbetalingService(
             .getByGjennomforing(id)
             .filter { it.innsender == null }
             .mapNotNull { utbetaling ->
-                val oppdatertUtbetaling = when (utbetaling.beregning) {
-                    is UtbetalingBeregningFri -> return@mapNotNull null
-
-                    is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
-                    is UtbetalingBeregningPrisPerManedsverk,
-                    is UtbetalingBeregningPrisPerUkesverk,
-                    -> generateUtbetalingForPrismodell(utbetaling.id, prismodell, gjennomforing, utbetaling.periode)
-                }
+                val oppdatertUtbetaling = generateUtbetalingForPrismodell(
+                    utbetaling.id,
+                    prismodell,
+                    gjennomforing,
+                    utbetaling.periode,
+                )
 
                 if (!isUtbetalingRelevantForArrangor(oppdatertUtbetaling)) {
                     queries.utbetaling.delete(utbetaling.id)
@@ -111,7 +109,15 @@ class GenererUtbetalingService(
                 UtbetalingBeregningPrisPerUkesverk.beregn(input)
             }
 
-            Prismodell.ANNEN_AVTALT_PRIS -> return null
+            Prismodell.ANNEN_AVTALT_PRIS -> {
+                val prevUtbetaling = queries.utbetaling.get(utbetalingId) ?: return null
+                if (prevUtbetaling.beregning !is UtbetalingBeregningFri) {
+                    return null
+                }
+
+                val input = resolveFriInput(prevUtbetaling.beregning.input.belop, gjennomforing, periode)
+                UtbetalingBeregningFri.beregn(input)
+            }
         }
 
         if (beregning.output.belop == 0) {
@@ -170,6 +176,18 @@ class GenererUtbetalingService(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
+            deltakelser = deltakelser,
+        )
+    }
+
+    private fun QueryContext.resolveFriInput(
+        belop: Int,
+        gjennomforing: GjennomforingDto,
+        periode: Periode,
+    ): UtbetalingBeregningFri.Input {
+        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
+        return UtbetalingBeregningFri.Input(
+            belop = belop,
             deltakelser = deltakelser,
         )
     }
@@ -288,21 +306,15 @@ class GenererUtbetalingService(
             .toSet()
     }
 
-    private fun resolveDeltakelsePerioder(
+    private fun QueryContext.resolveDeltakelsePerioder(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelsePeriode> = db.session {
-        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-            .asSequence()
-            .filter { deltaker ->
-                isRelevantForUtbetalingsperide(deltaker, periode)
-            }
-            .map { deltaker ->
-                val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-                val overlappingPeriode = Periode(deltaker.startDato!!, sluttDatoInPeriode).intersect(periode)!!
-                DeltakelsePeriode(deltaker.id, overlappingPeriode)
-            }
-            .toSet()
+    ): Set<DeltakelsePeriode> {
+        val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
+        return resolveDeltakelsePerioder(
+            deltakere,
+            periode,
+        )
     }
 
     private fun QueryContext.logEndring(
@@ -353,4 +365,21 @@ private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDa
 
 private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo?): Boolean {
     return utbetaling != null && utbetaling.beregning.output.belop > 0
+}
+
+fun resolveDeltakelsePerioder(
+    deltakere: List<Deltaker>,
+    periode: Periode,
+): Set<DeltakelsePeriode> {
+    return deltakere
+        .asSequence()
+        .filter { deltaker ->
+            isRelevantForUtbetalingsperide(deltaker, periode)
+        }
+        .map { deltaker ->
+            val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+            val overlappingPeriode = Periode(deltaker.startDato!!, sluttDatoInPeriode).intersect(periode)!!
+            DeltakelsePeriode(deltaker.id, overlappingPeriode)
+        }
+        .toSet()
 }
