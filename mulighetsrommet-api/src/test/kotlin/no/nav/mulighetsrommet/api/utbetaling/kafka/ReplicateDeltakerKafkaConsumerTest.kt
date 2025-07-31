@@ -39,7 +39,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 
     fun createConsumer(
         period: Period = Period.ofDays(1),
-        oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(),
+        oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(relaxed = true),
     ): ReplicateDeltakerKafkaConsumer {
         return ReplicateDeltakerKafkaConsumer(
             db = database.db,
@@ -241,6 +241,46 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
+            coVerify(exactly = 1) {
+                oppdaterUtbetaling.schedule(AFT1.id, any(), any())
+            }
+        }
+
+        test("trigger at utbetaling for aktuell gjennomføring beregnes på nytt ved feilregistrert deltaker") {
+            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
+
+            deltakerConsumer.consume(
+                amtDeltaker1.id,
+                Json.encodeToJsonElement(
+                    amtDeltaker1.copy(
+                        status = DeltakerStatus(
+                            type = DeltakerStatusType.FEILREGISTRERT,
+                            aarsak = null,
+                            opprettetDato = LocalDateTime.now(),
+                        ),
+                    ),
+                ),
+            )
+            coVerify(exactly = 1) {
+                oppdaterUtbetaling.schedule(AFT1.id, any(), any())
+            }
+        }
+
+        test("trigger at utbetaling for aktuell gjennomføring beregnes på nytt ved ikke aktuell deltaker") {
+            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
+
+            deltakerConsumer.consume(
+                amtDeltaker1.id,
+                Json.encodeToJsonElement(
+                    amtDeltaker1.copy(
+                        status = DeltakerStatus(
+                            type = DeltakerStatusType.IKKE_AKTUELL,
+                            aarsak = null,
+                            opprettetDato = LocalDateTime.now(),
+                        ),
+                    ),
+                ),
+            )
             coVerify(exactly = 1) {
                 oppdaterUtbetaling.schedule(AFT1.id, any(), any())
             }
