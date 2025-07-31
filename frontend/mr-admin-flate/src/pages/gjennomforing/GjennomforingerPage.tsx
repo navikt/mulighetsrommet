@@ -39,7 +39,7 @@ export function GjennomforingerPage() {
   } = useSavedFiltersState(gjennomforingFilterStateAtom, LagretFilterType.GJENNOMFORING);
 
   return (
-    <main>
+    <>
       <title>Gjennomføringer</title>
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingIkon />} />
       <ContentBox>
@@ -89,6 +89,6 @@ export function GjennomforingerPage() {
         />
       </ContentBox>
       <TilToppenKnapp />
-    </main>
+    </>
   );
 }

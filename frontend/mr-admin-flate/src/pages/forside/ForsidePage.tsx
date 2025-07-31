@@ -4,7 +4,7 @@ import { HeroBanner } from "@/pages/forside/HeroBanner";
 
 export function ForsidePage() {
   return (
-    <main>
+    <>
       <title>Nav Tiltaksadministrasjon</title>
       <div className="bg-[var(--a-deepblue-800)] p-16 min-h-[15rem] w-full mb-6">
         <HeroBanner />
@@ -13,6 +13,6 @@ export function ForsidePage() {
         <BrukerNotifikasjoner />
         <ForsidekortListe />
       </div>
-    </main>
+    </>
   );
 }
