@@ -65,10 +65,6 @@ fun Route.delMedBrukerRoutes() {
                 throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
             }
 
-            if (request.deltFraFylke == null) {
-                throw BadRequestException("Fylke mangler for deling")
-            }
-
             val obo = AccessType.OBO(call.getAccessToken())
 
             val dialogRequest = request.run {
@@ -89,7 +85,6 @@ fun Route.delMedBrukerRoutes() {
                         sanityId = request.sanityId,
                         gjennomforingId = request.gjennomforingId,
                         tiltakstypeId = request.tiltakstypeId,
-                        deltFraFylke = request.deltFraFylke,
                         deltFraEnhet = request.deltFraEnhet,
                     )
                     delMedBrukerService.lagreDelMedBruker(dbo)
@@ -226,12 +221,11 @@ data class DelTiltakMedBrukerRequest(
     val venterPaaSvarFraBruker: Boolean,
     val fnr: NorskIdent,
     @Serializable(with = UUIDSerializer::class)
+    val tiltakstypeId: UUID,
+    @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID?,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltakstypeId: UUID,
-    val deltFraFylke: NavEnhetNummer?,
     val deltFraEnhet: NavEnhetNummer,
 )
 

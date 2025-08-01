@@ -10,14 +10,19 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import java.time.LocalDate
 import java.util.*
 
@@ -31,7 +36,13 @@ class DelMedBrukerServiceTest : FunSpec({
     }
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.db, sanityService, tiltakstypeService)
+        val service = DelMedBrukerService(database.db, sanityService, tiltakstypeService, NavEnhetService(database.db))
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+            ).initialize(database.db)
+        }
 
         test("lagrer og henter siste deling for tiltak") {
             val sanityId = UUID.randomUUID()
@@ -43,8 +54,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 gjennomforingId = null,
                 dialogId = "1234",
                 tiltakstypeId = TiltakstypeFixtures.Avklaring.id,
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
             service.lagreDelMedBruker(payload)
@@ -82,8 +92,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1234",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
             service.lagreDelMedBruker(request)
@@ -97,6 +106,10 @@ class DelMedBrukerServiceTest : FunSpec({
                 it.gjennomforingId shouldBe GjennomforingFixtures.Oppfolging1.id
                 it.sanityId shouldBe null
             }
+
+            database.assertTable("del_med_bruker").row()
+                .value("delt_fra_enhet").isEqualTo(NavEnhetFixtures.Gjovik.enhetsnummer.value)
+                .value("delt_fra_fylke").isEqualTo(NavEnhetFixtures.Innlandet.enhetsnummer.value)
         }
 
         test("Hent Del med bruker-historikk fra database og Sanity") {
@@ -162,8 +175,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1234",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
             val request2 = DelMedBrukerInsertDbo(
@@ -173,8 +185,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 gjennomforingId = null,
                 dialogId = "1235",
                 tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
             val request3 = DelMedBrukerInsertDbo(
@@ -184,8 +195,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 gjennomforingId = null,
                 dialogId = "1235",
                 tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
             service.lagreDelMedBruker(request1)

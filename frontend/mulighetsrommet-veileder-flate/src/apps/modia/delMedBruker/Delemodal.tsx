@@ -18,7 +18,6 @@ interface DelemodalProps {
   dispatch: (action: Actions) => void;
   state: State;
   veilederEnhet: string;
-  veilederFylke?: string | null;
 }
 
 function overskrift(tiltak: VeilederflateTiltak): string {
@@ -33,7 +32,6 @@ export function Delemodal({
   dispatch,
   state,
   veilederEnhet,
-  veilederFylke,
 }: DelemodalProps) {
   const mutation = useDelTiltakMedBruker({
     onSuccess: (response) => {
@@ -73,7 +71,6 @@ export function Delemodal({
       gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
       sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
       tiltakstypeId: tiltak.tiltakstype.id,
-      deltFraFylke: veilederFylke || null,
       deltFraEnhet: veilederEnhet,
     });
   };

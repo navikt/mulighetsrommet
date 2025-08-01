@@ -5,6 +5,7 @@ import kotlinx.coroutines.coroutineScope
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -24,11 +25,14 @@ class DelMedBrukerService(
     private val db: ApiDatabase,
     private val sanityService: SanityService,
     private val tiltakstypeService: TiltakstypeService,
+    private val navEnhetService: NavEnhetService,
 ) {
     fun lagreDelMedBruker(dbo: DelMedBrukerInsertDbo): Unit = db.session {
         SecureLog.logger.info(
             "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
         )
+
+        val fylke = navEnhetService.hentOverordnetFylkesenhet(dbo.deltFraEnhet)
 
         @Language("PostgreSQL")
         val query = """
@@ -61,8 +65,8 @@ class DelMedBrukerService(
             "gjennomforing_id" to dbo.gjennomforingId,
             "dialog_id" to dbo.dialogId,
             "tiltakstype_id" to dbo.tiltakstypeId,
-            "delt_fra_fylke" to dbo.deltFraFylke?.value,
-            "delt_fra_enhet" to dbo.deltFraEnhet?.value,
+            "delt_fra_enhet" to dbo.deltFraEnhet.value,
+            "delt_fra_fylke" to fylke?.enhetsnummer?.value,
         )
 
         session.execute(queryOf(query, params))
@@ -203,11 +207,10 @@ data class DelMedBrukerInsertDbo(
     val norskIdent: NorskIdent,
     val navIdent: NavIdent,
     val dialogId: String,
+    val tiltakstypeId: UUID,
     val sanityId: UUID?,
     val gjennomforingId: UUID?,
-    val tiltakstypeId: UUID,
-    val deltFraFylke: NavEnhetNummer?,
-    val deltFraEnhet: NavEnhetNummer?,
+    val deltFraEnhet: NavEnhetNummer,
 )
 
 data class TiltakFraDb(

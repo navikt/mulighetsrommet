@@ -44,7 +44,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useTiltakIdFraUrl();
   const { data: delMedBrukerInfo } = useDelMedBrukerStatus(fnr, id);
-  const { enhet, overordnetEnhet } = useModiaContext();
+  const { enhet } = useModiaContext();
 
   const { data: veileder } = useVeilederdata();
   const { data: brukerdata } = useBrukerdata();
@@ -124,7 +124,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 tiltak={tiltak}
                 bruker={brukerdata}
                 veilederEnhet={enhet}
-                veilederFylke={overordnetEnhet}
               />
             ) : null}
 

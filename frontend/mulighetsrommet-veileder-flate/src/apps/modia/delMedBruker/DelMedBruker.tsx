@@ -15,7 +15,6 @@ interface Props {
   tiltak: VeilederflateTiltak;
   delMedBrukerInfo?: DelMedBrukerDto;
   veilederEnhet: string;
-  veilederFylke?: string | null;
 }
 
 export function DelMedBruker({
@@ -24,7 +23,6 @@ export function DelMedBruker({
   tiltak,
   delMedBrukerInfo,
   veilederEnhet,
-  veilederFylke,
 }: Props) {
   const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
 
@@ -63,7 +61,6 @@ export function DelMedBruker({
             state={state}
             bruker={bruker}
             veilederEnhet={veilederEnhet}
-            veilederFylke={veilederFylke}
           />
         </>
       )}

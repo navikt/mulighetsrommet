@@ -1447,6 +1447,9 @@ components:
           type: boolean
         fnr:
           type: string
+        tiltakstypeId:
+          type: string
+          format: uuid
         gjennomforingId:
           type:
           - "null"
@@ -1457,18 +1460,10 @@ components:
           - "null"
           - string
           format: uuid
-        tiltakstypeId:
-          type: string
-          format: uuid
-        deltFraFylke:
-          type:
-          - "null"
-          - string
         deltFraEnhet:
           type: string
       required:
       - deltFraEnhet
-      - deltFraFylke
       - fnr
       - gjennomforingId
       - overskrift

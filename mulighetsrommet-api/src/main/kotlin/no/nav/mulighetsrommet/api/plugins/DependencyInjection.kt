@@ -372,7 +372,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavAnsattSyncService(appConfig.navAnsattSync, get(), get(), get(), get(), get()) }
     single { NavAnsattPrincipalService(get(), get()) }
     single { PoaoTilgangService(get()) }
-    single { DelMedBrukerService(get(), get(), get()) }
+    single { DelMedBrukerService(get(), get(), get(), get()) }
     single {
         GjennomforingService(
             GjennomforingService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
