@@ -2188,16 +2188,16 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/arrangorflate/utbetaling/{id}/utbetalingsdetaljer:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/pdf:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
         - Arrangorflate
-      operationId: getUtbetalingsdetaljerPdf
+      operationId: getUtbetalingPdf
       responses:
         200:
-          description: Generer PDF utbetalingsdetaljer for utbetaling
+          description: Generer PDF for utbetaling
           content:
             application/pdf:
               schema:

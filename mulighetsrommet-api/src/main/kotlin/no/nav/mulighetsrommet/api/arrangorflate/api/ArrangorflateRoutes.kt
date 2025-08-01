@@ -250,7 +250,7 @@ fun Route.arrangorflateRoutes() {
                     }
             }
 
-            get("/utbetalingsdetaljer") {
+            get("/pdf") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val utbetaling = arrangorFlateService.getUtbetaling(id)
@@ -263,13 +263,13 @@ fun Route.arrangorflateRoutes() {
                     .onRight { pdfContent ->
                         call.response.headers.append(
                             "Content-Disposition",
-                            "attachment; filename=\"kvittering.pdf\"",
+                            "attachment; filename=\"utbetaling.pdf\"",
                         )
                         call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
                     }
                     .onLeft { error ->
-                        application.log.warn("Klarte ikke hente utbetalingsdetaljer som PDF. Response fra pdfgen: $error")
-                        call.respondWithProblemDetail(InternalServerError("Klarte ikke hente utbetalingsdetaljer som PDF"))
+                        application.log.warn("Klarte ikke lage PDF. Response fra pdfgen: $error")
+                        call.respondWithProblemDetail(InternalServerError("Klarte ikke lage PDF"))
                     }
             }
 
