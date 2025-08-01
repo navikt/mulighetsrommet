@@ -18,10 +18,12 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
+  Arrangor,
   ArrangorflateGjennomforing,
   ArrangorflateService,
   ArrangorflateTilsagn,
   FieldError,
+  Prismodell,
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
@@ -94,8 +96,9 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     { data: tilsagn, error: tilsagnError },
     { data: arrangortilganger, error: arrangorError },
   ] = await Promise.all([
-    ArrangorflateService.getUtbetalingskravDriftstilskuddGjennomforinger({
+    ArrangorflateService.getArrangorflateGjennomforinger({
       path: { orgnr },
+      query: { prismodeller: [Prismodell.ANNEN_AVTALT_PRIS] },
       headers: await apiHeaders(request),
     }),
     ArrangorflateService.getAllArrangorflateTilsagn({
@@ -121,7 +124,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(arrangorError);
   }
 
-  const arrangor = arrangortilganger.find((a) => a.organisasjonsnummer === orgnr)?.navn;
+  const arrangor = arrangortilganger.find((a: Arrangor) => a.organisasjonsnummer === orgnr)?.navn;
   if (!arrangor) throw new Error("Finner ikke arrangør");
 
   return {

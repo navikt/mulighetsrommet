@@ -4,7 +4,6 @@ import arrow.core.Either
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotliquery.Row
-import kotliquery.queryOf
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -24,13 +23,11 @@ import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -168,10 +165,14 @@ class ArrangorFlateService(
         )
     }
 
-    fun getGjennomforinger(orgnr: Organisasjonsnummer): List<ArrangorflateGjennomforing> = db.session {
+    fun getGjennomforinger(
+        orgnr: Organisasjonsnummer,
+        prismodeller: List<Prismodell>,
+    ): List<ArrangorflateGjennomforing> = db.session {
         queries.gjennomforing
             .getAll(
                 arrangorOrgnr = listOf(orgnr),
+                prismodeller = prismodeller,
             )
             .items.map {
                 ArrangorflateGjennomforing(
@@ -181,29 +182,6 @@ class ArrangorFlateService(
                     sluttDato = it.sluttDato,
                 )
             }
-    }
-
-    fun getGjennomforingerByPrismodeller(orgnr: Organisasjonsnummer, prismodeller: List<Prismodell>): List<ArrangorflateGjennomforing> = db.session {
-        val parameters = mapOf(
-            "arrangor_orgnr" to orgnr.value,
-            "prismodeller" to session.createArrayOfValue(prismodeller) { it.name },
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select g.id, g.navn, g.start_dato, g.slutt_dato
-            from gjennomforing g
-                     join arrangor arr on arr.id = g.arrangor_id
-                     inner join avtale a on g.avtale_id = a.id
-            where a.prismodell = ANY (:prismodeller::prismodell[])
-              and arr.organisasjonsnummer = :arrangor_orgnr
-              order by g.slutt_dato desc, g.navn
-        """.trimIndent()
-
-        val result = session.list(queryOf(query, parameters)) {
-            it.toArrangorflateGjennomforing()
-        }
-        return result
     }
 
     suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {

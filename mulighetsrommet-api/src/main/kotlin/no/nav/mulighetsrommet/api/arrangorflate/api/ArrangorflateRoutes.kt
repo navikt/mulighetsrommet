@@ -106,10 +106,13 @@ fun Route.arrangorflateRoutes() {
 
             get("/gjennomforing") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
                 requireTilgangHosArrangor(orgnr)
 
-                call.respond(arrangorFlateService.getGjennomforinger(orgnr))
+                val prismodeller = call.parameters.getAll("prismodeller")
+                    ?.map { Prismodell.valueOf(it) }
+                    ?: emptyList()
+
+                call.respond(arrangorFlateService.getGjennomforinger(orgnr, prismodeller))
             }
 
             get("/utbetaling") {
@@ -187,19 +190,6 @@ fun Route.arrangorflateRoutes() {
                 val isEnabled = unleashService.isEnabled(feature, context)
 
                 call.respond(isEnabled)
-            }
-
-            route("/utbetalingskrav/driftstilskudd") {
-                get("/gjennomforing") {
-                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-                    requireTilgangHosArrangor(orgnr)
-                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(
-                        orgnr,
-                        listOf(Prismodell.ANNEN_AVTALT_PRIS),
-                    )
-                    call.respond(gjennomforinger)
-                }
             }
         }
 
