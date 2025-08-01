@@ -77,7 +77,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         id = UUID.randomUUID(),
         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer),
+        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer.value),
     )
 
     val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(
