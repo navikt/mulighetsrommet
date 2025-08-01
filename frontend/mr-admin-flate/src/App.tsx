@@ -15,7 +15,6 @@ import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
-import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
@@ -33,6 +32,8 @@ import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage"
 import { NewAvtaleFormPage } from "./pages/avtaler/NewAvtaleFormPage";
 import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
+import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
+import { RedaksjoneltInnholdGjennomforing } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdGjennomforing";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -141,7 +142,11 @@ const routes: RouteObject[] = [
         children: [
           {
             index: true,
-            element: <GjennomforingInfo />,
+            element: <GjennomforingDetaljer />,
+          },
+          {
+            path: "redaksjonelt-innhold",
+            element: <RedaksjoneltInnholdGjennomforing />,
           },
           {
             path: "deltakerliste/*",

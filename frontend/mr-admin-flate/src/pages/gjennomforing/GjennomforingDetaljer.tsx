@@ -1,4 +1,6 @@
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { Bolk } from "@/components/detaljside/Bolk";
@@ -9,16 +11,12 @@ import { TiltakTilgjengeligForArrangor } from "@/components/gjennomforing/Tilgje
 import { Laster } from "@/components/laster/Laster";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
-import {
-  AvtaleDto,
-  GjennomforingDto,
-  GjennomforingOppstartstype,
-  Kontorstruktur,
-} from "@mr/api-client-v2";
+import { GjennomforingOppstartstype, Kontorstruktur } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato } from "@mr/frontend-common/utils/date";
@@ -26,13 +24,13 @@ import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 
-interface Props {
-  gjennomforing: GjennomforingDto;
-  avtale?: AvtaleDto;
-}
+export function GjennomforingDetaljer() {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
 
-export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
   const kontorer = gjennomforing.kontorstruktur.flatMap((struktur) => struktur.kontorer);
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -73,7 +71,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
   } = gjennomforing;
 
   return (
-    <>
+    <GjennomforingPageLayout>
       <TwoColumnGrid separator>
         <VStack justify={"space-between"}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
@@ -285,7 +283,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
         </VStack>
       </TwoColumnGrid>
       <NokkeltallDeltakere gjennomforingId={gjennomforing.id} />
-    </>
+    </GjennomforingPageLayout>
   );
 }
 

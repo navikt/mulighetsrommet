@@ -69,7 +69,7 @@ export function RedigerTilsagnFormPage() {
   };
 
   return (
-    <main>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <PiggybankFillIcon color="#FFAA33" className="w-10 h-10" />
@@ -105,7 +105,7 @@ export function RedigerTilsagnFormPage() {
           </WhitePaddedBox>
         </VStack>
       </ContentBox>
-    </main>
+    </>
   );
 }
 

@@ -227,7 +227,7 @@ export function TilsagnPage() {
   );
 
   return (
-    <main>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <HStack gap="2" className="bg-white border-b-2 border-gray-200 p-2">
         <PiggybankFillIcon color="#FFAA33" className="w-10 h-10" />
@@ -498,6 +498,6 @@ export function TilsagnPage() {
           </Alert>
         )}
       </VStack>
-    </main>
+    </>
   );
 }

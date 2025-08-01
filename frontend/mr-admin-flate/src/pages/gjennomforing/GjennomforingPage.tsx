@@ -4,7 +4,6 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
-import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { GjennomforingOppstartstype, GjennomforingStatus, Toggles } from "@mr/api-client-v2";
@@ -12,16 +11,29 @@ import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
-import { Outlet, useLocation } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/GjennomforingStatusMedAarsakTag";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { Outlet, useLocation } from "react-router";
+import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 
-type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
-
+function getCurrentTab(pathname: string) {
+  if (pathname.includes("tilsagn")) {
+    return "tilsagn";
+  } else if (pathname.includes("redaksjonelt-innhold")) {
+    return "redaksjonelt-innhold";
+  } else if (pathname.includes("deltakerliste")) {
+    return "deltakerliste";
+  } else if (pathname.includes("utbetalinger")) {
+    return "utbetalinger";
+  } else {
+    return "detaljer";
+  }
+}
 export function GjennomforingPage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
+  const currentTab = getCurrentTab(pathname);
 
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
@@ -36,19 +48,6 @@ export function GjennomforingPage() {
     gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
   );
 
-  function getCurrentTab(): GjennomforingTab {
-    if (pathname.includes("tilsagn")) {
-      return "tilsagn";
-    } else if (pathname.includes("deltakerliste")) {
-      return "deltakerliste";
-    } else if (pathname.includes("utbetalinger")) {
-      return "utbetalinger";
-    } else {
-      return "gjennomforing";
-    }
-  }
-
-  const currentTab = getCurrentTab();
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
       tittel: "Gjennomføringer",
@@ -56,15 +55,16 @@ export function GjennomforingPage() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: currentTab === "gjennomforing" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
+      lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
+    currentTab === "redaksjonelt-innhold" ? { tittel: "Redaksjonelt innhold" } : undefined,
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
 
   return (
-    <main>
+    <>
       <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
@@ -97,17 +97,22 @@ export function GjennomforingPage() {
       <Tabs value={currentTab}>
         <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
-            value="gjennomforing"
-            label="Gjennomføring"
+            value="detaljer"
+            label="Detaljer"
             onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}`)}
-            aria-controls="panel"
+          />
+          <Tabs.Tab
+            value="redaksjonelt-innhold"
+            label="Redaksjonelt innhold"
+            onClick={() =>
+              navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/redaksjonelt-innhold`)
+            }
           />
           {enableTilsagn ? (
             <Tabs.Tab
               value="tilsagn"
               label="Tilsagn"
               onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)}
-              aria-controls="panel"
             />
           ) : null}
           {enableOkonomi ? (
@@ -117,7 +122,6 @@ export function GjennomforingPage() {
               onClick={() =>
                 navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
               }
-              aria-controls="panel"
             />
           ) : null}
           {gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
@@ -127,20 +131,19 @@ export function GjennomforingPage() {
               onClick={() =>
                 navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`)
               }
-              aria-controls="panel"
             />
           )}
         </Tabs.List>
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
           <ContentBox>
             <WhitePaddedBox>
-              <div id="panel">
+              <Tabs.Panel value={currentTab} data-testid="gjennomforing_info-container">
                 <Outlet />
-              </div>
+              </Tabs.Panel>
             </WhitePaddedBox>
           </ContentBox>
         </React.Suspense>
       </Tabs>
-    </main>
+    </>
   );
 }

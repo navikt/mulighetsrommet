@@ -12,8 +12,8 @@ export function BrukerNotifikasjoner() {
   }
 
   return (
-    <div className="mb-4 w-full xl:w-[35%] 2xl:px-0 max-xl:px-4">
-      <Heading level="2" size="medium">
+    <div className="xl:w-[35%]">
+      <Heading level="2" spacing size="medium">
         Hei {bruker.fornavn}
       </Heading>
       <Notifikasjon

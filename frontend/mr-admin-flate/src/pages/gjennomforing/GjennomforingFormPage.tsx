@@ -57,7 +57,7 @@ export function GjennomforingFormPage() {
   ];
 
   return (
-    <main>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <GjennomforingIkon />
@@ -93,6 +93,6 @@ export function GjennomforingFormPage() {
           )}
         </Box>
       </ContentBox>
-    </main>
+    </>
   );
 }

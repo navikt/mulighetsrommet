@@ -26,7 +26,6 @@ export function RedaksjoneltInnholdPreview(props: RedaksjoneltInnholdPreviewProp
     </React.Suspense>
   );
 }
-
 function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = props;
 
