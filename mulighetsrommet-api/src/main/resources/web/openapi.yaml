@@ -1991,6 +1991,20 @@ paths:
       operationId: getAllArrangorflateTilsagn
       parameters:
         - $ref: "#/components/parameters/OrgnrParam"
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TilsagnStatus"
+          description: Tilsagn statuser
+        - in: query
+          name: typer
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TilsagnType"
+          description: Tilsagn typer
       responses:
         200:
           description: Hent tilsagn til arrangør
@@ -2000,6 +2014,24 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn/{id}:
+    get:
+      tags:
+        - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/ID"
+        - $ref: "#/components/parameters/OrgnrParam"
+      operationId: getArrangorflateTilsagn
+      responses:
+        200:
+          description: Hent tilsagn by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateTilsagn"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2113,22 +2145,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/arrangorflate/tilsagn/{id}:
-    get:
-      tags:
-        - Arrangorflate
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      operationId: getArrangorflateTilsagn
-      responses:
-        200:
-          description: Hent tilsagn by id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrangorflateTilsagn"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}:
     get:

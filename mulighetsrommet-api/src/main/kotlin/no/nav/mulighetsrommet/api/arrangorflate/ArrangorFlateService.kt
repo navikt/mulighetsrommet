@@ -35,11 +35,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
-    TilsagnType.TILSAGN,
-    TilsagnType.EKSTRATILSAGN,
-)
-
 private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
     TilsagnStatus.TIL_ANNULLERING,
@@ -80,24 +75,22 @@ class ArrangorFlateService(
             ?.let { toArrangorflateTilsagn(it) }
     }
 
-    fun getTilsagnByOrgnr(orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
+    fun getTilsagn(filter: ArrFlateTilsagnFilter, orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 arrangor = orgnr,
-                statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
+                statuser = filter.statuser,
+                typer = filter.typer,
             )
             .map { toArrangorflateTilsagn(it) }
     }
 
-    fun getArrangorflateTilsagnTilUtbetaling(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): List<ArrangorflateTilsagnDto> = db.session {
+    fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
-                gjennomforingId = gjennomforingId,
-                periodeIntersectsWith = periode,
-                typer = TILSAGN_TYPE_RELEVANT_FOR_UTBETALING,
+                gjennomforingId = utbetaling.gjennomforing.id,
+                periodeIntersectsWith = utbetaling.periode,
+                typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 statuser = listOf(TilsagnStatus.GODKJENT),
             )
             .map { toArrangorflateTilsagn(it) }

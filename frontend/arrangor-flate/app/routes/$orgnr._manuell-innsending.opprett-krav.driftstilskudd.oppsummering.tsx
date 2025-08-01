@@ -87,7 +87,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw new Error("Formdata mangler");
 
   const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
-    path: { id: tilsagnId },
+    path: { id: tilsagnId, orgnr },
     headers: await apiHeaders(request),
   });
   if (error || !tilsagn) {

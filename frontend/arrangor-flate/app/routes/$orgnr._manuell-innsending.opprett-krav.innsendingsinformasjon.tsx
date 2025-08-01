@@ -22,6 +22,7 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagn,
   FieldError,
+  TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
 } from "api-client";
@@ -97,6 +98,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     }),
     ArrangorflateService.getAllArrangorflateTilsagn({
       path: { orgnr },
+      query: { typer: [TilsagnType.INVESTERING], statuser: [TilsagnStatus.GODKJENT] },
       headers: await apiHeaders(request),
     }),
     ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
@@ -240,9 +242,7 @@ export default function OpprettKravInnsendingsinformasjon() {
   const valgtGjennomforing = gjennomforinger.find((g) => g.id === sessionGjennomforingId);
   const relevanteTilsagn = useMemo(() => {
     if (gjennomforingId) {
-      return tilsagn.filter(
-        (t) => t.gjennomforing.id === gjennomforingId && t.type === TilsagnType.INVESTERING,
-      );
+      return tilsagn.filter((t) => t.gjennomforing.id === gjennomforingId);
     }
     return [];
   }, [gjennomforingId, tilsagn]);
