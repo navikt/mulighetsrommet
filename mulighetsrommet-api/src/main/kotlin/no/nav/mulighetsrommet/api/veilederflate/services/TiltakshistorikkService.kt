@@ -153,7 +153,12 @@ class TiltakshistorikkService(
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR -> "VATIAROR"
         }
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode)
-        val arrangorNavn = getArrangorNavn(deltakelse.arbeidsgiver.organisasjonsnummer)
+        val arrangorNavn = Organisasjonsnummer.parse(deltakelse.arbeidsgiver.organisasjonsnummer)?.let {
+            getArrangorNavn(it)
+        } ?: run {
+            log.warn("Fant arbeidsgiver med orgnr som ikke kunne parses: ${deltakelse.arbeidsgiver.organisasjonsnummer}")
+            null
+        }
         return DeltakelseArbeidsgiverAvtale(
             id = deltakelse.id,
             periode = DeltakelsePeriode(

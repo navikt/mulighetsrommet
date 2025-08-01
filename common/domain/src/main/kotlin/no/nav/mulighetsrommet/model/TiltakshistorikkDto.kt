@@ -28,7 +28,7 @@ sealed class Tiltakshistorikk {
 
     @Serializable
     data class Arbeidsgiver(
-        val organisasjonsnummer: Organisasjonsnummer,
+        val organisasjonsnummer: String,
     )
 
     @Serializable
