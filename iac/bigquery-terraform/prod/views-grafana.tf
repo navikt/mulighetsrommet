@@ -215,3 +215,279 @@ WHERE
   bestilling_status = 'FEILET'
 EOF
 }
+
+module "grafana_utbetaling_arrangor_innsending_stats_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_arrangor_innsending_stats_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "tilskuddstype"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "total_rows"
+        type = "INTEGER"
+      },
+      {
+        mode = "NULLABLE"
+        name = "avg_days"
+        type = "FLOAT"
+      },
+      {
+        mode = "NULLABLE"
+        name = "min_days"
+        type = "INTEGER"
+      },
+      {
+        mode = "NULLABLE"
+        name = "max_days"
+        type = "INTEGER"
+      },
+      {
+        mode = "NULLABLE"
+        name = "stddev_days"
+        type = "FLOAT"
+      },
+      {
+        mode = "NULLABLE"
+        name = "median_days"
+        type = "INTEGER"
+      },
+    ]
+  )
+  view_query = <<EOF
+ WITH
+  arrangor_innsendt_utbetalinger as (select
+      tilskuddstype,
+      DATE(created_at) as date_created,
+      DATE(godkjent_av_arrangor_tidspunkt) as date_arrangor_godkjent,
+      DATE_DIFF(godkjent_av_arrangor_tidspunkt, created_at, DAY) as antall_dager_mellom
+    FROM
+      `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling`
+    WHERE
+      innsender = "Arrangor" and godkjent_av_arrangor_tidspunkt is not null
+  )
+SELECT
+  tilskuddstype,
+  COUNT(*) AS total_rows,
+  AVG(antall_dager_mellom) AS avg_days,
+  MIN(antall_dager_mellom) AS min_days,
+  MAX(antall_dager_mellom) AS max_days,
+  STDDEV(antall_dager_mellom) AS stddev_days,
+  APPROX_QUANTILES(antall_dager_mellom, 2)[OFFSET(1)] AS median_days
+FROM
+  arrangor_innsendt_utbetalinger
+group by
+  tilskuddstype
+EOF
+}
+
+module "grafana_utbetaling_arrangor_utestaende_innsendinger_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_arrangor_utestaende_innsendinger_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "dag"
+        type = "DATE"
+      },
+      {
+        mode = "NULLABLE"
+        name = "antall_utestaende_innsendinger"
+        type = "INTEGER"
+      },
+    ]
+  )
+  view_query = <<EOF
+WITH dager AS (
+  SELECT
+    dag
+  FROM UNNEST(
+    GENERATE_DATE_ARRAY(
+      DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH),
+      CURRENT_DATE(),
+      INTERVAL 1 DAY
+    )
+  ) AS dag
+),
+arrangor_utbetalinger as (
+  SELECT
+    u.id,
+    DATE(u.created_at) as created_at,
+    DATE(u.godkjent_av_arrangor_tidspunkt) as godkjent_av_arrangor_tidspunkt
+  FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling` u
+  WHERE
+    (u.innsender IS NULL OR u.innsender = 'Arrangor')
+)
+SELECT
+  d.dag,
+  COUNT(u.id) AS antall_utestaende_innsendinger
+FROM
+  dager d
+LEFT JOIN arrangor_utbetalinger u
+  ON (u.created_at <= d.dag)
+     AND (u.godkjent_av_arrangor_tidspunkt IS NULL OR u.godkjent_av_arrangor_tidspunkt > d.dag)
+GROUP BY 1
+ORDER BY 1 DESC
+EOF
+}
+
+module "grafana_utbetaling_antall_godkjente_per_prosess_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_antall_godkjente_per_prosess_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "dag"
+        type = "DATE"
+      },
+      {
+        mode = "NULLABLE"
+        name = "prosess"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "totalt_antall_godkjente"
+        type = "INTEGER"
+      },
+    ]
+  )
+  view_query = <<EOF
+WITH
+  dager AS (
+  SELECT
+    dag
+  FROM
+    UNNEST( GENERATE_DATE_ARRAY( DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH), CURRENT_DATE(), INTERVAL 1 DAY ) ) AS dag ),
+  godkjent_utbetaling_av AS (
+  SELECT
+    DISTINCT du.utbetaling_id,
+    CASE
+      WHEN t.besluttet_av = 'Tiltaksadministrasjon' THEN 'Automatisk'
+      ELSE 'Manuell'
+  END
+    AS prosess,
+    MAX(DATE(t.besluttet_tidspunkt)) AS besluttet_dag
+  FROM
+    `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_delutbetaling` du
+  INNER JOIN
+    `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` t
+  ON
+    du.id = t.entity_id
+  GROUP BY
+    du.utbetaling_id,
+    t.besluttet_av
+  HAVING
+    COUNT(*) > 0
+    AND COUNT(*) = COUNTIF(t.besluttelse = 'GODKJENT') )
+SELECT
+  d.dag,
+  gu.prosess,
+  COUNT(u.id) AS totalt_antall_godkjente
+FROM
+  dager d
+inner join
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling` u on d.dag >= DATE(u.created_at)
+INNER JOIN
+  godkjent_utbetaling_av gu
+ON
+  gu.utbetaling_id = u.id and d.dag >= gu.besluttet_dag
+GROUP BY
+  1,2
+order by 1 desc
+EOF
+}
+
+module "grafana_utbetaling_feilet_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_feilet_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "fakturanummer"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "sendt_til_okonomi_tidspunkt"
+        type = "DATETIME"
+      },
+      {
+        mode = "NULLABLE"
+        name = "faktura_status"
+        type = "STRING"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  du.fakturanummer,
+  DATETIME(du.sendt_til_okonomi_tidspunkt) as sendt_til_okonomi_tidspunkt,
+  du.faktura_status
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_delutbetaling` du
+WHERE
+  du.sendt_til_okonomi_tidspunkt IS NOT NULL
+ORDER BY
+  2
+EOF
+}
+
+module "grafana_utbetaling_admin_korreksjoner_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "utbetaling_admin_korreksjoner_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode(
+    [
+      {
+        mode = "NULLABLE"
+        name = "created_at"
+        type = "DATETIME"
+      },
+      {
+        mode = "NULLABLE"
+        name = "beregning_type"
+        type = "STRING"
+      },
+      {
+        mode = "NULLABLE"
+        name = "status"
+        type = "STRING"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  DATETIME(created_at) as created_at,
+  beregning_type,
+  status
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling`
+WHERE
+  innsender IS NOT NULL
+  AND innsender != 'Arrangor'
+  AND tilskuddstype = 'TILTAK_DRIFTSTILSKUDD'
+order by 1 desc
+EOF
+}
