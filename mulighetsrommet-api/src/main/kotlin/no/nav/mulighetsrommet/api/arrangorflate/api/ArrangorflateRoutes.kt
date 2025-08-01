@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.unleash.FeatureToggle
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -171,10 +172,9 @@ fun Route.arrangorflateRoutes() {
 
             get("/features") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
                 requireTilgangHosArrangor(orgnr)
 
-                val feature: String by call.parameters
+                val feature: FeatureToggle by call.parameters
                 val tiltakskoder = call.parameters.getAll("tiltakskoder")
                     ?.map { Tiltakskode.valueOf(it) }
                     ?: emptyList()
@@ -187,9 +187,7 @@ fun Route.arrangorflateRoutes() {
                     orgnr = listOf(orgnr),
                 )
 
-                val isEnabled = unleashService.isEnabled(feature, context)
-
-                call.respond(isEnabled)
+                call.respond(unleashService.isEnabled(feature, context))
             }
         }
 

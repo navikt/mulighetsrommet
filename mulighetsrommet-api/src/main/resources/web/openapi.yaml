@@ -2219,7 +2219,6 @@ paths:
         required: true
         schema:
           $ref: "#/components/schemas/Toggles"
-
       - in: query
         name: tiltakskoder
         schema:
@@ -2227,7 +2226,6 @@ paths:
           items:
             $ref: "#/components/schemas/Tiltakskode"
       - $ref: "#/components/parameters/OrgnrParam"
-
     get:
       tags:
         - FeatureToggleArrangor
