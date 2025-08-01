@@ -13,7 +13,7 @@ export function OppgaveoversiktPage() {
   const { unreadCount } = summary.data;
 
   return (
-    <main>
+    <>
       <title>Oppgaveoversikt</title>
       <HeaderBanner heading="Oppgaveoversikt" harUndermeny ikon={<OppgaveoversiktIkon />} />
       <Tabs
@@ -39,6 +39,6 @@ export function OppgaveoversiktPage() {
           <Outlet />
         </ContentBox>
       </Tabs>
-    </main>
+    </>
   );
 }

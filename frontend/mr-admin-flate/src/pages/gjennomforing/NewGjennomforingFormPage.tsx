@@ -47,7 +47,7 @@ export function NewGjennomforingFormPage() {
   }
 
   return (
-    <main>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <GjennomforingIkon />
@@ -78,6 +78,6 @@ export function NewGjennomforingFormPage() {
           />
         </Box>
       </ContentBox>
-    </main>
+    </>
   );
 }

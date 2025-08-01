@@ -10,7 +10,7 @@ export function NotifikasjonerPage() {
   const { readCount, unreadCount } = summary.data;
 
   return (
-    <main>
+    <>
       <div className="flex justify-start">
         <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
           <Tabs.List id="fane_liste" className="flex flex-row justify-between">
@@ -32,6 +32,6 @@ export function NotifikasjonerPage() {
       <div id="panel">
         <Outlet />
       </div>
-    </main>
+    </>
   );
 }

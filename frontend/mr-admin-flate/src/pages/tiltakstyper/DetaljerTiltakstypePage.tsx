@@ -21,7 +21,7 @@ export function DetaljerTiltakstypePage() {
   ];
 
   return (
-    <main>
+    <>
       <title>{`Tiltakstype | ${tiltakstype.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
@@ -53,6 +53,6 @@ export function DetaljerTiltakstypePage() {
           </div>
         </ContentBox>
       </Tabs>
-    </main>
+    </>
   );
 }

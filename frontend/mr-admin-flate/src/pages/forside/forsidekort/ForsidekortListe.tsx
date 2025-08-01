@@ -9,6 +9,7 @@ import { ForhandsvisningIkon } from "@/components/ikoner/ForhandsvisningIkon";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Forsidekort, ForsideKortProps } from "./Forsidekort";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
+import { HGrid } from "@navikt/ds-react";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -56,10 +57,10 @@ const forsidekortData: ForsideKortProps[] = [
 
 export function ForsidekortListe() {
   return (
-    <div className="flex flex-wrap gap-8">
+    <HGrid gap="6" columns={{ xs: 2, lg: 3 }}>
       {forsidekortData.map((kort) => {
         return <Forsidekort key={kort.navn} {...kort} />;
       })}
-    </div>
+    </HGrid>
   );
 }

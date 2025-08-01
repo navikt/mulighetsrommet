@@ -36,7 +36,7 @@ export function AvtalerPage() {
   } = useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE);
 
   return (
-    <main>
+    <>
       <title>Avtaler</title>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny ikon={<AvtaleIkon />} />
       <ReloadAppErrorBoundary>
@@ -86,6 +86,6 @@ export function AvtalerPage() {
         </ContentBox>
       </ReloadAppErrorBoundary>
       <TilToppenKnapp />
-    </main>
+    </>
   );
 }

@@ -20,7 +20,7 @@ export function ArrangorerPage() {
     useFilterState(arrangorerFilterStateAtom);
 
   return (
-    <main>
+    <>
       <title>Arrangører</title>
       <HeaderBanner heading="Arrangører" ikon={<ArrangorIkon />} />
       <ReloadAppErrorBoundary>
@@ -52,6 +52,6 @@ export function ArrangorerPage() {
           />
         </ContentBox>
       </ReloadAppErrorBoundary>
-    </main>
+    </>
   );
 }
