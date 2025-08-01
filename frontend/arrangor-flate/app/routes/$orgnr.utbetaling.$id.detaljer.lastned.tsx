@@ -7,7 +7,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Respo
   const { id } = params;
   if (!id) throw Error("Mangler id");
 
-  const { data: kvittering, error } = await ArrangorflateService.getUtbetalingsdetaljerPdf({
+  const { data: kvittering, error } = await ArrangorflateService.getUtbetalingPdf({
     path: { id },
     headers: await apiHeaders(request),
   });

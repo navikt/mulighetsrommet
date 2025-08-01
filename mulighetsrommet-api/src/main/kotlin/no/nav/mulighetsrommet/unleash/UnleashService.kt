@@ -4,14 +4,19 @@ import io.getunleash.DefaultUnleash
 import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByOrgnrStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy
 
-class UnleashService(config: Config) {
-    private val unleash: Unleash
+enum class FeatureToggle(val key: String) {
+    MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING("mulighetsrommet.migrering.okonomi.avbryt-utbetaling"),
+    MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN("mulighetsrommet.tiltakstype.migrering.tilsagn"),
+    MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING("mulighetsrommet.tiltakstype.migrering.okonomi"),
+    ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER("arrangorflate.utbetaling.opprett-utbetaling-knapp"),
+    ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS("arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris"),
+}
 
+class UnleashService(config: Config) {
     data class Config(
         val appName: String,
         val url: String,
@@ -20,28 +25,22 @@ class UnleashService(config: Config) {
         val environment: String,
     )
 
-    init {
-        val unleashConfig = UnleashConfig.builder()
-            .appName(config.appName)
-            .instanceId(config.instanceId)
-            .unleashAPI("${config.url}/api")
-            .apiKey(config.token)
-            .environment(config.environment)
-            .build()
+    private val unleashConfig: UnleashConfig = UnleashConfig.builder()
+        .appName(config.appName)
+        .instanceId(config.instanceId)
+        .unleashAPI("${config.url}/api")
+        .apiKey(config.token)
+        .environment(config.environment)
+        .build()
 
-        unleash = DefaultUnleash(
-            unleashConfig,
-            ByNavIdentStrategy(),
-            ByTiltakskodeStrategy(),
-            ByOrgnrStrategy(),
-        )
-    }
+    private val unleash: Unleash = DefaultUnleash(
+        unleashConfig,
+        ByNavIdentStrategy(),
+        ByTiltakskodeStrategy(),
+        ByOrgnrStrategy(),
+    )
 
-    fun isEnabled(feature: String): Boolean {
-        return unleash.isEnabled(feature)
-    }
-
-    fun isEnabled(feature: String, context: FeatureToggleContext): Boolean {
+    fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext): Boolean {
         val ctx = UnleashContext.builder()
             .userId(context.userId)
             .sessionId(context.sessionId)
@@ -49,13 +48,7 @@ class UnleashService(config: Config) {
             .addProperty(ByTiltakskodeStrategy.TILTAKSKODER_PARAM, context.tiltakskoder.joinToString(",") { it.name })
             .addProperty(ByOrgnrStrategy.VALGT_ORGNR_PARAM, context.orgnr.joinToString(",") { it.value })
             .build()
-        return unleash.isEnabled(feature, ctx)
-    }
 
-    fun isEnabledForTiltakstype(toggle: Toggle, vararg tiltakskoder: Tiltakskode): Boolean {
-        val ctx = UnleashContext.builder()
-            .addProperty(ByTiltakskodeStrategy.TILTAKSKODER_PARAM, tiltakskoder.joinToString(",") { it.name })
-            .build()
-        return unleash.isEnabled(toggle.featureName, ctx)
+        return unleash.isEnabled(feature.key, ctx)
     }
 }

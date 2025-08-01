@@ -117,10 +117,10 @@ class UtbetalingService(
                 kontonummer = request.kontonummer,
                 kid = request.kidNummer,
                 beregning = UtbetalingBeregningFri.beregn(
-                    input = UtbetalingBeregningFri.Input(
+                    input = resolveFriInput(
+                        gjennomforingId = request.gjennomforingId,
                         belop = request.belop,
-                        // TODO: Lagre deltakelser for fri modell
-                        deltakelser = emptySet(),
+                        periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
                     ),
                 ),
                 periode = Periode.fromInclusiveDates(
@@ -151,6 +151,19 @@ class UtbetalingService(
         }
 
         dto.right()
+    }
+
+    fun QueryContext.resolveFriInput(
+        gjennomforingId: UUID,
+        periode: Periode,
+        belop: Int,
+    ): UtbetalingBeregningFri.Input {
+        val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
+        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
+        return UtbetalingBeregningFri.Input(
+            deltakelser = deltakelser,
+            belop = belop,
+        )
     }
 
     fun opprettDelutbetalinger(
