@@ -347,7 +347,7 @@ paths:
       summary: Hent status for deling av tiltak med bruker
       description: Henter informasjon om et tiltak er delt med en bruker basert på
         norskIdent og tiltakId. Krever tilgang til brukeren.
-      operationId: getDelMedBruker
+      operationId: getDeltMedBruker
       parameters: []
       requestBody:
         content:
@@ -362,7 +362,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DelMedBrukerDto"
+                $ref: "#/components/schemas/DeltMedBrukerDto"
         "204":
           description: Ingen informasjon funnet for tiltaket
           headers: {}
@@ -381,7 +381,7 @@ paths:
       summary: Hent alle tiltak delt med bruker
       description: Henter siste informasjon om alle tiltak delt med en bruker basert
         på norskIdent. Krever tilgang til brukeren.
-      operationId: getAlleTiltakDeltMedBruker
+      operationId: getAlleDeltMedBruker
       parameters: []
       requestBody:
         content:
@@ -398,7 +398,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DelMedBrukerDto"
+                  $ref: "#/components/schemas/DeltMedBrukerDto"
         "204":
           description: Ingen informasjon funnet
           headers: {}
@@ -417,7 +417,7 @@ paths:
       summary: Hent historikk for tiltak delt med bruker
       description: Henter historikk om alle tiltak delt med en bruker basert på norskIdent.
         Krever tilgang til brukeren.
-      operationId: getHistorikkForDeltMedBruker
+      operationId: getDeltMedBrukerHistorikk
       parameters: []
       requestBody:
         content:
@@ -434,7 +434,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakDeltMedBruker"
+                  $ref: "#/components/schemas/TiltakDeltMedBrukerDto"
         "204":
           description: Ingen informasjon funnet
           headers: {}
@@ -1489,33 +1489,28 @@ components:
       required:
       - norskIdent
       - tiltakId
-    DelMedBrukerDto:
+    DelingMedBruker:
       type: object
       properties:
-        id:
-          type: integer
-          format: int32
         dialogId:
           type: string
-        createdAt:
+        tidspunkt:
           type: string
           format: date-time
-        sanityId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        gjennomforingId:
-          type:
-          - "null"
-          - string
-          format: uuid
       required:
-      - createdAt
       - dialogId
-      - gjennomforingId
-      - id
-      - sanityId
+      - tidspunkt
+    DeltMedBrukerDto:
+      type: object
+      properties:
+        tiltakId:
+          type: string
+          format: uuid
+        deling:
+          $ref: "#/components/schemas/DelingMedBruker"
+      required:
+      - deling
+      - tiltakId
     GetAlleDeltMedBrukerRequest:
       type: object
       properties:
@@ -1523,28 +1518,31 @@ components:
           type: string
       required:
       - norskIdent
+    TiltakDeltMedBrukerDto:
+      type: object
+      properties:
+        tiltak:
+          $ref: "#/components/schemas/TiltakDeltMedBruker"
+        deling:
+          $ref: "#/components/schemas/DelingMedBruker"
+        tiltakstype:
+          $ref: "#/components/schemas/TiltakstypeDeltMedBruker"
+      required:
+      - deling
+      - tiltak
+      - tiltakstype
     TiltakDeltMedBruker:
       type: object
       properties:
-        navn:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        dialogId:
-          type: string
-        tiltakId:
+        id:
           type: string
           format: uuid
-        tiltakstype:
-          $ref: "#/components/schemas/Tiltakstype"
+        navn:
+          type: string
       required:
-      - createdAt
-      - dialogId
+      - id
       - navn
-      - tiltakId
-      - tiltakstype
-    Tiltakstype:
+    TiltakstypeDeltMedBruker:
       type: object
       properties:
         tiltakskode:

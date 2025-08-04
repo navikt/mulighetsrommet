@@ -1,13 +1,13 @@
 import {
-  DelMedBrukerDto,
+  DeltMedBrukerDto,
   DelTiltakMedBrukerResponse,
   GetAlleDeltMedBrukerRequest,
   GetDelMedBrukerRequest,
-  TiltakDeltMedBruker,
+  TiltakDeltMedBrukerDto,
 } from "@api-client";
 import { http, HttpResponse, PathParams } from "msw";
-import { mockDeltMedBruker } from "../../fixtures/mockDeltMedBruker";
-import { mockHistorikkDeltMedBruker } from "../../fixtures/mockHistorikkDeltMedBruker";
+import { mockDeltMedBruker } from "@/mock/fixtures/mockDeltMedBruker";
+import { mockHistorikkDeltMedBruker } from "@/mock/fixtures/mockHistorikkDeltMedBruker";
 
 export const delMedBrukerHandlers = [
   http.post<PathParams, DelTiltakMedBrukerResponse>("*/api/veilederflate/del-med-bruker", () => {
@@ -23,7 +23,7 @@ export const delMedBrukerHandlers = [
       const data = (await request.json()) as GetDelMedBrukerRequest;
 
       const deltMedBruker = mockDeltMedBruker.find(
-        (delt) => delt.sanityId === data.tiltakId || delt.gjennomforingId === data.tiltakId,
+        (deltMedBruker) => deltMedBruker.tiltakId === data.tiltakId,
       );
 
       if (deltMedBruker) {
@@ -34,14 +34,14 @@ export const delMedBrukerHandlers = [
     },
   ),
 
-  http.post<PathParams, GetAlleDeltMedBrukerRequest, DelMedBrukerDto[]>(
+  http.post<PathParams, GetAlleDeltMedBrukerRequest, DeltMedBrukerDto[]>(
     "*/api/veilederflate/del-med-bruker/alle",
     () => {
       return HttpResponse.json(mockDeltMedBruker);
     },
   ),
 
-  http.post<PathParams, GetAlleDeltMedBrukerRequest, TiltakDeltMedBruker[]>(
+  http.post<PathParams, GetAlleDeltMedBrukerRequest, TiltakDeltMedBrukerDto[]>(
     "*/api/veilederflate/del-med-bruker/historikk",
     () => {
       return HttpResponse.json(mockHistorikkDeltMedBruker);

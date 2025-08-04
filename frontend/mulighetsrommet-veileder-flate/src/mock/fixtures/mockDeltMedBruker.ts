@@ -1,19 +1,19 @@
-import { DelMedBrukerDto } from "@api-client";
+import { DeltMedBrukerDto } from "@api-client";
 import { tiltakAmoGruppe, tiltakAvklaring } from "./mockGjennomforinger";
 
-export const mockDeltMedBruker: DelMedBrukerDto[] = [
+export const mockDeltMedBruker: DeltMedBrukerDto[] = [
   {
-    id: 1,
-    dialogId: "1",
-    createdAt: new Date(2022, 2, 22).toString(),
-    sanityId: tiltakAvklaring.id,
-    gjennomforingId: null,
+    tiltakId: tiltakAvklaring.id,
+    deling: {
+      dialogId: "1",
+      tidspunkt: new Date(2022, 2, 22).toString(),
+    },
   },
   {
-    id: 2,
-    dialogId: "2",
-    createdAt: new Date(2024, 0, 11).toString(),
-    sanityId: null,
-    gjennomforingId: tiltakAmoGruppe.id,
+    tiltakId: tiltakAmoGruppe.id,
+    deling: {
+      dialogId: "2",
+      tidspunkt: new Date(2024, 0, 11).toString(),
+    },
   },
 ];

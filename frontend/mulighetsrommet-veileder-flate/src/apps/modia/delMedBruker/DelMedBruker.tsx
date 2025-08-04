@@ -2,7 +2,7 @@ import { Alert, Button } from "@navikt/ds-react";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
-import { Brukerdata, DelMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import { Brukerdata, DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
 import { formaterDato } from "@/utils/Utils";
 import {
   erBrukerReservertMotDigitalKommunikasjon,
@@ -13,7 +13,7 @@ interface Props {
   veiledernavn: string;
   bruker: Brukerdata;
   tiltak: VeilederflateTiltak;
-  delMedBrukerInfo?: DelMedBrukerDto;
+  deltMedBruker?: DeltMedBrukerDto;
   veilederEnhet: string;
 }
 
@@ -21,7 +21,7 @@ export function DelMedBruker({
   veiledernavn,
   bruker,
   tiltak,
-  delMedBrukerInfo,
+  deltMedBruker,
   veilederEnhet,
 }: Props) {
   const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
@@ -33,8 +33,8 @@ export function DelMedBruker({
     dispatch({ type: "Toggle modal", payload: true });
   };
 
-  const knappetekst = delMedBrukerInfo?.createdAt
-    ? `Delt i dialogen ${formaterDato(new Date(delMedBrukerInfo.createdAt))}`
+  const knappetekst = deltMedBruker
+    ? `Delt i dialogen ${formaterDato(new Date(deltMedBruker.deling.tidspunkt))}`
     : "Del med bruker";
 
   return (
@@ -48,7 +48,7 @@ export function DelMedBruker({
             variant="secondary"
             aria-label="Del med bruker"
             data-testid="deleknapp"
-            icon={delMedBrukerInfo && <CheckmarkIcon title="Suksess" />}
+            icon={deltMedBruker && <CheckmarkIcon title="Suksess" />}
             iconPosition="left"
           >
             {knappetekst}
@@ -56,7 +56,7 @@ export function DelMedBruker({
           <Delemodal
             veiledernavn={veiledernavn}
             tiltak={tiltak}
-            harDeltMedBruker={delMedBrukerInfo}
+            deltMedBruker={deltMedBruker}
             dispatch={dispatch}
             state={state}
             bruker={bruker}

@@ -1,5 +1,5 @@
 import { Alert, ErrorMessage, Textarea } from "@navikt/ds-react";
-import { DelMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import { DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
 import { Actions, State } from "./DelemodalActions";
@@ -13,7 +13,7 @@ interface Props {
   dispatch: Dispatch<Actions>;
   veiledernavn?: string;
   brukernavn: string | null;
-  harDeltMedBruker?: DelMedBrukerDto;
+  deltMedBruker?: DeltMedBrukerDto;
   tiltak: VeilederflateTiltak;
   enableRedigerDeletekst: boolean;
 }
@@ -23,13 +23,14 @@ export function DelMedBrukerContent({
   dispatch,
   veiledernavn,
   brukernavn,
-  harDeltMedBruker,
+  deltMedBruker,
   tiltak,
   enableRedigerDeletekst,
 }: Props) {
   const endreDeletekstRef = useRef<HTMLTextAreaElement>(null);
-  const datoSidenSistDelt =
-    harDeltMedBruker?.createdAt && formaterDato(new Date(harDeltMedBruker.createdAt));
+  const datoSidenSistDelt = deltMedBruker
+    ? formaterDato(new Date(deltMedBruker.deling.tidspunkt))
+    : null;
 
   const standardtekstLengde = state.deletekst.length;
 
@@ -53,7 +54,7 @@ export function DelMedBrukerContent({
 
   return (
     <>
-      {harDeltMedBruker ? (
+      {deltMedBruker ? (
         <Alert
           variant="warning"
           className="mb-4"

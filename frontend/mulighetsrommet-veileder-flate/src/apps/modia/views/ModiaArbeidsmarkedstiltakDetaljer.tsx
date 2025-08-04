@@ -6,7 +6,7 @@ import {
 import { useRegioner } from "@/api/queries/useRegioner";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
-import { useDelMedBrukerStatus } from "@/apps/modia/hooks/useDelMedbrukerStatus";
+import { useDeltMedBruker } from "@/apps/modia/hooks/useDeltMedBruker";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
@@ -43,7 +43,7 @@ const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_U
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useTiltakIdFraUrl();
-  const { data: delMedBrukerInfo } = useDelMedBrukerStatus(fnr, id);
+  const { data: deltMedBruker } = useDeltMedBruker(fnr, id);
   const { enhet } = useModiaContext();
 
   const { data: veileder } = useVeilederdata();
@@ -58,10 +58,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
 
-  const dialogRoute = delMedBrukerInfo
+  const dialogRoute = deltMedBruker
     ? resolveModiaRoute({
         route: ModiaRoute.DIALOG,
-        dialogId: delMedBrukerInfo.dialogId,
+        dialogId: deltMedBruker.deling.dialogId,
       })
     : null;
 
@@ -119,7 +119,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
             {brukerdata.erUnderOppfolging && isTiltakAktivt(tiltak) ? (
               <DelMedBruker
-                delMedBrukerInfo={delMedBrukerInfo ?? undefined}
+                deltMedBruker={deltMedBruker ?? undefined}
                 veiledernavn={resolveName(veileder)}
                 tiltak={tiltak}
                 bruker={brukerdata}

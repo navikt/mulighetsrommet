@@ -5,7 +5,7 @@ import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { Separator } from "@/utils/Separator";
 import { erPreview } from "@/utils/Utils";
-import { Brukerdata, DelMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import { Brukerdata, DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
 import { BodyShort, Button, Checkbox, Heading, HelpText, HStack, Modal } from "@navikt/ds-react";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import { Actions, State } from "./DelemodalActions";
@@ -14,7 +14,7 @@ interface DelemodalProps {
   veiledernavn?: string;
   tiltak: VeilederflateTiltak;
   bruker: Brukerdata;
-  harDeltMedBruker?: DelMedBrukerDto;
+  deltMedBruker?: DeltMedBrukerDto;
   dispatch: (action: Actions) => void;
   state: State;
   veilederEnhet: string;
@@ -28,7 +28,7 @@ export function Delemodal({
   veiledernavn,
   tiltak,
   bruker,
-  harDeltMedBruker,
+  deltMedBruker,
   dispatch,
   state,
   veilederEnhet,
@@ -95,7 +95,7 @@ export function Delemodal({
             dispatch={dispatch}
             veiledernavn={veiledernavn}
             brukernavn={bruker.fornavn}
-            harDeltMedBruker={harDeltMedBruker}
+            deltMedBruker={deltMedBruker}
             tiltak={tiltak}
             enableRedigerDeletekst={enableRedigerDeletekst}
           />

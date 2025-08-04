@@ -1,4 +1,4 @@
-import { TiltakDeltMedBruker } from "@api-client";
+import { TiltakDeltMedBrukerDto } from "@api-client";
 import { BodyShort, Box, Button, HStack, List, Table, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { Link } from "react-router";
@@ -8,8 +8,8 @@ import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
 
-function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
-  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+function sortOnCreatedAt(a: TiltakDeltMedBrukerDto, b: TiltakDeltMedBrukerDto) {
+  return new Date(b.deling.tidspunkt).getTime() - new Date(a.deling.tidspunkt).getTime();
 }
 
 export function DelMedBrukerHistorikk() {
@@ -22,14 +22,14 @@ export function DelMedBrukerHistorikk() {
   const gruppertHistorikk = data.sort(sortOnCreatedAt).reduce(
     (acc, obj) => {
       // If the tiltakId key doesn't exist, create it with an empty array
-      if (!acc[obj.tiltakId]) {
-        acc[obj.tiltakId] = [];
+      if (!acc[obj.tiltak.id]) {
+        acc[obj.tiltak.id] = [];
       }
       // Push the current object to the array for its tiltakId
-      acc[obj.tiltakId].push(obj);
+      acc[obj.tiltak.id].push(obj);
       return acc;
     },
-    {} as Record<string, TiltakDeltMedBruker[]>,
+    {} as Record<string, TiltakDeltMedBrukerDto[]>,
   );
 
   // Sort each group by createdAt
@@ -77,21 +77,17 @@ export function DelMedBrukerHistorikk() {
   );
 }
 
-function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
-  const tidligereDelte = delteTiltak.slice(1);
+function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
+  const tidligereDelinger = delinger.slice(1);
 
   return (
     <List title="Tidligere delinger">
-      {tidligereDelte.map((delt) => {
+      {tidligereDelinger.map(({ deling, tiltak, tiltakstype }) => {
         return (
-          <List.Item key={delt.dialogId}>
+          <List.Item key={deling.dialogId}>
             <HStack gap="5" align="start">
-              <VisningsnavnForTiltak
-                noLink
-                tiltakstypeNavn={delt.tiltakstype.navn}
-                navn={delt.navn}
-              />
-              <BodyShort size="small">Delt {formaterDato(delt.createdAt)}</BodyShort>
+              <VisningsnavnForTiltak noLink tiltakstypeNavn={tiltakstype.navn} navn={tiltak.navn} />
+              <BodyShort size="small">Delt {formaterDato(deling.tidspunkt)}</BodyShort>
             </HStack>
           </List.Item>
         );
@@ -100,18 +96,18 @@ function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
   );
 }
 
-function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): ReactNode {
+function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBrukerDto): ReactNode {
   return (
     <>
       {antallTiltakDelt === 1 ? <Table.DataCell></Table.DataCell> : null}
       <Table.DataCell>
         <VisningsnavnForTiltak
           noLink
-          tiltakstypeNavn={tiltak.tiltakstype.navn}
-          navn={tiltak.navn}
+          tiltakstypeNavn={deltMedBruker.tiltakstype.navn}
+          navn={deltMedBruker.tiltak.navn}
         />
       </Table.DataCell>
-      <Table.DataCell>{formaterDato(tiltak.createdAt)}</Table.DataCell>
+      <Table.DataCell>{formaterDato(deltMedBruker.deling.tidspunkt)}</Table.DataCell>
       <Table.DataCell>
         <VStack align="center" gap="2">
           <Button
@@ -121,14 +117,14 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
               e.preventDefault();
               navigateToModiaApp({
                 route: ModiaRoute.DIALOG,
-                dialogId: tiltak.dialogId,
+                dialogId: deltMedBruker.deling.dialogId,
               });
             }}
           >
             Gå til dialogen
           </Button>
           <Link
-            to={`/arbeidsmarkedstiltak/tiltak/${tiltak.tiltakId}`}
+            to={`/arbeidsmarkedstiltak/tiltak/${deltMedBruker.tiltak.id}`}
             className="text-center text-base no-underline hover:underline"
           >
             Gå til tiltak

@@ -3,7 +3,7 @@ import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstil
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useAtom } from "jotai";
-import { DelMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
+import { DeltMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { ArbeidsmarkedstiltakListItem } from "./ArbeidsmarkedstiltakListItem";
@@ -14,7 +14,7 @@ import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak[];
-  deltMedBruker?: DelMedBrukerDto[];
+  delingerMedBruker?: DeltMedBrukerDto[];
   varsler?: ReactNode;
   filterOpen: boolean;
   feilmelding: ReactNode;
@@ -23,7 +23,7 @@ interface Props {
 
 export function ArbeidsmarkedstiltakList({
   tiltak,
-  deltMedBruker,
+  delingerMedBruker,
   varsler,
   filterOpen,
   feilmelding,
@@ -95,15 +95,15 @@ export function ArbeidsmarkedstiltakList({
       >
         {gjennomforingerForSide.map((gjennomforing, index) => {
           const id = isTiltakGruppe(gjennomforing) ? gjennomforing.id : gjennomforing.sanityId;
-          const delMedBruker = deltMedBruker?.find((delt) => {
-            return delt.gjennomforingId === id || delt.sanityId === id;
+          const deltMedBruker = delingerMedBruker?.find((deltMedBruker) => {
+            return deltMedBruker.tiltakId === id;
           });
           return (
             <ArbeidsmarkedstiltakListItem
               key={id}
               index={index}
               tiltak={gjennomforing}
-              delMedBruker={delMedBruker}
+              deltMedBruker={deltMedBruker}
             />
           );
         })}

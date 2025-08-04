@@ -9,7 +9,7 @@ export function useAlleTiltakDeltMedBruker() {
   return useApiQuery({
     queryKey: [...QueryKeys.AlleDeltMedBrukerStatus, norskIdent],
     queryFn: () =>
-      DelMedBrukerService.getAlleTiltakDeltMedBruker<false>({
+      DelMedBrukerService.getAlleDeltMedBruker<false>({
         body: { norskIdent },
       }),
     throwOnError: false, // Er ingen krise hvis dette kallet feiler

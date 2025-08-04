@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
-import { DelMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
+import { DeltMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
 import {
   isTiltakEnkeltplass,
   isTiltakGruppe,
@@ -17,10 +17,10 @@ import {
 interface Props {
   tiltak: VeilederflateTiltak;
   index: number;
-  delMedBruker?: DelMedBrukerDto;
+  deltMedBruker?: DeltMedBrukerDto;
 }
 
-export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Props) {
+export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: Props) {
   const pageData = useAtomValue(paginationAtom);
 
   const paginationUrl = `#pagination=${encodeURIComponent(JSON.stringify({ ...pageData }))}`;
@@ -40,7 +40,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
       data-testid={`gjennomforing_${kebabCase(tiltak.tiltakstype.navn)}`}
     >
       <Lenke className={`text-[#000000]`} to={`../tiltak/${id}${paginationUrl}`}>
-        {delMedBruker && <TiltakDeltMedBrukerInfo delMedBruker={delMedBruker} />}
+        {deltMedBruker && <TiltakDeltMedBrukerInfo deltMedBruker={deltMedBruker} />}
         <div
           className={`grid grid-cols-[0_40%_1fr_2%] [grid-template-areas:'status_navn_metadata_ikon'] lg:grid-areas-[status_navn_navn_ikon_metadata_metadata_metadata]  items-start justify-start grid-rows-[auto] lg:items-center min-h-[4rem] gap-8 p-3`}
         >
@@ -97,11 +97,11 @@ function utledOppstart(tiltak: VeilederflateTiltak) {
 }
 
 interface TiltakDeltMedBrukerInfoProps {
-  delMedBruker: DelMedBrukerDto;
+  deltMedBruker: DeltMedBrukerDto;
 }
 
-function TiltakDeltMedBrukerInfo({ delMedBruker }: TiltakDeltMedBrukerInfoProps) {
-  const date = new Date(delMedBruker.createdAt);
+function TiltakDeltMedBrukerInfo({ deltMedBruker }: TiltakDeltMedBrukerInfoProps) {
+  const date = new Date(deltMedBruker.deling.tidspunkt);
 
   const formatertDeltMedBrukerDato = date.toLocaleDateString("nb-NO", {
     weekday: "long",

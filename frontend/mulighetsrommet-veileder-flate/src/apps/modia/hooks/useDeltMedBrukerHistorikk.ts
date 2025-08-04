@@ -9,7 +9,7 @@ export function useDeltMedBrukerHistorikk() {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.deltMedBrukerHistorikk(norskIdent),
     queryFn: () => {
-      return DelMedBrukerService.getHistorikkForDeltMedBruker({
+      return DelMedBrukerService.getDeltMedBrukerHistorikk({
         body: {
           norskIdent,
         },
