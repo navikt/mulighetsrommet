@@ -90,7 +90,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1234",
-                tiltakstypeNavn = "Avklaring",
+                tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
                 deltFraFylke = NavEnhetNummer("0300"),
                 deltFraEnhet = NavEnhetNummer("0301"),
             )
@@ -106,6 +106,9 @@ class DelMedBrukerServiceTest : FunSpec({
                 it.gjennomforingId shouldBe GjennomforingFixtures.Oppfolging1.id
                 it.sanityId shouldBe null
             }
+
+            database.assertTable("del_med_bruker")
+                .row().value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.Oppfolging.id.toString())
         }
 
         test("Hent Del med bruker-historikk fra database og Sanity") {
