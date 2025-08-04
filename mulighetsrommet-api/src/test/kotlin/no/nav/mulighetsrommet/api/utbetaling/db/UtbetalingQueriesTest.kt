@@ -14,8 +14,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
-import org.junit.jupiter.api.assertThrows
-import java.sql.SQLException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -184,7 +182,7 @@ class UtbetalingQueriesTest : FunSpec({
             }
         }
 
-        test("tillater ikke lagring av overlappende deltakelsesperioder") {
+        test("tillater lagring av overlappende deltakelsesperioder") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -211,9 +209,7 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
 
-                assertThrows<SQLException> {
-                    queries.upsert(utbetaling.copy(beregning = beregning))
-                }
+                queries.upsert(utbetaling.copy(beregning = beregning))
             }
         }
     }
