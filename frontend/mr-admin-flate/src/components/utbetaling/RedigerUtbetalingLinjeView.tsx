@@ -312,7 +312,7 @@ function MindreBelopModal({
           <Textarea
             label="Begrunnelse"
             onChange={begrunnelseOnChange}
-            description="Oppgi begrunnelse for beløp som utbetales. Hvis det er benyttet flere tilsagn, begrunner du hvordan fordelingen er gjort. Begrunnelsen vil kun være synlig for NAV"
+            description="Oppgi begrunnelse for beløp som utbetales. Begrunnelsen vil kun være synlig for NAV"
           />
         </VStack>
       </Modal.Body>

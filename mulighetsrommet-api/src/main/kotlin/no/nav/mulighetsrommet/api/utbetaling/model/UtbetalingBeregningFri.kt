@@ -28,8 +28,9 @@ data class UtbetalingBeregningFri(
                 input = input,
                 output = Output(
                     belop = input.belop,
-                    // TODO: Tom per nå, men vi tenker å lagre deltakelser på fri modell også
-                    deltakelser = emptySet(),
+                    deltakelser = input.deltakelser.map {
+                        Deltakelse(it.deltakelseId, 0.0)
+                    }.toSet(),
                 ),
             )
         }
@@ -39,7 +40,6 @@ data class UtbetalingBeregningFri(
     data class Deltakelse(
         @Serializable(with = UUIDSerializer::class)
         override val deltakelseId: UUID,
-    ) : UtbetalingBeregningOutputDeltakelse() {
-        override val faktor = 0.0
-    }
+        override val faktor: Double,
+    ) : UtbetalingBeregningOutputDeltakelse()
 }

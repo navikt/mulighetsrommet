@@ -15,5 +15,13 @@ value class Organisasjonsnummer(val value: String) {
 
     companion object {
         fun isValid(value: String): Boolean = ORGANISASJONSNUMMER_REGEX.matches(value)
+
+        fun parse(value: String): Organisasjonsnummer? {
+            return if (isValid(value)) {
+                Organisasjonsnummer(value)
+            } else {
+                null
+            }
+        }
     }
 }

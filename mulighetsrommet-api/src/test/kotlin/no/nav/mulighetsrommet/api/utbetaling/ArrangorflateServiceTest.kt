@@ -11,12 +11,12 @@ import io.mockk.mockk
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -114,7 +114,10 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getTilsagnByOrgnr should return list of tilsagn for arrangor") {
-        val result = arrangorflateService.getTilsagnByOrgnr(ArrangorflateTestUtils.underenhet.organisasjonsnummer)
+        val result = arrangorflateService.getTilsagn(
+            filter = ArrFlateTilsagnFilter(),
+            ArrangorflateTestUtils.underenhet.organisasjonsnummer,
+        )
 
         result shouldHaveSize 1
         result[0].id shouldBe tilsagn.id
@@ -122,8 +125,10 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getArrangorflateTilsagnTilUtbetaling should return tilsagn for given gjennomforing and period") {
-        val periode = Periode(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 8, 1))
-        val result = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(GjennomforingFixtures.AFT1.id, periode)
+        val u = arrangorflateService.getUtbetaling(utbetaling.id)!!
+        val result = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(
+            u.copy(periode = Periode(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 8, 1))),
+        )
 
         result shouldHaveSize 1
         result[0].id shouldBe tilsagn.id

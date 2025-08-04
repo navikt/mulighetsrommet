@@ -1991,6 +1991,20 @@ paths:
       operationId: getAllArrangorflateTilsagn
       parameters:
         - $ref: "#/components/parameters/OrgnrParam"
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TilsagnStatus"
+          description: Tilsagn statuser
+        - in: query
+          name: typer
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TilsagnType"
+          description: Tilsagn typer
       responses:
         200:
           description: Hent tilsagn til arrangør
@@ -2000,6 +2014,24 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn/{id}:
+    get:
+      tags:
+        - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/ID"
+        - $ref: "#/components/parameters/OrgnrParam"
+      operationId: getArrangorflateTilsagn
+      responses:
+        200:
+          description: Hent tilsagn by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateTilsagn"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2029,28 +2061,16 @@ paths:
       operationId: getArrangorflateGjennomforinger
       parameters:
         - $ref: "#/components/parameters/OrgnrParam"
+        - in: query
+          name: prismodeller
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Prismodell"
+          description: Prismodeller
       responses:
         200:
           description: Get gjennomforinger til arrangør
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/utbetalingskrav/driftstilskudd/gjennomforing:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getUtbetalingskravDriftstilskuddGjennomforinger
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-      responses:
-        200:
-          description: Hent gjennomforinger til utbetalingskrav for drifttilskudd
           content:
             application/json:
               schema:
@@ -2113,22 +2133,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/arrangorflate/tilsagn/{id}:
-    get:
-      tags:
-        - Arrangorflate
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      operationId: getArrangorflateTilsagn
-      responses:
-        200:
-          description: Hent tilsagn by id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrangorflateTilsagn"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}:
     get:
@@ -2172,16 +2176,16 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/arrangorflate/utbetaling/{id}/utbetalingsdetaljer:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/pdf:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
         - Arrangorflate
-      operationId: getUtbetalingsdetaljerPdf
+      operationId: getUtbetalingPdf
       responses:
         200:
-          description: Generer PDF utbetalingsdetaljer for utbetaling
+          description: Generer PDF for utbetaling
           content:
             application/pdf:
               schema:
@@ -2215,7 +2219,6 @@ paths:
         required: true
         schema:
           $ref: "#/components/schemas/Toggles"
-
       - in: query
         name: tiltakskoder
         schema:
@@ -2223,7 +2226,6 @@ paths:
           items:
             $ref: "#/components/schemas/Tiltakskode"
       - $ref: "#/components/parameters/OrgnrParam"
-
     get:
       tags:
         - FeatureToggleArrangor

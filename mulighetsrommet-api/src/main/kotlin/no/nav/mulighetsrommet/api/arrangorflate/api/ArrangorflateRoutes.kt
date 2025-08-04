@@ -20,6 +20,8 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
@@ -31,10 +33,9 @@ import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.unleash.FeatureToggle
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -106,10 +107,13 @@ fun Route.arrangorflateRoutes() {
 
             get("/gjennomforing") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
                 requireTilgangHosArrangor(orgnr)
 
-                call.respond(arrangorFlateService.getGjennomforinger(orgnr))
+                val prismodeller = call.parameters.getAll("prismodeller")
+                    ?.map { Prismodell.valueOf(it) }
+                    ?: emptyList()
+
+                call.respond(arrangorFlateService.getGjennomforinger(orgnr, prismodeller))
             }
 
             get("/utbetaling") {
@@ -143,21 +147,34 @@ fun Route.arrangorflateRoutes() {
                     }
             }
 
-            get("/tilsagn") {
-                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+            route("/tilsagn") {
+                get {
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                    requireTilgangHosArrangor(orgnr)
 
-                requireTilgangHosArrangor(orgnr)
+                    val filter = getArrFlateTilsagnFilter()
+                    val tilsagn = arrangorFlateService.getTilsagn(filter, orgnr)
 
-                val tilsagn = arrangorFlateService.getTilsagnByOrgnr(orgnr)
+                    call.respond(tilsagn)
+                }
 
-                call.respond(tilsagn)
+                get("/{id}") {
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                    requireTilgangHosArrangor(orgnr)
+
+                    val id = call.parameters.getOrFail<UUID>("id")
+                    val tilsagn = arrangorFlateService.getTilsagn(id)
+                        ?: throw NotFoundException("Fant ikke tilsagn")
+
+                    call.respond(tilsagn)
+                }
             }
+
             get("/features") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
                 requireTilgangHosArrangor(orgnr)
 
-                val feature: String by call.parameters
+                val feature: FeatureToggle by call.parameters
                 val tiltakskoder = call.parameters.getAll("tiltakskoder")
                     ?.map { Tiltakskode.valueOf(it) }
                     ?: emptyList()
@@ -170,22 +187,7 @@ fun Route.arrangorflateRoutes() {
                     orgnr = listOf(orgnr),
                 )
 
-                val isEnabled = unleashService.isEnabled(feature, context)
-
-                call.respond(isEnabled)
-            }
-
-            route("/utbetalingskrav/driftstilskudd") {
-                get("/gjennomforing") {
-                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-                    requireTilgangHosArrangor(orgnr)
-                    val gjennomforinger = arrangorFlateService.getGjennomforingerByPrismodeller(
-                        orgnr,
-                        listOf(Prismodell.ANNEN_AVTALT_PRIS),
-                    )
-                    call.respond(gjennomforinger)
-                }
+                call.respond(unleashService.isEnabled(feature, context))
             }
         }
 
@@ -236,7 +238,7 @@ fun Route.arrangorflateRoutes() {
                     }
             }
 
-            get("/utbetalingsdetaljer") {
+            get("/pdf") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val utbetaling = arrangorFlateService.getUtbetaling(id)
@@ -249,13 +251,13 @@ fun Route.arrangorflateRoutes() {
                     .onRight { pdfContent ->
                         call.response.headers.append(
                             "Content-Disposition",
-                            "attachment; filename=\"kvittering.pdf\"",
+                            "attachment; filename=\"utbetaling.pdf\"",
                         )
                         call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
                     }
                     .onLeft { error ->
-                        application.log.warn("Klarte ikke hente utbetalingsdetaljer som PDF. Response fra pdfgen: $error")
-                        call.respondWithProblemDetail(InternalServerError("Klarte ikke hente utbetalingsdetaljer som PDF"))
+                        application.log.warn("Klarte ikke lage PDF. Response fra pdfgen: $error")
+                        call.respondWithProblemDetail(InternalServerError("Klarte ikke lage PDF"))
                     }
             }
 
@@ -266,10 +268,7 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
-                    gjennomforingId = utbetaling.gjennomforing.id,
-                    periode = utbetaling.periode,
-                )
+                val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
                 call.respond(tilsagn)
             }
@@ -286,18 +285,6 @@ fun Route.arrangorflateRoutes() {
                         "Kunne ikke synkronisere kontonummer",
                     )
                 }
-            }
-        }
-
-        route("/tilsagn/{id}") {
-            get {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                val tilsagn = arrangorFlateService.getTilsagn(id)
-                    ?: throw NotFoundException("Fant ikke tilsagn")
-                requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
-
-                call.respond(tilsagn)
             }
         }
     }
@@ -410,4 +397,16 @@ private fun ApplicationCall.generateSessionId(): String {
     val cookie = Cookie(name = "UNLEASH_SESSION_ID", value = sessionId, path = "/", maxAge = -1)
     this.response.cookies.append(cookie)
     return sessionId
+}
+
+data class ArrFlateTilsagnFilter(
+    val statuser: List<TilsagnStatus>? = null,
+    val typer: List<TilsagnType>? = null,
+)
+
+fun RoutingContext.getArrFlateTilsagnFilter(): ArrFlateTilsagnFilter {
+    return ArrFlateTilsagnFilter(
+        statuser = call.parameters.getAll("statuser")?.map { TilsagnStatus.valueOf(it) },
+        typer = call.parameters.getAll("typer")?.map { TilsagnType.valueOf(it) },
+    )
 }

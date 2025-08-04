@@ -19,10 +19,20 @@ interface RedaksjoneltInnholdPreviewProps {
   kontorstruktur: Kontorstruktur;
 }
 
-export function RedaksjoneltInnholdPreview(props: RedaksjoneltInnholdPreviewProps) {
+export function RedaksjoneltInnholdPreview({
+  tiltakstype,
+  beskrivelse,
+  faneinnhold,
+  kontorstruktur,
+}: RedaksjoneltInnholdPreviewProps) {
   return (
     <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-      <RedaksjoneltInnhold {...props} />
+      <RedaksjoneltInnhold
+        tiltakstype={tiltakstype}
+        kontorstruktur={kontorstruktur}
+        beskrivelse={beskrivelse}
+        faneinnhold={faneinnhold}
+      />
     </React.Suspense>
   );
 }

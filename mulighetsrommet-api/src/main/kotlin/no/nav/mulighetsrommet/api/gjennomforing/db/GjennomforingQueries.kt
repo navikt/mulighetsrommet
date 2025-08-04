@@ -293,7 +293,7 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { row ->
-            row.stringOrNull("prismodell")?.let { Prismodell.valueOf(it) }
+            Prismodell.valueOf(row.string("prismodell"))
         }
     }
 
@@ -311,6 +311,7 @@ class GjennomforingQueries(private val session: Session) {
         administratorNavIdent: NavIdent? = null,
         publisert: Boolean? = null,
         koordinatorNavIdent: NavIdent? = null,
+        prismodeller: List<Prismodell> = emptyList(),
     ): PaginatedResult<GjennomforingDto> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
@@ -325,6 +326,7 @@ class GjennomforingQueries(private val session: Session) {
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "publisert" to publisert,
+            "prismodeller" to prismodeller.ifEmpty { null }?.let { createArrayOf("prismodell", prismodeller) },
         )
 
         val order = when (sortering) {
@@ -364,6 +366,7 @@ class GjennomforingQueries(private val session: Session) {
               and (tiltakstype_tiltakskode is not null)
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
+              and (:prismodeller::text[] is null or prismodell = any(:prismodeller))
             order by $order
             limit :limit
             offset :offset

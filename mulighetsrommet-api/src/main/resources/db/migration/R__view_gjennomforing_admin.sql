@@ -44,9 +44,11 @@ select gjennomforing.id,
        arrangor.slettet_dato is not null   as arrangor_slettet,
        arrangor_kontaktpersoner_json,
        utdanningslop_json,
-       stengt_perioder_json
+       stengt_perioder_json,
+       avtale.prismodell
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+         join avtale on avtale.id = gjennomforing.avtale_id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(

@@ -93,7 +93,19 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(utbetalingQuery, params))
 
         when (dbo.beregning) {
-            is UtbetalingBeregningFri -> Unit
+            is UtbetalingBeregningFri -> {
+                // TODO: lagre perioder uten deltakelsesprosent?
+                val perioder = dbo.beregning.input.deltakelser
+                    .map {
+                        DeltakelseDeltakelsesprosentPerioder(
+                            it.deltakelseId,
+                            listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                        )
+                    }
+                    .toSet()
+                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
+                upsertUtbetalingBeregningOutputDeltakelseFaktor(dbo.id, dbo.beregning.output.deltakelser)
+            }
 
             is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
                 upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
@@ -472,20 +484,20 @@ class UtbetalingQueries(private val session: Session) {
     private fun getBeregningFri(id: UUID): UtbetalingBeregning {
         @Language("PostgreSQL")
         val query = """
-            select belop_beregnet
-            from utbetaling
+            select *
+            from view_utbetaling_beregning_fri
             where id = ?::uuid
         """.trimIndent()
 
-        return session.requireSingle(queryOf(query, id)) {
+        return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningFri(
                 input = UtbetalingBeregningFri.Input(
-                    belop = it.int("belop_beregnet"),
-                    deltakelser = emptySet(),
+                    belop = row.int("belop_beregnet"),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
                 output = UtbetalingBeregningFri.Output(
-                    belop = it.int("belop_beregnet"),
-                    deltakelser = emptySet(),
+                    belop = row.int("belop_beregnet"),
+                    deltakelser = Json.decodeFromString(row.string("fri_json")),
                 ),
             )
         }

@@ -14,11 +14,14 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { id } = params;
+  const { id, orgnr } = params;
+  if (!orgnr) {
+    throw new Error("Mangler orgnr");
+  }
   if (!id) throw Error("Mangler id");
 
   const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
-    path: { id },
+    path: { id, orgnr },
     headers: await apiHeaders(request),
   });
 

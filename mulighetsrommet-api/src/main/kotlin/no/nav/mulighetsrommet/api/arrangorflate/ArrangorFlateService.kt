@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
-import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import kotliquery.Row
-import kotliquery.queryOf
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -24,21 +21,14 @@ import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-
-private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
-    TilsagnType.TILSAGN,
-    TilsagnType.EKSTRATILSAGN,
-)
 
 private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
@@ -80,24 +70,22 @@ class ArrangorFlateService(
             ?.let { toArrangorflateTilsagn(it) }
     }
 
-    fun getTilsagnByOrgnr(orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
+    fun getTilsagn(filter: ArrFlateTilsagnFilter, orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 arrangor = orgnr,
-                statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
+                statuser = filter.statuser,
+                typer = filter.typer,
             )
             .map { toArrangorflateTilsagn(it) }
     }
 
-    fun getArrangorflateTilsagnTilUtbetaling(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): List<ArrangorflateTilsagnDto> = db.session {
+    fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
-                gjennomforingId = gjennomforingId,
-                periodeIntersectsWith = periode,
-                typer = TILSAGN_TYPE_RELEVANT_FOR_UTBETALING,
+                gjennomforingId = utbetaling.gjennomforing.id,
+                periodeIntersectsWith = utbetaling.periode,
+                typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 statuser = listOf(TilsagnStatus.GODKJENT),
             )
             .map { toArrangorflateTilsagn(it) }
@@ -117,7 +105,10 @@ class ArrangorFlateService(
         return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
-    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling, relativeDate: LocalDateTime = LocalDateTime.now()): ArrFlateUtbetaling = db.session {
+    suspend fun toArrFlateUtbetaling(
+        utbetaling: Utbetaling,
+        relativeDate: LocalDateTime = LocalDateTime.now(),
+    ): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
         val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
             ?.let { it.plusWeeks(12) <= relativeDate } ?: false
@@ -175,10 +166,14 @@ class ArrangorFlateService(
         )
     }
 
-    fun getGjennomforinger(orgnr: Organisasjonsnummer): List<ArrangorflateGjennomforing> = db.session {
+    fun getGjennomforinger(
+        orgnr: Organisasjonsnummer,
+        prismodeller: List<Prismodell>,
+    ): List<ArrangorflateGjennomforing> = db.session {
         queries.gjennomforing
             .getAll(
                 arrangorOrgnr = listOf(orgnr),
+                prismodeller = prismodeller,
             )
             .items.map {
                 ArrangorflateGjennomforing(
@@ -188,29 +183,6 @@ class ArrangorFlateService(
                     sluttDato = it.sluttDato,
                 )
             }
-    }
-
-    fun getGjennomforingerByPrismodeller(orgnr: Organisasjonsnummer, prismodeller: List<Prismodell>): List<ArrangorflateGjennomforing> = db.session {
-        val parameters = mapOf(
-            "arrangor_orgnr" to orgnr.value,
-            "prismodeller" to session.createArrayOfValue(prismodeller) { it.name },
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select g.id, g.navn, g.start_dato, g.slutt_dato
-            from gjennomforing g
-                     join arrangor arr on arr.id = g.arrangor_id
-                     inner join avtale a on g.avtale_id = a.id
-            where a.prismodell = ANY (:prismodeller::prismodell[])
-              and arr.organisasjonsnummer = :arrangor_orgnr
-              order by g.slutt_dato desc, g.navn
-        """.trimIndent()
-
-        val result = session.list(queryOf(query, parameters)) {
-            it.toArrangorflateGjennomforing()
-        }
-        return result
     }
 
     suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
@@ -270,7 +242,6 @@ fun isForslagRelevantForPeriode(
     return when (forslag.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {
             val sluttDato = forslag.endring.sluttdato
-
             forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(deltakerPeriodeSluttDato))
         }
 
@@ -279,16 +250,8 @@ fun isForslagRelevantForPeriode(
         }
 
         is Melding.Forslag.Endring.ForlengDeltakelse -> {
-            forslag.endring.sluttdato.isAfter(deltakerPeriodeSluttDato) &&
-                forslag.endring.sluttdato.isBefore(utbetalingPeriode.slutt)
-        }
-
-        is Melding.Forslag.Endring.IkkeAktuell -> {
-            true
-        }
-
-        is Melding.Forslag.Endring.Sluttarsak -> {
-            false
+            val sluttdato = forslag.endring.sluttdato
+            sluttdato.isAfter(deltakerPeriodeSluttDato) && sluttdato.isBefore(utbetalingPeriode.slutt)
         }
 
         is Melding.Forslag.Endring.Sluttdato -> {
@@ -299,7 +262,12 @@ fun isForslagRelevantForPeriode(
             forslag.endring.startdato.isAfter(deltakelsePeriode.start)
         }
 
-        Melding.Forslag.Endring.FjernOppstartsdato -> true
+        is Melding.Forslag.Endring.Sluttarsak -> false
+
+        is Melding.Forslag.Endring.IkkeAktuell,
+        is Melding.Forslag.Endring.FjernOppstartsdato,
+        is Melding.Forslag.Endring.EndreAvslutning,
+        -> true
     }
 }
 
@@ -343,11 +311,4 @@ data class ArrangorflateGjennomforing(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-)
-
-fun Row.toArrangorflateGjennomforing(): ArrangorflateGjennomforing = ArrangorflateGjennomforing(
-    id = uuid("id"),
-    navn = string("navn"),
-    startDato = localDate("start_dato"),
-    sluttDato = localDateOrNull("slutt_dato"),
 )

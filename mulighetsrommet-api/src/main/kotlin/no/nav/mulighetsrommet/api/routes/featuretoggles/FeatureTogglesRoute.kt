@@ -11,18 +11,11 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.veilederflate.routes.NavVeilederDto
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.unleash.FeatureToggle
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import org.koin.ktor.ext.inject
 import java.util.*
-
-enum class FeatureToggle(val key: String) {
-    MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING("mulighetsrommet.migrering.okonomi.avbryt-utbetaling"),
-    MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN("mulighetsrommet.tiltakstype.migrering.tilsagn"),
-    MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING("mulighetsrommet.tiltakstype.migrering.okonomi"),
-    ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER("arrangorflate.utbetaling.opprett-utbetaling-knapp"),
-    ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS("arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris"),
-}
 
 fun Route.featureTogglesRoute() {
     val unleashService: UnleashService by inject()
@@ -61,7 +54,7 @@ fun Route.featureTogglesRoute() {
                 orgnr = emptyList(),
             )
 
-            val isEnabled = unleashService.isEnabled(feature.key, context)
+            val isEnabled = unleashService.isEnabled(feature, context)
 
             call.respond(isEnabled)
         }

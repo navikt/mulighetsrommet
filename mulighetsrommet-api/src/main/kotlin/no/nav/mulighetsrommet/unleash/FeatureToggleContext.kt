@@ -10,8 +10,3 @@ data class FeatureToggleContext(
     val tiltakskoder: List<Tiltakskode>,
     val orgnr: List<Organisasjonsnummer>,
 )
-
-enum class Toggle(val featureName: String) {
-    MIGRERING_OKONOMI("mulighetsrommet.tiltakstype.migrering.okonomi"),
-    MIGRERING_TILSAGN("mulighetsrommet.tiltakstype.migrering.tilsagn"),
-}
