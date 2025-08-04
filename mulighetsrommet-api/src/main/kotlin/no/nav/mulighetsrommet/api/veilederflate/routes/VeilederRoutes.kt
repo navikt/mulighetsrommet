@@ -49,7 +49,7 @@ fun Route.veilederRoutes() {
             navIdent = ansatt.navIdent,
             fornavn = ansatt.fornavn,
             etternavn = ansatt.etternavn,
-            hovedenhet = NavVeilederDto.Hovedenhet(
+            hovedenhet = NavVeilederHovedenhet(
                 enhetsnummer = ansatt.hovedenhetKode,
                 navn = ansatt.hovedenhetNavn,
             ),
@@ -127,11 +127,11 @@ data class NavVeilederDto(
     val navIdent: NavIdent,
     val fornavn: String,
     val etternavn: String,
-    val hovedenhet: Hovedenhet,
-) {
-    @Serializable
-    data class Hovedenhet(
-        val enhetsnummer: NavEnhetNummer,
-        val navn: String,
-    )
-}
+    val hovedenhet: NavVeilederHovedenhet,
+)
+
+@Serializable
+data class NavVeilederHovedenhet(
+    val enhetsnummer: NavEnhetNummer,
+    val navn: String,
+)
