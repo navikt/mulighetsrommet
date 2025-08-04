@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -65,6 +66,7 @@ class DelMedBrukerService(
                 updated_by,
                 gjennomforing_id,
                 tiltakstype_navn,
+                tiltakstype_id,
                 delt_fra_fylke,
                 delt_fra_enhet
             )
@@ -77,13 +79,32 @@ class DelMedBrukerService(
                 :updated_by,
                 :gjennomforing_id::uuid,
                 :tiltakstype_navn,
+                :tiltakstype_id::uuid,
                 :delt_fra_fylke,
                 :delt_fra_enhet
             )
             returning *
         """.trimIndent()
 
-        session.requireSingle(queryOf(query, dbo.toParameters())) { it.toDelMedBruker() }
+        val tiltakstype = queries.tiltakstype.getAll().singleOrNull {
+            it.status == TiltakstypeStatus.AKTIV && it.navn == dbo.tiltakstypeNavn
+        }
+
+        val params = mapOf(
+            "norsk_ident" to dbo.norskIdent.value,
+            "navident" to dbo.navident,
+            "sanity_id" to dbo.sanityId,
+            "gjennomforing_id" to dbo.gjennomforingId,
+            "dialogid" to dbo.dialogId,
+            "created_by" to dbo.navident,
+            "updated_by" to dbo.navident,
+            "tiltakstype_navn" to dbo.tiltakstypeNavn,
+            "tiltakstype_id" to tiltakstype?.id,
+            "delt_fra_fylke" to dbo.deltFraFylke?.value,
+            "delt_fra_enhet" to dbo.deltFraEnhet?.value,
+        )
+
+        session.requireSingle(queryOf(query, params)) { it.toDelMedBruker() }
     }
 
     fun getDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): DelMedBrukerDbo? = db.session {
@@ -210,19 +231,6 @@ class DelMedBrukerService(
         }.flatten()
     }
 }
-
-private fun DelMedBrukerDbo.toParameters() = mapOf(
-    "norsk_ident" to norskIdent.value,
-    "navident" to navident,
-    "sanity_id" to sanityId,
-    "gjennomforing_id" to gjennomforingId,
-    "dialogid" to dialogId,
-    "created_by" to navident,
-    "updated_by" to navident,
-    "tiltakstype_navn" to tiltakstypeNavn,
-    "delt_fra_fylke" to deltFraFylke?.value,
-    "delt_fra_enhet" to deltFraEnhet?.value,
-)
 
 private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
     id = string("id"),
