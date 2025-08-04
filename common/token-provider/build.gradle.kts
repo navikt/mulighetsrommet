@@ -10,7 +10,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
     constraints {
-        implementation("net.minidev:json-smart:2.5.2") {
+        implementation("net.minidev:json-smart:2.6.0") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
