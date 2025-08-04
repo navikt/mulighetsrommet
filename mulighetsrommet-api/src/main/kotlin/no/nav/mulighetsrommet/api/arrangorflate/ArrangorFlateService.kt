@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
-import kotliquery.Row
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -312,11 +311,4 @@ data class ArrangorflateGjennomforing(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-)
-
-fun Row.toArrangorflateGjennomforing(): ArrangorflateGjennomforing = ArrangorflateGjennomforing(
-    id = uuid("id"),
-    navn = string("navn"),
-    startDato = localDate("start_dato"),
-    sluttDato = localDateOrNull("slutt_dato"),
 )
