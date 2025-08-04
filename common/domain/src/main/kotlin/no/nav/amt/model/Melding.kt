@@ -140,6 +140,14 @@ sealed interface Melding {
             @Serializable
             @SerialName("FjernOppstartsdato")
             data object FjernOppstartsdato : Endring
+
+            @Serializable
+            @SerialName("EndreAvslutning")
+            data class EndreAvslutning(
+                val aarsak: EndringAarsak?,
+                val harDeltatt: Boolean?,
+                val harFullfort: Boolean?,
+            ) : Endring
         }
 
         @Serializable

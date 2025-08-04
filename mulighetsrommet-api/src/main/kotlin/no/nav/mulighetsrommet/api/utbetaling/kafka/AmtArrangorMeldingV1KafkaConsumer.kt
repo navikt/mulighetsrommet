@@ -49,10 +49,10 @@ class AmtArrangorMeldingV1KafkaConsumer(
 
 fun Melding.Forslag.toForslagDbo(): DeltakerForslag {
     return DeltakerForslag(
-        id = this.id,
-        deltakerId = this.deltakerId,
-        endring = this.endring,
-        status = this.status.toStatus(),
+        id = id,
+        deltakerId = deltakerId,
+        endring = endring,
+        status = status.toStatus(),
     )
 }
 
