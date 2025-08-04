@@ -11,7 +11,7 @@
     "build": "openapi-ts"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.80.1",
+    "@hey-api/openapi-ts": "0.80.2",
     "typescript": "5.9.2"
   }
 }
