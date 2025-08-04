@@ -1,0 +1,1 @@
+ALTER TABLE utbetaling_deltakelse_periode DROP CONSTRAINT utbetaling_deltakelse_periode_deltakelse_id_periode_excl;
