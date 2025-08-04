@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
-import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import no.nav.amt.model.Melding
@@ -107,7 +106,10 @@ class ArrangorFlateService(
         return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
-    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling, relativeDate: LocalDateTime = LocalDateTime.now()): ArrFlateUtbetaling = db.session {
+    suspend fun toArrFlateUtbetaling(
+        utbetaling: Utbetaling,
+        relativeDate: LocalDateTime = LocalDateTime.now(),
+    ): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
         val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
             ?.let { it.plusWeeks(12) <= relativeDate } ?: false
@@ -241,7 +243,6 @@ fun isForslagRelevantForPeriode(
     return when (forslag.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {
             val sluttDato = forslag.endring.sluttdato
-
             forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(deltakerPeriodeSluttDato))
         }
 
@@ -250,16 +251,8 @@ fun isForslagRelevantForPeriode(
         }
 
         is Melding.Forslag.Endring.ForlengDeltakelse -> {
-            forslag.endring.sluttdato.isAfter(deltakerPeriodeSluttDato) &&
-                forslag.endring.sluttdato.isBefore(utbetalingPeriode.slutt)
-        }
-
-        is Melding.Forslag.Endring.IkkeAktuell -> {
-            true
-        }
-
-        is Melding.Forslag.Endring.Sluttarsak -> {
-            false
+            val sluttdato = forslag.endring.sluttdato
+            sluttdato.isAfter(deltakerPeriodeSluttDato) && sluttdato.isBefore(utbetalingPeriode.slutt)
         }
 
         is Melding.Forslag.Endring.Sluttdato -> {
@@ -270,7 +263,12 @@ fun isForslagRelevantForPeriode(
             forslag.endring.startdato.isAfter(deltakelsePeriode.start)
         }
 
-        Melding.Forslag.Endring.FjernOppstartsdato -> true
+        is Melding.Forslag.Endring.Sluttarsak -> false
+
+        is Melding.Forslag.Endring.IkkeAktuell,
+        is Melding.Forslag.Endring.FjernOppstartsdato,
+        is Melding.Forslag.Endring.EndreAvslutning,
+        -> true
     }
 }
 
