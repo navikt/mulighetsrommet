@@ -147,7 +147,7 @@ export function UtbetalingPage() {
                     )}
                     {utbetaling.begrunnelseMindreBetalt && (
                       <MetadataHorisontal
-                        header="Begrunnelse for mindre betalt"
+                        header="Begrunnelse for mindre utbetalt"
                         verdi={utbetaling.begrunnelseMindreBetalt}
                       />
                     )}
