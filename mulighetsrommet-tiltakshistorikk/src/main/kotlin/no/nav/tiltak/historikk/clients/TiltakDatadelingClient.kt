@@ -176,7 +176,7 @@ data class Avtale(
     val avtaleId: UUID,
     val avtaleNr: Int,
     val deltakerFnr: NorskIdent,
-    val bedriftNr: Organisasjonsnummer,
+    val bedriftNr: String,
     val tiltakstype: Tiltakstype,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
