@@ -27,6 +27,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { useEffect } from "react";
 
 export function AvtaleDetaljerForm({
   opsjonerRegistrert,
@@ -47,7 +48,7 @@ export function AvtaleDetaljerForm({
   } = useFormContext<AvtaleFormValues>();
 
   const avtaletype = watch("avtaletype");
-  const tiltakskode = watch("tiltakstype.tiltakskode");
+  const tiltakskode = watch("tiltakskode");
   const watchedAdministratorer = watch("administratorer");
 
   const { data: enableTilsagn } = useFeatureToggle(
@@ -55,39 +56,39 @@ export function AvtaleDetaljerForm({
     tiltakskode ? [tiltakskode] : [],
   );
 
-  function handleChangeTiltakstype(nextTiltakskode?: Tiltakskode) {
-    if (nextTiltakskode !== tiltakskode) {
-      setValue("amoKategorisering", null);
-      setValue("utdanningslop", null);
+  useEffect(() => {
+    if (!tiltakskode) return;
+    setValue("amoKategorisering", null);
+    setValue("utdanningslop", null);
+
+    const avtaletype = getAvtaletypeOptions(tiltakskode)[0]?.value;
+
+    if (avtaletype) {
+      setValue("avtaletype", avtaletype);
     }
+  }, [setValue, tiltakskode]);
 
-    const options = nextTiltakskode ? getAvtaletypeOptions(nextTiltakskode) : [];
-    const avtaletype = options[0].value;
-    setValue("avtaletype", avtaletype);
-    handleChangeAvtaletype(avtaletype);
-  }
+  useEffect(() => {
+    if (!avtaletype) return;
 
-  function handleChangeAvtaletype(avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("opsjonsmodell", {
         type: OpsjonsmodellType.VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else if (getValues("opsjonsmodell.type")) {
+
+      setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
+    } else {
       setValue("opsjonsmodell", {
         type: getValues("opsjonsmodell.type"),
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    }
 
-    if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
-      setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
-    } else {
       setValue("prismodell", null);
     }
-  }
+  }, [avtaletype, getValues, setValue]);
 
   const antallOpsjonerUtlost = (
     opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
@@ -139,16 +140,9 @@ export function AvtaleDetaljerForm({
               size="small"
               placeholder="Velg en"
               label={avtaletekster.tiltakstypeLabel}
-              {...register("tiltakstype")}
-              onChange={(event) => {
-                handleChangeTiltakstype(event.target?.value?.tiltakskode);
-              }}
+              {...register("tiltakskode")}
               options={tiltakstyper.map((tiltakstype) => ({
-                value: {
-                  navn: tiltakstype.navn,
-                  id: tiltakstype.id,
-                  tiltakskode: tiltakstype.tiltakskode,
-                },
+                value: tiltakstype.tiltakskode as string,
                 label: tiltakstype.navn,
               }))}
             />
@@ -158,9 +152,6 @@ export function AvtaleDetaljerForm({
               readOnly={antallOpsjonerUtlost > 0}
               label={avtaletekster.avtaletypeLabel}
               {...register("avtaletype")}
-              onChange={(e) => {
-                handleChangeAvtaletype(e.target.value);
-              }}
               options={tiltakskode ? getAvtaletypeOptions(tiltakskode) : []}
             />
           </HGrid>

@@ -1,45 +1,40 @@
 import React, { ForwardedRef } from "react";
 import { Controller } from "react-hook-form";
-import { SelectOption, SokeSelect } from "./SokeSelect";
-import { shallowEquals } from "../utils/shallow-equals";
+import { UNSAFE_Combobox } from "@navikt/ds-react";
 
-export interface ControlledSelectProps<T> {
+export interface ControlledSelectProps {
   label: string;
   hideLabel?: boolean;
   placeholder: string;
-  options: SelectOption<T>[];
+  options: { value: string; label: string }[];
   readOnly?: boolean;
   name: string;
-  onChange?: (a0: {
+  multiselect?: boolean;
+  /*handleOnChange: (a0: {
     target: {
-      value?: T;
+      value?: string;
       name?: string;
     };
-  }) => void;
-  onInputChange?: (input: string) => void;
-  className?: string;
+  }) => void;*/
+  //onInputChange?: (input: string) => void;
+  //className?: string;
   size?: "small" | "medium";
-  onClearValue?: () => void;
+  // onClearValue?: () => void;
   description?: string;
-  helpText?: React.ReactNode;
+  // helpText?: React.ReactNode;
   id?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRef<HTMLElement>) {
+function ControlledSokeSelect<T>(props: ControlledSelectProps, _: ForwardedRef<HTMLElement>) {
   const {
     label,
     hideLabel = false,
+    readOnly = false,
+    size = "small",
+    multiselect = false,
     placeholder,
     options,
-    readOnly = false,
-    onChange: providedOnChange,
-    onInputChange: providedOnInputChange,
     description,
-    className,
-    size,
-    helpText,
-    onClearValue,
     id,
     ...rest
   } = props;
@@ -48,31 +43,27 @@ function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRe
     <Controller
       {...rest}
       render={({ field: { onChange, value, name, ref }, fieldState: { error } }) => {
-        const selectedOption = options.find((option) => shallowEquals(option.value, value));
         return (
-          <SokeSelect<T>
+          <UNSAFE_Combobox
+            ref={ref}
             id={id}
-            helpText={helpText}
-            hideLabel={hideLabel}
-            description={description}
-            size={size}
             label={label}
-            error={error}
             placeholder={placeholder}
             readOnly={readOnly}
-            onClearValue={onClearValue}
-            childRef={ref}
+            hideLabel={hideLabel}
+            isMultiSelect={multiselect}
+            size={size}
             name={name}
-            value={selectedOption ?? null}
-            onChange={(e) => {
-              onChange(e?.target.value);
-              providedOnChange?.(e);
-            }}
-            onInputChange={(e) => {
-              providedOnInputChange?.(e);
-            }}
+            description={description}
+            error={error?.message}
             options={options}
-            className={className}
+            onToggleSelected={(option, isSelected) => {
+              if (isSelected) {
+                onChange([...value, option]);
+              } else {
+                onChange(value.filter((v: T) => v !== option));
+              }
+            }}
           />
         );
       }}

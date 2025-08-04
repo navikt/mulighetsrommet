@@ -27,10 +27,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 
 class AvtaleService(
     private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
+    private val tiltakstypeService: TiltakstypeService,
     private val validator: AvtaleValidator,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
@@ -52,10 +54,10 @@ class AvtaleService(
                 kontaktpersoner = it.kontaktpersoner,
             )
         }
-
+        val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.tiltakskode).id
         val status = resolveStatus(request, previous, today)
         val dbo = validator
-            .validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status), previous)
+            .validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status, tiltakstypeId), previous)
             .bind()
 
         if (previous != null && AvtaleDboMapper.fromAvtaleDto(previous) == dbo) {

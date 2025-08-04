@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
+import java.util.UUID
 import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -51,12 +52,13 @@ object AvtaleDboMapper {
         request: AvtaleRequest,
         arrangor: AvtaleDbo.Arrangor?,
         status: AvtaleStatus,
+        tiltakstypeId: UUID,
     ): AvtaleDbo = AvtaleDbo(
         id = request.id,
         navn = request.navn,
         avtalenummer = request.avtalenummer,
         sakarkivNummer = request.sakarkivNummer,
-        tiltakstypeId = request.tiltakstypeId,
+        tiltakstypeId = tiltakstypeId,
         arrangor = arrangor,
         startDato = request.startDato,
         sluttDato = request.sluttDato,
