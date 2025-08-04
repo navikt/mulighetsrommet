@@ -11,6 +11,8 @@ export function RedaksjoneltInnholdGjennomforing() {
       <RedaksjoneltInnholdPreview
         tiltakstype={gjennomforing.tiltakstype}
         kontorstruktur={gjennomforing.kontorstruktur}
+        beskrivelse={gjennomforing.beskrivelse}
+        faneinnhold={gjennomforing.faneinnhold}
       />
     </GjennomforingPageLayout>
   );

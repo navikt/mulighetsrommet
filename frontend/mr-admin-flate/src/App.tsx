@@ -172,6 +172,11 @@ const routes: RouteObject[] = [
         errorElement: <ErrorPage />,
       },
       {
+        path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/skjema",
+        element: <GjennomforingFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
         path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
         element: <OpprettTilsagnFormPage />,
         errorElement: <ErrorPage />,
