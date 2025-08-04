@@ -45,14 +45,13 @@ export function useApiSuspenseQuery<TQueryFnData, TData = TQueryFnData>(
     ...restOptions,
     queryFn: async () => {
       const result = await queryFn();
-      if (!result.data) {
+      if (result.data === undefined) {
         throw new Error("Data is undefined"); // Ensure data is always defined
       }
       return result.data; // Extract the nested `data`
     },
     retry: (failureCount, response: Response) => {
-      if (response.status >= 500 && failureCount < 3) return true;
-      return false;
+      return response.status >= 500 && failureCount < 3;
     },
   });
 }
