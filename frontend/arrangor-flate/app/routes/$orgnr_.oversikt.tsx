@@ -129,10 +129,10 @@ export default function UtbetalingOversikt() {
           />
         </Tabs.List>
         <Tabs.Panel value="aktive" className="w-full">
-          <UtbetalingTable utbetalinger={aktive} />
+          <UtbetalingTable utbetalinger={aktive} belopColumn="innsendt" />
         </Tabs.Panel>
         <Tabs.Panel value="historiske" className="w-full">
-          <UtbetalingTable utbetalinger={historiske} />
+          <UtbetalingTable utbetalinger={historiske} belopColumn="godkjent" />
         </Tabs.Panel>
         <Tabs.Panel value="tilsagnsoversikt" className="w-full">
           <TilsagnTable tilsagn={tilsagn} />
