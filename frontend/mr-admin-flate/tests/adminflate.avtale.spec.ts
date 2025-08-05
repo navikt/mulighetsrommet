@@ -11,9 +11,9 @@ const fyllInnAvtale = async (page: Page) => {
   await expect(page.getByText("Opprett ny avtale")).toBeVisible();
   await locateAndFillInput(page, "navn", "Testavtale fra Playwright");
   await locateAndFillInput(page, "sakarkivNummer", "24/123");
-  await locateAndFillInput(page, "input#tiltakstype", "AFT");
+  await page.getByLabel("tiltakstype").selectOption({ value: "ARBEIDSFORBEREDENDE_TRENING" });
+  await page.keyboard.press("Enter");
   await page.fill('.navds-form-field:has(label:text("Startdato")) input', "01.02.2025");
-  await locateAndFillInput(page, "input#tiltakstype", "AFT");
 
   await page.getByRole("button", { name: "Neste" }).click();
 
