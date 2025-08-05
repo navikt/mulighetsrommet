@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.mulighetsrommet.api.plugins.*
+import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 import no.nav.mulighetsrommet.api.routes.apiRoutes
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -37,7 +38,11 @@ fun main() {
         NaisEnv.Local -> ApplicationConfigLocal
     }
 
-    embeddedServer(
+    createServer(config).start(wait = true)
+}
+
+fun createServer(config: AppConfig): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
+    return embeddedServer(
         Netty,
         configure = {
             connector {
@@ -48,7 +53,7 @@ fun main() {
             shutdownTimeout = 10.seconds.inWholeMilliseconds
         },
         module = { configure(config) },
-    ).start(wait = true)
+    )
 }
 
 fun Application.configure(config: AppConfig) {
@@ -67,8 +72,14 @@ fun Application.configure(config: AppConfig) {
 
     install(OpenApi) {
         outputFormat = OutputFormat.YAML
-        pathFilter = { method, url ->
-            url.contains("veilederflate")
+
+        pathFilter = { method, urlParts ->
+            val url = urlParts.joinToString("/", prefix = "/")
+            OpenApiSpec.match(url) != null
+        }
+
+        specAssigner = { url, tags ->
+            OpenApiSpec.match(url)?.specName ?: throw IllegalStateException("Failed to resolve OpenApiSpec for $url")
         }
 
         schemas {
