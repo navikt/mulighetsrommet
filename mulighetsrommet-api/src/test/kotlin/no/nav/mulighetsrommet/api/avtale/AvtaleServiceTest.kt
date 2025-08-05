@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -32,7 +33,6 @@ import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 
 class AvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
