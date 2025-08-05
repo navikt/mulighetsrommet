@@ -37,7 +37,11 @@ fun main() {
         NaisEnv.Local -> ApplicationConfigLocal
     }
 
-    embeddedServer(
+    createServer(config).start(wait = true)
+}
+
+fun createServer(config: AppConfig): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
+    return embeddedServer(
         Netty,
         configure = {
             connector {
@@ -48,7 +52,7 @@ fun main() {
             shutdownTimeout = 10.seconds.inWholeMilliseconds
         },
         module = { configure(config) },
-    ).start(wait = true)
+    )
 }
 
 fun Application.configure(config: AppConfig) {
@@ -67,8 +71,16 @@ fun Application.configure(config: AppConfig) {
 
     install(OpenApi) {
         outputFormat = OutputFormat.YAML
+
         pathFilter = { method, url ->
             url.contains("veilederflate")
+        }
+
+        specAssigner = { url, tags ->
+            when {
+                url.startsWith("/api/veilederflate") -> "veilederflate"
+                else -> "default"
+            }
         }
 
         schemas {

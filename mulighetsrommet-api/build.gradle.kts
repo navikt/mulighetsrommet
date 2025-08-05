@@ -13,6 +13,20 @@ application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }
 
+tasks.register<JavaExec>("generateOpenApi") {
+    group = "documentation"
+    description = "Generates all configured OpenAPI specs by running a dedicated generator."
+
+    mainClass.set("no.nav.mulighetsrommet.api.GenerateOpenApiKt")
+    classpath = sourceSets.main.get().runtimeClasspath
+
+    // Specs to generate (name of spec -> file output path)
+    args = listOf(
+        "veilederflate",
+        "../frontend/mulighetsrommet-veileder-flate/openapi.yaml",
+    )
+}
+
 val validateOpenapiSpec = tasks.register<ValidateTask>("validateOpenapiSpec") {
     inputSpec.set("$rootDir/mulighetsrommet-api/src/main/resources/web/openapi.yaml")
     recommend.set(true)

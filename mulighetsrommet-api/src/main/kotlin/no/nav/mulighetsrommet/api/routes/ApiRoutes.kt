@@ -47,8 +47,8 @@ fun Route.apiRoutes() {
 
     route("/api") {
         route("/veilederflate") {
-            route("api.yaml") {
-                openApi()
+            route("openapi.yaml") {
+                openApi("veilederflate")
             }
 
             authenticate(AuthProvider.NAV_ANSATT) {
