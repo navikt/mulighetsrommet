@@ -75,7 +75,7 @@ export function GjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
 
       <RedaksjoneltInnholdForm
         key={`redaksjonelt-innhold-${key}`}
-        tiltakstype={avtale.tiltakstype}
+        tiltakId={avtale.tiltakstype.id}
         regionerOptions={regionerOptions}
         kontorerOptions={kontorEnheterOptions}
         andreEnheterOptions={andreEnheterOptions}

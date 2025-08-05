@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -27,7 +28,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 
 class AvtaleService(
     private val db: ApiDatabase,
@@ -54,7 +54,7 @@ class AvtaleService(
                 kontaktpersoner = it.kontaktpersoner,
             )
         }
-        val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.tiltakskode).id
+        val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.tiltakKode).id
         val status = resolveStatus(request, previous, today)
         val dbo = validator
             .validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status, tiltakstypeId), previous)

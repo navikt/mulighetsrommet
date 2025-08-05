@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
-import java.util.UUID
 import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Periode
+import java.util.UUID
 
 object AvtaleDboMapper {
     fun fromAvtaleDto(dto: AvtaleDto) = AvtaleDbo(

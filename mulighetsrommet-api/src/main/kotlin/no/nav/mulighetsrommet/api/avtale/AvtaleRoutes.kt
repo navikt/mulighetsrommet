@@ -30,7 +30,7 @@ data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val tiltakskode: Tiltakskode,
+    val tiltakKode: Tiltakskode,
     val arrangor: Arrangor?,
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,

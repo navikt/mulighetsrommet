@@ -128,7 +128,7 @@ export function NewAvtaleFormPage() {
               kontaktpersoner: data.arrangorKontaktpersoner || [],
             }
           : null,
-      tiltakstypeId: data.tiltakstype.id,
+      tiltakKode: data.tiltakskode,
       prisbetingelser:
         !data.prismodell || data.prismodell === Prismodell.ANNEN_AVTALT_PRIS
           ? data.prisbetingelser || null
