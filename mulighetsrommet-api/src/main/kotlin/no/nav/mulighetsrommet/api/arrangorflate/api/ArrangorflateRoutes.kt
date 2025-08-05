@@ -410,3 +410,9 @@ fun RoutingContext.getArrFlateTilsagnFilter(): ArrFlateTilsagnFilter {
         typer = call.parameters.getAll("typer")?.map { TilsagnType.valueOf(it) },
     )
 }
+
+@Serializable
+data class ArrFlateUtbetalinger(
+    val aktive: List<ArrFlateUtbetalingKompaktDto>,
+    val historiske: List<ArrFlateUtbetalingKompaktDto>,
+)

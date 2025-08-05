@@ -1957,9 +1957,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+                $ref: "#/components/schemas/ArrFlateUtbetalinger"
         default:
           $ref: "#/components/responses/ProblemDetail"
     post:
@@ -4881,6 +4879,7 @@ components:
         - UTBETALT
         - VENTER_PA_ENDRING
         - OVERFORT_TIL_UTBETALING
+        - AVBRUTT
 
     UtbetalingStatusDto:
       oneOf:
@@ -5015,6 +5014,19 @@ components:
       enum:
         - KORRIGERING
         - INVESTERING
+
+    ArrFlateUtbetalinger:
+      type: object
+      properties:
+        aktive:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+        historiske:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+      required: [aktive, historiske]
 
     ArrFlateUtbetalingKompakt:
       type: object

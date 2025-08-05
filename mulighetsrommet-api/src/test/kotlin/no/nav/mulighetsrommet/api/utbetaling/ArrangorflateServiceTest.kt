@@ -81,15 +81,15 @@ class ArrangorflateServiceTest : FunSpec({
     test("getUtbetalinger should return list of compact utbetalinger for arrangor") {
         val result = arrangorflateService.getUtbetalinger(ArrangorflateTestUtils.underenhet.organisasjonsnummer)
 
-        result shouldHaveSize 2
-        result.any { it.id == utbetaling.id } shouldBe true
-        result.any { it.id == friUtbetaling.id } shouldBe true
+        (result.aktive.size + result.historiske.size) shouldBe 2
+        result.aktive.any { it.id == utbetaling.id } shouldBe true
+        result.aktive.any { it.id == friUtbetaling.id } shouldBe true
 
-        val forsteUtbetaling = result.first { it.id == utbetaling.id }
+        val forsteUtbetaling = result.aktive.first { it.id == utbetaling.id }
         forsteUtbetaling.belop shouldBe 10000
         forsteUtbetaling.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
 
-        val andreUtbetaling = result.first { it.id == friUtbetaling.id }
+        val andreUtbetaling = result.aktive.first { it.id == friUtbetaling.id }
         andreUtbetaling.belop shouldBe 5000
         andreUtbetaling.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }

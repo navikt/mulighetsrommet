@@ -1,10 +1,5 @@
 import { ActionMenu, Box, Button, Tabs } from "@navikt/ds-react";
-import {
-  ArrangorflateService,
-  ArrFlateUtbetalingKompakt,
-  ArrFlateUtbetalingStatus,
-  Toggles,
-} from "api-client";
+import { ArrangorflateService, Toggles } from "api-client";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
@@ -66,7 +61,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw problemDetailResponse(tilsagnError);
   }
   return {
-    utbetalinger,
+    aktive: utbetalinger.aktive,
+    historiske: utbetalinger.historiske,
     tilsagn,
     opprettKravOmUtbetalingToggle,
     opprettUtbetalingsKravAnnenAvtaltPrisToggle,
@@ -76,15 +72,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function UtbetalingOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const {
-    utbetalinger,
+    aktive,
+    historiske,
     tilsagn,
     opprettKravOmUtbetalingToggle,
     opprettUtbetalingsKravAnnenAvtaltPrisToggle,
   } = useLoaderData<typeof loader>();
-  const historiske: ArrFlateUtbetalingKompakt[] = utbetalinger.filter(
-    (k) => k.status === ArrFlateUtbetalingStatus.UTBETALT,
-  );
-  const aktive = utbetalinger.filter((k) => k.status !== ArrFlateUtbetalingStatus.UTBETALT);
   const orgnr = useOrgnrFromUrl();
 
   return (
