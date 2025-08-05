@@ -12,13 +12,19 @@ import {
   Tiltakskode,
   Toggles,
 } from "@mr/api-client-v2";
-import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { HGrid, List, Textarea, TextField, VStack } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
+import {
+  HGrid,
+  List,
+  Select,
+  Textarea,
+  TextField,
+  UNSAFE_Combobox,
+  VStack,
+} from "@navikt/ds-react";
+import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -45,6 +51,7 @@ export function AvtaleDetaljerForm({
     getValues,
     setValue,
     watch,
+    control,
   } = useFormContext<AvtaleFormValues>();
 
   const avtaletype = watch("avtaletype");
@@ -136,24 +143,26 @@ export function AvtaleDetaljerForm({
         </FormGroup>
         <FormGroup>
           <HGrid gap="4" columns={2}>
-            <ControlledSokeSelect
+            <Select
               size="small"
-              placeholder="Velg en"
               label={avtaletekster.tiltakstypeLabel}
               {...register("tiltakskode")}
-              options={tiltakstyper.map((tiltakstype) => ({
-                value: tiltakstype.tiltakskode as string,
-                label: tiltakstype.navn,
-              }))}
-            />
-            <ControlledSokeSelect
+            >
+              <option value="">-- Velg en --</option>
+              {tiltakstyper.map((type) => (
+                <option value={type.tiltakskode as string}>{type.navn}</option>
+              ))}
+            </Select>
+            <Select
               size="small"
-              placeholder="Velg en"
               readOnly={antallOpsjonerUtlost > 0}
               label={avtaletekster.avtaletypeLabel}
               {...register("avtaletype")}
-              options={tiltakskode ? getAvtaletypeOptions(tiltakskode) : []}
-            />
+            >
+              {getAvtaletypeOptions(tiltakskode).map((type) => (
+                <option value={type.value}>{type.label}</option>
+              ))}
+            </Select>
           </HGrid>
           {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
             <AvtaleAmoKategoriseringForm />
@@ -182,16 +191,42 @@ export function AvtaleDetaljerForm({
       </VStack>
       <VStack>
         <FormGroup>
-          <ControlledMultiSelect
-            size="small"
-            helpText="Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene."
-            placeholder="Administratorer"
-            label={avtaletekster.administratorerForAvtalenLabel}
-            {...register("administratorer")}
-            options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
+          <Controller
+            control={control}
+            name="administratorer"
+            render={({ field }) => (
+              <UNSAFE_Combobox
+                id="administratorer"
+                label={
+                  <LabelWithHelpText
+                    label={avtaletekster.administratorerForAvtalenLabel}
+                    helpTextTitle="Mer informasjon"
+                  >
+                    Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
+                  </LabelWithHelpText>
+                }
+                placeholder="Administratorer"
+                isMultiSelect
+                selectedOptions={AdministratorOptions(
+                  ansatt,
+                  watchedAdministratorer,
+                  administratorer,
+                ).filter((option) => field.value?.includes(option.value))}
+                name={field.name}
+                error={errors.administratorer?.message}
+                options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
+                onToggleSelected={(option, isSelected) => {
+                  if (isSelected) {
+                    field.onChange([...field.value, option]);
+                  } else {
+                    field.onChange(field.value.filter((v) => v !== option));
+                  }
+                }}
+              />
+            )}
           />
         </FormGroup>
-        <AvtaleArrangorForm readOnly={false} />
+        <AvtaleArrangorForm />
       </VStack>
     </TwoColumnGrid>
   );
