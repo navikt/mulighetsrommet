@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 
 class AvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -60,6 +61,7 @@ class AvtaleServiceTest : FunSpec({
     ) = AvtaleService(
         database.db,
         ArrangorService(database.db, brregClient),
+        TiltakstypeService(database.db),
         validator,
         gjennomforingPublisher,
     )
