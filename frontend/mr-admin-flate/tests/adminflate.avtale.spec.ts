@@ -1,5 +1,5 @@
 import test, { expect, Page } from "@playwright/test";
-import { locateAndFillComboboxFirst, locateAndFillInput } from "./utils";
+import { locateAndFillInput } from "./utils";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
@@ -11,9 +11,9 @@ const fyllInnAvtale = async (page: Page) => {
   await expect(page.getByText("Opprett ny avtale")).toBeVisible();
   await locateAndFillInput(page, "navn", "Testavtale fra Playwright");
   await locateAndFillInput(page, "sakarkivNummer", "24/123");
-  await locateAndFillComboboxFirst(page, "input#tiltakstype", "AFT");
+  await locateAndFillInput(page, "input#tiltakstype", "AFT");
   await page.fill('.navds-form-field:has(label:text("Startdato")) input', "01.02.2025");
-  await locateAndFillComboboxFirst(page, "input#tiltakstype", "AFT");
+  await locateAndFillInput(page, "input#tiltakstype", "AFT");
 
   await page.getByRole("button", { name: "Neste" }).click();
 
