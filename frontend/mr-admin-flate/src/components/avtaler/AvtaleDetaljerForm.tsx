@@ -53,7 +53,6 @@ export function AvtaleDetaljerForm({
     watch,
     control,
   } = useFormContext<AvtaleFormValues>();
-
   const avtaletype = watch("avtaletype");
   const tiltakskode = watch("tiltakskode");
   const watchedAdministratorer = watch("administratorer");
@@ -150,7 +149,9 @@ export function AvtaleDetaljerForm({
             >
               <option value="">-- Velg en --</option>
               {tiltakstyper.map((type) => (
-                <option value={type.tiltakskode as string}>{type.navn}</option>
+                <option key={type.tiltakskode} value={type.tiltakskode as string}>
+                  {type.navn}
+                </option>
               ))}
             </Select>
             <Select
@@ -159,8 +160,11 @@ export function AvtaleDetaljerForm({
               label={avtaletekster.avtaletypeLabel}
               {...register("avtaletype")}
             >
+              <option value="">-- Velg en --</option>
               {getAvtaletypeOptions(tiltakskode).map((type) => (
-                <option value={type.value}>{type.label}</option>
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
             </Select>
           </HGrid>

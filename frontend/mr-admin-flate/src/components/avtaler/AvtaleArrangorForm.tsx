@@ -104,10 +104,11 @@ export function AvtaleArrangorForm() {
               options={arrangorUnderenhetOptions}
               readOnly={underenheterIsEmpty}
               onToggleSelected={(option, isSelected) => {
+                const currentValues = field.value ?? [];
                 if (isSelected) {
-                  field.onChange([...field.value, option]);
+                  field.onChange([...currentValues, option]);
                 } else {
-                  field.onChange(field.value.filter((v) => v !== option));
+                  field.onChange(currentValues.filter((v) => v !== option));
                 }
               }}
             />
@@ -131,10 +132,11 @@ export function AvtaleArrangorForm() {
                 options={arrangorKontaktpersonOptions}
                 readOnly={!arrangor}
                 onToggleSelected={(option, isSelected) => {
+                  const currentValues = field.value ?? [];
                   if (isSelected) {
-                    field.onChange([...field.value, option]);
+                    field.onChange([...currentValues, option]);
                   } else {
-                    field.onChange(field.value.filter((v) => v !== option));
+                    field.onChange(currentValues.filter((v) => v !== option));
                   }
                 }}
               />
