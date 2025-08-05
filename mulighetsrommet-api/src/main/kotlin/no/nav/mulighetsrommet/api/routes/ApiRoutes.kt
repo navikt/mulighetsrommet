@@ -48,7 +48,7 @@ fun Route.apiRoutes() {
     route("/api") {
         route("/veilederflate") {
             route("openapi.yaml") {
-                openApi("veilederflate")
+                openApi(OpenApiSpec.VEILEDERFLATE.specName)
             }
 
             authenticate(AuthProvider.NAV_ANSATT) {
