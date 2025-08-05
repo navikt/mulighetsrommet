@@ -12,14 +12,7 @@ import { AvtaleFormValues } from "./avtale";
 
 export const avtaleDetaljerSchema = z.object({
   navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
-  tiltakstype: z.object(
-    {
-      navn: z.string(),
-      tiltakskode: z.enum(Tiltakskode),
-      id: z.string(),
-    },
-    { error: "Du må velge en tiltakstype" },
-  ),
+  tiltakskode: z.enum(Tiltakskode, { error: "Du må velge en tiltakstype" }),
   avtaletype: z.enum(Avtaletype, {
     error: "Du må velge en avtaletype",
   }),
@@ -107,10 +100,7 @@ export const validateAvtaledetaljer = (
       path: ["startDato"],
     });
   }
-  if (
-    data.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
-    !data.amoKategorisering
-  ) {
+  if (data.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && !data.amoKategorisering) {
     ctx.addIssue({
       code: "custom",
       message: "Du må velge en kurstype",
@@ -139,7 +129,7 @@ export function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
  * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
  */
 export function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | null {
-  if (data.tiltakstype.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+  if (data.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
     return null;
   }
 

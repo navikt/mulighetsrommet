@@ -51,7 +51,7 @@ export function defaultAvtaleData(
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
-    tiltakstype: avtale?.tiltakstype,
+    tiltakskode: avtale?.tiltakstype.tiltakskode,
     navRegioner: navRegioner,
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),

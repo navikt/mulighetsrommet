@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Periode
+import java.util.UUID
 
 object AvtaleDboMapper {
     fun fromAvtaleDto(dto: AvtaleDto) = AvtaleDbo(
@@ -51,12 +52,13 @@ object AvtaleDboMapper {
         request: AvtaleRequest,
         arrangor: AvtaleDbo.Arrangor?,
         status: AvtaleStatus,
+        tiltakstypeId: UUID,
     ): AvtaleDbo = AvtaleDbo(
         id = request.id,
         navn = request.navn,
         avtalenummer = request.avtalenummer,
         sakarkivNummer = request.sakarkivNummer,
-        tiltakstypeId = request.tiltakstypeId,
+        tiltakstypeId = tiltakstypeId,
         arrangor = arrangor,
         startDato = request.startDato,
         sluttDato = request.sluttDato,
