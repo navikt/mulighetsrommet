@@ -66,7 +66,6 @@ export function NewAvtaleFormPage() {
     defaultAvtaleData(ansatt, location.state?.dupliserAvtale),
   );
 
-  console.log(location.state?.dupliserAvtale);
   const currentStep = steps[activeStep - 1];
   const methods = useForm({
     resolver: zodResolver(currentStep.schema as ZodObject<any>),
