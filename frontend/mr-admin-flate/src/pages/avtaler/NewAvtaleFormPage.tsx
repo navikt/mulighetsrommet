@@ -24,7 +24,7 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useCallback, useState } from "react";
 import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import { ZodObject } from "zod";
 
@@ -57,15 +57,17 @@ export function NewAvtaleFormPage() {
   ];
 
   const navigate = useNavigate();
+
+  const location = useLocation();
   const mutation = useUpsertAvtale();
   const { data: ansatt } = useHentAnsatt();
   const [activeStep, setActiveStep] = useState<number>(1);
   const [collectedData, setCollectedData] = useState<DeepPartial<AvtaleFormValues>>(
-    defaultAvtaleData(ansatt),
+    defaultAvtaleData(ansatt, location.state?.dupliserAvtale),
   );
 
+  console.log(location.state?.dupliserAvtale);
   const currentStep = steps[activeStep - 1];
-
   const methods = useForm({
     resolver: zodResolver(currentStep.schema as ZodObject<any>),
     defaultValues: collectedData,
