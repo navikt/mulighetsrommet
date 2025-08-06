@@ -347,7 +347,7 @@ paths:
       summary: Hent status for deling av tiltak med bruker
       description: Henter informasjon om et tiltak er delt med en bruker basert på
         norskIdent og tiltakId. Krever tilgang til brukeren.
-      operationId: getDelMedBruker
+      operationId: getDeltMedBruker
       parameters: []
       requestBody:
         content:
@@ -362,7 +362,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DelMedBrukerDbo"
+                $ref: "#/components/schemas/DeltMedBrukerDto"
         "204":
           description: Ingen informasjon funnet for tiltaket
           headers: {}
@@ -381,7 +381,7 @@ paths:
       summary: Hent alle tiltak delt med bruker
       description: Henter siste informasjon om alle tiltak delt med en bruker basert
         på norskIdent. Krever tilgang til brukeren.
-      operationId: getAlleTiltakDeltMedBruker
+      operationId: getAlleDeltMedBruker
       parameters: []
       requestBody:
         content:
@@ -398,7 +398,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DelMedBrukerDbo"
+                  $ref: "#/components/schemas/DeltMedBrukerDto"
         "204":
           description: Ingen informasjon funnet
           headers: {}
@@ -417,7 +417,7 @@ paths:
       summary: Hent historikk for tiltak delt med bruker
       description: Henter historikk om alle tiltak delt med en bruker basert på norskIdent.
         Krever tilgang til brukeren.
-      operationId: getHistorikkForDeltMedBruker
+      operationId: getDeltMedBrukerHistorikk
       parameters: []
       requestBody:
         content:
@@ -434,7 +434,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakDeltMedBruker"
+                  $ref: "#/components/schemas/TiltakDeltMedBrukerDto"
         "204":
           description: Ingen informasjon funnet
           headers: {}
@@ -1447,6 +1447,9 @@ components:
           type: boolean
         fnr:
           type: string
+        tiltakstypeId:
+          type: string
+          format: uuid
         gjennomforingId:
           type:
           - "null"
@@ -1457,23 +1460,16 @@ components:
           - "null"
           - string
           format: uuid
-        tiltakstypeNavn:
-          type: string
-        deltFraFylke:
-          type:
-          - "null"
-          - string
         deltFraEnhet:
           type: string
       required:
       - deltFraEnhet
-      - deltFraFylke
       - fnr
       - gjennomforingId
       - overskrift
       - sanityId
       - tekst
-      - tiltakstypeNavn
+      - tiltakstypeId
       - venterPaaSvarFraBruker
     DelTiltakMedBrukerResponse:
       type: object
@@ -1493,73 +1489,28 @@ components:
       required:
       - norskIdent
       - tiltakId
-    DelMedBrukerDbo:
+    DelingMedBruker:
       type: object
       properties:
-        id:
-          type:
-          - "null"
-          - string
-        norskIdent:
-          type: string
-        navident:
-          type: string
-        sanityId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        gjennomforingId:
-          type:
-          - "null"
-          - string
-          format: uuid
         dialogId:
           type: string
-        createdAt:
-          type:
-          - "null"
-          - string
+        tidspunkt:
+          type: string
           format: date-time
-        updatedAt:
-          type:
-          - "null"
-          - string
-          format: date-time
-        createdBy:
-          type:
-          - "null"
-          - string
-        updatedBy:
-          type:
-          - "null"
-          - string
-        tiltakstypeNavn:
-          type:
-          - "null"
-          - string
-        deltFraFylke:
-          type:
-          - "null"
-          - string
-        deltFraEnhet:
-          type:
-          - "null"
-          - string
       required:
-      - createdAt
-      - createdBy
-      - deltFraEnhet
-      - deltFraFylke
       - dialogId
-      - gjennomforingId
-      - id
-      - navident
-      - norskIdent
-      - sanityId
-      - tiltakstypeNavn
-      - updatedAt
-      - updatedBy
+      - tidspunkt
+    DeltMedBrukerDto:
+      type: object
+      properties:
+        tiltakId:
+          type: string
+          format: uuid
+        deling:
+          $ref: "#/components/schemas/DelingMedBruker"
+      required:
+      - deling
+      - tiltakId
     GetAlleDeltMedBrukerRequest:
       type: object
       properties:
@@ -1567,28 +1518,31 @@ components:
           type: string
       required:
       - norskIdent
+    TiltakDeltMedBrukerDto:
+      type: object
+      properties:
+        tiltak:
+          $ref: "#/components/schemas/TiltakDeltMedBruker"
+        deling:
+          $ref: "#/components/schemas/DelingMedBruker"
+        tiltakstype:
+          $ref: "#/components/schemas/TiltakstypeDeltMedBruker"
+      required:
+      - deling
+      - tiltak
+      - tiltakstype
     TiltakDeltMedBruker:
       type: object
       properties:
-        navn:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        dialogId:
-          type: string
-        tiltakId:
+        id:
           type: string
           format: uuid
-        tiltakstype:
-          $ref: "#/components/schemas/Tiltakstype"
+        navn:
+          type: string
       required:
-      - createdAt
-      - dialogId
+      - id
       - navn
-      - tiltakId
-      - tiltakstype
-    Tiltakstype:
+    TiltakstypeDeltMedBruker:
       type: object
       properties:
         tiltakskode:
