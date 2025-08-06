@@ -1,20 +1,17 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Textarea, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   AvtaleArrangorHovedenhet,
 } from "@mr/api-client-v2";
-import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useRef } from "react";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
-
 interface Props {
   arrangor: AvtaleArrangorHovedenhet;
   readOnly: boolean;
@@ -28,6 +25,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
     watch,
     formState: { errors },
     setValue,
+    control,
   } = useFormContext<InferredGjennomforingSchema>();
 
   const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(arrangor.id);
@@ -36,42 +34,63 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
   const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
   return (
     <>
-      <VStack gap="2">
+      <VStack gap="4">
         <TextField
           size="small"
           label={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
-          placeholder=""
           defaultValue={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
           readOnly
         />
-        <ControlledSokeSelect
-          size="small"
-          label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
-          placeholder="Velg underenhet for tiltaksarrangør"
-          {...register("arrangorId")}
-          onClearValue={() => {
-            setValue("arrangorId", "");
-          }}
-          readOnly={readOnly}
-          options={arrangorOptions}
+        <Controller
+          control={control}
+          name="arrangorId"
+          render={({ field }) => (
+            <UNSAFE_Combobox
+              id="arrangorId"
+              label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
+              placeholder="Velg underenhet for tiltaksarrangør"
+              selectedOptions={arrangorOptions.filter((option) =>
+                field.value?.includes(option.value),
+              )}
+              name={field.name}
+              error={errors.arrangorId?.message}
+              options={arrangorOptions}
+              readOnly={readOnly}
+              onToggleSelected={(option, isSelected) => {
+                if (isSelected) {
+                  field.onChange(option);
+                } else {
+                  field.onChange(undefined);
+                }
+              }}
+            />
+          )}
         />
         <VStack>
-          <ControlledMultiSelect
-            size="small"
-            placeholder="Velg kontaktpersoner"
-            label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
-            {...register("arrangorKontaktpersoner")}
-            options={kontaktpersonOptions}
-            noOptionsMessage={
-              <Button
-                size="small"
-                type="button"
-                variant="tertiary"
-                onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
-              >
-                Opprett kontaktpersoner
-              </Button>
-            }
+          <Controller
+            control={control}
+            name="arrangorKontaktpersoner"
+            render={({ field }) => (
+              <UNSAFE_Combobox
+                id="arrangorKontaktpersoner"
+                label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
+                placeholder="Velg kontaktpersoner"
+                isMultiSelect
+                selectedOptions={kontaktpersonOptions.filter((v) => field.value?.includes(v.value))}
+                name={field.name}
+                error={errors.arrangorKontaktpersoner?.message}
+                options={kontaktpersonOptions}
+                readOnly={!arrangor}
+                onToggleSelected={(option, isSelected) => {
+                  const currentValues = field.value ?? [];
+                  if (isSelected) {
+                    field.onChange([...currentValues, option]);
+                  } else {
+                    field.onChange(currentValues.filter((v) => v !== option));
+                  }
+                }}
+              />
+            )}
           />
           <KontaktpersonButton
             onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}

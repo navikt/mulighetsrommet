@@ -18,8 +18,6 @@ import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { AvtaleRedaksjoneltInnholdForm } from "@/components/avtaler/AvtaleRedaksjoneltInnholdForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { ContentBox } from "@/layouts/ContentBox";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -76,51 +74,48 @@ export function AvtalePage() {
             />
           )}
         </Tabs.List>
-        <ContentBox>
-          <WhitePaddedBox>
-            <Tabs.Panel value="detaljer">
-              {redigeringsmodus ? (
-                <RedigerAvtaleContainer avtale={avtale}>
-                  <AvtaleDetaljerForm
-                    opsjonerRegistrert={avtale.opsjonerRegistrert}
-                    avtalenummer={avtale.avtalenummer}
-                  />
-                </RedigerAvtaleContainer>
-              ) : (
-                <AvtalePageLayout avtale={avtale}>
-                  <AvtaleDetaljer avtale={avtale} />
-                </AvtalePageLayout>
-              )}
-            </Tabs.Panel>
-            <Tabs.Panel value="personvern">
-              {redigeringsmodus ? (
-                <RedigerAvtaleContainer avtale={avtale}>
-                  <AvtalePersonvernForm />
-                </RedigerAvtaleContainer>
-              ) : (
-                <AvtalePageLayout avtale={avtale}>
-                  <AvtalePersonvern avtale={avtale} />
-                </AvtalePageLayout>
-              )}
-            </Tabs.Panel>
-            <Tabs.Panel value="redaksjonelt-innhold">
-              {redigeringsmodus ? (
-                <RedigerAvtaleContainer avtale={avtale}>
-                  <AvtaleRedaksjoneltInnholdForm />
-                </RedigerAvtaleContainer>
-              ) : (
-                <AvtalePageLayout avtale={avtale}>
-                  <RedaksjoneltInnholdPreview
-                    tiltakstype={avtale.tiltakstype}
-                    beskrivelse={avtale.beskrivelse}
-                    faneinnhold={avtale.faneinnhold}
-                    kontorstruktur={avtale.kontorstruktur}
-                  />
-                </AvtalePageLayout>
-              )}
-            </Tabs.Panel>
-          </WhitePaddedBox>
-        </ContentBox>
+        <Tabs.Panel value="detaljer">
+          {redigeringsmodus ? (
+            <RedigerAvtaleContainer avtale={avtale}>
+              <AvtaleDetaljerForm
+                opsjonerRegistrert={avtale.opsjonerRegistrert}
+                avtalenummer={avtale.avtalenummer}
+              />
+            </RedigerAvtaleContainer>
+          ) : (
+            <AvtalePageLayout avtale={avtale}>
+              <AvtaleDetaljer avtale={avtale} />
+            </AvtalePageLayout>
+          )}
+        </Tabs.Panel>
+        <Tabs.Panel value="personvern">
+          {redigeringsmodus ? (
+            <RedigerAvtaleContainer avtale={avtale}>
+              <AvtalePersonvernForm />
+            </RedigerAvtaleContainer>
+          ) : (
+            <AvtalePageLayout avtale={avtale}>
+              <AvtalePersonvern avtale={avtale} />
+            </AvtalePageLayout>
+          )}
+        </Tabs.Panel>
+        <Tabs.Panel value="redaksjonelt-innhold">
+          {redigeringsmodus ? (
+            <RedigerAvtaleContainer avtale={avtale}>
+              <AvtaleRedaksjoneltInnholdForm />
+            </RedigerAvtaleContainer>
+          ) : (
+            <AvtalePageLayout avtale={avtale}>
+              <RedaksjoneltInnholdPreview
+                tiltakstype={avtale.tiltakstype}
+                beskrivelse={avtale.beskrivelse}
+                faneinnhold={avtale.faneinnhold}
+                kontorstruktur={avtale.kontorstruktur}
+              />
+            </AvtalePageLayout>
+          )}
+        </Tabs.Panel>
+
         <Tabs.Panel value="gjennomforinger">
           <InlineErrorBoundary>
             <GjennomforingerForAvtalePage />

@@ -85,14 +85,6 @@ export function AvtaleDetaljerForm({
       });
 
       setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
-    } else {
-      setValue("opsjonsmodell", {
-        type: getValues("opsjonsmodell.type"),
-        customOpsjonsmodellNavn: null,
-        opsjonMaksVarighet: null,
-      });
-
-      setValue("prismodell", null);
     }
   }, [avtaletype, getValues, setValue]);
 
