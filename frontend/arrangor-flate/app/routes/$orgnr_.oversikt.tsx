@@ -1,18 +1,18 @@
+import { ChevronDownIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Box, Button, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, Toggles } from "api-client";
+import { ArrangorflateService, FeatureToggle } from "api-client";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
+import { PageHeading } from "~/components/common/PageHeading";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
 import { useTabState } from "~/hooks/useTabState";
 import { toggleIsEnabled } from "~/services/featureToggle/featureToggleService";
 import { tekster } from "~/tekster";
-import css from "../root.module.css";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
-import { PageHeading } from "~/components/common/PageHeading";
-import { ChevronDownIcon } from "@navikt/aksel-icons";
+import css from "../root.module.css";
 
 export const meta: MetaFunction = () => {
   return [
@@ -31,13 +31,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const opprettKravOmUtbetalingToggle = await toggleIsEnabled({
     orgnr,
-    feature: Toggles.ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER,
+    feature: FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER,
     tiltakskoder: [],
     headers: await apiHeaders(request),
   });
   const opprettUtbetalingsKravAnnenAvtaltPrisToggle = await toggleIsEnabled({
     orgnr,
-    feature: Toggles.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
+    feature: FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
     tiltakskoder: [],
     headers: await apiHeaders(request),
   });

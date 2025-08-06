@@ -234,17 +234,21 @@ class ArrangorFlateService(
             .map { toArrangorflateGjennomforing(it) }
     }
 
-    suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
+    suspend fun getKontonummer(
+        orgnr: Organisasjonsnummer,
+    ): Either<KontonummerRegisterOrganisasjonError, Kontonummer> {
         return kontoregisterOrganisasjonClient
             .getKontonummerForOrganisasjon(orgnr)
-            .map { it.kontonr }
+            .map { Kontonummer(it.kontonr) }
     }
 
-    suspend fun synkroniserKontonummer(utbetaling: Utbetaling): Either<KontonummerRegisterOrganisasjonError, String> = db.session {
-        getKontonummer(utbetaling.arrangor.organisasjonsnummer).onRight {
+    suspend fun synkroniserKontonummer(
+        utbetaling: Utbetaling,
+    ): Either<KontonummerRegisterOrganisasjonError, Kontonummer> = db.session {
+        getKontonummer(utbetaling.arrangor.organisasjonsnummer).onRight { kontonummer ->
             queries.utbetaling.setKontonummer(
                 id = utbetaling.id,
-                kontonummer = Kontonummer(it),
+                kontonummer = kontonummer,
             )
         }
     }
@@ -360,33 +364,33 @@ private fun toArrangorflateTilsagn(
 private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
     val entries = when (tilsagn.beregning) {
         is TilsagnBeregningFri -> listOf(
-            DetailEntry.periode("Tilsagnsperiode", tilsagn.periode),
-            DetailEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
-            DetailEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+            DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
+            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
         is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> listOf(
-            DetailEntry.periode("Tilsagnsperiode", tilsagn.periode),
-            DetailEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            DetailEntry.nok("Fast sats per tiltaksplass per måned", tilsagn.beregning.input.sats),
-            DetailEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
-            DetailEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+            DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
+            DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
+            DetailsEntry.nok("Fast sats per tiltaksplass per måned", tilsagn.beregning.input.sats),
+            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
         is TilsagnBeregningPrisPerManedsverk -> listOf(
-            DetailEntry.periode("Tilsagnsperiode", tilsagn.periode),
-            DetailEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            DetailEntry.nok("Pris per månedsverk", tilsagn.beregning.input.sats),
-            DetailEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
-            DetailEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+            DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
+            DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
+            DetailsEntry.nok("Pris per månedsverk", tilsagn.beregning.input.sats),
+            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
         is TilsagnBeregningPrisPerUkesverk -> listOf(
-            DetailEntry.periode("Tilsagnsperiode", tilsagn.periode),
-            DetailEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            DetailEntry.nok("Pris per ukesverk", tilsagn.beregning.input.sats),
-            DetailEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
-            DetailEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+            DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
+            DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
+            DetailsEntry.nok("Pris per ukesverk", tilsagn.beregning.input.sats),
+            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
     }
     return Details(entries)

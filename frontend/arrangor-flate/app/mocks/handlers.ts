@@ -1,23 +1,21 @@
 import { http, HttpResponse, PathParams } from "msw";
 import {
-  Arrangor,
+  ArrangorflateArrangor,
   ArrFlateUtbetaling,
-  ArrFlateUtbetalingKompakt,
+  ArrFlateUtbetalingKompaktDto,
   ArrFlateUtbetalingStatus,
 } from "api-client";
 import { mockArrFlateUtbetalingKompakt } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn } from "./tilsagnMocks";
 
-const arrangorMock: Arrangor = {
+const arrangorMock: ArrangorflateArrangor = {
   id: "cc04c391-d733-4762-8208-b0dd4387a126",
-  organisasjonsnummer: "123456789",
-  organisasjonsform: "AS",
   navn: "Arrangør",
-  overordnetEnhet: null,
+  organisasjonsnummer: "123456789",
 };
 
-function isAktiv(utbetaling: ArrFlateUtbetalingKompakt): boolean {
+function isAktiv(utbetaling: ArrFlateUtbetalingKompaktDto): boolean {
   switch (utbetaling.status) {
     case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
     case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
@@ -31,7 +29,7 @@ function isAktiv(utbetaling: ArrFlateUtbetalingKompakt): boolean {
 
 export const handlers = [
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
+    "*/api/arrangorflate/arrangor/:orgnr/utbetaling",
     () =>
       HttpResponse.json({
         aktive: mockArrFlateUtbetalingKompakt.filter((u) => isAktiv(u)),
@@ -39,15 +37,15 @@ export const handlers = [
       }),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/kontonummer",
+    "*/api/arrangorflate/arrangor/:orgnr/kontonummer",
     () => HttpResponse.text("10002427740"), // random kontonr
   ),
   http.post<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
+    "*/api/arrangorflate/arrangor/:orgnr/utbetaling",
     () => HttpResponse.text("585a2834-338a-4ac7-82e0-e1b08bfe1408"), // investerings utbetaling
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/utbetaling/:id",
+    "*/api/arrangorflate/utbetaling/:id",
     ({ params }) => {
       const { id } = params;
       const utbetaling = arrFlateUtbetaling.find((k) => k.id === id);
@@ -61,7 +59,7 @@ export const handlers = [
     },
   ),
   http.get<PathParams, string>(
-    "*/api/v1/intern/arrangorflate/utbetaling/:id/sync-kontonummer",
+    "*/api/arrangorflate/utbetaling/:id/sync-kontonummer",
     ({ params }) => {
       const { id } = params;
       const kontoNr = arrFlateUtbetaling.find((k) => k.id === id)?.betalingsinformasjon.kontonummer;
@@ -72,15 +70,15 @@ export const handlers = [
     },
   ),
   http.post<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/utbetaling/:id/godkjenn",
+    "*/api/arrangorflate/utbetaling/:id/godkjenn",
     () => HttpResponse.json({}),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/utbetaling/:id/kvittering",
+    "*/api/arrangorflate/:orgnr/utbetaling/:id/kvittering",
     () => HttpResponse.json(undefined, { status: 501 }),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/utbetaling/:id/tilsagn",
+    "*/api/arrangorflate/utbetaling/:id/tilsagn",
     ({ params }) => {
       const { id } = params;
       const utbetaling = arrFlateUtbetaling.find((u) => u.id === id);
@@ -90,14 +88,19 @@ export const handlers = [
     },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/utbetaling/:id/relevante-forslag",
+    "*/api/arrangorflate/utbetaling/:id/relevante-forslag",
     ({ params }) => {
       if (params.id !== "a5499e34-9fb4-49d1-a37d-11810f6df19b") {
         return HttpResponse.json([]);
       }
+
       const utbetaling = arrFlateUtbetaling.find((it) => it.id === params.id);
+      if (!utbetaling) {
+        return HttpResponse.text(null, { status: 404 });
+      }
+
       const deltakelser =
-        utbetaling!.beregning.type !== "FRI" ? utbetaling!.beregning.deltakelser : [];
+        "deltakelser" in utbetaling.beregning ? utbetaling.beregning.deltakelser : [];
       const deltaker = deltakelser[Math.floor(Math.random() * deltakelser.length)];
       return HttpResponse.json([
         {
@@ -108,7 +111,7 @@ export const handlers = [
     },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/utbetaling/:id/utbetalingsdetaljer",
+    "*/api/arrangorflate/utbetaling/:id/utbetalingsdetaljer",
     () =>
       HttpResponse.json(
         { type: "method-not-allowed", title: "PDF er ikke tilgjengelig i Demo", status: "405" },
@@ -116,11 +119,11 @@ export const handlers = [
       ),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
+    "*/api/arrangorflate/arrangor/:orgnr/tilsagn",
     () => HttpResponse.json(arrangorflateTilsagn),
   ),
   http.get<PathParams, boolean>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/features",
+    "*/api/arrangorflate/arrangor/:orgnr/features",
     ({ request }) => {
       const query = new URL(request.url).searchParams;
       const toggleEnabled = !query
@@ -130,7 +133,7 @@ export const handlers = [
     },
   ),
   http.get<PathParams, boolean>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/gjennomforing",
+    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing",
     () => {
       const gjennomforinger = [
         {
@@ -150,13 +153,14 @@ export const handlers = [
     },
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/tilsagn/:id",
+    "*/api/arrangorflate/tilsagn/:id",
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(arrangorflateTilsagn.find((k) => k.id === id));
     },
   ),
-  http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
-    HttpResponse.json([arrangorMock]),
+  http.get<PathParams, ArrangorflateArrangor[]>(
+    "*/api/arrangorflate/tilgang-arrangor",
+    () => HttpResponse.json([arrangorMock]),
   ),
 ];

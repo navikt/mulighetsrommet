@@ -1,25 +1,23 @@
-import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
-import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
-import { useSortState } from "~/hooks/useSortState";
-import { sortBy, SortBySelector } from "~/utils/sort-by";
-import { DeltakelseTimeline } from "./DeltakelseTimeline";
-import {
-  ArrFlateBeregningDeltakelse,
-  ArrFlateBeregningPrisPerManedsverk,
-  ArrFlateBeregningPrisPerManedsverkDeltakelse,
-  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder,
-  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse,
-  ArrFlateBeregningPrisPerUkesverk,
-  ArrFlateBeregningPrisPerUkesverkDeltakelse,
-  DeltakerAdvarsel,
-  Periode,
-} from "api-client";
-import { tekster } from "~/tekster";
 import {
   formaterDato,
   formaterPeriodeSlutt,
   formaterPeriodeStart,
 } from "@mr/frontend-common/utils/date";
+import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
+import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
+import {
+  ArrFlateBeregning,
+  ArrFlateBeregningDeltakelse,
+  ArrFlateBeregningDeltakelsePrisPerManedsverk,
+  ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder,
+  ArrFlateBeregningDeltakelsePrisPerUkesverk,
+  DeltakerAdvarsel,
+  Periode,
+} from "api-client";
+import { useSortState } from "~/hooks/useSortState";
+import { tekster } from "~/tekster";
+import { sortBy, SortBySelector } from "~/utils/sort-by";
+import { DeltakelseTimeline } from "./DeltakelseTimeline";
 
 enum DeltakerSortKey {
   PERSON_NAVN = "PERSON_NAVN",
@@ -83,15 +81,15 @@ const baseColumns: Column<ArrFlateBeregningDeltakelse>[] = [
 ];
 
 type DeltakerTypeMap = {
-  PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER: ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse;
-  PRIS_PER_MANEDSVERK: ArrFlateBeregningPrisPerManedsverkDeltakelse;
-  PRIS_PER_UKESVERK: ArrFlateBeregningPrisPerUkesverkDeltakelse;
+  ArrFlateBeregningPrisPerManedsverk: ArrFlateBeregningDeltakelsePrisPerManedsverk;
+  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder: ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder;
+  ArrFlateBeregningPrisPerUkesverk: ArrFlateBeregningDeltakelsePrisPerUkesverk;
 };
 
 const columns: {
   [K in keyof DeltakerTypeMap]: Column<DeltakerTypeMap[K]>[];
 } = {
-  PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER: [
+  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder: [
     ...baseColumns,
     {
       label: "Deltakelsesprosent",
@@ -101,12 +99,12 @@ const columns: {
     { label: "Månedsverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
-  PRIS_PER_MANEDSVERK: [
+  ArrFlateBeregningPrisPerManedsverk: [
     ...baseColumns,
     { label: "Månedsverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
-  PRIS_PER_UKESVERK: [
+  ArrFlateBeregningPrisPerUkesverk: [
     ...baseColumns,
     { label: "Ukesverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
@@ -119,14 +117,15 @@ export function DeltakelserTable({
   advarsler,
 }: {
   periode: Periode;
-  beregning:
-    | ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder
-    | ArrFlateBeregningPrisPerManedsverk
-    | ArrFlateBeregningPrisPerUkesverk;
+  beregning: ArrFlateBeregning;
   advarsler: DeltakerAdvarsel[];
   deltakerlisteUrl: string;
 }) {
   const { sort, handleSort } = useSortState<DeltakerSortKey>();
+
+  if (!beregning.type || !("deltakelser" in beregning)) {
+    return null;
+  }
 
   const sortedData = sort
     ? sortBy(beregning.deltakelser, sort.direction, getDeltakerSelector(sort.orderBy))
@@ -135,6 +134,8 @@ export function DeltakelserTable({
   function hasAdvarsel(id: string): boolean {
     return advarsler.some((r) => r.deltakerId === id);
   }
+
+  const cols = columns[beregning.type] as Column<ArrFlateBeregningDeltakelse>[];
 
   return (
     <>
@@ -156,7 +157,7 @@ export function DeltakelserTable({
       <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey as DeltakerSortKey)}>
         <Table.Header>
           <Table.Row>
-            {columns[beregning.type].map((col) => (
+            {cols.map((col) => (
               <Table.ColumnHeader
                 key={col.label}
                 scope="col"
@@ -170,8 +171,6 @@ export function DeltakelserTable({
         </Table.Header>
         <Table.Body>
           {sortedData.map((deltakelse, index) => {
-            const cols = columns[beregning.type] as Column<typeof deltakelse>[];
-
             return (
               <Table.ExpandableRow
                 key={deltakelse.id}
@@ -220,11 +219,13 @@ function DeltakerAdvarselInfo({
   advarsel: DeltakerAdvarsel;
 }) {
   switch (advarsel.type) {
-    case "RELEVANTE_FORSLAG":
+    case "DeltakerAdvarselRelevanteForslag":
       return `${deltaker?.person?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg`;
-    case "FEIL_SLUTTDATO":
+    case "DeltakerAdvarselFeilSluttDato":
       return `${deltaker?.person?.navn} har status “${deltaker?.status}” og slutt dato frem i tid`;
-    case "OVERLAPPENDE_PERIODE":
+    case "DeltakerAdvarselOverlappendePeriode":
       return `${deltaker?.person?.navn} har flere deltakelser med overlappende perioder`;
+    case undefined:
+      throw new Error('"type" mangler fra advarsel');
   }
 }

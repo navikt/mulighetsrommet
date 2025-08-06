@@ -1,27 +1,25 @@
-import { ArrangorflateService, ArrangorflateTilsagn } from "api-client";
+import { ArrangorflateService, ArrangorflateTilsagnDto } from "api-client";
 import { LoaderFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { tekster } from "../tekster";
+import { tekster } from "~/tekster";
 import { VStack } from "@navikt/ds-react";
 import css from "../root.module.css";
-import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { PageHeading } from "~/components/common/PageHeading";
 
 type LoaderData = {
-  tilsagn: ArrangorflateTilsagn;
+  tilsagn: ArrangorflateTilsagnDto;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { id, orgnr } = params;
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
+  const { id } = params;
+
   if (!id) throw Error("Mangler id");
 
   const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
-    path: { id, orgnr },
+    path: { id },
     headers: await apiHeaders(request),
   });
 

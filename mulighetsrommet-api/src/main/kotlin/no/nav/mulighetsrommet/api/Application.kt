@@ -18,6 +18,7 @@ import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 import no.nav.mulighetsrommet.api.routes.apiRoutes
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -149,6 +150,17 @@ fun Application.configure(config: AppConfig) {
                             Schema<Any>().also {
                                 it.types = setOf("string")
                                 it.format = "binary"
+                            }
+                        },
+                    ),
+                )
+                overwrite(
+                    SchemaOverwriteModule(
+                        identifier = Vedlegg::class.qualifiedName!!,
+                        schema = {
+                            Schema<Vedlegg>().apply {
+                                types = setOf("string")
+                                format = "binary"
                             }
                         },
                     ),

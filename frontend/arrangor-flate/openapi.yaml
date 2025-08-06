@@ -1,0 +1,1355 @@
+openapi: 3.1.0
+info:
+  title: API
+  version: latest
+externalDocs:
+  url: /
+servers: []
+tags: []
+paths:
+  /api/arrangorflate/tilgang-arrangor:
+    get:
+      tags:
+      - Arrangorflate
+      description: Henter liste over arrangører innlogget bruker har tilgang til
+      operationId: getArrangorerInnloggetBrukerHarTilgangTil
+      parameters: []
+      responses:
+        "200":
+          description: Arrangører
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/kontonummer:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent kontonummer fra kontonummer-organisasjon for gitt organisasjonsnummer
+      operationId: getKontonummer
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Kontonummer til arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KontonummerResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent gjennomføringene til arrangør
+      operationId: getArrangorflateGjennomforinger
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: prismodeller
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Prismodell"
+      responses:
+        "200":
+          description: Arrangør sine gjennomføringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/utbetaling:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent utbetalingene til arrangør
+      operationId: getAllUtbetaling
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Arrangør sine utbetalinger
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrFlateUtbetalinger"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - Arrangorflate
+      description: Opprett krav om utbetaling
+      operationId: opprettKravOmUtbetaling
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Request for creating a payment claim
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/OpprettKravOmUtbetalingRequest"
+        required: false
+      responses:
+        "200":
+          description: Informasjon om opprettet krav om utbetaling
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpprettKravOmUtbetalingResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/tilsagn:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent alle tilsagn til arrangør
+      operationId: getAllArrangorflateTilsagn
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: statuser
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnStatus"
+      - name: typer
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnType"
+      responses:
+        "200":
+          description: Alle tilsagn for gitt organisasjonsnummer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagnDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/tilsagn/{id}:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent tilsagn
+      operationId: getArrangorflateTilsagn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilsagn for gitt id
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateTilsagnDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/utbetaling/{id}:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent utbetaling for arrangør
+      operationId: getArrFlateUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Utbetaling for gitt id
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrFlateUtbetaling"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/utbetaling/{id}/advarsler:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent deltakerforslag som kan påvirke utbetalingen
+      operationId: getRelevanteForslag
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Deltakerforslag som er relevante for utbetalingen
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeltakerAdvarsel"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/utbetaling/{id}/godkjenn:
+    post:
+      tags:
+      - Arrangorflate
+      description: Godkjenn en utbetaling på vegne av arrangør
+      operationId: godkjennUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GodkjennUtbetaling"
+        required: false
+      responses:
+        "200":
+          description: Utbetaling ble godkjent
+          headers: {}
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/utbetaling/{id}/pdf:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent pdf med status på utbetalingen
+      operationId: getUtbetalingPdf
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Informasjon om utbetalingen
+          headers: {}
+          content:
+            application/pdf:
+              schema:
+                type: string
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/utbetaling/{id}/tilsagn:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent alle tilsagn som kan benyttes til utbetalingen
+      operationId: getArrangorflateTilsagnTilUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Alle tilsagn som kan benyttes til utbetalingen
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagnDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/utbetaling/{id}/sync-kontonummer:
+    get:
+      tags:
+      - Arrangorflate
+      description: Oppdaterer utbetalingen med nyeste kontonummer registrert for arrangør
+        sitt organisasjonsnummer
+      operationId: synkroniserKontonummerForUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Kontonummer som blir benyttet for utbetalingen
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KontonummerResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/{orgnr}/features:
+    get:
+      tags:
+      - FeatureToggle
+      operationId: getFeatureToggle
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: feature
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/FeatureToggle"
+      - name: tiltakskoder
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Om feature er på eller ikke
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: boolean
+        default:
+          description: En feil har oppstått
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+components:
+  schemas:
+    ArrangorDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        organisasjonsform:
+          type:
+          - "null"
+          - string
+        navn:
+          type: string
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+        underenheter:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/ArrangorDto"
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - id
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - overordnetEnhet
+      - slettetDato
+      - underenheter
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
+    KontonummerResponse:
+      type: object
+      properties:
+        kontonummer:
+          type: string
+      required:
+      - kontonummer
+    Prismodell:
+      type: string
+      enum:
+      - ANNEN_AVTALT_PRIS
+      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_UKESVERK
+    ArrangorflateGjennomforing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - id
+      - navn
+      - sluttDato
+      - startDato
+    ArrFlateUtbetalingKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorflateArrangor"
+        type:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtbetalingType"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        status:
+          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+        godkjentAvArrangorTidspunkt:
+          type:
+          - "null"
+          - string
+          format: date-time
+        belop:
+          type: integer
+          format: int32
+        godkjentBelop:
+          type:
+          - "null"
+          - integer
+          format: int32
+      required:
+      - arrangor
+      - belop
+      - gjennomforing
+      - godkjentAvArrangorTidspunkt
+      - godkjentBelop
+      - id
+      - periode
+      - status
+      - tiltakstype
+      - type
+    ArrangorflateTiltakstype:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navn
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - AVKLARING
+      - OPPFOLGING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - JOBBKLUBB
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ARBEIDSFORBEREDENDE_TRENING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - ARBEIDSRETTET_REHABILITERING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+    ArrangorflateGjennomforingInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    ArrangorflateArrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    UtbetalingType:
+      type: string
+      enum:
+      - KORRIGERING
+      - INVESTERING
+    Periode:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date
+      required:
+      - slutt
+      - start
+    ArrFlateUtbetalingStatus:
+      type: string
+      enum:
+      - KLAR_FOR_GODKJENNING
+      - BEHANDLES_AV_NAV
+      - UTBETALT
+      - KREVER_ENDRING
+      - OVERFORT_TIL_UTBETALING
+    ArrFlateUtbetalinger:
+      type: object
+      properties:
+        aktive:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateUtbetalingKompaktDto"
+        historiske:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateUtbetalingKompaktDto"
+      required:
+      - aktive
+      - historiske
+    Tilskuddstype:
+      type: string
+      enum:
+      - TILTAK_DRIFTSTILSKUDD
+      - TILTAK_INVESTERINGER
+    OpprettKravOmUtbetalingRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          type: string
+          format: uuid
+        tilsagnId:
+          type: string
+          format: uuid
+        periodeStart:
+          type: string
+        periodeSlutt:
+          type: string
+        kontonummer:
+          type: string
+        kidNummer:
+          type:
+          - "null"
+          - string
+        belop:
+          type: integer
+          format: int32
+        vedlegg:
+          type: array
+          items:
+            type: string
+            format: binary
+        tilskuddstype:
+          $ref: "#/components/schemas/Tilskuddstype"
+      required:
+      - belop
+      - gjennomforingId
+      - kidNummer
+      - kontonummer
+      - periodeSlutt
+      - periodeStart
+      - tilsagnId
+      - tilskuddstype
+      - vedlegg
+    OpprettKravOmUtbetalingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+      - id
+    TilsagnStatus:
+      type: string
+      enum:
+      - TIL_GODKJENNING
+      - GODKJENT
+      - RETURNERT
+      - TIL_ANNULLERING
+      - ANNULLERT
+      - TIL_OPPGJOR
+      - OPPGJORT
+    TilsagnType:
+      type: string
+      enum:
+      - TILSAGN
+      - EKSTRATILSAGN
+      - INVESTERING
+    ArrangorflateTilsagnDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorflateArrangor"
+        type:
+          $ref: "#/components/schemas/TilsagnType"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
+        bruktBelop:
+          type: integer
+          format: int32
+        gjenstaendeBelop:
+          type: integer
+          format: int32
+        beregning:
+          $ref: "#/components/schemas/Details"
+        bestillingsnummer:
+          type: string
+      required:
+      - arrangor
+      - beregning
+      - bestillingsnummer
+      - bruktBelop
+      - gjennomforing
+      - gjenstaendeBelop
+      - id
+      - periode
+      - status
+      - tiltakstype
+      - type
+    Details:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsEntry"
+      required:
+      - entries
+    DetailsEntry:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        format:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DetailsFormat"
+      required:
+      - format
+      - key
+      - value
+    DetailsFormat:
+      type: string
+      enum:
+      - NOK
+    ArrFlateBeregning:
+      anyOf:
+      - $ref: "#/components/schemas/ArrFlateBeregningFri"
+      - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
+      - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
+      - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
+      discriminator:
+        propertyName: type
+        mapping:
+          ArrFlateBeregningFri: "#/components/schemas/ArrFlateBeregningFri"
+          ArrFlateBeregningPrisPerManedsverk: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
+          ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
+          ArrFlateBeregningPrisPerUkesverk: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
+    ArrFlateBeregningFri:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        digest:
+          type: string
+      required:
+      - belop
+      - digest
+    ArrFlateBeregningPrisPerManedsverk:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateBeregningDeltakelse"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
+        antallManedsverk:
+          type: number
+          format: double
+        sats:
+          type: integer
+          format: int32
+      required:
+      - antallManedsverk
+      - belop
+      - deltakelser
+      - digest
+      - sats
+      - stengt
+    ArrFlateBeregningDeltakelse:
+      anyOf:
+      - $ref: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverk"
+      - $ref: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
+      - $ref: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerUkesverk"
+      discriminator:
+        propertyName: type
+        mapping:
+          ArrFlateBeregningDeltakelsePrisPerManedsverk: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverk"
+          ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
+          ArrFlateBeregningDeltakelsePrisPerUkesverk: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerUkesverk"
+    ArrFlateBeregningDeltakelsePrisPerManedsverk:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type:
+          - "null"
+          - string
+          format: date
+        faktor:
+          type: number
+          format: double
+        periode:
+          $ref: "#/components/schemas/Periode"
+        person:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Person"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerStatusType"
+      required:
+      - deltakerStartDato
+      - faktor
+      - id
+      - periode
+      - person
+      - status
+    Person:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+        navn:
+          type: string
+        foedselsdato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - foedselsdato
+      - navn
+      - norskIdent
+    DeltakerStatusType:
+      type: string
+      enum:
+      - AVBRUTT
+      - AVBRUTT_UTKAST
+      - DELTAR
+      - FEILREGISTRERT
+      - FULLFORT
+      - HAR_SLUTTET
+      - IKKE_AKTUELL
+      - KLADD
+      - PABEGYNT_REGISTRERING
+      - SOKT_INN
+      - UTKAST_TIL_PAMELDING
+      - VENTELISTE
+      - VENTER_PA_OPPSTART
+      - VURDERES
+    ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type:
+          - "null"
+          - string
+          format: date
+        faktor:
+          type: number
+          format: double
+        perioderMedDeltakelsesmengde:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakelsesprosentPeriode"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        person:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Person"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerStatusType"
+      required:
+      - deltakerStartDato
+      - faktor
+      - id
+      - periode
+      - perioderMedDeltakelsesmengde
+      - person
+      - status
+    DeltakelsesprosentPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        deltakelsesprosent:
+          type: number
+          format: double
+      required:
+      - deltakelsesprosent
+      - periode
+    ArrFlateBeregningDeltakelsePrisPerUkesverk:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type:
+          - "null"
+          - string
+          format: date
+        faktor:
+          type: number
+          format: double
+        periode:
+          $ref: "#/components/schemas/Periode"
+        person:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Person"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerStatusType"
+      required:
+      - deltakerStartDato
+      - faktor
+      - id
+      - periode
+      - person
+      - status
+    StengtPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - periode
+    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateBeregningDeltakelse"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
+        antallManedsverk:
+          type: number
+          format: double
+        sats:
+          type: integer
+          format: int32
+      required:
+      - antallManedsverk
+      - belop
+      - deltakelser
+      - digest
+      - sats
+      - stengt
+    ArrFlateBeregningPrisPerUkesverk:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateBeregningDeltakelse"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
+        antallUkesverk:
+          type: number
+          format: double
+        sats:
+          type: integer
+          format: int32
+      required:
+      - antallUkesverk
+      - belop
+      - deltakelser
+      - digest
+      - sats
+      - stengt
+    Betalingsinformasjon:
+      type: object
+      properties:
+        kontonummer:
+          type:
+          - "null"
+          - string
+        kid:
+          type:
+          - "null"
+          - string
+      required:
+      - kid
+      - kontonummer
+    ArrangorUtbetalingLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/Tilsagn"
+        status:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        statusSistOppdatert:
+          type:
+          - "null"
+          - string
+          format: date-time
+        belop:
+          type: integer
+          format: int32
+      required:
+      - belop
+      - id
+      - status
+      - statusSistOppdatert
+      - tilsagn
+    Tilsagn:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        bestillingsnummer:
+          type: string
+      required:
+      - bestillingsnummer
+      - id
+    DelutbetalingStatus:
+      type: string
+      enum:
+      - TIL_ATTESTERING
+      - GODKJENT
+      - RETURNERT
+      - UTBETALT
+      - OVERFORT_TIL_UTBETALING
+    DeltakerAdvarsel:
+      anyOf:
+      - $ref: "#/components/schemas/DeltakerAdvarselFeilSluttDato"
+      - $ref: "#/components/schemas/DeltakerAdvarselOverlappendePeriode"
+      - $ref: "#/components/schemas/DeltakerAdvarselRelevanteForslag"
+      discriminator:
+        propertyName: type
+        mapping:
+          DeltakerAdvarselFeilSluttDato: "#/components/schemas/DeltakerAdvarselFeilSluttDato"
+          DeltakerAdvarselOverlappendePeriode: "#/components/schemas/DeltakerAdvarselOverlappendePeriode"
+          DeltakerAdvarselRelevanteForslag: "#/components/schemas/DeltakerAdvarselRelevanteForslag"
+    DeltakerAdvarselFeilSluttDato:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+      required:
+      - deltakerId
+    DeltakerAdvarselOverlappendePeriode:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+      required:
+      - deltakerId
+    DeltakerAdvarselRelevanteForslag:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        antallRelevanteForslag:
+          type: integer
+          format: int32
+      required:
+      - antallRelevanteForslag
+      - deltakerId
+    ArrFlateUtbetaling:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+        godkjentAvArrangorTidspunkt:
+          type:
+          - "null"
+          - string
+          format: date-time
+        kanViseBeregning:
+          type: boolean
+        createdAt:
+          type:
+          - "null"
+          - string
+          format: date-time
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorflateArrangor"
+        beregning:
+          $ref: "#/components/schemas/ArrFlateBeregning"
+        betalingsinformasjon:
+          $ref: "#/components/schemas/Betalingsinformasjon"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        type:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtbetalingType"
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorUtbetalingLinje"
+        advarsler:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakerAdvarsel"
+      required:
+      - advarsler
+      - arrangor
+      - beregning
+      - betalingsinformasjon
+      - createdAt
+      - gjennomforing
+      - godkjentAvArrangorTidspunkt
+      - id
+      - kanViseBeregning
+      - linjer
+      - periode
+      - status
+      - tiltakstype
+      - type
+    GodkjennUtbetaling:
+      type: object
+      properties:
+        digest:
+          type: string
+        kid:
+          type:
+          - "null"
+          - string
+      required:
+      - digest
+      - kid
+    FieldError:
+      type: object
+      properties:
+        pointer:
+          type: string
+        detail:
+          type: string
+      required:
+      - detail
+      - pointer
+    JsonElement:
+      type: object
+      properties: {}
+    Nothing:
+      type: object
+      properties: {}
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FieldError"
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        extensions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/JsonElement"
+        instance:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Nothing"
+      required:
+      - detail
+      - errors
+      - extensions
+      - instance
+      - status
+      - title
+      - type
+    FeatureToggle:
+      type: string
+      enum:
+      - MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING
+      - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
+      - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
+      - ARRANGORFLATE_OPPRETT_UTBETEALING_INVESTERINGER
+      - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
+  examples: {}
+webhooks: {}

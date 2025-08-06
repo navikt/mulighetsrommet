@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
@@ -38,13 +40,15 @@ data class ArrFlateUtbetaling(
     val advarsler: List<DeltakerAdvarsel>,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class ArrFlateBeregning {
     abstract val belop: Int
     abstract val digest: String
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER")
+    @SerialName("ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder")
     data class PrisPerManedsverkMedDeltakelsesmengder(
         override val belop: Int,
         override val digest: String,
@@ -55,7 +59,7 @@ sealed class ArrFlateBeregning {
     ) : ArrFlateBeregning()
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
+    @SerialName("ArrFlateBeregningPrisPerManedsverk")
     data class PrisPerManedsverk(
         override val belop: Int,
         override val digest: String,
@@ -66,7 +70,7 @@ sealed class ArrFlateBeregning {
     ) : ArrFlateBeregning()
 
     @Serializable
-    @SerialName("PRIS_PER_UKESVERK")
+    @SerialName("ArrFlateBeregningPrisPerUkesverk")
     data class PrisPerUkesverk(
         override val belop: Int,
         override val digest: String,
@@ -77,14 +81,16 @@ sealed class ArrFlateBeregning {
     ) : ArrFlateBeregning()
 
     @Serializable
-    @SerialName("FRI")
+    @SerialName("ArrFlateBeregningFri")
     data class Fri(
         override val belop: Int,
         override val digest: String,
     ) : ArrFlateBeregning()
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class ArrFlateBeregningDeltakelse {
     abstract val id: UUID
     abstract val deltakerStartDato: LocalDate?
@@ -94,7 +100,7 @@ sealed class ArrFlateBeregningDeltakelse {
     abstract val status: DeltakerStatusType?
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER")
+    @SerialName("ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder")
     data class PrisPerManedsverkMedDeltakelsesmengder(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -108,7 +114,7 @@ sealed class ArrFlateBeregningDeltakelse {
     ) : ArrFlateBeregningDeltakelse()
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
+    @SerialName("ArrFlateBeregningDeltakelsePrisPerManedsverk")
     data class PrisPerManedsverk(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -121,7 +127,7 @@ sealed class ArrFlateBeregningDeltakelse {
     ) : ArrFlateBeregningDeltakelse()
 
     @Serializable
-    @SerialName("PRIS_PER_UKESVERK")
+    @SerialName("ArrFlateBeregningDeltakelsePrisPerUkesverk")
     data class PrisPerUkesverk(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,

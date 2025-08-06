@@ -1,6 +1,12 @@
-import { ArrangorflateTilsagn, DetailsFormat, TilsagnStatus, TilsagnType } from "api-client";
+import {
+  ArrangorflateTilsagnDto,
+  DetailsFormat,
+  TilsagnStatus,
+  TilsagnType,
+  Tiltakskode,
+} from "api-client";
 
-export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
+export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
   {
     id: "ad77762c-eebb-4623-be6d-0c64da79f2dd",
     gjennomforing: {
@@ -11,6 +17,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     gjenstaendeBelop: 5234495,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     },
     type: TilsagnType.TILSAGN,
     periode: {
@@ -22,6 +29,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
         {
           key: "Antall plasser",
           value: "42",
+          format: null,
         },
         {
           key: "Pris per månedsverk",
@@ -58,6 +66,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     gjenstaendeBelop: 123456,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     },
     type: TilsagnType.INVESTERING,
     periode: {
@@ -96,6 +105,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     gjenstaendeBelop: 0,
     tiltakstype: {
       navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
     },
     type: TilsagnType.TILSAGN,
     periode: {
@@ -134,6 +144,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     gjenstaendeBelop: 0,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     },
     type: TilsagnType.EKSTRATILSAGN,
     periode: {
@@ -145,6 +156,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
         {
           key: "Antall plasser",
           value: "114",
+          format: null,
         },
         {
           key: "Pris per månedsverk",
@@ -177,7 +189,10 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
     bruktBelop: 0,
     gjenstaendeBelop: 6000,
-    tiltakstype: { navn: "Varig tilrettelagt arbeid i skjermet virksomhet" },
+    tiltakstype: {
+      navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
+      tiltakskode: Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+    },
     type: TilsagnType.TILSAGN,
     periode: { start: "2025-04-01", slutt: "2025-10-01" },
     beregning: {
@@ -185,6 +200,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
         {
           key: "Antall plasser",
           value: "30",
+          format: null,
         },
         {
           key: "Pris per månedsverk",

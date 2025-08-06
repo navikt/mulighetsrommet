@@ -1,3 +1,5 @@
+import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, Heading, HStack, Link, Modal, Spacer, VStack } from "@navikt/ds-react";
@@ -7,22 +9,20 @@ import {
   ArrFlateUtbetalingStatus,
   UtbetalingType,
 } from "api-client";
+import { useRef } from "react";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { PageHeading } from "~/components/common/PageHeading";
+import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
+import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
+import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { getBeregningDetaljer } from "~/utils/beregning";
-import css from "../root.module.css";
-import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { getTimestamp } from "~/utils/date";
-import { problemDetailResponse } from "~/utils/validering";
 import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
-import { PageHeading } from "~/components/common/PageHeading";
-import { formaterPeriode } from "@mr/frontend-common/utils/date";
-import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
-import { getEnvironment } from "~/services/environment";
-import { useRef } from "react";
+import { problemDetailResponse } from "~/utils/validering";
+import css from "../root.module.css";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
@@ -144,7 +144,7 @@ export default function UtbetalingDetaljerSide() {
   );
 }
 
-function UtbetalingHeader({ type }: { type: UtbetalingType | undefined }) {
+function UtbetalingHeader({ type }: { type: UtbetalingType | null }) {
   const tekst = type ? getUtbetalingTypeNavn(type) : "Innsending";
   return (
     <HStack gap="2">
@@ -172,9 +172,11 @@ interface DeltakerModalProps {
 
 function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  if (utbetaling.beregning.type === "FRI" || !utbetaling.kanViseBeregning) {
+
+  if (!utbetaling.kanViseBeregning || !("deltakelser" in utbetaling.beregning)) {
     return null;
   }
+
   return (
     <HStack gap="2">
       <Button variant="secondary" size="small" onClick={() => modalRef.current?.showModal()}>

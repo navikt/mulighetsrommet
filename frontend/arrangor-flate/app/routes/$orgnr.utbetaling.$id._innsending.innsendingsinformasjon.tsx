@@ -1,12 +1,12 @@
-import { ArrangorflateService, ArrangorflateTilsagn, ArrFlateUtbetaling } from "api-client";
-import { LoaderFunction, useLoaderData, Link as ReactRouterLink, MetaFunction } from "react-router";
+import { ArrangorflateService, ArrangorflateTilsagnDto, ArrFlateUtbetaling } from "api-client";
+import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
@@ -22,7 +22,7 @@ export const meta: MetaFunction = () => {
 
 type LoaderData = {
   utbetaling: ArrFlateUtbetaling;
-  tilsagn: ArrangorflateTilsagn[];
+  tilsagn: ArrangorflateTilsagnDto[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {

@@ -13,25 +13,35 @@ import java.util.*
 data class ArrFlateUtbetalingKompaktDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val tiltakstype: ArrangorflateTiltakstype,
+    val gjennomforing: ArrangorflateGjennomforingInfo,
+    val arrangor: ArrangorflateArrangor,
+    val type: UtbetalingType? = null,
+    val periode: Periode,
     val status: ArrFlateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
-    val tiltakstype: Utbetaling.Tiltakstype,
-    val gjennomforing: Utbetaling.Gjennomforing,
-    val arrangor: Utbetaling.Arrangor,
-    val periode: Periode,
     val belop: Int,
     val godkjentBelop: Int?,
-    val type: UtbetalingType? = null,
 ) {
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling, status: ArrFlateUtbetalingStatus, godkjentBelop: Int?) = ArrFlateUtbetalingKompaktDto(
             id = utbetaling.id,
             status = status,
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-            tiltakstype = utbetaling.tiltakstype,
-            gjennomforing = utbetaling.gjennomforing,
-            arrangor = utbetaling.arrangor,
+            tiltakstype = ArrangorflateTiltakstype(
+                navn = utbetaling.tiltakstype.navn,
+                tiltakskode = utbetaling.tiltakstype.tiltakskode,
+            ),
+            gjennomforing = ArrangorflateGjennomforingInfo(
+                id = utbetaling.gjennomforing.id,
+                navn = utbetaling.gjennomforing.navn,
+            ),
+            arrangor = ArrangorflateArrangor(
+                id = utbetaling.arrangor.id,
+                organisasjonsnummer = utbetaling.arrangor.organisasjonsnummer,
+                navn = utbetaling.arrangor.navn,
+            ),
             periode = utbetaling.periode,
             belop = utbetaling.beregning.output.belop,
             godkjentBelop = godkjentBelop,

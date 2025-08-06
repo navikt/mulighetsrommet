@@ -16,10 +16,9 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
-  Arrangor,
   ArrangorflateGjennomforing,
   ArrangorflateService,
-  ArrangorflateTilsagn,
+  ArrangorflateTilsagnDto,
   FieldError,
   Prismodell,
   TilsagnStatus,
@@ -48,7 +47,7 @@ import { DateRange } from "node_modules/@navikt/ds-react/esm/date/Date.typeutils
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
-  tilsagn: ArrangorflateTilsagn[];
+  tilsagn: ArrangorflateTilsagnDto[];
   orgnr: string;
   arrangor: string;
   sessionGjennomforingId?: string;
@@ -121,7 +120,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(arrangorError);
   }
 
-  const arrangor = arrangortilganger.find((a: Arrangor) => a.organisasjonsnummer === orgnr)?.navn;
+  const arrangor = arrangortilganger.find((a) => a.organisasjonsnummer === orgnr)?.navn;
   if (!arrangor) throw new Error("Finner ikke arrangør");
 
   return {

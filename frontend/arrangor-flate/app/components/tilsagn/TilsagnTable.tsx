@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagn, TilsagnType } from "api-client";
+import { ArrangorflateTilsagnDto, TilsagnType } from "api-client";
 import { Alert, Table } from "@navikt/ds-react";
 import { LinkWithTabState } from "../common/LinkWithTabState";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
@@ -8,7 +8,7 @@ import { useSortState } from "~/hooks/useSortState";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 interface Props {
-  tilsagn: ArrangorflateTilsagn[];
+  tilsagn: ArrangorflateTilsagnDto[];
 }
 enum TilsagnSortKey {
   TILSAGNSNUMMER = "TILSAGNSNUMMER",
@@ -17,7 +17,7 @@ enum TilsagnSortKey {
   TYPE = "TYPE",
 }
 
-function getTilsagnSelector(sortKey: TilsagnSortKey): SortBySelector<ArrangorflateTilsagn> {
+function getTilsagnSelector(sortKey: TilsagnSortKey): SortBySelector<ArrangorflateTilsagnDto> {
   switch (sortKey) {
     case TilsagnSortKey.PERIODE:
       return (t) => t.periode.start;

@@ -51,7 +51,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     sessionKid = session.get("kid");
   }
 
-  const [{ data: kontonummer, error: kontonummerError }] = await Promise.all([
+  const [{ data, error: kontonummerError }] = await Promise.all([
     ArrangorflateService.getKontonummer({
       path: { orgnr },
       headers: await apiHeaders(request),
@@ -62,7 +62,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { kontonummer, sessionBelop, sessionKid };
+  return { kontonummer: data.kontonummer, sessionBelop, sessionKid };
 };
 
 interface ActionData {

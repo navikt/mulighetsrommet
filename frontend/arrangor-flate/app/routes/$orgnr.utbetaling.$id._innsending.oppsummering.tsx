@@ -11,7 +11,7 @@ import {
 } from "@navikt/ds-react";
 import {
   ArrangorflateService,
-  ArrangorflateTilsagn,
+  ArrangorflateTilsagnDto,
   ArrFlateUtbetaling,
   FieldError,
 } from "api-client";
@@ -42,7 +42,7 @@ import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrFlateUtbetaling;
-  tilsagn: ArrangorflateTilsagn[];
+  tilsagn: ArrangorflateTilsagnDto[];
 };
 
 interface ActionData {

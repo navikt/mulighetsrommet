@@ -86,7 +86,7 @@ export default function UtbetalingBeregning() {
         Deltakere
       </Heading>
       <VStack gap="4">
-        {utbetaling.beregning.type !== "FRI" && (
+        {"stengt" in utbetaling.beregning && (
           <>
             {utbetaling.beregning.stengt.length > 0 && (
               <Alert variant={"info"}>

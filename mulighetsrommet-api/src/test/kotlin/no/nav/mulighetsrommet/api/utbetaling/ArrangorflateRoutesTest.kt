@@ -69,7 +69,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("401 Unauthorized uten pid i claims") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
+            val response = client.get("/api/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken().serialize())
             }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -84,7 +84,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
 
-            val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
+            val response = client.get("/api/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
 
@@ -101,7 +101,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
 
-            val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
+            val response = client.get("/api/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
@@ -117,7 +117,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("403 hent tilsagn uten tilgang til bedrift") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/v1/intern/arrangorflate/arrangor/$orgnr/tilsagn") {
+            val response = client.get("/api/arrangorflate/arrangor/$orgnr/tilsagn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
@@ -133,7 +133,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
 
-            val response = client.get("/api/v1/intern/arrangorflate/arrangor/$orgnr/tilsagn") {
+            val response = client.get("/api/arrangorflate/arrangor/$orgnr/tilsagn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
@@ -148,7 +148,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("403 hent utbetaling uten tilgang til bedrift") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}") {
+            val response = client.get("/api/arrangorflate/utbetaling/${utbetaling.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
@@ -164,7 +164,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
 
-            val response = client.get("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}") {
+            val response = client.get("/api/arrangorflate/utbetaling/${utbetaling.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
@@ -185,7 +185,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
 
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
+            val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = "d3b07384d113edec49eaa6238ad5ff00", kid = null))
@@ -220,7 +220,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
+            val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
@@ -243,14 +243,14 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            var response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
+            var response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
 
-            response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
+            response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
@@ -276,7 +276,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
+            val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
@@ -307,7 +307,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
 
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
+            val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
@@ -340,7 +340,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             val response = client.submitFormWithBinaryData(
-                url = "/api/v1/intern/arrangorflate/arrangor/$orgnr/utbetaling",
+                url = "/api/arrangorflate/arrangor/$orgnr/utbetaling",
                 formData = formData {
                     append("gjennomforingId", GjennomforingFixtures.AFT1.id.toString())
                     append("tilsagnId", TilsagnFixtures.Tilsagn1.id.toString())
