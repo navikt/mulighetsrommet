@@ -86,7 +86,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
       function mapNameToSchemaPropertyName(name: string) {
         const mapping: { [name: string]: string } = {
           opsjonsmodell: "opsjonsmodell.type",
-          opsjonMaksVarighet: "opsjonsmodellD.opsjonMaksVarighet",
+          opsjonMaksVarighet: "opsjonsmodell.opsjonMaksVarighet",
           customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
           utdanningslop: "utdanningslop.utdanninger",

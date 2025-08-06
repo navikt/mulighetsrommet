@@ -38,15 +38,13 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
   );
 
   const watchedAvtaletype = watch("avtaletype");
-  const watchedMaksVarighet = watch("opsjonsmodell.opsjonMaksVarighet");
+  const watchedOpsjonsmodell = watch("opsjonsmodell");
   const forhandsgodkjent = watchedAvtaletype === Avtaletype.FORHANDSGODKJENT;
   const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(watchedAvtaletype);
 
   const opsjonsmodellType = watch("opsjonsmodell.type");
   const opsjonsmodell = opsjonsmodellType ? hentOpsjonsmodell(opsjonsmodellType) : undefined;
-
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
-
   const readonly = opsjonsmodell?.value !== "ANNET" || skalIkkeKunneRedigereOpsjoner;
 
   useEffect(() => {
@@ -132,7 +130,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
             invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${MAKS_AAR_FOR_AVTALER} år`}
             control={control}
           />
-          {watchedMaksVarighet && (
+          {watchedOpsjonsmodell.opsjonMaksVarighet && (
             <ControlledDateInput
               size="small"
               label={avtaletekster.maksVarighetLabel}
