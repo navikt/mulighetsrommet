@@ -195,6 +195,11 @@ private val expectedUtbetalingsdetaljerContent = """
               "value": "1.0"
             },
             {
+              "label": "Sats",
+              "value": "34",
+              "format": "NOK"
+            },
+            {
               "label": "Beløp",
               "value": "100",
               "format": "NOK"
@@ -366,6 +371,11 @@ private val expectedJournalpostContent = """
             {
               "label": "Antall månedsverk",
               "value": "1.0"
+            },
+            {
+              "label": "Sats",
+              "value": "34",
+              "format": "NOK"
             },
             {
               "label": "Beløp",
