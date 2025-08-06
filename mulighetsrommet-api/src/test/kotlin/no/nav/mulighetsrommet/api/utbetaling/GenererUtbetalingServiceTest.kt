@@ -450,7 +450,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(
-                    UtbetalingFixtures.utbetaling1.copy(
+                    utbetaling1.copy(
                         gjennomforingId = AFT1.id,
                         periode = beregning.input.periode,
                         beregning = beregning,
@@ -462,7 +462,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
-                val utbetaling = queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id).shouldNotBeNull()
+                val utbetaling = queries.utbetaling.get(utbetaling1.id).shouldNotBeNull()
                 utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
                     .should {
                         it.belop shouldBe 10488
@@ -477,21 +477,22 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(
-                    UtbetalingFixtures.utbetaling1.copy(
+                    utbetaling1.copy(
                         gjennomforingId = AFT1.id,
                         periode = beregning.input.periode,
                         beregning = beregning,
+                        status = Utbetaling.UtbetalingStatus.INNSENDT,
                     ),
                 ),
                 deltakere = listOf(deltaker),
             ) {
-                queries.utbetaling.setGodkjentAvArrangor(UtbetalingFixtures.utbetaling1.id, LocalDateTime.now())
+                queries.utbetaling.setGodkjentAvArrangor(utbetaling1.id, LocalDateTime.now())
             }.initialize(database.db)
 
             service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
 
             database.run {
-                val utbetaling = queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id).shouldNotBeNull()
+                val utbetaling = queries.utbetaling.get(utbetaling1.id).shouldNotBeNull()
                 utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
                     .should {
                         it.belop shouldBe 20975
