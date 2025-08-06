@@ -218,7 +218,7 @@ class GenererUtbetalingService(
     private fun QueryContext.resolveAvtaltSats(gjennomforing: GjennomforingDto, periode: Periode): Int {
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
         return AvtalteSatser.findSats(avtale, periode)
-            ?: throw IllegalStateException("Sats mangler for periode $periode")
+            ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$periode")
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
