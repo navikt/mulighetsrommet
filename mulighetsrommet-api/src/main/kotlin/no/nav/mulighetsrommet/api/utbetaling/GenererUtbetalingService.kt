@@ -63,7 +63,17 @@ class GenererUtbetalingService(
 
         queries.utbetaling
             .getByGjennomforing(id)
-            .filter { it.innsender == null }
+            .filter {
+                when (it.status) {
+                    Utbetaling.UtbetalingStatus.INNSENDT,
+                    Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+                    Utbetaling.UtbetalingStatus.RETURNERT,
+                    Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+                    Utbetaling.UtbetalingStatus.AVBRUTT,
+                    -> false
+                    Utbetaling.UtbetalingStatus.OPPRETTET -> true
+                }
+            }
             .mapNotNull { utbetaling ->
                 val oppdatertUtbetaling = generateUtbetalingForPrismodell(
                     utbetaling.id,
@@ -109,15 +119,7 @@ class GenererUtbetalingService(
                 UtbetalingBeregningPrisPerUkesverk.beregn(input)
             }
 
-            Prismodell.ANNEN_AVTALT_PRIS -> {
-                val prevUtbetaling = queries.utbetaling.get(utbetalingId) ?: return null
-                if (prevUtbetaling.beregning !is UtbetalingBeregningFri) {
-                    return null
-                }
-
-                val input = resolveFriInput(prevUtbetaling.beregning.input.belop, gjennomforing, periode)
-                UtbetalingBeregningFri.beregn(input)
-            }
+            Prismodell.ANNEN_AVTALT_PRIS -> return null
         }
 
         if (beregning.output.belop == 0) {
@@ -176,18 +178,6 @@ class GenererUtbetalingService(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    private fun QueryContext.resolveFriInput(
-        belop: Int,
-        gjennomforing: GjennomforingDto,
-        periode: Periode,
-    ): UtbetalingBeregningFri.Input {
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
-        return UtbetalingBeregningFri.Input(
-            belop = belop,
             deltakelser = deltakelser,
         )
     }
