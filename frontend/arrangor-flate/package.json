@@ -12,7 +12,7 @@
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server/",
     "lint:fix": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server/ --fix",
     "typegen": "react-router typegen",
-    "typecheck": "react-router typegen && tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "build": "react-router typegen && react-router build",
     "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK='true' DISABLE_DEKORATOR='true' react-router build",
     "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist",
