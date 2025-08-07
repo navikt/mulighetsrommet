@@ -127,14 +127,8 @@ object ArrangorflateTestUtils {
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(
-                belop = 5000,
-                deltakelser = emptySet(),
-            ),
-            output = UtbetalingBeregningFri.Output(
-                belop = 5000,
-                emptySet(),
-            ),
+            input = UtbetalingBeregningFri.Input(5000),
+            output = UtbetalingBeregningFri.Output(5000),
         ),
         kontonummer = Kontonummer("12312312312"),
         kid = null,

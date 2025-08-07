@@ -132,7 +132,7 @@ class ArrangorFlateService(
         } else {
             queries.deltaker
                 .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                .filter { it.id in utbetaling.beregning.output.deltakelser.map { it.deltakelseId } }
+                .filter { it.id in utbetaling.beregning.output.deltakelser().map { it.deltakelseId } }
         }
 
         val personerByNorskIdent = personService.getPersoner(deltakere.mapNotNull { it.norskIdent })

@@ -11,27 +11,20 @@ data class UtbetalingBeregningFri(
 ) : UtbetalingBeregning() {
 
     @Serializable
-    data class Input(
-        val belop: Int,
-        override val deltakelser: Set<DeltakelsePeriode>,
-    ) : UtbetalingBeregningInput()
+    data class Input(val belop: Int) : UtbetalingBeregningInput() {
+        override fun deltakelser() = emptySet<UtbetalingBeregningInputDeltakelse>()
+    }
 
     @Serializable
-    data class Output(
-        override val belop: Int,
-        override val deltakelser: Set<Deltakelse>,
-    ) : UtbetalingBeregningOutput()
+    data class Output(override val belop: Int) : UtbetalingBeregningOutput() {
+        override fun deltakelser() = emptySet<UtbetalingBeregningOutputDeltakelse>()
+    }
 
     companion object {
         fun beregn(input: Input): UtbetalingBeregningFri {
             return UtbetalingBeregningFri(
                 input = input,
-                output = Output(
-                    belop = input.belop,
-                    deltakelser = input.deltakelser.map {
-                        Deltakelse(it.deltakelseId, 0.0)
-                    }.toSet(),
-                ),
+                output = Output(belop = input.belop),
             )
         }
     }

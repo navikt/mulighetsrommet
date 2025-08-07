@@ -93,19 +93,7 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(utbetalingQuery, params))
 
         when (dbo.beregning) {
-            is UtbetalingBeregningFri -> {
-                // TODO: lagre perioder uten deltakelsesprosent?
-                val perioder = dbo.beregning.input.deltakelser
-                    .map {
-                        DeltakelseDeltakelsesprosentPerioder(
-                            it.deltakelseId,
-                            listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
-                        )
-                    }
-                    .toSet()
-                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
-                upsertUtbetalingBeregningOutputDeltakelseFaktor(dbo.id, dbo.beregning.output.deltakelser)
-            }
+            is UtbetalingBeregningFri -> Unit
 
             is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
                 upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
@@ -493,11 +481,9 @@ class UtbetalingQueries(private val session: Session) {
             UtbetalingBeregningFri(
                 input = UtbetalingBeregningFri.Input(
                     belop = row.int("belop_beregnet"),
-                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
                 output = UtbetalingBeregningFri.Output(
                     belop = row.int("belop_beregnet"),
-                    deltakelser = Json.decodeFromString(row.string("fri_json")),
                 ),
             )
         }
