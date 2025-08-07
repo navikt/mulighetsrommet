@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -56,7 +55,7 @@ class ReplicateDeltakerKafkaConsumer(
                 queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
             }
         }
-        if (gjennomforingId != null && NaisEnv.current() != NaisEnv.ProdGCP) {
+        if (gjennomforingId != null) {
             scheduleOppdateringAvUtbetaling(gjennomforingId)
         }
     }
