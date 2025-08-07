@@ -15,8 +15,8 @@ fun mapUtbetalingToArrFlateUtbetaling(
     linjer: List<ArrangorUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrFlateUtbetaling {
-    val perioderById = utbetaling.beregning.input.deltakelser.associateBy { it.deltakelseId }
-    val ukesverkById = utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId }
+    val perioderById = utbetaling.beregning.input.deltakelser().associateBy { it.deltakelseId }
+    val ukesverkById = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
 
     val deltakelser = perioderById.map { (id, deltakelse) ->
         val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
@@ -28,7 +28,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
         )
     }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
-    val totalFaktor = utbetaling.beregning.output.deltakelser
+    val totalFaktor = utbetaling.beregning.output.deltakelser()
         .map { BigDecimal(it.faktor) }
         .sumOf { it }
         .setScale(2, RoundingMode.HALF_UP)

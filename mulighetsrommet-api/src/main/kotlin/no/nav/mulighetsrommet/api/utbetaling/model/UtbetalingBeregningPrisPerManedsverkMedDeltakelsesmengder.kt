@@ -14,14 +14,18 @@ data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
         val periode: Periode,
         val sats: Int,
         val stengt: Set<StengtPeriode>,
-        override val deltakelser: Set<DeltakelseDeltakelsesprosentPerioder>,
-    ) : UtbetalingBeregningInput()
+        val deltakelser: Set<DeltakelseDeltakelsesprosentPerioder>,
+    ) : UtbetalingBeregningInput() {
+        override fun deltakelser() = deltakelser
+    }
 
     @Serializable
     data class Output(
         override val belop: Int,
-        override val deltakelser: Set<DeltakelseManedsverk>,
-    ) : UtbetalingBeregningOutput()
+        val deltakelser: Set<DeltakelseManedsverk>,
+    ) : UtbetalingBeregningOutput() {
+        override fun deltakelser() = deltakelser
+    }
 
     companion object {
         fun beregn(input: Input): UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder {

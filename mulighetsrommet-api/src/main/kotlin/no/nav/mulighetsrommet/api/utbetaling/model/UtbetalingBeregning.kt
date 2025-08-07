@@ -18,7 +18,7 @@ sealed class UtbetalingBeregning {
 }
 
 sealed class UtbetalingBeregningInput {
-    abstract val deltakelser: Set<UtbetalingBeregningInputDeltakelse>
+    abstract fun deltakelser(): Set<UtbetalingBeregningInputDeltakelse>
 }
 
 sealed class UtbetalingBeregningInputDeltakelse {
@@ -28,7 +28,7 @@ sealed class UtbetalingBeregningInputDeltakelse {
 
 sealed class UtbetalingBeregningOutput {
     abstract val belop: Int
-    abstract val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>
+    abstract fun deltakelser(): Set<UtbetalingBeregningOutputDeltakelse>
 }
 
 sealed class UtbetalingBeregningOutputDeltakelse {

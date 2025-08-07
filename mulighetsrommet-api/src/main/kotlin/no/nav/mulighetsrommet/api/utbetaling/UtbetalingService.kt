@@ -117,11 +117,7 @@ class UtbetalingService(
                 kontonummer = request.kontonummer,
                 kid = request.kidNummer,
                 beregning = UtbetalingBeregningFri.beregn(
-                    input = resolveFriInput(
-                        gjennomforingId = request.gjennomforingId,
-                        belop = request.belop,
-                        periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
-                    ),
+                    input = UtbetalingBeregningFri.Input(request.belop),
                 ),
                 periode = Periode.fromInclusiveDates(
                     request.periodeStart,
@@ -151,19 +147,6 @@ class UtbetalingService(
         }
 
         dto.right()
-    }
-
-    fun QueryContext.resolveFriInput(
-        gjennomforingId: UUID,
-        periode: Periode,
-        belop: Int,
-    ): UtbetalingBeregningFri.Input {
-        val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
-        return UtbetalingBeregningFri.Input(
-            deltakelser = deltakelser,
-            belop = belop,
-        )
     }
 
     fun opprettDelutbetalinger(
@@ -559,7 +542,7 @@ class UtbetalingService(
     suspend fun getUtbetalingBeregning(utbetaling: Utbetaling, filter: BeregningFilter): UtbetalingBeregningDto = db.session {
         val norskIdentById = queries.deltaker
             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-            .filter { it.id in utbetaling.beregning.output.deltakelser.map { it.deltakelseId } }
+            .filter { it.id in utbetaling.beregning.output.deltakelser().map { it.deltakelseId } }
             .associate { it.id to it.norskIdent }
 
         val personerOgGeografiskEnhet = personService.getPersonerMedGeografiskEnhet(norskIdentById.values.mapNotNull { it })
@@ -579,7 +562,7 @@ class UtbetalingService(
                 .flatten(),
         )
 
-        val deltakelsePersoner = utbetaling.beregning.output.deltakelser.map {
+        val deltakelsePersoner = utbetaling.beregning.output.deltakelser().map {
             val norskIdent = norskIdentById.getValue(it.deltakelseId)
             val person = norskIdent?.let { personerOgGeografiskEnhet.getValue(norskIdent) }
             it to person
