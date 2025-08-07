@@ -58,8 +58,13 @@ class GenererUtbetalingService(
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(id))
-        val prismodell = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!)?.prismodell)
+        val gjennomforing = queries.gjennomforing.get(id)
+        val prismodell = queries.gjennomforing.getPrismodell(id)
+
+        if (gjennomforing == null || prismodell == null) {
+            log.warn("Klarte ikke utlede gjennomføring og/eller prismodell for id=$id")
+            return listOf()
+        }
 
         queries.utbetaling
             .getByGjennomforing(id)
@@ -71,6 +76,7 @@ class GenererUtbetalingService(
                     Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
                     Utbetaling.UtbetalingStatus.AVBRUTT,
                     -> false
+
                     Utbetaling.UtbetalingStatus.OPPRETTET -> true
                 }
             }
