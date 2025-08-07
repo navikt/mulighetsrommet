@@ -111,13 +111,13 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 </Table.DataCell>
               )}
               <Table.DataCell>
-                {status.type !== "VENTER_PA_ARRANGOR" && (
-                  <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
-                    {["OVERFORT_TIL_UTBETALING", "AVBRUTT"].includes(status.type)
-                      ? "Detaljer"
-                      : "Behandle"}
-                  </Link>
-                )}
+                <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
+                  {["OVERFORT_TIL_UTBETALING", "AVBRUTT", "VENTER_PA_ARRANGOR"].includes(
+                    status.type,
+                  )
+                    ? "Detaljer"
+                    : "Behandle"}
+                </Link>
               </Table.DataCell>
             </Table.Row>
           );

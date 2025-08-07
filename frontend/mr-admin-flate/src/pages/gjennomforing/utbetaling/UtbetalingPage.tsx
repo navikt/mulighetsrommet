@@ -7,7 +7,13 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { utbetalingLinjeCompareFn } from "@/utils/Utils";
-import { Rolle, TilsagnStatus } from "@mr/api-client-v2";
+import {
+  Rolle,
+  TilsagnDto,
+  TilsagnStatus,
+  UtbetalingDto,
+  UtbetalingLinje,
+} from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import { Accordion, Alert, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
@@ -62,7 +68,6 @@ export function UtbetalingPage() {
   const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, beregning } =
     useUtbetalingPageData();
 
-  const erSaksbehandlerOkonomi = ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI);
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
     {
@@ -219,16 +224,12 @@ export function UtbetalingPage() {
                       Det finnes ingen godkjente tilsagn for utbetalingsperioden
                     </Alert>
                   )}
-                  {erSaksbehandlerOkonomi &&
-                  ["KLAR_TIL_BEHANDLING", "RETURNERT"].includes(utbetaling.status.type) ? (
-                    <RedigerUtbetalingLinjeView
-                      tilsagn={tilsagn}
-                      utbetaling={utbetaling}
-                      linjer={linjer}
-                    />
-                  ) : (
-                    <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
-                  )}
+                  <UtbetalingLinjeView
+                    utbetaling={utbetaling}
+                    tilsagn={tilsagn}
+                    linjer={linjer}
+                    roller={ansatt.roller}
+                  />
                 </>
               )}
             </VStack>
@@ -237,4 +238,38 @@ export function UtbetalingPage() {
       </ContentBox>
     </>
   );
+}
+
+function UtbetalingLinjeView({
+  utbetaling,
+  tilsagn,
+  linjer,
+  roller,
+}: {
+  utbetaling: UtbetalingDto;
+  tilsagn: TilsagnDto[];
+  linjer: UtbetalingLinje[];
+  roller: Rolle[];
+}) {
+  switch (utbetaling.status.type) {
+    case "AVBRUTT":
+    case "VENTER_PA_ARRANGOR":
+      return null;
+    case "RETURNERT":
+    case "KLAR_TIL_BEHANDLING":
+      if (roller.includes(Rolle.SAKSBEHANDLER_OKONOMI)) {
+        return (
+          <RedigerUtbetalingLinjeView tilsagn={tilsagn} utbetaling={utbetaling} linjer={linjer} />
+        );
+      } else {
+        return null;
+      }
+    case "TIL_ATTESTERING":
+    case "OVERFORT_TIL_UTBETALING":
+      if (roller.includes(Rolle.ATTESTANT_UTBETALING)) {
+        return <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />;
+      } else {
+        return null;
+      }
+  }
 }
