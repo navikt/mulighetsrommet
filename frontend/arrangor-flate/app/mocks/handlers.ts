@@ -1,5 +1,10 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { Arrangor, ArrFlateUtbetaling } from "api-client";
+import {
+  Arrangor,
+  ArrFlateUtbetaling,
+  ArrFlateUtbetalingKompakt,
+  ArrFlateUtbetalingStatus,
+} from "api-client";
 import { mockArrFlateUtbetalingKompakt } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn } from "./tilsagnMocks";
@@ -12,10 +17,27 @@ const arrangorMock: Arrangor = {
   overordnetEnhet: null,
 };
 
+function isAktiv(utbetaling: ArrFlateUtbetalingKompakt): boolean {
+  switch (utbetaling.status) {
+    case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
+    case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
+    case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING:
+      return true;
+    case ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
+    case ArrFlateUtbetalingStatus.UTBETALT:
+    case ArrFlateUtbetalingStatus.AVBRUTT:
+      return false;
+  }
+}
+
 export const handlers = [
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
-    () => HttpResponse.json(mockArrFlateUtbetalingKompakt),
+    () =>
+      HttpResponse.json({
+        aktive: mockArrFlateUtbetalingKompakt.filter((u) => isAktiv(u)),
+        historiske: mockArrFlateUtbetalingKompakt.filter((u) => !isAktiv(u)),
+      }),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/kontonummer",
