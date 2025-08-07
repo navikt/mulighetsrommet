@@ -40,5 +40,11 @@ export function UtbetalingStatusTag({ status, size }: Props): ReactNode {
           Venter på endring
         </Tag>
       );
+    case ArrFlateUtbetalingStatus.AVBRUTT:
+      return (
+        <Tag variant="error" size={tagSize}>
+          Avbrutt
+        </Tag>
+      );
   }
 }

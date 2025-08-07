@@ -5,6 +5,7 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompakt[] = [
     id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
     status: ArrFlateUtbetalingStatus.UTBETALT,
     godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
+    godkjentBelop: 1000,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -74,6 +75,7 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompakt[] = [
   {
     id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
     status: ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+    godkjentBelop: 1200,
     godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",

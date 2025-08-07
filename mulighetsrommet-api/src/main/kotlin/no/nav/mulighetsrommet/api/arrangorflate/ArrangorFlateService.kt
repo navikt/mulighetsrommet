@@ -43,8 +43,11 @@ class ArrangorFlateService(
     private val personService: PersonService,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
-        return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
+    fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrFlateUtbetalinger = db.session {
+        val aktive = mutableListOf<ArrFlateUtbetalingKompaktDto>()
+        val historiske = mutableListOf<ArrFlateUtbetalingKompaktDto>()
+
+        queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
             val status = getArrFlateUtbetalingStatus(utbetaling)
             val godkjentBelop =
                 if (status in listOf(
@@ -56,8 +59,19 @@ class ArrangorFlateService(
                 } else {
                     null
                 }
-            ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+            val dto = ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+            when (dto.status) {
+                ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
+                ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+                ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                -> aktive += dto
+                ArrFlateUtbetalingStatus.AVBRUTT,
+                ArrFlateUtbetalingStatus.UTBETALT,
+                ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                -> historiske += dto
+            }
         }
+        return ArrFlateUtbetalinger(aktive = aktive, historiske = historiske)
     }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
