@@ -1,5 +1,4 @@
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/apps/modia/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
-import { useInitializeModiaContext } from "@/apps/modia/hooks/useInitializeModiaContext";
 import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
 import { AppContainer } from "@/layouts/AppContainer";
@@ -18,8 +17,6 @@ export function ModiaArbeidsmarkedstiltak() {
 }
 
 function ModiaArbeidsmarkedstiltakRoutes() {
-  useInitializeModiaContext();
-
   useInitializeArbeidsmarkedstiltakFilterForBruker();
 
   return (

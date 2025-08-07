@@ -131,14 +131,30 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrFlateU
             when (utbetaling.beregning) {
                 is ArrFlateBeregning.Fri -> Unit
 
-                is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder ->
+                is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-
-                is ArrFlateBeregning.PrisPerManedsverk ->
+                    entry(
+                        "Sats",
+                        utbetaling.beregning.sats,
+                        Format.NOK,
+                    )
+                }
+                is ArrFlateBeregning.PrisPerManedsverk -> {
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-
-                is ArrFlateBeregning.PrisPerUkesverk ->
+                    entry(
+                        "Sats",
+                        utbetaling.beregning.sats,
+                        Format.NOK,
+                    )
+                }
+                is ArrFlateBeregning.PrisPerUkesverk -> {
                     entry("Antall ukesverk", utbetaling.beregning.antallUkesverk.toString())
+                    entry(
+                        "Sats",
+                        utbetaling.beregning.sats,
+                        Format.NOK,
+                    )
+                }
             }
 
             entry(

@@ -22,7 +22,7 @@ export function Definisjonsliste({
           {title}
         </Heading>
       )}
-      <HGrid as="dl" columns={columns} gap="12" className="gap-y-6">
+      <HGrid as="dl" columns={columns} gap="6">
         {definitions.map((definition, index) => (
           <VStack gap="2" key={index}>
             <Label as="dt">{definition.key}</Label>

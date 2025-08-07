@@ -5,7 +5,7 @@ import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { Separator } from "@/utils/Separator";
 import { erPreview } from "@/utils/Utils";
-import { Brukerdata, DelMedBrukerDbo, VeilederflateTiltak } from "@api-client";
+import { Brukerdata, DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
 import { BodyShort, Button, Checkbox, Heading, HelpText, HStack, Modal } from "@navikt/ds-react";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import { Actions, State } from "./DelemodalActions";
@@ -14,11 +14,10 @@ interface DelemodalProps {
   veiledernavn?: string;
   tiltak: VeilederflateTiltak;
   bruker: Brukerdata;
-  harDeltMedBruker?: DelMedBrukerDbo;
+  deltMedBruker?: DeltMedBrukerDto;
   dispatch: (action: Actions) => void;
   state: State;
   veilederEnhet: string;
-  veilederFylke?: string | null;
 }
 
 function overskrift(tiltak: VeilederflateTiltak): string {
@@ -29,11 +28,10 @@ export function Delemodal({
   veiledernavn,
   tiltak,
   bruker,
-  harDeltMedBruker,
+  deltMedBruker,
   dispatch,
   state,
   veilederEnhet,
-  veilederFylke,
 }: DelemodalProps) {
   const mutation = useDelTiltakMedBruker({
     onSuccess: (response) => {
@@ -72,8 +70,7 @@ export function Delemodal({
       venterPaaSvarFraBruker,
       gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
       sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
-      tiltakstypeNavn: tiltak.tiltakstype.navn,
-      deltFraFylke: veilederFylke || null,
+      tiltakstypeId: tiltak.tiltakstype.id,
       deltFraEnhet: veilederEnhet,
     });
   };
@@ -98,7 +95,7 @@ export function Delemodal({
             dispatch={dispatch}
             veiledernavn={veiledernavn}
             brukernavn={bruker.fornavn}
-            harDeltMedBruker={harDeltMedBruker}
+            deltMedBruker={deltMedBruker}
             tiltak={tiltak}
             enableRedigerDeletekst={enableRedigerDeletekst}
           />

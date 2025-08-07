@@ -1,36 +1,36 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
-import { Alert, Button, VStack } from "@navikt/ds-react";
+import { Alert, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import {
   Arrangor,
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   BrregVirksomhet,
 } from "@mr/api-client-v2";
-import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
-import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { useRef, useState } from "react";
-import { DeepPartial, useFormContext } from "react-hook-form";
+import { Controller, DeepPartial, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "@/components/arrangor/ArrangorKontaktpersonerModal";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { useSokBrregHovedenhet } from "@/api/virksomhet/useSokBrregHovedenhet";
 import { useBrregUnderenheter } from "@/api/virksomhet/useBrregUnderenheter";
+import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
+import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 
-interface Props {
-  readOnly: boolean;
-}
-
-export function AvtaleArrangorForm({ readOnly }: Props) {
+export function AvtaleArrangorForm() {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
-
   const [sokArrangor, setSokArrangor] = useState("");
+
   const { data: brregVirksomheter = [] } = useSokBrregHovedenhet(sokArrangor);
 
-  const { register, watch, setValue } = useFormContext<DeepPartial<AvtaleFormValues>>();
+  const {
+    watch,
+    setValue,
+    control,
+    formState: { errors },
+  } = useFormContext<DeepPartial<AvtaleFormValues>>();
   const watchedArrangor = watch("arrangorHovedenhet") ?? "";
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
@@ -46,25 +46,33 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
   return (
     <>
       <FormGroup>
-        <ControlledSokeSelect
-          size="small"
-          readOnly={readOnly}
-          placeholder="Navn eller organisasjonsnummer for tiltaksarrangør"
-          label={avtaletekster.tiltaksarrangorHovedenhetLabel}
-          {...register("arrangorHovedenhet")}
-          onInputChange={(value) => {
-            setSokArrangor(value);
-          }}
-          onChange={(e) => {
-            if (e.target.value !== watchedArrangor) {
-              setValue("arrangorUnderenheter", []);
-            }
-          }}
-          onClearValue={() => {
-            setValue("arrangorHovedenhet", "");
-            setValue("arrangorUnderenheter", []);
-          }}
-          options={arrangorHovedenhetOptions}
+        <Controller
+          control={control}
+          name="arrangorHovedenhet"
+          render={({ field }) => (
+            <UNSAFE_Combobox
+              id="arrangorHovedenhet"
+              label={avtaletekster.tiltaksarrangorHovedenhetLabel}
+              placeholder="Navn eller organisasjonsnummer for tiltaksarrangør"
+              selectedOptions={arrangorHovedenhetOptions.filter((v) =>
+                field.value?.includes(v.value),
+              )}
+              size="small"
+              onChange={setSokArrangor}
+              name={field.name}
+              error={errors.arrangorHovedenhet?.message}
+              filteredOptions={arrangorHovedenhetOptions}
+              options={arrangorHovedenhetOptions}
+              onToggleSelected={(option, isSelected) => {
+                if (isSelected) {
+                  field.onChange(option);
+                } else {
+                  field.onChange(undefined);
+                  setValue("arrangorUnderenheter", []);
+                }
+              }}
+            />
+          )}
         />
         {arrangor && underenheter && underenheterIsEmpty && (
           <Alert variant="warning">
@@ -72,35 +80,67 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
             ikke velges som tiltaksarrangør.
           </Alert>
         )}
-        <ControlledMultiSelect
-          size="small"
-          placeholder="Velg underenhet for tiltaksarrangør"
-          label={avtaletekster.tiltaksarrangorUnderenheterLabel}
-          helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
-          readOnly={underenheterIsEmpty}
-          {...register("arrangorUnderenheter")}
-          velgAlle
-          options={arrangorUnderenhetOptions}
+        <Controller
+          control={control}
+          name="arrangorUnderenheter"
+          render={({ field }) => (
+            <UNSAFE_Combobox
+              id="arrangorUnderenheter"
+              label={
+                <LabelWithHelpText
+                  label={avtaletekster.tiltaksarrangorUnderenheterLabel}
+                  helpTextTitle="Mer informasjon"
+                >
+                  Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen.
+                </LabelWithHelpText>
+              }
+              placeholder="Velg underenhet for tiltaksarrangør"
+              isMultiSelect
+              selectedOptions={arrangorUnderenhetOptions.filter((option) =>
+                field.value?.includes(option.value),
+              )}
+              name={field.name}
+              error={errors.arrangorUnderenheter?.message}
+              options={arrangorUnderenhetOptions}
+              readOnly={underenheterIsEmpty}
+              onToggleSelected={(option, isSelected) => {
+                const currentValues = field.value ?? [];
+                if (isSelected) {
+                  field.onChange([...currentValues, option]);
+                } else {
+                  field.onChange(currentValues.filter((v) => v !== option));
+                }
+              }}
+            />
+          )}
         />
-
         <VStack>
-          <ControlledMultiSelect
-            size="small"
-            placeholder="Velg kontaktpersoner"
-            label={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
-            readOnly={!arrangor}
-            {...register("arrangorKontaktpersoner")}
-            options={arrangorKontaktpersonOptions}
-            noOptionsMessage={
-              <Button
-                size="small"
-                type="button"
-                variant="tertiary"
-                onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
-              >
-                Opprett kontaktpersoner
-              </Button>
-            }
+          <Controller
+            control={control}
+            name="arrangorKontaktpersoner"
+            render={({ field }) => (
+              <UNSAFE_Combobox
+                id="arrangorKontaktpersoner"
+                label={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
+                placeholder="Velg kontaktpersoner"
+                isMultiSelect
+                selectedOptions={arrangorKontaktpersonOptions.filter((v) =>
+                  field.value?.includes(v.value),
+                )}
+                name={field.name}
+                error={errors.arrangorKontaktpersoner?.message}
+                options={arrangorKontaktpersonOptions}
+                readOnly={!arrangor}
+                onToggleSelected={(option, isSelected) => {
+                  const currentValues = field.value ?? [];
+                  if (isSelected) {
+                    field.onChange([...currentValues, option]);
+                  } else {
+                    field.onChange(currentValues.filter((v) => v !== option));
+                  }
+                }}
+              />
+            )}
           />
           <KontaktpersonButton
             onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
@@ -157,7 +197,7 @@ function getArrangorUnderenhetOptions(underenheter: BrregVirksomhet[]): SelectOp
   }));
 }
 
-function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
+function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]): SelectOption[] {
   return kontaktpersoner
     .filter((person) => person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE))
     .map((person) => ({

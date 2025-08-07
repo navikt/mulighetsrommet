@@ -58,12 +58,28 @@ class GenererUtbetalingService(
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(id))
-        val prismodell = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!)?.prismodell)
+        val gjennomforing = queries.gjennomforing.get(id)
+        val prismodell = queries.gjennomforing.getPrismodell(id)
+
+        if (gjennomforing == null || prismodell == null) {
+            log.warn("Klarte ikke utlede gjennomføring og/eller prismodell for id=$id")
+            return listOf()
+        }
 
         queries.utbetaling
             .getByGjennomforing(id)
-            .filter { it.innsender == null }
+            .filter {
+                when (it.status) {
+                    Utbetaling.UtbetalingStatus.INNSENDT,
+                    Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+                    Utbetaling.UtbetalingStatus.RETURNERT,
+                    Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+                    Utbetaling.UtbetalingStatus.AVBRUTT,
+                    -> false
+
+                    Utbetaling.UtbetalingStatus.OPPRETTET -> true
+                }
+            }
             .mapNotNull { utbetaling ->
                 val oppdatertUtbetaling = generateUtbetalingForPrismodell(
                     utbetaling.id,
@@ -109,15 +125,7 @@ class GenererUtbetalingService(
                 UtbetalingBeregningPrisPerUkesverk.beregn(input)
             }
 
-            Prismodell.ANNEN_AVTALT_PRIS -> {
-                val prevUtbetaling = queries.utbetaling.get(utbetalingId) ?: return null
-                if (prevUtbetaling.beregning !is UtbetalingBeregningFri) {
-                    return null
-                }
-
-                val input = resolveFriInput(prevUtbetaling.beregning.input.belop, gjennomforing, periode)
-                UtbetalingBeregningFri.beregn(input)
-            }
+            Prismodell.ANNEN_AVTALT_PRIS -> return null
         }
 
         if (beregning.output.belop == 0) {
@@ -180,18 +188,6 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveFriInput(
-        belop: Int,
-        gjennomforing: GjennomforingDto,
-        periode: Periode,
-    ): UtbetalingBeregningFri.Input {
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
-        return UtbetalingBeregningFri.Input(
-            belop = belop,
-            deltakelser = deltakelser,
-        )
-    }
-
     private suspend fun QueryContext.createUtbetaling(
         utbetalingId: UUID,
         gjennomforing: GjennomforingDto,
@@ -218,7 +214,7 @@ class GenererUtbetalingService(
     private fun QueryContext.resolveAvtaltSats(gjennomforing: GjennomforingDto, periode: Periode): Int {
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
         return AvtalteSatser.findSats(avtale, periode)
-            ?: throw IllegalStateException("Sats mangler for periode $periode")
+            ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$periode")
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {

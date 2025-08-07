@@ -323,8 +323,8 @@ val ApplicationConfigProd = AppConfig(
         scope = System.getenv("MASKINPORTEN_SCOPES"),
     ),
     dokark = AuthenticatedHttpClientConfig(
-        url = "https://dokarkiv-q2.dev-fss-pub.nais.io",
-        scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
+        url = "https://dokarkiv.prod-fss-pub.nais.io",
+        scope = "api://prod-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "https://sokos-kontoregister.prod-fss-pub.nais.io",

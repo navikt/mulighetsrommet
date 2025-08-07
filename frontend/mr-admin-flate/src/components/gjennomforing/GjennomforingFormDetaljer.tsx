@@ -21,15 +21,15 @@ import {
   Alert,
   Button,
   DatePicker,
-  HelpText,
   HGrid,
   HStack,
   Select,
   Switch,
   TextField,
+  UNSAFE_Combobox,
 } from "@navikt/ds-react";
 import { useEffect, useRef, useState } from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -41,6 +41,7 @@ import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -237,113 +238,132 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
               )}
             </HGrid>
             {watch("oppstart") === GjennomforingOppstartstype.LOPENDE ? (
-              <>
-                <fieldset className="border-none p-0 [&>legend]:font-bold [&>legend]:mb-2">
-                  <HStack gap="1">
-                    <legend>Estimert ventetid</legend>
-                    <HelpText title="Hva er estimert ventetid?">
-                      Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
-                      estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her
-                      blir det synlig for alle ansatte i Nav.
-                    </HelpText>
-                  </HStack>
-                  <Switch
-                    checked={watch("visEstimertVentetid")}
-                    {...register("visEstimertVentetid")}
+              <fieldset className="border-none p-0 [&>legend]:font-bold [&>legend]:mb-2">
+                <HStack gap="1">
+                  <LabelWithHelpText
+                    label="Estimert ventetid"
+                    helpTextTitle="Hva er estimert ventetid?"
                   >
-                    Registrer estimert ventetid
-                  </Switch>
-                  {watch("visEstimertVentetid") ? (
-                    <HStack align="start" justify="start" gap="10">
-                      <TextField
-                        size="small"
-                        type="number"
-                        min={0}
-                        label="Antall"
-                        error={errors.estimertVentetid?.verdi?.message as string}
-                        {...register("estimertVentetid.verdi", {
-                          valueAsNumber: true,
-                        })}
-                      />
-                      <Select
-                        size="small"
-                        label="Måleenhet"
-                        error={errors.estimertVentetid?.enhet?.message as string}
-                        {...register("estimertVentetid.enhet")}
-                      >
-                        <option value="uke">Uker</option>
-                        <option value="maned">Måneder</option>
-                      </Select>
-                    </HStack>
-                  ) : null}
-                </fieldset>
-              </>
+                    Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
+                    estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
+                    det synlig for alle ansatte i Nav.
+                  </LabelWithHelpText>
+                </HStack>
+                <Switch checked={watch("visEstimertVentetid")} {...register("visEstimertVentetid")}>
+                  Registrer estimert ventetid
+                </Switch>
+                {watch("visEstimertVentetid") ? (
+                  <HStack align="start" justify="start" gap="10">
+                    <TextField
+                      size="small"
+                      type="number"
+                      min={0}
+                      label="Antall"
+                      error={errors.estimertVentetid?.verdi?.message as string}
+                      {...register("estimertVentetid.verdi", {
+                        valueAsNumber: true,
+                      })}
+                    />
+                    <Select
+                      size="small"
+                      label="Måleenhet"
+                      error={errors.estimertVentetid?.enhet?.message as string}
+                      {...register("estimertVentetid.enhet")}
+                    >
+                      <option value="uke">Uker</option>
+                      <option value="maned">Måneder</option>
+                    </Select>
+                  </HStack>
+                ) : null}
+              </fieldset>
             ) : null}
           </FormGroup>
-
           <FormGroup>
-            <ControlledMultiSelect
-              size="small"
-              placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
-              label={gjennomforingTekster.administratorerForGjennomforingenLabel}
-              helpText="Bestemmer hvem som eier gjennomføringen. Notifikasjoner sendes til administratorene."
-              {...register("administratorer")}
-              options={AdministratorOptions(
-                ansatt,
-                gjennomforing?.administratorer.map((g) => g.navIdent) || [],
-                administratorer,
+            <Controller
+              control={control}
+              name="administratorer"
+              render={({ field }) => (
+                <UNSAFE_Combobox
+                  id="administratorer"
+                  label={
+                    <LabelWithHelpText
+                      label={gjennomforingTekster.administratorerForGjennomforingenLabel}
+                      helpTextTitle="Mer informasjon"
+                    >
+                      Bestemmer hvem som eier gjennomføringen. Notifikasjoner sendes til
+                      administratorene.
+                    </LabelWithHelpText>
+                  }
+                  placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
+                  isMultiSelect
+                  selectedOptions={AdministratorOptions(
+                    ansatt,
+                    gjennomforing?.administratorer.map((g) => g.navIdent) || [],
+                    administratorer,
+                  ).filter((option) => field.value?.includes(option.value))}
+                  name={field.name}
+                  error={errors.administratorer?.message}
+                  options={AdministratorOptions(
+                    ansatt,
+                    gjennomforing?.administratorer.map((g) => g.navIdent) || [],
+                    administratorer,
+                  )}
+                  onToggleSelected={(option, isSelected) => {
+                    if (isSelected) {
+                      field.onChange([...field.value, option]);
+                    } else {
+                      field.onChange(field.value.filter((v) => v !== option));
+                    }
+                  }}
+                />
               )}
             />
           </FormGroup>
         </SkjemaKolonne>
         <SkjemaKolonne>
-          <div>
-            <FormGroup>
-              <div>
-                {kontaktpersonFields?.map((field, index) => {
-                  return (
-                    <div
-                      className="bg-surface-selected mt-4 p-2 relative border border-border-divider rounded"
-                      key={field.id}
-                    >
-                      <Button
-                        className="p-0 float-right"
-                        variant="tertiary"
-                        size="small"
-                        type="button"
-                        onClick={() => removeKontaktperson(index)}
-                      >
-                        <XMarkIcon fontSize="1.5rem" />
-                      </Button>
-                      <div className="flex flex-col gap-4">
-                        <SokEtterKontaktperson
-                          index={index}
-                          navEnheter={navEnheterOptions}
-                          id={field.id}
-                          lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-                <KontaktpersonButton
-                  onClick={() =>
-                    appendKontaktperson({
-                      navIdent: "",
-                      navEnheter: [],
-                      beskrivelse: "",
-                    })
-                  }
-                  knappetekst={
-                    <div className="flex items-center gap-2">
-                      <PlusIcon aria-label="Legg til ny kontaktperson" />
-                      Legg til ny kontaktperson
-                    </div>
-                  }
-                />
-              </div>
-            </FormGroup>
-          </div>
+          <FormGroup>
+            {kontaktpersonFields?.map((field, index) => {
+              return (
+                <div
+                  className="bg-surface-selected mt-4 p-2 relative border border-border-divider rounded"
+                  key={field.id}
+                >
+                  <Button
+                    className="p-0 float-right"
+                    variant="tertiary"
+                    size="small"
+                    type="button"
+                    onClick={() => removeKontaktperson(index)}
+                  >
+                    <XMarkIcon fontSize="1.5rem" />
+                  </Button>
+                  <div className="flex flex-col gap-4">
+                    <SokEtterKontaktperson
+                      index={index}
+                      navEnheter={navEnheterOptions}
+                      id={field.id}
+                      lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+            <KontaktpersonButton
+              onClick={() =>
+                appendKontaktperson({
+                  navIdent: "",
+                  navEnheter: [],
+                  beskrivelse: "",
+                })
+              }
+              knappetekst={
+                <div className="flex items-center gap-2">
+                  <PlusIcon aria-label="Legg til ny kontaktperson" />
+                  Legg til ny kontaktperson
+                </div>
+              }
+            />
+          </FormGroup>
           {avtale.arrangor ? (
             <FormGroup>
               <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />

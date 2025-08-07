@@ -28,6 +28,7 @@ class UpdateAvtaleStatusTest : FunSpec({
             arrangorService = mockk(relaxed = true),
             validator = mockk(relaxed = true),
             gjennomforingPublisher = mockk(relaxed = true),
+            tiltakstypeService = mockk(relaxed = true),
         ),
     )
 

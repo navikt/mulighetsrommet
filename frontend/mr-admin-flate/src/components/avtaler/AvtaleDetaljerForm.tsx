@@ -12,13 +12,19 @@ import {
   Tiltakskode,
   Toggles,
 } from "@mr/api-client-v2";
-import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { HGrid, List, Textarea, TextField, VStack } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
+import {
+  HGrid,
+  List,
+  Select,
+  Textarea,
+  TextField,
+  UNSAFE_Combobox,
+  VStack,
+} from "@navikt/ds-react";
+import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -27,6 +33,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { useEffect } from "react";
 
 export function AvtaleDetaljerForm({
   opsjonerRegistrert,
@@ -44,10 +51,10 @@ export function AvtaleDetaljerForm({
     getValues,
     setValue,
     watch,
+    control,
   } = useFormContext<AvtaleFormValues>();
-
   const avtaletype = watch("avtaletype");
-  const tiltakskode = watch("tiltakstype.tiltakskode");
+  const tiltakskode = watch("tiltakskode");
   const watchedAdministratorer = watch("administratorer");
 
   const { data: enableTilsagn } = useFeatureToggle(
@@ -55,39 +62,31 @@ export function AvtaleDetaljerForm({
     tiltakskode ? [tiltakskode] : [],
   );
 
-  function handleChangeTiltakstype(nextTiltakskode?: Tiltakskode) {
-    if (nextTiltakskode !== tiltakskode) {
-      setValue("amoKategorisering", null);
-      setValue("utdanningslop", null);
+  useEffect(() => {
+    if (!tiltakskode) return;
+    setValue("amoKategorisering", null);
+    setValue("utdanningslop", null);
+
+    const avtaletype = getAvtaletypeOptions(tiltakskode)[0]?.value;
+
+    if (avtaletype) {
+      setValue("avtaletype", avtaletype);
     }
+  }, [setValue, tiltakskode]);
 
-    const options = nextTiltakskode ? getAvtaletypeOptions(nextTiltakskode) : [];
-    const avtaletype = options[0].value;
-    setValue("avtaletype", avtaletype);
-    handleChangeAvtaletype(avtaletype);
-  }
+  useEffect(() => {
+    if (!avtaletype) return;
 
-  function handleChangeAvtaletype(avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("opsjonsmodell", {
         type: OpsjonsmodellType.VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else if (getValues("opsjonsmodell.type")) {
-      setValue("opsjonsmodell", {
-        type: getValues("opsjonsmodell.type"),
-        customOpsjonsmodellNavn: null,
-        opsjonMaksVarighet: null,
-      });
-    }
 
-    if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
-    } else {
-      setValue("prismodell", null);
     }
-  }
+  }, [avtaletype, getValues, setValue]);
 
   const antallOpsjonerUtlost = (
     opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
@@ -135,34 +134,31 @@ export function AvtaleDetaljerForm({
         </FormGroup>
         <FormGroup>
           <HGrid gap="4" columns={2}>
-            <ControlledSokeSelect
+            <Select
               size="small"
-              placeholder="Velg en"
               label={avtaletekster.tiltakstypeLabel}
-              {...register("tiltakstype")}
-              onChange={(event) => {
-                handleChangeTiltakstype(event.target?.value?.tiltakskode);
-              }}
-              options={tiltakstyper.map((tiltakstype) => ({
-                value: {
-                  navn: tiltakstype.navn,
-                  id: tiltakstype.id,
-                  tiltakskode: tiltakstype.tiltakskode,
-                },
-                label: tiltakstype.navn,
-              }))}
-            />
-            <ControlledSokeSelect
+              {...register("tiltakskode")}
+            >
+              <option value="">-- Velg en --</option>
+              {tiltakstyper.map((type) => (
+                <option key={type.tiltakskode} value={type.tiltakskode as string}>
+                  {type.navn}
+                </option>
+              ))}
+            </Select>
+            <Select
               size="small"
-              placeholder="Velg en"
               readOnly={antallOpsjonerUtlost > 0}
               label={avtaletekster.avtaletypeLabel}
               {...register("avtaletype")}
-              onChange={(e) => {
-                handleChangeAvtaletype(e.target.value);
-              }}
-              options={tiltakskode ? getAvtaletypeOptions(tiltakskode) : []}
-            />
+            >
+              <option value="">-- Velg en --</option>
+              {getAvtaletypeOptions(tiltakskode).map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </Select>
           </HGrid>
           {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
             <AvtaleAmoKategoriseringForm />
@@ -191,16 +187,42 @@ export function AvtaleDetaljerForm({
       </VStack>
       <VStack>
         <FormGroup>
-          <ControlledMultiSelect
-            size="small"
-            helpText="Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene."
-            placeholder="Administratorer"
-            label={avtaletekster.administratorerForAvtalenLabel}
-            {...register("administratorer")}
-            options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
+          <Controller
+            control={control}
+            name="administratorer"
+            render={({ field }) => (
+              <UNSAFE_Combobox
+                id="administratorer"
+                label={
+                  <LabelWithHelpText
+                    label={avtaletekster.administratorerForAvtalenLabel}
+                    helpTextTitle="Mer informasjon"
+                  >
+                    Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
+                  </LabelWithHelpText>
+                }
+                placeholder="Administratorer"
+                isMultiSelect
+                selectedOptions={AdministratorOptions(
+                  ansatt,
+                  watchedAdministratorer,
+                  administratorer,
+                ).filter((option) => field.value?.includes(option.value))}
+                name={field.name}
+                error={errors.administratorer?.message}
+                options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
+                onToggleSelected={(option, isSelected) => {
+                  if (isSelected) {
+                    field.onChange([...field.value, option]);
+                  } else {
+                    field.onChange(field.value.filter((v) => v !== option));
+                  }
+                }}
+              />
+            )}
           />
         </FormGroup>
-        <AvtaleArrangorForm readOnly={false} />
+        <AvtaleArrangorForm />
       </VStack>
     </TwoColumnGrid>
   );

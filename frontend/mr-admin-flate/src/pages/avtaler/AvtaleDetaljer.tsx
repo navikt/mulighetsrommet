@@ -51,7 +51,7 @@ export function AvtaleDetaljer({ avtale }: Props) {
 
   const avtaleMeta: Definition[] = [
     { key: avtaletekster.avtalenavnLabel, value: navn },
-    { key: avtaletekster.avtalenummerLabel, value: avtalenummer },
+    { key: avtaletekster.avtalenummerLabel, value: avtalenummer ?? "-" },
     { key: avtaletekster.sakarkivNummerLabel, value: sakarkivNummer ?? "-" },
   ];
 
@@ -162,6 +162,16 @@ export function AvtaleDetaljer({ avtale }: Props) {
         <Separator />
         <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
         <Separator />
+        {amoKategorisering && (
+          <>
+            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+            <Separator />
+          </>
+        )}
+        {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
+        <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
+        {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
+        <Separator />
         {enableTilsagn ? (
           <PrismodellDetaljer avtale={avtale} />
         ) : (
@@ -175,16 +185,6 @@ export function AvtaleDetaljer({ avtale }: Props) {
             ]}
           />
         )}
-        <Separator />
-        {amoKategorisering && (
-          <>
-            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
-            <Separator />
-          </>
-        )}
-        {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
-        <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
-        {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
       </VStack>
       <VStack>
         {administratorer && (

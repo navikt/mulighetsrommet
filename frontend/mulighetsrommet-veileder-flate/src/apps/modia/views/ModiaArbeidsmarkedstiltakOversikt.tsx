@@ -53,7 +53,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
         table={
           <ArbeidsmarkedstiltakList
             tiltak={tiltak}
-            deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
+            delingerMedBruker={alleTiltakDeltMedBruker ?? undefined}
             filterOpen={filterOpen}
             varsler={
               <>

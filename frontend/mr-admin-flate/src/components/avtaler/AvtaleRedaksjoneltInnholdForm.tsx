@@ -10,26 +10,24 @@ import {
   getLokaleUnderenheterAsSelectOptions,
   getAndreUnderenheterAsSelectOptions,
 } from "@/api/enhet/helpers";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 
 export function AvtaleRedaksjoneltInnholdForm() {
   const [key, setKey] = useState(0);
+  const { data: tiltakstyper } = useTiltakstyper();
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
   const { data: enheter } = useNavEnheter();
 
   const { setValue, watch } = useFormContext<AvtaleFormValues>();
-  const tiltakstype = watch("tiltakstype");
+  const tiltakskode = watch("tiltakskode");
+
+  const tiltakId = tiltakstyper.find((type) => type.tiltakskode === tiltakskode)?.id;
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);
     setValue("faneinnhold", faneinnhold ?? null);
-  }
-
-  if (!tiltakstype) {
-    return (
-      <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
-    );
   }
 
   const regionerOptions = enheter
@@ -48,6 +46,12 @@ export function AvtaleRedaksjoneltInnholdForm() {
     enheter,
   );
 
+  if (!tiltakId) {
+    return (
+      <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
+    );
+  }
+
   return (
     <>
       <HStack>
@@ -63,7 +67,7 @@ export function AvtaleRedaksjoneltInnholdForm() {
       </HStack>
       <RedaksjoneltInnholdForm
         key={`redaksjonelt-innhold-${key}`}
-        tiltakstype={tiltakstype}
+        tiltakId={tiltakId}
         regionerOptions={regionerOptions}
         kontorerOptions={kontorEnheterOptions}
         andreEnheterOptions={andreEnheterOptions}
@@ -83,7 +87,7 @@ export function AvtaleRedaksjoneltInnholdForm() {
           />
 
           <AvtaleListe
-            filter={{ sok: search, tiltakstyper: [tiltakstype.id] }}
+            filter={{ sok: search, tiltakstyper: [tiltakId] }}
             action={(avtale) => (
               <Button
                 size="small"

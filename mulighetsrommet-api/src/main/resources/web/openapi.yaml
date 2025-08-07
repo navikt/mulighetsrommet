@@ -2647,9 +2647,8 @@ components:
           format: UUID
         navn:
           type: string
-        tiltakstypeId:
+        tiltakKode:
           type: string
-          format: UUID
         avtalenummer:
           type: [string, "null"]
         sakarkivNummer:
@@ -2723,7 +2722,7 @@ components:
       required:
         - id
         - navn
-        - tiltakstypeId
+        - tiltakKode
         - arrangorOrganisasjonsnummer
         - arrangorUnderenheter
         - arrangorKontaktpersonId

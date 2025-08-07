@@ -51,7 +51,7 @@ export function defaultAvtaleData(
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
-    tiltakstype: avtale?.tiltakstype,
+    tiltakskode: avtale?.tiltakstype.tiltakskode,
     navRegioner: navRegioner,
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
@@ -73,7 +73,11 @@ export function defaultAvtaleData(
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
     amoKategorisering: avtale?.amoKategorisering ?? null,
-    opsjonsmodell: avtale?.opsjonsmodell,
+    opsjonsmodell: {
+      type: avtale?.opsjonsmodell.type,
+      opsjonMaksVarighet: avtale?.opsjonsmodell.opsjonMaksVarighet,
+      customOpsjonsmodellNavn: avtale?.opsjonsmodell.customOpsjonsmodellNavn,
+    },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     prismodell: avtale?.prismodell ?? null,
     satser: avtale?.satser ?? [],

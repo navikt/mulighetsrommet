@@ -255,7 +255,7 @@ object AvtaleFixtures {
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        tiltakKode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
         arrangor = AvtaleRequest.Arrangor(
             hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
             underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
