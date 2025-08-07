@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -17,11 +16,9 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.Period
 import java.util.*
 
 class ReplicateDeltakerKafkaConsumer(
-    private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val db: ApiDatabase,
     private val oppdaterUtbetaling: OppdaterUtbetalingBeregning,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
@@ -56,7 +53,7 @@ class ReplicateDeltakerKafkaConsumer(
                 queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
             }
         }
-        if (gjennomforingId != null && NaisEnv.current() != NaisEnv.ProdGCP) {
+        if (gjennomforingId != null) {
             scheduleOppdateringAvUtbetaling(gjennomforingId)
         }
     }
