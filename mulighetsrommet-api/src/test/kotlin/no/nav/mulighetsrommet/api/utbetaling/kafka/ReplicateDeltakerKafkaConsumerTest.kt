@@ -26,19 +26,16 @@ import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDateTime
-import java.time.Period
 import java.util.*
 
 class ReplicateDeltakerKafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createConsumer(
-        period: Period = Period.ofDays(1),
         oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(relaxed = true),
     ): ReplicateDeltakerKafkaConsumer {
         return ReplicateDeltakerKafkaConsumer(
             db = database.db,
-            relevantDeltakerSluttDatoPeriod = period,
             oppdaterUtbetaling = oppdaterUtbetaling,
         )
     }
