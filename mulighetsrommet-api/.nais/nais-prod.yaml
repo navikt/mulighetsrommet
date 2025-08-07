@@ -207,7 +207,7 @@ spec:
         - host: api.utdanning.no
         - host: platform.altinn.no
         - host: dokarkiv.prod-fss-pub.nais.io
-        - host: sokos-kontoregister.dev-fss-pub.nais.io
+        - host: sokos-kontoregister.prod-fss-pub.nais.io
         # Sanity IPs https://www.sanity.io/docs/api-cdn#5fa01dfe1285
         - ipv4: 35.241.31.122
         - ipv4: 35.190.70.79
