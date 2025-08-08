@@ -325,7 +325,7 @@ SELECT
   del_med_bruker.created_at AS delt_tidspunkt
 FROM
   `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker` del_med_bruker
-LEFT JOIN
+JOIN
   `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
 ON
   del_med_bruker.tiltakstype_id = tiltakstype.id
