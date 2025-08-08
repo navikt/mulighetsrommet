@@ -191,8 +191,9 @@ export default function BekreftUtbetaling() {
       </Heading>
       <Alert variant="warning">
         {" "}
-        Vi opplever tekniske utfordringer og jobber med å løse problemene. Godkjenning av utbetaling
-        vil defor være utilgjengelig inntil videre. Vennligst prøv igjen senere.
+        Vi har oppdaget at noen utbetalinger blir beregnet på feil datagrunnlag i forbindelse med
+        feilregistrering i deltakelsene. Godkjenning av utbetaling vil defor være utilgjengelig
+        inntil videre. Vennligst prøv igjen senere.
       </Alert>
       <VStack gap="6">
         <Definisjonsliste
