@@ -45,7 +45,7 @@ module "mr_api_datastream" {
         { table = "utbetaling" },
         {
           table   = "del_med_bruker",
-          columns = ["id", "tiltakstype_navn", "delt_fra_fylke", "delt_fra_enhet", "created_at"]
+          columns = ["id", "tiltakstype_id", "delt_fra_fylke", "delt_fra_enhet", "created_at"]
         },
         {
           table   = "totrinnskontroll",
