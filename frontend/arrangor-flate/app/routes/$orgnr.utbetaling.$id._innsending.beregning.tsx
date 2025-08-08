@@ -78,16 +78,6 @@ export default function UtbetalingBeregning() {
       <Heading level="2" spacing size="large">
         Beregning
       </Heading>
-      <Alert variant="warning">
-        I forbindelse med utrullering av ny løsning har vi blitt oppmerksomme på at det finnes
-        feilregistrerte deltakelser i deltakeroversikten. Vi oppfordrer derfor til å kryssjekke
-        beregningen i tilfelle det er behov for å oppdatere datagrunnlaget. Finner dere feil i
-        deltakelsene kan dette rettes via{" "}
-        <Link as={ReactRouterLink} to={deltakerlisteUrl}>
-          Deltakeroversikten
-        </Link>
-        . Ved behov kan dere også ta kontakt med tiltaksansvarlig i Nav.
-      </Alert>
       <GuidePanel>
         <BodyShort>
           {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
