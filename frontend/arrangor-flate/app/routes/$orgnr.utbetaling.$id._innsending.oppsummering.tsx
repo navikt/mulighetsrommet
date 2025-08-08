@@ -1,5 +1,6 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
+  Alert,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -188,6 +189,12 @@ export default function BekreftUtbetaling() {
       <Heading level="2" spacing size="large">
         Oppsummering
       </Heading>
+      <Alert variant="warning">
+        {" "}
+        Vi har oppdaget at noen utbetalinger blir beregnet på feil datagrunnlag i forbindelse med
+        feilregistrering i deltakelsene. Godkjenning av utbetaling vil defor være utilgjengelig
+        inntil videre. Vennligst prøv igjen senere.
+      </Alert>
       <VStack gap="6">
         <Definisjonsliste
           title="Innsendingsinformasjon"
@@ -280,7 +287,11 @@ export default function BekreftUtbetaling() {
               >
                 Tilbake
               </Button>
-              {harTilsagn && <Button type="submit">Bekreft og send inn</Button>}
+              {harTilsagn && (
+                <Button type="submit" disabled>
+                  Bekreft og send inn
+                </Button>
+              )}
             </HStack>
           </VStack>
         </Form>
