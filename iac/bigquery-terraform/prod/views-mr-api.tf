@@ -309,7 +309,7 @@ module "mr_api_del_med_bruker_view" {
       },
       {
         mode        = "NULLABLE"
-        name        = "created_at"
+        name        = "delt_tidspunkt"
         type        = "TIMESTAMP"
         description = "Når tiltaket ble delt med bruker"
       },
@@ -322,7 +322,7 @@ SELECT
   tiltakstype.navn AS tiltakstype_navn,
   del_med_bruker.delt_fra_fylke,
   del_med_bruker.delt_fra_enhet,
-  del_med_bruker.created_at AS delt_tidspunikt
+  del_med_bruker.created_at AS delt_tidspunkt
 FROM
   `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker` del_med_bruker
 LEFT JOIN
