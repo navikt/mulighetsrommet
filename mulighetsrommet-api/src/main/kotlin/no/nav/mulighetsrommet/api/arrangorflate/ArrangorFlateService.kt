@@ -110,7 +110,7 @@ class ArrangorFlateService(
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
         return getRelevanteForslag(utbetaling) +
-            getFeilSluttDato(deltakere) +
+            getFeilSluttDato(deltakere, LocalDate.now()) +
             getOverlappendePerioder(deltakere, utbetaling.periode)
     }
 
@@ -132,20 +132,16 @@ class ArrangorFlateService(
         }
         return deltakerPerioder
             .mapNotNull { deltakerOgPeriode ->
-                if (harOverlappendePeriode(deltakerOgPeriode, deltakerPerioder)) {
-                    DeltakerAdvarsel.OverlappendePeriode(deltakerOgPeriode.id)
-                }
-                null
+                DeltakerAdvarsel.OverlappendePeriode(deltakerOgPeriode.id)
+                    .takeIf { _ -> harOverlappendePeriode(deltakerOgPeriode, deltakerPerioder) }
             }
     }
 
-    private fun getFeilSluttDato(deltakere: List<Deltaker>): List<DeltakerAdvarsel.FeilSluttDato> {
+    fun getFeilSluttDato(deltakere: List<Deltaker>, today: LocalDate): List<DeltakerAdvarsel.FeilSluttDato> {
         return deltakere
             .mapNotNull {
-                if (harFeilSluttDato(it.status.type, it.sluttDato, today = LocalDate.now())) {
-                    DeltakerAdvarsel.FeilSluttDato(it.id)
-                }
-                null
+                DeltakerAdvarsel.FeilSluttDato(it.id)
+                    .takeIf { _ -> harFeilSluttDato(it.status.type, it.sluttDato, today = today) }
             }
     }
 

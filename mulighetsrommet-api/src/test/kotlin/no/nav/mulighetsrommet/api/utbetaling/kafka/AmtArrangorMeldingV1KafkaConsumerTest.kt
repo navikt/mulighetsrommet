@@ -103,7 +103,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(GjennomforingFixtures.AFT1),
-            deltakere = listOf(DeltakerFixtures.createDeltaker(GjennomforingFixtures.AFT1.id)),
+            deltakere = listOf(DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.AFT1.id)),
         ).initialize(database.db)
 
         val deltakerId = domain.deltakere[0].id
