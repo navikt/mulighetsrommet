@@ -21,7 +21,7 @@ function isAktiv(utbetaling: ArrFlateUtbetalingKompakt): boolean {
   switch (utbetaling.status) {
     case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
     case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
-    case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING:
+    case ArrFlateUtbetalingStatus.KREVER_ENDRING:
       return true;
     case ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
     case ArrFlateUtbetalingStatus.UTBETALT:

@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -10,9 +12,12 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.DeltakerOgPeriode
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
+import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
+import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
@@ -24,6 +29,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -134,9 +141,9 @@ class ArrangorflateServiceTest : FunSpec({
         result[0].id shouldBe tilsagn.id
     }
 
-    test("getRelevanteForslag should return empty list when no forslag exists") {
+    test("getAdvarsler should return empty list when no advarsler exists") {
         val utbetalingDto = getUtbetalingDto(utbetaling.id)
-        val result = arrangorflateService.getRelevanteForslag(utbetalingDto)
+        val result = arrangorflateService.getAdvarsler(utbetalingDto)
         result shouldHaveSize 0
     }
 
@@ -158,7 +165,7 @@ class ArrangorflateServiceTest : FunSpec({
         val result = arrangorflateService.toArrFlateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
 
         result.id shouldBe utbetaling.id
-        result.status shouldBe ArrFlateUtbetalingStatus.VENTER_PA_ENDRING
+        result.status shouldBe ArrFlateUtbetalingStatus.KREVER_ENDRING
 
         result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
             verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
@@ -206,5 +213,82 @@ class ArrangorflateServiceTest : FunSpec({
             it.deltakelser[0].person.shouldBeNull()
         }
         result.kanViseBeregning shouldBe false
+    }
+
+    context("advarsler") {
+        test("overlappende periode") {
+            val d = DeltakerOgPeriode(
+                id = UUID.randomUUID(),
+                norskIdent = NorskIdent("01010199999"),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 8, 1)),
+            )
+
+            // Samme id gir ikke overlappende
+            harOverlappendePeriode(
+                d,
+                listOf(d),
+            ) shouldBe false
+
+            // Annen norsk ident gir ikke overlappende
+            harOverlappendePeriode(
+                d,
+                listOf(DeltakerOgPeriode(UUID.randomUUID(), NorskIdent("02020288888"), d.periode)),
+            ) shouldBe false
+
+            // Samme periode gir true
+            harOverlappendePeriode(
+                d,
+                listOf(DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, d.periode)),
+            ) shouldBe true
+
+            // Tre med overlappende periode gir true
+            harOverlappendePeriode(
+                d,
+                listOf(
+                    DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, Periode(LocalDate.of(2025, 8, 2), LocalDate.of(2025, 9, 10))),
+                    DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, Periode(LocalDate.of(2025, 7, 2), LocalDate.of(2025, 8, 2))),
+                ),
+            ) shouldBe true
+
+            // Neste dag gir false
+            harOverlappendePeriode(
+                DeltakerOgPeriode(
+                    d.id,
+                    d.norskIdent,
+                    Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 3)),
+                ),
+                listOf(DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, Periode(LocalDate.of(2025, 8, 3), LocalDate.of(2025, 8, 5)))),
+            ) shouldBe false
+        }
+
+        test("feil slutt dato") {
+            val today = LocalDate.of(2025, 1, 1)
+            forAll(
+                row(DeltakerStatusType.AVBRUTT_UTKAST, false),
+                row(DeltakerStatusType.DELTAR, false),
+                row(DeltakerStatusType.FEILREGISTRERT, false),
+                row(DeltakerStatusType.IKKE_AKTUELL, false),
+                row(DeltakerStatusType.KLADD, false),
+                row(DeltakerStatusType.PABEGYNT_REGISTRERING, false),
+                row(DeltakerStatusType.SOKT_INN, false),
+                row(DeltakerStatusType.UTKAST_TIL_PAMELDING, false),
+                row(DeltakerStatusType.VENTELISTE, false),
+                row(DeltakerStatusType.VENTER_PA_OPPSTART, false),
+                row(DeltakerStatusType.VURDERES, false),
+
+                row(DeltakerStatusType.AVBRUTT, true),
+                row(DeltakerStatusType.FULLFORT, true),
+                row(DeltakerStatusType.HAR_SLUTTET, true),
+            ) { status, expectedResult ->
+                harFeilSluttDato(status, today.plusDays(1), today = today) shouldBe expectedResult
+            }
+
+            // I dag gir false
+            harFeilSluttDato(DeltakerStatusType.HAR_SLUTTET, today, today) shouldBe false
+            // I går gir false
+            harFeilSluttDato(DeltakerStatusType.HAR_SLUTTET, today.minusDays(1), today) shouldBe false
+            // Om et år gir true
+            harFeilSluttDato(DeltakerStatusType.AVBRUTT, today.plusYears(1), today) shouldBe true
+        }
     }
 })

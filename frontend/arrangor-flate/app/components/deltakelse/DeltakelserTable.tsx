@@ -10,8 +10,8 @@ import {
   ArrFlateBeregningPrisPerManedsverkDeltakelse,
   ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse,
   ArrFlateBeregningPrisPerUkesverkDeltakelse,
+  DeltakerAdvarsel,
   Periode,
-  RelevanteForslag,
 } from "api-client";
 import { tekster } from "~/tekster";
 import {
@@ -117,11 +117,11 @@ const columns: {
 export function DeltakelserTable({
   periode,
   beregning,
-  relevanteForslag,
+  advarsler,
 }: {
   periode: Periode;
   beregning: ArrFlateBeregning;
-  relevanteForslag: RelevanteForslag[];
+  advarsler: DeltakerAdvarsel[];
   deltakerlisteUrl: string;
 }) {
   const { sort, handleSort } = useSortState<DeltakerSortKey>();
@@ -130,22 +130,23 @@ export function DeltakelserTable({
     ? sortBy(beregning.deltakelser, sort.direction, getDeltakerSelector(sort.orderBy))
     : beregning.deltakelser;
 
-  function hasRelevanteForslag(id: string): boolean {
-    return (relevanteForslag.find((r) => r.deltakerId === id)?.antallRelevanteForslag ?? 0) > 0;
+  function hasAdvarsel(id: string): boolean {
+    return advarsler.some((r) => r.deltakerId === id);
   }
-
-  const deltakereMedRelevanteForslag = beregning.deltakelser.filter(
-    (deltaker: ArrFlateBeregningDeltakelse) => hasRelevanteForslag(deltaker.id),
-  );
 
   return (
     <>
-      {deltakereMedRelevanteForslag.length > 0 && (
+      {advarsler.length > 0 && (
         <Alert variant="warning">
-          {tekster.bokmal.utbetaling.beregning.ubehandledeDeltakerforslag}
+          {tekster.bokmal.utbetaling.beregning.advarslerFinnes}
           <List>
-            {deltakereMedRelevanteForslag.map((deltaker) => (
-              <List.Item key={deltaker.id}>{deltaker.person?.navn}</List.Item>
+            {advarsler.map((advarsel) => (
+              <List.Item key={advarsel.deltakerId}>
+                <DeltakerAdvarselInfo
+                  advarsel={advarsel}
+                  deltaker={beregning.deltakelser.find((d) => d.id === advarsel.deltakerId)}
+                />
+              </List.Item>
             ))}
           </List>
         </Alert>
@@ -184,7 +185,7 @@ export function DeltakelserTable({
                 expansionDisabled={beregning.type === "FRI"}
                 togglePlacement="right"
                 className={
-                  hasRelevanteForslag(deltakelse.id)
+                  hasAdvarsel(deltakelse.id)
                     ? "bg-surface-warning-moderate"
                     : index % 2 !== 0
                       ? "bg-surface-subtle"
@@ -192,7 +193,7 @@ export function DeltakelserTable({
                 }
               >
                 {cols.map((col) => {
-                  const children = col.render(deltakelse, hasRelevanteForslag(deltakelse.id));
+                  const children = col.render(deltakelse, hasAdvarsel(deltakelse.id));
                   if (children === null) {
                     return null;
                   }
@@ -210,4 +211,21 @@ export function DeltakelserTable({
       </Table>
     </>
   );
+}
+
+function DeltakerAdvarselInfo({
+  deltaker,
+  advarsel,
+}: {
+  deltaker?: ArrFlateBeregningDeltakelse;
+  advarsel: DeltakerAdvarsel;
+}) {
+  switch (advarsel.type) {
+    case "RELEVANTE_FORSLAG":
+      return `${deltaker?.person?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg`;
+    case "FEIL_SLUTTDATO":
+      return `${deltaker?.person?.navn} har status “${deltaker?.status}” og slutt dato frem i tid`;
+    case "OVERLAPPENDE_PERIODE":
+      return `${deltaker?.person?.navn} har flere deltakelser med overlappende perioder`;
+  }
 }
