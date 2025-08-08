@@ -348,7 +348,82 @@ class GenererUtbetalingServiceTest : FunSpec({
                 }
         }
 
-        test("genererer ikke utbetaling hvis det finnes et med overlappende periode") {
+        test("genererer utbetalinger når gjennomføringen ble avsluttet i inneværende utbetalingsperiode") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 15),
+                        status = GjennomforingStatus.AVSLUTTET,
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 15),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingForMonth(1).first()
+
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+                .should {
+                    it.belop shouldBe 10149
+                    it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.48387))
+                }
+        }
+
+        test("forsøker ikke å generere utbetalinger når gjennomføringen ble avsluttet før utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2024, 12, 31),
+                        status = GjennomforingStatus.AVSLUTTET,
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2025, 1, 15),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForMonth(1).shouldHaveSize(0)
+        }
+
+        test("forsøker ikke å generere utbetalinger når gjennomføringen starter etter utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
+                        status = GjennomforingStatus.GJENNOMFORES,
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
+                        statusType = DeltakerStatusType.DELTAR,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForMonth(1).shouldHaveSize(0)
+        }
+
+        test("genererer ikke utbetaling hvis det allerede finnes en med overlappende periode") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -671,7 +746,11 @@ class GenererUtbetalingServiceTest : FunSpec({
                         sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatusType.DELTAR,
                         deltakelsesmengder = listOf(
-                            DeltakerDbo.Deltakelsesmengde(gyldigFra = LocalDate.of(2025, 1, 1), deltakelsesprosent = 100.0, opprettetTidspunkt = LocalDateTime.now()),
+                            DeltakerDbo.Deltakelsesmengde(
+                                gyldigFra = LocalDate.of(2025, 1, 1),
+                                deltakelsesprosent = 100.0,
+                                opprettetTidspunkt = LocalDateTime.now(),
+                            ),
                         ),
                     ),
                 ),

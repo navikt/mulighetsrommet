@@ -241,16 +241,16 @@ class GenererUtbetalingService(
             select gjennomforing.id, avtale.prismodell
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
-            where gjennomforing.status = 'GJENNOMFORES'
+            where daterange(gjennomforing.start_dato, gjennomforing.slutt_dato, '[]') && :periode::daterange
               and not exists (
                     select 1
                     from utbetaling
                     where utbetaling.gjennomforing_id = gjennomforing.id
-                      and utbetaling.periode && ?::daterange
+                      and utbetaling.periode && :periode::daterange
               )
         """.trimIndent()
 
-        return session.list(queryOf(query, periode.toDaterange())) {
+        return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
             Pair(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
         }
     }
