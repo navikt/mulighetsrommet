@@ -6,7 +6,7 @@ import {
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, Prismodell, ValidationError } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleRequest, Prismodell, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useNavigate } from "react-router";
 import { useCallback } from "react";
@@ -37,9 +37,11 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   });
 
   const postData = async (data: AvtaleFormValues) => {
-    const requestBody = {
+    const requestBody: AvtaleRequest = {
       ...data,
       id: avtale.id,
+      startDato: data.startDato,
+      sluttDato: data.sluttDato || null,
       navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navAndreEnheter),
       avtalenummer: avtale.avtalenummer || null,
       arrangor:
