@@ -213,7 +213,6 @@ export default function OpprettKravOppsummering() {
               value: `${tilsagn.arrangor.navn} - ${orgnr}`,
             },
             { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
-            { key: "Tilsagn", value: tilsagn.bestillingsnummer },
           ]}
         />
         <Separator />
