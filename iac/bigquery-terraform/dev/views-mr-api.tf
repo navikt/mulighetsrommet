@@ -212,45 +212,6 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
 EOF
 }
 
-module "mr_api_gjennomforing_opphav_antall_opprettet_view" {
-  source              = "../modules/google-bigquery-view"
-  deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "gjennomforing_opphav_antall_opprettet_view"
-  view_schema = jsonencode(
-    [
-      {
-        mode        = "NULLABLE"
-        name        = "navn"
-        type        = "STRING"
-        description = "Navn på tiltakstype."
-      },
-      {
-        mode        = "NULLABLE"
-        name        = "opphav"
-        type        = "STRING"
-        description = "Hvilket system som gjennomføringen ble opprettet i."
-      },
-      {
-        mode        = "NULLABLE"
-        name        = "antall_opprettet"
-        type        = "INTEGER"
-        description = "Antall gjennomføringer per opphav."
-      },
-    ]
-  )
-  view_query = <<EOF
-select
-    tiltakstype.navn,
-    gjennomforing.opphav,
-    count(*) as antall_opprettet
-from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` gjennomforing
-         join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-group by tiltakstype.navn, gjennomforing.opphav
-order by tiltakstype.navn
-EOF
-}
-
 module "mr_api_gjennomforing_nav_enhet_view" {
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
