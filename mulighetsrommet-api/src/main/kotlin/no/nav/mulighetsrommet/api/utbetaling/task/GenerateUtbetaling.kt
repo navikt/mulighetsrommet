@@ -7,6 +7,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.LocalDate
 
@@ -30,15 +31,15 @@ class GenerateUtbetaling(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
         .executeSuspend { _, _ ->
-            val month = LocalDate.now().minusMonths(1).month.value
-            runTask(month)
+            val periode = Periode.forMonthOf(LocalDate.now().minusMonths(1))
+            runTask(periode)
         }
 
-    suspend fun runTask(month: Int): List<Utbetaling> {
+    suspend fun runTask(periode: Periode): List<Utbetaling> {
         if (config.disabled) {
             return listOf()
         }
 
-        return utbetalinger.genererUtbetalingForMonth(month)
+        return utbetalinger.genererUtbetalingForPeriode(periode)
     }
 }

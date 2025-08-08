@@ -38,11 +38,7 @@ class GenererUtbetalingService(
         .recordStats()
         .build()
 
-    suspend fun genererUtbetalingForMonth(month: Int): List<Utbetaling> = db.transaction {
-        val currentYear = LocalDate.now().year
-        val date = LocalDate.of(currentYear, month, 1)
-        val periode = Periode.forMonthOf(date)
-
+    suspend fun genererUtbetalingForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, prismodell) ->
                 val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
