@@ -13,10 +13,9 @@ import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomfo
 import { aktiveTilsagnQuery, tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
-import { subtractDays } from "@/utils/Utils";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -62,7 +61,7 @@ export function RedigerTilsagnFormPage() {
     id: tilsagn.id,
     type: tilsagn.type,
     periodeStart: tilsagn.periode.start,
-    periodeSlutt: formaterDatoSomYYYYMMDD(subtractDays(tilsagn.periode.slutt, 1)),
+    periodeSlutt: yyyyMMddFormatting(subDuration(tilsagn.periode.slutt, { days: 1 }))!,
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
     beregning: tilsagnBeregningInput(tilsagn.beregning),
     gjennomforingId: gjennomforing.id,

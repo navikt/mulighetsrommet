@@ -132,14 +132,9 @@ export function UtbetalingPage() {
                     )}
                     <MetadataHorisontal
                       header="Dato innsendt"
-                      verdi={formaterDato(
-                        utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
-                      )}
+                      verdi={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
                     />
-                    <MetadataHorisontal
-                      header="Innsendt av"
-                      verdi={utbetaling.innsendtAv || "Ukjent innsender"}
-                    />
+                    <MetadataHorisontal header="Innsendt av" verdi={utbetaling.innsendtAv} />
                     <MetadataHorisontal
                       header={utbetalingTekster.beregning.belop.label}
                       verdi={formaterNOK(utbetaling.belop)}
