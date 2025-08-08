@@ -5,7 +5,6 @@ import {
   ArrangorflateService,
   ArrFlateUtbetaling,
   ArrFlateUtbetalingStatus,
-  RelevanteForslag,
   UtbetalingType,
 } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
@@ -27,7 +26,6 @@ import { useRef } from "react";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrFlateUtbetaling;
-  relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 };
 
@@ -48,15 +46,8 @@ export const loader: LoaderFunction = async ({
     throw new Response("Mangler id", { status: 400 });
   }
 
-  const [
-    { data: utbetaling, error: utbetalingError },
-    { data: relevanteForslag, error: relevanteForslagError },
-  ] = await Promise.all([
+  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
     ArrangorflateService.getArrFlateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getRelevanteForslag({
       path: { id },
       headers: await apiHeaders(request),
     }),
@@ -65,16 +56,12 @@ export const loader: LoaderFunction = async ({
   if (utbetalingError || !utbetaling) {
     throw problemDetailResponse(utbetalingError);
   }
-  if (relevanteForslagError || !relevanteForslag) {
-    throw problemDetailResponse(relevanteForslagError);
-  }
 
-  return { utbetaling, relevanteForslag, deltakerlisteUrl };
+  return { utbetaling, deltakerlisteUrl };
 };
 
 export default function UtbetalingDetaljerSide() {
-  const { utbetaling, relevanteForslag, deltakerlisteUrl } =
-    useLoaderData<UtbetalingDetaljerSideData>();
+  const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
 
   const innsendtTidspunkt = getTimestamp(utbetaling);
 
@@ -126,11 +113,7 @@ export default function UtbetalingDetaljerSide() {
           ...getBeregningDetaljer(utbetaling.beregning),
         ]}
       />
-      <DeltakerModal
-        utbetaling={utbetaling}
-        relevanteForslag={relevanteForslag}
-        deltakerlisteUrl={deltakerlisteUrl}
-      />
+      <DeltakerModal utbetaling={utbetaling} deltakerlisteUrl={deltakerlisteUrl} />
       <Definisjonsliste
         title="Betalingsinformasjon"
         headingLevel="3"
@@ -184,11 +167,10 @@ function getUtbetalingTypeNavn(type: UtbetalingType) {
 
 interface DeltakerModalProps {
   utbetaling: ArrFlateUtbetaling;
-  relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 }
 
-function DeltakerModal({ utbetaling, relevanteForslag, deltakerlisteUrl }: DeltakerModalProps) {
+function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
   if (utbetaling.beregning.type === "FRI" || !utbetaling.kanViseBeregning) {
     return null;
@@ -222,7 +204,7 @@ function DeltakerModal({ utbetaling, relevanteForslag, deltakerlisteUrl }: Delta
           <DeltakelserTable
             periode={utbetaling.periode}
             beregning={utbetaling.beregning}
-            relevanteForslag={relevanteForslag}
+            advarsler={utbetaling.advarsler}
             deltakerlisteUrl={deltakerlisteUrl}
           />
           <Definisjonsliste

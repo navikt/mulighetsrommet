@@ -12,6 +12,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
     utbetaling: Utbetaling,
     status: ArrFlateUtbetalingStatus,
     deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>>,
+    advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangorUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrFlateUtbetaling {
@@ -91,6 +92,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
         betalingsinformasjon = utbetaling.betalingsinformasjon,
         type = UtbetalingType.from(utbetaling),
         linjer = linjer,
+        advarsler = advarsler,
     )
 }
 
@@ -107,6 +109,7 @@ fun toArrFlateBeregningDeltakelse(
             person = person,
             periode = input.periode(),
             faktor = output.faktor,
+            status = deltaker?.status?.type,
         )
         is DeltakelseUkesverk -> ArrFlateBeregningDeltakelse.PrisPerUkesverk(
             id = output.deltakelseId,
@@ -114,6 +117,7 @@ fun toArrFlateBeregningDeltakelse(
             person = person,
             periode = input.periode(),
             faktor = output.faktor,
+            status = deltaker?.status?.type,
         )
         is DeltakelseManedsverk -> when (input) {
             is DeltakelsePeriode ->
@@ -123,6 +127,7 @@ fun toArrFlateBeregningDeltakelse(
                     person = person,
                     periode = input.periode(),
                     faktor = output.faktor,
+                    status = deltaker?.status?.type,
                 )
             is DeltakelseDeltakelsesprosentPerioder ->
                 ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
@@ -132,6 +137,7 @@ fun toArrFlateBeregningDeltakelse(
                     periode = input.periode(),
                     faktor = output.faktor,
                     perioderMedDeltakelsesmengde = input.perioder,
+                    status = deltaker?.status?.type,
                 )
         }
     }

@@ -34,10 +34,10 @@ export function UtbetalingStatusTag({ status, size }: Props): ReactNode {
           Klar for innsending
         </Tag>
       );
-    case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING:
+    case ArrFlateUtbetalingStatus.KREVER_ENDRING:
       return (
         <Tag variant="warning" size={tagSize}>
-          Venter på endring
+          Krever endring
         </Tag>
       );
     case ArrFlateUtbetalingStatus.AVBRUTT:

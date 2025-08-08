@@ -327,7 +327,7 @@ class ArrangorflateRoutesTest : FunSpec({
                   "errors": [
                     {
                       "pointer": "/info",
-                      "detail": "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn."
+                      "detail": "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn."
                     }
                   ]
                 }

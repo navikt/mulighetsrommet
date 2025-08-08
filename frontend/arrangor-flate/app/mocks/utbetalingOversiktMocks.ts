@@ -27,7 +27,7 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompakt[] = [
   },
   {
     id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
-    status: ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
+    status: ArrFlateUtbetalingStatus.KREVER_ENDRING,
     godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",

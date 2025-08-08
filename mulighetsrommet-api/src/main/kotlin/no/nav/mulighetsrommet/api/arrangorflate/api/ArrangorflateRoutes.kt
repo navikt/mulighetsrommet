@@ -12,6 +12,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.utils.io.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -205,14 +206,14 @@ fun Route.arrangorflateRoutes() {
                 call.respond(oppsummering)
             }
 
-            get("/relevante-forslag") {
+            get("/advarsler") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val utbetaling = arrangorFlateService.getUtbetaling(id)
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                call.respond(arrangorFlateService.getRelevanteForslag(utbetaling))
+                call.respond(arrangorFlateService.getAdvarsler(utbetaling))
             }
 
             post("/godkjenn") {
@@ -222,12 +223,12 @@ fun Route.arrangorflateRoutes() {
                 val utbetaling = arrangorFlateService.getUtbetaling(id)
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
-                val relevanteForslag = arrangorFlateService.getRelevanteForslag(utbetaling)
+                val advarsler = arrangorFlateService.getAdvarsler(utbetaling)
 
                 UtbetalingValidator.validerGodkjennUtbetaling(
                     request,
                     utbetaling,
-                    relevanteForslag,
+                    advarsler,
                 )
                     .onLeft {
                         call.respondWithProblemDetail(ValidationError(errors = it))
@@ -369,11 +370,31 @@ data class GodkjennUtbetaling(
 )
 
 @Serializable
-data class RelevanteForslag(
-    @Serializable(with = UUIDSerializer::class)
-    val deltakerId: UUID,
-    val antallRelevanteForslag: Int,
-)
+sealed class DeltakerAdvarsel {
+    abstract val deltakerId: UUID
+
+    @Serializable
+    @SerialName("RELEVANTE_FORSLAG")
+    data class RelevanteForslag(
+        @Serializable(with = UUIDSerializer::class)
+        override val deltakerId: UUID,
+        val antallRelevanteForslag: Int,
+    ) : DeltakerAdvarsel()
+
+    @Serializable
+    @SerialName("FEIL_SLUTTDATO")
+    data class FeilSluttDato(
+        @Serializable(with = UUIDSerializer::class)
+        override val deltakerId: UUID,
+    ) : DeltakerAdvarsel()
+
+    @Serializable
+    @SerialName("OVERLAPPENDE_PERIODE")
+    data class OverlappendePeriode(
+        @Serializable(with = UUIDSerializer::class)
+        override val deltakerId: UUID,
+    ) : DeltakerAdvarsel()
+}
 
 @Serializable
 data class OpprettKravOmUtbetalingRequest(

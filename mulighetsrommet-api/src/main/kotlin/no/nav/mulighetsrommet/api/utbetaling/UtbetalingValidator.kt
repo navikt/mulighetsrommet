@@ -4,9 +4,9 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
-import no.nav.mulighetsrommet.api.arrangorflate.api.RelevanteForslag
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -245,17 +245,17 @@ object UtbetalingValidator {
     fun validerGodkjennUtbetaling(
         request: GodkjennUtbetaling,
         utbetaling: Utbetaling,
-        relevanteForslag: List<RelevanteForslag>,
+        advarsler: List<DeltakerAdvarsel>,
     ): Either<List<FieldError>, Kid?> {
         val errors = buildList {
             if (utbetaling.innsender != null) {
                 add(FieldError.root("Utbetalingen er allerede godkjent"))
             }
-            if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
+            if (advarsler.isNotEmpty()) {
                 add(
                     FieldError.ofPointer(
                         "/info",
-                        "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn.",
+                        "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
                     ),
                 )
             }
