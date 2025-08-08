@@ -10,9 +10,8 @@ import {
 import { Heading, HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { addDays } from "@/utils/Utils";
 import { tilsagnTekster } from "../TilsagnTekster";
-import { formaterDatoSomYYYYMMDD } from "@mr/frontend-common/utils/date";
+import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
   beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
@@ -60,9 +59,8 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   }, [periodeStart, setValue]);
 
   useEffect(() => {
-    const periodeSluttExclusive = periodeSlutt
-      ? formaterDatoSomYYYYMMDD(addDays(periodeSlutt, 1))
-      : periodeSlutt;
+    const periodeSluttExclusive =
+      yyyyMMddFormatting(addDuration(periodeSlutt, { days: 1 })) ?? periodeSlutt;
     setValue("beregning.periode.slutt", periodeSluttExclusive);
   }, [periodeSlutt, setValue]);
 

@@ -9,32 +9,26 @@ const utcParseContext: ParseISOOptions<UTCDate> = { in: utc }
 type UnparsedDate = string | Date | undefined | null
 
 /**
- * Format: "yyyy-MM-dd" hhvis gyldig dato, ellers fallback
- * @param dato 
- * @param fallback default ""
- * @returns 
+ * Format: "yyyy-MM-dd" hhvis gyldig dato
+ * @param dato
+ * @returns
  */
-export function yyyyMMddFormatting(
-  dato: UnparsedDate,
-  fallback = "",
-): string {
+export function yyyyMMddFormatting(dato: UnparsedDate): string | undefined {
   const parsedDate = parseDate(dato)
   if (parsedDate) {
     return lightFormat(parsedDate, "yyyy-MM-dd");
   }
-  return fallback;
 }
 
 /**
- * Format: "dd.MM.yyyy" hhvis gyldig dato, ellers fallback
- * @param dato 
- * @param fallback default ""
- * @returns 
+ * Format: "dd.MM.yyyy" hhvis gyldig dato
+ * @param dato
+ * @returns
  */
-export function formaterDato(dato: UnparsedDate, fallback = ""): string {
+export function formaterDato(dato: UnparsedDate): string | undefined {
   const parsedDato = parseDate(dato)
   if (!parsedDato) {
-    return fallback
+    return
   }
 
   return parsedDato.toLocaleString("no-NO", {
@@ -45,15 +39,14 @@ export function formaterDato(dato: UnparsedDate, fallback = ""): string {
 }
 
 /**
- * Format: "dd.MM.yyyy hh:mm" hhvis gyldig dato, ellers fallback
- * @param dato 
- * @param fallback default ""
- * @returns 
+ * Format: "dd.MM.yyyy hh:mm" hhvis gyldig dato
+ * @param dato
+ * @returns
  */
-export function formaterDatoTid(dato: UnparsedDate, fallback = ""): string {
+export function formaterDatoTid(dato: UnparsedDate): string | undefined {
   const parsedDato = parseDate(dato)
   if (!parsedDato) {
-    return fallback
+    return;
   }
   return parsedDato.toLocaleTimeString("no-NO", {
     year: "numeric",
@@ -81,8 +74,8 @@ export function formaterPeriodeSlutt({ slutt }: Periode) {
 
 /**
  * Returnerer seneste datoen av listen, hhvis de er gyldige
- * @param dates 
- * @returns 
+ * @param dates
+ * @returns
  */
 export function maxOf(dates: UnparsedDate[]): Date {
   return max(dates.map((it) => parseDate(it)).filter(isDate))
@@ -90,27 +83,27 @@ export function maxOf(dates: UnparsedDate[]): Date {
 
 /**
  * Trekk fra gitt varighet for gitt dato, hhvis gyldig ellers undefined
- * @param dato 
- * @param duration 
- * @returns 
+ * @param dato
+ * @param duration
+ * @returns
  */
 export function subDuration(dato: UnparsedDate, duration: Duration) {
   const parsedDate = parseDate(dato)
   if (parsedDate) {
-    return sub(parsedDate,  duration)
+    return sub(parsedDate, duration)
   }
 }
 
 /**
  * Trekk fra gitt varighet for gitt dato, hhvis gyldig ellers undefined
- * @param dato 
- * @param duration 
- * @returns 
+ * @param dato
+ * @param duration
+ * @returns
  */
 export function addDuration(dato: UnparsedDate, duration: Duration) {
   const parsedDate = parseDate(dato)
   if (parsedDate) {
-    return sub(parsedDate,  duration)
+    return sub(parsedDate, duration)
   }
 }
 
@@ -125,18 +118,18 @@ export function isLaterOrSameDay(dato: UnparsedDate, sammenlignet: UnparsedDate)
   const parsedDate = parseDate(dato)
   const parsedComparedDate = parseDate(sammenlignet)
   if (parsedDate && parsedComparedDate) {
-    return compareAsc(parsedDate,parsedComparedDate) !== -1
+    return compareAsc(parsedDate, parsedComparedDate) !== -1
   }
   return false
 }
 
 /**
  * Hvis **dato** er lik eller mellom **from**\/**to**, hhvis gyldige datoer
- * @param dato 
- * @param param1 
- * @returns 
+ * @param dato
+ * @param param1
+ * @returns
  */
-export function inBetweenInclusive(dato: UnparsedDate, {from, to}: {from: UnparsedDate, to: UnparsedDate}): boolean {
+export function inBetweenInclusive(dato: UnparsedDate, { from, to }: { from: UnparsedDate, to: UnparsedDate }): boolean {
   const parsedDato = parseDate(dato)
   return isLaterOrSameDay(parsedDato, from) && isLaterOrSameDay(to, parsedDato)
 }
@@ -145,7 +138,7 @@ export function inBetweenInclusive(dato: UnparsedDate, {from, to}: {from: Unpars
  * from > to = 1
  * from === to = 0
  * from < to = -1
- * @returns 
+ * @returns
  */
 export function compare(from: UnparsedDate, to: UnparsedDate): number | undefined {
   const parsedFrom = parseDate(from)
@@ -156,9 +149,9 @@ export function compare(from: UnparsedDate, to: UnparsedDate): number | undefine
 }
 /**
  * **date** er strengt tidligere enn **compared** hhvis det er gyldige datoer, ellers false
- * @param date 
- * @param compared 
- * @returns 
+ * @param date
+ * @param compared
+ * @returns
  */
 export function isLater(date: UnparsedDate, compared: UnparsedDate): boolean {
   const parsedDate = parseDate(date)
@@ -171,9 +164,9 @@ export function isLater(date: UnparsedDate, compared: UnparsedDate): boolean {
 
 /**
  * **date** er strengt tidligere enn **compared** hhvis det er gyldige datoer, ellers false
- * @param date 
- * @param compared 
- * @returns 
+ * @param date
+ * @param compared
+ * @returns
  */
 export function isEarlier(date: UnparsedDate, compared: UnparsedDate): boolean {
   const parsedDate = parseDate(date)
@@ -221,47 +214,4 @@ export function parseDate(date: UnparsedDate): Date | undefined {
     return utcDate2
   }
   return undefined
-}
-
-/* Tidligere: */
-
-const ddMMyyyyFormat = new RegExp("^[0-9]{2}.[0-9]{2}.[0-9]{4}$");
-const yyyyMMddFormat = new RegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$");
-
-/**
- * @deprecated Bruk yyyyMMddFormatting()
- */
-export function formaterDatoSomYYYYMMDD(
-  dato: string | Date | null | undefined,
-  fallback = "",
-): string {
-  if (!dato) {
-    return fallback;
-  }
-
-  if (typeof dato !== "string") {
-    return dateToyyyyMMdd(dato, fallback);
-  }
-
-  if (yyyyMMddFormat.test(dato)) {
-    const [year, month, day] = dato.split("-").map(Number);
-    return dateToyyyyMMdd(new Date(year, month - 1, day), fallback)
-  }
-
-  if (ddMMyyyyFormat.test(dato)) {
-    const [day, month, year] = dato.split(".").map(Number);
-    return dateToyyyyMMdd(new Date(year, month - 1, day), fallback);
-  }
-
-  return fallback;
-}
-
-function dateToyyyyMMdd(dato: Date, fallback: string): string {
-  if (isNaN(dato.getTime())) return fallback;
-
-  const year = dato.getFullYear();
-  const month = String(dato.getMonth() + 1).padStart(2, "0");
-  const day = String(dato.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
 }

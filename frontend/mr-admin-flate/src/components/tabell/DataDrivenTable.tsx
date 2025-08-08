@@ -16,7 +16,7 @@ export function DataDrivenTable({ data, className }: Props) {
     if (!row) return "-";
     switch (format) {
       case "DATE":
-        return formaterDato(row);
+        return formaterDato(row) ?? "-";
       case "NOK":
         return formaterNOK(Number(row));
       default:

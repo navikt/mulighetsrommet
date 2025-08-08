@@ -65,8 +65,8 @@ const baseColumns: Column<ArrFlateBeregningDeltakelse>[] = [
       </HStack>
     ),
   },
-  { label: "Fødselsdato", render: (d) => formaterDato(d.person?.foedselsdato, "-") },
-  { label: "Startdato i tiltaket", render: (d) => formaterDato(d.deltakerStartDato, "-") },
+  { label: "Fødselsdato", render: (d) => formaterDato(d.person?.foedselsdato) ?? "-" },
+  { label: "Startdato i tiltaket", render: (d) => formaterDato(d.deltakerStartDato) ?? "-" },
   {
     label: "Startdato i perioden",
     sortable: true,

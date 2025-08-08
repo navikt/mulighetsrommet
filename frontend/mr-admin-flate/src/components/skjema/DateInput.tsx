@@ -1,6 +1,6 @@
+import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
 import { forwardRef, useEffect, useState } from "react";
-import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   label: string;
@@ -44,7 +44,7 @@ export const DateInput = forwardRef(function DateInput(
   const { datepickerProps, inputProps, setSelected } = useDatepicker({
     onDateChange: (val) => {
       if (format === "iso-string") {
-        onChange(formaterSomIsoDate(val));
+        onChange(yyyyMMddFormatting(val) ?? "");
       } else {
         onChange(val);
       }

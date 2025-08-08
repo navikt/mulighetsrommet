@@ -91,7 +91,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
 
 function formaterStatus(log: OpsjonLoggRegistrert): string {
   if (log.sluttDato && log.status === OpsjonStatus.OPSJON_UTLOST) {
-    return formaterDato(log.sluttDato);
+    return formaterDato(log.sluttDato) ?? "-";
   } else if (log.status === OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON) {
     return "Avklart at opsjon ikke skal utløses";
   } else {

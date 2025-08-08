@@ -280,7 +280,7 @@ export default function OpprettKravInnsendingsinformasjon() {
                 valgtGjennomforing
                   ? [
                       {
-                        label: `${valgtGjennomforing.navn} - ${formaterDato(valgtGjennomforing.startDato)} - ${formaterDato(valgtGjennomforing.sluttDato, "")}`,
+                        label: `${valgtGjennomforing.navn} - ${formaterDato(valgtGjennomforing.startDato)} - ${formaterDato(valgtGjennomforing.sluttDato) ?? ""}`,
                         value: valgtGjennomforing.id,
                       },
                     ]
