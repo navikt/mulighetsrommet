@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -22,6 +23,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -289,6 +291,59 @@ class ArrangorflateServiceTest : FunSpec({
             harFeilSluttDato(DeltakerStatusType.HAR_SLUTTET, today.minusDays(1), today) shouldBe false
             // Om et år gir true
             harFeilSluttDato(DeltakerStatusType.AVBRUTT, today.plusYears(1), today) shouldBe true
+        }
+
+        test("getFeilSluttDato") {
+            val today = LocalDate.of(2025, 1, 1)
+            val deltaker1 = DeltakerFixtures.createDeltaker(
+                gjennomforingId = UUID.randomUUID(),
+                startDato = today.minusMonths(1),
+                sluttDato = today.plusMonths(1),
+                statusType = DeltakerStatusType.HAR_SLUTTET,
+            )
+            val deltaker2 = DeltakerFixtures.createDeltaker(
+                gjennomforingId = UUID.randomUUID(),
+                startDato = today.minusMonths(1),
+                sluttDato = today.plusMonths(1),
+                statusType = DeltakerStatusType.DELTAR,
+            )
+            val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), today)
+            feilSluttDato shouldHaveSize 1
+            feilSluttDato[0].deltakerId shouldBe deltaker1.id
+        }
+
+        test("getOverlappendePerioder tre overlappende en ikke") {
+            val deltakerPeriode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 5))
+            val utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2024, 1, 1))
+            val deltaker1 = DeltakerFixtures.createDeltaker(
+                startDato = deltakerPeriode.start,
+                sluttDato = deltakerPeriode.slutt,
+                statusType = DeltakerStatusType.DELTAR,
+            )
+            val deltaker2 = DeltakerFixtures.createDeltaker(
+                startDato = deltakerPeriode.start,
+                sluttDato = deltakerPeriode.slutt,
+                statusType = DeltakerStatusType.DELTAR,
+            )
+            val deltaker3 = DeltakerFixtures.createDeltaker(
+                startDato = null,
+                sluttDato = deltakerPeriode.slutt,
+                statusType = DeltakerStatusType.DELTAR,
+            )
+            val deltaker4 = DeltakerFixtures.createDeltaker(
+                startDato = deltakerPeriode.slutt.plusDays(1),
+                sluttDato = null,
+                statusType = DeltakerStatusType.DELTAR,
+            )
+            val overlappendePerioder = arrangorflateService.getOverlappendePerioder(
+                listOf(deltaker1, deltaker2, deltaker3, deltaker4),
+                utbetalingPeriode,
+            )
+            overlappendePerioder.map { it.deltakerId } shouldContainExactlyInAnyOrder listOf(
+                deltaker1.id,
+                deltaker2.id,
+                deltaker3.id,
+            )
         }
     }
 })
