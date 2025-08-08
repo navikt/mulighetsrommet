@@ -65,11 +65,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
 
-            service.genererUtbetalingForMonth(1)
-
-            database.run {
-                queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(0)
-            }
+            service.genererUtbetalingForMonth(1).shouldHaveSize(0)
         }
 
         test("genererer en utbetaling med riktig periode, sats og deltakere som input") {
