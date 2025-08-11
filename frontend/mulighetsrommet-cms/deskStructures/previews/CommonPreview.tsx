@@ -1,4 +1,3 @@
-import React from "react";
 import { GrCircleInformation } from "react-icons/gr";
 
 export function Infoboks({ children }) {
@@ -43,9 +42,7 @@ export function Legend({ farge, children }) {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <Firkant farge={farge} />
-      <small style={{ marginLeft: "4px", textAlign: "right" }}>
-        {children}
-      </small>
+      <small style={{ marginLeft: "4px", textAlign: "right" }}>{children}</small>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useClient } from "sanity";
 import { API_VERSION } from "../../sanity.config";
 import {
@@ -17,7 +17,7 @@ export function TiltakstypePreview({ document }: any) {
   useEffect(() => {
     const fetchData = async () => {
       const data = await client.fetch(
-        `*[_type == "tiltakstype" && _id == "${document.displayed._id}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`
+        `*[_type == "tiltakstype" && _id == "${document.displayed._id}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`,
       );
       setTiltaksdata(data);
     };
@@ -30,9 +30,7 @@ export function TiltakstypePreview({ document }: any) {
         <SidemenyDetaljerRad navn="Tiltaksnummer">
           (Kommer fra tiltaksgjennomføringene)
         </SidemenyDetaljerRad>
-        <SidemenyDetaljerRad navn="Tiltakstype">
-          {tiltaksdata?.tiltakstypeNavn}
-        </SidemenyDetaljerRad>
+        <SidemenyDetaljerRad navn="Tiltakstype">{tiltaksdata?.tiltakstypeNavn}</SidemenyDetaljerRad>
         <SidemenyDetaljerRad navn="Arrangør">
           (Kommer fra tiltaksgjennomføringene)
         </SidemenyDetaljerRad>
@@ -82,8 +80,7 @@ export function TiltakstypePreview({ document }: any) {
           {tiltaksdata?.beskrivelse}
         </div>
 
-        {(tiltaksdata.faneinnhold?.forHvem ||
-          displayed.faneinnhold?.forHvemInfoboks) && (
+        {(tiltaksdata.faneinnhold?.forHvem || displayed.faneinnhold?.forHvemInfoboks) && (
           <div>
             <h2>For hvem</h2>
             <Infoboks>{displayed.faneinnhold?.forHvemInfoboks}</Infoboks>
@@ -94,9 +91,7 @@ export function TiltakstypePreview({ document }: any) {
           tiltaksdata.faneinnhold?.detaljerOgInnhold) && (
           <div>
             <h2>Detaljer og innhold</h2>
-            <Infoboks>
-              {displayed.faneinnhold?.detaljerOgInnholdInfoboks}
-            </Infoboks>
+            <Infoboks>{displayed.faneinnhold?.detaljerOgInnholdInfoboks}</Infoboks>
             <PortableText value={tiltaksdata.faneinnhold.detaljerOgInnhold} />
           </div>
         )}
@@ -105,12 +100,8 @@ export function TiltakstypePreview({ document }: any) {
           tiltaksdata.faneinnhold?.pameldingOgVarighet) && (
           <div>
             <h2>Påmelding og varighet</h2>
-            <Infoboks>
-              {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
-            </Infoboks>
-            <PortableText
-              value={tiltaksdata.faneinnhold?.pameldingOgVarighet}
-            />
+            <Infoboks>{displayed.faneinnhold?.pameldingOgVarighetInfoboks}</Infoboks>
+            <PortableText value={tiltaksdata.faneinnhold?.pameldingOgVarighet} />
           </div>
         )}
       </PreviewContainer>
