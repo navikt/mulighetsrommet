@@ -15,7 +15,7 @@ micrometer = "1.15.2"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:13.0.0"
-shadow = " com.gradleup.shadow:8.3.0"
+shadow = " com.gradleup.shadow:9.0.1"
 openapi-generator = "org.openapi.generator:7.14.0"
 
 [bundles]

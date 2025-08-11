@@ -12,6 +12,9 @@ application {
 tasks.shadowJar {
     // Trengs for å få med implementasjonen av services fra bl.a. flyway
     mergeServiceFiles()
+
+    // Fjerner klasser som ikke er i bruk av prosjektet og fører til mindre filstørrelse
+    minimize()
 }
 
 dependencies {
