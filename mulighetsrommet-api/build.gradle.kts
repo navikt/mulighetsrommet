@@ -49,6 +49,7 @@ tasks.shadowJar {
     isZip64 = true
 
     // Trengs for å få med implementasjonen av services fra bl.a. flyway
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     mergeServiceFiles()
 }
 
