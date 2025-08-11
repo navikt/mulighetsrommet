@@ -2,14 +2,9 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
-import java.math.BigDecimal
 import java.math.RoundingMode
-
-/**
- * Presisjon underveis for å oppnå en god beregning av totalbeløpet.
- */
-private const val CALCULATION_PRECISION = 20
 
 @Serializable
 @SerialName("PRIS_PER_UKESVERK")
@@ -36,19 +31,13 @@ data class TilsagnBeregningPrisPerUkesverk(
         fun beregn(input: Input): TilsagnBeregningPrisPerUkesverk {
             val (periode, sats, antallPlasser) = input
 
-            val belop = ukesverk(periode)
+            val belop = UtbetalingBeregningHelpers.calculateUkesverk(periode)
                 .multiply(sats.toBigDecimal())
                 .multiply(antallPlasser.toBigDecimal())
                 .setScale(0, RoundingMode.HALF_UP)
                 .toInt()
 
             return TilsagnBeregningPrisPerUkesverk(input, Output(belop))
-        }
-
-        fun ukesverk(periode: Periode): BigDecimal {
-            val weekdayCount = periode.getWeekdayCount()
-            val weekdays = BigDecimal(5)
-            return weekdayCount.toBigDecimal().divide(weekdays, CALCULATION_PRECISION, RoundingMode.HALF_UP)
         }
     }
 }

@@ -138,12 +138,13 @@ object UtbetalingBeregningHelpers {
         return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
     }
 
-    private fun calculateManedsverk(periode: Periode): BigDecimal {
+    fun calculateManedsverk(periode: Periode): BigDecimal {
         return periode
             .splitByMonth()
-            .map {
-                val duration = it.getDurationInDays().toBigDecimal()
-                duration.divide(it.start.lengthOfMonth().toBigDecimal(), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+            .map { periode ->
+                val duration = periode.getDurationInDays().toBigDecimal()
+                val lengthOfMonth = periode.start.lengthOfMonth().toBigDecimal()
+                duration.divide(lengthOfMonth, CALCULATION_PRECISION, RoundingMode.HALF_UP)
             }
             .sumOf { it }
     }
@@ -163,7 +164,7 @@ object UtbetalingBeregningHelpers {
         return DeltakelseUkesverk(deltakelse.deltakelseId, ukesverk)
     }
 
-    private fun calculateUkesverk(periode: Periode): BigDecimal {
+    fun calculateUkesverk(periode: Periode): BigDecimal {
         val weekdayCount = periode.getWeekdayCount()
         val weekdays = BigDecimal(5)
         return weekdayCount.toBigDecimal().divide(weekdays, CALCULATION_PRECISION, RoundingMode.HALF_UP)
