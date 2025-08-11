@@ -7,6 +7,8 @@ import {
   yyyyMMddFormatting,
   parseDate,
   maxOf,
+  addDuration,
+  subDuration,
 } from "./date";
 
 describe("date.ts", () => {
@@ -159,6 +161,7 @@ describe("date.ts", () => {
       expect(inBetweenInclusive("2026-01-01", { from: "2025-12-31", to: "2026-01-02" })).toBe(true);
     });
   });
+
   describe("maxOf()", () => {
     test("invalid dates", () => {
       expect(maxOf(["", undefined, null]).getTime()).toBe(NaN);
@@ -170,6 +173,36 @@ describe("date.ts", () => {
     test("latest, latest first", () => {
       const expected = new Date(2025, 6, 17)
       expect(maxOf([expected, new Date(2025, 5, 17)]).toISOString()).toBe(expected.toISOString());
+    });
+  })
+
+  describe("addDuration", () => {
+    test("add day", () => {
+      expect(yyyyMMddFormatting(addDuration("2020-01-01", { days: 1 }))).toBe("2020-01-02");
+    });
+    test("add day", () => {
+      expect(yyyyMMddFormatting(addDuration("2020-12-31", { days: 1 }))).toBe("2021-01-01");
+    });
+    test("add year", () => {
+      expect(yyyyMMddFormatting(addDuration("2020-01-01", { years: 2 }))).toBe("2022-01-01");
+    });
+    test("add month", () => {
+      expect(yyyyMMddFormatting(addDuration("2025-12-01", { months: 2 }))).toBe("2026-02-01");
+    });
+  })
+
+  describe("subDuration", () => {
+    test("sub day", () => {
+      expect(yyyyMMddFormatting(subDuration("2020-01-01", { days: 1 }))).toBe("2019-12-31");
+    });
+    test("sub day", () => {
+      expect(yyyyMMddFormatting(subDuration("2020-12-31", { days: 1 }))).toBe("2020-12-30");
+    });
+    test("sub year", () => {
+      expect(yyyyMMddFormatting(subDuration("2020-01-01", { years: 2 }))).toBe("2018-01-01");
+    });
+    test("sub month", () => {
+      expect(yyyyMMddFormatting(subDuration("2025-12-01", { months: 2 }))).toBe("2025-10-01");
     });
   })
 });
