@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -34,6 +35,7 @@ data class ArrFlateUtbetaling(
     val periode: Periode,
     val type: UtbetalingType?,
     val linjer: List<ArrangorUtbetalingLinje>,
+    val advarsler: List<DeltakerAdvarsel>,
 )
 
 @Serializable
@@ -91,6 +93,7 @@ sealed class ArrFlateBeregningDeltakelse {
     abstract val periode: Periode
     abstract val person: Person?
     abstract val faktor: Double
+    abstract val status: DeltakerStatusType?
 
     @Serializable
     @SerialName("PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER")
@@ -103,6 +106,7 @@ sealed class ArrFlateBeregningDeltakelse {
         val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
         override val periode: Periode,
         override val person: Person?,
+        override val status: DeltakerStatusType?,
     ) : ArrFlateBeregningDeltakelse()
 
     @Serializable
@@ -115,6 +119,7 @@ sealed class ArrFlateBeregningDeltakelse {
         override val faktor: Double,
         override val periode: Periode,
         override val person: Person?,
+        override val status: DeltakerStatusType?,
     ) : ArrFlateBeregningDeltakelse()
 
     @Serializable
@@ -127,6 +132,7 @@ sealed class ArrFlateBeregningDeltakelse {
         override val faktor: Double,
         override val periode: Periode,
         override val person: Person?,
+        override val status: DeltakerStatusType?,
     ) : ArrFlateBeregningDeltakelse()
 
     @Serializable
@@ -139,5 +145,6 @@ sealed class ArrFlateBeregningDeltakelse {
         override val faktor: Double,
         override val person: Person?,
         override val periode: Periode,
+        override val status: DeltakerStatusType?,
     ) : ArrFlateBeregningDeltakelse()
 }

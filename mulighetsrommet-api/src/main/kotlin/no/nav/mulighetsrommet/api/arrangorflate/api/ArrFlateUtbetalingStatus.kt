@@ -8,7 +8,7 @@ enum class ArrFlateUtbetalingStatus {
     KLAR_FOR_GODKJENNING,
     BEHANDLES_AV_NAV,
     UTBETALT,
-    VENTER_PA_ENDRING,
+    KREVER_ENDRING,
     OVERFORT_TIL_UTBETALING,
     AVBRUTT,
     ;
@@ -17,11 +17,11 @@ enum class ArrFlateUtbetalingStatus {
         fun fromUtbetaling(
             status: Utbetaling.UtbetalingStatus,
             delutbetalinger: List<Delutbetaling>,
-            relevanteForslag: List<RelevanteForslag>,
+            harAdvarsler: Boolean,
         ): ArrFlateUtbetalingStatus = when (status) {
             Utbetaling.UtbetalingStatus.OPPRETTET -> {
-                if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
-                    VENTER_PA_ENDRING
+                if (harAdvarsler) {
+                    KREVER_ENDRING
                 } else {
                     KLAR_FOR_GODKJENNING
                 }
@@ -45,7 +45,7 @@ enum class ArrFlateUtbetalingStatus {
                 KLAR_FOR_GODKJENNING -> "Klar for godkjenning"
                 BEHANDLES_AV_NAV -> "Behandles av NAV"
                 UTBETALT -> "Utbetalt"
-                VENTER_PA_ENDRING -> "Venter på endring"
+                KREVER_ENDRING -> "Krever endring"
                 OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
                 AVBRUTT -> "Avbrutt"
             }

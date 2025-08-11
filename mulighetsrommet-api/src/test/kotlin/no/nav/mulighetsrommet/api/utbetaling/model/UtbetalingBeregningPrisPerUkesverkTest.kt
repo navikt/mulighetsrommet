@@ -41,9 +41,9 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                         ),
                     ),
                     UtbetalingBeregningPrisPerUkesverk.Output(
-                        belop = 29,
+                        belop = 20,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakerId1, 0.57143),
+                            DeltakelseUkesverk(deltakerId1, 0.4),
                         ),
                     ),
                 ),
@@ -102,8 +102,8 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        StengtPeriode(Periode(periodeStart, periodeStart.plusDays(2)), "Stengt 1"),
-                        StengtPeriode(Periode(periodeMidt, periodeMidt.plusDays(1)), "Stengt 2"),
+                        StengtPeriode(Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 2, 5)), "Stengt 1"),
+                        StengtPeriode(Periode(LocalDate.of(2025, 2, 10), LocalDate.of(2025, 2, 11)), "Stengt 2"),
                     ),
                     setOf(
                         DeltakelsePeriode(
@@ -116,10 +116,10 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                         ),
                     ),
                     UtbetalingBeregningPrisPerUkesverk.Output(
-                        belop = 121,
+                        belop = 110,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakerId1, 1.57143),
-                            DeltakelseUkesverk(deltakerId2, 0.85714),
+                            DeltakelseUkesverk(deltakerId1, 1.4),
+                            DeltakelseUkesverk(deltakerId2, 0.8),
                         ),
                     ),
                 ),

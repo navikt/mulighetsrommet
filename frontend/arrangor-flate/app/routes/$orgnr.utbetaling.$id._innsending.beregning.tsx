@@ -8,7 +8,7 @@ import {
   Link,
   VStack,
 } from "@navikt/ds-react";
-import { ArrangorflateService, ArrFlateUtbetaling, RelevanteForslag } from "api-client";
+import { ArrangorflateService, ArrFlateUtbetaling } from "api-client";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
@@ -33,7 +33,6 @@ export const meta: MetaFunction = () => {
 
 type LoaderData = {
   utbetaling: ArrFlateUtbetaling;
-  relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 };
 
@@ -45,15 +44,8 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw new Response("Mangler id", { status: 400 });
   }
 
-  const [
-    { data: utbetaling, error: utbetalingError },
-    { data: relevanteForslag, error: relevanteForslagError },
-  ] = await Promise.all([
+  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
     ArrangorflateService.getArrFlateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getRelevanteForslag({
       path: { id },
       headers: await apiHeaders(request),
     }),
@@ -62,16 +54,13 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (utbetalingError || !utbetaling) {
     throw problemDetailResponse(utbetalingError);
   }
-  if (relevanteForslagError || !relevanteForslag) {
-    throw problemDetailResponse(relevanteForslagError);
-  }
 
-  return { utbetaling, deltakerlisteUrl, relevanteForslag };
+  return { utbetaling, deltakerlisteUrl };
 };
 
 export default function UtbetalingBeregning() {
   const orgnr = useOrgnrFromUrl();
-  const { utbetaling, deltakerlisteUrl, relevanteForslag } = useLoaderData<LoaderData>();
+  const { utbetaling, deltakerlisteUrl } = useLoaderData<LoaderData>();
 
   return (
     <VStack gap="4">
@@ -88,6 +77,16 @@ export default function UtbetalingBeregning() {
         </BodyShort>
         <BodyShort>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</BodyShort>
       </GuidePanel>
+      <Alert variant="warning">
+        I forbindelse med utrullering av ny løsning har vi blitt oppmerksomme på at det finnes
+        feilregistrerte deltakelser i deltakeroversikten. Vi oppfordrer derfor til å kryssjekke
+        beregningen i tilfelle det er behov for å oppdatere datagrunnlaget. Finner dere feil i
+        deltakelsene kan dette rettes via{" "}
+        <Link as={ReactRouterLink} to={deltakerlisteUrl}>
+          Deltakeroversikten
+        </Link>
+        . Ved behov kan dere også ta kontakt med tiltaksansvarlig i Nav.
+      </Alert>
       <Heading level="3" size="medium">
         Deltakere
       </Heading>
@@ -109,7 +108,7 @@ export default function UtbetalingBeregning() {
             <DeltakelserTable
               periode={utbetaling.periode}
               beregning={utbetaling.beregning}
-              relevanteForslag={relevanteForslag}
+              advarsler={utbetaling.advarsler}
               deltakerlisteUrl={deltakerlisteUrl}
             />
           </>
