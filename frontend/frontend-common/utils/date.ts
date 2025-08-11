@@ -1,4 +1,4 @@
-import { compareAsc, isAfter, isBefore, isDate, isValid, lightFormat, parse, parseISO, ParseISOOptions, sub, Duration, max } from "date-fns"
+import { compareAsc, isAfter, isBefore, isDate, isValid, lightFormat, parse, parseISO, ParseISOOptions, sub, Duration, max, add } from "date-fns"
 import { tz } from "@date-fns/tz"
 import { utc, UTCDate } from "@date-fns/utc"
 
@@ -103,7 +103,7 @@ export function subDuration(dato: UnparsedDate, duration: Duration) {
 export function addDuration(dato: UnparsedDate, duration: Duration) {
   const parsedDate = parseDate(dato)
   if (parsedDate) {
-    return sub(parsedDate, duration)
+    return add(parsedDate, duration)
   }
 }
 
