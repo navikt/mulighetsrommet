@@ -4,7 +4,6 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.flyway)
     alias(libs.plugins.openapi.generator)
     alias(libs.plugins.shadow)
 }
@@ -49,13 +48,6 @@ tasks.shadowJar {
     isZip64 = true
     // Trengs for å få med implementasjonen av services fra bl.a. flyway
     mergeServiceFiles()
-}
-
-flyway {
-    url = System.getenv("DB_URL")
-    user = System.getenv("DB_USERNAME")
-    password = System.getenv("DB_PASSWORD")
-    cleanDisabled = false
 }
 
 dependencies {
