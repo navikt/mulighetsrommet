@@ -7,13 +7,13 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -133,13 +133,13 @@ class TilsagnService(
         Unit.right()
     }
 
-    fun tilAnnulleringRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest): Tilsagn = db.transaction {
+    fun tilAnnulleringRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun tilGjorOppRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest): Tilsagn = db.transaction {
+    fun tilGjorOppRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)

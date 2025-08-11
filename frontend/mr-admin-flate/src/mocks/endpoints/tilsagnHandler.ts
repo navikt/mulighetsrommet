@@ -146,7 +146,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         tilsagn,
         opprettelse: {
           ...avvist,
-          aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
+          aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.ANNET],
           forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
         },
       };
@@ -159,7 +159,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
           ...tilBeslutning,
           aarsaker: [
             TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-            TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+            TilsagnTilAnnulleringAarsak.ANNET,
           ],
           forklaring: "Du må fikse det",
         },
@@ -173,7 +173,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
           ...godkjent,
           aarsaker: [
             TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-            TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+            TilsagnTilAnnulleringAarsak.ANNET,
           ],
           forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
         },

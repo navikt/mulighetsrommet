@@ -47,7 +47,7 @@ fun Totrinnskontroll.toDto(
     kanBesluttes: Boolean,
 ) = when {
     besluttetAv == null -> TilBeslutning(
-        behandletAv = toAgentDto(behandletAv, behandletAvNavn),
+        behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
         behandletTidspunkt = behandletTidspunkt,
         aarsaker = aarsaker,
         forklaring = forklaring,
@@ -55,21 +55,14 @@ fun Totrinnskontroll.toDto(
     )
 
     else -> Besluttet(
-        behandletAv = toAgentDto(behandletAv, behandletAvNavn),
+        behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
         behandletTidspunkt = behandletTidspunkt,
         aarsaker = aarsaker,
         forklaring = forklaring,
-        besluttetAv = toAgentDto(besluttetAv, besluttetAvNavn),
+        besluttetAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
         besluttetTidspunkt = checkNotNull(besluttetTidspunkt),
         besluttelse = checkNotNull(besluttelse),
     )
-}
-
-fun toAgentDto(agent: Agent, navAnsattNavn: String?) = when (agent) {
-    is Arrangor -> AgentDto.Arrangor
-    is Tiltaksadministrasjon -> AgentDto.System("Tiltaksadministrasjon")
-    is Arena -> AgentDto.System("Arena")
-    is NavIdent -> AgentDto.NavAnsatt(agent, navAnsattNavn)
 }
 
 @Serializable
@@ -90,4 +83,13 @@ sealed class AgentDto {
     data class System(
         val navn: String,
     ) : AgentDto()
+
+    companion object {
+        fun fromAgent(agent: Agent, navAnsattNavn: String?) = when (agent) {
+            is no.nav.mulighetsrommet.model.Arrangor -> Arrangor
+            is Tiltaksadministrasjon -> System("Tiltaksadministrasjon")
+            is Arena -> System("Arena")
+            is NavIdent -> NavAnsatt(agent, navAnsattNavn)
+        }
+    }
 }

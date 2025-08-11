@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
@@ -105,64 +106,61 @@ class AvtaleService(
         PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun avsluttAvtale(
-        id: UUID,
-        avsluttetTidspunkt: LocalDateTime,
-        endretAv: Agent,
-    ): Either<FieldError, AvtaleDto> = db.transaction {
+    fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
         val avtale = getOrError(id)
 
-        if (avtale.status !is AvtaleStatusDto.Aktiv) {
-            return FieldError.root("Avtalen må være aktiv for å kunne avsluttes").left()
+        check(avtale.status == AvtaleStatusDto.Aktiv) {
+            "Avtalen må være aktiv for å kunne avsluttes"
         }
 
         val tidspunktForSlutt = avtale.sluttDato?.plusDays(1)?.atStartOfDay()
-        if (tidspunktForSlutt == null || avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
-            return FieldError.root("Avtalen kan ikke avsluttes før sluttdato").left()
+        check(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+            "Avtalen kan ikke avsluttes før sluttdato"
         }
 
         queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avsluttet", dto, endretAv)
-
-        dto.right()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak): Either<FieldError, AvtaleDto> = db.transaction {
+    fun avbrytAvtale(
+        id: UUID,
+        avbruttAv: NavIdent,
+        tidspunkt: LocalDateTime,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>,
+    ): Either<List<FieldError>, AvtaleDto> = db.transaction {
         val avtale = getOrError(id)
 
-        if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.isBlank()) {
-            return FieldError.root("Beskrivelse er obligatorisk når “Annet” er valgt som årsak").left()
+        val errors = buildList {
+            when (avtale.status) {
+                is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
+                is AvtaleStatusDto.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
+                is AvtaleStatusDto.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
+            }
+
+            val (_, gjennomforinger) = queries.gjennomforing.getAll(
+                avtaleId = id,
+                statuser = listOf(GjennomforingStatus.GJENNOMFORES),
+            )
+            if (gjennomforinger.isNotEmpty()) {
+                val message = listOf(
+                    "Avtalen har",
+                    gjennomforinger.size,
+                    if (gjennomforinger.size > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
+                    "og kan derfor ikke avbrytes",
+                ).joinToString(" ")
+                add(FieldError.root(message))
+            }
         }
-        if (aarsak.beskrivelse.length > 100) {
-            return FieldError.root("Beskrivelse kan ikke inneholde mer enn 100 tegn").left()
+        if (errors.isNotEmpty()) {
+            return errors.left()
         }
 
-        when (avtale.status) {
-            is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
-            is AvtaleStatusDto.Avbrutt -> return FieldError.root("Avtalen er allerede avbrutt").left()
-            is AvtaleStatusDto.Avsluttet -> return FieldError.root("Avtalen er allerede avsluttet").left()
-        }
-
-        val (_, gjennomforinger) = queries.gjennomforing.getAll(
-            avtaleId = id,
-            statuser = listOf(GjennomforingStatus.GJENNOMFORES),
-        )
-        if (gjennomforinger.isNotEmpty()) {
-            val message = listOf(
-                "Avtalen har",
-                gjennomforinger.size,
-                if (gjennomforinger.size > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
-                "og kan derfor ikke avbrytes",
-            ).joinToString(" ")
-            return FieldError.root(message).left()
-        }
-
-        queries.avtale.setStatus(id, AvtaleStatus.AVBRUTT, LocalDateTime.now(), aarsak)
+        queries.avtale.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, aarsakerOgForklaring)
 
         val dto = getOrError(id)
-        logEndring("Avtalen ble avbrutt", dto, navIdent)
+        logEndring("Avtalen ble avbrutt", dto, avbruttAv)
 
         dto.right()
     }

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.avtale.task
 
-import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
@@ -40,7 +39,7 @@ class UpdateAvtaleStatus(
                 id = id,
                 avsluttetTidspunkt = now,
                 endretAv = Tiltaksadministrasjon,
-            ).getOrElse { throw IllegalStateException(it.detail) }
+            )
         }
 
         logger.info("Oppdaterte status for ${avtaler.size} avtaler")

@@ -14,6 +14,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -25,7 +26,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
@@ -630,7 +630,7 @@ class TilsagnServiceTest : FunSpec({
                 service.tilAnnulleringRequest(
                     id = request.id,
                     navIdent = ansatt2,
-                    request = TilAnnulleringRequest(
+                    request = AarsakerOgForklaringRequest(
                         aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                         forklaring = "Velg et annet beløp",
                     ),
@@ -646,7 +646,7 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = request.id,
                 navIdent = ansatt1,
-                request = TilAnnulleringRequest(
+                request = AarsakerOgForklaringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = "Velg et annet beløp",
                 ),
@@ -699,7 +699,7 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = request.id,
                 navIdent = ansatt1,
-                request = TilAnnulleringRequest(
+                request = AarsakerOgForklaringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = "Velg et annet beløp",
                 ),
@@ -732,7 +732,7 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = request.id,
                 navIdent = ansatt1,
-                request = TilAnnulleringRequest(
+                request = AarsakerOgForklaringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = "Velg et annet beløp",
                 ),
@@ -761,7 +761,7 @@ class TilsagnServiceTest : FunSpec({
             service.tilGjorOppRequest(
                 id = request.id,
                 navIdent = ansatt1,
-                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
+                request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             service.beslutt(
@@ -786,7 +786,7 @@ class TilsagnServiceTest : FunSpec({
             service.tilGjorOppRequest(
                 id = request.id,
                 navIdent = ansatt1,
-                request = TilAnnulleringRequest(aarsaker = emptyList(), forklaring = null),
+                request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
             service.beslutt(
                 id = request.id,
@@ -812,7 +812,7 @@ class TilsagnServiceTest : FunSpec({
             service.tilGjorOppRequest(
                 id = request.id,
                 navIdent = ansatt1,
-                request = TilAnnulleringRequest(
+                request = AarsakerOgForklaringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),

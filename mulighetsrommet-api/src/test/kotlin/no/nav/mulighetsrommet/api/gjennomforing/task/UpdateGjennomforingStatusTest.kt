@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.task
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -9,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -169,21 +171,21 @@ class UpdateGjennomforingStatusTest : FunSpec({
                     id = gjennomforing1.id,
                     status = AVSLUTTET,
                     tidspunkt = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                    aarsak = null,
+                    null,
                 )
 
                 queries.gjennomforing.setStatus(
                     id = gjennomforing2.id,
                     status = AVLYST,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    aarsak = AvbruttAarsak.Feilregistrering,
+                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
                 )
 
                 queries.gjennomforing.setStatus(
                     id = gjennomforing3.id,
                     status = AVBRUTT,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    aarsak = AvbruttAarsak.ForFaaDeltakere,
+                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FOR_FAA_DELTAKERE), null),
                 )
             }
 
@@ -196,10 +198,12 @@ class UpdateGjennomforingStatusTest : FunSpec({
                     it.status.shouldBeTypeOf<GjennomforingStatusDto.Avsluttet>()
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.shouldBeTypeOf<GjennomforingStatusDto.Avlyst>().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
+                    it.status.shouldBeTypeOf<GjennomforingStatusDto.Avlyst>()
+                        .aarsaker shouldContain AvbruttAarsak.FEILREGISTRERING
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>().aarsak.shouldBe(AvbruttAarsak.ForFaaDeltakere)
+                    it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>()
+                        .aarsaker shouldContain AvbruttAarsak.FOR_FAA_DELTAKERE
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()

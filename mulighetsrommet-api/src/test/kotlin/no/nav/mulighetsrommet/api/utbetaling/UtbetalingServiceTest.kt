@@ -709,7 +709,7 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 delutbetaling2.id,
-                BesluttDelutbetalingRequest.Avvist(listOf(DelutbetalingReturnertAarsak.FEIL_ANNET), "Maksbeløp er 5"),
+                BesluttDelutbetalingRequest.Avvist(listOf(DelutbetalingReturnertAarsak.ANNET), "Maksbeløp er 5"),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -840,7 +840,7 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 delutbetaling1.id,
-                BesluttDelutbetalingRequest.Avvist(listOf(DelutbetalingReturnertAarsak.FEIL_ANNET), "Prøv igjen"),
+                BesluttDelutbetalingRequest.Avvist(listOf(DelutbetalingReturnertAarsak.ANNET), "Prøv igjen"),
                 NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -859,7 +859,7 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 delutbetaling1.id,
-                BesluttDelutbetalingRequest.Avvist(listOf(DelutbetalingReturnertAarsak.FEIL_ANNET), "Prøv igjen"),
+                BesluttDelutbetalingRequest.Avvist(listOf(DelutbetalingReturnertAarsak.ANNET), "Prøv igjen"),
                 NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 

@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
+import arrow.core.flatMap
+import arrow.core.right
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -11,6 +13,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
@@ -27,6 +31,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -161,23 +166,29 @@ fun Route.tilsagnRoutes() {
             }
 
             post("/{id}/til-annullering") {
-                val request = call.receive<TilAnnulleringRequest>()
+                val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                service.tilAnnulleringRequest(id, navIdent, request)
-
-                call.respond(HttpStatusCode.OK)
+                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight {
+                        service.tilAnnulleringRequest(id, navIdent, request)
+                        call.respond(HttpStatusCode.OK)
+                    }
             }
 
             post("/{id}/gjor-opp") {
-                val request = call.receive<TilAnnulleringRequest>()
+                val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                service.tilGjorOppRequest(id, navIdent, request)
-
-                call.respond(HttpStatusCode.OK)
+                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight {
+                        service.tilGjorOppRequest(id, navIdent, request)
+                        call.respond(HttpStatusCode.OK)
+                    }
             }
 
             delete("/{id}") {
@@ -198,11 +209,15 @@ fun Route.tilsagnRoutes() {
                 val request = call.receive<BesluttTilsagnRequest>()
                 val navIdent = getNavIdent()
 
-                val result = service.beslutt(id, request, navIdent)
-                    .mapLeft { ValidationError(errors = it) }
-                    .map { HttpStatusCode.OK }
-
-                call.respondWithStatusResponse(result)
+                when (request) {
+                    BesluttTilsagnRequest.Godkjent -> Unit.right()
+                    is BesluttTilsagnRequest.Avvist -> validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                }
+                    .flatMap {
+                        service.beslutt(id, request, navIdent)
+                    }
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight { call.respond(HttpStatusCode.OK) }
             }
         }
     }
@@ -273,12 +288,6 @@ sealed class BesluttTilsagnRequest(
         besluttelse = Besluttelse.AVVIST,
     )
 }
-
-@Serializable
-data class TilAnnulleringRequest(
-    val aarsaker: List<TilsagnStatusAarsak>,
-    val forklaring: String?,
-)
 
 private fun resolveTilsagnDefaults(
     config: OkonomiConfig,

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import arrow.core.flatMap
+import arrow.core.right
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -12,6 +13,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -94,13 +97,14 @@ fun Route.utbetalingRoutes() {
         authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
             post("/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<AvbrytUtbetalingRequest>()
+                val request = call.receive<AarsakerOgForklaringRequest<String>>()
                 val navIdent = getNavIdent()
 
-                utbetalingService.avbrytUtbetaling(id, navIdent, request.aarsaker, request.forklaring)
+                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                    .map { utbetalingService.avbrytUtbetaling(id, navIdent, request.aarsaker, request.forklaring) }
                     .onLeft {
                         call.respondWithProblemDetail(
-                            ValidationError("Klarte ikke avbryte Utbetaling", listOf(it)),
+                            ValidationError("Klarte ikke avbryte Utbetaling", it),
                         )
                     }
                     .onRight { call.respond("OK") }
@@ -180,7 +184,11 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<BesluttDelutbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = utbetalingService.besluttDelutbetaling(id, request, navIdent)
+                val result = when (request) {
+                    BesluttDelutbetalingRequest.Godkjent -> Unit.right()
+                    is BesluttDelutbetalingRequest.Avvist -> validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                }
+                    .flatMap { utbetalingService.besluttDelutbetaling(id, request, navIdent) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -257,10 +265,4 @@ data class BeregningFilter(
 
 fun RoutingContext.getBeregningFilter() = BeregningFilter(
     navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList(),
-)
-
-@Serializable
-data class AvbrytUtbetalingRequest(
-    val aarsaker: List<String>,
-    val forklaring: String?,
 )

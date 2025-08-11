@@ -224,12 +224,6 @@ class UtbetalingService(
 
         when (request) {
             is BesluttDelutbetalingRequest.Avvist -> {
-                if (request.aarsaker.isEmpty()) {
-                    return listOf(FieldError.of("Du må velge minst én årsak")).left()
-                } else if (DelutbetalingReturnertAarsak.FEIL_ANNET in request.aarsaker && request.forklaring.isNullOrBlank()) {
-                    return listOf(FieldError.of("Du må skrive en forklaring når du velger 'Annet'")).left()
-                }
-
                 returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
             }
 
@@ -593,23 +587,28 @@ class UtbetalingService(
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
-    ): Either<FieldError, Utbetaling> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val utbetaling = queries.utbetaling.get(id)
             ?: throw NotFoundException("Fant ikke utbetaling")
 
-        when (utbetaling.status) {
-            Utbetaling.UtbetalingStatus.INNSENDT,
-            Utbetaling.UtbetalingStatus.RETURNERT,
-            -> Unit
+        val errors = buildList {
+            when (utbetaling.status) {
+                Utbetaling.UtbetalingStatus.INNSENDT,
+                Utbetaling.UtbetalingStatus.RETURNERT,
+                -> Unit
 
-            Utbetaling.UtbetalingStatus.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
+                Utbetaling.UtbetalingStatus.AVBRUTT -> add(FieldError.root("Utbetalingen er allerede avbrutt"))
 
-            Utbetaling.UtbetalingStatus.OPPRETTET,
-            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
-            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-            -> {
-                return FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}").left()
+                Utbetaling.UtbetalingStatus.OPPRETTET,
+                Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+                -> {
+                    add(FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}"))
+                }
             }
+        }
+        if (errors.isNotEmpty()) {
+            return errors.left()
         }
 
         queries.utbetaling.setAvbrutt(id, LocalDateTime.now(), aarsaker, forklaring)

@@ -10,7 +10,7 @@ import {
   ValidationError,
 } from "@mr/api-client-v2";
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, HStack, Modal, VStack } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HStack, Modal, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
@@ -26,7 +26,7 @@ export interface Props {
 export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const [error, setError] = useState<FieldError[]>([]);
+  const [errors, setErrors] = useState<FieldError[]>([]);
   const besluttMutation = useBesluttDelutbetaling();
 
   function beslutt(id: string, body: BesluttDelutbetalingRequest) {
@@ -37,7 +37,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
           return queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
         },
         onValidationError: (error: ValidationError) => {
-          setError(error.errors);
+          setErrors(error.errors);
         },
       },
     );
@@ -88,18 +88,21 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                       open={avvisModalOpen}
                       header="Send i retur med forklaring"
                       buttonLabel="Send i retur"
+                      errors={errors}
                       aarsaker={[
                         { value: DelutbetalingReturnertAarsak.FEIL_BELOP, label: "Feil beløp" },
-                        { value: DelutbetalingReturnertAarsak.FEIL_ANNET, label: "Annet" },
+                        { value: DelutbetalingReturnertAarsak.ANNET, label: "Annet" },
                       ]}
-                      onClose={() => setAvvisModalOpen(false)}
+                      onClose={() => {
+                        setAvvisModalOpen(false);
+                        setErrors([]);
+                      }}
                       onConfirm={({ aarsaker, forklaring }) => {
                         beslutt(linje.id, {
                           besluttelse: Besluttelse.AVVIST,
                           aarsaker,
                           forklaring: forklaring ?? null,
                         });
-                        setAvvisModalOpen(false);
                       }}
                     />
                     <AttesterDelutbetalingModal
@@ -128,11 +131,6 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
           );
         }}
       />
-      {error.find((f) => f.pointer === "/") && (
-        <Alert className="self-end" variant="error" size="small">
-          {error.find((f) => f.pointer === "/")!.detail}
-        </Alert>
-      )}
     </VStack>
   );
 }

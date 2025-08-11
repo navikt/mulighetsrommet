@@ -9,6 +9,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
@@ -19,10 +20,7 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.*
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -290,7 +288,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     id = gjennomforing.id,
                     status = GjennomforingStatus.AVBRUTT,
                     tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                    aarsak = AvbruttAarsak.EndringHosArrangor,
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ENDRING_HOS_ARRANGOR), null),
                 )
             }.initialize(database.db)
 
@@ -319,7 +317,8 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status.shouldBe(
                     GjennomforingStatusDto.Avbrutt(
                         tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                        aarsak = AvbruttAarsak.EndringHosArrangor,
+                        aarsaker = listOf(AvbruttAarsak.ENDRING_HOS_ARRANGOR),
+                        forklaring = null,
                     ),
                 )
             }

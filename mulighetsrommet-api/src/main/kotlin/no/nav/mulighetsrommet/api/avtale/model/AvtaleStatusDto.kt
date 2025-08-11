@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.AvtaleStatus
-import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
@@ -39,24 +38,21 @@ sealed class AvtaleStatusDto {
     data class Avbrutt(
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime,
-        @Serializable(with = AvbruttAarsakSerializer::class)
-        val aarsak: AvbruttAarsak,
+        val aarsaker: List<AvbruttAarsak>,
+        val forklaring: String?,
     ) : AvtaleStatusDto() {
         @Transient
         override val type = AvtaleStatus.AVBRUTT
-
-        val beskrivelse: String = aarsak.beskrivelse
     }
 
     companion object {
-        fun fromString(name: String, tidspunkt: LocalDateTime?, aarsak: AvbruttAarsak?): AvtaleStatusDto = when (AvtaleStatus.valueOf(name)) {
+        fun fromString(name: String, tidspunkt: LocalDateTime?, aarsaker: List<AvbruttAarsak>, forklaring: String?): AvtaleStatusDto = when (AvtaleStatus.valueOf(name)) {
             AvtaleStatus.AKTIV -> Aktiv
             AvtaleStatus.AVSLUTTET -> Avsluttet
             AvtaleStatus.UTKAST -> Utkast
             AvtaleStatus.AVBRUTT -> {
                 requireNotNull(tidspunkt)
-                requireNotNull(aarsak)
-                Avbrutt(tidspunkt, aarsak)
+                Avbrutt(tidspunkt, aarsaker, forklaring)
             }
         }
     }

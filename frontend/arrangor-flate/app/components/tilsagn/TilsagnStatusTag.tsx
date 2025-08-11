@@ -67,7 +67,7 @@ function aarsakTilTekst(aarsak: TilsagnTilAnnulleringAarsak): string {
       return "Tiltaket skal ikke gjennomføres";
     case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
-    case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
+    case TilsagnTilAnnulleringAarsak.ANNET:
       return "Annen årsak";
   }
 }
