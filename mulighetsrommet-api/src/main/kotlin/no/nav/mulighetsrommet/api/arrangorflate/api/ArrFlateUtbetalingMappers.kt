@@ -32,6 +32,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
     val totalFaktor = utbetaling.beregning.output.deltakelser()
         .map { BigDecimal(it.faktor) }
         .sumOf { it }
+        .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
         .toDouble()
 
     val beregning = when (val beregning = utbetaling.beregning) {

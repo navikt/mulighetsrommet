@@ -29,6 +29,23 @@ class PeriodeTest : FunSpec({
         period.getLastInclusiveDate() shouldBe LocalDate.of(2021, 1, 30)
     }
 
+    test("should count weekdays correctly") {
+        val monday = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 7))
+        monday.getWeekdayCount() shouldBe 1
+
+        val fullWorkWeek = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 11))
+        fullWorkWeek.getWeekdayCount() shouldBe 5
+
+        val weekendOnly = Periode(LocalDate.of(2025, 1, 11), LocalDate.of(2025, 1, 13))
+        weekendOnly.getWeekdayCount() shouldBe 0
+
+        val spanningWeeks = Periode(
+            LocalDate.of(2025, 1, 8), // Wednesday
+            LocalDate.of(2025, 1, 15), // Wednesday next week
+        )
+        spanningWeeks.getWeekdayCount() shouldBe 5
+    }
+
     test("should check if date is in period") {
         val period = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
 

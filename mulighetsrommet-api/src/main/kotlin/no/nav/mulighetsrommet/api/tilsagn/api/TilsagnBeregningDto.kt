@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.InputLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import java.math.RoundingMode
 
 @Serializable
@@ -47,20 +48,21 @@ sealed class TilsagnBeregningDto {
                     linjer = beregning.input.linjer,
                     prisbetingelser = beregning.input.prisbetingelser,
                 )
+
                 is TilsagnBeregningPrisPerManedsverk -> PrisPerManedsverk(
                     belop = beregning.output.belop,
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
-                    antallManeder = TilsagnBeregningPrisPerManedsverk.manedsverk(beregning.input.periode)
-                        .sumOf { it }
+                    antallManeder = UtbetalingBeregningHelpers.calculateManedsverk(beregning.input.periode)
                         .setScale(2, RoundingMode.HALF_UP)
                         .toDouble(),
                 )
+
                 is TilsagnBeregningPrisPerUkesverk -> PrisPerUkesverk(
                     belop = beregning.output.belop,
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
-                    antallUker = TilsagnBeregningPrisPerUkesverk.ukesverk(beregning.input.periode)
+                    antallUker = UtbetalingBeregningHelpers.calculateUkesverk(beregning.input.periode)
                         .setScale(2, RoundingMode.HALF_UP)
                         .toDouble(),
                 )
