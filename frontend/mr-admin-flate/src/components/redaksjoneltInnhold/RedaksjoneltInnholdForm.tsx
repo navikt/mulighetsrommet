@@ -1,6 +1,6 @@
 import { Alert, BodyLong, Heading, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, NavEnhetDto, VeilederflateTiltakstype } from "@mr/api-client-v2";
+import { NavEnhetDto, VeilederflateTiltakstype } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
@@ -22,7 +22,7 @@ import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 
 interface RedaksjoneltInnholdFormProps {
-  tiltakstype: EmbeddedTiltakstype;
+  tiltakId: string;
   regionerOptions: kontorOption[];
   kontorerOptions: kontorOption[];
   andreEnheterOptions: kontorOption[];
@@ -34,7 +34,7 @@ export type kontorOption = {
 };
 
 export function RedaksjoneltInnholdForm({
-  tiltakstype,
+  tiltakId,
   kontorerOptions,
   regionerOptions,
   andreEnheterOptions,
@@ -43,7 +43,7 @@ export function RedaksjoneltInnholdForm({
     <InlineErrorBoundary>
       <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
         <RedaksjoneltInnhold
-          tiltakstype={tiltakstype}
+          tiltakId={tiltakId}
           regionerOptions={regionerOptions}
           kontorerOptions={kontorerOptions}
           andreEnheterOptions={andreEnheterOptions}
@@ -54,13 +54,13 @@ export function RedaksjoneltInnholdForm({
 }
 
 function RedaksjoneltInnhold({
-  tiltakstype,
+  tiltakId,
   regionerOptions,
   kontorerOptions,
   andreEnheterOptions,
 }: RedaksjoneltInnholdFormProps) {
   const { register } = useFormContext();
-  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
+  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakId);
 
   return (
     <TwoColumnGrid separator>

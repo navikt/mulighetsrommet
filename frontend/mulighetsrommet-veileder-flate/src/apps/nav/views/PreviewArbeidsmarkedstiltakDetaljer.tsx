@@ -28,7 +28,6 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
               tiltak={tiltak}
               veiledernavn="{Veiledernavn}"
               veilederEnhet="{Enhet}"
-              veilederFylke="{Fylke}"
               bruker={{
                 innsatsgruppe: Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 fnr: "12345678910",

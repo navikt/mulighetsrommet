@@ -20,7 +20,7 @@ export function UtbetalingStatusTag({ status }: { status: UtbetalingStatusDto })
       );
     case "KLAR_TIL_BEHANDLING":
       return (
-        <Tag size="small" variant="warning" className={baseTagClasses}>
+        <Tag size="small" variant="success" className={baseTagClasses}>
           Klar til behandling
         </Tag>
       );

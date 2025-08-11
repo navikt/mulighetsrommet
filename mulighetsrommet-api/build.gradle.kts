@@ -4,13 +4,26 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.flyway)
     alias(libs.plugins.openapi.generator)
     alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
+}
+
+tasks.register<JavaExec>("generateOpenApi") {
+    group = "documentation"
+    description = "Generates all configured OpenAPI specs by running a dedicated generator."
+
+    mainClass.set("no.nav.mulighetsrommet.api.GenerateOpenApiKt")
+    classpath = sourceSets.main.get().runtimeClasspath
+
+    // Specs to generate (name of spec -> file output path)
+    args = listOf(
+        "veilederflate",
+        "../frontend/mulighetsrommet-veileder-flate/openapi.yaml",
+    )
 }
 
 val validateOpenapiSpec = tasks.register<ValidateTask>("validateOpenapiSpec") {
@@ -35,13 +48,6 @@ tasks.shadowJar {
     isZip64 = true
     // Trengs for å få med implementasjonen av services fra bl.a. flyway
     mergeServiceFiles()
-}
-
-flyway {
-    url = System.getenv("DB_URL")
-    user = System.getenv("DB_USERNAME")
-    password = System.getenv("DB_PASSWORD")
-    cleanDisabled = false
 }
 
 dependencies {

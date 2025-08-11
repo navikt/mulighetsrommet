@@ -12,11 +12,12 @@ fun mapUtbetalingToArrFlateUtbetaling(
     utbetaling: Utbetaling,
     status: ArrFlateUtbetalingStatus,
     deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>>,
+    advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangorUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrFlateUtbetaling {
-    val perioderById = utbetaling.beregning.input.deltakelser.associateBy { it.deltakelseId }
-    val ukesverkById = utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId }
+    val perioderById = utbetaling.beregning.input.deltakelser().associateBy { it.deltakelseId }
+    val ukesverkById = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
 
     val deltakelser = perioderById.map { (id, deltakelse) ->
         val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
@@ -28,10 +29,10 @@ fun mapUtbetalingToArrFlateUtbetaling(
         )
     }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
 
-    val totalFaktor = utbetaling.beregning.output.deltakelser
+    val totalFaktor = utbetaling.beregning.output.deltakelser()
         .map { BigDecimal(it.faktor) }
         .sumOf { it }
-        .setScale(2, RoundingMode.HALF_UP)
+        .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
         .toDouble()
 
     val beregning = when (val beregning = utbetaling.beregning) {
@@ -91,6 +92,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
         betalingsinformasjon = utbetaling.betalingsinformasjon,
         type = UtbetalingType.from(utbetaling),
         linjer = linjer,
+        advarsler = advarsler,
     )
 }
 
@@ -107,6 +109,7 @@ fun toArrFlateBeregningDeltakelse(
             person = person,
             periode = input.periode(),
             faktor = output.faktor,
+            status = deltaker?.status?.type,
         )
         is DeltakelseUkesverk -> ArrFlateBeregningDeltakelse.PrisPerUkesverk(
             id = output.deltakelseId,
@@ -114,6 +117,7 @@ fun toArrFlateBeregningDeltakelse(
             person = person,
             periode = input.periode(),
             faktor = output.faktor,
+            status = deltaker?.status?.type,
         )
         is DeltakelseManedsverk -> when (input) {
             is DeltakelsePeriode ->
@@ -123,6 +127,7 @@ fun toArrFlateBeregningDeltakelse(
                     person = person,
                     periode = input.periode(),
                     faktor = output.faktor,
+                    status = deltaker?.status?.type,
                 )
             is DeltakelseDeltakelsesprosentPerioder ->
                 ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
@@ -132,6 +137,7 @@ fun toArrFlateBeregningDeltakelse(
                     periode = input.periode(),
                     faktor = output.faktor,
                     perioderMedDeltakelsesmengde = input.perioder,
+                    status = deltaker?.status?.type,
                 )
         }
     }

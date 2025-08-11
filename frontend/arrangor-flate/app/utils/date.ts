@@ -27,12 +27,12 @@ export const getTimestamp = (utbetaling: ArrFlateUtbetaling): TimestampInfo => {
   if (utbetaling.godkjentAvArrangorTidspunkt) {
     return {
       title: "Dato innsendt",
-      value: formaterDato(utbetaling.godkjentAvArrangorTidspunkt),
+      value: formaterDato(utbetaling.godkjentAvArrangorTidspunkt) ?? "-",
     };
   }
 
   return {
     title: "Dato opprettet hos Nav",
-    value: utbetaling.createdAt ? formaterDato(utbetaling.createdAt) : "-",
+    value: formaterDato(utbetaling.createdAt) ?? "-",
   };
 };

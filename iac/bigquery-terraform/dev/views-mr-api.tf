@@ -212,45 +212,6 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
 EOF
 }
 
-module "mr_api_gjennomforing_opphav_antall_opprettet_view" {
-  source              = "../modules/google-bigquery-view"
-  deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "gjennomforing_opphav_antall_opprettet_view"
-  view_schema = jsonencode(
-    [
-      {
-        mode        = "NULLABLE"
-        name        = "navn"
-        type        = "STRING"
-        description = "Navn på tiltakstype."
-      },
-      {
-        mode        = "NULLABLE"
-        name        = "opphav"
-        type        = "STRING"
-        description = "Hvilket system som gjennomføringen ble opprettet i."
-      },
-      {
-        mode        = "NULLABLE"
-        name        = "antall_opprettet"
-        type        = "INTEGER"
-        description = "Antall gjennomføringer per opphav."
-      },
-    ]
-  )
-  view_query = <<EOF
-select
-    tiltakstype.navn,
-    gjennomforing.opphav,
-    count(*) as antall_opprettet
-from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` gjennomforing
-         join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-group by tiltakstype.navn, gjennomforing.opphav
-order by tiltakstype.navn
-EOF
-}
-
 module "mr_api_gjennomforing_nav_enhet_view" {
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
@@ -324,9 +285,15 @@ module "mr_api_del_med_bruker_view" {
       },
       {
         mode        = "NULLABLE"
+        name        = "tiltakskode"
+        type        = "STRING"
+        description = "Tiltakskode til tiltaket som er delt med bruker"
+      },
+      {
+        mode        = "NULLABLE"
         name        = "tiltakstype_navn"
         type        = "STRING"
-        description = "Lesbart navn for tiltakstypen koblet til tiltaket som er delt med bruker"
+        description = "Navn på tiltakstypen til tiltaket som er delt med bruker"
       },
       {
         mode        = "NULLABLE"
@@ -342,7 +309,7 @@ module "mr_api_del_med_bruker_view" {
       },
       {
         mode        = "NULLABLE"
-        name        = "created_at"
+        name        = "delt_tidspunkt"
         type        = "TIMESTAMP"
         description = "Når tiltaket ble delt med bruker"
       },
@@ -350,13 +317,20 @@ module "mr_api_del_med_bruker_view" {
   )
   view_query = <<EOF
 SELECT
-  id,
-  tiltakstype_navn,
-  delt_fra_fylke,
-  delt_fra_enhet,
-  created_at
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker`
-WHERE delt_fra_fylke IS NOT NULL
+  del_med_bruker.id,
+  tiltakstype.tiltakskode,
+  tiltakstype.navn AS tiltakstype_navn,
+  del_med_bruker.delt_fra_fylke,
+  del_med_bruker.delt_fra_enhet,
+  del_med_bruker.created_at AS delt_tidspunkt
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker` del_med_bruker
+JOIN
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+ON
+  del_med_bruker.tiltakstype_id = tiltakstype.id
+WHERE
+  del_med_bruker.delt_fra_fylke IS NOT null
 EOF
 }
 

@@ -1,12 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.kafka
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,21 +25,17 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Period
 import java.util.*
 
 class ReplicateDeltakerKafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createConsumer(
-        period: Period = Period.ofDays(1),
         oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(relaxed = true),
     ): ReplicateDeltakerKafkaConsumer {
         return ReplicateDeltakerKafkaConsumer(
             db = database.db,
-            relevantDeltakerSluttDatoPeriod = period,
             oppdaterUtbetaling = oppdaterUtbetaling,
         )
     }
@@ -97,7 +89,10 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 
             database.run {
                 queries.deltaker.getAll()
-                    .shouldContainExactlyInAnyOrder(deltaker1Dbo.toDeltaker(), deltaker2Dbo.toDeltaker())
+                    .shouldContainExactlyInAnyOrder(
+                        deltaker1Dbo.toDeltaker(NorskIdent(amtDeltaker1.personIdent)),
+                        deltaker2Dbo.toDeltaker(NorskIdent(amtDeltaker2.personIdent)),
+                    )
             }
         }
 
@@ -156,10 +151,10 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
                 queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
                     deltaker1Dbo
                         .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
-                        .toDeltaker(),
+                        .toDeltaker(NorskIdent(amtDeltaker1.personIdent)),
                     deltaker2Dbo
                         .copy(gjennomforingId = Oppfolging1.id, deltakelsesprosent = null)
-                        .toDeltaker(),
+                        .toDeltaker(NorskIdent(amtDeltaker2.personIdent)),
                 )
             }
         }
@@ -189,51 +184,6 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             database.truncateAll()
 
             clearAllMocks()
-        }
-
-        test("lagrer fødselsnummer på deltakere i AFT med relevant status") {
-            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
-
-            forAll(
-                row(DeltakerStatusType.VENTER_PA_OPPSTART, null),
-                row(DeltakerStatusType.IKKE_AKTUELL, null),
-                row(DeltakerStatusType.DELTAR, NorskIdent("12345678910")),
-                row(DeltakerStatusType.FULLFORT, NorskIdent("12345678910")),
-                row(DeltakerStatusType.HAR_SLUTTET, NorskIdent("12345678910")),
-                row(DeltakerStatusType.AVBRUTT, NorskIdent("12345678910")),
-            ) { status, expectedNorskIdent ->
-                val deltaker = amtDeltaker1.copy(
-                    status = amtDeltaker1.status.copy(type = status),
-                )
-                deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
-
-                database.run {
-                    queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
-                }
-            }
-        }
-
-        test("lagrer ikke fødselsnummer når deltakelsen har en sluttdato før konfigurert periode") {
-            val deltakerConsumer = createConsumer(
-                period = Period.ofDays(1),
-                oppdaterUtbetaling = oppdaterUtbetaling,
-            )
-
-            forAll(
-                row(LocalDate.now().minusDays(2), null),
-                row(LocalDate.now().minusDays(1), NorskIdent("12345678910")),
-                row(LocalDate.now(), NorskIdent("12345678910")),
-            ) { sluttDato, expectedNorskIdent ->
-                val deltaker = amtDeltaker1.copy(
-                    startDato = LocalDate.now().minusMonths(1),
-                    sluttDato = sluttDato,
-                )
-                deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
-
-                database.run {
-                    queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
-                }
-            }
         }
 
         test("trigger at utbetaling for aktuell gjennomføring beregnes på nytt") {
@@ -311,10 +261,10 @@ private fun createAmtDeltakerV1Dto(
     deltakelsesmengder = listOf(),
 )
 
-fun DeltakerDbo.toDeltaker() = Deltaker(
+fun DeltakerDbo.toDeltaker(norskIdent: NorskIdent) = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
-    norskIdent = null,
+    norskIdent = norskIdent,
     startDato = null,
     sluttDato = null,
     registrertDato = registrertDato,

@@ -2,16 +2,10 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk.Output
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
-import java.lang.Math.addExact
+import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.streams.asSequence
-
-/**
- * Presisjon underveis for å oppnå en god beregning av totalbeløpet.
- */
-private const val CALCULATION_PRECISION = 20
 
 @Serializable
 @SerialName("PRIS_PER_MANEDSVERK")
@@ -38,30 +32,13 @@ data class TilsagnBeregningPrisPerManedsverk(
         fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
             val (periode, sats, antallPlasser) = input
 
-            val belop = manedsverk(periode)
-                .map {
-                    val value = it
-                        .multiply(sats.toBigDecimal())
-                        .multiply(antallPlasser.toBigDecimal())
-                        .setScale(0, RoundingMode.HALF_EVEN)
-
-                    value.intValueExact()
-                }
-                .reduce { acc: Int, s: Int -> addExact(acc, s) }
+            val belop = UtbetalingBeregningHelpers.calculateManedsverk(periode)
+                .multiply(BigDecimal(sats))
+                .multiply(BigDecimal(antallPlasser))
+                .setScale(0, RoundingMode.HALF_UP)
+                .intValueExact()
 
             return TilsagnBeregningPrisPerManedsverk(input, Output(belop = belop))
         }
-
-        fun manedsverk(periode: Periode) = periode.start.datesUntil(periode.slutt)
-            .asSequence()
-            .groupBy { it.month }
-            .map { (_, datesInMonth) ->
-                datesInMonth.size.toBigDecimal()
-                    .divide(
-                        datesInMonth[0].lengthOfMonth().toBigDecimal(),
-                        CALCULATION_PRECISION,
-                        RoundingMode.HALF_UP,
-                    )
-            }
     }
 }

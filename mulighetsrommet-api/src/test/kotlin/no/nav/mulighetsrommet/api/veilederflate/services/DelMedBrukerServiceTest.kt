@@ -5,144 +5,168 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
-import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.TiltakstypeStatus
-import java.time.LocalDate
 import java.util.*
 
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
     val sanityService: SanityService = mockk(relaxed = true)
-    val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
     }
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.db, sanityService, tiltakstypeService)
+        val service = DelMedBrukerService(database.db, sanityService, NavEnhetService(database.db))
 
-        val sanityId = UUID.randomUUID()
+        beforeEach {
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+            ).initialize(database.db)
+        }
 
-        val payload = DelMedBrukerDbo(
-            id = "123",
-            norskIdent = NorskIdent("12345678910"),
-            navident = "nav123",
-            sanityId = sanityId,
-            dialogId = "1234",
-            tiltakstypeNavn = "Avklaring",
-            deltFraFylke = NavEnhetNummer("0300"),
-            deltFraEnhet = NavEnhetNummer("0301"),
-        )
+        test("opprett deling med bruker for sanity-tiltak") {
+            val sanityId = UUID.randomUUID()
 
-        test("lagrer og henter siste deling for tiltak") {
-            service.lagreDelMedBruker(payload)
+            val deling = DelMedBrukerDbo(
+                norskIdent = NorskIdent("12345678910"),
+                navIdent = NavIdent("B123456"),
+                sanityId = sanityId,
+                gjennomforingId = null,
+                dialogId = "1",
+                tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
+            )
 
-            service.getDeltMedBruker(
+            service.insertDelMedBruker(deling)
+
+            service.getLastDelingMedBruker(
                 fnr = NorskIdent("12345678910"),
                 sanityOrGjennomforingId = sanityId,
             ).shouldNotBeNull().should {
-                it.id shouldBe "1"
-                it.norskIdent shouldBe NorskIdent("12345678910")
-                it.navident shouldBe "nav123"
-                it.sanityId shouldBe sanityId
-                it.dialogId shouldBe "1234"
+                it.tiltakId shouldBe sanityId
+                it.deling.dialogId shouldBe "1"
             }
 
-            service.lagreDelMedBruker(payload.copy(navident = "nav234", dialogId = "987"))
+            service.insertDelMedBruker(deling.copy(navIdent = NavIdent("B123456"), dialogId = "2"))
 
-            service.getDeltMedBruker(
+            service.getLastDelingMedBruker(
                 fnr = NorskIdent("12345678910"),
                 sanityOrGjennomforingId = sanityId,
             ).shouldNotBeNull().should {
-                it.id shouldBe "2"
-                it.norskIdent shouldBe NorskIdent("12345678910")
-                it.navident shouldBe "nav234"
-                it.sanityId shouldBe sanityId
-                it.dialogId shouldBe "987"
+                it.tiltakId shouldBe sanityId
+                it.deling.dialogId shouldBe "2"
             }
         }
 
-        test("insert med gjennomforingId") {
+        test("opprett deling med bruker for gjennomføring") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             ).initialize(database.db)
 
             val request = DelMedBrukerDbo(
-                id = "123",
                 norskIdent = NorskIdent("12345678910"),
-                navident = "nav123",
+                navIdent = NavIdent("B123456"),
                 sanityId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
-                dialogId = "1234",
-                tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                dialogId = "1",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
-            service.lagreDelMedBruker(request)
+            service.insertDelMedBruker(request)
 
-            val delMedBruker = service.getDeltMedBruker(
+            val delMedBruker = service.getLastDelingMedBruker(
                 fnr = NorskIdent("12345678910"),
                 sanityOrGjennomforingId = GjennomforingFixtures.Oppfolging1.id,
             )
 
             delMedBruker.shouldNotBeNull().should {
-                it.gjennomforingId shouldBe GjennomforingFixtures.Oppfolging1.id
-                it.sanityId shouldBe null
+                it.tiltakId shouldBe GjennomforingFixtures.Oppfolging1.id
+                it.deling.dialogId shouldBe "1"
             }
-
-            database.assertTable("del_med_bruker")
-                .row().value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.Oppfolging.id.toString())
         }
 
-        test("Hent Del med bruker-historikk fra database og Sanity") {
+        test("hent siste delinger med bruker per tiltak") {
             MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
+            ).initialize(database.db)
+
+            val deling1 = DelMedBrukerDbo(
+                norskIdent = NorskIdent("12345678910"),
+                navIdent = NavIdent("B123456"),
+                sanityId = null,
+                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+                dialogId = "1",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
+            )
+
+            val deling2 = DelMedBrukerDbo(
+                norskIdent = NorskIdent("12345678910"),
+                navIdent = NavIdent("B123456"),
+                sanityId = null,
+                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+                dialogId = "2",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
+            )
+
+            val sanityId = UUID.randomUUID()
+            val deling3 = DelMedBrukerDbo(
+                norskIdent = NorskIdent("12345678910"),
+                navIdent = NavIdent("B123456"),
+                sanityId = sanityId,
+                gjennomforingId = null,
+                dialogId = "3",
+                tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
+            )
+
+            service.insertDelMedBruker(deling1)
+            service.insertDelMedBruker(deling2)
+            service.insertDelMedBruker(deling3)
+
+            service.getAllDistinctDelingMedBruker(fnr = NorskIdent("12345678910")).should {
+                it.size shouldBe 2
+
+                it[0].tiltakId shouldBe GjennomforingFixtures.Oppfolging1.id
+                it[0].deling.dialogId shouldBe "2"
+
+                it[1].tiltakId shouldBe sanityId
+                it[1].deling.dialogId shouldBe "3"
+            }
+
+            database.assertTable("del_med_bruker").row()
+                .value("delt_fra_enhet").isEqualTo(NavEnhetFixtures.Gjovik.enhetsnummer.value)
+                .value("delt_fra_fylke").isEqualTo(NavEnhetFixtures.Innlandet.enhetsnummer.value)
+        }
+
+        test("hent historikk over tiltak delt med bruker") {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(
+                    TiltakstypeFixtures.Oppfolging,
+                    TiltakstypeFixtures.EnkelAmo,
+                    TiltakstypeFixtures.Arbeidstrening,
+                ),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell")),
             ).initialize(database.db)
 
             val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
             val sanityGjennomforingIdForArbeidstrening = UUID.randomUUID()
-            val enkeltAmoSanityId = UUID.randomUUID()
-            val arbeidstreningSanityId = UUID.randomUUID()
-
-            every { tiltakstypeService.getBySanityId(enkeltAmoSanityId) } returns TiltakstypeDto(
-                id = TiltakstypeFixtures.EnkelAmo.id,
-                navn = "EnkelAMo",
-                innsatsgrupper = emptySet(),
-                arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode,
-                tiltakskode = null,
-                startDato = LocalDate.of(2022, 1, 1),
-                sluttDato = null,
-                status = TiltakstypeStatus.AKTIV,
-                sanityId = enkeltAmoSanityId,
-            )
-            every { tiltakstypeService.getBySanityId(arbeidstreningSanityId) } returns TiltakstypeDto(
-                id = TiltakstypeFixtures.Arbeidstrening.id,
-                navn = TiltakstypeFixtures.Arbeidstrening.navn,
-                innsatsgrupper = emptySet(),
-                arenaKode = TiltakstypeFixtures.Arbeidstrening.arenaKode,
-                tiltakskode = null,
-                startDato = TiltakstypeFixtures.Arbeidstrening.startDato,
-                sluttDato = null,
-                status = TiltakstypeStatus.AKTIV,
-                sanityId = arbeidstreningSanityId,
-            )
 
             coEvery {
                 sanityService.getAllTiltak(any(), any())
@@ -151,7 +175,7 @@ class DelMedBrukerServiceTest : FunSpec({
                     _id = sanityGjennomforingIdForEnkeltplass.toString(),
                     tiltaksgjennomforingNavn = "Delt med bruker - Lokalt navn fra Sanity",
                     tiltakstype = SanityTiltakstype(
-                        _id = "$enkeltAmoSanityId",
+                        _id = UUID.randomUUID().toString(),
                         tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
                         innsatsgrupper = Innsatsgruppe.entries.toSet(),
                     ),
@@ -160,60 +184,60 @@ class DelMedBrukerServiceTest : FunSpec({
                     _id = sanityGjennomforingIdForArbeidstrening.toString(),
                     tiltaksgjennomforingNavn = "Delt med bruker - Sanity",
                     tiltakstype = SanityTiltakstype(
-                        _id = "$arbeidstreningSanityId",
+                        _id = UUID.randomUUID().toString(),
                         tiltakstypeNavn = "Arbeidstrening",
                         innsatsgrupper = Innsatsgruppe.entries.toSet(),
                     ),
                 ),
             )
 
-            val request1 = DelMedBrukerDbo(
-                id = "123",
+            val deling1 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
-                navident = "nav123",
+                navIdent = NavIdent("B123456"),
                 sanityId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
-                dialogId = "1234",
-                tiltakstypeNavn = "Oppfølging",
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                dialogId = "1",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
-            val request2 = DelMedBrukerDbo(
-                id = "1234",
+            val deling2 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
-                navident = "nav123",
+                navIdent = NavIdent("B123456"),
                 sanityId = sanityGjennomforingIdForEnkeltplass,
                 gjennomforingId = null,
-                dialogId = "1235",
-                tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                dialogId = "2",
+                tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
-            val request3 = DelMedBrukerDbo(
-                id = "12345",
+            val deling3 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
-                navident = "nav123",
+                navIdent = NavIdent("B123456"),
                 sanityId = sanityGjennomforingIdForArbeidstrening,
                 gjennomforingId = null,
-                dialogId = "1235",
-                tiltakstypeNavn = "Arbeidstrening",
-                deltFraFylke = NavEnhetNummer("0300"),
-                deltFraEnhet = NavEnhetNummer("0301"),
+                dialogId = "3",
+                tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
+                deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
-            service.lagreDelMedBruker(request1)
-            service.lagreDelMedBruker(request2)
-            service.lagreDelMedBruker(request3)
+            service.insertDelMedBruker(deling1)
+            service.insertDelMedBruker(deling2)
+            service.insertDelMedBruker(deling3)
 
-            val delMedBruker = service.getDelMedBrukerHistorikk(NorskIdent("12345678910"))
+            val delMedBruker = service.getAllTiltakDeltMedBruker(NorskIdent("12345678910"))
 
             delMedBruker.shouldNotBeNull().should {
                 it.size shouldBe 3
-                it[0].tiltakstype.navn shouldBe "Oppfølging"
-                it[1].tiltakstype.navn shouldBe "Arbeidsmarkedsopplæring (AMO) enkeltplass"
-                it[2].tiltakstype.navn shouldBe "Arbeidstrening"
+
+                it[0].tiltakstype.navn shouldBe "Arbeidstrening"
+                it[0].tiltak.navn shouldBe "Delt med bruker - Sanity"
+
+                it[1].tiltakstype.navn shouldBe "Enkel AMO"
+                it[1].tiltak.navn shouldBe "Delt med bruker - Lokalt navn fra Sanity"
+
+                it[2].tiltakstype.navn shouldBe "Oppfølging"
+                it[2].tiltak.navn shouldBe "Delt med bruker - tabell"
             }
         }
     }

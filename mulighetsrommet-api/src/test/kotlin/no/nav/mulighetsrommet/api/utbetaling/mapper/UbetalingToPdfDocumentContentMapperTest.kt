@@ -59,6 +59,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         foedselsdato = LocalDate.of(1989, 1, 1),
                         norskIdent = NorskIdent("01010199999"),
                     ),
+                    status = null,
                 ),
                 ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = UUID.randomUUID(),
@@ -80,6 +81,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         foedselsdato = LocalDate.of(1989, 1, 1),
                         norskIdent = NorskIdent("22010199998"),
                     ),
+                    status = null,
                 ),
             ),
             stengt = listOf(
@@ -119,6 +121,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
             ),
         ),
+        advarsler = emptyList(),
     )
 
     test("pdf-content for utbetalingsdetaljer til arrangør") {
@@ -193,6 +196,11 @@ private val expectedUtbetalingsdetaljerContent = """
             {
               "label": "Antall månedsverk",
               "value": "1.0"
+            },
+            {
+              "label": "Sats",
+              "value": "34",
+              "format": "NOK"
             },
             {
               "label": "Beløp",
@@ -366,6 +374,11 @@ private val expectedJournalpostContent = """
             {
               "label": "Antall månedsverk",
               "value": "1.0"
+            },
+            {
+              "label": "Sats",
+              "value": "34",
+              "format": "NOK"
             },
             {
               "label": "Beløp",

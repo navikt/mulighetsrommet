@@ -1,6 +1,7 @@
 import {
   ArrFlateUtbetaling,
   ArrFlateUtbetalingStatus,
+  DeltakerStatusType,
   DelutbetalingStatus,
   UtbetalingType,
 } from "api-client";
@@ -42,6 +43,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
       stengt: [],
       antallManedsverk: 0.48,
     },
+    advarsler: [],
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
     periode: { start: "2025-01-01", slutt: "2025-02-01" },
     type: undefined,
@@ -60,7 +62,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
   },
   {
     id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
-    status: ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
+    status: ArrFlateUtbetalingStatus.KREVER_ENDRING,
     godkjentAvArrangorTidspunkt: null,
     createdAt: "2025-06-17T13:58:12.405867",
     tiltakstype: {
@@ -73,6 +75,21 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
       navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
       slettet: false,
     },
+    advarsler: [
+      {
+        type: "FEIL_SLUTTDATO",
+        deltakerId: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
+      },
+      {
+        type: "RELEVANTE_FORSLAG",
+        deltakerId: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
+        antallRelevanteForslag: 3,
+      },
+      {
+        type: "OVERLAPPENDE_PERIODE",
+        deltakerId: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
+      },
+    ],
     beregning: {
       type: "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER",
       belop: 242904,
@@ -89,6 +106,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
           ],
           faktor: 1.0,
           person: { navn: "Nordmann, Ola", foedselsdato: "1993-11-01" },
+          status: DeltakerStatusType.HAR_SLUTTET,
         },
         {
           id: "f7284cdb-9b8f-4431-9808-b1bcc9ae7494",
@@ -261,6 +279,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
+    advarsler: [],
     gjennomforing: {
       id: "d29cb67c-8e68-4ece-90dc-ff21c498aa3f",
       navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
@@ -308,6 +327,7 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
         belop: 500,
       },
     ],
+    advarsler: [],
   },
   {
     id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
@@ -350,5 +370,6 @@ export const arrFlateUtbetaling: ArrFlateUtbetaling[] = [
     periode: { start: "2025-06-01", slutt: "2025-07-01" },
     type: undefined,
     linjer: [],
+    advarsler: [],
   },
 ];

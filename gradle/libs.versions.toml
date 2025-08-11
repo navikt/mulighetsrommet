@@ -12,11 +12,10 @@ arrow = "2.1.2"
 micrometer = "1.15.2"
 
 [plugins]
-flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:13.0.0"
-shadow = "com.github.johnrengelman.shadow:8.1.1"
+shadow = " com.gradleup.shadow:8.3.0"
 openapi-generator = "org.openapi.generator:7.14.0"
 
 [bundles]
@@ -57,7 +56,7 @@ flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.25.2"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.54.0"
 
-hikaricp = "com.zaxxer:HikariCP:6.3.2"
+hikaricp = "com.zaxxer:HikariCP:7.0.0"
 
 koin-ktor = { module = "io.insert-koin:koin-ktor3", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }

@@ -1953,9 +1953,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+                $ref: "#/components/schemas/ArrFlateUtbetalinger"
         default:
           $ref: "#/components/responses/ProblemDetail"
     post:
@@ -2109,26 +2107,6 @@ paths:
                 type: string
         default:
           $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/utbetaling/{id}/relevante-forslag:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getRelevanteForslag
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: Hent relevante deltakerforslag til deltakere på utbetaling
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/RelevanteForslag"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
 
   /api/v1/intern/arrangorflate/utbetaling/{id}:
     get:
@@ -2645,9 +2623,8 @@ components:
           format: UUID
         navn:
           type: string
-        tiltakstypeId:
+        tiltakKode:
           type: string
-          format: UUID
         avtalenummer:
           type: [string, "null"]
         sakarkivNummer:
@@ -2721,7 +2698,7 @@ components:
       required:
         - id
         - navn
-        - tiltakstypeId
+        - tiltakKode
         - arrangorOrganisasjonsnummer
         - arrangorUnderenheter
         - arrangorKontaktpersonId
@@ -4860,8 +4837,9 @@ components:
         - KLAR_FOR_GODKJENNING
         - BEHANDLES_AV_NAV
         - UTBETALT
-        - VENTER_PA_ENDRING
+        - KREVER_ENDRING
         - OVERFORT_TIL_UTBETALING
+        - AVBRUTT
 
     UtbetalingStatusDto:
       oneOf:
@@ -4997,6 +4975,19 @@ components:
         - KORRIGERING
         - INVESTERING
 
+    ArrFlateUtbetalinger:
+      type: object
+      properties:
+        aktive:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+        historiske:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+      required: [aktive, historiske]
+
     ArrFlateUtbetalingKompakt:
       type: object
       properties:
@@ -5065,6 +5056,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorUtbetalingLinje"
+        advarsler:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakerAdvarsel"
       required:
         - id
         - status
@@ -5074,6 +5069,7 @@ components:
         - beregning
         - betalingsinformasjon
         - periode
+        - advarsler
 
     ArrangorUtbetalingLinje:
       type: object
@@ -5166,6 +5162,8 @@ components:
           $ref: "#/components/schemas/Periode"
         faktor:
           type: number
+        status:
+          $ref: "#/components/schemas/DeltakerStatusType"
         person:
           $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
       required: [type, id, periode, faktor]
@@ -5181,6 +5179,8 @@ components:
         deltakerStartDato:
           type: string
           format: date
+        status:
+          $ref: "#/components/schemas/DeltakerStatusType"
         periode:
           $ref: "#/components/schemas/Periode"
         faktor:
@@ -5204,6 +5204,8 @@ components:
         deltakerStartDato:
           type: string
           format: date
+        status:
+          $ref: "#/components/schemas/DeltakerStatusType"
         periode:
           $ref: "#/components/schemas/Periode"
         faktor:
@@ -5223,6 +5225,8 @@ components:
         deltakerStartDato:
           type: string
           format: date
+        status:
+          $ref: "#/components/schemas/DeltakerStatusType"
         periode:
           $ref: "#/components/schemas/Periode"
         faktor:
@@ -5572,17 +5576,43 @@ components:
         - digest
         - kid
 
-    RelevanteForslag:
+    DeltakerAdvarsel:
+      oneOf:
+        - $ref: "#/components/schemas/AdvarselRelevanteForslag"
+        - $ref: "#/components/schemas/AdvarselFeilSluttDato"
+        - $ref: "#/components/schemas/AdvarselOverlappendePeriode"
+
+    AdvarselRelevanteForslag:
       type: object
       properties:
+        type:
+          const: RELEVANTE_FORSLAG
         deltakerId:
           type: string
           format: uuid
         antallRelevanteForslag:
           type: integer
-      required:
-        - deltakerId
-        - antallRelevanteForslag
+      required: [type, deltakerId, antallRelevanteForslag]
+
+    AdvarselFeilSluttDato:
+      type: object
+      properties:
+        type:
+          const: FEIL_SLUTTDATO
+        deltakerId:
+          type: string
+          format: uuid
+      required: [type, deltakerId]
+
+    AdvarselOverlappendePeriode:
+      type: object
+      properties:
+        type:
+          const: OVERLAPPENDE_PERIODE
+        deltakerId:
+          type: string
+          format: uuid
+      required: [type, deltakerId]
 
     TilsagnStatusOgAarsaker:
       type: object
@@ -5932,3 +5962,21 @@ components:
         forklaring:
           type: [string, "null"]
       required: [aarsaker, forklaring]
+
+    DeltakerStatusType:
+      type: string
+      enum:
+        - AVBRUTT
+        - AVBRUTT_UTKAST
+        - DELTAR
+        - FEILREGISTRERT
+        - FULLFORT
+        - HAR_SLUTTET
+        - IKKE_AKTUELL
+        - KLADD
+        - PABEGYNT_REGISTRERING
+        - SOKT_INN
+        - UTKAST_TIL_PAMELDING
+        - VENTELISTE
+        - VENTER_PA_OPPSTART
+        - VURDERES

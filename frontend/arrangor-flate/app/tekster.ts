@@ -40,8 +40,8 @@ export const tekster = {
           utro: " Opplysninger om deltakerne må være riktig oppdatert før dere sender inn kravet.",
         },
         stengtHosArrangor: "Det er registrert stengt hos arrangør i følgende perioder:",
-        ubehandledeDeltakerforslag:
-          "Det finnes ubehandlede forslag som påvirker utbetalinger på følgende personer. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg.",
+        advarslerFinnes:
+          "Det finnes advarsler på følgende personer. Disse må først fikses før utbetalingen kan sendes inn.",
         deltakelsesfaktor: (type: ArrFlateBeregning["type"]) => {
           switch (type) {
             case "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER":

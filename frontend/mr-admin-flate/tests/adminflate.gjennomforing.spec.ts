@@ -13,7 +13,8 @@ const fyllInnGjennomforing = async (page: Page) => {
   await page.locator("text=Opprett ny gjennomføring").click();
   await locateAndFillInput(page, "antallPlasser", "20");
 
-  await page.click("input#arrangorId");
+  await page.locator('input[name="arrangorId"]').click();
+  await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");
 
   await page.locator('button:has-text("Redaksjonelt innhold")').click();

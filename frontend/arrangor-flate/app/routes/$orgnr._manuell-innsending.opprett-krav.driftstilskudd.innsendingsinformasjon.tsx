@@ -10,8 +10,6 @@ import {
   HStack,
   Label,
   Link,
-  Radio,
-  RadioGroup,
   TextField,
   UNSAFE_Combobox,
   useRangeDatepicker,
@@ -45,7 +43,6 @@ import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
 import { formaterDato, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { subtractDays } from "~/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { DateRange } from "node_modules/@navikt/ds-react/esm/date/Date.typeutils";
 
@@ -225,7 +222,6 @@ export default function OpprettKravInnsendingsinformasjon() {
     gjennomforinger,
     tilsagn,
     sessionGjennomforingId,
-    sessionTilsagnId,
     sessionPeriodeStart,
     sessionPeriodeSlutt,
   } = useLoaderData<LoaderData>();
@@ -247,7 +243,6 @@ export default function OpprettKravInnsendingsinformasjon() {
     datepickerProps,
     fromInputProps: periodeStartInputProps,
     toInputProps: periodeSluttInputProps,
-    setSelected: setPeriode,
     selectedRange: valgtPeriode,
   } = useRangeDatepicker({
     defaultSelected: {
@@ -359,35 +354,20 @@ export default function OpprettKravInnsendingsinformasjon() {
             )}
             {gjennomforingId && (
               <>
+                <Heading level="3" size="small">
+                  Tilgjengelige tilsagn
+                </Heading>
                 {relevanteTilsagn.length < 1 ? (
                   <Alert variant="warning">
                     Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
                   </Alert>
                 ) : (
-                  <RadioGroup
-                    size="small"
-                    legend="Velg tilsagn"
-                    description="Hvilket tilsagn skal benyttes?"
-                    name="tilsagnId"
-                    defaultValue={tilsagn.find((t) => t.id === sessionTilsagnId)?.id}
-                    error={errorAt("/tilsagnId", data?.errors)}
-                    onChange={(tilsagnId: string) => {
-                      const valgtTilsagn = tilsagn.find((t) => t.id === tilsagnId);
-                      if (valgtTilsagn) {
-                        const periode = {
-                          from: new Date(valgtTilsagn.periode.start),
-                          to: subtractDays(new Date(valgtTilsagn.periode.slutt), 1),
-                        };
-                        setPeriode(periode);
-                      }
-                    }}
-                  >
+                  <>
+                    <input type="hidden" name="tilsagnId" value={relevanteTilsagn[0].id} />
                     {relevanteTilsagn.map((tilsagn) => (
-                      <Radio key={tilsagn.id} size="small" value={tilsagn.id}>
-                        <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
-                      </Radio>
+                      <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
                     ))}
-                  </RadioGroup>
+                  </>
                 )}
               </>
             )}

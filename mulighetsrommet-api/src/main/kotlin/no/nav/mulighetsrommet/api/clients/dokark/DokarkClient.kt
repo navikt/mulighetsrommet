@@ -33,7 +33,7 @@ class DokarkClient(
             setBody(Json.encodeToString(journalpost))
         }
 
-        if (!response.status.isSuccess()) {
+        if (!response.status.isSuccess() && response.status != HttpStatusCode.Conflict) {
             log.warn("Feilet å opprette journalpost: {}", response.bodyAsText())
             return DokarkError("Feilet å laste opp til joark").left()
         }

@@ -29,8 +29,8 @@ class UtbetalingQueriesTest : FunSpec({
     val periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1))
 
     val friBeregning = UtbetalingBeregningFri(
-        input = UtbetalingBeregningFri.Input(belop = 137_077, emptySet()),
-        output = UtbetalingBeregningFri.Output(belop = 137_077, emptySet()),
+        input = UtbetalingBeregningFri.Input(belop = 137_077),
+        output = UtbetalingBeregningFri.Output(belop = 137_077),
     )
 
     val utbetaling = UtbetalingDbo(

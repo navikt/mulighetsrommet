@@ -16,12 +16,9 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.LocalDate
-import java.time.Period
 import java.util.*
 
 class ReplicateDeltakerKafkaConsumer(
-    private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val db: ApiDatabase,
     private val oppdaterUtbetaling: OppdaterUtbetalingBeregning,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
@@ -53,41 +50,12 @@ class ReplicateDeltakerKafkaConsumer(
 
                 logger.info("Lagrer deltaker deltakerId=$key")
                 queries.deltaker.upsert(toDeltakerDbo(deltaker, prismodell))
-
-                if (prismodell != null && isRelevantForUtbetaling(deltaker, prismodell)) {
-                    queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
-                }
+                queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
             }
         }
         if (gjennomforingId != null) {
             scheduleOppdateringAvUtbetaling(gjennomforingId)
         }
-    }
-
-    private fun isRelevantForUtbetaling(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell): Boolean {
-        when (prismodell) {
-            Prismodell.ANNEN_AVTALT_PRIS -> return false
-
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
-            Prismodell.AVTALT_PRIS_PER_UKESVERK,
-            -> Unit
-        }
-
-        if (
-            deltaker.status.type !in setOf(
-                DeltakerStatusType.AVBRUTT,
-                DeltakerStatusType.DELTAR,
-                DeltakerStatusType.HAR_SLUTTET,
-                DeltakerStatusType.FULLFORT,
-            )
-        ) {
-            return false
-        }
-
-        val relevantDeltakerSluttDato = LocalDate.now().minus(relevantDeltakerSluttDatoPeriod)
-        val sluttDato = deltaker.sluttDato
-        return sluttDato == null || !relevantDeltakerSluttDato.isAfter(sluttDato)
     }
 
     private fun QueryContext.scheduleOppdateringAvUtbetaling(gjennomforingId: UUID) {

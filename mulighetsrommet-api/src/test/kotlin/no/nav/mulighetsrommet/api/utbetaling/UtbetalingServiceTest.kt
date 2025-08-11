@@ -36,8 +36,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -46,7 +44,6 @@ import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class UtbetalingServiceTest : FunSpec({
@@ -107,44 +104,6 @@ class UtbetalingServiceTest : FunSpec({
                 it.input.belop shouldBe 10
                 it.output.belop shouldBe 10
             }
-        }
-
-        test("fri beregning tar med relevante deltakere") {
-            val service = createUtbetalingService()
-
-            database.run {
-                queries.deltaker.upsert(
-                    DeltakerDbo(
-                        id = UUID.randomUUID(),
-                        gjennomforingId = AFT1.id,
-                        startDato = LocalDate.of(2023, 1, 1),
-                        sluttDato = null,
-                        registrertDato = LocalDate.of(2023, 1, 1),
-                        endretTidspunkt = LocalDateTime.now(),
-                        deltakelsesprosent = 100.0,
-                        status = DeltakerStatus(
-                            type = DeltakerStatusType.DELTAR,
-                            aarsak = null,
-                            opprettetDato = LocalDateTime.now(),
-                        ),
-                        deltakelsesmengder = listOf(
-                            Deltakelsesmengde(
-                                gyldigFra = LocalDate.of(2023, 1, 1),
-                                deltakelsesprosent = 100.0,
-                                opprettetTidspunkt = LocalDateTime.now(),
-                            ),
-                        ),
-                    ),
-                )
-            }
-
-            val utbetaling = service.opprettUtbetaling(
-                request = opprettUtbetaling,
-                agent = NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeRight()
-
-            utbetaling.beregning.input.deltakelser shouldHaveSize 1
-            utbetaling.beregning.output.deltakelser shouldHaveSize 1
         }
 
         test("utbetaling kan ikke endres hvis den først har blitt opprettet") {
@@ -563,8 +522,8 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10, emptySet()),
-                    output = UtbetalingBeregningFri.Output(10, emptySet()),
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
             )
@@ -617,8 +576,8 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10, emptySet()),
-                    output = UtbetalingBeregningFri.Output(10, emptySet()),
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
             )
@@ -672,8 +631,8 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10, emptySet()),
-                    output = UtbetalingBeregningFri.Output(10, emptySet()),
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
             )
@@ -947,8 +906,8 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10, emptySet()),
-                    output = UtbetalingBeregningFri.Output(10, emptySet()),
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
                 ),
                 status = Utbetaling.UtbetalingStatus.INNSENDT,
             )
@@ -1325,8 +1284,8 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(
                     utbetaling1Forhandsgodkjent.copy(
                         beregning = UtbetalingBeregningFri(
-                            input = UtbetalingBeregningFri.Input(1, emptySet()),
-                            output = UtbetalingBeregningFri.Output(1, emptySet()),
+                            input = UtbetalingBeregningFri.Input(1),
+                            output = UtbetalingBeregningFri.Output(1),
                         ),
                     ),
                 ),

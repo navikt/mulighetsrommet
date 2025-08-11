@@ -6,7 +6,7 @@ import {
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, Prismodell, ValidationError } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleRequest, Prismodell, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useNavigate } from "react-router";
 import { useCallback } from "react";
@@ -17,6 +17,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
+import { ContentBox } from "@/layouts/ContentBox";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
 interface Props {
   avtale: AvtaleDto;
@@ -35,9 +37,11 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   });
 
   const postData = async (data: AvtaleFormValues) => {
-    const requestBody = {
+    const requestBody: AvtaleRequest = {
       ...data,
       id: avtale.id,
+      startDato: data.startDato,
+      sluttDato: data.sluttDato || null,
       navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navAndreEnheter),
       avtalenummer: avtale.avtalenummer || null,
       arrangor:
@@ -48,7 +52,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
               kontaktpersoner: data.arrangorKontaktpersoner || [],
             }
           : null,
-      tiltakstypeId: data.tiltakstype.id,
+      tiltakKode: data.tiltakskode,
       prisbetingelser:
         !data.prismodell || data.prismodell === Prismodell.ANNEN_AVTALT_PRIS
           ? data.prisbetingelser || null
@@ -84,7 +88,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
       function mapNameToSchemaPropertyName(name: string) {
         const mapping: { [name: string]: string } = {
           opsjonsmodell: "opsjonsmodell.type",
-          opsjonMaksVarighet: "opsjonsmodellD.opsjonMaksVarighet",
+          opsjonMaksVarighet: "opsjonsmodell.opsjonMaksVarighet",
           customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
           utdanningslop: "utdanningslop.utdanninger",
@@ -98,9 +102,13 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(postData)}>
-        <AvtaleFormKnapperad />
-        <Separator />
-        {children}
+        <ContentBox>
+          <WhitePaddedBox>
+            <AvtaleFormKnapperad />
+            <Separator />
+            {children}
+          </WhitePaddedBox>
+        </ContentBox>
       </form>
     </FormProvider>
   );

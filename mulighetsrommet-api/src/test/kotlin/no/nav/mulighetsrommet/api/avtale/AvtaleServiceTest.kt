@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -61,6 +62,7 @@ class AvtaleServiceTest : FunSpec({
     ) = AvtaleService(
         database.db,
         ArrangorService(database.db, brregClient),
+        TiltakstypeService(database.db),
         validator,
         gjennomforingPublisher,
     )

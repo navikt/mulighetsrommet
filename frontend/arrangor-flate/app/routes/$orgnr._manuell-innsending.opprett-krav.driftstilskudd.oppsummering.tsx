@@ -160,8 +160,8 @@ export const action: ActionFunction = async ({ request }) => {
       belop: belop!,
       gjennomforingId: gjennomforingId!,
       tilsagnId: tilsagnId!,
-      periodeStart: yyyyMMddFormatting(periodeStart!),
-      periodeSlutt: yyyyMMddFormatting(periodeSlutt!),
+      periodeStart: yyyyMMddFormatting(periodeStart)!,
+      periodeSlutt: yyyyMMddFormatting(periodeSlutt)!,
       kontonummer: kontonummer!,
       kidNummer: kid || null,
       tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -213,7 +213,6 @@ export default function OpprettKravOppsummering() {
               value: `${tilsagn.arrangor.navn} - ${orgnr}`,
             },
             { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
-            { key: "Tilsagn", value: tilsagn.bestillingsnummer },
           ]}
         />
         <Separator />

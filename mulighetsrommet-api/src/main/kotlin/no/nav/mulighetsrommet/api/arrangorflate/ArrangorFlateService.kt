@@ -21,9 +21,7 @@ import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -43,9 +41,13 @@ class ArrangorFlateService(
     private val personService: PersonService,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
-        return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
-            val status = getArrFlateUtbetalingStatus(utbetaling)
+    fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrFlateUtbetalinger = db.session {
+        val aktive = mutableListOf<ArrFlateUtbetalingKompaktDto>()
+        val historiske = mutableListOf<ArrFlateUtbetalingKompaktDto>()
+
+        queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
+            val advarsler = getAdvarsler(utbetaling)
+            val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
             val godkjentBelop =
                 if (status in listOf(
                         ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -56,8 +58,19 @@ class ArrangorFlateService(
                 } else {
                     null
                 }
-            ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+            val dto = ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+            when (dto.status) {
+                ArrFlateUtbetalingStatus.KREVER_ENDRING,
+                ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+                ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                -> aktive += dto
+                ArrFlateUtbetalingStatus.AVBRUTT,
+                ArrFlateUtbetalingStatus.UTBETALT,
+                ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                -> historiske += dto
+            }
         }
+        return ArrFlateUtbetalinger(aktive = aktive, historiske = historiske)
     }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
@@ -91,13 +104,57 @@ class ArrangorFlateService(
             .map { toArrangorflateTilsagn(it) }
     }
 
-    fun getRelevanteForslag(utbetaling: Utbetaling): List<RelevanteForslag> = db.session {
-        return queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-            .map { (deltakerId, forslag) ->
-                RelevanteForslag(
-                    deltakerId = deltakerId,
-                    antallRelevanteForslag = forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) },
+    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
+        val deltakere = queries.deltaker
+            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
+
+        return getRelevanteForslag(utbetaling) +
+            getFeilSluttDato(deltakere, LocalDate.now()) +
+            getOverlappendePerioder(deltakere, utbetaling.periode)
+    }
+
+    fun getOverlappendePerioder(
+        deltakere: List<Deltaker>,
+        utbetalingPeriode: Periode,
+    ): List<DeltakerAdvarsel.OverlappendePeriode> {
+        val deltakerPerioder = deltakere.mapNotNull { deltaker ->
+            deltaker.norskIdent?.let {
+                DeltakerOgPeriode(
+                    deltaker.id,
+                    deltaker.norskIdent,
+                    Periode.fromInclusiveDates(
+                        deltaker.startDato ?: utbetalingPeriode.start,
+                        deltaker.sluttDato ?: utbetalingPeriode.getLastInclusiveDate(),
+                    ),
                 )
+            }
+        }
+        return deltakerPerioder
+            .mapNotNull { deltakerOgPeriode ->
+                DeltakerAdvarsel.OverlappendePeriode(deltakerOgPeriode.id)
+                    .takeIf { _ -> harOverlappendePeriode(deltakerOgPeriode, deltakerPerioder) }
+            }
+    }
+
+    fun getFeilSluttDato(deltakere: List<Deltaker>, today: LocalDate): List<DeltakerAdvarsel.FeilSluttDato> {
+        return deltakere
+            .mapNotNull {
+                DeltakerAdvarsel.FeilSluttDato(it.id)
+                    .takeIf { _ -> harFeilSluttDato(it.status.type, it.sluttDato, today = today) }
+            }
+    }
+
+    private fun QueryContext.getRelevanteForslag(utbetaling: Utbetaling): List<DeltakerAdvarsel.RelevanteForslag> {
+        return queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
+            .mapNotNull { (deltakerId, forslag) ->
+                when (val count = forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) }) {
+                    0 -> null
+                    else -> DeltakerAdvarsel.RelevanteForslag(
+                        deltakerId = deltakerId,
+                        antallRelevanteForslag = count,
+                    )
+                }
             }
     }
 
@@ -109,7 +166,8 @@ class ArrangorFlateService(
         utbetaling: Utbetaling,
         relativeDate: LocalDateTime = LocalDateTime.now(),
     ): ArrFlateUtbetaling = db.session {
-        val status = getArrFlateUtbetalingStatus(utbetaling)
+        val advarsler = getAdvarsler(utbetaling)
+        val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
         val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
             ?.let { it.plusWeeks(12) <= relativeDate } ?: false
 
@@ -118,7 +176,7 @@ class ArrangorFlateService(
         } else {
             queries.deltaker
                 .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                .filter { it.id in utbetaling.beregning.output.deltakelser.map { it.deltakelseId } }
+                .filter { it.id in utbetaling.beregning.output.deltakelser().map { it.deltakelseId } }
         }
 
         val personerByNorskIdent = personService.getPersoner(deltakere.mapNotNull { it.norskIdent })
@@ -131,6 +189,7 @@ class ArrangorFlateService(
             utbetaling = utbetaling,
             status = status,
             deltakerPersoner = deltakerPersoner,
+            advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
         )
@@ -156,13 +215,15 @@ class ArrangorFlateService(
             }
     }
 
-    private fun QueryContext.getArrFlateUtbetalingStatus(utbetaling: Utbetaling): ArrFlateUtbetalingStatus {
+    private fun QueryContext.getArrFlateUtbetalingStatus(
+        utbetaling: Utbetaling,
+        advarsler: List<DeltakerAdvarsel>,
+    ): ArrFlateUtbetalingStatus {
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-        val relevanteForslag = getRelevanteForslag(utbetaling)
         return ArrFlateUtbetalingStatus.fromUtbetaling(
             utbetaling.status,
             delutbetalinger,
-            relevanteForslag,
+            harAdvarsler = advarsler.isNotEmpty(),
         )
     }
 
@@ -205,30 +266,10 @@ fun isForslagRelevantForUtbetaling(
     forslag: DeltakerForslag,
     utbetaling: Utbetaling,
 ): Boolean {
-    val periode = when (utbetaling.beregning) {
-        is UtbetalingBeregningFri -> return false
-
-        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
-            val deltaker = utbetaling.beregning.input.deltakelser
-                .find { it.deltakelseId == forslag.deltakerId }
-                ?: return false
-            Periode.fromRange(deltaker.perioder.map { it.periode })
-        }
-
-        is UtbetalingBeregningPrisPerManedsverk -> {
-            utbetaling.beregning.input.deltakelser
-                .find { it.deltakelseId == forslag.deltakerId }
-                ?.periode
-                ?: return false
-        }
-
-        is UtbetalingBeregningPrisPerUkesverk -> {
-            utbetaling.beregning.input.deltakelser
-                .find { it.deltakelseId == forslag.deltakerId }
-                ?.periode
-                ?: return false
-        }
-    }
+    val periode = utbetaling.beregning.input.deltakelser()
+        .find { it.deltakelseId == forslag.deltakerId }
+        ?.periode()
+        ?: return false
     return isForslagRelevantForPeriode(forslag, utbetaling.periode, periode)
 }
 
@@ -269,6 +310,35 @@ fun isForslagRelevantForPeriode(
         is Melding.Forslag.Endring.EndreAvslutning,
         -> true
     }
+}
+
+fun harFeilSluttDato(
+    deltakerStatusType: DeltakerStatusType,
+    sluttDato: LocalDate?,
+    today: LocalDate,
+): Boolean {
+    return deltakerStatusType in listOf(
+        DeltakerStatusType.AVBRUTT,
+        DeltakerStatusType.FULLFORT,
+        DeltakerStatusType.HAR_SLUTTET,
+    ) &&
+        (sluttDato == null || sluttDato.isAfter(today))
+}
+
+data class DeltakerOgPeriode(
+    val id: UUID,
+    val norskIdent: NorskIdent,
+    val periode: Periode,
+)
+
+fun harOverlappendePeriode(
+    deltakerOgPeriode: DeltakerOgPeriode,
+    deltakere: List<DeltakerOgPeriode>,
+): Boolean {
+    val sammePerson = deltakere
+        .filter { (idB, _, _) -> idB != deltakerOgPeriode.id }
+        .filter { (_, norskIdentB, _) -> norskIdentB == deltakerOgPeriode.norskIdent }
+    return sammePerson.any { (_, _, periodeB) -> periodeB.intersects(deltakerOgPeriode.periode) }
 }
 
 private fun QueryContext.toArrangorflateTilsagn(

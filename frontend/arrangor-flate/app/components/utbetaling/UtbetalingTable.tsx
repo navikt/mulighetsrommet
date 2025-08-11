@@ -11,10 +11,12 @@ import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
+  belopColumn: "godkjent" | "innsendt";
 }
 
 enum UtbetalingSortKey {
   BELOP = "BELOP",
+  GODKJENT_BELOP = "GODKJENT_BELOP",
   PERIODE = "PERIODE",
   STATUS = "STATUS",
 }
@@ -29,10 +31,12 @@ function getUtbetalingSelector(
       return (u) => u.periode.start;
     case UtbetalingSortKey.STATUS:
       return (u) => u.status;
+    case UtbetalingSortKey.GODKJENT_BELOP:
+      return (u) => u.godkjentBelop;
   }
 }
 
-export function UtbetalingTable({ utbetalinger }: Props) {
+export function UtbetalingTable({ utbetalinger, belopColumn }: Props) {
   const orgnr = useOrgnrFromUrl();
 
   const { sort, handleSort } = useSortState<UtbetalingSortKey>();
@@ -63,11 +67,17 @@ export function UtbetalingTable({ utbetalinger }: Props) {
             Periode
           </Table.ColumnHeader>
           <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
-          <Table.ColumnHeader align="right" scope="col" sortable sortKey={UtbetalingSortKey.BELOP}>
-            Beløp
-          </Table.ColumnHeader>
-          <Table.ColumnHeader align="right" scope="col">
-            Godkjent
+          <Table.ColumnHeader
+            align="right"
+            scope="col"
+            sortable
+            sortKey={
+              belopColumn === "innsendt"
+                ? UtbetalingSortKey.BELOP
+                : UtbetalingSortKey.GODKJENT_BELOP
+            }
+          >
+            {belopColumn === "innsendt" ? "Beløp" : "Godkjent beløp"}
           </Table.ColumnHeader>
           <Table.ColumnHeader scope="col" align="left" aria-label="Type">
             <HStack gap="2" wrap={false}>
@@ -96,6 +106,8 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       <Table.Body>
         {sortedData.map(
           ({ id, status, belop, godkjentBelop, periode, gjennomforing, tiltakstype, type }) => {
+            const vistBelop = belopColumn === "innsendt" ? belop : godkjentBelop;
+
             return (
               <Table.Row key={id}>
                 <Table.HeaderCell scope="row">{gjennomforing.navn}</Table.HeaderCell>
@@ -104,10 +116,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                 </Table.DataCell>
                 <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                 <Table.DataCell align="right" className="whitespace-nowrap">
-                  {formaterNOK(belop)}
-                </Table.DataCell>
-                <Table.DataCell align="right" className="whitespace-nowrap">
-                  {godkjentBelop && formaterNOK(godkjentBelop)}
+                  {vistBelop ? formaterNOK(vistBelop) : "-"}
                 </Table.DataCell>
                 <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
                 <Table.DataCell>

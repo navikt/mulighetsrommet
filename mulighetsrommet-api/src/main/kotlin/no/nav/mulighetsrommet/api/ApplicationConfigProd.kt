@@ -30,7 +30,7 @@ private val kontaktpersonAdGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toU
 val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
-        maximumPoolSize = 10,
+        maximumPoolSize = 20,
         micrometerRegistry = Metrics.micrometerRegistry,
     ),
     flyway = FlywayMigrationManager.MigrationConfig(
@@ -323,8 +323,8 @@ val ApplicationConfigProd = AppConfig(
         scope = System.getenv("MASKINPORTEN_SCOPES"),
     ),
     dokark = AuthenticatedHttpClientConfig(
-        url = "https://dokarkiv-q2.dev-fss-pub.nais.io",
-        scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",
+        url = "https://dokarkiv.prod-fss-pub.nais.io",
+        scope = "api://prod-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "https://sokos-kontoregister.prod-fss-pub.nais.io",

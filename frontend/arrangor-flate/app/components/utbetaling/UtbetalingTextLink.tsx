@@ -28,7 +28,7 @@ export function UtbetalingTextLink({
         </Link>
       );
     }
-    case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING: {
+    case ArrFlateUtbetalingStatus.KREVER_ENDRING: {
       return (
         <Link
           as={ReactRouterLink}

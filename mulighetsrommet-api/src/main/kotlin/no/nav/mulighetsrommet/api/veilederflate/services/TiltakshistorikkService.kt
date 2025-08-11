@@ -312,7 +312,7 @@ private val deltakelseComparator: Comparator<Deltakelse> = Comparator { a, b ->
     val startDatoB = b.periode.startDato
 
     when {
-        startDatoA == startDatoB -> 0
+        startDatoA == null && startDatoB == null -> 0
         startDatoA == null -> -1
         startDatoB == null -> 1
         else -> startDatoB.compareTo(startDatoA)

@@ -16,7 +16,7 @@ import java.util.*
 class DeltakerForslagQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val deltaker = DeltakerFixtures.createDeltaker(
+    val deltaker = DeltakerFixtures.createDeltakerDbo(
         GjennomforingFixtures.Oppfolging1.id,
         statusType = DeltakerStatusType.VENTER_PA_OPPSTART,
     )

@@ -16,16 +16,19 @@
       "dependsOn": ["api-client:build"],
       "outputs": []
     },
-    "typecheck": {
-      "dependsOn": ["api-client:build"],
+    "typegen": {
       "outputs": [".react-router"]
     },
+    "typecheck": {
+      "dependsOn": ["api-client:build", "typegen"],
+      "outputs": []
+    },
     "build": {
-      "dependsOn": ["api-client:build"],
+      "dependsOn": ["api-client:build", "typegen"],
       "outputs": ["build"]
     },
     "build:demo": {
-      "dependsOn": ["api-client:build"],
+      "dependsOn": ["api-client:build", "typegen"],
       "outputs": ["build"]
     },
     "pack": {

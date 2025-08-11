@@ -18,10 +18,13 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
 import java.util.*
 
 fun Route.maamRoutes() {
@@ -113,9 +116,10 @@ fun Route.maamRoutes() {
             }
 
             post("generate-utbetaling") {
-                val (month) = call.receive<GenerateUtbetalingRequest>()
-                val utbetalinger = generateUtbetaling.runTask(month)
-                val response = ExecutedTaskResponse("Genererte ${utbetalinger.size} utbetalinger for måned $month")
+                val request = call.receive<GenerateUtbetalingRequest>()
+                val periode = Periode.forMonthOf(request.date)
+                val utbetalinger = generateUtbetaling.runTask(periode)
+                val response = ExecutedTaskResponse("Genererte ${utbetalinger.size} utbetalinger for periode $periode")
                 call.respond(HttpStatusCode.OK, response)
             }
         }
@@ -139,7 +143,8 @@ fun Route.maamRoutes() {
 
 @Serializable
 data class GenerateUtbetalingRequest(
-    val month: Int,
+    @Serializable(with = LocalDateSerializer::class)
+    val date: LocalDate,
 )
 
 @Serializable
