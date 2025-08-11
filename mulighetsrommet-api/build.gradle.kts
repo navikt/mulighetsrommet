@@ -45,8 +45,11 @@ tasks.build {
 }
 
 tasks.shadowJar {
+    // Gjør det mulig å bygge zip-filer med mer enn 65535 filer
     isZip64 = true
+
     // Trengs for å få med implementasjonen av services fra bl.a. flyway
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     mergeServiceFiles()
 }
 
