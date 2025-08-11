@@ -90,12 +90,12 @@ object UtbetalingBeregningHelpers {
     /**
      * Presisjon underveis for å oppnå en god beregning av totalbeløpet.
      */
-    private const val CALCULATION_PRECISION = 20
+    const val CALCULATION_PRECISION = 20
 
     /**
      * Presisjon for den delen av beregningen som blir med i output og tilgjengelig for innsyn, test, etc.
      */
-    private const val OUTPUT_PRECISION = 5
+    const val OUTPUT_PRECISION = 5
 
     fun calculateManedsverkForDeltakelsesprosent(
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
