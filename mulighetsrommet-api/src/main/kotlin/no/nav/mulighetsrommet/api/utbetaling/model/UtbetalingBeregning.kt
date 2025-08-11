@@ -164,8 +164,9 @@ object UtbetalingBeregningHelpers {
     }
 
     private fun calculateUkesverk(periode: Periode): BigDecimal {
-        val days = periode.getDurationInDays().toBigDecimal()
-        return days.divide(BigDecimal(7), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+        val weekdayCount = periode.getWeekdayCount()
+        val weekdays = BigDecimal(5)
+        return weekdayCount.toBigDecimal().divide(weekdays, CALCULATION_PRECISION, RoundingMode.HALF_UP)
     }
 
     fun calculateBelopForDeltakelse(deltakelser: Set<UtbetalingBeregningOutputDeltakelse>, sats: Int): Int {

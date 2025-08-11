@@ -45,9 +45,10 @@ data class TilsagnBeregningPrisPerUkesverk(
             return TilsagnBeregningPrisPerUkesverk(input, Output(belop))
         }
 
-        fun ukesverk(periode: Periode): BigDecimal = periode
-            .getDurationInDays()
-            .toBigDecimal()
-            .divide(7.toBigDecimal(), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+        fun ukesverk(periode: Periode): BigDecimal {
+            val weekdayCount = periode.getWeekdayCount()
+            val weekdays = BigDecimal(5)
+            return weekdayCount.toBigDecimal().divide(weekdays, CALCULATION_PRECISION, RoundingMode.HALF_UP)
+        }
     }
 }

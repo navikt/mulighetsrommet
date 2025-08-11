@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -83,6 +84,20 @@ data class Periode(
 
     fun getLastInclusiveDate(): LocalDate {
         return slutt.minusDays(1)
+    }
+
+    fun getWeekdayCount(): Int {
+        var current = start
+        var count = 0
+
+        while (current.isBefore(slutt)) {
+            if (current.dayOfWeek in DayOfWeek.MONDAY..DayOfWeek.FRIDAY) {
+                count++
+            }
+            current = current.plusDays(1)
+        }
+
+        return count
     }
 
     fun intersects(periode: Periode): Boolean {
