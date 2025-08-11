@@ -68,3 +68,44 @@ export const oppskriftContent = defineType({
     { type: "alertMessage" },
   ],
 });
+
+export const alertContent = defineType({
+  title: "Innhold for alert",
+  name: "alertContent",
+  type: "array",
+  of: [
+    {
+      title: "Block",
+      type: "block",
+      styles: [
+        { title: "Normal", value: "normal" },
+        { title: "Overskrift", value: "h3" },
+        { title: "Deloverskrift", value: "h4" },
+      ],
+      lists: [
+        { title: "Bullet", value: "bullet" },
+        { title: "Number", value: "number" },
+      ],
+      marks: {
+        decorators: [
+          { title: "Strong", value: "strong" },
+          { title: "Emphasis", value: "em" },
+        ],
+        annotations: [
+          {
+            title: "URL",
+            name: "link",
+            type: "object",
+            fields: [
+              {
+                title: "URL",
+                name: "href",
+                type: "url",
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+});
