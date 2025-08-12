@@ -239,7 +239,7 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
     }
 
-    fun setStatus(id: UUID, status: Utbetaling.UtbetalingStatus) {
+    fun setStatus(id: UUID, status: UtbetalingStatusType) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
@@ -340,7 +340,7 @@ class UtbetalingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(utbetalingQuery, id)) { it.toUtbetalingDto() }
+        return session.single(queryOf(utbetalingQuery, id)) { it.toUtbetaling() }
     }
 
     fun getOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<Utbetaling> {
@@ -358,7 +358,7 @@ class UtbetalingQueries(private val session: Session) {
             "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
         )
 
-        return session.list(queryOf(utbetalingQuery, params)) { it.toUtbetalingDto() }
+        return session.list(queryOf(utbetalingQuery, params)) { it.toUtbetaling() }
     }
 
     fun getByArrangorIds(
@@ -372,7 +372,7 @@ class UtbetalingQueries(private val session: Session) {
             order by periode desc
         """.trimIndent()
 
-        return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetalingDto() }
+        return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetaling() }
     }
 
     fun getByGjennomforing(gjennomforingId: UUID): List<Utbetaling> = with(session) {
@@ -385,7 +385,7 @@ class UtbetalingQueries(private val session: Session) {
 
         val params = mapOf("id" to gjennomforingId)
 
-        return list(queryOf(query, params)) { it.toUtbetalingDto() }
+        return list(queryOf(query, params)) { it.toUtbetaling() }
     }
 
     fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? {
@@ -399,7 +399,7 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, gjennomforingId)) {
-            it.toUtbetalingDto()
+            it.toUtbetaling()
         }
     }
 
@@ -413,7 +413,7 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, ud))
     }
 
-    private fun Row.toUtbetalingDto(): Utbetaling {
+    private fun Row.toUtbetaling(): Utbetaling {
         val id = uuid("id")
         val beregning = getBeregning(id, UtbetalingBeregningType.valueOf(string("beregning_type")))
         val innsender = stringOrNull("innsender")?.toAgent()
@@ -446,7 +446,7 @@ class UtbetalingQueries(private val session: Session) {
             beskrivelse = stringOrNull("beskrivelse"),
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
-            status = Utbetaling.UtbetalingStatus.valueOf(string("status")),
+            status = UtbetalingStatusType.valueOf(string("status")),
         )
     }
 

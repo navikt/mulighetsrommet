@@ -445,7 +445,7 @@ class GjennomforingValidatorTest : FunSpec({
         test("skal ikke kunne endre oppstartstype") {
             val previous = database.run {
                 queries.gjennomforing.upsert(gjennomforing.copy(oppstart = GjennomforingOppstartstype.FELLES))
-                queries.deltaker.upsert(DeltakerFixtures.createDeltakerDbo(gjennomforing.id))
+                queries.deltaker.upsert(DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(gjennomforing.id))
                 queries.gjennomforing.get(gjennomforing.id)
             }
 

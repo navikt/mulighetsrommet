@@ -29,18 +29,8 @@ data class Utbetaling(
     val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
     val tilskuddstype: Tilskuddstype,
-    val status: UtbetalingStatus,
+    val status: UtbetalingStatusType,
 ) {
-    enum class UtbetalingStatus {
-        OPPRETTET,
-        INNSENDT,
-        TIL_ATTESTERING,
-        RETURNERT,
-        TIL_AVBRYTELSE,
-        FERDIG_BEHANDLET,
-        AVBRUTT,
-    }
-
     @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)

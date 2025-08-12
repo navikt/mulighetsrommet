@@ -60,7 +60,7 @@ class UtbetalingService(
             val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
             val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
-                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET ->
+                UtbetalingStatusType.FERDIG_BEHANDLET ->
                     Pair(
                         delutbetalinger.sumOf {
                             it.belop
@@ -90,14 +90,14 @@ class UtbetalingService(
         kid: Kid?,
     ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        if (utbetaling.status != Utbetaling.UtbetalingStatus.OPPRETTET) {
+        if (utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
         }
 
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
-        queries.utbetaling.setStatus(utbetalingId, Utbetaling.UtbetalingStatus.INNSENDT)
+        queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
         logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
 
         automatiskUtbetaling(utbetalingId)
@@ -134,7 +134,7 @@ class UtbetalingService(
                 } else {
                     null
                 },
-                status = Utbetaling.UtbetalingStatus.INNSENDT,
+                status = UtbetalingStatusType.INNSENDT,
             ),
         )
 
@@ -183,7 +183,7 @@ class UtbetalingService(
                 delutbetalinger.forEach {
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
                 }
-                queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.TIL_ATTESTERING)
+                queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
                 if (request.begrunnelseMindreBetalt != null) {
                     queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
                 }
@@ -403,7 +403,7 @@ class UtbetalingService(
             publishOpprettFaktura(delutbetaling)
         }
 
-        queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET)
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.FERDIG_BEHANDLET)
         logEndring("Overført til utbetaling", utbetaling, Tiltaksadministrasjon)
     }
 
@@ -427,7 +427,7 @@ class UtbetalingService(
                 )
             }
 
-        queries.utbetaling.setStatus(delutbetaling.utbetalingId, Utbetaling.UtbetalingStatus.RETURNERT)
+        queries.utbetaling.setStatus(delutbetaling.utbetalingId, UtbetalingStatusType.RETURNERT)
         logEndring(
             "Utbetaling returnert",
             getOrError(delutbetaling.utbetalingId),
@@ -593,15 +593,15 @@ class UtbetalingService(
 
         val errors = buildList {
             when (utbetaling.status) {
-                Utbetaling.UtbetalingStatus.OPPRETTET,
-                Utbetaling.UtbetalingStatus.INNSENDT,
-                Utbetaling.UtbetalingStatus.RETURNERT,
-                Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
+                UtbetalingStatusType.GENERERT,
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.RETURNERT,
+                UtbetalingStatusType.TIL_ATTESTERING,
                 -> Unit
 
-                Utbetaling.UtbetalingStatus.AVBRUTT,
-                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-                Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE,
+                UtbetalingStatusType.AVBRUTT,
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.TIL_AVBRYTELSE,
                 -> {
                     add(FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}"))
                 }
@@ -634,7 +634,7 @@ class UtbetalingService(
                 queries.delutbetaling.delete(delutbetaling.id)
             }
         queries.totrinnskontroll.upsert(totrinnskontroll)
-        queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE)
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_AVBRYTELSE)
 
         logEndring("Utbetalingen ble satt til avbrytelse", getOrError(id), agent).right()
     }
@@ -644,7 +644,7 @@ class UtbetalingService(
         besluttetAv: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = either {
         val errors = buildList {
-            if (utbetaling.status != Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE) {
+            if (utbetaling.status != UtbetalingStatusType.TIL_AVBRYTELSE) {
                 add(FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}"))
             }
 
@@ -664,7 +664,7 @@ class UtbetalingService(
             besluttelse = Besluttelse.GODKJENT,
         )
         queries.totrinnskontroll.upsert(besluttetAnnullering)
-        queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.AVBRUTT)
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.AVBRUTT)
 
         logEndring("Utbetalingen avbrutt", getOrError(utbetaling.id), besluttetAv)
     }
@@ -674,7 +674,7 @@ class UtbetalingService(
         besluttelse: BesluttTotrinnskontrollRequest<String>,
         besluttetAv: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = either {
-        if (utbetaling.status != Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE) {
+        if (utbetaling.status != UtbetalingStatusType.TIL_AVBRYTELSE) {
             return listOf(FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}")).left()
         }
 
@@ -688,8 +688,8 @@ class UtbetalingService(
         )
         queries.totrinnskontroll.upsert(avvist)
         val status = when (utbetaling.innsender) {
-            null -> Utbetaling.UtbetalingStatus.OPPRETTET
-            else -> Utbetaling.UtbetalingStatus.INNSENDT
+            null -> UtbetalingStatusType.GENERERT
+            else -> UtbetalingStatusType.INNSENDT
         }
         queries.utbetaling.setStatus(utbetaling.id, status)
 
@@ -722,31 +722,31 @@ class UtbetalingService(
 
     fun handlinger(utbetaling: Utbetaling, ansatt: NavAnsatt, avbrytelse: Totrinnskontroll?) = UtbetalingHandlinger(
         avbryt = when (utbetaling.status) {
-            Utbetaling.UtbetalingStatus.OPPRETTET,
-            Utbetaling.UtbetalingStatus.INNSENDT,
-            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
-            Utbetaling.UtbetalingStatus.RETURNERT,
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
             -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-            Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE,
-            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-            Utbetaling.UtbetalingStatus.AVBRUTT,
+            UtbetalingStatusType.TIL_AVBRYTELSE,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.AVBRUTT,
             -> false
         },
         sendTilAttestering = when (utbetaling.status) {
-            Utbetaling.UtbetalingStatus.INNSENDT,
-            Utbetaling.UtbetalingStatus.RETURNERT,
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.RETURNERT,
             -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-            Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE,
-            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-            Utbetaling.UtbetalingStatus.OPPRETTET,
-            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
-            Utbetaling.UtbetalingStatus.AVBRUTT,
+            UtbetalingStatusType.TIL_AVBRYTELSE,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.AVBRUTT,
             -> false
         },
-        godkjennAvbryt = utbetaling.status == Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE &&
+        godkjennAvbryt = utbetaling.status == UtbetalingStatusType.TIL_AVBRYTELSE &&
             ansatt.roller.map { it.rolle }.contains(Rolle.ATTESTANT_UTBETALING) &&
             avbrytelse?.behandletAv != ansatt.navIdent,
-        sendAvbrytIRetur = utbetaling.status == Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE &&
+        sendAvbrytIRetur = utbetaling.status == UtbetalingStatusType.TIL_AVBRYTELSE &&
             (ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI) || ansatt.roller.map { it.rolle }.contains(Rolle.ATTESTANT_UTBETALING)),
     )
 }

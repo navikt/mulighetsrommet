@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
@@ -53,12 +54,12 @@ sealed class UtbetalingStatusDto {
             avbrytelse: Totrinnskontroll?,
         ): UtbetalingStatusDto {
             return when (utbetaling.status) {
-                Utbetaling.UtbetalingStatus.OPPRETTET -> VenterPaArrangor
-                Utbetaling.UtbetalingStatus.INNSENDT -> KlarTilBehandling
-                Utbetaling.UtbetalingStatus.TIL_ATTESTERING -> TilAttestering
-                Utbetaling.UtbetalingStatus.RETURNERT -> Returnert
-                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET -> OverfortTilUtbetaling
-                Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE -> {
+                UtbetalingStatusType.GENERERT -> VenterPaArrangor
+                UtbetalingStatusType.INNSENDT -> KlarTilBehandling
+                UtbetalingStatusType.TIL_ATTESTERING -> TilAttestering
+                UtbetalingStatusType.RETURNERT -> Returnert
+                UtbetalingStatusType.FERDIG_BEHANDLET -> OverfortTilUtbetaling
+                UtbetalingStatusType.TIL_AVBRYTELSE -> {
                     requireNotNull(avbrytelse)
                     TilAvbrytelse(
                         tidspunkt = avbrytelse.behandletTidspunkt,
@@ -66,7 +67,7 @@ sealed class UtbetalingStatusDto {
                         forklaring = avbrytelse.forklaring,
                     )
                 }
-                Utbetaling.UtbetalingStatus.AVBRUTT -> {
+                UtbetalingStatusType.AVBRUTT -> {
                     requireNotNull(avbrytelse)
                     requireNotNull(avbrytelse.besluttetTidspunkt)
                     Avbrutt(

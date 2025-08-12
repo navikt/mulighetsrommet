@@ -130,7 +130,7 @@ class UtbetalingServiceTest : FunSpec({
             service.opprettUtbetaling(
                 request = opprettUtbetaling,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeRight().status shouldBe Utbetaling.UtbetalingStatus.INNSENDT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.INNSENDT
 
             verify(exactly = 0) { journalforUtbetaling.schedule(any(), any(), any(), any()) }
         }
@@ -180,7 +180,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
@@ -220,7 +220,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
@@ -255,7 +255,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT, besluttetAv = NavAnsattFixture.DonaldDuck.navIdent)
                 setRoller(
@@ -295,7 +295,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
@@ -338,7 +338,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
@@ -376,7 +376,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
@@ -426,7 +426,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
@@ -450,7 +450,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
@@ -473,7 +473,7 @@ class UtbetalingServiceTest : FunSpec({
                 queries.delutbetaling.get(delutbetaling1.id).shouldNotBeNull()
                     .status shouldBe DelutbetalingStatus.TIL_ATTESTERING
                 queries.utbetaling.get(delutbetaling1.utbetalingId).shouldNotBeNull()
-                    .status shouldBe Utbetaling.UtbetalingStatus.TIL_ATTESTERING
+                    .status shouldBe UtbetalingStatusType.TIL_ATTESTERING
             }
         }
 
@@ -486,7 +486,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(
                     utbetaling1.copy(
                         periode = Periode.forMonthOf(LocalDate.of(2023, 4, 4)),
-                        status = Utbetaling.UtbetalingStatus.INNSENDT,
+                        status = UtbetalingStatusType.INNSENDT,
                     ),
                 ),
             ) {
@@ -525,7 +525,7 @@ class UtbetalingServiceTest : FunSpec({
                     input = UtbetalingBeregningFri.Input(10),
                     output = UtbetalingBeregningFri.Output(10),
                 ),
-                status = Utbetaling.UtbetalingStatus.INNSENDT,
+                status = UtbetalingStatusType.INNSENDT,
             )
 
             val domain = MulighetsrommetTestDomain(
@@ -579,7 +579,7 @@ class UtbetalingServiceTest : FunSpec({
                     input = UtbetalingBeregningFri.Input(10),
                     output = UtbetalingBeregningFri.Output(10),
                 ),
-                status = Utbetaling.UtbetalingStatus.INNSENDT,
+                status = UtbetalingStatusType.INNSENDT,
             )
 
             val domain = MulighetsrommetTestDomain(
@@ -634,7 +634,7 @@ class UtbetalingServiceTest : FunSpec({
                     input = UtbetalingBeregningFri.Input(10),
                     output = UtbetalingBeregningFri.Output(10),
                 ),
-                status = Utbetaling.UtbetalingStatus.INNSENDT,
+                status = UtbetalingStatusType.INNSENDT,
             )
 
             val domain = MulighetsrommetTestDomain(
@@ -711,8 +711,8 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
                 utbetalinger = listOf(
-                    utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT),
-                    utbetaling2.copy(status = Utbetaling.UtbetalingStatus.INNSENDT),
+                    utbetaling1.copy(status = UtbetalingStatusType.INNSENDT),
+                    utbetaling2.copy(status = UtbetalingStatusType.INNSENDT),
                 ),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
@@ -772,7 +772,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
@@ -853,7 +853,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
@@ -909,7 +909,7 @@ class UtbetalingServiceTest : FunSpec({
                     input = UtbetalingBeregningFri.Input(10),
                     output = UtbetalingBeregningFri.Output(10),
                 ),
-                status = Utbetaling.UtbetalingStatus.INNSENDT,
+                status = UtbetalingStatusType.INNSENDT,
             )
 
             MulighetsrommetTestDomain(
@@ -963,7 +963,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
@@ -1041,19 +1041,19 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.INNSENDT) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.INNSENDT) }
             service.setTilAvbrytelse(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.RETURNERT) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.RETURNERT) }
             service.setTilAvbrytelse(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.OPPRETTET) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.GENERERT) }
             service.setTilAvbrytelse(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.TIL_ATTESTERING) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.TIL_ATTESTERING) }
             service.setTilAvbrytelse(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.FERDIG_BEHANDLET) }
             service.setTilAvbrytelse(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.TIL_AVBRYTELSE) }
             service.setTilAvbrytelse(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, Utbetaling.UtbetalingStatus.AVBRUTT) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.AVBRUTT) }
             service.setTilAvbrytelse(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
         }
 
@@ -1063,7 +1063,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = Utbetaling.UtbetalingStatus.INNSENDT, innsender = Arrangor)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT, innsender = Arrangor)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setRoller(
@@ -1094,14 +1094,14 @@ class UtbetalingServiceTest : FunSpec({
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
             service.setTilAvbrytelse(utbetaling1.id, domain.ansatte[0].navIdent, emptyList(), null)
-                .shouldBeRight().status shouldBe Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE
+                .shouldBeRight().status shouldBe UtbetalingStatusType.TIL_AVBRYTELSE
             database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1.id) }
                 .size shouldBe 0
             service.besluttAvbrytUtbetaling(
                 utbetaling1.id,
                 BesluttTotrinnskontrollRequest(Besluttelse.AVVIST, emptyList(), null),
                 domain.ansatte[1].navIdent,
-            ).shouldBeRight().status shouldBe Utbetaling.UtbetalingStatus.INNSENDT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.INNSENDT
         }
     }
 
