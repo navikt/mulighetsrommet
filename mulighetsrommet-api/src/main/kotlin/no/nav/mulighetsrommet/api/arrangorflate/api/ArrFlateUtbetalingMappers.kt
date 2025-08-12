@@ -40,7 +40,6 @@ fun mapUtbetalingToArrFlateUtbetaling(
             ArrFlateBeregning.Fri(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
-                deltakelser = deltakelser,
             )
         }
 
@@ -103,14 +102,6 @@ fun toArrFlateBeregningDeltakelse(
     person: Person?,
 ): ArrFlateBeregningDeltakelse {
     return when (output) {
-        is UtbetalingBeregningFri.Deltakelse -> ArrFlateBeregningDeltakelse.Fri(
-            id = output.deltakelseId,
-            deltakerStartDato = deltaker?.startDato,
-            person = person,
-            periode = input.periode(),
-            faktor = output.faktor,
-            status = deltaker?.status?.type,
-        )
         is DeltakelseUkesverk -> ArrFlateBeregningDeltakelse.PrisPerUkesverk(
             id = output.deltakelseId,
             deltakerStartDato = deltaker?.startDato,

@@ -4,11 +4,12 @@ import { useSortState } from "~/hooks/useSortState";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { DeltakelseTimeline } from "./DeltakelseTimeline";
 import {
-  ArrFlateBeregning,
   ArrFlateBeregningDeltakelse,
-  ArrFlateBeregningFriDeltakelse,
+  ArrFlateBeregningPrisPerManedsverk,
   ArrFlateBeregningPrisPerManedsverkDeltakelse,
+  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder,
   ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse,
+  ArrFlateBeregningPrisPerUkesverk,
   ArrFlateBeregningPrisPerUkesverkDeltakelse,
   DeltakerAdvarsel,
   Periode,
@@ -85,7 +86,6 @@ type DeltakerTypeMap = {
   PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER: ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse;
   PRIS_PER_MANEDSVERK: ArrFlateBeregningPrisPerManedsverkDeltakelse;
   PRIS_PER_UKESVERK: ArrFlateBeregningPrisPerUkesverkDeltakelse;
-  FRI: ArrFlateBeregningFriDeltakelse;
 };
 
 const columns: {
@@ -111,7 +111,6 @@ const columns: {
     { label: "Ukesverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
-  FRI: [...baseColumns, { label: "", render: () => null }],
 };
 
 export function DeltakelserTable({
@@ -120,7 +119,10 @@ export function DeltakelserTable({
   advarsler,
 }: {
   periode: Periode;
-  beregning: ArrFlateBeregning;
+  beregning:
+    | ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder
+    | ArrFlateBeregningPrisPerManedsverk
+    | ArrFlateBeregningPrisPerUkesverk;
   advarsler: DeltakerAdvarsel[];
   deltakerlisteUrl: string;
 }) {
@@ -174,15 +176,12 @@ export function DeltakelserTable({
               <Table.ExpandableRow
                 key={deltakelse.id}
                 content={
-                  beregning.type !== "FRI" && (
-                    <DeltakelseTimeline
-                      utbetalingsperiode={periode}
-                      stengt={beregning.stengt}
-                      deltakelse={deltakelse}
-                    />
-                  )
+                  <DeltakelseTimeline
+                    utbetalingsperiode={periode}
+                    stengt={beregning.stengt}
+                    deltakelse={deltakelse}
+                  />
                 }
-                expansionDisabled={beregning.type === "FRI"}
                 togglePlacement="right"
                 className={
                   hasAdvarsel(deltakelse.id)
