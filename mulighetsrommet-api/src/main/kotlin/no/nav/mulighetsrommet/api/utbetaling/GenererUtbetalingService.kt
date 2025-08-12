@@ -330,13 +330,17 @@ class GenererUtbetalingService(
     }
 }
 
-fun isRelevantForUtbetalingsperide(
+private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo?): Boolean {
+    return utbetaling != null && utbetaling.beregning.output.belop > 0
+}
+
+private fun isRelevantForUtbetalingsperide(
     deltaker: Deltaker,
     periode: Periode,
 ): Boolean {
     val relevantDeltakerStatusForUtbetaling = listOf(
-        DeltakerStatusType.AVBRUTT,
         DeltakerStatusType.DELTAR,
+        DeltakerStatusType.AVBRUTT,
         DeltakerStatusType.FULLFORT,
         DeltakerStatusType.HAR_SLUTTET,
     )
@@ -351,15 +355,7 @@ fun isRelevantForUtbetalingsperide(
     return Periode.of(startDato, sluttDatoInPeriode)?.intersects(periode) ?: false
 }
 
-private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
-    return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
-}
-
-private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo?): Boolean {
-    return utbetaling != null && utbetaling.beregning.output.belop > 0
-}
-
-fun resolveDeltakelsePerioder(
+private fun resolveDeltakelsePerioder(
     deltakere: List<Deltaker>,
     periode: Periode,
 ): Set<DeltakelsePeriode> {
@@ -374,4 +370,20 @@ fun resolveDeltakelsePerioder(
             DeltakelsePeriode(deltaker.id, overlappingPeriode)
         }
         .toSet()
+}
+
+private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
+    val sluttdatoInPeriode = deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+
+    val avsluttendeStatus = listOf(
+        DeltakerStatusType.AVBRUTT,
+        DeltakerStatusType.FULLFORT,
+        DeltakerStatusType.HAR_SLUTTET,
+    )
+
+    return if (deltaker.status.type in avsluttendeStatus) {
+        minOf(sluttdatoInPeriode, deltaker.status.opprettetDato.toLocalDate().plusDays(1))
+    } else {
+        sluttdatoInPeriode
+    }
 }
