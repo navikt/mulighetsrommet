@@ -66,14 +66,14 @@ class GenererUtbetalingService(
             .getByGjennomforing(id)
             .filter {
                 when (it.status) {
-                    Utbetaling.UtbetalingStatus.INNSENDT,
-                    Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
-                    Utbetaling.UtbetalingStatus.RETURNERT,
-                    Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-                    Utbetaling.UtbetalingStatus.AVBRUTT,
+                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.RETURNERT,
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.AVBRUTT,
                     -> false
 
-                    Utbetaling.UtbetalingStatus.OPPRETTET -> true
+                    UtbetalingStatusType.GENERERT -> true
                 }
             }
             .mapNotNull { utbetaling ->
@@ -197,7 +197,7 @@ class GenererUtbetalingService(
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
-            status = Utbetaling.UtbetalingStatus.OPPRETTET,
+            status = UtbetalingStatusType.GENERERT,
         )
     }
 

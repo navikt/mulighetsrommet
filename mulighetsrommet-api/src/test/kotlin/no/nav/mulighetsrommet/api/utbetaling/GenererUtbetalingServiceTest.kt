@@ -612,7 +612,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         gjennomforingId = AFT1.id,
                         periode = beregning.input.periode,
                         beregning = beregning,
-                        status = Utbetaling.UtbetalingStatus.INNSENDT,
+                        status = UtbetalingStatusType.INNSENDT,
                     ),
                 ),
                 deltakere = listOf(deltaker),
@@ -807,7 +807,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     utbetaling1.copy(
                         gjennomforingId = oppfolging.id,
                         innsender = NavIdent("B123456"),
-                        status = Utbetaling.UtbetalingStatus.INNSENDT,
+                        status = UtbetalingStatusType.INNSENDT,
                         beregning = UtbetalingBeregningFri(
                             input = UtbetalingBeregningFri.Input(1000),
                             output = UtbetalingBeregningFri.Output(1000),

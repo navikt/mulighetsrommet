@@ -58,7 +58,7 @@ class UtbetalingService(
             val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
             val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
-                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET ->
+                UtbetalingStatusType.FERDIG_BEHANDLET ->
                     Pair(
                         delutbetalinger.sumOf {
                             it.belop
@@ -87,14 +87,14 @@ class UtbetalingService(
         kid: Kid?,
     ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        if (utbetaling.status != Utbetaling.UtbetalingStatus.OPPRETTET) {
+        if (utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
         }
 
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
-        queries.utbetaling.setStatus(utbetalingId, Utbetaling.UtbetalingStatus.INNSENDT)
+        queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
         logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
 
         automatiskUtbetaling(utbetalingId)
@@ -131,7 +131,7 @@ class UtbetalingService(
                 } else {
                     null
                 },
-                status = Utbetaling.UtbetalingStatus.INNSENDT,
+                status = UtbetalingStatusType.INNSENDT,
             ),
         )
 
@@ -180,7 +180,7 @@ class UtbetalingService(
                 delutbetalinger.forEach {
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
                 }
-                queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.TIL_ATTESTERING)
+                queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
                 if (request.begrunnelseMindreBetalt != null) {
                     queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
                 }
@@ -406,7 +406,7 @@ class UtbetalingService(
             publishOpprettFaktura(delutbetaling)
         }
 
-        queries.utbetaling.setStatus(utbetaling.id, Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET)
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.FERDIG_BEHANDLET)
         logEndring("Overført til utbetaling", utbetaling, Tiltaksadministrasjon)
     }
 
@@ -430,7 +430,7 @@ class UtbetalingService(
                 )
             }
 
-        queries.utbetaling.setStatus(delutbetaling.utbetalingId, Utbetaling.UtbetalingStatus.RETURNERT)
+        queries.utbetaling.setStatus(delutbetaling.utbetalingId, UtbetalingStatusType.RETURNERT)
         logEndring(
             "Utbetaling returnert",
             getOrError(delutbetaling.utbetalingId),
@@ -581,15 +581,15 @@ class UtbetalingService(
             ?: throw NotFoundException("Fant ikke utbetaling")
 
         when (utbetaling.status) {
-            Utbetaling.UtbetalingStatus.INNSENDT,
-            Utbetaling.UtbetalingStatus.RETURNERT,
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.RETURNERT,
             -> Unit
 
-            Utbetaling.UtbetalingStatus.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
+            UtbetalingStatusType.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
 
-            Utbetaling.UtbetalingStatus.OPPRETTET,
-            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
-            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
             -> {
                 return FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}").left()
             }
