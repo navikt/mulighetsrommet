@@ -5627,7 +5627,7 @@ components:
         aarsaker:
           type: array
           items:
-            $ref: "#/components/schemas/AarsakerOgForklaringRequest"
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
 
     GetOppgaverRequest:
       type: object
