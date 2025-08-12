@@ -67,6 +67,7 @@ function getOppgaveVariant(type: OppgaveType): TagProps["variant"] {
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
     case OppgaveType.TILSAGN_RETURNERT:
     case OppgaveType.UTBETALING_RETURNERT:
+    case OppgaveType.UTBETALING_TIL_AVBRYTELSE:
       return "error";
     case OppgaveType.UTBETALING_TIL_ATTESTERING:
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
