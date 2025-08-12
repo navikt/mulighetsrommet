@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.nel
-import arrow.core.right
+import arrow.core.*
+import arrow.core.raise.either
 import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -12,6 +10,7 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
@@ -30,6 +29,8 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.flatten
 
 class UtbetalingService(
     private val config: Config,
@@ -71,9 +73,10 @@ class UtbetalingService(
                 else -> (null to emptyList())
             }
 
+            val avbrytelse = queries.totrinnskontroll.get(utbetaling.id, Totrinnskontroll.Type.AVBRYT)
             UtbetalingKompaktDto(
                 id = utbetaling.id,
-                status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
+                status = UtbetalingStatusDto.fromUtbetaling(utbetaling, avbrytelse),
                 periode = utbetaling.periode,
                 kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                 belopUtbetalt = belopUtbetalt,
@@ -191,7 +194,7 @@ class UtbetalingService(
 
     fun besluttDelutbetaling(
         id: UUID,
-        request: BesluttDelutbetalingRequest,
+        request: BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Delutbetaling> = db.transaction {
         val delutbetaling = queries.delutbetaling.getOrError(id)
@@ -205,18 +208,12 @@ class UtbetalingService(
             return listOf(FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")).left()
         }
 
-        when (request) {
-            is BesluttDelutbetalingRequest.Avvist -> {
-                if (request.aarsaker.isEmpty()) {
-                    return listOf(FieldError.of("Du må velge minst én årsak")).left()
-                } else if (DelutbetalingReturnertAarsak.FEIL_ANNET in request.aarsaker && request.forklaring.isNullOrBlank()) {
-                    return listOf(FieldError.of("Du må skrive en forklaring når du velger 'Annet'")).left()
-                }
-
+        when (request.besluttelse) {
+            Besluttelse.AVVIST -> {
                 returnerDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
             }
 
-            is BesluttDelutbetalingRequest.Godkjent -> {
+            Besluttelse.GODKJENT -> {
                 val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
                 if (navIdent == opprettelse.behandletAv) {
                     return listOf(FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet")).left()
@@ -571,34 +568,187 @@ class UtbetalingService(
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
 
-    fun avbrytUtbetaling(
+    fun besluttAvbrytUtbetaling(
+        id: UUID,
+        request: BesluttTotrinnskontrollRequest<String>,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val utbetaling = queries.utbetaling.get(id)
+            ?: throw NotFoundException("Fant ikke utbetaling")
+
+        return when (request.besluttelse) {
+            Besluttelse.GODKJENT -> avbrytUtbetaling(utbetaling, navIdent)
+            Besluttelse.AVVIST -> avvisAvbrytelse(utbetaling, request, navIdent)
+        }
+    }
+
+    fun setTilAvbrytelse(
         id: UUID,
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
-    ): Either<FieldError, Utbetaling> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val utbetaling = queries.utbetaling.get(id)
             ?: throw NotFoundException("Fant ikke utbetaling")
 
-        when (utbetaling.status) {
-            UtbetalingStatusType.INNSENDT,
-            UtbetalingStatusType.RETURNERT,
-            -> Unit
+        val errors = buildList {
+            when (utbetaling.status) {
+                UtbetalingStatusType.GENERERT,
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.RETURNERT,
+                UtbetalingStatusType.TIL_ATTESTERING,
+                -> Unit
 
-            UtbetalingStatusType.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
-
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            -> {
-                return FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}").left()
+                UtbetalingStatusType.AVBRUTT,
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.TIL_AVBRYTELSE,
+                -> {
+                    add(FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}"))
+                }
             }
         }
+        if (errors.isNotEmpty()) {
+            return errors.left()
+        }
 
-        queries.utbetaling.setAvbrutt(id, LocalDateTime.now(), aarsaker, forklaring)
+        val totrinnskontroll = Totrinnskontroll(
+            id = UUID.randomUUID(),
+            entityId = utbetaling.id,
+            behandletAv = agent,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+            type = Totrinnskontroll.Type.AVBRYT,
+            behandletTidspunkt = LocalDateTime.now(),
+            besluttelse = null,
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            besluttetAvNavn = null,
+            behandletAvNavn = null,
+        )
 
-        logEndring("Utbetalingen ble avbrutt", getOrError(id), agent).right()
+        queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+            .forEach { delutbetaling ->
+                require(delutbetaling.status !in listOf(DelutbetalingStatus.GODKJENT, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)) {
+                    "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${delutbetaling.status}"
+                }
+                queries.delutbetaling.delete(delutbetaling.id)
+            }
+        queries.totrinnskontroll.upsert(totrinnskontroll)
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_AVBRYTELSE)
+
+        logEndring("Utbetalingen ble satt til avbrytelse", getOrError(id), agent).right()
     }
+
+    private fun QueryContext.avbrytUtbetaling(
+        utbetaling: Utbetaling,
+        besluttetAv: NavIdent,
+    ): Either<List<FieldError>, Utbetaling> = either {
+        val errors = buildList {
+            if (utbetaling.status != UtbetalingStatusType.TIL_AVBRYTELSE) {
+                add(FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}"))
+            }
+
+            val avbrytelse = queries.totrinnskontroll.getOrError(utbetaling.id, Totrinnskontroll.Type.AVBRYT)
+            if (besluttetAv == avbrytelse.behandletAv) {
+                add(FieldError.of("Du kan ikke beslutte avbrytelse du selv har opprettet"))
+            }
+        }
+        if (errors.isNotEmpty()) {
+            return errors.left()
+        }
+
+        val annullering = queries.totrinnskontroll.getOrError(utbetaling.id, Totrinnskontroll.Type.AVBRYT)
+        val besluttetAnnullering = annullering.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
+        )
+        queries.totrinnskontroll.upsert(besluttetAnnullering)
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.AVBRUTT)
+
+        logEndring("Utbetalingen avbrutt", getOrError(utbetaling.id), besluttetAv)
+    }
+
+    private fun QueryContext.avvisAvbrytelse(
+        utbetaling: Utbetaling,
+        besluttelse: BesluttTotrinnskontrollRequest<String>,
+        besluttetAv: NavIdent,
+    ): Either<List<FieldError>, Utbetaling> = either {
+        if (utbetaling.status != UtbetalingStatusType.TIL_AVBRYTELSE) {
+            return listOf(FieldError.root("Utbetaling kan ikke avbrytes fordi den har status: ${utbetaling.status}")).left()
+        }
+
+        val avbrytelse = queries.totrinnskontroll.getOrError(utbetaling.id, Totrinnskontroll.Type.AVBRYT)
+        val avvist = avbrytelse.copy(
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = besluttelse.aarsaker,
+            forklaring = besluttelse.forklaring,
+        )
+        queries.totrinnskontroll.upsert(avvist)
+        val status = when (utbetaling.innsender) {
+            null -> UtbetalingStatusType.GENERERT
+            else -> UtbetalingStatusType.INNSENDT
+        }
+        queries.utbetaling.setStatus(utbetaling.id, status)
+
+        if (avbrytelse.behandletAv is NavIdent) {
+            sendNotifikasjonOmAvvistAvbrytelse(utbetaling, besluttetAv = besluttetAv, avbrytelse.behandletAv)
+        }
+
+        logEndring("Avbrytelse avvist", getOrError(utbetaling.id), besluttetAv)
+    }
+
+    private fun QueryContext.sendNotifikasjonOmAvvistAvbrytelse(
+        utbetaling: Utbetaling,
+        besluttetAv: NavIdent,
+        behandletAv: NavIdent,
+    ) {
+        val notification = ScheduledNotification(
+            title = "En utbetaling du sendte til avbrytelse er blitt avvist",
+            description = """$besluttetAv avviste avbrytelse av utbetalingen
+                    | for gjennomføringen "${utbetaling.gjennomforing.navn}".
+            """.trimMargin(),
+            metadata = NotificationMetadata(
+                linkText = "Gå til utbetaling",
+                link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetaling/${utbetaling.id}",
+            ),
+            createdAt = Instant.now(),
+            targets = nonEmptyListOf(behandletAv),
+        )
+        queries.notifications.insert(notification)
+    }
+
+    fun handlinger(utbetaling: Utbetaling, ansatt: NavAnsatt, avbrytelse: Totrinnskontroll?) = UtbetalingHandlinger(
+        avbryt = when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+            UtbetalingStatusType.TIL_AVBRYTELSE,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.AVBRUTT,
+            -> false
+        },
+        sendTilAttestering = when (utbetaling.status) {
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.RETURNERT,
+            -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+            UtbetalingStatusType.TIL_AVBRYTELSE,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.AVBRUTT,
+            -> false
+        },
+        godkjennAvbryt = utbetaling.status == UtbetalingStatusType.TIL_AVBRYTELSE &&
+            ansatt.roller.map { it.rolle }.contains(Rolle.ATTESTANT_UTBETALING) &&
+            avbrytelse?.behandletAv != ansatt.navIdent,
+        sendAvbrytIRetur = utbetaling.status == UtbetalingStatusType.TIL_AVBRYTELSE &&
+            (ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI) || ansatt.roller.map { it.rolle }.contains(Rolle.ATTESTANT_UTBETALING)),
+    )
 }
 
 data class PersonEnhetOgRegion(

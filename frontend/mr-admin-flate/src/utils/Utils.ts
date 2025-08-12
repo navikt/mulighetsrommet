@@ -297,7 +297,7 @@ export function tilsagnAarsakTilTekst(
       return "Feil kostnadssted";
     case TilsagnAvvisningAarsak.FEIL_BELOP:
       return "Feil beløp";
-    case TilsagnAvvisningAarsak.FEIL_ANNET:
+    case TilsagnAvvisningAarsak.ANNET:
       return "Annet";
     case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
@@ -305,7 +305,7 @@ export function tilsagnAarsakTilTekst(
       return "Tiltaket skal ikke gjennomføres";
     case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
-    case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
+    case TilsagnTilAnnulleringAarsak.ANNET:
       return "Annet";
   }
 }
@@ -314,7 +314,7 @@ export function delutbetalingAarsakTilTekst(aarsak: DelutbetalingReturnertAarsak
   switch (aarsak) {
     case DelutbetalingReturnertAarsak.FEIL_BELOP:
       return "Feil beløp";
-    case DelutbetalingReturnertAarsak.FEIL_ANNET:
+    case DelutbetalingReturnertAarsak.ANNET:
       return "Annet";
     case DelutbetalingReturnertAarsak.PROPAGERT_RETUR:
       return "Automatisk returnert som følge av at en annen utbetalingslinje ble returnert";

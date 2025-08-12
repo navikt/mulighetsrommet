@@ -11,5 +11,5 @@ enum class TilsagnStatusAarsak {
     FEIL_KOSTNADSSTED,
     FEIL_PERIODE,
     FEIL_BELOP,
-    FEIL_ANNET,
+    ANNET,
 }

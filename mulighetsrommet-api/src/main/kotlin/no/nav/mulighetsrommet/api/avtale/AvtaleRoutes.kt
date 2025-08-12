@@ -1,13 +1,15 @@
 package no.nav.mulighetsrommet.api.avtale
 
+import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.api.gjennomforing.AvbrytRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
@@ -16,6 +18,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -23,6 +26,7 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -172,13 +176,19 @@ fun Route.avtaleRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AvbrytRequest>()
+                val request = call.receive<AarsakerOgForklaringRequest<AvbruttAarsak>>()
 
-                val result = avtaler.avbrytAvtale(id, navIdent, request.aarsak)
-                    .mapLeft { ValidationError("Klarte ikke avbryte avtale", listOf(it)) }
-                    .map { HttpStatusCode.OK }
-
-                call.respondWithStatusResponse(result)
+                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                    .flatMap {
+                        avtaler.avbrytAvtale(
+                            id,
+                            avbruttAv = navIdent,
+                            tidspunkt = LocalDateTime.now(),
+                            aarsakerOgForklaring = request,
+                        )
+                    }
+                    .onLeft { call.respondWithProblemDetail(ValidationError("Klarte ikke avbryte avtale", it)) }
+                    .onRight { call.respond(HttpStatusCode.OK) }
             }
 
             delete("kontaktperson") {

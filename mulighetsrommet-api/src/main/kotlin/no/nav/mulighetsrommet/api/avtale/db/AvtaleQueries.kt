@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -13,15 +14,12 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
-import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.*
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
-import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
-import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
@@ -271,8 +269,6 @@ class AvtaleQueries(private val session: Session) {
                                opsjonsmodell,
                                arena_ansvarlig_enhet,
                                avtaletype,
-                               avbrutt_tidspunkt,
-                               avbrutt_aarsak,
                                prismodell,
                                prisbetingelser,
                                opphav)
@@ -287,8 +283,6 @@ class AvtaleQueries(private val session: Session) {
                     :opsjonsmodell::opsjonsmodell,
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
-                    :avbrutt_tidspunkt,
-                    :avbrutt_aarsak,
                     :prismodell::prismodell,
                     :prisbetingelser,
                     :opphav::opphav)
@@ -302,8 +296,6 @@ class AvtaleQueries(private val session: Session) {
                                            opsjonsmodell            = coalesce(avtale.opsjonsmodell, excluded.opsjonsmodell),
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
                                            avtaletype               = excluded.avtaletype,
-                                           avbrutt_tidspunkt        = excluded.avbrutt_tidspunkt,
-                                           avbrutt_aarsak           = excluded.avbrutt_aarsak,
                                            prismodell               = coalesce(avtale.prismodell, excluded.prismodell),
                                            prisbetingelser          = excluded.prisbetingelser,
                                            antall_plasser           = excluded.antall_plasser,
@@ -391,23 +383,29 @@ class AvtaleQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun setStatus(id: UUID, status: AvtaleStatus, tidspunkt: LocalDateTime?, aarsak: AvbruttAarsak?): Int = with(session) {
+    fun setStatus(
+        id: UUID,
+        status: AvtaleStatus,
+        tidspunkt: LocalDateTime?,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>?,
+    ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale set
                 status = :status::avtale_status,
                 avbrutt_tidspunkt = :tidspunkt,
-                avbrutt_aarsak = :aarsak
+                avbrutt_aarsaker = :aarsaker,
+                avbrutt_forklaring = :forklaring
             where id = :id::uuid
         """.trimIndent()
 
-        val beskrivelse = when (aarsak) {
-            is AvbruttAarsak.Annet -> aarsak.beskrivelse
-            else -> aarsak?.name
-        }
-
-        val params = mapOf("id" to id, "status" to status.name, "tidspunkt" to tidspunkt, "aarsak" to beskrivelse)
-
+        val params = mapOf(
+            "id" to id,
+            "status" to status.name,
+            "tidspunkt" to tidspunkt,
+            "aarsaker" to aarsakerOgForklaring?.aarsaker?.let { session.createTextArray(it.map { it.name }) },
+            "forklaring" to aarsakerOgForklaring?.forklaring,
+        )
         return update(queryOf(query, params))
     }
 
@@ -518,7 +516,8 @@ class AvtaleQueries(private val session: Session) {
             "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
             "avtaletype" to avtaletype.name,
             "avbrutt_tidspunkt" to avbruttTidspunkt,
-            "avbrutt_aarsak" to if (avbruttTidspunkt != null) "AVBRUTT_I_ARENA" else null,
+            "avbrutt_aarsaker" to if (avbruttTidspunkt != null) session.createTextArray(listOf("AVBRUTT_I_ARENA")) else null,
+            "avbrutt_forklaring" to null,
             "prismodell" to when (avtaletype) {
                 Avtaletype.FORHANDSGODKJENT -> Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
                 else -> Prismodell.ANNEN_AVTALT_PRIS
@@ -544,9 +543,6 @@ class AvtaleQueries(private val session: Session) {
         val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
             ?.let { Json.decodeFromString<List<AvtaleDto.OpsjonLoggRegistrert>>(it) }
             ?: emptyList()
-
-        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
-        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
         val opsjonsmodell = Opsjonsmodell(
             type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
@@ -588,7 +584,12 @@ class AvtaleQueries(private val session: Session) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            status = AvtaleStatusDto.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
+            status = AvtaleStatusDto.fromString(
+                string("status"),
+                localDateTimeOrNull("avbrutt_tidspunkt"),
+                arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbruttAarsak.valueOf(it) } ?: emptyList(),
+                stringOrNull("avbrutt_forklaring"),
+            ),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
             beskrivelse = stringOrNull("beskrivelse"),

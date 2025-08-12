@@ -7,18 +7,18 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -133,13 +133,13 @@ class TilsagnService(
         Unit.right()
     }
 
-    fun tilAnnulleringRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest): Tilsagn = db.transaction {
+    fun tilAnnulleringRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun tilGjorOppRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest): Tilsagn = db.transaction {
+    fun tilGjorOppRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
@@ -156,7 +156,7 @@ class TilsagnService(
             }
     }
 
-    fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
+    fun beslutt(id: UUID, request: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))
@@ -172,32 +172,32 @@ class TilsagnService(
             }
 
             TilsagnStatus.TIL_GODKJENNING -> {
-                when (besluttelse) {
-                    BesluttTilsagnRequest.Godkjent -> godkjennTilsagn(tilsagn, navIdent).onRight {
+                when (request.besluttelse) {
+                    Besluttelse.GODKJENT -> godkjennTilsagn(tilsagn, navIdent).onRight {
                         publishOpprettBestilling(it)
                     }
 
-                    is BesluttTilsagnRequest.Avvist -> returnerTilsagn(tilsagn, besluttelse, navIdent)
+                    Besluttelse.AVVIST -> returnerTilsagn(tilsagn, request, navIdent)
                 }
             }
 
             TilsagnStatus.TIL_ANNULLERING -> {
-                when (besluttelse) {
-                    BesluttTilsagnRequest.Godkjent -> annullerTilsagn(tilsagn, navIdent).onRight {
+                when (request.besluttelse) {
+                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent).onRight {
                         publishAnnullerBestilling(it)
                     }
 
-                    is BesluttTilsagnRequest.Avvist -> avvisAnnullering(tilsagn, besluttelse, navIdent)
+                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, request, navIdent)
                 }
             }
 
             TilsagnStatus.TIL_OPPGJOR -> {
-                when (besluttelse) {
-                    BesluttTilsagnRequest.Godkjent -> gjorOppTilsagn(tilsagn, navIdent).onRight {
+                when (request.besluttelse) {
+                    Besluttelse.GODKJENT -> gjorOppTilsagn(tilsagn, navIdent).onRight {
                         publishGjorOppBestilling(it)
                     }
 
-                    is BesluttTilsagnRequest.Avvist -> avvisOppgjor(tilsagn, besluttelse, navIdent)
+                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, request, navIdent)
                 }
             }
         }
@@ -248,7 +248,7 @@ class TilsagnService(
 
     private fun QueryContext.returnerTilsagn(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTilsagnRequest.Avvist,
+        besluttelse: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
         besluttetAv: NavIdent,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
@@ -339,7 +339,7 @@ class TilsagnService(
 
     private fun QueryContext.avvisAnnullering(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTilsagnRequest.Avvist,
+        besluttelse: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
         besluttetAv: NavIdent,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
@@ -430,7 +430,7 @@ class TilsagnService(
 
     private fun avvisOppgjor(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTilsagnRequest.Avvist,
+        besluttelse: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
         besluttetAv: NavIdent,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {

@@ -3,17 +3,25 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { AvtaleDto, Opphav, AvtaleStatus } from "@mr/api-client-v2";
-import { useRef } from "react";
+import {
+  AvtaleDto,
+  Opphav,
+  AvtaleStatus,
+  AvbrytAvtaleAarsak,
+  ValidationError,
+  FieldError,
+} from "@mr/api-client-v2";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useSetAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
+import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 
 interface Props {
   avtale: AvtaleDto;
@@ -22,10 +30,12 @@ interface Props {
 export function AvtaleKnapperad({ avtale }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
+  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
   const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
   const { data: ansatt } = useHentAnsatt();
+  const avbrytMutation = useAvbrytAvtale();
 
   function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
     return !!avtale.opsjonsmodell.opsjonMaksVarighet;
@@ -45,6 +55,24 @@ export function AvtaleKnapperad({ avtale }: Props) {
         },
       },
     });
+  }
+
+  function avbrytAvtale(aarsaker: AvbrytAvtaleAarsak[], forklaring: string | null) {
+    avbrytMutation.mutate(
+      {
+        id: avtale.id,
+        aarsaker,
+        forklaring,
+      },
+      {
+        onSuccess: () => {
+          setAvbrytModalOpen(false);
+        },
+        onValidationError: (error: ValidationError) => {
+          setAvbrytModalErrors(error.errors);
+        },
+      },
+    );
   }
 
   return (
@@ -84,11 +112,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                 </Dropdown.Menu.GroupedList.Item>
               )}
               {avtale.status.type === AvtaleStatus.AKTIV && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    avbrytModalRef.current?.showModal();
-                  }}
-                >
+                <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                   Avbryt avtale
                 </Dropdown.Menu.GroupedList.Item>
               )}
@@ -116,7 +140,24 @@ export function AvtaleKnapperad({ avtale }: Props) {
           </Button>
         }
       />
-      <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />
+      <AarsakerOgForklaringModal<AvbrytAvtaleAarsak>
+        header="Ønsker du avbryte avtalen?"
+        open={avbrytModalOpen}
+        buttonLabel="Avbryt avtale"
+        aarsaker={[
+          { value: AvbrytAvtaleAarsak.BUDSJETT_HENSYN, label: "Budsjett hensyn" },
+          { value: AvbrytAvtaleAarsak.ENDRING_HOS_ARRANGOR, label: "Endring hos arrangør" },
+          { value: AvbrytAvtaleAarsak.FEILREGISTRERING, label: "Feilregistrering" },
+          { value: AvbrytAvtaleAarsak.AVBRUTT_I_ARENA, label: "Avbrutt i arena" },
+          { value: AvbrytAvtaleAarsak.ANNET, label: "Annet" },
+        ]}
+        onClose={() => {
+          setAvbrytModalOpen(false);
+          setAvbrytModalErrors([]);
+        }}
+        onConfirm={({ aarsaker, forklaring }) => avbrytAvtale(aarsaker, forklaring)}
+        errors={avbrytModalErrors}
+      />
       <RegistrerOpsjonModal modalRef={registrerOpsjonModalRef} avtale={avtale} />
     </KnapperadContainer>
   );

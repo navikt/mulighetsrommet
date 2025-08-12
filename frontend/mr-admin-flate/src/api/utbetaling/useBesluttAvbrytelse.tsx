@@ -3,15 +3,17 @@ import {
   ProblemDetail,
   UtbetalingService,
 } from "@mr/api-client-v2";
+import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
-export function useBesluttDelutbetaling() {
+export function useBesluttAvbrytelse() {
   return useApiMutation<
     unknown,
     ProblemDetail,
     { id: string; body: BesluttTotrinnskontrollRequest }
   >({
     mutationFn: ({ id, body }: { id: string; body: BesluttTotrinnskontrollRequest }) =>
-      UtbetalingService.besluttDelutbetaling({ path: { id }, body }),
+      UtbetalingService.besluttAvbryt({ path: { id }, body }),
+    mutationKey: QueryKeys.besluttTilsagn(),
   });
 }

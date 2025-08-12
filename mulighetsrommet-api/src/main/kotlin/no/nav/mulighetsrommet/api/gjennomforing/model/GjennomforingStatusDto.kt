@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
@@ -32,13 +31,11 @@ sealed class GjennomforingStatusDto {
     data class Avbrutt(
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime,
-        @Serializable(with = AvbruttAarsakSerializer::class)
-        val aarsak: AvbruttAarsak,
+        val aarsaker: List<AvbruttAarsak>,
+        val forklaring: String?,
     ) : GjennomforingStatusDto() {
         @Transient
         override val type = GjennomforingStatus.AVBRUTT
-
-        val beskrivelse: String = aarsak.beskrivelse
     }
 
     @Serializable
@@ -46,12 +43,10 @@ sealed class GjennomforingStatusDto {
     data class Avlyst(
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime,
-        @Serializable(with = AvbruttAarsakSerializer::class)
-        val aarsak: AvbruttAarsak,
+        val aarsaker: List<AvbruttAarsak>,
+        val forklaring: String?,
     ) : GjennomforingStatusDto() {
         @Transient
         override val type = GjennomforingStatus.AVLYST
-
-        val beskrivelse: String = aarsak.beskrivelse
     }
 }

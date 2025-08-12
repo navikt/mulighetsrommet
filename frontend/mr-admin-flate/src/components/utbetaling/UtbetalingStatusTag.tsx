@@ -42,5 +42,11 @@ export function UtbetalingStatusTag({ status }: { status: UtbetalingStatusDto })
           Avbrutt
         </Tag>
       );
+    case "TIL_AVBRYTELSE":
+      return (
+        <Tag size="small" variant="warning" className={baseTagClasses}>
+          Til avbrytelse
+        </Tag>
+      );
   }
 }

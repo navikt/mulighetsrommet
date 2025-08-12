@@ -26,6 +26,7 @@ enum class ArrFlateUtbetalingStatus {
                     KLAR_FOR_GODKJENNING
                 }
             }
+            UtbetalingStatusType.TIL_AVBRYTELSE,
             UtbetalingStatusType.INNSENDT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,

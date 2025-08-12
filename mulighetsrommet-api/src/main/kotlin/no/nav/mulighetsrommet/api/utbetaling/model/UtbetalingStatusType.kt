@@ -30,4 +30,9 @@ enum class UtbetalingStatusType {
      * Utbetalingen ble avbrutt (ikke utbetalt).
      */
     AVBRUTT,
+
+    /**
+     * Utbetalingen er sendt til avbrytelse (ikke utbetalt).
+     */
+    TIL_AVBRYTELSE,
 }

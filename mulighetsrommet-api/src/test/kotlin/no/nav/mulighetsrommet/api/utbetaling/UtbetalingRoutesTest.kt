@@ -17,7 +17,8 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -170,7 +171,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(BesluttDelutbetalingRequest.Godkjent)
+                    setBody(BesluttTotrinnskontrollRequest<String>(Besluttelse.GODKJENT, emptyList(), null))
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
@@ -192,9 +193,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(
-                        BesluttDelutbetalingRequest.Godkjent,
-                    )
+                    setBody(BesluttTotrinnskontrollRequest<String>(Besluttelse.GODKJENT, emptyList(), null))
                 }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }

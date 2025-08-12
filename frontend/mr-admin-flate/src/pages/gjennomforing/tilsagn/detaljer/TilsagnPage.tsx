@@ -12,14 +12,14 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
+  AarsakerOgForklaringRequest,
   Besluttelse,
-  BesluttTilsagnRequest,
+  BesluttTotrinnskontrollRequest,
   FieldError,
   Rolle,
   TilsagnAvvisningAarsak,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
-  TilsagnTilAnnulleringRequest,
   ValidationError,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -65,7 +65,7 @@ const tilAnnuleringAarsaker = [
   TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
   TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
   TilsagnTilAnnulleringAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES,
-  TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+  TilsagnTilAnnulleringAarsak.ANNET,
 ].map((aarsak) => ({
   value: aarsak,
   label: tilsagnAarsakTilTekst(aarsak),
@@ -95,7 +95,7 @@ export function TilsagnPage() {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [avvisAnnulleringModalOpen, setAvvisAnnulleringModalOpen] = useState(false);
   const [avvisOppgjorModalOpen, setAvvisOppgjorModalOpen] = useState(false);
-  const [error, setError] = useState<FieldError[]>([]);
+  const [errors, setErrors] = useState<FieldError[]>([]);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -119,7 +119,7 @@ export function TilsagnPage() {
     navigate(-1);
   }
 
-  function besluttTilsagn(request: BesluttTilsagnRequest) {
+  function besluttTilsagn(request: BesluttTotrinnskontrollRequest) {
     besluttMutation.mutate(
       {
         id: tilsagn.id,
@@ -129,32 +129,36 @@ export function TilsagnPage() {
       },
       {
         onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError) => {
-          setError(error.errors);
-        },
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
   }
 
-  function tilAnnullering(request: TilsagnTilAnnulleringRequest) {
+  function tilAnnullering(request: AarsakerOgForklaringRequest) {
     tilAnnulleringMutation.mutate(
       {
         id: tilsagn.id,
         aarsaker: request.aarsaker,
         forklaring: request.forklaring || null,
       },
-      { onSuccess: navigerTilbake },
+      {
+        onSuccess: navigerTilbake,
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
+      },
     );
   }
 
-  function upsertTilOppgjor(request: TilsagnTilAnnulleringRequest) {
+  function upsertTilOppgjor(request: AarsakerOgForklaringRequest) {
     tilOppgjorMutation.mutate(
       {
         id: tilsagn.id,
         aarsaker: request.aarsaker,
         forklaring: request.forklaring || null,
       },
-      { onSuccess: navigerTilbake },
+      {
+        onSuccess: navigerTilbake,
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
+      },
     );
   }
 
@@ -329,7 +333,13 @@ export function TilsagnPage() {
                     <Button
                       size="small"
                       type="button"
-                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.GODKJENT,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
                     >
                       Godkjenn tilsagn
                     </Button>
@@ -351,7 +361,13 @@ export function TilsagnPage() {
                       size="small"
                       variant="danger"
                       type="button"
-                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.GODKJENT,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
                     >
                       Bekreft annullering
                     </Button>
@@ -373,7 +389,13 @@ export function TilsagnPage() {
                       size="small"
                       variant="danger"
                       type="button"
-                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.GODKJENT,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
                     >
                       Bekreft oppgjør
                     </Button>
@@ -385,6 +407,7 @@ export function TilsagnPage() {
               aarsaker={tilAnnuleringAarsaker}
               header="Annuller tilsagn med forklaring"
               buttonLabel="Send til godkjenning"
+              errors={errors}
               open={tilAnnulleringModalOpen}
               onClose={() => setTilAnnulleringModalOpen(false)}
               onConfirm={({ aarsaker, forklaring }) => tilAnnullering({ aarsaker, forklaring })}
@@ -395,7 +418,7 @@ export function TilsagnPage() {
                   value: TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
                   label: "Arrangør har ikke sendt krav",
                 },
-                { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
+                { value: TilsagnTilAnnulleringAarsak.ANNET, label: "Annet" },
               ]}
               header="Gjør opp tilsagn med forklaring"
               ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
@@ -416,12 +439,13 @@ export function TilsagnPage() {
                 },
                 { value: TilsagnAvvisningAarsak.FEIL_PERIODE, label: "Feil periode" },
                 { value: TilsagnAvvisningAarsak.FEIL_BELOP, label: "Feil beløp" },
-                { value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" },
+                { value: TilsagnAvvisningAarsak.ANNET, label: "Annet" },
               ]}
               header="Send i retur med forklaring"
               buttonLabel="Send i retur"
               open={avvisModalOpen}
               onClose={() => setAvvisModalOpen(false)}
+              errors={errors}
               onConfirm={({ aarsaker, forklaring }) => {
                 besluttTilsagn({
                   besluttelse: Besluttelse.AVVIST,
@@ -432,33 +456,33 @@ export function TilsagnPage() {
               }}
             />
             <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
-              aarsaker={[{ value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" }]}
+              aarsaker={[{ value: TilsagnAvvisningAarsak.ANNET, label: "Annet" }]}
               header="Avslå annullering med forklaring"
               buttonLabel="Avslå annullering"
               open={avvisAnnulleringModalOpen}
               onClose={() => setAvvisAnnulleringModalOpen(false)}
+              errors={errors}
               onConfirm={({ aarsaker, forklaring }) => {
                 besluttTilsagn({
                   besluttelse: Besluttelse.AVVIST,
                   aarsaker,
                   forklaring,
                 });
-                setAvvisAnnulleringModalOpen(false);
               }}
             />
             <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
-              aarsaker={[{ value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" }]}
+              aarsaker={[{ value: TilsagnAvvisningAarsak.ANNET, label: "Annet" }]}
               header="Avslå oppgjør med forklaring"
               buttonLabel="Avslå oppgjør"
               open={avvisOppgjorModalOpen}
               onClose={() => setAvvisOppgjorModalOpen(false)}
+              errors={errors}
               onConfirm={({ aarsaker, forklaring }) => {
                 besluttTilsagn({
                   besluttelse: Besluttelse.AVVIST,
                   aarsaker,
                   forklaring,
                 });
-                setAvvisOppgjorModalOpen(false);
               }}
             />
             <VarselModal
@@ -480,11 +504,6 @@ export function TilsagnPage() {
               secondaryButton
               secondaryButtonHandleAction={() => setTilOppgjorModalOpen(false)}
             />
-            {error.find((f) => f.pointer === "/") && (
-              <Alert className="self-end" variant="error" size="small">
-                {error.find((f) => f.pointer === "/")!.detail}
-              </Alert>
-            )}
           </VStack>
         </VStack>
       </ContentBox>
