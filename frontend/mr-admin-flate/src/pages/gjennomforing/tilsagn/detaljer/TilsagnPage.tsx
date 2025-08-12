@@ -12,14 +12,14 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
+  AarsakerOgForklaringRequest,
   Besluttelse,
-  BesluttTilsagnRequest,
+  BesluttTotrinnskontrollRequest,
   FieldError,
   Rolle,
   TilsagnAvvisningAarsak,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
-  TilsagnTilAnnulleringRequest,
   ValidationError,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -119,7 +119,7 @@ export function TilsagnPage() {
     navigate(-1);
   }
 
-  function besluttTilsagn(request: BesluttTilsagnRequest) {
+  function besluttTilsagn(request: BesluttTotrinnskontrollRequest) {
     besluttMutation.mutate(
       {
         id: tilsagn.id,
@@ -134,7 +134,7 @@ export function TilsagnPage() {
     );
   }
 
-  function tilAnnullering(request: TilsagnTilAnnulleringRequest) {
+  function tilAnnullering(request: AarsakerOgForklaringRequest) {
     tilAnnulleringMutation.mutate(
       {
         id: tilsagn.id,
@@ -148,7 +148,7 @@ export function TilsagnPage() {
     );
   }
 
-  function upsertTilOppgjor(request: TilsagnTilAnnulleringRequest) {
+  function upsertTilOppgjor(request: AarsakerOgForklaringRequest) {
     tilOppgjorMutation.mutate(
       {
         id: tilsagn.id,
@@ -333,7 +333,13 @@ export function TilsagnPage() {
                     <Button
                       size="small"
                       type="button"
-                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.GODKJENT,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
                     >
                       Godkjenn tilsagn
                     </Button>
@@ -355,7 +361,13 @@ export function TilsagnPage() {
                       size="small"
                       variant="danger"
                       type="button"
-                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.GODKJENT,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
                     >
                       Bekreft annullering
                     </Button>
@@ -377,7 +389,13 @@ export function TilsagnPage() {
                       size="small"
                       variant="danger"
                       type="button"
-                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: Besluttelse.GODKJENT,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
                     >
                       Bekreft oppgjør
                     </Button>

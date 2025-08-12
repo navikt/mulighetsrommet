@@ -42,6 +42,7 @@ object UtbetalingValidator {
                 Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
                 Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
                 Utbetaling.UtbetalingStatus.AVBRUTT,
+                Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE,
                 ->
                     add(
                         FieldError.root(

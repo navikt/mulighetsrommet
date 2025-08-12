@@ -71,6 +71,7 @@ class GenererUtbetalingService(
                     Utbetaling.UtbetalingStatus.RETURNERT,
                     Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
                     Utbetaling.UtbetalingStatus.AVBRUTT,
+                    Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE,
                     -> false
 
                     Utbetaling.UtbetalingStatus.OPPRETTET -> true

@@ -30,13 +30,13 @@ data class Utbetaling(
     val begrunnelseMindreBetalt: String?,
     val tilskuddstype: Tilskuddstype,
     val status: UtbetalingStatus,
-    val avbrutt: Avbrutt?,
 ) {
     enum class UtbetalingStatus {
         OPPRETTET,
         INNSENDT,
         TIL_ATTESTERING,
         RETURNERT,
+        TIL_AVBRYTELSE,
         FERDIG_BEHANDLET,
         AVBRUTT,
     }
@@ -67,13 +67,5 @@ data class Utbetaling(
     data class Betalingsinformasjon(
         val kontonummer: Kontonummer?,
         val kid: Kid?,
-    )
-
-    @Serializable
-    data class Avbrutt(
-        val aarsaker: List<String>,
-        val forklaring: String?,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val tidspunkt: LocalDateTime,
     )
 }

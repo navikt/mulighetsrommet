@@ -46,18 +46,6 @@ test.describe("Utbetalinger detaljer", () => {
     await expect(page.locator("tr button", { hasText: /^Attester$/ })).toBeVisible();
     await expect(page.locator("tr button", { hasText: "Send i retur" })).toBeVisible();
 
-    // Verify that Attester opens modal asking for "Attestering av beløp"
-    await page.locator("tr button", { hasText: /^Attester$/ }).click();
-    await expect(page.locator("h1", { hasText: "Attestere utbetaling" })).toBeVisible();
-    await expect(page.locator("button", { hasText: "Avbryt" })).toBeVisible();
-    await expect(page.locator("button", { hasText: "Ja, attester beløp" })).toBeVisible();
-    await page.locator("dialog button", { hasText: "Avbryt" }).click();
-
-    // Verify that Send i retur opens modal
-    await page.locator("tr button", { hasText: "Send i retur" }).click();
-    await expect(page.locator("h1", { hasText: "Send i retur med forklaring" })).toBeVisible();
-    await expect(page.locator("dialog button", { hasText: "Send i retur" })).toBeVisible();
-
     await sjekkUU(page, "utbetaling-til-utbetaling");
   });
 

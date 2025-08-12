@@ -1,7 +1,7 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import {
-  BesluttDelutbetalingRequest,
   Besluttelse,
+  BesluttTotrinnskontrollRequest,
   DelutbetalingReturnertAarsak,
   DelutbetalingStatus,
   FieldError,
@@ -9,14 +9,13 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
-import { InformationSquareFillIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, Heading, HStack, Modal, VStack } from "@navikt/ds-react";
+import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -29,7 +28,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const besluttMutation = useBesluttDelutbetaling();
 
-  function beslutt(id: string, body: BesluttDelutbetalingRequest) {
+  function beslutt(id: string, body: BesluttTotrinnskontrollRequest) {
     besluttMutation.mutate(
       { id, body },
       {
@@ -120,6 +119,8 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                         modal?.close();
                         beslutt(linje.id, {
                           besluttelse: Besluttelse.GODKJENT,
+                          aarsaker: [],
+                          forklaring: null,
                         });
                       }}
                       linje={linje}
@@ -132,44 +133,5 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
         }}
       />
     </VStack>
-  );
-}
-
-function AttesterDelutbetalingModal({
-  id,
-  handleClose,
-  onConfirm,
-  linje,
-}: {
-  id: string;
-  handleClose: () => void;
-  onConfirm: () => void;
-  linje: UtbetalingLinje;
-}) {
-  return (
-    <Modal
-      className="text-left"
-      id={id}
-      onClose={handleClose}
-      header={{
-        heading: "Attestere utbetaling",
-        icon: <InformationSquareFillIcon />,
-      }}
-    >
-      <Modal.Body>
-        <BodyShort>
-          Du er i ferd med å attestere utbetalingsbeløp {formaterNOK(linje.belop)} for kostnadssted{" "}
-          {linje.tilsagn.kostnadssted.navn}. Er du sikker?
-        </BodyShort>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary" onClick={onConfirm}>
-          Ja, attester beløp
-        </Button>
-        <Button variant="secondary" onClick={handleClose}>
-          Avbryt
-        </Button>
-      </Modal.Footer>
-    </Modal>
   );
 }

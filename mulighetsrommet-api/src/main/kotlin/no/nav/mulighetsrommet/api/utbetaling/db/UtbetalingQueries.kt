@@ -447,13 +447,6 @@ class UtbetalingQueries(private val session: Session) {
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
             status = Utbetaling.UtbetalingStatus.valueOf(string("status")),
-            avbrutt = localDateTimeOrNull("avbrutt_tidspunkt")?.let {
-                Utbetaling.Avbrutt(
-                    aarsaker = arrayOrNull<String>("avbrutt_aarsaker")?.toList() ?: emptyList(),
-                    forklaring = stringOrNull("avbrutt_forklaring"),
-                    tidspunkt = it,
-                )
-            },
         )
     }
 

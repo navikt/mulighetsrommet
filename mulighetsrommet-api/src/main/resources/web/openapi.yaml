@@ -1586,7 +1586,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvbrytUtbetalingRequest"
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest"
+      responses:
+        200:
+          description: OK
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/utbetaling/{id}/beslutt-avbryt:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Utbetaling
+      operationId: besluttAvbryt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest"
       responses:
         200:
           description: OK
@@ -1688,7 +1706,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BesluttDelutbetalingRequest"
+              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest"
       responses:
         200:
           description: OK
@@ -1813,7 +1831,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TilsagnTilAnnulleringRequest"
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest"
       responses:
         200:
           description: OK
@@ -1835,7 +1853,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TilsagnTilAnnulleringRequest"
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest"
       responses:
         200:
           description: OK
@@ -1857,7 +1875,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BesluttTilsagnRequest"
+              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest"
       responses:
         200:
           description: OK
@@ -4601,48 +4619,6 @@ components:
         - GODKJENT
         - AVVIST
 
-    BesluttTilsagnRequest:
-      oneOf:
-        - $ref: "#/components/schemas/GodkjentTilsagnRequest"
-        - $ref: "#/components/schemas/AvvistTilsagnRequest"
-
-    GodkjentTilsagnRequest:
-      type: object
-      properties:
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-      required:
-        - besluttelse
-
-    AvvistTilsagnRequest:
-      type: object
-      properties:
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnAvvisningAarsak"
-        forklaring:
-          type: [string, "null"]
-      required:
-        - besluttelse
-        - aarsaker
-        - forklaring
-
-    TilsagnTilAnnulleringRequest:
-      type: object
-      properties:
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
-        forklaring:
-          type: [string, "null"]
-      required:
-        - besluttelse
-        - aarsaker
-
     TilsagnTilAnnulleringAarsak:
       type: string
       enum:
@@ -4848,6 +4824,7 @@ components:
         - $ref: "#/components/schemas/UtbetalingStatusTilAttestering"
         - $ref: "#/components/schemas/UtbetalingStatusReturnert"
         - $ref: "#/components/schemas/UtbetalingStatusOverfortTilUtbetaling"
+        - $ref: "#/components/schemas/UtbetalingStatusTilAvbrytelse"
         - $ref: "#/components/schemas/UtbetalingStatusAvbrutt"
 
     UtbetalingStatusVenterPaArrangor:
@@ -4885,6 +4862,22 @@ components:
           const: OVERFORT_TIL_UTBETALING
       required: [type]
 
+    UtbetalingStatusTilAvbrytelse:
+      type: object
+      properties:
+        type:
+          const: TIL_AVBRYTELSE
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+        tidspunkt:
+          type: string
+          format: datetime
+      required: [ type, aarsaker, tidspunkt ]
+
     UtbetalingStatusAvbrutt:
       type: object
       properties:
@@ -4910,10 +4903,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingLinje"
-      required:
-        - utbetaling
-        - deltakere
-        - linjer
+        handlinger:
+          $ref: "#/components/schemas/UtbetalingHandlinger"
+      required: [utbetaling, linjer, handlinger]
 
     UtbetalingDto:
       type: object
@@ -4948,6 +4940,19 @@ components:
         begrunnelseMindreBetalt:
           type: string
       required: [id, status, periode, belop, createdAt, tilskuddstype]
+
+    UtbetalingHandlinger:
+      type: object
+      properties:
+        avbryt:
+          type: boolean
+        sendTilAttestering:
+          type: boolean
+        godkjennAvbryt:
+          type: boolean
+        sendAvbrytIRetur:
+          type: boolean
+      required: [avbryt, sendTilAttestering, godkjennAvbryt, sendAvbrytIRetur]
 
     UtbetalingKompaktDto:
       type: object
@@ -5622,7 +5627,7 @@ components:
         aarsaker:
           type: array
           items:
-            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+            $ref: "#/components/schemas/AarsakerOgForklaringRequest"
 
     GetOppgaverRequest:
       type: object
@@ -5772,19 +5777,7 @@ components:
         - periodeStart
         - periodeSlutt
 
-    BesluttDelutbetalingRequest:
-      oneOf:
-        - $ref: "#/components/schemas/GodkjentDelutbetalingRequest"
-        - $ref: "#/components/schemas/AvvistDelutbetalingRequest"
-
-    GodkjentDelutbetalingRequest:
-      type: object
-      properties:
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-      required: [besluttelse]
-
-    AvvistDelutbetalingRequest:
+    BesluttTotrinnskontrollRequest:
       type: object
       properties:
         besluttelse:
@@ -5792,7 +5785,7 @@ components:
         aarsaker:
           type: array
           items:
-            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
+            type: string
         forklaring:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]
@@ -5952,7 +5945,7 @@ components:
             - NOK
       required: [key, type, sortable, align]
 
-    AvbrytUtbetalingRequest:
+    AarsakerOgForklaringRequest:
       type: object
       properties:
         aarsaker:

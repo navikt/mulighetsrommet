@@ -26,6 +26,7 @@ enum class ArrFlateUtbetalingStatus {
                     KLAR_FOR_GODKJENNING
                 }
             }
+            Utbetaling.UtbetalingStatus.TIL_AVBRYTELSE,
             Utbetaling.UtbetalingStatus.INNSENDT,
             Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
             Utbetaling.UtbetalingStatus.RETURNERT,
