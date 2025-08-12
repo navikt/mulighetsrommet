@@ -6,8 +6,8 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -31,7 +31,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = Utbetaling.UtbetalingStatus.OPPRETTET,
+        status = UtbetalingStatusType.OPPRETTET,
     )
 
     val utbetaling2 = UtbetalingDbo(
@@ -48,7 +48,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = Utbetaling.UtbetalingStatus.OPPRETTET,
+        status = UtbetalingStatusType.OPPRETTET,
     )
 
     val utbetaling3 = UtbetalingDbo(
@@ -65,7 +65,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = Utbetaling.UtbetalingStatus.OPPRETTET,
+        status = UtbetalingStatusType.OPPRETTET,
     )
 
     val delutbetaling1 = DelutbetalingDbo(

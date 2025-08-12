@@ -20,8 +20,8 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -61,7 +61,7 @@ class JournalforUtbetalingTest : FunSpec({
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = LocalDateTime.now(),
-        status = Utbetaling.UtbetalingStatus.INNSENDT,
+        status = UtbetalingStatusType.INNSENDT,
     )
 
     val domain = MulighetsrommetTestDomain(

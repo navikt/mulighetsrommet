@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 
 enum class ArrFlateUtbetalingStatus {
     KLAR_FOR_GODKJENNING,
@@ -15,29 +15,29 @@ enum class ArrFlateUtbetalingStatus {
 
     companion object {
         fun fromUtbetaling(
-            status: Utbetaling.UtbetalingStatus,
+            status: UtbetalingStatusType,
             delutbetalinger: List<Delutbetaling>,
             harAdvarsler: Boolean,
         ): ArrFlateUtbetalingStatus = when (status) {
-            Utbetaling.UtbetalingStatus.OPPRETTET -> {
+            UtbetalingStatusType.OPPRETTET -> {
                 if (harAdvarsler) {
                     KREVER_ENDRING
                 } else {
                     KLAR_FOR_GODKJENNING
                 }
             }
-            Utbetaling.UtbetalingStatus.INNSENDT,
-            Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
-            Utbetaling.UtbetalingStatus.RETURNERT,
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
             -> BEHANDLES_AV_NAV
-            Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET -> {
+            UtbetalingStatusType.FERDIG_BEHANDLET -> {
                 if (delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
                     UTBETALT
                 } else {
                     OVERFORT_TIL_UTBETALING
                 }
             }
-            Utbetaling.UtbetalingStatus.AVBRUTT -> AVBRUTT
+            UtbetalingStatusType.AVBRUTT -> AVBRUTT
         }
 
         fun toReadableName(status: ArrFlateUtbetalingStatus): String {

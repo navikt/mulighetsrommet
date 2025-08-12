@@ -239,7 +239,7 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
     }
 
-    fun setStatus(id: UUID, status: Utbetaling.UtbetalingStatus) {
+    fun setStatus(id: UUID, status: UtbetalingStatusType) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
@@ -446,7 +446,7 @@ class UtbetalingQueries(private val session: Session) {
             beskrivelse = stringOrNull("beskrivelse"),
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
-            status = Utbetaling.UtbetalingStatus.valueOf(string("status")),
+            status = UtbetalingStatusType.valueOf(string("status")),
             avbrutt = localDateTimeOrNull("avbrutt_tidspunkt")?.let {
                 Utbetaling.Avbrutt(
                     aarsaker = arrayOrNull<String>("avbrutt_aarsaker")?.toList() ?: emptyList(),
