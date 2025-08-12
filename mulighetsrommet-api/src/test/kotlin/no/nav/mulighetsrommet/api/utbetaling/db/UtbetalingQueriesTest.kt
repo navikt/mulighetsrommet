@@ -44,7 +44,7 @@ class UtbetalingQueriesTest : FunSpec({
         beskrivelse = "En beskrivelse",
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.OPPRETTET,
+        status = UtbetalingStatusType.GENERERT,
     )
 
     test("upsert and get utbetaling med fri beregning") {

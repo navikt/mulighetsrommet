@@ -4,7 +4,7 @@ enum class UtbetalingStatusType {
     /**
      * Systemet har generert utbetalingen, men den er enda ikke godkjent av arrangør.
      */
-    OPPRETTET,
+    GENERERT,
 
     /**
      * Arrangør eller Nav-ansatt har opprettet utbetalingen.

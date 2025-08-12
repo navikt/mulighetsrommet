@@ -31,7 +31,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.OPPRETTET,
+        status = UtbetalingStatusType.GENERERT,
     )
 
     val utbetaling2 = UtbetalingDbo(
@@ -48,7 +48,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.OPPRETTET,
+        status = UtbetalingStatusType.GENERERT,
     )
 
     val utbetaling3 = UtbetalingDbo(
@@ -65,7 +65,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.OPPRETTET,
+        status = UtbetalingStatusType.GENERERT,
     )
 
     val delutbetaling1 = DelutbetalingDbo(

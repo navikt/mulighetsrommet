@@ -73,7 +73,7 @@ class GenererUtbetalingService(
                     UtbetalingStatusType.AVBRUTT,
                     -> false
 
-                    UtbetalingStatusType.OPPRETTET -> true
+                    UtbetalingStatusType.GENERERT -> true
                 }
             }
             .mapNotNull { utbetaling ->
@@ -197,7 +197,7 @@ class GenererUtbetalingService(
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
-            status = UtbetalingStatusType.OPPRETTET,
+            status = UtbetalingStatusType.GENERERT,
         )
     }
 

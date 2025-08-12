@@ -19,7 +19,7 @@ enum class ArrFlateUtbetalingStatus {
             delutbetalinger: List<Delutbetaling>,
             harAdvarsler: Boolean,
         ): ArrFlateUtbetalingStatus = when (status) {
-            UtbetalingStatusType.OPPRETTET -> {
+            UtbetalingStatusType.GENERERT -> {
                 if (harAdvarsler) {
                     KREVER_ENDRING
                 } else {

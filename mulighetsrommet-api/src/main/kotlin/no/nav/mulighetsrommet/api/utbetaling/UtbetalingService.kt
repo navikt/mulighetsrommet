@@ -87,7 +87,7 @@ class UtbetalingService(
         kid: Kid?,
     ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        if (utbetaling.status != UtbetalingStatusType.OPPRETTET) {
+        if (utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
         }
 
@@ -587,7 +587,7 @@ class UtbetalingService(
 
             UtbetalingStatusType.AVBRUTT -> return FieldError.root("Utbetalingen er allerede avbrutt").left()
 
-            UtbetalingStatusType.OPPRETTET,
+            UtbetalingStatusType.GENERERT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.FERDIG_BEHANDLET,
             -> {

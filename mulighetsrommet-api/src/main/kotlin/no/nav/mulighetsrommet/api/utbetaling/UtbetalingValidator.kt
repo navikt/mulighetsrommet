@@ -39,7 +39,7 @@ object UtbetalingValidator {
                 UtbetalingStatusType.INNSENDT,
                 UtbetalingStatusType.RETURNERT,
                 -> Unit
-                UtbetalingStatusType.OPPRETTET,
+                UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
                 UtbetalingStatusType.AVBRUTT,

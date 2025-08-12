@@ -1045,7 +1045,7 @@ class UtbetalingServiceTest : FunSpec({
             service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
             database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.RETURNERT) }
             service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeRight()
-            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.OPPRETTET) }
+            database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.GENERERT) }
             service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()
             database.run { queries.utbetaling.setStatus(utbetaling1.id, UtbetalingStatusType.TIL_ATTESTERING) }
             service.avbrytUtbetaling(utbetaling1.id, NavIdent("B123456"), emptyList(), null).shouldBeLeft()

@@ -43,7 +43,7 @@ sealed class UtbetalingStatusDto {
             utbetaling: Utbetaling,
         ): UtbetalingStatusDto {
             return when (utbetaling.status) {
-                UtbetalingStatusType.OPPRETTET -> VenterPaArrangor
+                UtbetalingStatusType.GENERERT -> VenterPaArrangor
                 UtbetalingStatusType.INNSENDT -> KlarTilBehandling
                 UtbetalingStatusType.TIL_ATTESTERING -> TilAttestering
                 UtbetalingStatusType.RETURNERT -> Returnert
