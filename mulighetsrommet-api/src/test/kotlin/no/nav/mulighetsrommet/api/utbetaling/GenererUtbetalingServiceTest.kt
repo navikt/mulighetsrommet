@@ -783,7 +783,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             oppdatertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>()
         }
 
-        test("innsendt fri utbetaling blir ikke slettet avtalens prismodell endres") {
+        test("innsendt fri utbetaling blir ikke slettet hvis avtalens prismodell endres") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.ANNEN_AVTALT_PRIS,
                 satser = listOf(
@@ -791,37 +791,40 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             )
 
-            MulighetsrommetTestDomain(
+            val domain = MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
-                        AFT1.id,
+                        oppfolging.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatusType.DELTAR,
-                        deltakelsesmengder = listOf(
-                            DeltakerDbo.Deltakelsesmengde(
-                                gyldigFra = LocalDate.of(2025, 1, 1),
-                                deltakelsesprosent = 100.0,
-                                opprettetTidspunkt = LocalDateTime.now(),
-                            ),
-                        ),
                     ),
                 ),
                 utbetalinger = listOf(
                     utbetaling1.copy(
+                        gjennomforingId = oppfolging.id,
                         innsender = NavIdent("B123456"),
                         status = Utbetaling.UtbetalingStatus.INNSENDT,
+                        beregning = UtbetalingBeregningFri(
+                            input = UtbetalingBeregningFri.Input(1000),
+                            output = UtbetalingBeregningFri.Output(1000),
+                        ),
                     ),
                 ),
             ).initialize(database.db)
 
             database.run {
-                queries.avtale.upsert(avtale.copy(prismodell = Prismodell.ANNEN_AVTALT_PRIS))
+                queries.avtale.upsert(avtale.copy(prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK))
             }
-            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id).shouldHaveSize(0)
+
+            service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id).shouldHaveSize(0)
+
+            database.run {
+                queries.utbetaling.get(domain.utbetalinger[0].id).shouldNotBeNull()
+            }
         }
 
         test("utbetalingen blir slettet avtalens prismodell endres til fri") {
