@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 object DeltakerFixtures {
-    fun createDeltakerDbo(
+    fun createDeltakerMedDeltakelsesmengderDbo(
         gjennomforingId: UUID,
         startDato: LocalDate = LocalDate.now(),
         sluttDato: LocalDate? = LocalDate.now().plusMonths(1),

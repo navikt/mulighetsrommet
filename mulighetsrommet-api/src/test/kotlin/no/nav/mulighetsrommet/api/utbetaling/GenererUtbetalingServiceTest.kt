@@ -77,7 +77,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
@@ -115,7 +115,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 2, 28),
@@ -146,42 +146,42 @@ class GenererUtbetalingServiceTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 15),
                         statusType = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 40.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2025, 12, 31),
                         statusType = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 50.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 12, 31),
                         statusType = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
                         statusType = DeltakerStatusType.IKKE_AKTUELL,
                         deltakelsesprosent = 100.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2025, 12, 31),
@@ -270,7 +270,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 2, 1),
@@ -323,7 +323,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
@@ -357,7 +357,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 15),
@@ -386,7 +386,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2024, 12, 1),
                         sluttDato = LocalDate.of(2025, 1, 15),
@@ -409,7 +409,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 2, 1),
                         sluttDato = LocalDate.of(2025, 2, 28),
@@ -426,14 +426,14 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 2, 1),
                         sluttDato = LocalDate.of(2026, 6, 1),
                         statusType = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2026, 2, 1),
@@ -458,14 +458,14 @@ class GenererUtbetalingServiceTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2025, 2, 1),
                         sluttDato = LocalDate.of(2025, 6, 1),
                         statusType = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2025, 2, 1),
@@ -488,7 +488,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2025, 6, 1),
@@ -496,7 +496,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         statusOpprettet = LocalDate.of(2024, 12, 1).atStartOfDay(),
                         deltakelsesprosent = 100.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2025, 6, 1),
@@ -504,7 +504,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         statusOpprettet = LocalDate.of(2025, 1, 7).atStartOfDay(),
                         deltakelsesprosent = 100.0,
                     ),
-                    DeltakerFixtures.createDeltakerDbo(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = null,
@@ -544,7 +544,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("rekalkulering av utbetalinger for forhåndsgodkjente tiltak") {
         val service = createUtbetalingService()
 
-        val deltaker = DeltakerFixtures.createDeltakerDbo(
+        val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
             AFT1.id,
             startDato = LocalDate.of(2025, 6, 1),
             sluttDato = LocalDate.of(2025, 6, 15),
