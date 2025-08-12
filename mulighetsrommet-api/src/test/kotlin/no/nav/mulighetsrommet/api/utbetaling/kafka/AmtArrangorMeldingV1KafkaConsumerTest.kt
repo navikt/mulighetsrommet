@@ -12,7 +12,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.utils.toUUID
+import java.time.LocalDate
 import java.util.*
 
 class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
@@ -103,7 +105,14 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(GjennomforingFixtures.AFT1),
-            deltakere = listOf(DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.AFT1.id)),
+            deltakere = listOf(
+                DeltakerFixtures.createDeltakerDbo(
+                    GjennomforingFixtures.AFT1.id,
+                    startDato = LocalDate.now(),
+                    sluttDato = LocalDate.now().plusMonths(1),
+                    statusType = DeltakerStatusType.DELTAR,
+                ),
+            ),
         ).initialize(database.db)
 
         val deltakerId = domain.deltakere[0].id

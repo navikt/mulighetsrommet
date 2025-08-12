@@ -10,11 +10,12 @@ import java.time.LocalDateTime
 import java.util.*
 
 object DeltakerFixtures {
-    fun createDeltakerDbo(
+    fun createDeltakerMedDeltakelsesmengderDbo(
         gjennomforingId: UUID,
         startDato: LocalDate = LocalDate.now(),
-        sluttDato: LocalDate = LocalDate.now().plusMonths(1),
+        sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
         statusType: DeltakerStatusType = DeltakerStatusType.DELTAR,
+        statusOpprettet: LocalDateTime = LocalDateTime.now(),
         deltakelsesprosent: Double = 100.0,
         deltakelsesmengder: List<DeltakerDbo.Deltakelsesmengde> = listOf(
             DeltakerDbo.Deltakelsesmengde(
@@ -35,16 +36,16 @@ object DeltakerFixtures {
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,
-            opprettetDato = LocalDateTime.now(),
+            opprettetDato = statusOpprettet,
         ),
     )
 
     fun createDeltakerDbo(
         gjennomforingId: UUID,
         startDato: LocalDate,
-        sluttDato: LocalDate,
+        sluttDato: LocalDate?,
         statusType: DeltakerStatusType,
-        deltakelsesmengder: List<DeltakerDbo.Deltakelsesmengde> = emptyList(),
+        statusOpprettet: LocalDateTime = LocalDateTime.now(),
     ) = DeltakerDbo(
         id = UUID.randomUUID(),
         startDato = startDato,
@@ -53,11 +54,11 @@ object DeltakerFixtures {
         registrertDato = LocalDate.now(),
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = null,
-        deltakelsesmengder = deltakelsesmengder,
+        deltakelsesmengder = emptyList(),
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,
-            opprettetDato = LocalDateTime.now(),
+            opprettetDato = statusOpprettet,
         ),
     )
 
