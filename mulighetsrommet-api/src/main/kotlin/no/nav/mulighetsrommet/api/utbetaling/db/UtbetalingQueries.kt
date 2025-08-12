@@ -346,12 +346,8 @@ class UtbetalingQueries(private val session: Session) {
     fun getOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<Utbetaling> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
-            select *
-            from utbetaling_dto_view
-                left join delutbetaling on delutbetaling.utbetaling_id = utbetaling_dto_view.id
-            where
-                delutbetaling.tilsagn_id is null and
-                (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder::tiltakskode[]))
+            select * from utbetaling_dto_view
+            where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder::tiltakskode[]))
         """.trimIndent()
 
         val params = mapOf(

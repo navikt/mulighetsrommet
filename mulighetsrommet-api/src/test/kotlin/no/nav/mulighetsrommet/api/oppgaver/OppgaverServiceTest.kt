@@ -15,16 +15,13 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvtaleStatus
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.oppgaver.Oppgave
 import no.nav.mulighetsrommet.oppgaver.OppgaveType
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class OppgaverServiceTest : FunSpec({
@@ -462,6 +459,7 @@ class OppgaverServiceTest : FunSpec({
 
     context("utbetalinger") {
         test("Skal hente oppgaver for utbetalinger med filter") {
+            val utbetaling4id = UUID.randomUUID()
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
@@ -489,16 +487,28 @@ class OppgaverServiceTest : FunSpec({
                 ),
                 utbetalinger = listOf(
                     UtbetalingFixtures.utbetaling1.copy(
+                        status = UtbetalingStatusType.INNSENDT,
                         gjennomforingId = AFT1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                        innsender = Arrangor,
                     ),
                     UtbetalingFixtures.utbetaling2.copy(
+                        status = UtbetalingStatusType.FERDIG_BEHANDLET,
                         gjennomforingId = AFT1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+                        innsender = Arrangor,
                     ),
                     UtbetalingFixtures.utbetaling3.copy(
+                        status = UtbetalingStatusType.INNSENDT,
                         gjennomforingId = VTA1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+                        innsender = Arrangor,
+                    ),
+                    UtbetalingFixtures.utbetaling3.copy(
+                        id = utbetaling4id,
+                        gjennomforingId = VTA1.id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 4, 1)),
+                        status = UtbetalingStatusType.TIL_AVBRYTELSE,
                     ),
                 ),
                 delutbetalinger = listOf(
@@ -507,20 +517,6 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
-
-                queries.utbetaling.setGodkjentAvArrangor(
-                    UtbetalingFixtures.utbetaling1.id,
-                    LocalDateTime.now(),
-                )
-                queries.utbetaling.setGodkjentAvArrangor(
-                    UtbetalingFixtures.utbetaling2.id,
-                    LocalDateTime.now(),
-                )
-                queries.utbetaling.setGodkjentAvArrangor(
-                    UtbetalingFixtures.utbetaling3.id,
-                    LocalDateTime.now(),
-                )
-
                 setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.GODKJENT)
             }.initialize(database.db)
 
@@ -531,11 +527,12 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI), NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("0100")))),
             )
             oppgaver shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
+                PartialOppgave(utbetaling4id, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
             )
 
             service.oppgaver(
@@ -554,7 +551,9 @@ class OppgaverServiceTest : FunSpec({
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
-            ).shouldBeEmpty()
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(utbetaling4id, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
+            )
 
             service.oppgaver(
                 oppgavetyper = setOf(),
