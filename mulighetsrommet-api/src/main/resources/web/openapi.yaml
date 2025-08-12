@@ -5161,31 +5161,9 @@ components:
     ArrFlateBeregningDeltakelse:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningFriDeltakelse"
         - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
         - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkDeltakelse"
         - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverkDeltakelse"
-
-    ArrFlateBeregningFriDeltakelse:
-      type: object
-      properties:
-        type:
-          const: FRI
-        id:
-          type: string
-          format: uuid
-        deltakerStartDato:
-          type: string
-          format: date
-        periode:
-          $ref: "#/components/schemas/Periode"
-        faktor:
-          type: number
-        status:
-          $ref: "#/components/schemas/DeltakerStatusType"
-        person:
-          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
-      required: [type, id, periode, faktor]
 
     ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse:
       type: object
@@ -5271,10 +5249,6 @@ components:
           type: integer
         digest:
           type: string
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrFlateBeregningFriDeltakelse"
       required: [type, belop, digest, deltakelser]
 
     ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder:

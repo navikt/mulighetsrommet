@@ -1,5 +1,5 @@
 import { formaterPeriode, subDuration } from "@mr/frontend-common/utils/date";
-import { PersonIcon, ParasolBeachIcon } from "@navikt/aksel-icons";
+import { ParasolBeachIcon, PersonIcon } from "@navikt/aksel-icons";
 import { Timeline } from "@navikt/ds-react";
 import { ArrFlateBeregningDeltakelse, Periode, UtbetalingStengtPeriode } from "api-client";
 
@@ -79,7 +79,6 @@ function perioder(deltakelse: ArrFlateBeregningDeltakelse): TimelinePeriodeData[
         };
       });
     }
-    case "FRI":
     case "PRIS_PER_MANEDSVERK":
     case "PRIS_PER_UKESVERK": {
       const start = new Date(deltakelse.periode.start);
