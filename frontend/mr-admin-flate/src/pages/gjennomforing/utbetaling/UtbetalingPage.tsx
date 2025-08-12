@@ -140,7 +140,7 @@ export function UtbetalingPage() {
   }
 
   function sendTilGodkjenning() {
-    const delutbetalingReq: DelutbetalingRequest[] = linjer.map((linje) => {
+    const delutbetalingReq: DelutbetalingRequest[] = linjerState.map((linje) => {
       return {
         id: linje.id,
         belop: linje.belop,
@@ -171,7 +171,7 @@ export function UtbetalingPage() {
   }
 
   function utbetalesTotal(): number {
-    return linjer.reduce((acc, d) => acc + d.belop, 0);
+    return linjerState.reduce((acc, d) => acc + d.belop, 0);
   }
 
   const brodsmuler: Brodsmule[] = [
