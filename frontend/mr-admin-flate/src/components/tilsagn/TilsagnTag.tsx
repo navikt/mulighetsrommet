@@ -1,11 +1,8 @@
-import { TilsagnStatus, TotrinnskontrollDto } from "@mr/api-client-v2";
+import { TilsagnStatus } from "@mr/api-client-v2";
 import { Tag } from "@navikt/ds-react";
 
 interface Props {
   status: TilsagnStatus;
-  visAarsakerOgForklaring?: boolean;
-  annullering?: TotrinnskontrollDto;
-  oppgjor?: TotrinnskontrollDto;
 }
 
 export function TilsagnTag(props: Props) {

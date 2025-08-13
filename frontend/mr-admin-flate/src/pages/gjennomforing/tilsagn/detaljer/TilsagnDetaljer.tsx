@@ -77,7 +77,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
         <VStack gap="4" className="lg:px-4 flex-1">
           <MetadataHorisontal
             header={tilsagnTekster.status.label}
-            verdi={<TilsagnTag visAarsakerOgForklaring status={status} />}
+            verdi={<TilsagnTag status={status} />}
           />
           {(status === TilsagnStatus.ANNULLERT || status === TilsagnStatus.OPPGJORT) && (
             <>
