@@ -1,20 +1,11 @@
 import { GjennomforingDto, TilsagnBeregningFri, TilsagnBeregningType } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
-import {
-  Alert,
-  Button,
-  Heading,
-  HStack,
-  Textarea,
-  TextField,
-  Tooltip,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, Button, Heading, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { TrashIcon } from "@navikt/aksel-icons";
 import { InferredTilsagn } from "./TilsagnSchema";
+import TrashButton from "@/components/skjema/TrashButton";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -111,19 +102,15 @@ function BeregningInputLinjerSkjema() {
           {...register(`beregning.linjer.${index}.id`)}
           defaultValue={item.id}
         />
-        <Tooltip content={`Slett linje ${index + 1}`}>
-          <Button
-            className="mt-7"
-            size="small"
-            variant="danger"
-            icon={<TrashIcon aria-hidden />}
-            onClickCapture={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              remove(index);
-            }}
-          />
-        </Tooltip>
+        <TrashButton
+          tooltip={`Slett linje ${index + 1}`}
+          className="mt-7"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            remove(index);
+          }}
+        />
       </div>
     </HStack>
   ));

@@ -3,11 +3,12 @@ import { memo } from "react";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
-import { XMarkIcon, PlusIcon } from "@navikt/aksel-icons";
+import { PlusIcon } from "@navikt/aksel-icons";
 import { VStack, Box, HStack, TextField, Select, Button, Textarea } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, formaterDato, parseDate } from "@mr/frontend-common/utils/date";
+import TrashButton from "../skjema/TrashButton";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -131,15 +132,11 @@ function AvtalteSatser() {
               {...register(`satser.${index}.periodeSlutt`)}
               control={control}
             />
-            <Button
-              className="mt-2 ml-auto"
-              variant="tertiary"
-              size="small"
-              type="button"
+            <TrashButton
+              className="mt-7 ml-auto"
+              tooltip="Fjern periode"
               onClick={() => remove(index)}
-            >
-              <XMarkIcon fontSize="1.5rem" aria-label="Fjern periode" />
-            </Button>
+            />
           </HStack>
         </Box>
       ))}

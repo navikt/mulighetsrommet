@@ -1,9 +1,9 @@
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
+import TrashButton from "@/components/skjema/TrashButton";
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { TrashIcon } from "@navikt/aksel-icons";
-import { Button, Heading, HStack, Table } from "@navikt/ds-react";
+import { Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface StengtHosArrangorTableProps {
@@ -41,11 +41,8 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                 <Table.DataCell>{periode.beskrivelse}</Table.DataCell>
                 {!readOnly && (
                   <Table.DataCell>
-                    <Button
-                      type="button"
-                      size="small"
-                      variant="secondary-neutral"
-                      icon={<TrashIcon aria-hidden />}
+                    <TrashButton
+                      tooltip="Slett periode"
                       onClick={async () => {
                         deleteStengtHosArrangor.mutate(periode.id, {
                           onSuccess: async () => {
@@ -56,9 +53,7 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                           },
                         });
                       }}
-                    >
-                      Slett
-                    </Button>
+                    />
                   </Table.DataCell>
                 )}
               </Table.Row>
