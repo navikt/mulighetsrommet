@@ -33,7 +33,6 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { useEffect } from "react";
 
 export function AvtaleDetaljerForm({
   opsjonerRegistrert,
@@ -48,7 +47,6 @@ export function AvtaleDetaljerForm({
   const {
     register,
     formState: { errors },
-    getValues,
     setValue,
     watch,
     control,
@@ -62,21 +60,17 @@ export function AvtaleDetaljerForm({
     tiltakskode ? [tiltakskode] : [],
   );
 
-  useEffect(() => {
-    if (!tiltakskode) return;
-    setValue("amoKategorisering", null);
-    setValue("utdanningslop", null);
+  const antallOpsjonerUtlost = (
+    opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
+  ).length;
 
-    const avtaletype = getAvtaletypeOptions(tiltakskode)[0]?.value;
+  const avtaletypeOptions = getAvtaletypeOptions(tiltakskode).map((type) => (
+    <option key={type.value} value={type.value}>
+      {type.label}
+    </option>
+  ));
 
-    if (avtaletype) {
-      setValue("avtaletype", avtaletype);
-    }
-  }, [setValue, tiltakskode]);
-
-  useEffect(() => {
-    if (!avtaletype) return;
-
+  function avtaletypeOnChange(avtaletype: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("opsjonsmodell", {
         type: OpsjonsmodellType.VALGFRI_SLUTTDATO,
@@ -86,11 +80,7 @@ export function AvtaleDetaljerForm({
 
       setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
     }
-  }, [avtaletype, getValues, setValue]);
-
-  const antallOpsjonerUtlost = (
-    opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
-  ).length;
+  }
 
   return (
     <TwoColumnGrid separator>
@@ -137,11 +127,22 @@ export function AvtaleDetaljerForm({
             <Select
               size="small"
               label={avtaletekster.tiltakstypeLabel}
-              {...register("tiltakskode")}
+              {...register("tiltakskode", {
+                onChange: (e) => {
+                  setValue("amoKategorisering", null);
+                  setValue("utdanningslop", null);
+
+                  const avtaletype = getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value;
+                  if (avtaletype) {
+                    setValue("avtaletype", avtaletype);
+                    avtaletypeOnChange(avtaletype);
+                  }
+                },
+              })}
             >
               <option value="">-- Velg en --</option>
               {tiltakstyper.map((type) => (
-                <option key={type.tiltakskode} value={type.tiltakskode as string}>
+                <option key={type.tiltakskode} value={type.tiltakskode}>
                   {type.navn}
                 </option>
               ))}
@@ -150,14 +151,11 @@ export function AvtaleDetaljerForm({
               size="small"
               readOnly={antallOpsjonerUtlost > 0}
               label={avtaletekster.avtaletypeLabel}
-              {...register("avtaletype")}
+              {...register("avtaletype", {
+                onChange: (e) => avtaletypeOnChange(e.target.value),
+              })}
             >
-              <option value="">-- Velg en --</option>
-              {getAvtaletypeOptions(tiltakskode).map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
+              {avtaletypeOptions}
             </Select>
           </HGrid>
           {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (

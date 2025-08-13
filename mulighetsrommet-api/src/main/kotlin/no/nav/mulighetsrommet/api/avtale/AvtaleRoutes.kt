@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -110,14 +111,14 @@ fun Route.avtaleRoutes() {
         get("forhandsgodkjente-satser") {
             val tiltakstype: Tiltakskode by call.queryParameters
 
-            val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype)
-                .map { AvtaltSatsDto.fromAvtaltSats(it) }
-
-            if (satser.isEmpty()) {
-                return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
-            }
-
-            call.respond(satser)
+            AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype)
+                .map(AvtaltSatsDto::fromAvtaltSats)
+                .ifEmpty {
+                    return@get call.respondWithProblemDetail(
+                        BadRequest(detail = "Det finnes ingen avtalte satser for $tiltakstype"),
+                    )
+                }
+                .also { call.respond(it) }
         }
     }
 
