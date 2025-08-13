@@ -946,7 +946,23 @@ components:
       - type
     ProblemDetail:
       type: object
-      properties: {}
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
     NavEnhetStatus:
       type: string
       enum:
