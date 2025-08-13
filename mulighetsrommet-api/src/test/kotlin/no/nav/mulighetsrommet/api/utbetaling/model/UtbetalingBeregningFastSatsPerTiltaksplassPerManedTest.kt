@@ -221,9 +221,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
         }
 
         test("månedsverk blir beregnet med tilstrekkelig presisjon") {
-            val periodeStart = LocalDate.of(2025, 6, 1)
-            val periodeMidt = LocalDate.of(2025, 6, 16)
-            val periodeSlutt = LocalDate.of(2025, 7, 1)
+            val periodeStart = LocalDate.of(2025, 2, 1)
+            val periodeMidt = LocalDate.of(2025, 2, 16)
+            val periodeSlutt = LocalDate.of(2025, 3, 1)
 
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
@@ -254,8 +254,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 50,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 0.38333),
-                    DeltakelseManedsverk(deltakerId2, 0.11667),
+                    DeltakelseManedsverk(deltakerId1, 0.375),
+                    DeltakelseManedsverk(deltakerId2, 0.125),
                 ),
             )
         }
@@ -272,7 +272,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 DeltakelseDeltakelsesprosentPerioder(
                     deltakelseId = deltakerId1,
                     perioder = listOf(
-                        DeltakelsesprosentPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1)), 100.0),
+                        DeltakelsesprosentPeriode(Periode.forMonthOf(LocalDate.of(2023, 4, 1)), 100.0),
                     ),
                 ),
             )
@@ -289,21 +289,28 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             )
         }
 
-        test("rundes opp til slutt") {
-            // 5/31 * 20205 = 3258.87
-            UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(
-                UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                    periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
-                    20205,
-                    emptySet(),
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = UUID.randomUUID(),
-                            perioder = listOf(DeltakelsesprosentPeriode(Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, 6)), 100.0)),
-                        ),
+        test("beregnet beløp rundes av til nærmeste hele krone") {
+            // 5 virkedager av totalt 21 virkedager i mars
+            val deltakelse = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 3, 1), // Lørdag 1. mars
+                LocalDate.of(2025, 3, 7), // Fredag 7. mars
+            )
+            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+                sats = 20205,
+                stengt = emptySet(),
+                deltakelser = setOf(
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = UUID.randomUUID(),
+                        perioder = listOf(DeltakelsesprosentPeriode(deltakelse, 100.0)),
                     ),
                 ),
-            ).output.belop shouldBe 3259
+            )
+
+            val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+
+            // 5/21 * 2025 = 4810.71428...
+            beregning.output.belop shouldBe 4811
         }
 
         test("utbetaling og tilsagn er likt for forskjellige perioder av en måned") {
@@ -312,7 +319,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
                 val utbetaling = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                        periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
+                        periode = Periode.forMonthOf(LocalDate.of(2023, 3, 1)),
                         20205,
                         emptySet(),
                         setOf(

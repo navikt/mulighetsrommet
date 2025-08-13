@@ -423,8 +423,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
-                    it.belop shouldBe 10149
-                    it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.48387))
+                    it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.47826))
                 }
         }
 
@@ -457,8 +456,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
-                    it.belop shouldBe 10149
-                    it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.48387))
+                    it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.47826))
                 }
         }
 
@@ -649,15 +647,15 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
             AFT1.id,
-            startDato = LocalDate.of(2025, 6, 1),
-            sluttDato = LocalDate.of(2025, 6, 15),
+            startDato = LocalDate.of(2025, 2, 1),
+            sluttDato = LocalDate.of(2025, 2, 15),
             statusType = DeltakerStatusType.DELTAR,
             deltakelsesprosent = 100.0,
         )
 
         val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
                 sats = 20975,
                 stengt = setOf(),
                 deltakelser = setOf(
@@ -665,7 +663,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         deltakelseId = deltaker.id,
                         perioder = listOf(
                             DeltakelsesprosentPeriode(
-                                periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
                         ),
@@ -693,18 +691,16 @@ class GenererUtbetalingServiceTest : FunSpec({
                 deltakere = listOf(deltaker),
             ).initialize(database.db)
 
-            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
+            val utbetaling = service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id).shouldHaveSize(1).first()
 
-            database.run {
-                val utbetaling = queries.utbetaling.get(utbetaling1.id).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
-                    .should {
-                        it.belop shouldBe 10488
-                        it.deltakelser shouldBe setOf(
-                            DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 0.5),
-                        )
-                    }
-            }
+            utbetaling.beregning.output
+                .shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
+                .should {
+                    it.belop shouldBe 10488
+                    it.deltakelser shouldBe setOf(
+                        DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 0.5),
+                    )
+                }
         }
 
         test("oppdaterer ikke utbetaling hvis det allerede er godkjent av arrangør") {
@@ -723,11 +719,12 @@ class GenererUtbetalingServiceTest : FunSpec({
                 queries.utbetaling.setGodkjentAvArrangor(utbetaling1.id, LocalDateTime.now())
             }.initialize(database.db)
 
-            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id)
+            service.oppdaterUtbetalingBeregningForGjennomforing(AFT1.id).shouldBeEmpty()
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetaling1.id).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
+                utbetaling.beregning.output
+                    .shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                     .should {
                         it.belop shouldBe 20975
                         it.deltakelser shouldBe setOf(
