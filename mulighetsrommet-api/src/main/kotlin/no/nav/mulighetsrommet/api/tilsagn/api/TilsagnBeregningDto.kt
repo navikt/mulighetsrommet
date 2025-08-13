@@ -53,7 +53,7 @@ sealed class TilsagnBeregningDto {
                     belop = beregning.output.belop,
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
-                    antallManeder = UtbetalingBeregningHelpers.calculateManedsverk(beregning.input.periode)
+                    antallManeder = UtbetalingBeregningHelpers.calculateManedsverkOfPeriode(beregning.input.periode)
                         .setScale(2, RoundingMode.HALF_UP)
                         .toDouble(),
                 )
@@ -62,7 +62,7 @@ sealed class TilsagnBeregningDto {
                     belop = beregning.output.belop,
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
-                    antallUker = UtbetalingBeregningHelpers.calculateUkesverk(beregning.input.periode)
+                    antallUker = UtbetalingBeregningHelpers.calculateUkesverkOfPeriode(beregning.input.periode)
                         .setScale(2, RoundingMode.HALF_UP)
                         .toDouble(),
                 )
