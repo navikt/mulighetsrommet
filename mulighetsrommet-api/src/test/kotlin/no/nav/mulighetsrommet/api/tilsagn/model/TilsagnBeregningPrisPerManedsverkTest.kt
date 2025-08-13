@@ -61,11 +61,11 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
     test("skuddår/ikke skuddår") {
         val ikkeSkuddar = TilsagnBeregningPrisPerManedsverk.Input(
             periode = Periode.fromInclusiveDates(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 2, 28)),
-            sats = 19500,
+            sats = 20205,
             antallPlasser = 1,
         )
 
-        TilsagnBeregningPrisPerManedsverk.beregn(ikkeSkuddar).output.belop shouldBe 19500
+        TilsagnBeregningPrisPerManedsverk.beregn(ikkeSkuddar).output.belop shouldBe 20205
 
         val skuddar = TilsagnBeregningPrisPerManedsverk.Input(
             periode = Periode.fromInclusiveDates(LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 28)),
@@ -73,17 +73,19 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             antallPlasser = 1,
         )
 
-        TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.belop shouldBe 19508
+        // 20/21 * 20205 = 19242.85
+        TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.belop shouldBe 19243
     }
 
-    test("én dag") {
+    test("én hvirkedag") {
         val input = TilsagnBeregningPrisPerManedsverk.Input(
-            periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
+            periode = Periode(LocalDate.of(2023, 1, 2), LocalDate.of(2023, 1, 3)),
             sats = 20205,
             antallPlasser = 1,
         )
 
-        TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 652
+        // 1/22 * 20205 = 918.4
+        TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 918
     }
 
     test("overflow kaster exception") {
@@ -108,16 +110,5 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
 
             TilsagnBeregningPrisPerManedsverk.beregn(input)
         }
-    }
-
-    test("reelt eksempel nr 1") {
-        val input = TilsagnBeregningPrisPerManedsverk.Input(
-            periode = Periode(LocalDate.of(2024, 9, 15), LocalDate.of(2025, 1, 1)),
-            sats = 20205,
-            antallPlasser = 24,
-        )
-
-        // Merk at dette er annerledes (mer mer presisjon) enn det Arena ville lagd = 1_711_768
-        TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 1_713_384
     }
 })

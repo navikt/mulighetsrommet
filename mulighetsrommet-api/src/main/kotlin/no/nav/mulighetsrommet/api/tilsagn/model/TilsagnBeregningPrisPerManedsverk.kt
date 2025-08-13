@@ -32,7 +32,7 @@ data class TilsagnBeregningPrisPerManedsverk(
         fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
             val (periode, sats, antallPlasser) = input
 
-            val belop = UtbetalingBeregningHelpers.calculateManedsverk(periode)
+            val belop = UtbetalingBeregningHelpers.calculateManedsverkOfPeriode(periode)
                 .multiply(BigDecimal(sats))
                 .multiply(BigDecimal(antallPlasser))
                 .setScale(0, RoundingMode.HALF_UP)
