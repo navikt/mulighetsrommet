@@ -209,10 +209,10 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             val deltakerId2 = UUID.randomUUID()
 
             val input = UtbetalingBeregningPrisPerManedsverk.Input(
-                periode,
-                10,
-                setOf(),
-                setOf(
+                periode = periode,
+                sats = 10,
+                stengt = setOf(),
+                deltakelser = setOf(
                     DeltakelsePeriode(deltakelseId = deltakerId1, periode = periode),
                     DeltakelsePeriode(deltakelseId = deltakerId2, periode = periode),
                 ),
@@ -228,51 +228,74 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             )
         }
 
-        test("periode 4 dager, stengt dag én og tre gir 2/31") {
-            val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 5))
+        test("helgedager før og etter en periode på fem hverdager påvirker ikke beregnet beløp") {
+            val heleUke2 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 1, 6), // Mandag 6. januar
+                LocalDate.of(2025, 1, 12), // Søndag 12. januar
+            )
+
+            val hverdagerUke2 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 1, 6), // Mandag 6. januar
+                LocalDate.of(2025, 1, 10), // Fredag 10. januar
+            )
+
+            val helgFraUke1OgHeleUke2 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 1, 4), // Lørdag 4. januar
+                LocalDate.of(2025, 1, 12), // Søndag 12. januar
+            )
+
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
+            val deltakerId3 = UUID.randomUUID()
 
             val input = UtbetalingBeregningPrisPerManedsverk.Input(
-                periode,
-                31,
-                setOf( // Stengt dag én og tre
-                    StengtPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2)), "1"),
-                    StengtPeriode(Periode(LocalDate.of(2025, 1, 3), LocalDate.of(2025, 1, 4)), "2"),
-                ),
-                setOf(
-                    DeltakelsePeriode(deltakelseId = deltakerId1, periode = periode),
-                    DeltakelsePeriode(deltakelseId = deltakerId2, periode = periode),
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                sats = 100,
+                stengt = setOf(),
+                deltakelser = setOf(
+                    DeltakelsePeriode(deltakerId1, heleUke2),
+                    DeltakelsePeriode(deltakerId2, hverdagerUke2),
+                    DeltakelsePeriode(deltakerId3, helgFraUke1OgHeleUke2),
                 ),
             )
 
             val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            beregning.output.belop shouldBe 4 // 2 * 2/31 * 31
+
+            // Hvert beregnet månedsverk tilsvarer 5/23 (5 ukedager av 23 ukedager i januar)
+            beregning.output.deltakelser shouldBe setOf(
+                DeltakelseManedsverk(deltakerId1, 0.21739),
+                DeltakelseManedsverk(deltakerId2, 0.21739),
+                DeltakelseManedsverk(deltakerId3, 0.21739),
+            )
         }
 
         test("én dag i februar er verdt mer enn én dag i januar") {
             val periodeJanuar = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2))
-            val periodeFebruar = Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2))
+            val periodeFebruar = Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 2, 4))
             val deltakerId1 = UUID.randomUUID()
 
             val beregningJanuar = UtbetalingBeregningPrisPerManedsverk.beregn(
                 UtbetalingBeregningPrisPerManedsverk.Input(
-                    periodeJanuar,
-                    31_000,
-                    setOf(),
-                    setOf(DeltakelsePeriode(deltakerId1, periodeJanuar)),
+                    periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                    sats = 23_000,
+                    stengt = setOf(),
+                    deltakelser = setOf(DeltakelsePeriode(deltakerId1, periodeJanuar)),
                 ),
             )
             val beregningFebruar = UtbetalingBeregningPrisPerManedsverk.beregn(
                 UtbetalingBeregningPrisPerManedsverk.Input(
-                    periodeFebruar,
-                    31_000,
-                    setOf(),
-                    setOf(DeltakelsePeriode(deltakerId1, periodeFebruar)),
+                    periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+                    sats = 23_000,
+                    stengt = setOf(),
+                    deltakelser = setOf(DeltakelsePeriode(deltakerId1, periodeFebruar)),
                 ),
             )
+
+            // 1/23 virkedager i januar
             beregningJanuar.output.belop shouldBe 1000
-            beregningFebruar.output.belop shouldBe 1107
+
+            // 1/20 virkedager i februar
+            beregningFebruar.output.belop shouldBe 1150
         }
     }
 })
