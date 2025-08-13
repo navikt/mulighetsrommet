@@ -32,8 +32,8 @@ fun Route.featureTogglesRoute() {
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Informasjon om veileder"
-                    body<NavVeilederDto>()
+                    description = "Om feature er på eller ikke"
+                    body<Boolean>()
                 }
                 default {
                     description = "En feil har oppstått"
@@ -48,7 +48,7 @@ fun Route.featureTogglesRoute() {
 
             val context = FeatureToggleContext(
                 userId = getNavIdent().value,
-                sessionId = call.generateSessionId(),
+                sessionId = call.generateUnleashSessionId(),
                 remoteAddress = call.request.origin.remoteAddress,
                 tiltakskoder = tiltakskoder,
                 orgnr = emptyList(),
@@ -61,7 +61,7 @@ fun Route.featureTogglesRoute() {
     }
 }
 
-private fun ApplicationCall.generateSessionId(): String {
+fun ApplicationCall.generateUnleashSessionId(): String {
     val uuid = UUID.randomUUID()
     val sessionId =
         java.lang.Long.toHexString(uuid.mostSignificantBits) + java.lang.Long.toHexString(uuid.leastSignificantBits)
