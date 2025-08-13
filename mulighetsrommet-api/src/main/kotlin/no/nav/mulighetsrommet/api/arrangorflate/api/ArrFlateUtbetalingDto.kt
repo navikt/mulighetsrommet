@@ -27,9 +27,9 @@ data class ArrFlateUtbetaling(
     val kanViseBeregning: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime?,
-    val tiltakstype: Utbetaling.Tiltakstype,
-    val gjennomforing: Utbetaling.Gjennomforing,
-    val arrangor: Utbetaling.Arrangor,
+    val tiltakstype: ArrangorflateTiltakstype,
+    val gjennomforing: ArrangorflateGjennomforingInfo,
+    val arrangor: ArrangorflateArrangor,
     val beregning: ArrFlateBeregning,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val periode: Periode,
