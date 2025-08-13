@@ -41,35 +41,35 @@ class ArrangorFlateService(
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrFlateUtbetalinger = db.session {
-        val aktive = mutableListOf<ArrFlateUtbetalingKompaktDto>()
-        val historiske = mutableListOf<ArrFlateUtbetalingKompaktDto>()
-
-        queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
-            val advarsler = getAdvarsler(utbetaling)
-            val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
-            val godkjentBelop =
-                if (status in listOf(
-                        ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                        ArrFlateUtbetalingStatus.UTBETALT,
-                    )
-                ) {
-                    getGodkjentBelopForUtbetaling(utbetaling.id)
-                } else {
-                    null
-                }
-            val dto = ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
-            when (dto.status) {
-                ArrFlateUtbetalingStatus.KREVER_ENDRING,
-                ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
-                ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                -> aktive += dto
-
-                ArrFlateUtbetalingStatus.AVBRUTT,
-                ArrFlateUtbetalingStatus.UTBETALT,
-                ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                -> historiske += dto
+        val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
+            .map { utbetaling ->
+                val advarsler = getAdvarsler(utbetaling)
+                val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
+                val godkjentBelop =
+                    if (status in listOf(
+                            ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                            ArrFlateUtbetalingStatus.UTBETALT,
+                        )
+                    ) {
+                        getGodkjentBelopForUtbetaling(utbetaling.id)
+                    } else {
+                        null
+                    }
+                ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
             }
-        }
+            .partition { dto ->
+                when (dto.status) {
+                    ArrFlateUtbetalingStatus.KREVER_ENDRING,
+                    ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+                    ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                    -> true
+
+                    ArrFlateUtbetalingStatus.AVBRUTT,
+                    ArrFlateUtbetalingStatus.UTBETALT,
+                    ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    -> false
+                }
+            }
         return ArrFlateUtbetalinger(aktive = aktive, historiske = historiske)
     }
 
