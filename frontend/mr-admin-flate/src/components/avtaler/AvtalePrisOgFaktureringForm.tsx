@@ -5,7 +5,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
-import { useMemo, useCallback, useEffect } from "react";
+import { useEffect } from "react";
 
 interface AvtalPrisOgFaktureringProps {
   tiltakskode: Tiltakskode;
@@ -22,19 +22,16 @@ export default function AvtalePrisOgFaktureringForm({ tiltakskode }: AvtalPrisOg
   } = useFormContext<AvtaleFormValues>();
 
   const prismodell = watch("prismodell");
-  const preselectPrismodell = useMemo(() => {
-    return prismodeller.length === 1 ? prismodeller[0].type : null;
-  }, [prismodeller]);
-
-  const handlePreselect = useCallback(() => {
-    if (preselectPrismodell && !prismodell) {
-      setValue("prismodell", preselectPrismodell, { shouldValidate: false });
-    }
-  }, [preselectPrismodell, prismodell, setValue]);
 
   useEffect(() => {
-    handlePreselect();
-  }, [handlePreselect]);
+    if (prismodeller.some((p) => p.type === prismodell)) return;
+
+    const newValue = prismodeller.length === 1 ? prismodeller[0].type : undefined;
+
+    if (newValue !== prismodell) {
+      setValue("prismodell", newValue, { shouldValidate: false });
+    }
+  }, [tiltakskode, prismodeller, prismodell, setValue]);
 
   return (
     <>
@@ -44,6 +41,9 @@ export default function AvtalePrisOgFaktureringForm({ tiltakskode }: AvtalPrisOg
         error={errors.prismodell?.message}
         {...register("prismodell")}
       >
+        <option key="" value={undefined}>
+          -- Velg en --
+        </option>
         {prismodeller.map(({ type, beskrivelse }) => (
           <option key={type} value={type}>
             {beskrivelse}
@@ -51,7 +51,7 @@ export default function AvtalePrisOgFaktureringForm({ tiltakskode }: AvtalPrisOg
         ))}
       </Select>
 
-      <PrismodellForm tiltakskode={tiltakskode} />
+      <PrismodellForm prismodell={prismodell} tiltakskode={tiltakskode} />
     </>
   );
 }

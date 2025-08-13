@@ -8,7 +8,7 @@ import {
   validateAvtaledetaljer,
   toUtdanningslopDbo,
 } from "./avtaledetaljer";
-import { okonomiSchema, validateOkonomi } from "./okonomi";
+import { okonomiSchema } from "./okonomi";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
 
@@ -35,7 +35,6 @@ export const avtaleFormSchema = avtaleDetaljerSchema
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);
-    validateOkonomi(ctx, data);
   });
 
 export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
@@ -79,7 +78,7 @@ export function defaultAvtaleData(
       customOpsjonsmodellNavn: avtale?.opsjonsmodell.customOpsjonsmodellNavn,
     },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
-    prismodell: avtale?.prismodell ?? null,
+    prismodell: avtale?.prismodell,
     satser: avtale?.satser ?? [],
   };
 }

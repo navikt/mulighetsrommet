@@ -8,7 +8,6 @@ import {
   OpsjonLoggRegistrert,
   OpsjonsmodellType,
   OpsjonStatus,
-  Prismodell,
   Tiltakskode,
   Toggles,
 } from "@mr/api-client-v2";
@@ -77,8 +76,6 @@ export function AvtaleDetaljerForm({
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-
-      setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
     }
   }
 

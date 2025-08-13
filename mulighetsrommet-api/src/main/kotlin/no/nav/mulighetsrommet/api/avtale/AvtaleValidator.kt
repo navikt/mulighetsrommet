@@ -6,10 +6,7 @@ import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
@@ -113,15 +110,6 @@ class AvtaleValidator(
                 }
             }
 
-            if (avtale.prismodell !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
-                add(
-                    FieldError.of(
-                        AvtaleDbo::prismodell,
-                        "${avtale.prismodell.beskrivelse} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
-                    ),
-                )
-            }
-
             if (tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
                 add(FieldError.ofPointer("/amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
@@ -140,6 +128,7 @@ class AvtaleValidator(
                 }
             }
 
+            validatePrismodell(avtale, tiltakskode, tiltakstype.navn)
             validateNavEnheter(avtale.navEnheter)
             validateAdministratorer(avtale)
 
@@ -291,6 +280,45 @@ class AvtaleValidator(
                             )
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun MutableList<FieldError>.validatePrismodell(
+        next: AvtaleDbo,
+        tiltakskode: Tiltakskode,
+        tiltakstypeNavn: String,
+    ) {
+        if (next.prismodell !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
+            add(
+                FieldError.of(
+                    AvtaleDbo::prismodell,
+                    "${next.prismodell.beskrivelse} er ikke tillatt for tiltakstype $tiltakstypeNavn",
+                ),
+            )
+        }
+        if (next.prismodell in listOf(Prismodell.AVTALT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_UKESVERK) && next.satser.isEmpty()) {
+            add(
+                FieldError.of(
+                    AvtaleDbo::prismodell,
+                    "Minst én periode er påkrevd",
+                ),
+            )
+        }
+        next.satser.forEachIndexed { index, sats ->
+            if (sats.sats <= 0) {
+                add(FieldError.ofPointer("/satser/$index/pris", "Pris må være positiv"))
+            }
+        }
+        for (i in next.satser.indices) {
+            val a = next.satser[i]
+            for (j in i + 1 until next.satser.size) {
+                val b = next.satser[j]
+
+                if (a.periode.intersects(b.periode)) {
+                    add(FieldError.ofPointer("/satser/$i/periodeStart", "Overlappende perioder"))
+                    add(FieldError.ofPointer("/satser/$j/periodeStart", "Overlappende perioder"))
                 }
             }
         }
