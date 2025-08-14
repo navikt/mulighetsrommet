@@ -1930,7 +1930,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PrismodellDto"
+                  $ref: "#/components/schemas/PrismodellOgBeskrivelse"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2571,8 +2571,6 @@ components:
           $ref: "#/components/schemas/AvtaleStatusDto"
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
-        prisbetingelser:
-          type: [string, "null"]
         administratorer:
           type: array
           items:
@@ -2608,11 +2606,7 @@ components:
             - type: ["null"]
             - $ref: "#/components/schemas/Utdanningslop"
         prismodell:
-          $ref: "#/components/schemas/Prismodell"
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
+          $ref: "#/components/schemas/PrismodellDto"
       required:
         - id
         - tiltakstype
@@ -2621,7 +2615,6 @@ components:
         - startDato
         - avtaletype
         - status
-        - prisbetingelser
         - kontorstruktur
         - opphav
         - personopplysninger
@@ -2631,7 +2624,61 @@ components:
         - opsjonerRegistrert
         - utdanningslop
         - prismodell
-        - satser
+
+    PrismodellDto:
+      oneOf:
+        - $ref: "#/components/schemas/PrismodellDtoAnnenAvtaltPris"
+        - $ref: "#/components/schemas/PrismodellDtoForhandsgodkjentPrisPerManedsverk"
+        - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerManedsverk"
+        - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerUkesverk"
+
+    PrismodellDtoAnnenAvtaltPris:
+      type: object
+      properties:
+        type:
+          type: string
+          const: ANNEN_AVTALT_PRIS
+        prisbetingelser:
+          type: [string, "null"]
+      required: [type, prisbetingelser]
+
+    PrismodellDtoForhandsgodkjentPrisPerManedsverk:
+      type: object
+      properties:
+        type:
+          type: string
+          const: FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+        prisbetingelser:
+          type: [ string, "null" ]
+      required: [ type, prisbetingelser ]
+
+    PrismodellDtoAvtaltPrisPerManedsverk:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AVTALT_PRIS_PER_MANEDSVERK
+        prisbetingelser:
+          type: [ string, "null" ]
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsDto"
+      required: [ type, prisbetingelser, satser ]
+
+    PrismodellDtoAvtaltPrisPerUkesverk:
+      type: object
+      properties:
+        type:
+          type: string
+          const: AVTALT_PRIS_PER_UKESVERK
+        prisbetingelser:
+          type: [ string, "null" ]
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsDto"
+      required: [ type, prisbetingelser, satser ]
 
     AvtaleRequest:
       type: object
@@ -2679,8 +2726,18 @@ components:
             type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        prisbetingelser:
-          type: [string, "null"]
+        prismodell:
+          type: object
+          properties:
+            prisbetingelser:
+              type: [string, "null"]
+            type:
+              $ref: "#/components/schemas/Prismodell"
+            satser:
+              type: array
+              items:
+                $ref: "#/components/schemas/AvtaltSatsDto"
+          required: [type, satser, prisbetingelser]
         navEnheter:
           type: array
           items:
@@ -2707,12 +2764,6 @@ components:
           anyOf:
             - type: "null"
             - $ref: "#/components/schemas/UtdanningslopDbo"
-        prismodell:
-          $ref: "#/components/schemas/Prismodell"
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
       required:
         - id
         - navn
@@ -2725,7 +2776,6 @@ components:
         - sluttDato
         - administrator
         - avtaletype
-        - prisbetingelser
         - navEnheter
         - beskrivelse
         - faneinnhold
@@ -2735,7 +2785,6 @@ components:
         - opsjonsmodell
         - utdanningslop
         - prismodell
-        - satser
 
     Prismodell:
       type: string
@@ -4778,7 +4827,7 @@ components:
         - belop
         - antall
 
-    PrismodellDto:
+    PrismodellOgBeskrivelse:
       type: object
       properties:
         type:

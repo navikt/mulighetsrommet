@@ -69,6 +69,7 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
           </HStack>
         </Box>
       ))}
+      <Prisbetingelser />
     </VStack>
   );
 }
@@ -152,6 +153,7 @@ function AvtalteSatser() {
           Legg til ny periode
         </div>
       </Button>
+      <Prisbetingelser />
     </VStack>
   );
 }

@@ -120,10 +120,11 @@ export function AvtaleDetaljerForm({
           </HGrid>
         </FormGroup>
         <FormGroup>
-          <HGrid gap="4" columns={2}>
+          <HGrid gap="4" columns={2} align="start">
             <Select
               size="small"
               label={avtaletekster.tiltakstypeLabel}
+              error={errors.tiltakskode?.message}
               {...register("tiltakskode", {
                 onChange: (e) => {
                   setValue("amoKategorisering", null);
@@ -148,6 +149,7 @@ export function AvtaleDetaljerForm({
               size="small"
               readOnly={antallOpsjonerUtlost > 0}
               label={avtaletekster.avtaletypeLabel}
+              error={errors.avtaletype?.message}
               {...register("avtaletype", {
                 onChange: (e) => avtaletypeOnChange(e.target.value),
               })}

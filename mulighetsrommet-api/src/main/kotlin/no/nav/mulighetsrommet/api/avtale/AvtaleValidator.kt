@@ -298,7 +298,12 @@ class AvtaleValidator(
                 ),
             )
         }
-        if (next.prismodell in listOf(Prismodell.AVTALT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_UKESVERK) && next.satser.isEmpty()) {
+        if (next.prismodell in listOf(
+                Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                Prismodell.AVTALT_PRIS_PER_UKESVERK,
+            ) &&
+            next.satser.isEmpty()
+        ) {
             add(
                 FieldError.of(
                     AvtaleDbo::prismodell,

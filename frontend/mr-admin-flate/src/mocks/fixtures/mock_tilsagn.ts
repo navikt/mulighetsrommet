@@ -6,7 +6,7 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      prisbetingelser: mockAvtaler[0].prisbetingelser,
+      prisbetingelser: mockAvtaler[0].prismodell.prisbetingelser,
       linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
       belop: 14_000,
     },

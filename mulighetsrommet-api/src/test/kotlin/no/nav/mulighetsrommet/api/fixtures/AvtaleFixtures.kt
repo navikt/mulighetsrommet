@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
@@ -266,7 +267,6 @@ object AvtaleFixtures {
         avtaletype = Avtaletype.RAMMEAVTALE,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = listOf(NavEnhetNummer("0400")),
-        prisbetingelser = null,
         beskrivelse = null,
         faneinnhold = null,
         personopplysninger = emptyList(),
@@ -278,8 +278,11 @@ object AvtaleFixtures {
             customOpsjonsmodellNavn = null,
         ),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
-        satser = listOf(),
+        prismodell = PrismodellRequest(
+            type = Prismodell.ANNEN_AVTALT_PRIS,
+            prisbetingelser = null,
+            satser = listOf(),
+        ),
     )
 
     /**

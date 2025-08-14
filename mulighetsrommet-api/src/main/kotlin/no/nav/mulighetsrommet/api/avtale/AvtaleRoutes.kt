@@ -44,7 +44,6 @@ data class AvtaleRequest(
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
-    val prisbetingelser: String?,
     val navEnheter: List<NavEnhetNummer>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
@@ -53,10 +52,8 @@ data class AvtaleRequest(
     val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: Prismodell,
-    val satser: List<AvtaltSatsDto>,
+    val prismodell: PrismodellRequest,
 ) {
-
     @Serializable
     data class Arrangor(
         val hovedenhet: Organisasjonsnummer,

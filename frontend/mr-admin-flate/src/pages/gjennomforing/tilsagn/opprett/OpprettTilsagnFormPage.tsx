@@ -34,7 +34,7 @@ function useHentData() {
     ...tilsagnDefaultsQuery({
       gjennomforingId,
       type,
-      prismodell: (prismodell ?? avtale?.prismodell) || null,
+      prismodell: (prismodell ?? (avtale?.prismodell.type as Prismodell)) || null,
       periodeStart,
       periodeSlutt,
       belop: belop ? Number(belop) : null,

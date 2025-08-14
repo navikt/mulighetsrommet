@@ -1,5 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { QueryKeys } from "@/api/QueryKeys";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
@@ -9,7 +10,6 @@ import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
-
 import {
   avtaleFormSchema,
   AvtaleFormValues,
@@ -17,16 +17,17 @@ import {
   PersonopplysningerSchema,
   RedaksjoneltInnholdSchema,
 } from "@/schemas/avtale";
-import { avtaleDetaljerFormSchema, getUtdanningslop } from "@/schemas/avtaledetaljer";
+import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Prismodell, AvtaleDto, ValidationError } from "@mr/api-client-v2";
+import { AvtaleDto, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
-import { v4 as uuidv4 } from "uuid";
 import { ZodObject } from "zod";
+import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
 
 const steps = [
   {
@@ -58,6 +59,7 @@ export function NewAvtaleFormPage() {
 
   const navigate = useNavigate();
 
+  const queryClient = useQueryClient();
   const location = useLocation();
   const mutation = useUpsertAvtale();
   const { data: ansatt } = useHentAnsatt();
@@ -79,80 +81,23 @@ export function NewAvtaleFormPage() {
         const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         methods.setError(name, { type: "custom", message: error.detail });
       });
-
-      function mapNameToSchemaPropertyName(name: string) {
-        const mapping: { [name: string]: string } = {
-          opsjonsmodell: "opsjonsmodell.type",
-          opsjonMaksVarighet: "opsjonsmodell.opsjonMaksVarighet",
-          customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
-          tiltakstypeId: "tiltakstype",
-          utdanningslop: "utdanningslop.utdanninger",
-        };
-        return (mapping[name] ?? name) as keyof AvtaleFormValues;
-      }
     },
     [methods],
   );
 
-  const onSubmit = async (data: AvtaleFormValues) => {
-    const {
-      navn,
-      startDato,
-      beskrivelse,
-      avtaletype,
-      faneinnhold,
-      personopplysninger,
-      personvernBekreftet,
-      satser,
-      administratorer,
-    } = data;
-    const requestBody = {
-      id: uuidv4(),
-      navn,
-      administratorer,
-      beskrivelse,
-      faneinnhold,
-      personopplysninger,
-      personvernBekreftet,
-      satser,
-      avtaletype,
-      startDato,
-      sakarkivNummer: data.sakarkivNummer || null,
-      sluttDato: data.sluttDato || null,
-      navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navAndreEnheter),
-      avtalenummer: null,
-      arrangor:
-        data.arrangorHovedenhet && data.arrangorUnderenheter
-          ? {
-              hovedenhet: data.arrangorHovedenhet,
-              underenheter: data.arrangorUnderenheter,
-              kontaktpersoner: data.arrangorKontaktpersoner || [],
-            }
-          : null,
-      tiltakKode: data.tiltakskode,
-      prisbetingelser:
-        !data.prismodell || data.prismodell === Prismodell.ANNEN_AVTALT_PRIS
-          ? data.prisbetingelser || null
-          : null,
-      amoKategorisering: data.amoKategorisering || null,
-      opsjonsmodell: {
-        type: data.opsjonsmodell.type,
-        opsjonMaksVarighet: data.opsjonsmodell.opsjonMaksVarighet || null,
-        customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
-      },
-      utdanningslop: getUtdanningslop(data),
-      prismodell: data.prismodell ?? Prismodell.ANNEN_AVTALT_PRIS,
-    };
-
-    mutation.mutate(requestBody, {
-      onSuccess: (dto: { data: AvtaleDto }) => {
-        navigate(`/avtaler/${dto.data.id}`);
-      },
+  const onSubmit = async (data: AvtaleFormValues) =>
+    onSubmitAvtaleForm({
+      avtale: undefined,
+      data,
+      mutation,
       onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
+      onSuccess: (dto: { data: AvtaleDto }) => {
+        queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
+        navigate(`/avtaler/${dto.data.id}`);
+      },
     });
-  };
 
   const handleStepChange = (val: number) => {
     methods.trigger();
