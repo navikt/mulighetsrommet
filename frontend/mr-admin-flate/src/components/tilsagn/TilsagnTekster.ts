@@ -9,7 +9,7 @@ export const tilsagnTekster = {
     label: "Brukt beløp",
   },
   periode: {
-    label: "Periode",
+    label: "Tilsagnsperiode",
     start: {
       label: "Periodestart",
     },
