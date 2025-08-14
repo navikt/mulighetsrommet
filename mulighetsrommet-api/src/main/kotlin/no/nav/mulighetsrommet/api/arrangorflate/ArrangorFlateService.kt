@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
-import kotlinx.serialization.Serializable
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -9,21 +8,19 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -42,34 +39,35 @@ class ArrangorFlateService(
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrFlateUtbetalinger = db.session {
-        val aktive = mutableListOf<ArrFlateUtbetalingKompaktDto>()
-        val historiske = mutableListOf<ArrFlateUtbetalingKompaktDto>()
-
-        queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
-            val advarsler = getAdvarsler(utbetaling)
-            val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
-            val godkjentBelop =
-                if (status in listOf(
-                        ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                        ArrFlateUtbetalingStatus.UTBETALT,
-                    )
-                ) {
-                    getGodkjentBelopForUtbetaling(utbetaling.id)
-                } else {
-                    null
-                }
-            val dto = ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
-            when (dto.status) {
-                ArrFlateUtbetalingStatus.KREVER_ENDRING,
-                ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
-                ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                -> aktive += dto
-                ArrFlateUtbetalingStatus.AVBRUTT,
-                ArrFlateUtbetalingStatus.UTBETALT,
-                ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                -> historiske += dto
+        val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
+            .map { utbetaling ->
+                val advarsler = getAdvarsler(utbetaling)
+                val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
+                val godkjentBelop =
+                    if (status in listOf(
+                            ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                            ArrFlateUtbetalingStatus.UTBETALT,
+                        )
+                    ) {
+                        getGodkjentBelopForUtbetaling(utbetaling.id)
+                    } else {
+                        null
+                    }
+                ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
             }
-        }
+            .partition { dto ->
+                when (dto.status) {
+                    ArrFlateUtbetalingStatus.KREVER_ENDRING,
+                    ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+                    ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                    -> true
+
+                    ArrFlateUtbetalingStatus.AVBRUTT,
+                    ArrFlateUtbetalingStatus.UTBETALT,
+                    ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    -> false
+                }
+            }
         return ArrFlateUtbetalinger(aktive = aktive, historiske = historiske)
     }
 
@@ -166,8 +164,6 @@ class ArrangorFlateService(
         utbetaling: Utbetaling,
         relativeDate: LocalDateTime = LocalDateTime.now(),
     ): ArrFlateUtbetaling = db.session {
-        val advarsler = getAdvarsler(utbetaling)
-        val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
         val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
             ?.let { it.plusWeeks(12) <= relativeDate } ?: false
 
@@ -185,6 +181,8 @@ class ArrangorFlateService(
             .associateBy { it.id }
             .mapValues { it.value to it.value.norskIdent?.let { personerByNorskIdent.getValue(it) } }
 
+        val advarsler = getAdvarsler(utbetaling)
+        val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
         return mapUtbetalingToArrFlateUtbetaling(
             utbetaling = utbetaling,
             status = status,
@@ -236,14 +234,8 @@ class ArrangorFlateService(
                 arrangorOrgnr = listOf(orgnr),
                 prismodeller = prismodeller,
             )
-            .items.map {
-                ArrangorflateGjennomforing(
-                    id = it.id,
-                    navn = it.navn,
-                    startDato = it.startDato,
-                    sluttDato = it.sluttDato,
-                )
-            }
+            .items
+            .map { toArrangorflateGjennomforing(it) }
     }
 
     suspend fun getKontonummer(orgnr: Organisasjonsnummer): Either<KontonummerRegisterOrganisasjonError, String> {
@@ -341,44 +333,37 @@ fun harOverlappendePeriode(
     return sammePerson.any { (_, _, periodeB) -> periodeB.intersects(deltakerOgPeriode.periode) }
 }
 
-private fun QueryContext.toArrangorflateTilsagn(
+private fun toArrangorflateTilsagn(
     tilsagn: Tilsagn,
 ): ArrangorflateTilsagnDto {
-    val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
     return ArrangorflateTilsagnDto(
         id = tilsagn.id,
-        gjennomforing = ArrangorflateTilsagnDto.Gjennomforing(
-            id = tilsagn.gjennomforing.id,
-            navn = tilsagn.gjennomforing.navn,
+        gjennomforing = ArrangorflateGjennomforingInfo(
+            tilsagn.gjennomforing.id,
+            tilsagn.gjennomforing.navn,
         ),
         bruktBelop = tilsagn.belopBrukt,
         gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
-        tiltakstype = ArrangorflateTilsagnDto.Tiltakstype(
+        tiltakstype = ArrangorflateTiltakstype(
             navn = tilsagn.tiltakstype.navn,
+            tiltakskode = tilsagn.tiltakstype.tiltakskode,
         ),
         type = tilsagn.type,
         periode = tilsagn.periode,
         beregning = TilsagnBeregningDto.from(tilsagn.beregning),
-        arrangor = ArrangorflateTilsagnDto.Arrangor(
+        arrangor = ArrangorflateArrangor(
             id = tilsagn.arrangor.id,
             navn = tilsagn.arrangor.navn,
             organisasjonsnummer = tilsagn.arrangor.organisasjonsnummer,
         ),
-        status = ArrangorflateTilsagnDto.StatusOgAarsaker(
-            status = tilsagn.status,
-            aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: listOf(),
-        ),
+        status = tilsagn.status,
         bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
     )
 }
 
-@Serializable
-data class ArrangorflateGjennomforing(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
+private fun toArrangorflateGjennomforing(dto: GjennomforingDto): ArrangorflateGjennomforing = ArrangorflateGjennomforing(
+    id = dto.id,
+    navn = dto.navn,
+    startDato = dto.startDato,
+    sluttDato = dto.sluttDato,
 )

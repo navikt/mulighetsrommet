@@ -1,5 +1,5 @@
 import { PortableText } from "@portabletext/react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Switch from "react-switch";
 import { useClient } from "sanity";
 import { API_VERSION } from "../../sanity.config";
@@ -24,10 +24,10 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
   useEffect(() => {
     const fetchData = async () => {
       const gjennomforingsdata = await client.fetch(
-        `*[_type == "gjennomforing" && _id == "${document.displayed._id}"]{...}[0]`
+        `*[_type == "gjennomforing" && _id == "${document.displayed._id}"]{...}[0]`,
       );
       const data = await client.fetch(
-        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`
+        `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`,
       );
       setTiltaksdata(data);
       setGjennomforingsdata(gjennomforingsdata);
@@ -121,9 +121,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
             <div>
               <Legend farge={tiltaksfarge}>Fra tiltakstype</Legend>
             </div>
-            <Legend farge={gjennomforingsfarge}>
-              Fra tiltaksgjennomføring
-            </Legend>
+            <Legend farge={gjennomforingsfarge}>Fra tiltaksgjennomføring</Legend>
           </div>
         )}
       </div>
@@ -154,9 +152,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
         </TekstFraTiltakstype>
 
         <TekstFraGjennomforing>
-          <SidemenyDetaljerRad navn="Oppstart">
-            {visOppstartsdato(displayed)}
-          </SidemenyDetaljerRad>
+          <SidemenyDetaljerRad navn="Oppstart">{visOppstartsdato(displayed)}</SidemenyDetaljerRad>
         </TekstFraGjennomforing>
         {tiltaksdata?.regelverkLenker && (
           <TekstFraTiltakstype>
@@ -202,9 +198,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
           <h2>Beskrivelse</h2>
           <TekstFraTiltakstype>{tiltaksdata?.beskrivelse}</TekstFraTiltakstype>
           {tiltaksdata?.tiltakstypeNavn === "Opplæring - Gruppe AMO" && (
-            <TekstFraGjennomforing>
-              {displayed.beskrivelse}
-            </TekstFraGjennomforing>
+            <TekstFraGjennomforing>{displayed.beskrivelse}</TekstFraGjennomforing>
           )}
         </div>
 
@@ -249,9 +243,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
             {displayed.faneinnhold?.pameldingOgVarighetInfoboks}
           </InfoboksFraGjennomforing>
           <TekstFraTiltakstype>
-            <PortableText
-              value={tiltaksdata.faneinnhold?.pameldingOgVarighet}
-            />
+            <PortableText value={tiltaksdata.faneinnhold?.pameldingOgVarighet} />
           </TekstFraTiltakstype>
           <TekstFraGjennomforing>
             <PortableText value={displayed.faneinnhold?.pameldingOgVarighet} />

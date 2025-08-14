@@ -141,10 +141,7 @@ class ArrangorflateRoutesTest : FunSpec({
             response.status shouldBe HttpStatusCode.OK
 
             response.body<List<ArrangorflateTilsagnDto>>().shouldHaveSize(1).first().should {
-                it.status shouldBe ArrangorflateTilsagnDto.StatusOgAarsaker(
-                    status = TilsagnStatus.GODKJENT,
-                    aarsaker = listOf(),
-                )
+                it.status shouldBe TilsagnStatus.GODKJENT
             }
         }
     }

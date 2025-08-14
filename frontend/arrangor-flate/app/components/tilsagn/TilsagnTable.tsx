@@ -24,7 +24,7 @@ function getTilsagnSelector(sortKey: TilsagnSortKey): SortBySelector<Arrangorfla
     case TilsagnSortKey.TILSAGNSNUMMER:
       return (t) => t.bestillingsnummer;
     case TilsagnSortKey.STATUS:
-      return (t) => t.status.status;
+      return (t) => t.status;
     case TilsagnSortKey.TYPE:
       return (t) => t.type;
   }
@@ -81,7 +81,7 @@ export function TilsagnTable({ tilsagn }: Props) {
               <Table.DataCell>{tilsagn.bestillingsnummer}</Table.DataCell>
               <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
               <Table.DataCell>
-                <TilsagnStatusTag data={tilsagn.status} />
+                <TilsagnStatusTag status={tilsagn.status} />
               </Table.DataCell>
               <Table.DataCell>
                 <LinkWithTabState

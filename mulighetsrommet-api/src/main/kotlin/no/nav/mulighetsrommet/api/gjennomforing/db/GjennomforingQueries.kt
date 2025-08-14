@@ -273,6 +273,10 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun getOrError(id: UUID): GjennomforingDto {
+        return checkNotNull(get(id)) { "Gjennomføring med id $id finnes ikke" }
+    }
+
     fun get(id: UUID): GjennomforingDto? {
         @Language("PostgreSQL")
         val query = """

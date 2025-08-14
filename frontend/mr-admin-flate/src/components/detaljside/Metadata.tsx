@@ -29,7 +29,7 @@ export function MetadataHorisontal({ header, verdi }: MetadataProps) {
   return (
     <HGrid columns="0.5fr 1fr" gap="2" align="center">
       <dt className="w-max">{header}:</dt>
-      <dd className="font-bold text-wrap whitespace-break-spaces w-fit">{verdi ?? "-"}</dd>
+      <dd className="font-bold whitespace-nowrap w-fit">{verdi ?? "-"}</dd>
     </HGrid>
   );
 }
