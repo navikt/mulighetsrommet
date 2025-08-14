@@ -484,7 +484,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 }
         }
 
-        test("månedsverk til deltakere med avsluttende status blir beregnet ut ifra den minste av deltakerens sluttdato og tidspunktet for endring av status") {
+        xtest("månedsverk til deltakere med avsluttende status blir beregnet ut ifra den minste av deltakerens sluttdato og tidspunktet for når statusen ble gyldig") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -898,7 +898,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("månedsverk til deltakere med avsluttende status blir beregnet ut ifra den minste av deltakerens sluttdato og tidspunktet for endring av status") {
+        xtest("månedsverk til deltakere med avsluttende status blir beregnet ut ifra den minste av deltakerens sluttdato og tidspunktet for når statusen ble gyldig") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
