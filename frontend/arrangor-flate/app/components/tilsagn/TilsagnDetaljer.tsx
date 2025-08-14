@@ -15,7 +15,7 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
   const tilsagnDetaljer: Definition[] = [
     ...(!minimal
       ? [
-          { key: "Status", value: <TilsagnStatusTag data={tilsagn.status} /> },
+          { key: "Status", value: <TilsagnStatusTag status={tilsagn.status} /> },
           { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
           { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
         ]

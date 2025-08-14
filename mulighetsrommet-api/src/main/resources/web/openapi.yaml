@@ -5503,7 +5503,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         status:
-          $ref: "#/components/schemas/TilsagnStatusOgAarsaker"
+          $ref: "#/components/schemas/TilsagnStatus"
         arrangor:
           type: object
           properties:
@@ -5593,16 +5593,6 @@ components:
           type: string
           format: uuid
       required: [type, deltakerId]
-
-    TilsagnStatusOgAarsaker:
-      type: object
-      properties:
-        status:
-          $ref: "#/components/schemas/TilsagnStatus"
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
 
     GetOppgaverRequest:
       type: object

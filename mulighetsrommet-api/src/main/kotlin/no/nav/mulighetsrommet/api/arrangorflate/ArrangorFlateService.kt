@@ -13,9 +13,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
@@ -335,10 +333,9 @@ fun harOverlappendePeriode(
     return sammePerson.any { (_, _, periodeB) -> periodeB.intersects(deltakerOgPeriode.periode) }
 }
 
-private fun QueryContext.toArrangorflateTilsagn(
+private fun toArrangorflateTilsagn(
     tilsagn: Tilsagn,
 ): ArrangorflateTilsagnDto {
-    val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
     return ArrangorflateTilsagnDto(
         id = tilsagn.id,
         gjennomforing = ArrangorflateGjennomforingInfo(
@@ -359,10 +356,7 @@ private fun QueryContext.toArrangorflateTilsagn(
             navn = tilsagn.arrangor.navn,
             organisasjonsnummer = tilsagn.arrangor.organisasjonsnummer,
         ),
-        status = ArrangorflateTilsagnStatusOgAarsaker(
-            status = tilsagn.status,
-            aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: listOf(),
-        ),
+        status = tilsagn.status,
         bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
     )
 }

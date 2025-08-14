@@ -119,7 +119,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.shouldNotBeNull()
         result.id shouldBe tilsagn.id
-        result.status.status shouldBe TilsagnStatus.GODKJENT
+        result.status shouldBe TilsagnStatus.GODKJENT
     }
 
     test("getTilsagnByOrgnr should return list of tilsagn for arrangor") {
@@ -130,7 +130,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         result shouldHaveSize 1
         result[0].id shouldBe tilsagn.id
-        result[0].status.status shouldBe TilsagnStatus.GODKJENT
+        result[0].status shouldBe TilsagnStatus.GODKJENT
     }
 
     test("getArrangorflateTilsagnTilUtbetaling should return tilsagn for given gjennomforing and period") {

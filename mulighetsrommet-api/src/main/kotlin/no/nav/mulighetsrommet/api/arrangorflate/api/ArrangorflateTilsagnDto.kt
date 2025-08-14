@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -21,12 +20,12 @@ data class ArrangorflateTilsagnDto(
     val periode: Periode,
     val beregning: TilsagnBeregningDto,
     val arrangor: ArrangorflateArrangor,
-    val status: ArrangorflateTilsagnStatusOgAarsaker,
+    val status: TilsagnStatus,
     val bestillingsnummer: String,
 )
 
 @Serializable
 data class ArrangorflateTilsagnStatusOgAarsaker(
     val status: TilsagnStatus,
-    val aarsaker: List<TilsagnStatusAarsak>?,
+    val aarsaker: List<String>?,
 )
