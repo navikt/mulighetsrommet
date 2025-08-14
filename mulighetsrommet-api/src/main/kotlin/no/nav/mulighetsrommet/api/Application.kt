@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
+import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -105,6 +106,9 @@ fun Application.configure(config: AppConfig) {
                  */
                 //  explicitNullTypes = false
 
+                referencePath = RefType.SIMPLE
+                title = null
+
                 overwrite(
                     SchemaOverwriteModule(
                         identifier = "UUIDCustom",
@@ -140,6 +144,17 @@ fun Application.configure(config: AppConfig) {
                 )
                 overwrite(
                     SchemaOverwriteModule(
+                        identifier = "kotlin.ByteArray",
+                        schema = {
+                            Schema<Any>().also {
+                                it.types = setOf("string")
+                                it.format = "binary"
+                            }
+                        },
+                    ),
+                )
+                overwrite(
+                    SchemaOverwriteModule(
                         identifier = "PortableTextTypedObject",
                         schema = {
                             Schema<PortableTextTypedObject>().apply {
@@ -162,8 +177,48 @@ fun Application.configure(config: AppConfig) {
                         },
                     ),
                 )
-                referencePath = RefType.SIMPLE
-                title = null
+                overwrite(
+                    SchemaOverwriteModule(
+                        identifier = "ProblemDetail",
+                        schema = {
+                            Schema<ProblemDetail>().apply {
+                                type = "object"
+                                addProperty(
+                                    "type",
+                                    Schema<String>().apply {
+                                        types = setOf("string")
+                                    },
+                                )
+                                addProperty(
+                                    "title",
+                                    Schema<String>().apply {
+                                        types = setOf("string")
+                                    },
+                                )
+                                addProperty(
+                                    "status",
+                                    Schema<String>().apply {
+                                        types = setOf("integer")
+                                    },
+                                )
+                                addProperty(
+                                    "detail",
+                                    Schema<String>().apply {
+                                        types = setOf("string")
+                                    },
+                                )
+                                addProperty(
+                                    "instance",
+                                    Schema<String>().apply {
+                                        types = setOf("string")
+                                    },
+                                )
+                                required = listOf("type", "title", "status", "detail")
+                                additionalProperties = Schema<Any>()
+                            }
+                        },
+                    ),
+                )
             }
         }
     }

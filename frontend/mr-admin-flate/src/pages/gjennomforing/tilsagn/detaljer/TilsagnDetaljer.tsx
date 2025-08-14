@@ -59,7 +59,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             <VStack gap="4" className="flex-1">
               <MetadataHorisontal
                 header={tilsagnTekster.status.label}
-                verdi={<TilsagnTag visAarsakerOgForklaring status={status} />}
+                verdi={<TilsagnTag status={status} />}
               />
               <MetadataHorisontal
                 header={tilsagnTekster.type.label}
@@ -114,9 +114,4 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
       </TwoColumnGrid>
     </>
   );
-}
-
-{
-  /*
-   */
 }

@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
@@ -272,6 +273,10 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun getOrError(id: UUID): GjennomforingDto {
+        return checkNotNull(get(id)) { "Gjennomføring med id $id finnes ikke" }
+    }
+
     fun get(id: UUID): GjennomforingDto? {
         @Language("PostgreSQL")
         val query = """
@@ -431,24 +436,30 @@ class GjennomforingQueries(private val session: Session) {
         return session.update(queryOf(query, avtaleId, gjennomforingId))
     }
 
-    fun setStatus(id: UUID, status: GjennomforingStatus, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int {
+    fun setStatus(
+        id: UUID,
+        status: GjennomforingStatus,
+        tidspunkt: LocalDateTime?,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>?,
+    ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update gjennomforing
-            set status = :status::gjennomforing_status,
+            update gjennomforing set
+                status = :status::gjennomforing_status,
                 avsluttet_tidspunkt = :tidspunkt,
-                avbrutt_aarsak = :aarsak
+                avbrutt_aarsaker = :aarsaker,
+                avbrutt_forklaring = :forklaring
             where id = :id::uuid
         """.trimIndent()
 
-        val beskrivelse = when (aarsak) {
-            is AvbruttAarsak.Annet -> aarsak.beskrivelse
-            else -> aarsak?.name
-        }
-
-        val params = mapOf("id" to id, "status" to status.name, "tidspunkt" to tidspunkt, "aarsak" to beskrivelse)
-
-        return session.update(queryOf(query, params))
+        val params = mapOf(
+            "id" to id,
+            "status" to status.name,
+            "tidspunkt" to tidspunkt,
+            "aarsaker" to aarsakerOgForklaring?.aarsaker?.let { session.createTextArray(it.map { it.name }) },
+            "forklaring" to aarsakerOgForklaring?.forklaring,
+        )
+        return update(queryOf(query, params))
     }
 
     fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID) {
@@ -647,12 +658,14 @@ class GjennomforingQueries(private val session: Session) {
 
             GjennomforingStatus.AVBRUTT -> GjennomforingStatusDto.Avbrutt(
                 tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak")),
+                array<String>("avbrutt_aarsaker").map { AvbruttAarsak.valueOf(it) },
+                stringOrNull("avbrutt_forklaring"),
             )
 
             GjennomforingStatus.AVLYST -> GjennomforingStatusDto.Avlyst(
                 tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak")),
+                array<String>("avbrutt_aarsaker").map { AvbruttAarsak.valueOf(it) },
+                stringOrNull("avbrutt_forklaring"),
             )
         }
 

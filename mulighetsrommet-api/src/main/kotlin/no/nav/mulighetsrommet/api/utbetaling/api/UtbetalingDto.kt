@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -29,10 +30,10 @@ data class UtbetalingDto(
     val type: UtbetalingType?,
 ) {
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
+        fun fromUtbetaling(utbetaling: Utbetaling, avbrytelse: Totrinnskontroll?): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
-                status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
+                status = UtbetalingStatusDto.fromUtbetaling(utbetaling, avbrytelse),
                 periode = utbetaling.periode,
                 godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
                 betalingsinformasjon = utbetaling.betalingsinformasjon,

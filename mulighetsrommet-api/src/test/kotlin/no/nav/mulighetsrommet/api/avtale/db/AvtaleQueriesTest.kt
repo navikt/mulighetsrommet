@@ -11,6 +11,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -154,16 +155,18 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(AvtaleFixtures.oppfolging)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AvbruttAarsak.Annet(":)"))
+                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"))
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsak = AvbruttAarsak.Annet(":)"),
+                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    forklaring = ":)",
                 )
 
-                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AvbruttAarsak.Feilregistrering)
+                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null))
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsak = AvbruttAarsak.Feilregistrering,
+                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
 
                 queries.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
@@ -648,7 +651,10 @@ class AvtaleQueriesTest : FunSpec({
                     avtaleAvbrutt.id,
                     AvtaleStatus.AVBRUTT,
                     LocalDateTime.now(),
-                    AvbruttAarsak.Feilregistrering,
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                        listOf(AvbruttAarsak.FEILREGISTRERING),
+                        null,
+                    ),
                 )
 
                 val avtaleUtkast = AvtaleFixtures.oppfolging.copy(

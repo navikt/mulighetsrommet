@@ -18,6 +18,8 @@ class DeltakerForslagQueriesTest : FunSpec({
 
     val deltaker = DeltakerFixtures.createDeltakerDbo(
         GjennomforingFixtures.Oppfolging1.id,
+        startDato = LocalDate.now(),
+        sluttDato = LocalDate.now().plusMonths(1),
         statusType = DeltakerStatusType.VENTER_PA_OPPSTART,
     )
 

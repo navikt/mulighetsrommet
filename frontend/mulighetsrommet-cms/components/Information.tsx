@@ -1,4 +1,3 @@
-import React from "react";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
 import { Card, Text } from "@sanity/ui";
 

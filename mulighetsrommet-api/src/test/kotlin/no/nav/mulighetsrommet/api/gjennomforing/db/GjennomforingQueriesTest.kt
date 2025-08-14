@@ -13,6 +13,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -336,16 +337,18 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.upsert(Oppfolging1)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(id, GjennomforingStatus.AVBRUTT, tidspunkt, AvbruttAarsak.Annet(":)"))
+                queries.setStatus(id, GjennomforingStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"))
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsak = AvbruttAarsak.Annet(":)"),
+                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    forklaring = ":)",
                 )
 
-                queries.setStatus(id, GjennomforingStatus.AVLYST, tidspunkt, AvbruttAarsak.Feilregistrering)
+                queries.setStatus(id, GjennomforingStatus.AVLYST, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null))
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
                     tidspunkt = tidspunkt,
-                    aarsak = AvbruttAarsak.Feilregistrering,
+                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
 
                 queries.setStatus(id, GjennomforingStatus.GJENNOMFORES, tidspunkt, null)

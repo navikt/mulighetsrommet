@@ -1,3 +1,8 @@
+import {
+  ExclamationmarkIcon,
+  ExclamationmarkTriangleIcon,
+  InformationSquareIcon,
+} from "@navikt/aksel-icons";
 import { defineField, defineType } from "sanity";
 
 export const alertMessage = defineType({
@@ -28,8 +33,44 @@ export const alertMessage = defineType({
     defineField({
       name: "innhold",
       title: "Innhold",
-      type: "oppskriftContent",
+      type: "alertContent",
       validation: (Rule) => Rule.required().error("Du må oppgi innhold"),
     }),
   ],
+  preview: {
+    select: {
+      variant: "variant",
+      body: "innhold",
+    },
+    prepare({ variant, body }) {
+      let bodyText = "";
+      if (Array.isArray(body)) {
+        const block = body.find((b) => b._type === "block");
+        if (block?.children) {
+          bodyText = block.children.map((child) => child.text).join("");
+        }
+      }
+
+      const variantValue = Array.isArray(variant) ? variant[0] : variant;
+      let icon;
+      switch (variantValue) {
+        case "info":
+          icon = InformationSquareIcon;
+          break;
+        case "warning":
+          icon = ExclamationmarkIcon;
+          break;
+        case "error":
+          icon = ExclamationmarkTriangleIcon;
+          break;
+        default:
+          icon = InformationSquareIcon;
+      }
+
+      return {
+        title: bodyText,
+        icon: icon,
+      };
+    },
+  },
 });

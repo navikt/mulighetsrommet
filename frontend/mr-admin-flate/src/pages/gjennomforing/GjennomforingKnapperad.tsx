@@ -5,23 +5,27 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import {
+  AvbrytGjennomforingAarsak,
   AvtaleDto,
+  FieldError,
   GjennomforingDto,
   GjennomforingStatus,
   NavAnsatt,
   Opphav,
   Prismodell,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
+import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
+import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -32,10 +36,12 @@ interface Props {
 export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
+  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
+  const avbrytMutation = useAvbrytGjennomforing();
 
   const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 
@@ -55,6 +61,24 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
         },
       },
     });
+  }
+
+  function avbryt(aarsaker: AvbrytGjennomforingAarsak[], forklaring: string | null) {
+    avbrytMutation.mutate(
+      {
+        id: gjennomforing.id,
+        aarsaker,
+        forklaring,
+      },
+      {
+        onSuccess: () => {
+          setAvbrytModalOpen(false);
+        },
+        onValidationError: (error: ValidationError) => {
+          setAvbrytModalErrors(error.errors);
+        },
+      },
+    );
   }
 
   return (
@@ -109,9 +133,7 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
                       Registrer stengt hos arrangør
                     </Dropdown.Menu.GroupedList.Item>
                   )}
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => avbrytModalRef.current?.showModal()}
-                  >
+                  <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                     Avbryt gjennomføring
                   </Dropdown.Menu.GroupedList.Item>
                 </Dropdown.Menu.GroupedList>
@@ -148,7 +170,25 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
         modalRef={apentForPameldingModalRef}
         gjennomforing={gjennomforing}
       />
-      <AvbrytGjennomforingModal modalRef={avbrytModalRef} gjennomforing={gjennomforing} />
+      <AarsakerOgForklaringModal<AvbrytGjennomforingAarsak>
+        header={`Ønsker du å avbryte «${gjennomforing?.navn}»?`}
+        open={avbrytModalOpen}
+        buttonLabel="Avbryt avtale"
+        aarsaker={[
+          { value: AvbrytGjennomforingAarsak.BUDSJETT_HENSYN, label: "Budsjetthensyn" },
+          { value: AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR, label: "Endring hos arrangør" },
+          { value: AvbrytGjennomforingAarsak.FEILREGISTRERING, label: "Feilregistrering" },
+          { value: AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE, label: "For få deltakere" },
+          { value: AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA, label: "Avbrutt i Arena" },
+          { value: AvbrytGjennomforingAarsak.ANNET, label: "Annet" },
+        ]}
+        onClose={() => {
+          setAvbrytModalOpen(false);
+          setAvbrytModalErrors([]);
+        }}
+        onConfirm={({ aarsaker, forklaring }) => avbryt(aarsaker, forklaring)}
+        errors={avbrytModalErrors}
+      />
     </KnapperadContainer>
   );
 }

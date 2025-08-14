@@ -31,13 +31,15 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         kanViseBeregning = false,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-        tiltakstype = Utbetaling.Tiltakstype("Avklaring", Tiltakskode.AVKLARING),
-        gjennomforing = Utbetaling.Gjennomforing(UUID.randomUUID(), "Avklaring hos Nav"),
-        arrangor = Utbetaling.Arrangor(
+        tiltakstype = ArrangorflateTiltakstype("Avklaring", Tiltakskode.AVKLARING),
+        gjennomforing = ArrangorflateGjennomforingInfo(
+            id = UUID.randomUUID(),
+            navn = "Avklaring hos Nav",
+        ),
+        arrangor = ArrangorflateArrangor(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             navn = "Nav",
-            slettet = false,
         ),
         beregning = ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
             belop = 100,

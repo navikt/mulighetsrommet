@@ -13,6 +13,15 @@ import java.util.*
 data class UtbetalingDetaljerDto(
     val utbetaling: UtbetalingDto,
     val linjer: List<UtbetalingLinje>,
+    val handlinger: UtbetalingHandlinger,
+)
+
+@Serializable
+data class UtbetalingHandlinger(
+    val avbryt: Boolean,
+    val sendTilAttestering: Boolean,
+    val godkjennAvbryt: Boolean,
+    val sendAvbrytIRetur: Boolean,
 )
 
 @Serializable

@@ -10,7 +10,7 @@ import { lenke } from "./lenke";
 import { redaktor } from "./redaktor";
 import { oppskrift } from "./oppskrift/oppskrift";
 import { steg } from "./oppskrift/steg";
-import { oppskriftContent } from "./oppskrift/oppskriftContent";
+import { alertContent, oppskriftContent } from "./oppskrift/oppskriftContent";
 import { tips } from "./oppskrift/tips";
 import { alertMessage } from "./oppskrift/alertMessage";
 import { arrangor } from "./arrangor";
@@ -33,6 +33,7 @@ export const schemas = [
   tips,
   alertMessage,
   oppskriftContent,
+  alertContent,
   // When added to this list, object types can be used as
   // { type: 'typename' } in other document schemas
   blockContent,

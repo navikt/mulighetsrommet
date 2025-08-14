@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -106,14 +107,14 @@ class UpdateAvtaleStatusTest : FunSpec({
                 id = avtale1.id,
                 status = AvtaleStatus.AVBRUTT,
                 tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                aarsak = AvbruttAarsak.Feilregistrering,
+                AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
             )
 
             queries.avtale.setStatus(
                 id = avtale2.id,
                 status = AvtaleStatus.AVSLUTTET,
                 tidspunkt = null,
-                aarsak = null,
+                null,
             )
         }
 
@@ -125,7 +126,8 @@ class UpdateAvtaleStatusTest : FunSpec({
             queries.avtale.get(avtale1.id).shouldNotBeNull().should {
                 it.status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    aarsak = AvbruttAarsak.Feilregistrering,
+                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
             }
             queries.avtale.get(avtale2.id).shouldNotBeNull().should {

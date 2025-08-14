@@ -13,12 +13,16 @@ export function useAvbrytGjennomforing() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; aarsak?: AvbrytGjennomforingAarsak | string }
+    { id: string; aarsaker: AvbrytGjennomforingAarsak[]; forklaring: string | null }
   >({
-    mutationFn: (data: { id: string; aarsak?: AvbrytGjennomforingAarsak | string }) => {
+    mutationFn: (data: {
+      id: string;
+      aarsaker: AvbrytGjennomforingAarsak[];
+      forklaring: string | null;
+    }) => {
       return GjennomforingerService.avbrytGjennomforing({
         path: { id: data.id },
-        body: { aarsak: data.aarsak },
+        body: { aarsaker: data.aarsaker, forklaring: data.forklaring },
       });
     },
     onSuccess(_, request) {

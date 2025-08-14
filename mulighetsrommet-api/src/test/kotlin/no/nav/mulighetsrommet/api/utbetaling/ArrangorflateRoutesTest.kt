@@ -19,6 +19,7 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnStatusOgAarsaker
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -141,7 +142,7 @@ class ArrangorflateRoutesTest : FunSpec({
             response.status shouldBe HttpStatusCode.OK
 
             response.body<List<ArrangorflateTilsagnDto>>().shouldHaveSize(1).first().should {
-                it.status shouldBe ArrangorflateTilsagnDto.StatusOgAarsaker(
+                it.status shouldBe ArrangorflateTilsagnStatusOgAarsaker(
                     status = TilsagnStatus.GODKJENT,
                     aarsaker = listOf(),
                 )

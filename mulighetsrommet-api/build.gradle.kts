@@ -45,8 +45,11 @@ tasks.build {
 }
 
 tasks.shadowJar {
+    // Gjør det mulig å bygge zip-filer med mer enn 65535 filer
     isZip64 = true
+
     // Trengs for å få med implementasjonen av services fra bl.a. flyway
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     mergeServiceFiles()
 }
 
@@ -124,7 +127,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.4") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.9") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.10") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

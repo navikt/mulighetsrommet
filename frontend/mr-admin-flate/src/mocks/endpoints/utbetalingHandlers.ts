@@ -31,6 +31,12 @@ export const utbetalingHandlers = [
       return HttpResponse.json({
         utbetaling: mockUtbetaling,
         linjer: matchingLinjer,
+        handlinger: {
+          avbryt: false,
+          sendTilAttestering: mockUtbetaling.status.type === "KLAR_TIL_BEHANDLING",
+          sendAvbrytIRetur: false,
+          godkjennAvbryt: false,
+        },
       });
     },
   ),

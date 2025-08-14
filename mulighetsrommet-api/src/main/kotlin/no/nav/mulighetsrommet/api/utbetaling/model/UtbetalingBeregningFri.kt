@@ -28,11 +28,4 @@ data class UtbetalingBeregningFri(
             )
         }
     }
-
-    @Serializable
-    data class Deltakelse(
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakelseId: UUID,
-        override val faktor: Double,
-    ) : UtbetalingBeregningOutputDeltakelse()
 }

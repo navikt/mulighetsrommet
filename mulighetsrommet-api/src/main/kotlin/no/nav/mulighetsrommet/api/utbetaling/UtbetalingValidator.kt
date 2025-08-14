@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -35,13 +36,14 @@ object UtbetalingValidator {
     ): Either<List<FieldError>, List<OpprettDelutbetaling>> = either {
         val errors = buildList {
             when (utbetaling.status) {
-                Utbetaling.UtbetalingStatus.INNSENDT,
-                Utbetaling.UtbetalingStatus.RETURNERT,
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.RETURNERT,
                 -> Unit
-                Utbetaling.UtbetalingStatus.OPPRETTET,
-                Utbetaling.UtbetalingStatus.TIL_ATTESTERING,
-                Utbetaling.UtbetalingStatus.FERDIG_BEHANDLET,
-                Utbetaling.UtbetalingStatus.AVBRUTT,
+                UtbetalingStatusType.GENERERT,
+                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.AVBRUTT,
+                UtbetalingStatusType.TIL_AVBRYTELSE,
                 ->
                     add(
                         FieldError.root(

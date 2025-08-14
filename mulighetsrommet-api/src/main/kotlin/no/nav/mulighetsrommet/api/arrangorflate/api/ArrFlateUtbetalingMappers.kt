@@ -40,7 +40,6 @@ fun mapUtbetalingToArrFlateUtbetaling(
             ArrFlateBeregning.Fri(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
-                deltakelser = deltakelser,
             )
         }
 
@@ -84,9 +83,19 @@ fun mapUtbetalingToArrFlateUtbetaling(
         godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
         kanViseBeregning = kanViseBeregning,
         createdAt = utbetaling.createdAt,
-        tiltakstype = utbetaling.tiltakstype,
-        gjennomforing = utbetaling.gjennomforing,
-        arrangor = utbetaling.arrangor,
+        tiltakstype = ArrangorflateTiltakstype(
+            navn = utbetaling.tiltakstype.navn,
+            tiltakskode = utbetaling.tiltakstype.tiltakskode,
+        ),
+        gjennomforing = ArrangorflateGjennomforingInfo(
+            id = utbetaling.gjennomforing.id,
+            navn = utbetaling.gjennomforing.navn,
+        ),
+        arrangor = ArrangorflateArrangor(
+            id = utbetaling.arrangor.id,
+            organisasjonsnummer = utbetaling.arrangor.organisasjonsnummer,
+            navn = utbetaling.arrangor.navn,
+        ),
         periode = utbetaling.periode,
         beregning = beregning,
         betalingsinformasjon = utbetaling.betalingsinformasjon,
@@ -103,14 +112,6 @@ fun toArrFlateBeregningDeltakelse(
     person: Person?,
 ): ArrFlateBeregningDeltakelse {
     return when (output) {
-        is UtbetalingBeregningFri.Deltakelse -> ArrFlateBeregningDeltakelse.Fri(
-            id = output.deltakelseId,
-            deltakerStartDato = deltaker?.startDato,
-            person = person,
-            periode = input.periode(),
-            faktor = output.faktor,
-            status = deltaker?.status?.type,
-        )
         is DeltakelseUkesverk -> ArrFlateBeregningDeltakelse.PrisPerUkesverk(
             id = output.deltakelseId,
             deltakerStartDato = deltaker?.startDato,
@@ -119,6 +120,7 @@ fun toArrFlateBeregningDeltakelse(
             faktor = output.faktor,
             status = deltaker?.status?.type,
         )
+
         is DeltakelseManedsverk -> when (input) {
             is DeltakelsePeriode ->
                 ArrFlateBeregningDeltakelse.PrisPerManedsverk(
@@ -129,6 +131,7 @@ fun toArrFlateBeregningDeltakelse(
                     faktor = output.faktor,
                     status = deltaker?.status?.type,
                 )
+
             is DeltakelseDeltakelsesprosentPerioder ->
                 ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = output.deltakelseId,

@@ -12,6 +12,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.avtale.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -24,7 +26,6 @@ import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
@@ -51,12 +52,19 @@ fun Route.gjennomforingRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val (aarsak) = call.receive<AvbrytRequest>()
+                val request = call.receive<AarsakerOgForklaringRequest<AvbruttAarsak>>()
 
-                gjennomforinger.avbrytGjennomforing(id, LocalDateTime.now(), aarsak, navIdent)
+                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                    .flatMap {
+                        gjennomforinger.avbrytGjennomforing(
+                            id,
+                            tidspunkt = LocalDateTime.now(),
+                            aarsakerOgForklaring = request,
+                            avbruttAv = navIdent,
+                        )
+                    }
                     .onLeft {
-                        val response = ValidationError("Klarte ikke avbryte gjennomføring", listOf(it))
-                        call.respondWithProblemDetail(response)
+                        call.respondWithProblemDetail(ValidationError("Klarte ikke avbryte gjennomføring", it))
                     }
                     .onRight {
                         call.respond(HttpStatusCode.OK)
@@ -323,12 +331,6 @@ data class GjennomforingRequest(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
-)
-
-@Serializable
-data class AvbrytRequest(
-    @Serializable(with = AvbruttAarsakSerializer::class)
-    val aarsak: AvbruttAarsak,
 )
 
 @Serializable
