@@ -122,6 +122,7 @@ function tilsagnBeregningInput(beregning: TilsagnBeregningDto): TilsagnBeregning
         periode: beregning.periode,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
+        prisbetingelser: beregning.prisbetingelser,
       };
     case "PRIS_PER_UKESVERK":
       return {
@@ -129,6 +130,7 @@ function tilsagnBeregningInput(beregning: TilsagnBeregningDto): TilsagnBeregning
         periode: beregning.periode,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
+        prisbetingelser: beregning.prisbetingelser,
       };
   }
 }

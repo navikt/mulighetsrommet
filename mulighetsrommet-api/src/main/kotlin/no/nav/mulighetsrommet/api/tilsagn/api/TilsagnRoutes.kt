@@ -345,6 +345,7 @@ private fun getTilsagnBeregningPrisPerManedsverkDefaults(
             periode = periode,
             sats = sats,
             antallPlasser = gjennomforing.antallPlasser,
+            prisbetingelser = avtale.prismodell.prisbetingelser,
         )
     }
 
@@ -370,6 +371,7 @@ private fun getTilsagnBeregningPrisPerUkesverkDefaults(
             periode = periode,
             sats = sats,
             antallPlasser = gjennomforing.antallPlasser,
+            prisbetingelser = avtale.prismodell.prisbetingelser,
         )
     }
 

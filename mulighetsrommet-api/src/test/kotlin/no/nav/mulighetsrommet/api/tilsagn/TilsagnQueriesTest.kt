@@ -123,6 +123,7 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
+                        prisbetingelser = null,
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(1000),
                 )

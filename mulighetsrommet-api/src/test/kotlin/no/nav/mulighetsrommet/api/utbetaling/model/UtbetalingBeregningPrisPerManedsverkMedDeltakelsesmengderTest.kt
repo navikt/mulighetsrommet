@@ -329,6 +329,7 @@ class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengderTest : FunSpec({
                         periode = periode,
                         sats = 20205,
                         antallPlasser = 1,
+                        prisbetingelser = null,
                     ),
                 )
 

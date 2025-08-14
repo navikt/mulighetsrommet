@@ -27,6 +27,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       antallPlasser: 42,
       belop: 5285700,
       antallManeder: 13,
+      prisbetingelser: null,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -136,6 +137,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       antallPlasser: 114,
       antallManeder: 14,
       belop: 1147752,
+      prisbetingelser: null,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -161,6 +163,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       antallPlasser: 30,
       belop: 6000,
       antallManeder: 13,
+      prisbetingelser: null,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",

@@ -522,7 +522,7 @@ class AvtaleValidatorTest : FunSpec({
 
                 createValidator().validate(dbo, previous).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
                     FieldError(
-                        "/tiltakstypeId",
+                        "/tiltakskode",
                         "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                     ),
                     FieldError(

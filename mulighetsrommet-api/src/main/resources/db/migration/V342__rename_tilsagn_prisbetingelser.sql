@@ -1,0 +1,1 @@
+alter table tilsagn_fri_prisbetingelser rename to tilsagn_prisbetingelser;

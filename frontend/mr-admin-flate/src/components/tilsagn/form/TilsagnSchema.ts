@@ -36,6 +36,7 @@ export const TilsagnBeregningSchema = z.discriminatedUnion("type", [
         error: "Antall plasser mangler",
       })
       .positive({ error: "Antall plasser må være positivt" }),
+    prisbetingelser: z.string().nullable(),
   }),
   z.object({
     type: z.literal("PRIS_PER_UKESVERK"),
@@ -55,6 +56,7 @@ export const TilsagnBeregningSchema = z.discriminatedUnion("type", [
         error: "Antall plasser mangler",
       })
       .positive({ error: "Antall plasser må være positivt" }),
+    prisbetingelser: z.string().nullable(),
   }),
   z.object({
     type: z.literal("FRI"),

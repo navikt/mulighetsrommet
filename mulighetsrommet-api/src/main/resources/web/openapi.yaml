@@ -4728,7 +4728,9 @@ components:
           type: number
         periode:
           $ref: "#/components/schemas/Periode"
-      required: [periode, type, belop, sats, antallPlasser, antallManeder]
+        prisbetingelser:
+          type: [ string, "null" ]
+      required: [periode, type, belop, sats, antallPlasser, antallManeder, prisbetingelser]
 
     TilsagnBeregningPrisPerManedsverkInput:
       type: object
@@ -4741,7 +4743,9 @@ components:
           type: integer
         antallPlasser:
           type: integer
-      required: [type, periode, sats, antallPlasser]
+        prisbetingelser:
+          type: [ string, "null" ]
+      required: [type, periode, sats, antallPlasser, prisbetingelser]
 
     TilsagnBeregningPrisPerUkesverk:
       type: object
@@ -4758,7 +4762,9 @@ components:
           type: integer
         antallUker:
           type: number
-      required: [periode, type, belop, sats, antallPlasser, antallUker]
+        prisbetingelser:
+          type: [ string, "null" ]
+      required: [periode, type, belop, sats, antallPlasser, antallUker, prisbetingelser]
 
     TilsagnBeregningPrisPerUkesverkInput:
       type: object
@@ -4771,11 +4777,9 @@ components:
           type: integer
         antallPlasser:
           type: integer
-      required:
-        - type
-        - periode
-        - sats
-        - antallPlasser
+        prisbetingelser:
+          type: [ string, "null" ]
+      required: [type, periode, sats, antallPlasser, prisbetingelser]
 
     TilsagnBeregningFri:
       type: object

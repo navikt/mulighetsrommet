@@ -13,6 +13,7 @@ import java.math.RoundingMode
 @Serializable
 sealed class TilsagnBeregningDto {
     abstract val belop: Int
+    abstract val prisbetingelser: String?
 
     @Serializable
     @SerialName("PRIS_PER_MANEDSVERK")
@@ -21,6 +22,7 @@ sealed class TilsagnBeregningDto {
         val sats: Int,
         val antallPlasser: Int,
         val antallManeder: Double,
+        override val prisbetingelser: String?,
     ) : TilsagnBeregningDto()
 
     @Serializable
@@ -30,6 +32,7 @@ sealed class TilsagnBeregningDto {
         val sats: Int,
         val antallPlasser: Int,
         val antallUker: Double,
+        override val prisbetingelser: String?,
     ) : TilsagnBeregningDto()
 
     @Serializable
@@ -37,7 +40,7 @@ sealed class TilsagnBeregningDto {
     data class Fri(
         override val belop: Int,
         val linjer: List<InputLinje>,
-        val prisbetingelser: String?,
+        override val prisbetingelser: String?,
     ) : TilsagnBeregningDto()
 
     companion object {
@@ -53,6 +56,7 @@ sealed class TilsagnBeregningDto {
                     belop = beregning.output.belop,
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
+                    prisbetingelser = beregning.input.prisbetingelser,
                     antallManeder = UtbetalingBeregningHelpers.calculateManedsverk(beregning.input.periode)
                         .setScale(2, RoundingMode.HALF_UP)
                         .toDouble(),
@@ -62,6 +66,7 @@ sealed class TilsagnBeregningDto {
                     belop = beregning.output.belop,
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
+                    prisbetingelser = beregning.input.prisbetingelser,
                     antallUker = UtbetalingBeregningHelpers.calculateUkesverk(beregning.input.periode)
                         .setScale(2, RoundingMode.HALF_UP)
                         .toDouble(),

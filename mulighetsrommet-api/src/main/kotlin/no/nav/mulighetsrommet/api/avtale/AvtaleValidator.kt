@@ -220,8 +220,8 @@ class AvtaleValidator(
         if (numGjennomforinger > 0) {
             if (avtale.tiltakstypeId != currentAvtale.tiltakstype.id) {
                 add(
-                    FieldError.of(
-                        AvtaleDbo::tiltakstypeId,
+                    FieldError.ofPointer(
+                        "/tiltakskode",
                         "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                     ),
                 )

@@ -12,6 +12,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13)),
             sats = 100,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.belop shouldBe 100
@@ -22,6 +23,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 11)),
             sats = 100,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.belop shouldBe 100
@@ -32,6 +34,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             periode = Periode(LocalDate.of(2025, 1, 11), LocalDate.of(2025, 1, 13)),
             sats = 100,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.belop shouldBe 0
@@ -42,6 +45,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             sats = 100,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.belop shouldBe 460
@@ -52,6 +56,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             sats = 100,
             antallPlasser = 10,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.belop shouldBe 4600
