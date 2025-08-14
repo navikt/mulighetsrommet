@@ -8,6 +8,7 @@ on:
       - pnpm-lock.yaml
       - turbo.json
       - frontend/mulighetsrommet-veileder-flate/**
+      - frontend/frontend-common/**
   workflow_dispatch:
     inputs:
       environment:
