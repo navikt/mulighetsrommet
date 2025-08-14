@@ -16,9 +16,10 @@ import {
   Tiltakskode,
 } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { PlusIcon } from "@navikt/aksel-icons";
+import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
+  Button,
   DatePicker,
   HGrid,
   HStack,
@@ -41,7 +42,6 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import TrashButton from "../skjema/TrashButton";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -328,11 +328,15 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                   className="bg-surface-selected mt-4 p-2 relative border border-border-divider rounded"
                   key={field.id}
                 >
-                  <TrashButton
-                    tooltip="Fjern kontaktperson"
-                    className="m-2 p-0 float-right"
+                  <Button
+                    className="p-0 float-right"
+                    variant="tertiary"
+                    size="small"
+                    type="button"
                     onClick={() => removeKontaktperson(index)}
-                  />
+                  >
+                    <XMarkIcon fontSize="1.5rem" />
+                  </Button>
                   <div className="flex flex-col gap-4">
                     <SokEtterKontaktperson
                       index={index}
