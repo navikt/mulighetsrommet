@@ -23,9 +23,3 @@ data class ArrangorflateTilsagnDto(
     val status: TilsagnStatus,
     val bestillingsnummer: String,
 )
-
-@Serializable
-data class ArrangorflateTilsagnStatusOgAarsaker(
-    val status: TilsagnStatus,
-    val aarsaker: List<String>?,
-)
