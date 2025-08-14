@@ -368,17 +368,5 @@ private fun resolveDeltakelsePerioder(
 }
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
-    val sluttdatoInPeriode = deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
-
-    val avsluttendeStatus = listOf(
-        DeltakerStatusType.AVBRUTT,
-        DeltakerStatusType.FULLFORT,
-        DeltakerStatusType.HAR_SLUTTET,
-    )
-
-    return if (deltaker.status.type in avsluttendeStatus) {
-        minOf(sluttdatoInPeriode, deltaker.status.opprettetDato.toLocalDate().plusDays(1))
-    } else {
-        sluttdatoInPeriode
-    }
+    return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
