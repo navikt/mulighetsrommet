@@ -575,6 +575,23 @@ class AvtaleQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<AvtaltSats>>(it) }
             ?: emptyList()
 
+        val prismodell = when (Prismodell.valueOf(string("prismodell"))) {
+            Prismodell.ANNEN_AVTALT_PRIS -> AvtaleDto.PrismodellDto.AnnenAvtaltPris(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+            )
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+            )
+            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+            )
+            Prismodell.AVTALT_PRIS_PER_UKESVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+            )
+        }
+
         return AvtaleDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -590,7 +607,6 @@ class AvtaleQueries(private val session: Session) {
                 arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbruttAarsak.valueOf(it) } ?: emptyList(),
                 stringOrNull("avbrutt_forklaring"),
             ),
-            prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
@@ -614,8 +630,7 @@ class AvtaleQueries(private val session: Session) {
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.registrertDato },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
-            prismodell = Prismodell.valueOf(string("prismodell")),
-            satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+            prismodell = prismodell,
         )
     }
 }

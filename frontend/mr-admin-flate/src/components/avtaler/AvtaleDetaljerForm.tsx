@@ -8,7 +8,6 @@ import {
   OpsjonLoggRegistrert,
   OpsjonsmodellType,
   OpsjonStatus,
-  Prismodell,
   Tiltakskode,
   Toggles,
 } from "@mr/api-client-v2";
@@ -77,8 +76,6 @@ export function AvtaleDetaljerForm({
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-
-      setValue("prismodell", Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK);
     }
   }
 
@@ -123,10 +120,11 @@ export function AvtaleDetaljerForm({
           </HGrid>
         </FormGroup>
         <FormGroup>
-          <HGrid gap="4" columns={2}>
+          <HGrid gap="4" columns={2} align="start">
             <Select
               size="small"
               label={avtaletekster.tiltakstypeLabel}
+              error={errors.tiltakskode?.message}
               {...register("tiltakskode", {
                 onChange: (e) => {
                   setValue("amoKategorisering", null);
@@ -151,6 +149,7 @@ export function AvtaleDetaljerForm({
               size="small"
               readOnly={antallOpsjonerUtlost > 0}
               label={avtaletekster.avtaletypeLabel}
+              error={errors.avtaletype?.message}
               {...register("avtaletype", {
                 onChange: (e) => avtaletypeOnChange(e.target.value),
               })}

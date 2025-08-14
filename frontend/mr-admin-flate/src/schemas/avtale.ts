@@ -1,5 +1,13 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
-import { ArrangorKontaktperson, AvtaleDto, NavAnsatt, Personopplysning } from "@mr/api-client-v2";
+import {
+  ArrangorKontaktperson,
+  AvtaleDto,
+  AvtaltSatsDto,
+  NavAnsatt,
+  Personopplysning,
+  Prismodell,
+  PrismodellDto,
+} from "@mr/api-client-v2";
 import z from "zod";
 import {
   avtaleDetaljerSchema,
@@ -8,7 +16,7 @@ import {
   validateAvtaledetaljer,
   toUtdanningslopDbo,
 } from "./avtaledetaljer";
-import { okonomiSchema, validateOkonomi } from "./okonomi";
+import { okonomiSchema } from "./okonomi";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
 
@@ -35,7 +43,6 @@ export const avtaleFormSchema = avtaleDetaljerSchema
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);
-    validateOkonomi(ctx, data);
   });
 
 export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
@@ -67,7 +74,6 @@ export function defaultAvtaleData(
     startDato: avtale?.startDato ? avtale.startDato : undefined,
     sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
     sakarkivNummer: avtale?.sakarkivNummer,
-    prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
     personvernBekreftet: avtale?.personvernBekreftet,
@@ -79,7 +85,19 @@ export function defaultAvtaleData(
       customOpsjonsmodellNavn: avtale?.opsjonsmodell.customOpsjonsmodellNavn,
     },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
-    prismodell: avtale?.prismodell ?? null,
-    satser: avtale?.satser ?? [],
+    prismodell: avtale?.prismodell?.type as Prismodell,
+    satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
+    prisbetingelser: avtale?.prismodell?.prisbetingelser ?? undefined,
   };
+}
+
+function satser(prismodell: PrismodellDto): AvtaltSatsDto[] {
+  switch (prismodell.type) {
+    case "ANNEN_AVTALT_PRIS":
+    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
+      return [];
+    case "AVTALT_PRIS_PER_MANEDSVERK":
+    case "AVTALT_PRIS_PER_UKESVERK":
+      return prismodell.satser;
+  }
 }

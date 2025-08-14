@@ -1,4 +1,4 @@
-import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { memo } from "react";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { AvtaleFormValues } from "@/schemas/avtale";
@@ -7,15 +7,14 @@ import { XMarkIcon, PlusIcon } from "@navikt/aksel-icons";
 import { VStack, Box, HStack, TextField, Select, Button, Textarea } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { addDuration, formaterDato, parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   tiltakskode: Tiltakskode;
+  prismodell?: Prismodell;
 }
 
-const PrismodellForm = memo(({ tiltakskode }: Props) => {
-  const prismodell = useWatch({ name: "prismodell" });
-
+const PrismodellForm = memo(({ tiltakskode, prismodell }: Props) => {
   switch (prismodell) {
     case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
       return <ForhandsgodkjenteSatser tiltakskode={tiltakskode} />;
@@ -69,6 +68,7 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
           </HStack>
         </Box>
       ))}
+      <Prisbetingelser />
     </VStack>
   );
 }
@@ -86,8 +86,9 @@ function AvtalteSatser() {
     control,
   });
 
-  const startDato = watch("startDato");
-  const sluttDato = watch("sluttDato");
+  const fromDate = parseDate(watch("startDato")) ?? new Date();
+  // Pluss 10 år er vilkårlig valgt. Endre ved behov
+  const toDate = addDuration(fromDate, { years: 10 })!;
 
   return (
     <VStack gap="4">
@@ -99,7 +100,7 @@ function AvtalteSatser() {
           borderWidth="1"
           key={field.periodeStart}
         >
-          <HStack key={field.periodeStart} gap="4">
+          <HStack align="start" key={field.periodeStart} gap="4">
             <Select readOnly label="Valuta" size="small">
               <option value={undefined}>{field.valuta}</option>
             </Select>
@@ -113,27 +114,24 @@ function AvtalteSatser() {
                 valueAsNumber: true,
               })}
             />
-
             <ControlledDateInput
               label={avtaletekster.prismodell.periodeStart.label}
-              fromDate={new Date(startDato)}
-              toDate={sluttDato ? new Date(sluttDato) : new Date()}
+              fromDate={fromDate}
+              toDate={toDate}
               format={"iso-string"}
               size="small"
               {...register(`satser.${index}.periodeStart`)}
               control={control}
             />
-
             <ControlledDateInput
               size="small"
               label={avtaletekster.prismodell.periodeSlutt.label}
-              fromDate={new Date(startDato)}
-              toDate={sluttDato ? new Date(sluttDato) : new Date()}
+              fromDate={fromDate}
+              toDate={toDate}
               format={"iso-string"}
               {...register(`satser.${index}.periodeSlutt`)}
               control={control}
             />
-
             <Button
               className="mt-2 ml-auto"
               variant="tertiary"
@@ -158,6 +156,7 @@ function AvtalteSatser() {
           Legg til ny periode
         </div>
       </Button>
+      <Prisbetingelser />
     </VStack>
   );
 }

@@ -19,6 +19,7 @@ data class TilsagnBeregningPrisPerUkesverk(
         val periode: Periode,
         val sats: Int,
         val antallPlasser: Int,
+        val prisbetingelser: String?,
     ) : TilsagnBeregningInput()
 
     @Serializable

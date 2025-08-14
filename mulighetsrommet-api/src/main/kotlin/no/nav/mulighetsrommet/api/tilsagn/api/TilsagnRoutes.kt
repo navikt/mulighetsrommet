@@ -122,7 +122,7 @@ fun Route.tilsagnRoutes() {
 
                 TilsagnType.EKSTRATILSAGN -> {
                     val prisbetingelser = gjennomforing.avtaleId
-                        ?.let { db.session { queries.avtale.get(it)?.prisbetingelser } }
+                        ?.let { db.session { queries.avtale.get(it)?.prismodell?.prisbetingelser } }
 
                     resolveEkstraTilsagnDefaults(request, gjennomforing, prisbetingelser)
                 }
@@ -271,22 +271,22 @@ private fun resolveTilsagnDefaults(
         "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
     )
     return when (prismodell) {
-        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
+        is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> {
             val periode = getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
             getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
 
-        Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
 
-        Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             getTilsagnBeregningPrisPerUkesverkDefaults(periode, avtale, gjennomforing, tilsagn)
         }
 
-        Prismodell.ANNEN_AVTALT_PRIS -> {
+        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             getTilsagnBeregningFriDefaults(periode, avtale, gjennomforing)
         }
@@ -345,6 +345,7 @@ private fun getTilsagnBeregningPrisPerManedsverkDefaults(
             periode = periode,
             sats = sats,
             antallPlasser = gjennomforing.antallPlasser,
+            prisbetingelser = avtale.prismodell.prisbetingelser,
         )
     }
 
@@ -370,6 +371,7 @@ private fun getTilsagnBeregningPrisPerUkesverkDefaults(
             periode = periode,
             sats = sats,
             antallPlasser = gjennomforing.antallPlasser,
+            prisbetingelser = avtale.prismodell.prisbetingelser,
         )
     }
 
@@ -393,7 +395,7 @@ private fun getTilsagnBeregningFriDefaults(
         linjer = listOf(
             TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
         ),
-        prisbetingelser = avtale.prisbetingelser,
+        prisbetingelser = avtale.prismodell.prisbetingelser,
     )
 
     return TilsagnDefaults(

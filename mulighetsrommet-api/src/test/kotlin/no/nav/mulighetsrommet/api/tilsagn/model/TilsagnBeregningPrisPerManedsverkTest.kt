@@ -13,6 +13,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             sats = 20205,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 20205
@@ -23,6 +24,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             sats = 20205,
             antallPlasser = 6,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 121230
@@ -33,6 +35,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode.fromInclusiveDates(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 15)),
             sats = 19500,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 9750
@@ -43,6 +46,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode.fromInclusiveDates(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 15)),
             sats = 20205,
             antallPlasser = 10,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 303075
@@ -53,6 +57,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode.fromInclusiveDates(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 15)),
             sats = 20205,
             antallPlasser = 0,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 0
@@ -63,6 +68,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode.fromInclusiveDates(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 2, 28)),
             sats = 19500,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(ikkeSkuddar).output.belop shouldBe 19500
@@ -71,6 +77,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode.fromInclusiveDates(LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 28)),
             sats = 20205,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.belop shouldBe 19508
@@ -81,6 +88,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
             sats = 20205,
             antallPlasser = 1,
+            prisbetingelser = null,
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 652
@@ -93,6 +101,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
                 antallPlasser = Int.MAX_VALUE,
+                prisbetingelser = null,
             )
 
             TilsagnBeregningPrisPerManedsverk.beregn(input)
@@ -104,6 +113,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2025, 1, 1)),
                 sats = 20205,
                 antallPlasser = 9500,
+                prisbetingelser = null,
             )
 
             TilsagnBeregningPrisPerManedsverk.beregn(input)
@@ -115,6 +125,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             periode = Periode(LocalDate.of(2024, 9, 15), LocalDate.of(2025, 1, 1)),
             sats = 20205,
             antallPlasser = 24,
+            prisbetingelser = null,
         )
 
         // Merk at dette er annerledes (mer mer presisjon) enn det Arena ville lagd = 1_711_768

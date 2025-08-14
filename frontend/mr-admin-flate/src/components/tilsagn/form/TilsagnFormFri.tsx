@@ -39,22 +39,24 @@ export function TilsagnFormFri(props: Props) {
 function BeregningInputSkjema() {
   const {
     register,
+    watch,
     formState: { errors },
   } = useFormContext<FriTilsagn>();
 
   return (
     <VStack gap="4">
       <Heading size="small">Prismodell - Annen avtalt pris</Heading>
-      <div className="pb-3">
-        <Textarea
-          size="small"
-          label={avtaletekster.prisOgBetalingLabel}
-          readOnly
-          error={errors.beregning?.prisbetingelser?.message}
-          {...register("beregning.prisbetingelser")}
-        />
-      </div>
-
+      {watch("beregning.prisbetingelser") && (
+        <div className="pb-3">
+          <Textarea
+            size="small"
+            label={avtaletekster.prisOgBetalingLabel}
+            readOnly
+            error={errors.beregning?.prisbetingelser?.message}
+            {...register("beregning.prisbetingelser")}
+          />
+        </div>
+      )}
       <BeregningInputLinjerSkjema />
     </VStack>
   );

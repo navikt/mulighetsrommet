@@ -3,7 +3,7 @@ import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
 import {
   AvtaleDto,
   GjennomforingDto,
-  Prismodell,
+  PrismodellDto,
   TilsagnBeregningType,
   TilsagnType,
 } from "@mr/api-client-v2";
@@ -57,7 +57,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
             ...defaults,
             beregning: {
               ...defaults.beregning,
-              prisbetingelser: avtale.prisbetingelser,
+              prisbetingelser: avtale.prismodell.prisbetingelser,
               type: beregning,
             },
           }}
@@ -75,14 +75,14 @@ function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: Ti
     : [];
 }
 
-function getTilsagnBeregningType(prismodell: Prismodell): TilsagnBeregningType {
-  switch (prismodell) {
-    case Prismodell.ANNEN_AVTALT_PRIS:
+function getTilsagnBeregningType(prismodell: PrismodellDto): TilsagnBeregningType {
+  switch (prismodell.type) {
+    case "ANNEN_AVTALT_PRIS":
       return TilsagnBeregningType.FRI;
-    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
+    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
+    case "AVTALT_PRIS_PER_MANEDSVERK":
       return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
-    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+    case "AVTALT_PRIS_PER_UKESVERK":
       return TilsagnBeregningType.PRIS_PER_UKESVERK;
   }
 }

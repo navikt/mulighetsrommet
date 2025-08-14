@@ -10,14 +10,12 @@ interface ApiMutateOptions<TData, TError, TVariables, TContext> {
   onValidationError?: (error: ValidationError) => void;
 }
 
-export function useApiMutation<
+export type ApiMutationResult<TData, TError, TVariables, TContext> = UseMutationResult<
   TData,
-  TError = ProblemDetail,
-  TVariables = void,
-  TContext = unknown,
->(
-  options: UseMutationOptions<TData, TError, TVariables, TContext>,
-): UseMutationResult<TData, TError, TVariables, TContext> & {
+  TError,
+  TVariables,
+  TContext
+> & {
   mutate: (
     variables: TVariables,
     options?: ApiMutateOptions<TData, TError, TVariables, TContext>,
@@ -26,7 +24,16 @@ export function useApiMutation<
     variables: TVariables,
     options?: ApiMutateOptions<TData, TError, TVariables, TContext>,
   ) => Promise<TData>;
-} {
+};
+
+export function useApiMutation<
+  TData,
+  TError = ProblemDetail,
+  TVariables = void,
+  TContext = unknown,
+>(
+  options: UseMutationOptions<TData, TError, TVariables, TContext>,
+): ApiMutationResult<TData, TError, TVariables, TContext> {
   const navigate = useNavigate();
 
   const { mutate: baseMutate, ...rest } = useMutation(options);

@@ -8,7 +8,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { AvtaleDto, Avtaletype, Prismodell, Toggles } from "@mr/api-client-v2";
+import { AvtaleDto, Avtaletype, Toggles } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   Definition,
@@ -180,7 +180,7 @@ export function AvtaleDetaljer({ avtale }: Props) {
             definitions={[
               {
                 key: avtaletekster.prisOgBetalingLabel,
-                value: avtale.prisbetingelser ?? "-",
+                value: avtale.prismodell?.prisbetingelser ?? "-",
               },
             ]}
           />
@@ -234,14 +234,26 @@ export function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
 export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
   const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
 
-  const beskrivelse =
-    prismodeller.find(({ type }) => type === avtale.prismodell)?.beskrivelse ?? avtale.prismodell;
+  const beskrivelse = prismodeller.find(({ type }) => type === avtale.prismodell.type)?.beskrivelse;
 
-  switch (avtale.prismodell) {
-    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-      return <AvtalteSatser avtale={avtale} />;
-    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
-    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+  switch (avtale.prismodell.type) {
+    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
+      return (
+        <VStack gap="4">
+          <Definisjonsliste
+            definitions={[
+              { key: avtaletekster.prismodell.label, value: beskrivelse },
+              {
+                key: avtaletekster.prisOgBetalingLabel,
+                value: avtale.prismodell?.prisbetingelser ?? "-",
+              },
+            ]}
+          />
+          <AvtalteSatser avtale={avtale} />
+        </VStack>
+      );
+    case "AVTALT_PRIS_PER_MANEDSVERK":
+    case "AVTALT_PRIS_PER_UKESVERK":
       return (
         <Box>
           <Heading level="3" size="small" spacing>
@@ -249,9 +261,15 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
           </Heading>
           <VStack gap="4">
             <Definisjonsliste
-              definitions={[{ key: avtaletekster.prismodell.label, value: beskrivelse }]}
+              definitions={[
+                { key: avtaletekster.prismodell.label, value: beskrivelse },
+                {
+                  key: avtaletekster.prisOgBetalingLabel,
+                  value: avtale.prismodell?.prisbetingelser ?? "-",
+                },
+              ]}
             />
-            {avtale.satser.map((sats) => (
+            {avtale.prismodell.satser.map((sats) => (
               <HStack
                 gap="4"
                 padding="4"
@@ -276,15 +294,14 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
           </VStack>
         </Box>
       );
-
-    case Prismodell.ANNEN_AVTALT_PRIS:
+    case "ANNEN_AVTALT_PRIS":
       return (
         <Definisjonsliste
           title={avtaletekster.avtaltPrisLabel}
           definitions={[
             {
               key: avtaletekster.prisOgBetalingLabel,
-              value: avtale.prisbetingelser ?? "-",
+              value: avtale.prismodell?.prisbetingelser ?? "-",
             },
           ]}
         />
