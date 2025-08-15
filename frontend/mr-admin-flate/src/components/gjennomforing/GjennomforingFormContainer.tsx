@@ -101,7 +101,6 @@ export function GjennomforingFormContainer({
           ?.filter((kontakt) => kontakt.navIdent !== null)
           ?.map((kontakt) => ({
             navIdent: kontakt.navIdent!,
-            navEnheter: kontakt.navEnheter,
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],
       stedForGjennomforing: data.stedForGjennomforing,

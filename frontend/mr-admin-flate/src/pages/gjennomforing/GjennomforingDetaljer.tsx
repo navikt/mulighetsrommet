@@ -31,25 +31,6 @@ export function GjennomforingDetaljer() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
 
-  const kontorer = gjennomforing.kontorstruktur.flatMap((struktur) => struktur.kontorer);
-  const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
-    return (
-      kontorer
-        .map((kontor) => {
-          return enheterForKontaktperson
-            .map((kp) => {
-              if (kontor.enhetsnummer === kp) {
-                return kontor.navn;
-              }
-              return null;
-            })
-            .join("");
-        })
-        .filter(Boolean)
-        .join(", ") || "alle enheter"
-    );
-  };
-
   const kontaktpersonerFraNav = gjennomforing.kontaktpersoner ?? [];
 
   const {
@@ -216,25 +197,20 @@ export function GjennomforingDetaljer() {
               </div>
             </Bolk>
           ) : null}
-          {kontaktpersonerFraNav.map((kp, index) => {
-            return (
-              <Bolk key={index}>
-                <Metadata
-                  header={
-                    <>
-                      <span style={{ fontWeight: "bold" }}>Kontaktperson for:</span>{" "}
-                      <span style={{ fontWeight: "initial" }}>
-                        {navnPaaNavEnheterForKontaktperson(
-                          kp.navEnheter.sort((a, b) => a.localeCompare(b)),
-                        )}
-                      </span>
-                    </>
-                  }
-                  verdi={<Kontaktperson kontaktperson={kp} />}
-                />
-              </Bolk>
-            );
-          })}
+          {kontaktpersonerFraNav.length > 0 && (
+            <Bolk>
+              <Metadata
+                header={gjennomforingTekster.kontaktpersonNav.mainLabel}
+                verdi={
+                  <VStack gap="2">
+                    {kontaktpersonerFraNav.map((kp, index) => (
+                      <Kontaktperson key={index} kontaktperson={kp} />
+                    ))}
+                  </VStack>
+                }
+              />
+            </Bolk>
+          )}
           <Separator />
           <VStack gap="5">
             {avtale?.arrangor ? (
