@@ -6,14 +6,15 @@ import {
   Button,
   Heading,
   HStack,
+  Label,
+  Spacer,
   Textarea,
   TextField,
-  Tooltip,
   VStack,
 } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { TrashIcon } from "@navikt/aksel-icons";
+import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { InferredTilsagn } from "./TilsagnSchema";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
@@ -41,116 +42,93 @@ function BeregningInputSkjema() {
     register,
     watch,
     formState: { errors },
+    setError,
+    control,
   } = useFormContext<FriTilsagn>();
+
+  const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
 
   return (
     <VStack gap="4">
       <Heading size="small">Prismodell - Annen avtalt pris</Heading>
       {watch("beregning.prisbetingelser") && (
-        <div className="pb-3">
+        <Textarea
+          size="small"
+          label={avtaletekster.prisOgBetalingLabel}
+          readOnly
+          error={errors.beregning?.prisbetingelser?.message}
+          {...register("beregning.prisbetingelser")}
+        />
+      )}
+      <Label size="small">Avtalte priser</Label>
+      {fields.map((item, index) => (
+        <HStack
+          gap="4"
+          align="start"
+          key={item.id}
+          padding="4"
+          className="border-border-subtle border-1 rounded-lg"
+        >
           <Textarea
             size="small"
-            label={avtaletekster.prisOgBetalingLabel}
-            readOnly
-            error={errors.beregning?.prisbetingelser?.message}
-            {...register("beregning.prisbetingelser")}
+            label="Beskrivelse"
+            className="flex-3"
+            error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
+            {...register(`beregning.linjer.${index}.beskrivelse`)}
+            defaultValue={item.beskrivelse}
           />
-        </div>
-      )}
-      <BeregningInputLinjerSkjema />
-    </VStack>
-  );
-}
-
-function BeregningInputLinjerSkjema() {
-  const {
-    register,
-    formState: { errors },
-    setError,
-    control,
-  } = useFormContext<FriTilsagn>();
-  const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
-  const linjer = fields.map((item, index) => (
-    <HStack gap="4" key={item.id}>
-      <div className="mt-7">
-        <b>{index + 1}</b>
-      </div>
-      <Textarea
-        className="flex-1"
-        size="small"
-        label="Beskrivelse"
-        error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
-        {...register(`beregning.linjer.${index}.beskrivelse`)}
-        defaultValue={item.beskrivelse}
-      />
-      <div>
-        <TextField
-          size="small"
-          type="number"
-          label="Beløp"
-          style={{ width: "180px" }}
-          error={errors.beregning?.linjer?.[index]?.belop?.message}
-          {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
-          defaultValue={item.belop}
-        />
-      </div>
-      <div>
-        <TextField
-          size="small"
-          type="number"
-          label="Antall"
-          style={{ width: "180px" }}
-          error={errors.beregning?.linjer?.[index]?.antall?.message}
-          {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
-          defaultValue={item.antall}
-        />
-      </div>
-      <div>
-        <TextField
-          label="Linje-id"
-          hideLabel
-          hidden
-          {...register(`beregning.linjer.${index}.id`)}
-          defaultValue={item.id}
-        />
-        <Tooltip content={`Slett linje ${index + 1}`}>
-          <Button
-            className="mt-7"
+          <TextField
             size="small"
-            variant="danger"
-            icon={<TrashIcon aria-hidden />}
-            onClickCapture={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              remove(index);
-            }}
+            type="number"
+            label="Beløp"
+            className="flex-2"
+            error={errors.beregning?.linjer?.[index]?.belop?.message}
+            {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
+            defaultValue={item.belop}
           />
-        </Tooltip>
-      </div>
-    </HStack>
-  ));
-  return (
-    <VStack className="mt-4" gap="4">
-      {linjer}
+          <TextField
+            size="small"
+            type="number"
+            label="Antall"
+            className="flex-1"
+            error={errors.beregning?.linjer?.[index]?.antall?.message}
+            {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
+            defaultValue={item.antall}
+          />
+          <input
+            type="hidden"
+            {...register(`beregning.linjer.${index}.id`)}
+            defaultValue={item.id}
+          />
+          <Spacer />
+          <Button
+            size="small"
+            variant="secondary-neutral"
+            icon={<TrashIcon aria-hidden />}
+            className="max-h-min self-center"
+            onClick={() => remove(index)}
+          >
+            Fjern
+          </Button>
+        </HStack>
+      ))}
       {errors.beregning?.linjer?.message && (
         <Alert size="small" variant="error">
           {errors.beregning?.linjer?.message}
         </Alert>
       )}
-      <div>
-        <Button
-          size="small"
-          variant="secondary"
-          onClickCapture={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setError("beregning.linjer", {});
-            append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
-          }}
-        >
-          Legg til ny linje
-        </Button>
-      </div>
+      <Button
+        size="small"
+        variant="tertiary"
+        icon={<PlusIcon aria-hidden />}
+        className="self-end"
+        onClick={() => {
+          setError("beregning.linjer", {});
+          append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
+        }}
+      >
+        Legg til ny pris
+      </Button>
     </VStack>
   );
 }
