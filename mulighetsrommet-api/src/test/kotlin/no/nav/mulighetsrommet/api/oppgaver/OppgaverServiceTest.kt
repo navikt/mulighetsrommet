@@ -459,7 +459,6 @@ class OppgaverServiceTest : FunSpec({
 
     context("utbetalinger") {
         test("Skal hente oppgaver for utbetalinger med filter") {
-            val utbetaling4id = UUID.randomUUID()
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
@@ -504,12 +503,6 @@ class OppgaverServiceTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
                         innsender = Arrangor,
                     ),
-                    UtbetalingFixtures.utbetaling3.copy(
-                        id = utbetaling4id,
-                        gjennomforingId = VTA1.id,
-                        periode = Periode.forMonthOf(LocalDate.of(2025, 4, 1)),
-                        status = UtbetalingStatusType.TIL_AVBRYTELSE,
-                    ),
                 ),
                 delutbetalinger = listOf(
                     UtbetalingFixtures.delutbetaling1.copy(utbetalingId = UtbetalingFixtures.utbetaling2.id),
@@ -532,7 +525,6 @@ class OppgaverServiceTest : FunSpec({
             oppgaver shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
-                PartialOppgave(utbetaling4id, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
             )
 
             service.oppgaver(
@@ -551,9 +543,7 @@ class OppgaverServiceTest : FunSpec({
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
                 roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
-            ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(utbetaling4id, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
-            )
+            ) shouldHaveSize 0
 
             service.oppgaver(
                 oppgavetyper = setOf(),

@@ -4869,7 +4869,6 @@ components:
         - UTBETALT
         - KREVER_ENDRING
         - OVERFORT_TIL_UTBETALING
-        - AVBRUTT
 
     UtbetalingStatusDto:
       oneOf:
@@ -4878,8 +4877,6 @@ components:
         - $ref: "#/components/schemas/UtbetalingStatusTilAttestering"
         - $ref: "#/components/schemas/UtbetalingStatusReturnert"
         - $ref: "#/components/schemas/UtbetalingStatusOverfortTilUtbetaling"
-        - $ref: "#/components/schemas/UtbetalingStatusTilAvbrytelse"
-        - $ref: "#/components/schemas/UtbetalingStatusAvbrutt"
 
     UtbetalingStatusVenterPaArrangor:
       type: object
@@ -4915,38 +4912,6 @@ components:
         type:
           const: OVERFORT_TIL_UTBETALING
       required: [type]
-
-    UtbetalingStatusTilAvbrytelse:
-      type: object
-      properties:
-        type:
-          const: TIL_AVBRYTELSE
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-        tidspunkt:
-          type: string
-          format: datetime
-      required: [ type, aarsaker, tidspunkt ]
-
-    UtbetalingStatusAvbrutt:
-      type: object
-      properties:
-        type:
-          const: AVBRUTT
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-        tidspunkt:
-          type: string
-          format: datetime
-      required: [type, aarsaker, tidspunkt]
 
     UtbetalingDetaljerDto:
       type: object
@@ -4998,15 +4963,9 @@ components:
     UtbetalingHandlinger:
       type: object
       properties:
-        avbryt:
-          type: boolean
         sendTilAttestering:
           type: boolean
-        godkjennAvbryt:
-          type: boolean
-        sendAvbrytIRetur:
-          type: boolean
-      required: [avbryt, sendTilAttestering, godkjennAvbryt, sendAvbrytIRetur]
+      required: [sendTilAttestering]
 
     UtbetalingKompaktDto:
       type: object
