@@ -62,7 +62,6 @@ class ArrangorFlateService(
                     ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
                     -> true
 
-                    ArrFlateUtbetalingStatus.AVBRUTT,
                     ArrFlateUtbetalingStatus.UTBETALT,
                     ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
                     -> false

@@ -18,10 +18,7 @@ data class UtbetalingDetaljerDto(
 
 @Serializable
 data class UtbetalingHandlinger(
-    val avbryt: Boolean,
     val sendTilAttestering: Boolean,
-    val godkjennAvbryt: Boolean,
-    val sendAvbrytIRetur: Boolean,
 )
 
 @Serializable

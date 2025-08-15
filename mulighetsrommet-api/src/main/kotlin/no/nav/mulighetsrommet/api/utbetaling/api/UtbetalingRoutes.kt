@@ -9,7 +9,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -25,7 +24,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -80,50 +78,14 @@ fun Route.utbetalingRoutes() {
                         )
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 
-                    val avbrytelse = queries.totrinnskontroll.get(utbetaling.id, Totrinnskontroll.Type.AVBRYT)
-
                     UtbetalingDetaljerDto(
-                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling, avbrytelse),
+                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
                         linjer = linjer,
-                        handlinger = utbetalingService.handlinger(utbetaling, ansatt, avbrytelse),
+                        handlinger = utbetalingService.handlinger(utbetaling, ansatt),
                     )
                 }
 
                 call.respond(utbetaling)
-            }
-        }
-
-        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI)) {
-            post("/avbryt") {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<AarsakerOgForklaringRequest<String>>()
-                val navIdent = getNavIdent()
-
-                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
-                    .flatMap { utbetalingService.setTilAvbrytelse(id, navIdent, request.aarsaker, request.forklaring) }
-                    .onLeft {
-                        call.respondWithProblemDetail(
-                            ValidationError("Klarte ikke avbryte Utbetaling", it),
-                        )
-                    }
-                    .onRight { call.respond("OK") }
-            }
-        }
-
-        authorize(anyOf = setOf(Rolle.ATTESTANT_UTBETALING)) {
-            post("/beslutt-avbryt") {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<BesluttTotrinnskontrollRequest<String>>()
-                val navIdent = getNavIdent()
-
-                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
-                    .flatMap { utbetalingService.besluttAvbrytUtbetaling(id, request, navIdent) }
-                    .onLeft {
-                        call.respondWithProblemDetail(
-                            ValidationError("Klarte ikke avbryte Utbetaling", it),
-                        )
-                    }
-                    .onRight { call.respond("OK") }
             }
         }
 
