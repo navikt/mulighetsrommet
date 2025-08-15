@@ -42,7 +42,13 @@ class TilsagnService(
 
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         val gjennomforing = requireNotNull(queries.gjennomforing.get(request.gjennomforingId)) {
-            "Tiltaksgjennomforingen finnes ikke"
+            "Gjennomforingen finnes ikke"
+        }
+        requireNotNull(gjennomforing.avtaleId) {
+            "Gjennomforingen mangler avtale"
+        }
+        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId)) {
+            "Avtalen finnes ikke"
         }
 
         val totrinnskontroll = Totrinnskontroll(
@@ -70,17 +76,8 @@ class TilsagnService(
                 arrangorSlettet = gjennomforing.arrangor.slettet,
                 minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
             )
-            .flatMap {
-                when (request.beregning) {
-                    is TilsagnBeregningPrisPerManedsverk.Input -> {
-                        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
-                        TilsagnValidator.validateAvtaltSats(avtale, request.beregning)
-                    }
-
-                    else -> request.beregning.right()
-                }
-            }
-            .flatMap { beregnTilsagn(it) }
+            .flatMap { TilsagnValidator.validateAvtaltSats(request.beregning, avtale) }
+            .flatMap { beregnTilsagn(request.beregning) }
             .map { beregning ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
