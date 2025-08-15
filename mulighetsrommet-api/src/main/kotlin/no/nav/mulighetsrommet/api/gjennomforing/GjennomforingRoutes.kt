@@ -336,7 +336,6 @@ data class GjennomforingRequest(
 @Serializable
 data class GjennomforingKontaktpersonDto(
     val navIdent: NavIdent,
-    val navEnheter: List<NavEnhetNummer>,
     val beskrivelse: String?,
 )
 

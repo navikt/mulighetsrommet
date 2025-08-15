@@ -88,7 +88,6 @@ export const petrusKontaktperson: GjennomforingKontaktperson = {
   navn: petrus.fornavn + " " + petrus.etternavn,
   epost: petrus.epost,
   mobilnummer: petrus.mobilnummer,
-  navEnheter: ["0315", "0330"],
   beskrivelse: "Beskrivelse til Petrus",
 };
 
@@ -97,7 +96,6 @@ export const nikolineKontaktperson: GjennomforingKontaktperson = {
   navn: nikoline.fornavn + " " + nikoline.etternavn,
   epost: nikoline.epost,
   mobilnummer: nikoline.mobilnummer,
-  navEnheter: ["0313"],
   beskrivelse: null,
 };
 

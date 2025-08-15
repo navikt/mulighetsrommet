@@ -10,7 +10,6 @@ data class GjennomforingKontaktperson(
     val navn: String,
     val epost: String,
     val mobilnummer: String? = null,
-    val navEnheter: List<NavEnhetNummer>,
     val hovedenhet: NavEnhetNummer,
     val beskrivelse: String?,
 )

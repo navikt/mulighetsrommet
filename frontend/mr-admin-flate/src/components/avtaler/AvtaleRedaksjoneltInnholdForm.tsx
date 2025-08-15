@@ -71,6 +71,7 @@ export function AvtaleRedaksjoneltInnholdForm() {
         regionerOptions={regionerOptions}
         kontorerOptions={kontorEnheterOptions}
         andreEnheterOptions={andreEnheterOptions}
+        kontaktpersonForm={false}
       />
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} aria-label="modal">
         <Modal.Header closeButton>
