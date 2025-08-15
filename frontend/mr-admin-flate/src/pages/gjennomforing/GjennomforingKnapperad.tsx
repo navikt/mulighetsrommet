@@ -19,13 +19,14 @@ import {
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -42,6 +43,7 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
   const avbrytMutation = useAvbrytGjennomforing();
+  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(gjennomforing.id);
 
   const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 
@@ -173,7 +175,15 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
       <AarsakerOgForklaringModal<AvbrytGjennomforingAarsak>
         header={`Ønsker du å avbryte «${gjennomforing?.navn}»?`}
         open={avbrytModalOpen}
-        buttonLabel="Avbryt avtale"
+        buttonLabel="Ja, jeg vil avbryte gjennomføringen"
+        ingress={
+          deltakerSummary.antallDeltakere > 0 && (
+            <Alert variant="warning">
+              {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
+           avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
+            </Alert>
+          )
+        }
         aarsaker={[
           { value: AvbrytGjennomforingAarsak.BUDSJETT_HENSYN, label: "Budsjetthensyn" },
           { value: AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR, label: "Endring hos arrangør" },

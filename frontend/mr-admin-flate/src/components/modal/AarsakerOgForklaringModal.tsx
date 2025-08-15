@@ -1,7 +1,6 @@
 import { FieldError } from "@mr/api-client-v2";
 import {
   Alert,
-  BodyShort,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -17,7 +16,7 @@ import { useState } from "react";
 interface Props<T> {
   open: boolean;
   header: string;
-  ingress?: string;
+  ingress?: React.ReactNode;
   buttonLabel: string;
   aarsaker: { label: string; value: T }[];
   errors?: FieldError[];
@@ -38,7 +37,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
         <Modal.Header>
           <VStack gap="4">
             <Heading size="medium">{header}</Heading>
-            <BodyShort>{ingress}</BodyShort>
+            {ingress}
           </VStack>
         </Modal.Header>
         <Modal.Body>
