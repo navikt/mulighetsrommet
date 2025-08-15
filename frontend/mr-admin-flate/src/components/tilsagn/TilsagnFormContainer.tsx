@@ -38,6 +38,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     (defaults.beregning?.type ?? avtale.prismodell)
       ? getTilsagnBeregningType(avtale.prismodell)
       : null;
+
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
@@ -45,7 +46,11 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
         <TilsagnFormPrisPerManedsverk
           defaultValues={{
             ...defaults,
-            beregning: { ...defaults.beregning, type: beregning },
+            beregning: {
+              ...defaults.beregning,
+              type: beregning,
+              prisbetingelser: avtale.prismodell.prisbetingelser,
+            },
           }}
           {...props}
         />
