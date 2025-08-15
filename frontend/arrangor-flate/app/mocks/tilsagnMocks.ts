@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagn, TilsagnStatus, TilsagnType } from "api-client";
+import { ArrangorflateTilsagn, DetailsFormat, TilsagnStatus, TilsagnType } from "api-client";
 
 export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
   {
@@ -18,16 +18,27 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       slutt: "2025-07-01",
     },
     beregning: {
-      type: "PRIS_PER_MANEDSVERK",
-      periode: {
-        start: "2025-01-01",
-        slutt: "2025-07-01",
-      },
-      sats: 20975,
-      antallPlasser: 42,
-      belop: 5285700,
-      antallManeder: 13,
-      prisbetingelser: null,
+      entries: [
+        {
+          key: "Antall plasser",
+          value: "42",
+        },
+        {
+          key: "Pris per månedsverk",
+          value: "20975",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Totalt beløp",
+          value: "5285700",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Gjenstående beløp",
+          value: "5234495",
+          format: DetailsFormat.NOK,
+        },
+      ],
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -54,17 +65,18 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       slutt: "2025-12-31",
     },
     beregning: {
-      type: "FRI",
-      linjer: [
+      entries: [
         {
-          id: "8890342e-cde8-4680-8122-f4af7d988492",
-          beskrivelse: "Investering av avtalt sum",
-          belop: 123456,
-          antall: 1,
+          key: "Totalt beløp",
+          value: "5285700",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Gjenstående beløp",
+          value: "123456",
+          format: DetailsFormat.NOK,
         },
       ],
-      prisbetingelser: null,
-      belop: 5285700,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -91,17 +103,18 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       slutt: "2025-05-01",
     },
     beregning: {
-      type: "FRI",
-      linjer: [
+      entries: [
         {
-          id: "1433b63b-0caa-4b53-9c0e-00cd38d94841",
-          beskrivelse: "<mangler beskrivelse>",
-          belop: 39000,
-          antall: 1,
+          key: "Totalt beløp",
+          value: "39000",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Gjenstående beløp",
+          value: "0",
+          format: DetailsFormat.NOK,
         },
       ],
-      prisbetingelser: null,
-      belop: 39000,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -128,16 +141,27 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       slutt: "2025-04-02",
     },
     beregning: {
-      type: "PRIS_PER_MANEDSVERK",
-      periode: {
-        start: "2025-03-18",
-        slutt: "2025-04-02",
-      },
-      sats: 20975,
-      antallPlasser: 114,
-      antallManeder: 14,
-      belop: 1147752,
-      prisbetingelser: null,
+      entries: [
+        {
+          key: "Antall plasser",
+          value: "114",
+        },
+        {
+          key: "Pris per månedsverk",
+          value: "20975",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Totalt beløp",
+          value: "1147752",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Gjenstående beløp",
+          value: "0",
+          format: DetailsFormat.NOK,
+        },
+      ],
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
@@ -157,13 +181,27 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
     type: TilsagnType.TILSAGN,
     periode: { start: "2025-04-01", slutt: "2025-10-01" },
     beregning: {
-      type: "PRIS_PER_MANEDSVERK",
-      periode: { start: "2025-04-01", slutt: "2025-10-01" },
-      sats: 16848,
-      antallPlasser: 30,
-      belop: 6000,
-      antallManeder: 13,
-      prisbetingelser: null,
+      entries: [
+        {
+          key: "Antall plasser",
+          value: "30",
+        },
+        {
+          key: "Pris per månedsverk",
+          value: "16848",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Totalt beløp",
+          value: "6000",
+          format: DetailsFormat.NOK,
+        },
+        {
+          key: "Gjenstående beløp",
+          value: "6000",
+          format: DetailsFormat.NOK,
+        },
+      ],
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",

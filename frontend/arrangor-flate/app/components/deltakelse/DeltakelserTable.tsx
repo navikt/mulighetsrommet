@@ -156,9 +156,9 @@ export function DeltakelserTable({
       <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey as DeltakerSortKey)}>
         <Table.Header>
           <Table.Row>
-            {columns[beregning.type].map((col, index) => (
+            {columns[beregning.type].map((col) => (
               <Table.ColumnHeader
-                key={index}
+                key={col.label}
                 scope="col"
                 sortable={col.sortable}
                 sortKey={col.sortKey}
@@ -198,9 +198,9 @@ export function DeltakelserTable({
                   }
 
                   return col.headerCell ? (
-                    <Table.HeaderCell>{children}</Table.HeaderCell>
+                    <Table.HeaderCell key={col.label}>{children}</Table.HeaderCell>
                   ) : (
-                    <Table.DataCell>{children}</Table.DataCell>
+                    <Table.DataCell key={col.label}>{children}</Table.DataCell>
                   );
                 })}
               </Table.ExpandableRow>
