@@ -92,6 +92,7 @@ function AvtalteSatser() {
 
   return (
     <VStack gap="4">
+      <Prisbetingelser />
       {fields.map((field, index) => (
         <HStack
           key={field.periodeStart}
@@ -154,9 +155,8 @@ function AvtalteSatser() {
         icon={<PlusIcon aria-hidden />}
         onClick={() => append({ periodeStart: "", periodeSlutt: "", pris: 0, valuta: "NOK" })}
       >
-        Legg til ny periode
+        Legg til ny prisperiode
       </Button>
-      <Prisbetingelser />
     </VStack>
   );
 }
