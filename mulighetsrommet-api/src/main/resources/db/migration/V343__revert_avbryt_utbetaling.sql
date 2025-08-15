@@ -1,3 +1,5 @@
+drop view if exists utbetaling_dto_view;
+
 ALTER TYPE totrinnskontroll_type RENAME TO totrinnskontroll_type_old;
 CREATE TYPE totrinnskontroll_type AS ENUM (
     'GJOR_OPP',
