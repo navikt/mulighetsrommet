@@ -161,7 +161,10 @@ export function GjennomforingFormContainer({
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
             <Box marginBlock="4">
-              <GjennomforingRedaksjoneltInnholdForm avtale={avtale} />
+              <GjennomforingRedaksjoneltInnholdForm
+                avtale={avtale}
+                lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
+              />
             </Box>
           </Tabs.Panel>
         </Tabs>
