@@ -1,29 +1,13 @@
-import {
-  Alert,
-  BodyLong,
-  Button,
-  Heading,
-  HelpText,
-  HStack,
-  Label,
-  Tabs,
-  Textarea,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import {
-  GjennomforingKontaktperson,
-  NavEnhetDto,
-  VeilederflateTiltakstype,
-} from "@mr/api-client-v2";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { NavEnhetDto, VeilederflateTiltakstype } from "@mr/api-client-v2";
+import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
-import { FileTextIcon, LinkIcon, PaperplaneIcon, PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
@@ -36,19 +20,12 @@ import { MultiValue } from "react-select";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
-import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
-import { InferredGjennomforingSchema } from "./GjennomforingSchema";
-import { ControlledSokeSelect } from "@mr/frontend-common";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakId: string;
   regionerOptions: kontorOption[];
   kontorerOptions: kontorOption[];
   andreEnheterOptions: kontorOption[];
-  kontaktpersonForm: boolean;
-  lagredeKontaktpersoner?: GjennomforingKontaktperson[];
 }
 
 export type kontorOption = {
@@ -61,115 +38,128 @@ export function RedaksjoneltInnholdForm({
   kontorerOptions,
   regionerOptions,
   andreEnheterOptions,
-  kontaktpersonForm,
-  lagredeKontaktpersoner = [],
+}: RedaksjoneltInnholdFormProps) {
+  return (
+    <InlineErrorBoundary>
+      <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+        <RedaksjoneltInnhold
+          tiltakId={tiltakId}
+          regionerOptions={regionerOptions}
+          kontorerOptions={kontorerOptions}
+          andreEnheterOptions={andreEnheterOptions}
+        />
+      </React.Suspense>
+    </InlineErrorBoundary>
+  );
+}
+
+function RedaksjoneltInnhold({
+  tiltakId,
+  regionerOptions,
+  kontorerOptions,
+  andreEnheterOptions,
 }: RedaksjoneltInnholdFormProps) {
   const { register } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakId);
 
   return (
-    <InlineErrorBoundary>
-      <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-        <TwoColumnGrid separator>
-          <RedaksjoneltInnholdContainer>
-            <Alert size="small" variant="info">
-              Ikke del personopplysninger i fritekstfeltene
-            </Alert>
-            <Textarea
-              {...register("beskrivelse")}
-              description="Beskrivelse av formålet med tiltaksgjennomføringen."
-              label="Beskrivelse"
+    <TwoColumnGrid separator>
+      <RedaksjoneltInnholdContainer>
+        <Alert size="small" variant="info">
+          Ikke del personopplysninger i fritekstfeltene
+        </Alert>
+        <Textarea
+          {...register("beskrivelse")}
+          description="Beskrivelse av formålet med tiltaksgjennomføringen."
+          label="Beskrivelse"
+        />
+        {tiltakstypeSanityData?.beskrivelse && (
+          <>
+            <Heading size="medium">Generell informasjon</Heading>
+            <BodyLong style={{ whiteSpace: "pre-wrap" }}>
+              {tiltakstypeSanityData?.beskrivelse}
+            </BodyLong>
+          </>
+        )}
+        <Heading size="medium">Faneinnhold</Heading>
+        <Tabs size="small" defaultValue="for_hvem">
+          <Tabs.List>
+            <Tabs.Tab
+              value="for_hvem"
+              label={
+                <RedaksjoneltInnholdTabTittel>
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
+                </RedaksjoneltInnholdTabTittel>
+              }
             />
-            {tiltakstypeSanityData?.beskrivelse && (
-              <>
-                <Heading size="medium">Generell informasjon</Heading>
-                <BodyLong style={{ whiteSpace: "pre-wrap" }}>
-                  {tiltakstypeSanityData?.beskrivelse}
-                </BodyLong>
-              </>
-            )}
-            <Heading size="medium">Faneinnhold</Heading>
-            <Tabs size="small" defaultValue="for_hvem">
-              <Tabs.List>
-                <Tabs.Tab
-                  value="for_hvem"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="detaljer_og_innhold"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="pamelding_og_varighet"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="kontaktinfo"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="lenker"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="del_med_bruker"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-              </Tabs.List>
-              <Tabs.Panel value="for_hvem">
-                <ForHvem tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-              <Tabs.Panel value="detaljer_og_innhold">
-                <DetaljerOgInnhold tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-              <Tabs.Panel value="pamelding_og_varighet">
-                <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-              <Tabs.Panel value="kontaktinfo">
-                <Kontaktinfo />
-              </Tabs.Panel>
-              <Tabs.Panel value="lenker">
-                <Lenker />
-              </Tabs.Panel>
-              <Tabs.Panel value="del_med_bruker">
-                <DelMedBruker tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-            </Tabs>
-          </RedaksjoneltInnholdContainer>
-          <RegionerOgEnheterOgKontaktpersoner
-            regionerOptions={regionerOptions}
-            kontorerOptions={kontorerOptions}
-            andreEnheterOptions={andreEnheterOptions}
-            kontaktpersonForm={kontaktpersonForm}
-            lagredeKontaktpersoner={lagredeKontaktpersoner}
-          />
-        </TwoColumnGrid>
-      </React.Suspense>
-    </InlineErrorBoundary>
+            <Tabs.Tab
+              value="detaljer_og_innhold"
+              label={
+                <RedaksjoneltInnholdTabTittel>
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
+                </RedaksjoneltInnholdTabTittel>
+              }
+            />
+            <Tabs.Tab
+              value="pamelding_og_varighet"
+              label={
+                <RedaksjoneltInnholdTabTittel>
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
+                </RedaksjoneltInnholdTabTittel>
+              }
+            />
+            <Tabs.Tab
+              value="kontaktinfo"
+              label={
+                <RedaksjoneltInnholdTabTittel>
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
+                </RedaksjoneltInnholdTabTittel>
+              }
+            />
+            <Tabs.Tab
+              value="lenker"
+              label={
+                <RedaksjoneltInnholdTabTittel>
+                  <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
+                </RedaksjoneltInnholdTabTittel>
+              }
+            />
+            <Tabs.Tab
+              value="del_med_bruker"
+              label={
+                <RedaksjoneltInnholdTabTittel>
+                  <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
+                </RedaksjoneltInnholdTabTittel>
+              }
+            />
+          </Tabs.List>
+          <Tabs.Panel value="for_hvem">
+            <ForHvem tiltakstype={tiltakstypeSanityData} />
+          </Tabs.Panel>
+          <Tabs.Panel value="detaljer_og_innhold">
+            <DetaljerOgInnhold tiltakstype={tiltakstypeSanityData} />
+          </Tabs.Panel>
+          <Tabs.Panel value="pamelding_og_varighet">
+            <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
+          </Tabs.Panel>
+          <Tabs.Panel value="kontaktinfo">
+            <Kontaktinfo />
+          </Tabs.Panel>
+          <Tabs.Panel value="lenker">
+            <Lenker />
+          </Tabs.Panel>
+          <Tabs.Panel value="del_med_bruker">
+            <DelMedBruker tiltakstype={tiltakstypeSanityData} />
+          </Tabs.Panel>
+        </Tabs>
+      </RedaksjoneltInnholdContainer>
+
+      <RegionerOgEnheter
+        regionerOptions={regionerOptions}
+        kontorerOptions={kontorerOptions}
+        andreEnheterOptions={andreEnheterOptions}
+      />
+    </TwoColumnGrid>
   );
 }
 
@@ -187,6 +177,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
         <PortableText value={tiltakstype.faneinnhold.forHvem} />
       )}
       <Separator />
+
       <DescriptionRichtextContainer>
         <Textarea
           {...register("faneinnhold.forHvemInfoboks")}
@@ -318,30 +309,17 @@ function velgAlleLokaleUnderenheter(
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
-function RegionerOgEnheterOgKontaktpersoner({
+function RegionerOgEnheter({
   regionerOptions,
   kontorerOptions,
   andreEnheterOptions,
-  kontaktpersonForm,
-  lagredeKontaktpersoner,
 }: {
   regionerOptions: kontorOption[];
   kontorerOptions: kontorOption[];
   andreEnheterOptions: kontorOption[];
-  kontaktpersonForm: boolean;
-  lagredeKontaktpersoner: GjennomforingKontaktperson[];
 }) {
-  const { register, setValue, watch, control } = useFormContext();
+  const { register, setValue, watch } = useFormContext();
   const { data: enheter } = useNavEnheter();
-
-  const {
-    fields: kontaktpersonFields,
-    append: appendKontaktperson,
-    remove: removeKontaktperson,
-  } = useFieldArray({
-    name: "kontaktpersoner",
-    control,
-  });
 
   return (
     <>
@@ -390,122 +368,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           {...register("navAndreEnheter")}
           options={andreEnheterOptions}
         />
-        {kontaktpersonForm && (
-          <>
-            <Separator />
-            <HStack gap="2" align="center">
-              <Label size="small">{gjennomforingTekster.kontaktpersonNav.mainLabel}</Label>
-              <HelpText>
-                Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om
-                gjennomføringen."
-              </HelpText>
-            </HStack>
-            {kontaktpersonFields?.map((field, index) => {
-              return (
-                <div
-                  className="bg-surface-subtle mt-4 p-2 relative border border-border-divider rounded"
-                  key={field.id}
-                >
-                  <Button
-                    className="p-0 float-right"
-                    variant="tertiary"
-                    size="small"
-                    type="button"
-                    onClick={() => removeKontaktperson(index)}
-                  >
-                    <XMarkIcon fontSize="1.5rem" />
-                  </Button>
-                  <div className="flex flex-col gap-4">
-                    <SokEtterKontaktperson
-                      index={index}
-                      id={field.id}
-                      lagredeKontaktpersoner={lagredeKontaktpersoner}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            <KontaktpersonButton
-              onClick={() => appendKontaktperson({ navIdent: "", beskrivelse: "" })}
-              knappetekst={
-                <div className="flex items-center gap-2">
-                  <PlusIcon aria-label="Legg til ny kontaktperson" />
-                  Legg til ny kontaktperson
-                </div>
-              }
-            />
-          </>
-        )}
       </VStack>
-    </>
-  );
-}
-
-function SokEtterKontaktperson({
-  index,
-  id,
-  lagredeKontaktpersoner,
-}: {
-  index: number;
-  id: string;
-  lagredeKontaktpersoner: GjennomforingKontaktperson[];
-}) {
-  const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
-  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
-  const { register, watch } = useFormContext<InferredGjennomforingSchema>();
-
-  const kontaktpersonerOption = (selectedIndex: number) => {
-    const excludedKontaktpersoner = watch("kontaktpersoner")?.map((k) => k.navIdent);
-
-    const alleredeValgt = watch("kontaktpersoner")
-      ?.filter((_, i) => i === selectedIndex)
-      ?.map((kontaktperson) => {
-        const personFraSok = kontaktpersoner?.find((k) => k.navIdent == kontaktperson.navIdent);
-        const personFraDb = lagredeKontaktpersoner?.find(
-          (k) => k.navIdent == kontaktperson.navIdent,
-        );
-        const navn = personFraSok
-          ? `${personFraSok?.fornavn} ${personFraSok?.etternavn}`
-          : personFraDb?.navn;
-
-        return {
-          label: navn ? `${navn} - ${kontaktperson.navIdent}` : kontaktperson.navIdent,
-          value: kontaktperson.navIdent,
-        };
-      });
-
-    const options =
-      kontaktpersoner
-        ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
-        ?.map((kontaktperson) => ({
-          label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
-          value: kontaktperson.navIdent,
-        })) ?? [];
-
-    return alleredeValgt ? [...alleredeValgt, ...options] : options;
-  };
-
-  return (
-    <>
-      <ControlledSokeSelect
-        size="small"
-        placeholder="Søk etter kontaktperson"
-        label={gjennomforingTekster.kontaktpersonNav.navnLabel}
-        {...register(`kontaktpersoner.${index}.navIdent`, {
-          shouldUnregister: true,
-        })}
-        onInputChange={setKontaktpersonerQuery}
-        options={kontaktpersonerOption(index)}
-      />
-      <TextField
-        size="small"
-        label={gjennomforingTekster.kontaktpersonNav.beskrivelseLabel}
-        placeholder="Unngå personopplysninger"
-        maxLength={67}
-        {...register(`kontaktpersoner.${index}.beskrivelse`, {
-          shouldUnregister: true,
-        })}
-      />
     </>
   );
 }
