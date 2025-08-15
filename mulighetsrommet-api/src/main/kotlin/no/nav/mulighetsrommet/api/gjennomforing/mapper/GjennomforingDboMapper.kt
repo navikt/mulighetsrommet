@@ -28,6 +28,7 @@ object GjennomforingDboMapper {
         kontaktpersoner = dto.kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
+                navEnheter = it.navEnheter,
                 beskrivelse = it.beskrivelse,
             )
         },
@@ -59,6 +60,7 @@ object GjennomforingDboMapper {
         kontaktpersoner = request.kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
+                navEnheter = it.navEnheter,
                 beskrivelse = it.beskrivelse,
             )
         },

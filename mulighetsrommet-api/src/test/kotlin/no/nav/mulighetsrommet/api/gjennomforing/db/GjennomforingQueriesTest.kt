@@ -192,10 +192,12 @@ class GjennomforingQueriesTest : FunSpec({
                         kontaktpersoner = listOf(
                             GjennomforingKontaktpersonDbo(
                                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                                navEnheter = listOf(NavAnsattFixture.DonaldDuck.hovedenhet),
                                 beskrivelse = "hei hei kontaktperson",
                             ),
                             GjennomforingKontaktpersonDbo(
                                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
+                                navEnheter = listOf(NavAnsattFixture.MikkeMus.hovedenhet),
                                 beskrivelse = null,
                             ),
                         ),
@@ -208,6 +210,7 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
                         epost = "donald.duck@nav.no",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
                         hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = "hei hei kontaktperson",
                     ),
@@ -216,6 +219,7 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Mikke Mus",
                         mobilnummer = "48243214",
                         epost = "mikke.mus@nav.no",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
                         hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = null,
                     ),
@@ -226,6 +230,7 @@ class GjennomforingQueriesTest : FunSpec({
                         kontaktpersoner = listOf(
                             GjennomforingKontaktpersonDbo(
                                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                                navEnheter = listOf(NavAnsattFixture.DonaldDuck.hovedenhet),
                                 beskrivelse = null,
                             ),
                         ),
@@ -238,6 +243,7 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
                         epost = "donald.duck@nav.no",
+                        navEnheter = listOf(NavEnhetNummer("0400")),
                         hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = null,
                     ),

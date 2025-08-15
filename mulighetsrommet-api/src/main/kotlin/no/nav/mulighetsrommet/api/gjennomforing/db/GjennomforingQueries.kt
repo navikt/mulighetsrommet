@@ -128,11 +128,13 @@ class GjennomforingQueries(private val session: Session) {
         val upsertKontaktperson = """
             insert into gjennomforing_kontaktperson (
                 gjennomforing_id,
+                enheter,
                 kontaktperson_nav_ident,
                 beskrivelse
             )
-            values (:id::uuid, :nav_ident, :beskrivelse)
+            values (:id::uuid, :enheter, :nav_ident, :beskrivelse)
             on conflict (gjennomforing_id, kontaktperson_nav_ident) do update set
+                enheter = :enheter,
                 beskrivelse = :beskrivelse
         """.trimIndent()
 
@@ -207,6 +209,7 @@ class GjennomforingQueries(private val session: Session) {
         val kontaktpersoner = gjennomforing.kontaktpersoner.map { kontakt ->
             mapOf(
                 "id" to gjennomforing.id,
+                "enheter" to createArrayOfValue(kontakt.navEnheter) { it.value },
                 "nav_ident" to kontakt.navIdent.value,
                 "beskrivelse" to kontakt.beskrivelse,
             )

@@ -472,6 +472,7 @@ class GjennomforingValidatorTest : FunSpec({
                 kontaktpersoner = listOf(
                     GjennomforingKontaktpersonDbo(
                         navIdent = NavAnsattFixture.MikkeMus.navIdent,
+                        navEnheter = emptyList(),
                         beskrivelse = null,
                     ),
                 ),

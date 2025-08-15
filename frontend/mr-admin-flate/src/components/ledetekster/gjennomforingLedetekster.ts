@@ -25,7 +25,6 @@ export const gjennomforingTekster = {
     "Bestemmer hvilke andre Nav-enheter (spesialenheter, etc.) som gjennomføringen skal kunne vises for i Modia. Det er ofte ikke behov for å velge noen av disse, men det finnes unntak der dette kan være aktuelt. Dette kan velges hvis tiltaket kun er tilgjengelig for brukere ved en spesiell oppfølgingsenhet (f.eks. egne ansatte), eller om tiltaket kun er relevant for brukergrupper som følges opp av ansatte ved andre spesialenheter som ikke nødvendigvis er kategorisert som en oppfølgingsenhet.",
   ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   kontaktpersonNav: {
-    mainLabel: "Kontaktpersoner hos Nav",
     navnLabel: "Nav ansatt",
     omradeLabel: "Område",
     beskrivelseLabel: "Beskrivelse",

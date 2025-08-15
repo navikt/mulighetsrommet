@@ -38,6 +38,9 @@ export const GjennomforingSchema = z
     kontaktpersoner: z
       .object({
         navIdent: z.string({ error: "Du må velge en kontaktperson" }),
+        navEnheter: z
+          .string({ error: "Du må velge Nav-enheter kontaktpersonen er tilgjengelig for" })
+          .array(),
         beskrivelse: z.string().nullable().optional(),
       })
       .array()
@@ -91,6 +94,14 @@ export const GjennomforingSchema = z
           error: "Du må velge en kontaktperson",
           path: [`kontaktpersoner.${index}.navIdent`],
           input: kontaktperson,
+        });
+      }
+      if (kontaktperson.navEnheter.length === 0) {
+        ctx.issues.push({
+          code: "custom",
+          error: "Du må velge minst én enhet",
+          path: [`kontaktpersoner.${index}.navEnheter`],
+          input: kontaktperson.navEnheter,
         });
       }
     });

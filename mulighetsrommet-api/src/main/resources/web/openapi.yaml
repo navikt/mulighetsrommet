@@ -3911,11 +3911,16 @@ components:
           type: string
         mobilnummer:
           type: [string, "null"]
+        navEnheter:
+          type: array
+          items:
+            type: string
         beskrivelse:
           type: [string, "null"]
       required:
         - navn
         - navIdent
+        - navEnheter
         - epost
         - mobilnummer
         - beskrivelse
@@ -3925,9 +3930,16 @@ components:
       properties:
         navIdent:
           type: string
+        navEnheter:
+          type: array
+          items:
+            type: string
         beskrivelse:
           type: [string, "null"]
-      required: [navIdent, beskrivelse]
+      required:
+        - navIdent
+        - navEnheter
+        - beskrivelse
 
     Endringshistorikk:
       type: object
