@@ -10,6 +10,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -82,7 +83,7 @@ class AvtaleQueriesTest : FunSpec({
                     it.avtaletype shouldBe arenaAvtale.avtaletype
                     it.status shouldBe AvtaleStatusDto.Aktiv
                     it.opphav shouldBe ArenaMigrering.Opphav.ARENA
-                    it.prisbetingelser shouldBe "Alt er dyrt"
+                    it.prismodell.prisbetingelser shouldBe "Alt er dyrt"
                 }
             }
         }
@@ -479,40 +480,26 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell shouldBe Prismodell.AVTALT_PRIS_PER_MANEDSVERK
-                    it.satser shouldContainExactly listOf(
-                        AvtaltSatsDto(
-                            periodeStart = LocalDate.of(2025, 7, 1),
-                            periodeSlutt = LocalDate.of(2025, 7, 31),
-                            pris = 2000,
-                            valuta = "NOK",
-                        ),
-                    )
+                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk>() should {
+                        it.satser shouldContainExactly listOf(
+                            AvtaltSatsDto(
+                                periodeStart = LocalDate.of(2025, 7, 1),
+                                periodeSlutt = LocalDate.of(2025, 7, 31),
+                                pris = 2000,
+                                valuta = "NOK",
+                            ),
+                        )
+                    }
                 }
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
                         prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(sats1, sats2),
                     ),
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell shouldBe Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-                    it.satser shouldContainExactly listOf(
-                        AvtaltSatsDto(
-                            periodeStart = LocalDate.of(2025, 6, 1),
-                            periodeSlutt = LocalDate.of(2025, 6, 30),
-                            pris = 1000,
-                            valuta = "NOK",
-                        ),
-                        AvtaltSatsDto(
-                            periodeStart = LocalDate.of(2025, 7, 1),
-                            periodeSlutt = LocalDate.of(2025, 7, 31),
-                            pris = 2000,
-                            valuta = "NOK",
-                        ),
-                    )
+                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
                 }
             }
         }

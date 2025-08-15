@@ -97,10 +97,12 @@ class TilsagnQueries(private val session: Session) {
 
         when (dbo.beregning) {
             is TilsagnBeregningFri -> {
-                upsertTilsagnBeregningFri(dbo.id, dbo.beregning)
+                upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
+                upsertTilsagnBeregningFriLinjer(dbo.id, dbo.beregning.input.linjer)
             }
 
             is TilsagnBeregningPrisPerManedsverk -> {
+                upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
                 upsertTilsagnBeregningSats(
                     dbo.id,
                     dbo.beregning.input.sats,
@@ -109,6 +111,7 @@ class TilsagnQueries(private val session: Session) {
             }
 
             is TilsagnBeregningPrisPerUkesverk -> {
+                upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
                 upsertTilsagnBeregningSats(
                     dbo.id,
                     dbo.beregning.input.sats,
@@ -148,21 +151,13 @@ class TilsagnQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    private fun TransactionalSession.upsertTilsagnBeregningFri(
-        id: UUID,
-        beregning: TilsagnBeregningFri,
-    ) {
-        upsertTilsagnBeregningFriPrisbetingelser(id, beregning.input.prisbetingelser)
-        upsertTilsagnBeregningFriLinjer(id, beregning.input.linjer)
-    }
-
-    private fun TransactionalSession.upsertTilsagnBeregningFriPrisbetingelser(
+    private fun TransactionalSession.upsertTilsagnBeregningPrisbetingelser(
         id: UUID,
         prisbetingelser: String?,
     ) {
         @Language("PostgreSQL")
         val query = """
-            insert into tilsagn_fri_prisbetingelser (
+            insert into tilsagn_prisbetingelser (
                     tilsagn_id,
                     prisbetingelser
                 ) values (
@@ -384,6 +379,7 @@ class TilsagnQueries(private val session: Session) {
                         periode = row.periode("periode"),
                         sats = row.int("sats"),
                         antallPlasser = row.int("antall_plasser"),
+                        prisbetingelser = row.stringOrNull("prisbetingelser"),
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(
                         belop = row.int("belop_beregnet"),
@@ -397,6 +393,7 @@ class TilsagnQueries(private val session: Session) {
                         periode = row.periode("periode"),
                         sats = row.int("sats"),
                         antallPlasser = row.int("antall_plasser"),
+                        prisbetingelser = row.stringOrNull("prisbetingelser"),
                     ),
                     output = TilsagnBeregningPrisPerUkesverk.Output(
                         belop = row.int("belop_beregnet"),
@@ -412,8 +409,10 @@ class TilsagnQueries(private val session: Session) {
             select tilsagn.periode,
                    tilsagn.belop_beregnet,
                    beregning.sats,
-                   beregning.antall_plasser
+                   beregning.antall_plasser,
+                   tilsagn_prisbetingelser.prisbetingelser
             from tilsagn join tilsagn_beregning_sats beregning on tilsagn.id = beregning.tilsagn_id
+                left join tilsagn_prisbetingelser on tilsagn_prisbetingelser.tilsagn_id = tilsagn.id
             where tilsagn.id = ?::uuid
         """.trimIndent()
 
@@ -428,7 +427,7 @@ class TilsagnQueries(private val session: Session) {
             select
                 t.belop_beregnet, tfp.prisbetingelser
             from tilsagn t
-                left join tilsagn_fri_prisbetingelser tfp
+                left join tilsagn_prisbetingelser tfp
                     on tfp.tilsagn_id = t.id
             where
                 t.id = ?::uuid

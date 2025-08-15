@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
@@ -26,7 +27,6 @@ data class AvtaleDto(
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
     val status: AvtaleStatusDto,
-    val prisbetingelser: String?,
     val administratorer: List<Administrator>,
     val antallPlasser: Int?,
     val opphav: ArenaMigrering.Opphav,
@@ -39,9 +39,38 @@ data class AvtaleDto(
     val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
     val utdanningslop: UtdanningslopDto?,
-    val prismodell: Prismodell,
-    val satser: List<AvtaltSatsDto>,
+    val prismodell: PrismodellDto,
 ) {
+    @Serializable
+    sealed class PrismodellDto {
+        abstract val prisbetingelser: String?
+
+        @Serializable
+        @SerialName("ANNEN_AVTALT_PRIS")
+        data class AnnenAvtaltPris(
+            override val prisbetingelser: String?,
+        ) : PrismodellDto()
+
+        @Serializable
+        @SerialName("FORHANDSGODKJENT_PRIS_PER_MANEDSVERK")
+        data class ForhandsgodkjentPrisPerManedsverk(
+            override val prisbetingelser: String?,
+        ) : PrismodellDto()
+
+        @Serializable
+        @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
+        data class AvtaltPrisPerManedsverk(
+            override val prisbetingelser: String?,
+            val satser: List<AvtaltSatsDto>,
+        ) : PrismodellDto()
+
+        @Serializable
+        @SerialName("AVTALT_PRIS_PER_UKESVERK")
+        data class AvtaltPrisPerUkesverk(
+            override val prisbetingelser: String?,
+            val satser: List<AvtaltSatsDto>,
+        ) : PrismodellDto()
+    }
 
     @Serializable
     data class Tiltakstype(

@@ -214,6 +214,7 @@ class TilsagnServiceTest : FunSpec({
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 sats = 1_000,
                 antallPlasser = 10,
+                prisbetingelser = null,
             )
 
             val invalidRequest1 = request.copy(

@@ -40,6 +40,7 @@ export function TilsagnFormFri(props: Props) {
 function BeregningInputSkjema() {
   const {
     register,
+    watch,
     formState: { errors },
     setError,
     control,
@@ -50,13 +51,15 @@ function BeregningInputSkjema() {
   return (
     <VStack gap="4">
       <Heading size="small">Prismodell - Annen avtalt pris</Heading>
-      <Textarea
-        size="small"
-        label={avtaletekster.prisOgBetalingLabel}
-        readOnly
-        error={errors.beregning?.prisbetingelser?.message}
-        {...register("beregning.prisbetingelser")}
-      />
+      {watch("beregning.prisbetingelser") && (
+        <Textarea
+          size="small"
+          label={avtaletekster.prisOgBetalingLabel}
+          readOnly
+          error={errors.beregning?.prisbetingelser?.message}
+          {...register("beregning.prisbetingelser")}
+        />
+      )}
       <Label size="small">Avtalte priser</Label>
       {fields.map((item, index) => (
         <HStack

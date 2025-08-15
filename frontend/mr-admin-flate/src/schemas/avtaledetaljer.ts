@@ -7,7 +7,7 @@ import {
   Utdanningslop,
 } from "@mr/api-client-v2";
 import z from "zod";
-import { okonomiSchema, validateOkonomi } from "./okonomi";
+import { okonomiSchema } from "./okonomi";
 import { AvtaleFormValues } from "./avtale";
 
 export const avtaleDetaljerSchema = z.object({
@@ -115,7 +115,6 @@ export const avtaleDetaljerFormSchema = avtaleDetaljerSchema
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);
-    validateOkonomi(ctx, data);
   });
 
 export function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {

@@ -1,9 +1,4 @@
-import {
-  ArrangorflateTilsagn,
-  TilsagnStatus,
-  TilsagnTilAnnulleringAarsak,
-  TilsagnType,
-} from "api-client";
+import { ArrangorflateTilsagn, TilsagnStatus, TilsagnType } from "api-client";
 
 export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
   {
@@ -32,16 +27,14 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       antallPlasser: 42,
       belop: 5285700,
       antallManeder: 13,
+      prisbetingelser: null,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
       organisasjonsnummer: "973674471",
       navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
     },
-    status: {
-      status: TilsagnStatus.GODKJENT,
-      aarsaker: [],
-    },
+    status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-1",
   },
   {
@@ -78,10 +71,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       organisasjonsnummer: "973674471",
       navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
     },
-    status: {
-      status: TilsagnStatus.GODKJENT,
-      aarsaker: [],
-    },
+    status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-2",
   },
   {
@@ -118,10 +108,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       organisasjonsnummer: "973674471",
       navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
     },
-    status: {
-      status: TilsagnStatus.ANNULLERT,
-      aarsaker: [TilsagnTilAnnulleringAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES],
-    },
+    status: TilsagnStatus.ANNULLERT,
     bestillingsnummer: "A-2025/11147-2",
   },
   {
@@ -150,16 +137,14 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       antallPlasser: 114,
       antallManeder: 14,
       belop: 1147752,
+      prisbetingelser: null,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
       organisasjonsnummer: "973674471",
       navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
     },
-    status: {
-      status: TilsagnStatus.OPPGJORT,
-      aarsaker: [],
-    },
+    status: TilsagnStatus.OPPGJORT,
     bestillingsnummer: "A-2025/11073-2",
   },
 
@@ -178,13 +163,14 @@ export const arrangorflateTilsagn: ArrangorflateTilsagn[] = [
       antallPlasser: 30,
       belop: 6000,
       antallManeder: 13,
+      prisbetingelser: null,
     },
     arrangor: {
       id: "cc04c391-d733-4762-8208-b0dd4387a126",
       organisasjonsnummer: "973674471",
       navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
     },
-    status: { status: TilsagnStatus.GODKJENT, aarsaker: [] },
+    status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11398-1",
   },
 ];

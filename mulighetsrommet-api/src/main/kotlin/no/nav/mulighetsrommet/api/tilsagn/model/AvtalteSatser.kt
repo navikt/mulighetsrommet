@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
@@ -17,16 +16,24 @@ object AvtalteSatser {
     }
 
     fun getAvtalteSatser(avtale: AvtaleDto): List<AvtaltSats> = when (avtale.prismodell) {
-        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> getForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode)
-
-        Prismodell.AVTALT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_UKESVERK -> avtale.satser.map {
-            AvtaltSats(
-                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
-                sats = it.pris,
-            )
-        }
-
-        Prismodell.ANNEN_AVTALT_PRIS -> listOf()
+        is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> getForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode)
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk ->
+            avtale.prismodell.satser
+                .map {
+                    AvtaltSats(
+                        periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                        sats = it.pris,
+                    )
+                }
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk ->
+            avtale.prismodell.satser
+                .map {
+                    AvtaltSats(
+                        periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                        sats = it.pris,
+                    )
+                }
+        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> listOf()
     }
 
     fun getForhandsgodkjenteSatser(tiltakskode: Tiltakskode): List<AvtaltSats> = when (tiltakskode) {

@@ -20,7 +20,6 @@ data class AvtaleDbo(
     val status: AvtaleStatus,
     val navEnheter: List<NavEnhetNummer>,
     val avtaletype: Avtaletype,
-    val prisbetingelser: String?,
     val antallPlasser: Int?,
     val administratorer: List<NavIdent>,
     val beskrivelse: String?,
@@ -31,6 +30,7 @@ data class AvtaleDbo(
     val opsjonsmodell: Opsjonsmodell,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell,
+    val prisbetingelser: String?,
     val satser: List<AvtaltSats>,
 ) {
     data class Arrangor(

@@ -6,19 +6,19 @@ import {
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, AvtaleRequest, Prismodell, ValidationError } from "@mr/api-client-v2";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { AvtaleDto, ValidationError } from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useQueryClient } from "@tanstack/react-query";
-import { QueryKeys } from "@/api/QueryKeys";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { getUtdanningslop } from "@/schemas/avtaledetaljer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { QueryKeys } from "@/api/QueryKeys";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "@/pages/avtaler/avtaleFormUtils";
 
 interface Props {
   avtale: AvtaleDto;
@@ -36,72 +36,33 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
     defaultValues: defaultAvtaleData(ansatt, avtale),
   });
 
-  const postData = async (data: AvtaleFormValues) => {
-    const requestBody: AvtaleRequest = {
-      ...data,
-      id: avtale.id,
-      startDato: data.startDato,
-      sluttDato: data.sluttDato || null,
-      navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navAndreEnheter),
-      avtalenummer: avtale.avtalenummer || null,
-      arrangor:
-        data.arrangorHovedenhet && data.arrangorUnderenheter
-          ? {
-              hovedenhet: data.arrangorHovedenhet,
-              underenheter: data.arrangorUnderenheter,
-              kontaktpersoner: data.arrangorKontaktpersoner || [],
-            }
-          : null,
-      tiltakKode: data.tiltakskode,
-      prisbetingelser:
-        !data.prismodell || data.prismodell === Prismodell.ANNEN_AVTALT_PRIS
-          ? data.prisbetingelser || null
-          : null,
-      amoKategorisering: data.amoKategorisering || null,
-      opsjonsmodell: {
-        type: data.opsjonsmodell.type,
-        opsjonMaksVarighet: data.opsjonsmodell.opsjonMaksVarighet || null,
-        customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
-      },
-      utdanningslop: getUtdanningslop(data),
-      prismodell: data.prismodell ?? Prismodell.ANNEN_AVTALT_PRIS,
-    };
-
-    mutation.mutate(requestBody, {
-      onSuccess: (dto: { data: AvtaleDto }) => {
-        queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
-        navigate(`/avtaler/${dto.data.id}`);
-      },
-      onValidationError: (error: ValidationError) => {
-        handleValidationError(error);
-      },
-    });
-  };
-
   const handleValidationError = useCallback(
     (validation: ValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         methods.setError(name, { type: "custom", message: error.detail });
       });
-
-      function mapNameToSchemaPropertyName(name: string) {
-        const mapping: { [name: string]: string } = {
-          opsjonsmodell: "opsjonsmodell.type",
-          opsjonMaksVarighet: "opsjonsmodell.opsjonMaksVarighet",
-          customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
-          tiltakstypeId: "tiltakstype",
-          utdanningslop: "utdanningslop.utdanninger",
-        };
-        return (mapping[name] ?? name) as keyof AvtaleFormValues;
-      }
     },
     [methods],
   );
 
+  const onSubmit = async (data: AvtaleFormValues) =>
+    onSubmitAvtaleForm({
+      avtale,
+      data,
+      mutation,
+      onValidationError: (error: ValidationError) => {
+        handleValidationError(error);
+      },
+      onSuccess: (dto: { data: AvtaleDto }) => {
+        queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
+        navigate(`/avtaler/${dto.data.id}`);
+      },
+    });
+
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(postData)}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
         <ContentBox>
           <WhitePaddedBox>
             <AvtaleFormKnapperad />

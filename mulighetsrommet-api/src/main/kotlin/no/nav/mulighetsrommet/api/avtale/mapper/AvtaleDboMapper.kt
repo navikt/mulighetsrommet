@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Periode
 import java.util.UUID
@@ -29,7 +30,6 @@ object AvtaleDboMapper {
             it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer
         },
         avtaletype = dto.avtaletype,
-        prisbetingelser = dto.prisbetingelser,
         antallPlasser = dto.antallPlasser,
         administratorer = dto.administratorer.map { it.navIdent },
         beskrivelse = null,
@@ -39,13 +39,9 @@ object AvtaleDboMapper {
         amoKategorisering = dto.amoKategorisering,
         opsjonsmodell = dto.opsjonsmodell,
         utdanningslop = dto.utdanningslop?.toDbo(),
-        prismodell = dto.prismodell,
-        satser = dto.satser.map {
-            AvtaltSats(
-                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
-                sats = it.pris,
-            )
-        },
+        prismodell = dto.prismodell.prismodell(),
+        prisbetingelser = dto.prismodell.prisbetingelser,
+        satser = dto.prismodell.satser(),
     )
 
     fun fromAvtaleRequest(
@@ -66,7 +62,6 @@ object AvtaleDboMapper {
         avtaletype = request.avtaletype,
         antallPlasser = null,
         administratorer = request.administratorer,
-        prisbetingelser = request.prisbetingelser,
         navEnheter = request.navEnheter,
         beskrivelse = request.beskrivelse,
         faneinnhold = request.faneinnhold,
@@ -75,12 +70,40 @@ object AvtaleDboMapper {
         amoKategorisering = request.amoKategorisering,
         opsjonsmodell = request.opsjonsmodell,
         utdanningslop = request.utdanningslop,
-        prismodell = request.prismodell,
-        satser = request.satser.map {
+        prismodell = request.prismodell.type,
+        prisbetingelser = request.prismodell.prisbetingelser,
+        satser = request.prismodell.satser.map {
             AvtaltSats(
                 periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
                 sats = it.pris,
             )
         },
     )
+}
+
+fun AvtaleDto.PrismodellDto.prismodell(): Prismodell = when (this) {
+    is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> Prismodell.ANNEN_AVTALT_PRIS
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> Prismodell.AVTALT_PRIS_PER_MANEDSVERK
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> Prismodell.AVTALT_PRIS_PER_UKESVERK
+    is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+}
+
+fun AvtaleDto.PrismodellDto.satser(): List<AvtaltSats> = when (this) {
+    is AvtaleDto.PrismodellDto.AnnenAvtaltPris,
+    is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk,
+    -> emptyList()
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk ->
+        this.satser.map {
+            AvtaltSats(
+                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                sats = it.pris,
+            )
+        }
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk ->
+        this.satser.map {
+            AvtaltSats(
+                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                sats = it.pris,
+            )
+        }
 }

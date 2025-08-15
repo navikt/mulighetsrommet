@@ -54,16 +54,6 @@ export const mockAvtaler: AvtaleDto[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0300,
-    prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
-
-        10 deltakere:
-        Teori en uke: 31 239,- (30 329,-)                     Praksis en uke: 26 018,- (25 260,-)                      Kombinasjon en uke: 28 396,- (27 569,-)
-
-        15 deltakere:
-        Teori en uke: 40 549,- (39 368,-)                    Praksis en uke: 36 855,- (35 782,-)                      Kombinasjon en uke: 33 780,- (32 796,-)
-
-        20 deltakere:
-        Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
       {
@@ -81,8 +71,19 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
-    satser: [],
+    prismodell: {
+      type: Prismodell.ANNEN_AVTALT_PRIS,
+      prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
+
+        10 deltakere:
+        Teori en uke: 31 239,- (30 329,-)                     Praksis en uke: 26 018,- (25 260,-)                      Kombinasjon en uke: 28 396,- (27 569,-)
+
+        15 deltakere:
+        Teori en uke: 40 549,- (39 368,-)                    Praksis en uke: 36 855,- (35 782,-)                      Kombinasjon en uke: 33 780,- (32 796,-)
+
+        20 deltakere:
+        Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
+    },
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -123,7 +124,6 @@ export const mockAvtaler: AvtaleDto[] = [
       tidspunkt: "2020-03-04T12:00:00",
     },
     arenaAnsvarligEnhet: mockEnheter._0400,
-    prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
     ],
@@ -137,8 +137,10 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
-    satser: [],
+    prismodell: {
+      type: Prismodell.ANNEN_AVTALT_PRIS,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -173,7 +175,6 @@ export const mockAvtaler: AvtaleDto[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
-    prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
@@ -188,8 +189,10 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
-    satser: [],
+    prismodell: {
+      type: Prismodell.ANNEN_AVTALT_PRIS,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
@@ -225,7 +228,6 @@ export const mockAvtaler: AvtaleDto[] = [
     avtaletype: Avtaletype.RAMMEAVTALE,
     status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
-    prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
@@ -240,8 +242,10 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
-    satser: [],
+    prismodell: {
+      type: Prismodell.ANNEN_AVTALT_PRIS,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   },
 ];
 
@@ -282,7 +286,6 @@ for (let i = 0; i < x; i++) {
     avtaletype: Avtaletype.RAMMEAVTALE,
     status: { type: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
-    prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
@@ -297,7 +300,9 @@ for (let i = 0; i < x; i++) {
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: Prismodell.ANNEN_AVTALT_PRIS,
-    satser: [],
+    prismodell: {
+      type: Prismodell.ANNEN_AVTALT_PRIS,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   });
 }
