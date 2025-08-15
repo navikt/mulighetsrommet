@@ -21,10 +21,8 @@ import {
   Alert,
   Button,
   DatePicker,
-  HelpText,
   HGrid,
   HStack,
-  Label,
   Select,
   Switch,
   TextField,
@@ -324,12 +322,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
         </SkjemaKolonne>
         <SkjemaKolonne>
           <FormGroup>
-            <HStack gap="2" align="center">
-              <Label size="small">Kontaktpersoner hos Nav</Label>
-              <HelpText>
-                Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen."
-              </HelpText>
-            </HStack>
             {kontaktpersonFields?.map((field, index) => {
               return (
                 <div
@@ -443,6 +435,7 @@ function SokEtterKontaktperson({
   return (
     <>
       <ControlledSokeSelect
+        helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
         size="small"
         placeholder="Søk etter kontaktperson"
         label={gjennomforingTekster.kontaktpersonNav.navnLabel}
