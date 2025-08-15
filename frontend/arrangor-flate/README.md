@@ -32,7 +32,7 @@ turbo run dev
 
 For dette trenger man et access token definert i `VITE_MULIGHETSROMMET_API_AUTH_TOKEN`. For å generere denne:
 
-1. gå til `http://localhost:8081/tokenx/debugger`
+1. Naviger til lokal [Mock Oauth2 Server](http://localhost:8081/tokenx/debugger)
 2. Trykk på knappen `Get a token`
 3. Skriv inn hva som helst i toppen
 4. Legg inn dette i optional claims (pid kan du velge selv men påkrevd)
