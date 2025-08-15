@@ -3,8 +3,8 @@ import { memo } from "react";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
-import { XMarkIcon, PlusIcon } from "@navikt/aksel-icons";
-import { VStack, Box, HStack, TextField, Select, Button, Textarea } from "@navikt/ds-react";
+import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
+import { VStack, Box, HStack, TextField, Select, Button, Textarea, Spacer } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { formaterDato } from "@mr/frontend-common/utils/date";
@@ -92,18 +92,18 @@ function AvtalteSatser() {
   return (
     <VStack gap="4">
       {fields.map((field, index) => (
-        <Box
-          padding="4"
-          borderColor="border-subtle"
-          borderRadius="large"
-          borderWidth="1"
+        <HStack
           key={field.periodeStart}
+          padding="4"
+          gap="4"
+          wrap={false}
+          align="center"
+          className="border-border-subtle border-1 rounded-lg"
         >
-          <HStack key={field.periodeStart} gap="4">
+          <HStack key={field.periodeStart} gap="4" align="center">
             <Select readOnly label="Valuta" size="small">
               <option value={undefined}>{field.valuta}</option>
             </Select>
-
             <TextField
               label={avtaletekster.prismodell.pris.label}
               size="small"
@@ -113,7 +113,6 @@ function AvtalteSatser() {
                 valueAsNumber: true,
               })}
             />
-
             <ControlledDateInput
               label={avtaletekster.prismodell.periodeStart.label}
               fromDate={new Date(startDato)}
@@ -123,7 +122,6 @@ function AvtalteSatser() {
               {...register(`satser.${index}.periodeStart`)}
               control={control}
             />
-
             <ControlledDateInput
               size="small"
               label={avtaletekster.prismodell.periodeSlutt.label}
@@ -133,30 +131,29 @@ function AvtalteSatser() {
               {...register(`satser.${index}.periodeSlutt`)}
               control={control}
             />
-
-            <Button
-              className="mt-2 ml-auto"
-              variant="tertiary"
-              size="small"
-              type="button"
-              onClick={() => remove(index)}
-            >
-              <XMarkIcon fontSize="1.5rem" aria-label="Fjern periode" />
-            </Button>
           </HStack>
-        </Box>
+          <Spacer />
+          <Button
+            variant="secondary-neutral"
+            size="small"
+            type="button"
+            icon={<TrashIcon aria-hidden />}
+            onClick={() => remove(index)}
+            className="max-h-min"
+          >
+            Fjern
+          </Button>
+        </HStack>
       ))}
       <Button
-        className="mt-2 ml-auto"
+        className="self-end"
         variant="tertiary"
         size="small"
         type="button"
+        icon={<PlusIcon aria-hidden />}
         onClick={() => append({ periodeStart: "", periodeSlutt: "", pris: 0, valuta: "NOK" })}
       >
-        <div className="flex items-center gap-2">
-          <PlusIcon aria-label="Legg til ny periode" />
-          Legg til ny periode
-        </div>
+        Legg til ny periode
       </Button>
     </VStack>
   );

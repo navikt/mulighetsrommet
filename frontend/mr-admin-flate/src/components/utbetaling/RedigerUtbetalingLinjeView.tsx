@@ -70,61 +70,59 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
     setLinjer([...remaining]);
   }
   return (
-    <>
-      <VStack>
-        <HStack align="end">
-          <Heading spacing size="medium" level="2">
-            Utbetalingslinjer
-          </Heading>
-          <Spacer />
-          <ActionMenu>
-            <ActionMenu.Trigger>
-              <Button variant="secondary" size="small">
-                Handlinger
-              </Button>
-            </ActionMenu.Trigger>
-            <ActionMenu.Content>
-              <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-                Opprett {avtaletekster.tilsagn.type(tilsagnsTypeFraTilskudd).toLowerCase()}
-              </ActionMenu.Item>
-              <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
-                Hent godkjente tilsagn
-              </ActionMenu.Item>
-            </ActionMenu.Content>
-          </ActionMenu>
-        </HStack>
-        <UtbetalingLinjeTable
-          utbetaling={utbetaling}
-          linjer={linjer}
-          renderRow={(linje, index) => {
-            return (
-              <UtbetalingLinjeRow
-                key={linje.id}
-                linje={linje}
-                knappeColumn={
-                  <Button
-                    size="small"
-                    variant="primary-neutral"
-                    onClick={() => fjernLinje(linje.id)}
-                  >
-                    Fjern
-                  </Button>
-                }
-                grayBackground
-                onChange={(updated) => {
-                  setLinjer((prev: UtbetalingLinje[]) =>
-                    prev.map((linje) => (linje.id === updated.id ? updated : linje)),
-                  );
-                }}
-                errors={error.filter(
-                  (f) => f.pointer.startsWith(`/${index}`) || f.pointer.includes("totalbelop"),
-                )}
-              />
-            );
-          }}
-        />
-      </VStack>
-    </>
+    <VStack>
+      <HStack align="end">
+        <Heading spacing size="medium" level="2">
+          Utbetalingslinjer
+        </Heading>
+        <Spacer />
+        <ActionMenu>
+          <ActionMenu.Trigger>
+            <Button variant="secondary" size="small">
+              Handlinger
+            </Button>
+          </ActionMenu.Trigger>
+          <ActionMenu.Content>
+            <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
+              Opprett {avtaletekster.tilsagn.type(tilsagnsTypeFraTilskudd).toLowerCase()}
+            </ActionMenu.Item>
+            <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
+              Hent godkjente tilsagn
+            </ActionMenu.Item>
+          </ActionMenu.Content>
+        </ActionMenu>
+      </HStack>
+      <UtbetalingLinjeTable
+        utbetaling={utbetaling}
+        linjer={linjer}
+        renderRow={(linje, index) => {
+          return (
+            <UtbetalingLinjeRow
+              key={linje.id}
+              linje={linje}
+              knappeColumn={
+                <Button
+                  size="small"
+                  variant="secondary-neutral"
+                  onClick={() => fjernLinje(linje.id)}
+                >
+                  Fjern
+                </Button>
+              }
+              grayBackground
+              onChange={(updated) => {
+                setLinjer((prev: UtbetalingLinje[]) =>
+                  prev.map((linje) => (linje.id === updated.id ? updated : linje)),
+                );
+              }}
+              errors={error.filter(
+                (f) => f.pointer.startsWith(`/${index}`) || f.pointer.includes("totalbelop"),
+              )}
+            />
+          );
+        }}
+      />
+    </VStack>
   );
 }
 
