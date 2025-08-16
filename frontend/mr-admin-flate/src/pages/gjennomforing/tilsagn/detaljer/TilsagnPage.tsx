@@ -30,7 +30,7 @@ import {
   TrashFillIcon,
   TrashIcon,
 } from "@navikt/aksel-icons";
-import { ActionMenu, Alert, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { ActionMenu, Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
@@ -421,7 +421,9 @@ export function TilsagnPage() {
                 { value: TilsagnTilAnnulleringAarsak.ANNET, label: "Annet" },
               ]}
               header="Gjør opp tilsagn med forklaring"
-              ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
+              ingress={
+                <BodyShort>Gjenstående beløp gjøres opp uten at det gjøres en utbetaling</BodyShort>
+              }
               buttonLabel="Send til godkjenning"
               open={tilOppgjorModalOpen}
               onClose={() => setTilOppgjorModalOpen(false)}

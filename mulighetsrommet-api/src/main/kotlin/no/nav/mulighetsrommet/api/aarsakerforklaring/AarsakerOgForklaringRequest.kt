@@ -23,6 +23,9 @@ fun <T> validateAarsakerOgForklaring(
         if (forklaring != null && forklaring.length > 100) {
             add(FieldError.ofPointer("/forklaring", "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
         }
+        if (aarsaker.isEmpty()) {
+            add(FieldError.ofPointer("/aarsaker", "Du må velge minst én årsak"))
+        }
     }
     if (errors.isNotEmpty()) {
         return errors.left()
