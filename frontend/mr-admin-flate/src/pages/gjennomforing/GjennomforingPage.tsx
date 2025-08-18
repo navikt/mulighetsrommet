@@ -58,7 +58,7 @@ export function GjennomforingPage() {
       lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
-    currentTab === "redaksjonelt-innhold" ? { tittel: "Redaksjonelt innhold" } : undefined,
+    currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon til veilederene" } : undefined,
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
@@ -103,7 +103,7 @@ export function GjennomforingPage() {
           />
           <Tabs.Tab
             value="redaksjonelt-innhold"
-            label="Redaksjonelt innhold"
+            label="Informasjon til veilederene"
             onClick={() =>
               navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/redaksjonelt-innhold`)
             }

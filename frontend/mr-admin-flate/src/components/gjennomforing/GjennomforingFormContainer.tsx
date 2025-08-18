@@ -23,10 +23,10 @@ import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-fo
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "../detaljside/Metadata";
 import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
-import { GjennomforingRedaksjoneltInnholdForm } from "./GjennomforingRedaksjoneltInnholdForm";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
 import { z } from "zod";
+import { GjennomforingInformasjonTilVeiledereneForm } from "./GjennomforingInformasjonTilVeiledereneForm";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
@@ -140,7 +140,7 @@ export function GjennomforingFormContainer({
               <TabWithErrorBorder
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
                 value="redaksjonelt-innhold"
-                label="Redaksjonelt innhold"
+                label="Informasjon til veilederene"
                 hasError={hasRedaksjoneltInnholdErrors}
               />
             </div>
@@ -161,7 +161,7 @@ export function GjennomforingFormContainer({
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
             <Box marginBlock="4">
-              <GjennomforingRedaksjoneltInnholdForm
+              <GjennomforingInformasjonTilVeiledereneForm
                 avtale={avtale}
                 lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
               />

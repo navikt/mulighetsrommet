@@ -42,7 +42,7 @@ import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { InferredGjennomforingSchema } from "./GjennomforingSchema";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 
-interface RedaksjoneltInnholdFormProps {
+interface Props {
   tiltakId: string;
   regionerOptions: kontorOption[];
   kontorerOptions: kontorOption[];
@@ -56,110 +56,19 @@ export type kontorOption = {
   label: string;
 };
 
-export function RedaksjoneltInnholdForm({
+export function InformasjonTilVeiledereneForm({
   tiltakId,
   kontorerOptions,
   regionerOptions,
   andreEnheterOptions,
   kontaktpersonForm,
   lagredeKontaktpersoner = [],
-}: RedaksjoneltInnholdFormProps) {
-  const { register } = useFormContext();
-  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakId);
-
+}: Props) {
   return (
     <InlineErrorBoundary>
       <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
         <TwoColumnGrid separator>
-          <RedaksjoneltInnholdContainer>
-            <Alert size="small" variant="info">
-              Ikke del personopplysninger i fritekstfeltene
-            </Alert>
-            <Textarea
-              {...register("beskrivelse")}
-              description="Beskrivelse av formålet med tiltaksgjennomføringen."
-              label="Beskrivelse"
-            />
-            {tiltakstypeSanityData?.beskrivelse && (
-              <>
-                <Heading size="medium">Generell informasjon</Heading>
-                <BodyLong style={{ whiteSpace: "pre-wrap" }}>
-                  {tiltakstypeSanityData?.beskrivelse}
-                </BodyLong>
-              </>
-            )}
-            <Heading size="medium">Faneinnhold</Heading>
-            <Tabs size="small" defaultValue="for_hvem">
-              <Tabs.List>
-                <Tabs.Tab
-                  value="for_hvem"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="detaljer_og_innhold"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="pamelding_og_varighet"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="kontaktinfo"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="lenker"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="del_med_bruker"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-              </Tabs.List>
-              <Tabs.Panel value="for_hvem">
-                <ForHvem tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-              <Tabs.Panel value="detaljer_og_innhold">
-                <DetaljerOgInnhold tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-              <Tabs.Panel value="pamelding_og_varighet">
-                <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-              <Tabs.Panel value="kontaktinfo">
-                <Kontaktinfo />
-              </Tabs.Panel>
-              <Tabs.Panel value="lenker">
-                <Lenker />
-              </Tabs.Panel>
-              <Tabs.Panel value="del_med_bruker">
-                <DelMedBruker tiltakstype={tiltakstypeSanityData} />
-              </Tabs.Panel>
-            </Tabs>
-          </RedaksjoneltInnholdContainer>
+          <RedaksjoneltInnholdForm tiltakId={tiltakId} />
           <RegionerOgEnheterOgKontaktpersoner
             regionerOptions={regionerOptions}
             kontorerOptions={kontorerOptions}
@@ -170,6 +79,106 @@ export function RedaksjoneltInnholdForm({
         </TwoColumnGrid>
       </React.Suspense>
     </InlineErrorBoundary>
+  );
+}
+
+export function RedaksjoneltInnholdForm({ tiltakId }: { tiltakId: string }) {
+  const { register } = useFormContext();
+  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakId);
+
+  return (
+    <RedaksjoneltInnholdContainer>
+      <Heading size="medium" spacing level="3">
+        Redaksjonelt innhold
+      </Heading>
+      <Alert size="small" variant="info">
+        Ikke del personopplysninger i fritekstfeltene
+      </Alert>
+      <Textarea
+        {...register("beskrivelse")}
+        description="Beskrivelse av formålet med tiltaksgjennomføringen."
+        label="Beskrivelse"
+      />
+      {tiltakstypeSanityData?.beskrivelse && (
+        <>
+          <Heading size="medium">Generell informasjon</Heading>
+          <BodyLong style={{ whiteSpace: "pre-wrap" }}>
+            {tiltakstypeSanityData?.beskrivelse}
+          </BodyLong>
+        </>
+      )}
+      <Heading size="medium">Faneinnhold</Heading>
+      <Tabs size="small" defaultValue="for_hvem">
+        <Tabs.List>
+          <Tabs.Tab
+            value="for_hvem"
+            label={
+              <RedaksjoneltInnholdTabTittel>
+                <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
+              </RedaksjoneltInnholdTabTittel>
+            }
+          />
+          <Tabs.Tab
+            value="detaljer_og_innhold"
+            label={
+              <RedaksjoneltInnholdTabTittel>
+                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
+              </RedaksjoneltInnholdTabTittel>
+            }
+          />
+          <Tabs.Tab
+            value="pamelding_og_varighet"
+            label={
+              <RedaksjoneltInnholdTabTittel>
+                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
+              </RedaksjoneltInnholdTabTittel>
+            }
+          />
+          <Tabs.Tab
+            value="kontaktinfo"
+            label={
+              <RedaksjoneltInnholdTabTittel>
+                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
+              </RedaksjoneltInnholdTabTittel>
+            }
+          />
+          <Tabs.Tab
+            value="lenker"
+            label={
+              <RedaksjoneltInnholdTabTittel>
+                <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
+              </RedaksjoneltInnholdTabTittel>
+            }
+          />
+          <Tabs.Tab
+            value="del_med_bruker"
+            label={
+              <RedaksjoneltInnholdTabTittel>
+                <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
+              </RedaksjoneltInnholdTabTittel>
+            }
+          />
+        </Tabs.List>
+        <Tabs.Panel value="for_hvem">
+          <ForHvem tiltakstype={tiltakstypeSanityData} />
+        </Tabs.Panel>
+        <Tabs.Panel value="detaljer_og_innhold">
+          <DetaljerOgInnhold tiltakstype={tiltakstypeSanityData} />
+        </Tabs.Panel>
+        <Tabs.Panel value="pamelding_og_varighet">
+          <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
+        </Tabs.Panel>
+        <Tabs.Panel value="kontaktinfo">
+          <Kontaktinfo />
+        </Tabs.Panel>
+        <Tabs.Panel value="lenker">
+          <Lenker />
+        </Tabs.Panel>
+        <Tabs.Panel value="del_med_bruker">
+          <DelMedBruker tiltakstype={tiltakstypeSanityData} />
+        </Tabs.Panel>
+      </Tabs>
+    </RedaksjoneltInnholdContainer>
   );
 }
 
