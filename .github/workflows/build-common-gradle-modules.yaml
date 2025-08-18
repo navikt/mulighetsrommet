@@ -24,13 +24,10 @@ jobs:
     name: CI
     runs-on:
       labels: ubuntu-latest-8-cores
-    defaults:
-      run:
-        working-directory: common
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build common modules
-        run: gradle build
+        run: gradle buildCommon
