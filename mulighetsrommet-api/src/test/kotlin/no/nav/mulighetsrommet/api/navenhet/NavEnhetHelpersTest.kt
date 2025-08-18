@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 class NavEnhetHelpersTest : FunSpec({
-
     test("buildNavRegioner skal gruppere enheter etter fylke og inkludere underenheter") {
         val enheter = listOf(
             NavEnhetDto("Fylke 1", NavEnhetNummer("0400"), NavEnhetType.FYLKE, null),
@@ -33,6 +32,28 @@ class NavEnhetHelpersTest : FunSpec({
                 navn = "Fylke 2",
                 enheter = listOf(
                     NavRegionUnderenhetDto("Lokal 3", NavEnhetNummer("0501"), NavEnhetNummer("0500"), true),
+                ),
+            ),
+        )
+    }
+
+    test("buildNavRegioner skal fjerne dupliserte underenheter og fylker") {
+        val enheter = listOf(
+            NavEnhetDto("Fylke 1", NavEnhetNummer("0400"), NavEnhetType.FYLKE, null),
+            NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
+            NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
+            NavEnhetDto("Fylke 1", NavEnhetNummer("0400"), NavEnhetType.FYLKE, null),
+            NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
+        )
+
+        val result = NavEnhetHelpers.buildNavRegioner(enheter)
+
+        result shouldBe listOf(
+            NavRegionDto(
+                enhetsnummer = NavEnhetNummer("0400"),
+                navn = "Fylke 1",
+                enheter = listOf(
+                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetNummer("0400"), true),
                 ),
             ),
         )
