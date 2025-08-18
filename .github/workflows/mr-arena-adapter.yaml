@@ -38,7 +38,7 @@ jobs:
       id-token: write # Needed for `nais/docker-build-push`
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
@@ -64,7 +64,7 @@ jobs:
       id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Deploy
         uses: nais/deploy/actions/deploy@v2
         env:
@@ -81,7 +81,7 @@ jobs:
       id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Deploy
         uses: nais/deploy/actions/deploy@v2
         env:

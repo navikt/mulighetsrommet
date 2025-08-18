@@ -47,7 +47,7 @@ jobs:
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: get-version
         run: echo "version=$(cat package.json | jq -r '.devDependencies.playwright' | sed -e 's/^[\^\~]//')" >> "$GITHUB_OUTPUT"
 
@@ -58,7 +58,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-jammy
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
@@ -73,7 +73,7 @@ jobs:
     if: (github.event_name == 'push' && github.ref_name == 'main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'demo')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
@@ -99,7 +99,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || (github.event_name == 'workflow_dispatch' && contains(github.event.inputs.environment,'dev'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
@@ -125,7 +125,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_name == 'main' || (github.event_name == 'workflow_dispatch' && contains(github.event.inputs.environment,'prod'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
