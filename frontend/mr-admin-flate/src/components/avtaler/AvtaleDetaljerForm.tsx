@@ -129,6 +129,7 @@ export function AvtaleDetaljerForm({
                 onChange: (e) => {
                   setValue("amoKategorisering", null);
                   setValue("utdanningslop", null);
+                  setValue("prismodell", undefined);
 
                   const avtaletype = getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value;
                   if (avtaletype) {
