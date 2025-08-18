@@ -56,7 +56,7 @@ export type kontorOption = {
   label: string;
 };
 
-export function InformasjonTilVeiledereneForm({
+export function InformasjonForVeiledereForm({
   tiltakId,
   kontorerOptions,
   regionerOptions,

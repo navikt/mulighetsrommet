@@ -27,7 +27,7 @@ import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "
 import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
 import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
-import { AvtaleInformasjonTilVeiledereneForm } from "@/components/avtaler/AvtaleInformasjonTilVeiledereneForm";
+import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 
 const steps = [
   {
@@ -43,7 +43,7 @@ const steps = [
   {
     key: "Redaksjonelt",
     schema: RedaksjoneltInnholdSchema,
-    Component: <AvtaleInformasjonTilVeiledereneForm />,
+    Component: <AvtaleInformasjonForVeiledereForm />,
   },
 ];
 

@@ -103,7 +103,7 @@ export function GjennomforingPage() {
           />
           <Tabs.Tab
             value="redaksjonelt-innhold"
-            label="Informasjon til veilederene"
+            label="Informasjon for veiledere"
             onClick={() =>
               navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/redaksjonelt-innhold`)
             }

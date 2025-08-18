@@ -10,9 +10,9 @@ import {
   getAndreUnderenheterAsSelectOptions,
 } from "@/api/enhet/helpers";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { InformasjonTilVeiledereneForm } from "../redaksjoneltInnhold/InformasjonTilVeiledereneForm";
+import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
 
-export function AvtaleInformasjonTilVeiledereneForm() {
+export function AvtaleInformasjonForVeiledereForm() {
   const [key, setKey] = useState(0);
   const { data: tiltakstyper } = useTiltakstyper();
 
@@ -65,7 +65,7 @@ export function AvtaleInformasjonTilVeiledereneForm() {
           Kopier redaksjonelt innhold fra avtale
         </Button>
       </HStack>
-      <InformasjonTilVeiledereneForm
+      <InformasjonForVeiledereForm
         key={`redaksjonelt-innhold-${key}`}
         tiltakId={tiltakId}
         regionerOptions={regionerOptions}
