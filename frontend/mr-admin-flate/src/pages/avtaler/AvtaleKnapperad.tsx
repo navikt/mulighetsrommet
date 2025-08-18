@@ -143,7 +143,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
       <AarsakerOgForklaringModal<AvbrytAvtaleAarsak>
         header="Ønsker du avbryte avtalen?"
         open={avbrytModalOpen}
-        buttonLabel="Avbryt avtale"
+        buttonLabel="Ja, jeg vil avbryte avtalen"
         aarsaker={[
           { value: AvbrytAvtaleAarsak.BUDSJETT_HENSYN, label: "Budsjett hensyn" },
           { value: AvbrytAvtaleAarsak.ENDRING_HOS_ARRANGOR, label: "Endring hos arrangør" },
