@@ -329,7 +329,9 @@ private fun getAnskaffetTiltakPeriode(
     ).max()
 
     val lastDayOfMonth = periodeStart.with(lastDayOfMonth())
-    val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
+    val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth)
+        .filter { it > periodeStart }
+        .min()
 
     return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
 }

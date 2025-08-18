@@ -11,6 +11,7 @@ import { Heading, VStack } from "@navikt/ds-react";
 import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
 
 interface Props {
   beregning: TilsagnBeregningDto;
@@ -30,13 +31,18 @@ function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
   return (
     <VStack gap="4">
       <Heading size="small">Prismodell - Annen avtalt pris</Heading>
-      {beregning.prisbetingelser && (
-        <Definisjonsliste
-          definitions={[
-            { key: avtaletekster.prisOgBetalingLabel, value: beregning.prisbetingelser },
-          ]}
-        />
-      )}
+      <Definisjonsliste
+        definitions={[
+          {
+            key: avtaletekster.prisOgBetalingLabel,
+            value: beregning.prisbetingelser ? (
+              <Prisbetingelser value={beregning.prisbetingelser} />
+            ) : (
+              "-"
+            ),
+          },
+        ]}
+      />
     </VStack>
   );
 }
@@ -51,13 +57,18 @@ function PrisPerManedsUkesverkPrismodell({
       <Heading size="small">
         Prismodell - Pris per {isBeregningPrisPerManedsverk(beregning) ? "månedsverk" : "ukesverk"}
       </Heading>
-      {beregning.prisbetingelser && (
-        <Definisjonsliste
-          definitions={[
-            { key: avtaletekster.prisOgBetalingLabel, value: beregning.prisbetingelser },
-          ]}
-        />
-      )}
+      <Definisjonsliste
+        definitions={[
+          {
+            key: avtaletekster.prisOgBetalingLabel,
+            value: beregning.prisbetingelser ? (
+              <Prisbetingelser value={beregning.prisbetingelser} />
+            ) : (
+              "-"
+            ),
+          },
+        ]}
+      />
       <VStack gap="4">
         <MetadataHorisontal
           header={tilsagnTekster.antallPlasser.label}
