@@ -1,6 +1,6 @@
 import { Select } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { Tiltakskode } from "@mr/api-client-v2";
+import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
@@ -22,6 +22,7 @@ export default function AvtalePrisOgFaktureringForm({ tiltakskode }: AvtalPrisOg
   } = useFormContext<AvtaleFormValues>();
 
   const prismodell = watch("prismodell");
+  const satser = watch("satser");
 
   useEffect(() => {
     if (prismodeller.some((p) => p.type === prismodell)) return;
@@ -39,7 +40,25 @@ export default function AvtalePrisOgFaktureringForm({ tiltakskode }: AvtalPrisOg
         label={avtaletekster.prismodell.label}
         size="small"
         error={errors.prismodell?.message}
-        {...register("prismodell")}
+        {...register("prismodell", {
+          onChange: (e) => {
+            if (
+              [Prismodell.AVTALT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_UKESVERK].includes(
+                e.target.value as Prismodell,
+              ) &&
+              satser.length === 0
+            ) {
+              setValue("satser", [
+                {
+                  periodeStart: "",
+                  periodeSlutt: "",
+                  pris: 0,
+                  valuta: "NOK",
+                },
+              ]);
+            }
+          },
+        })}
       >
         <option key="" value={undefined}>
           -- Velg en --
