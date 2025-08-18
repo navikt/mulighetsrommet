@@ -26,7 +26,8 @@ import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
 import { z } from "zod";
-import { GjennomforingInformasjonTilVeiledereneForm } from "./GjennomforingInformasjonTilVeiledereneForm";
+import { GjennomforingInformasjonForVeiledereForm } from "./GjennomforingInformasjonForVeiledereForm";
+
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
@@ -125,6 +126,7 @@ export function GjennomforingFormContainer({
 
   const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
   const hasDetaljerErrors = Object.keys(errors).length > (hasRedaksjoneltInnholdErrors ? 1 : 0);
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -140,7 +142,7 @@ export function GjennomforingFormContainer({
               <TabWithErrorBorder
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
                 value="redaksjonelt-innhold"
-                label="Informasjon til veilederene"
+                label="Informasjon for veiledere"
                 hasError={hasRedaksjoneltInnholdErrors}
               />
             </div>
@@ -161,7 +163,7 @@ export function GjennomforingFormContainer({
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
             <Box marginBlock="4">
-              <GjennomforingInformasjonTilVeiledereneForm
+              <GjennomforingInformasjonForVeiledereForm
                 avtale={avtale}
                 lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
               />

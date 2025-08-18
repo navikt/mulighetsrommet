@@ -6,14 +6,14 @@ import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
-import { InformasjonTilVeiledereneForm } from "../redaksjoneltInnhold/InformasjonTilVeiledereneForm";
+import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
 
 interface Props {
   avtale: AvtaleDto;
   lagredeKontaktpersoner: GjennomforingKontaktperson[];
 }
 
-export function GjennomforingInformasjonTilVeiledereneForm({
+export function GjennomforingInformasjonForVeiledereForm({
   avtale,
   lagredeKontaktpersoner,
 }: Props) {
@@ -77,7 +77,7 @@ export function GjennomforingInformasjonTilVeiledereneForm({
         </HStack>
       </RedaksjoneltInnholdToppKnapperad>
 
-      <InformasjonTilVeiledereneForm
+      <InformasjonForVeiledereForm
         key={`redaksjonelt-innhold-${key}`}
         tiltakId={avtale.tiltakstype.id}
         regionerOptions={regionerOptions}
