@@ -22,6 +22,7 @@ import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
+import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
 
 interface Props {
   avtale: AvtaleDto;
@@ -180,7 +181,11 @@ export function AvtaleDetaljer({ avtale }: Props) {
             definitions={[
               {
                 key: avtaletekster.prisOgBetalingLabel,
-                value: avtale.prismodell?.prisbetingelser ?? "-",
+                value: avtale.prismodell?.prisbetingelser ? (
+                  <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
+                ) : (
+                  "-"
+                ),
               },
             ]}
           />
@@ -205,7 +210,7 @@ export function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
   const { data: satser = [] } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
   return (
     <Box>
-      <Heading level="3" size="small" spacing>
+      <Heading level="4" size="xsmall" spacing>
         {avtaletekster.avtaltPrisLabel}
       </Heading>
       {satser.map((sats) => (
@@ -240,16 +245,23 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
     case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
       return (
         <VStack gap="4">
+          <Heading level="3" size="small" spacing>
+            {beskrivelse}
+          </Heading>
+          <AvtalteSatser avtale={avtale} />
           <Definisjonsliste
             definitions={[
               { key: avtaletekster.prismodell.label, value: beskrivelse },
               {
                 key: avtaletekster.prisOgBetalingLabel,
-                value: avtale.prismodell?.prisbetingelser ?? "-",
+                value: avtale.prismodell?.prisbetingelser ? (
+                  <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
+                ) : (
+                  "-"
+                ),
               },
             ]}
           />
-          <AvtalteSatser avtale={avtale} />
         </VStack>
       );
     case "AVTALT_PRIS_PER_MANEDSVERK":
@@ -257,18 +269,9 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
       return (
         <Box>
           <Heading level="3" size="small" spacing>
-            {avtaletekster.avtaltPrisLabel}
+            {beskrivelse}
           </Heading>
           <VStack gap="4">
-            <Definisjonsliste
-              definitions={[
-                { key: avtaletekster.prismodell.label, value: beskrivelse },
-                {
-                  key: avtaletekster.prisOgBetalingLabel,
-                  value: avtale.prismodell?.prisbetingelser ?? "-",
-                },
-              ]}
-            />
             {avtale.prismodell.satser.map((sats) => (
               <HStack
                 gap="4"
@@ -291,6 +294,18 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
                 />
               </HStack>
             ))}
+            <Definisjonsliste
+              definitions={[
+                {
+                  key: avtaletekster.prisOgBetalingLabel,
+                  value: avtale.prismodell?.prisbetingelser ? (
+                    <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
+                  ) : (
+                    "-"
+                  ),
+                },
+              ]}
+            />
           </VStack>
         </Box>
       );
@@ -301,7 +316,11 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
           definitions={[
             {
               key: avtaletekster.prisOgBetalingLabel,
-              value: avtale.prismodell?.prisbetingelser ?? "-",
+              value: avtale.prismodell?.prisbetingelser ? (
+                <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
+              ) : (
+                "-"
+              ),
             },
           ]}
         />

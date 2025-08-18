@@ -7,12 +7,14 @@ import {
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
-import { Heading, HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Heading, HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
+import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
   beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
@@ -65,20 +67,19 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     setValue("beregning.periode.slutt", periodeSluttExclusive);
   }, [periodeSlutt, setValue]);
 
+  const prisbetingelser = watch("beregning.prisbetingelser");
+
   return (
     <VStack gap="4">
       <Heading size="small">Prismodell - Pris per månedsverk</Heading>
-      {watch("beregning.prisbetingelser") && (
-        <div className="pb-3">
-          <Textarea
-            size="small"
-            label={avtaletekster.prisOgBetalingLabel}
-            readOnly
-            error={errors.beregning?.prisbetingelser?.message}
-            {...register("beregning.prisbetingelser")}
-          />
-        </div>
-      )}
+      <Definisjonsliste
+        definitions={[
+          {
+            key: avtaletekster.prisOgBetalingLabel,
+            value: prisbetingelser ? <Prisbetingelser value={prisbetingelser} /> : "-",
+          },
+        ]}
+      />
       <HGrid columns={2}>
         <TextField
           size="small"

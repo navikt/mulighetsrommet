@@ -23,7 +23,7 @@ const PrismodellForm = memo(({ tiltakskode, prismodell }: Props) => {
       return <AvtalteSatser />;
     case Prismodell.ANNEN_AVTALT_PRIS:
     default:
-      return <Prisbetingelser />;
+      return <PrisbetingelserTextArea />;
   }
 });
 
@@ -68,7 +68,7 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
           </HStack>
         </Box>
       ))}
-      <Prisbetingelser />
+      <PrisbetingelserTextArea />
     </VStack>
   );
 }
@@ -92,7 +92,7 @@ function AvtalteSatser() {
 
   return (
     <VStack gap="4">
-      <Prisbetingelser />
+      <PrisbetingelserTextArea />
       {fields.map((field, index) => (
         <HStack
           key={field.periodeStart}
@@ -161,7 +161,7 @@ function AvtalteSatser() {
   );
 }
 
-function Prisbetingelser() {
+function PrisbetingelserTextArea() {
   const {
     register,
     formState: { errors },
