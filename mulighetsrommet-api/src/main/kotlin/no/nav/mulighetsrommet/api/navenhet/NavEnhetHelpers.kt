@@ -10,6 +10,7 @@ object NavEnhetHelpers {
             .map { region ->
                 val underliggendeEnheter = enheter
                     .filter { it.overordnetEnhet == region.enhetsnummer }
+                    .toSet()
                     .mapNotNull {
                         NavRegionUnderenhetDto(
                             navn = it.navn,
