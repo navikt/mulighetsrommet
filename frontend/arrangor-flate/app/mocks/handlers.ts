@@ -25,7 +25,6 @@ function isAktiv(utbetaling: ArrFlateUtbetalingKompakt): boolean {
       return true;
     case ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
     case ArrFlateUtbetalingStatus.UTBETALT:
-    case ArrFlateUtbetalingStatus.AVBRUTT:
       return false;
   }
 }

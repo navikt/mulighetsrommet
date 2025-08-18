@@ -2649,8 +2649,8 @@ components:
           type: string
           const: FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
         prisbetingelser:
-          type: [ string, "null" ]
-      required: [ type, prisbetingelser ]
+          type: [string, "null"]
+      required: [type, prisbetingelser]
 
     PrismodellDtoAvtaltPrisPerManedsverk:
       type: object
@@ -2659,12 +2659,12 @@ components:
           type: string
           const: AVTALT_PRIS_PER_MANEDSVERK
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
         satser:
           type: array
           items:
             $ref: "#/components/schemas/AvtaltSatsDto"
-      required: [ type, prisbetingelser, satser ]
+      required: [type, prisbetingelser, satser]
 
     PrismodellDtoAvtaltPrisPerUkesverk:
       type: object
@@ -2673,12 +2673,12 @@ components:
           type: string
           const: AVTALT_PRIS_PER_UKESVERK
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
         satser:
           type: array
           items:
             $ref: "#/components/schemas/AvtaltSatsDto"
-      required: [ type, prisbetingelser, satser ]
+      required: [type, prisbetingelser, satser]
 
     AvtaleRequest:
       type: object
@@ -4717,7 +4717,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
       required: [periode, type, belop, sats, antallPlasser, antallManeder, prisbetingelser]
 
     TilsagnBeregningPrisPerManedsverkInput:
@@ -4732,7 +4732,7 @@ components:
         antallPlasser:
           type: integer
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
       required: [type, periode, sats, antallPlasser, prisbetingelser]
 
     TilsagnBeregningPrisPerUkesverk:
@@ -4751,7 +4751,7 @@ components:
         antallUker:
           type: number
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
       required: [periode, type, belop, sats, antallPlasser, antallUker, prisbetingelser]
 
     TilsagnBeregningPrisPerUkesverkInput:
@@ -4766,7 +4766,7 @@ components:
         antallPlasser:
           type: integer
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
       required: [type, periode, sats, antallPlasser, prisbetingelser]
 
     TilsagnBeregningFri:
@@ -4857,7 +4857,6 @@ components:
         - UTBETALT
         - KREVER_ENDRING
         - OVERFORT_TIL_UTBETALING
-        - AVBRUTT
 
     UtbetalingStatusDto:
       oneOf:
@@ -4866,8 +4865,6 @@ components:
         - $ref: "#/components/schemas/UtbetalingStatusTilAttestering"
         - $ref: "#/components/schemas/UtbetalingStatusReturnert"
         - $ref: "#/components/schemas/UtbetalingStatusOverfortTilUtbetaling"
-        - $ref: "#/components/schemas/UtbetalingStatusTilAvbrytelse"
-        - $ref: "#/components/schemas/UtbetalingStatusAvbrutt"
 
     UtbetalingStatusVenterPaArrangor:
       type: object
@@ -4903,38 +4900,6 @@ components:
         type:
           const: OVERFORT_TIL_UTBETALING
       required: [type]
-
-    UtbetalingStatusTilAvbrytelse:
-      type: object
-      properties:
-        type:
-          const: TIL_AVBRYTELSE
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-        tidspunkt:
-          type: string
-          format: datetime
-      required: [ type, aarsaker, tidspunkt ]
-
-    UtbetalingStatusAvbrutt:
-      type: object
-      properties:
-        type:
-          const: AVBRUTT
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-        tidspunkt:
-          type: string
-          format: datetime
-      required: [type, aarsaker, tidspunkt]
 
     UtbetalingDetaljerDto:
       type: object
@@ -4986,15 +4951,9 @@ components:
     UtbetalingHandlinger:
       type: object
       properties:
-        avbryt:
-          type: boolean
         sendTilAttestering:
           type: boolean
-        godkjennAvbryt:
-          type: boolean
-        sendAvbrytIRetur:
-          type: boolean
-      required: [avbryt, sendTilAttestering, godkjennAvbryt, sendAvbrytIRetur]
+      required: [sendTilAttestering]
 
     UtbetalingKompaktDto:
       type: object
@@ -5557,7 +5516,7 @@ components:
               type: string
           required: [id, organisasjonsnummer, navn]
         beregning:
-          $ref: "#/components/schemas/TilsagnBeregningDto"
+          $ref: "#/components/schemas/Details"
         bruktBelop:
           type: integer
         gjenstaendeBelop:
@@ -5576,6 +5535,34 @@ components:
         - bruktBelop
         - gjenstaendeBelop
         - bestillingsnummer
+
+    Details:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsEntry"
+      required:
+        - entries
+
+    DetailsEntry:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        format:
+          $ref: "#/components/schemas/DetailsFormat"
+      required:
+        - key
+        - value
+
+    DetailsFormat:
+      type: string
+      enum:
+        - NOK
 
     Betalingsinformasjon:
       type: object

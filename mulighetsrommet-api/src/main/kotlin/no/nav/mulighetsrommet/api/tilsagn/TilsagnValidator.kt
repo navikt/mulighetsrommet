@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
-import arrow.core.right
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
@@ -77,10 +74,11 @@ object TilsagnValidator {
 
     fun validateAvtaltSats(
         avtale: AvtaleDto,
-        input: TilsagnBeregningPrisPerManedsverk.Input,
-    ): Either<List<FieldError>, TilsagnBeregningPrisPerManedsverk.Input> = either {
+        periode: Periode,
+        sats: Int,
+    ): Either<List<FieldError>, Unit> = either {
         val errors = buildList {
-            val satsPeriodeStart = AvtalteSatser.findSats(avtale, input.periode.start)
+            val satsPeriodeStart = AvtalteSatser.findSats(avtale, periode.start)
             if (satsPeriodeStart == null) {
                 add(
                     FieldError.of(
@@ -90,7 +88,7 @@ object TilsagnValidator {
                 )
             }
 
-            val satsPeriodeSlutt = AvtalteSatser.findSats(avtale, input.periode.getLastInclusiveDate())
+            val satsPeriodeSlutt = AvtalteSatser.findSats(avtale, periode.getLastInclusiveDate())
             if (satsPeriodeSlutt == null) {
                 add(
                     FieldError.of(
@@ -109,7 +107,7 @@ object TilsagnValidator {
                 )
             }
 
-            if (input.sats != satsPeriodeStart) {
+            if (sats != satsPeriodeStart) {
                 add(
                     FieldError.of(
                         "Sats må stemme med avtalt sats for perioden ($satsPeriodeStart)",
@@ -119,7 +117,17 @@ object TilsagnValidator {
             }
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: Unit.right()
+    }
+
+    fun validateAvtaltSats(input: TilsagnBeregningInput, avtale: AvtaleDto): Either<List<FieldError>, Unit> = either {
+        return when (input) {
+            is TilsagnBeregningFri.Input -> Unit.right()
+            is TilsagnBeregningPrisPerManedsverk.Input ->
+                validateAvtaltSats(avtale, input.periode, input.sats)
+            is TilsagnBeregningPrisPerUkesverk.Input ->
+                validateAvtaltSats(avtale, input.periode, input.sats)
+        }
     }
 
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregningInput> = either {

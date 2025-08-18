@@ -9,6 +9,7 @@ on:
       - turbo.json
       - frontend/mr-admin-flate/**
       - frontend/api-client/**
+      - frontend/frontend-common/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml
   workflow_dispatch:
     inputs:

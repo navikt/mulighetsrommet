@@ -33,6 +33,5 @@ data class Totrinnskontroll(
         OPPRETT,
         ANNULLER,
         GJOR_OPP,
-        AVBRYT,
     }
 }

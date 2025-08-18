@@ -2,11 +2,8 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import java.time.LocalDateTime
 
 @Serializable
 sealed class UtbetalingStatusDto {
@@ -30,52 +27,14 @@ sealed class UtbetalingStatusDto {
     @SerialName("OVERFORT_TIL_UTBETALING")
     data object OverfortTilUtbetaling : UtbetalingStatusDto()
 
-    @Serializable
-    @SerialName("TIL_AVBRYTELSE")
-    data class TilAvbrytelse(
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val tidspunkt: LocalDateTime,
-        val aarsaker: List<String>,
-        val forklaring: String?,
-    ) : UtbetalingStatusDto()
-
-    @Serializable
-    @SerialName("AVBRUTT")
-    data class Avbrutt(
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val tidspunkt: LocalDateTime,
-        val aarsaker: List<String>,
-        val forklaring: String?,
-    ) : UtbetalingStatusDto()
-
     companion object {
-        fun fromUtbetaling(
-            utbetaling: Utbetaling,
-            avbrytelse: Totrinnskontroll?,
-        ): UtbetalingStatusDto {
+        fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingStatusDto {
             return when (utbetaling.status) {
                 UtbetalingStatusType.GENERERT -> VenterPaArrangor
                 UtbetalingStatusType.INNSENDT -> KlarTilBehandling
                 UtbetalingStatusType.TIL_ATTESTERING -> TilAttestering
                 UtbetalingStatusType.RETURNERT -> Returnert
                 UtbetalingStatusType.FERDIG_BEHANDLET -> OverfortTilUtbetaling
-                UtbetalingStatusType.TIL_AVBRYTELSE -> {
-                    requireNotNull(avbrytelse)
-                    TilAvbrytelse(
-                        tidspunkt = avbrytelse.behandletTidspunkt,
-                        aarsaker = avbrytelse.aarsaker,
-                        forklaring = avbrytelse.forklaring,
-                    )
-                }
-                UtbetalingStatusType.AVBRUTT -> {
-                    requireNotNull(avbrytelse)
-                    requireNotNull(avbrytelse.besluttetTidspunkt)
-                    Avbrutt(
-                        tidspunkt = avbrytelse.besluttetTidspunkt,
-                        aarsaker = avbrytelse.aarsaker,
-                        forklaring = avbrytelse.forklaring,
-                    )
-                }
             }
         }
     }

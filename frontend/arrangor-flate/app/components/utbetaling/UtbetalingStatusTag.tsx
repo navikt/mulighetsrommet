@@ -40,11 +40,5 @@ export function UtbetalingStatusTag({ status, size }: Props): ReactNode {
           Krever endring
         </Tag>
       );
-    case ArrFlateUtbetalingStatus.AVBRUTT:
-      return (
-        <Tag variant="error" size={tagSize}>
-          Avbrutt
-        </Tag>
-      );
   }
 }

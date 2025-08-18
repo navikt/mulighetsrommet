@@ -334,7 +334,6 @@ private fun toOppgave(utbetaling: Utbetaling): Oppgave? = when (utbetaling.statu
     UtbetalingStatusType.TIL_ATTESTERING,
     UtbetalingStatusType.RETURNERT,
     UtbetalingStatusType.FERDIG_BEHANDLET,
-    UtbetalingStatusType.AVBRUTT,
     -> null
     UtbetalingStatusType.INNSENDT ->
         Oppgave(
@@ -355,25 +354,6 @@ private fun toOppgave(utbetaling: Utbetaling): Oppgave? = when (utbetaling.statu
             createdAt = utbetaling.createdAt,
             iconType = OppgaveIconType.UTBETALING,
         ).takeIf { utbetaling.innsender == Arrangor }
-    UtbetalingStatusType.TIL_AVBRYTELSE ->
-        Oppgave(
-            id = utbetaling.id,
-            type = OppgaveType.UTBETALING_TIL_AVBRYTELSE,
-            navn = OppgaveType.UTBETALING_TIL_AVBRYTELSE.navn,
-            enhet = null,
-            title = utbetaling.gjennomforing.navn,
-            description = "Utbetaling for perioden ${utbetaling.periode.formatPeriode()} er sendt til avbrytelse",
-            tiltakstype = OppgaveTiltakstype(
-                tiltakskode = utbetaling.tiltakstype.tiltakskode,
-                navn = utbetaling.tiltakstype.navn,
-            ),
-            link = OppgaveLink(
-                linkText = "Se utbetaling",
-                link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetalinger/${utbetaling.id}",
-            ),
-            createdAt = utbetaling.createdAt,
-            iconType = OppgaveIconType.UTBETALING,
-        )
 }
 
 private fun QueryContext.toOppgaver(avtale: AvtaleDto): List<Oppgave> = buildList {

@@ -27,10 +27,10 @@
     "@axe-core/playwright": "4.10.2",
     "@mjackson/form-data-parser": "0.9.1",
     "@mr/frontend-common": "workspace:*",
-    "@navikt/aksel-icons": "7.25.1",
-    "@navikt/ds-css": "7.25.1",
-    "@navikt/ds-react": "7.25.1",
-    "@navikt/ds-tailwind": "7.25.1",
+    "@navikt/aksel-icons": "7.28.0",
+    "@navikt/ds-css": "7.28.0",
+    "@navikt/ds-react": "7.28.0",
+    "@navikt/ds-tailwind": "7.28.0",
     "@navikt/nav-dekoratoren-moduler": "3.4.0",
     "@navikt/oasis": "3.8.0",
     "@react-router/express": "7.8.0",
@@ -57,7 +57,7 @@
     "winston": "3.17.0"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.80.2",
+    "@hey-api/openapi-ts": "0.80.10",
     "@playwright/test": "1.54.2",
     "@react-router/dev": "7.8.0",
     "@react-router/fs-routes": "7.8.0",

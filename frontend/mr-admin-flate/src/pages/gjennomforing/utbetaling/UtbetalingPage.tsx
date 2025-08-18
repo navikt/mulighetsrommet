@@ -9,15 +9,12 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { utbetalingLinjeCompareFn } from "@/utils/Utils";
 import {
-  Besluttelse,
-  BesluttTotrinnskontrollRequest,
   DelutbetalingRequest,
   FieldError,
   OpprettDelutbetalingerRequest,
   Rolle,
   TilsagnDto,
   TilsagnStatus,
-  Toggles,
   UtbetalingDto,
   UtbetalingLinje,
   ValidationError,
@@ -41,7 +38,6 @@ import {
   utbetalingHistorikkQuery,
   utbetalingQuery,
 } from "./utbetalingPageLoader";
-
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
@@ -52,14 +48,9 @@ import { useEffect, useState } from "react";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
-import { AarsakerOgForklaring } from "../tilsagn/AarsakerOgForklaring";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { AvbrytUtbetalingButton } from "@/components/utbetaling/AvbrytUtbetalingButton";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useQueryClient } from "@tanstack/react-query";
 import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { useBesluttAvbrytelse } from "@/api/utbetaling/useBesluttAvbrytelse";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -111,33 +102,7 @@ export function UtbetalingPage() {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
-  const { data: enableAvbrytUtbetaling } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING,
-  );
   const queryClient = useQueryClient();
-  const besluttAvbrytelseMutation = useBesluttAvbrytelse();
-  const [avvisModalOpen, setAvvisModalOpen] = useState<boolean>(false);
-
-  function besluttAvbrytelse(request: BesluttTotrinnskontrollRequest) {
-    besluttAvbrytelseMutation.mutate(
-      {
-        id: utbetaling.id,
-        body: {
-          ...request,
-        },
-      },
-      {
-        onSuccess: async () => {
-          setErrors([]);
-          await queryClient.invalidateQueries({
-            queryKey: ["utbetaling", utbetaling.id],
-            refetchType: "all",
-          });
-        },
-        onValidationError: (error: ValidationError) => setErrors(error.errors),
-      },
-    );
-  }
 
   function sendTilGodkjenning() {
     const delutbetalingReq: DelutbetalingRequest[] = linjerState.map((linje) => {
@@ -207,22 +172,6 @@ export function UtbetalingPage() {
               padding="4"
               className="border-gray-300 border-1 rounded-lg"
             >
-              {utbetaling.status.type === "AVBRUTT" && (
-                <AarsakerOgForklaring
-                  heading="Utbetaling avbrutt"
-                  tekster={[`Dato ${formaterDato(utbetaling.status.tidspunkt)}`]}
-                  aarsaker={utbetaling.status.aarsaker}
-                  forklaring={utbetaling.status.forklaring}
-                />
-              )}
-              {utbetaling.status.type === "TIL_AVBRYTELSE" && (
-                <AarsakerOgForklaring
-                  heading="Utbetaling til avbrytelse"
-                  tekster={[`Dato ${formaterDato(utbetaling.status.tidspunkt)}`]}
-                  aarsaker={utbetaling.status.aarsaker}
-                  forklaring={utbetaling.status.forklaring}
-                />
-              )}
               <HGrid columns="1fr 1fr 0.25fr">
                 <VStack>
                   <Heading size="medium" level="2" spacing data-testid="utbetaling-til-utbetaling">
@@ -311,71 +260,37 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
-              {utbetaling.status.type != "AVBRUTT" && (
-                <>
-                  <Accordion>
-                    <Accordion.Item>
-                      <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
-                      <Accordion.Content>
-                        {utbetalingId && (
-                          <UtbetalingBeregningView
-                            utbetalingId={utbetalingId}
-                            beregning={beregning}
-                          />
-                        )}
-                      </Accordion.Content>
-                    </Accordion.Item>
-                  </Accordion>
-                  {tilsagn.every(
-                    (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
-                  ) && (
-                    <Alert variant="info">
-                      Det finnes ingen godkjente tilsagn for utbetalingsperioden
-                    </Alert>
-                  )}
-                  <UtbetalingLinjeView
-                    utbetaling={utbetaling}
-                    tilsagn={tilsagn}
-                    linjer={linjerState}
-                    setLinjer={setLinjerState}
-                    roller={ansatt.roller}
-                  />
-                </>
-              )}
+              <>
+                <Accordion>
+                  <Accordion.Item>
+                    <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
+                    <Accordion.Content>
+                      {utbetalingId && (
+                        <UtbetalingBeregningView
+                          utbetalingId={utbetalingId}
+                          beregning={beregning}
+                        />
+                      )}
+                    </Accordion.Content>
+                  </Accordion.Item>
+                </Accordion>
+                {tilsagn.every(
+                  (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
+                ) && (
+                  <Alert variant="info">
+                    Det finnes ingen godkjente tilsagn for utbetalingsperioden
+                  </Alert>
+                )}
+                <UtbetalingLinjeView
+                  utbetaling={utbetaling}
+                  tilsagn={tilsagn}
+                  linjer={linjerState}
+                  setLinjer={setLinjerState}
+                  roller={ansatt.roller}
+                />
+              </>
               <VStack gap="2">
-                <HStack justify="space-between">
-                  {handlinger.avbryt && enableAvbrytUtbetaling ? (
-                    <AvbrytUtbetalingButton utbetaling={utbetaling} setErrors={setErrors} />
-                  ) : (
-                    <div></div>
-                  )}
-                  <HStack gap="2" justify="end">
-                    {handlinger.sendAvbrytIRetur && (
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        type="button"
-                        onClick={() => setAvvisModalOpen(true)}
-                      >
-                        Send i retur
-                      </Button>
-                    )}
-                    {handlinger.godkjennAvbryt && (
-                      <Button
-                        size="small"
-                        type="button"
-                        onClick={() =>
-                          besluttAvbrytelse({
-                            besluttelse: Besluttelse.GODKJENT,
-                            aarsaker: [],
-                            forklaring: null,
-                          })
-                        }
-                      >
-                        Godkjenn avbrytelse
-                      </Button>
-                    )}
-                  </HStack>
+                <HStack justify="end">
                   {handlinger.sendTilAttestering && (
                     <Button
                       size="small"
@@ -415,23 +330,6 @@ export function UtbetalingPage() {
         belopUtbetaling={utbetalesTotal()}
         belopInnsendt={utbetaling.belop}
       />
-      <AarsakerOgForklaringModal<"ANNET">
-        aarsaker={[{ value: "ANNET", label: "Annet" }]}
-        header="Send i retur med forklaring"
-        buttonLabel="Send i retur"
-        open={avvisModalOpen}
-        errors={errors}
-        onClose={() => setAvvisModalOpen(false)}
-        onConfirm={({ aarsaker, forklaring }) => {
-          setErrors([]);
-          besluttAvbrytelse({
-            besluttelse: Besluttelse.AVVIST,
-            aarsaker,
-            forklaring,
-          });
-          setAvvisModalOpen(false);
-        }}
-      />
     </>
   );
 }
@@ -450,7 +348,6 @@ function UtbetalingLinjeView({
   setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
 }) {
   switch (utbetaling.status.type) {
-    case "AVBRUTT":
     case "VENTER_PA_ARRANGOR":
       return null;
     case "RETURNERT":

@@ -9,7 +9,7 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
-import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
@@ -83,7 +83,11 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                       </Button>
                     )}
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
-                      ingress="Ved å sende en linje i retur vil andre linjer også returneres"
+                      ingress={
+                        <BodyShort>
+                          Ved å sende en linje i retur vil andre linjer også returneres
+                        </BodyShort>
+                      }
                       open={avvisModalOpen}
                       header="Send i retur med forklaring"
                       buttonLabel="Send i retur"

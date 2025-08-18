@@ -9,11 +9,8 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
@@ -62,7 +59,6 @@ class ArrangorFlateService(
                     ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
                     -> true
 
-                    ArrFlateUtbetalingStatus.AVBRUTT,
                     ArrFlateUtbetalingStatus.UTBETALT,
                     ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
                     -> false
@@ -350,7 +346,7 @@ private fun toArrangorflateTilsagn(
         ),
         type = tilsagn.type,
         periode = tilsagn.periode,
-        beregning = TilsagnBeregningDto.from(tilsagn.beregning),
+        beregning = toArrangorflateTilsagnBeregningDetails(tilsagn),
         arrangor = ArrangorflateArrangor(
             id = tilsagn.arrangor.id,
             navn = tilsagn.arrangor.navn,
@@ -359,6 +355,33 @@ private fun toArrangorflateTilsagn(
         status = tilsagn.status,
         bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
     )
+}
+
+private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
+    val entries = when (tilsagn.beregning) {
+        is TilsagnBeregningFri -> listOf(
+            DetailEntry.periode("Tilsagnsperiode", tilsagn.periode),
+            DetailEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+        )
+
+        is TilsagnBeregningPrisPerManedsverk -> listOf(
+            DetailEntry.periode("Tilsagnsperiode", tilsagn.periode),
+            DetailEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
+            DetailEntry.nok("Pris per månedsverk", tilsagn.beregning.input.sats),
+            DetailEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+        )
+
+        is TilsagnBeregningPrisPerUkesverk -> listOf(
+            DetailEntry.periode("Tilsagnsperiode", tilsagn.periode),
+            DetailEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
+            DetailEntry.nok("Pris per ukesverk", tilsagn.beregning.input.sats),
+            DetailEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+        )
+    }
+    return Details(entries)
 }
 
 private fun toArrangorflateGjennomforing(dto: GjennomforingDto): ArrangorflateGjennomforing = ArrangorflateGjennomforing(

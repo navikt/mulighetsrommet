@@ -36,17 +36,5 @@ export function UtbetalingStatusTag({ status }: { status: UtbetalingStatusDto })
           Overført til utbetaling
         </Tag>
       );
-    case "AVBRUTT":
-      return (
-        <Tag size="small" variant="error" className={baseTagClasses}>
-          Avbrutt
-        </Tag>
-      );
-    case "TIL_AVBRYTELSE":
-      return (
-        <Tag size="small" variant="warning" className={baseTagClasses}>
-          Til avbrytelse
-        </Tag>
-      );
   }
 }

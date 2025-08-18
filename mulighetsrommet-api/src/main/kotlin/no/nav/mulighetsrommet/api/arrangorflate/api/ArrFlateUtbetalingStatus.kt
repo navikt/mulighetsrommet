@@ -10,7 +10,6 @@ enum class ArrFlateUtbetalingStatus {
     UTBETALT,
     KREVER_ENDRING,
     OVERFORT_TIL_UTBETALING,
-    AVBRUTT,
     ;
 
     companion object {
@@ -26,7 +25,6 @@ enum class ArrFlateUtbetalingStatus {
                     KLAR_FOR_GODKJENNING
                 }
             }
-            UtbetalingStatusType.TIL_AVBRYTELSE,
             UtbetalingStatusType.INNSENDT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
@@ -38,7 +36,6 @@ enum class ArrFlateUtbetalingStatus {
                     OVERFORT_TIL_UTBETALING
                 }
             }
-            UtbetalingStatusType.AVBRUTT -> AVBRUTT
         }
 
         fun toReadableName(status: ArrFlateUtbetalingStatus): String {
@@ -48,7 +45,6 @@ enum class ArrFlateUtbetalingStatus {
                 UTBETALT -> "Utbetalt"
                 KREVER_ENDRING -> "Krever endring"
                 OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
-                AVBRUTT -> "Avbrutt"
             }
         }
     }

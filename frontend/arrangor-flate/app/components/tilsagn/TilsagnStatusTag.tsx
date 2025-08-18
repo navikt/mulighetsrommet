@@ -17,8 +17,7 @@ export function TilsagnStatusTag({ status }: Props) {
     case TilsagnStatus.ANNULLERT:
       return (
         <Tag variant="error" className="line-through bg-white! text-text-danger!">
-          {" "}
-          Annullert{" "}
+          Annullert
         </Tag>
       );
     case TilsagnStatus.TIL_OPPGJOR:

@@ -70,8 +70,6 @@ class GenererUtbetalingService(
                     UtbetalingStatusType.TIL_ATTESTERING,
                     UtbetalingStatusType.RETURNERT,
                     UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.AVBRUTT,
-                    UtbetalingStatusType.TIL_AVBRYTELSE,
                     -> false
 
                     UtbetalingStatusType.GENERERT -> true
