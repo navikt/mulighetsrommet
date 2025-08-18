@@ -298,7 +298,6 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     kontaktpersoner = listOf(
                         GjennomforingKontaktpersonDbo(
                             navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-                            navEnheter = listOf(Gjovik.enhetsnummer),
                             beskrivelse = "Tiltaksansvarlig",
                         ),
                     ),

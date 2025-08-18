@@ -17,7 +17,7 @@ const fyllInnGjennomforing = async (page: Page) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");
 
-  await page.locator('button:has-text("Redaksjonelt innhold")').click();
+  await page.locator('button:has-text("Informasjon til veilederene")').click();
 
   await page.fill('textarea[name="beskrivelse"]', "Dette er en test");
   await page.fill('textarea[name="faneinnhold.forHvemInfoboks"]', "Dette er en test");

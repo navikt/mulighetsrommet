@@ -13,10 +13,14 @@ export function Kontaktperson({ kontaktperson }: Props) {
       <BodyShort>
         <b>{kontaktperson.navn}</b>
       </BodyShort>
-      {kontaktperson.beskrivelse && <BodyShort>{kontaktperson.beskrivelse}</BodyShort>}
+      {kontaktperson.beskrivelse && (
+        <BodyShort size="small" className="italic">
+          {kontaktperson.beskrivelse}
+        </BodyShort>
+      )}
       <BodyShort>{kontaktperson.mobilnummer}</BodyShort>
-      <BodyShort className="flex gap-1.5">
-        Kontakt via Teams:{" "}
+      <BodyShort size="small" className="flex gap-1.5">
+        Teamslenke:{" "}
         <Lenke isExternal to={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>
           {kontaktperson.epost}
         </Lenke>

@@ -4,7 +4,6 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
-import { AvtaleRedaksjoneltInnholdForm } from "@/components/avtaler/AvtaleRedaksjoneltInnholdForm";
 import { Header } from "@/components/detaljside/Header";
 import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
@@ -28,6 +27,7 @@ import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "
 import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
 import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
+import { AvtaleInformasjonTilVeiledereneForm } from "@/components/avtaler/AvtaleInformasjonTilVeiledereneForm";
 
 const steps = [
   {
@@ -43,7 +43,7 @@ const steps = [
   {
     key: "Redaksjonelt",
     schema: RedaksjoneltInnholdSchema,
-    Component: <AvtaleRedaksjoneltInnholdForm />,
+    Component: <AvtaleInformasjonTilVeiledereneForm />,
   },
 ];
 

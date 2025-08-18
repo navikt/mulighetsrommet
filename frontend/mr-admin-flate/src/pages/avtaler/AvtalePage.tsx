@@ -16,8 +16,8 @@ import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContai
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { AvtaleRedaksjoneltInnholdForm } from "@/components/avtaler/AvtaleRedaksjoneltInnholdForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
+import { AvtaleInformasjonTilVeiledereneForm } from "@/components/avtaler/AvtaleInformasjonTilVeiledereneForm";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -61,7 +61,7 @@ export function AvtalePage() {
             onClick={() => setActiveTab("personvern")}
           />
           <Tabs.Tab
-            label="Redaksjonelt innhold"
+            label="Informasjon til veilederene"
             value="redaksjonelt-innhold"
             onClick={() => setActiveTab("redaksjonelt-innhold")}
           />
@@ -102,7 +102,7 @@ export function AvtalePage() {
         <Tabs.Panel value="redaksjonelt-innhold">
           {redigeringsmodus ? (
             <RedigerAvtaleContainer avtale={avtale}>
-              <AvtaleRedaksjoneltInnholdForm />
+              <AvtaleInformasjonTilVeiledereneForm />
             </RedigerAvtaleContainer>
           ) : (
             <AvtalePageLayout avtale={avtale}>

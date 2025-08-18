@@ -70,7 +70,6 @@ from gjennomforing
                                                    'epost', ansatt.epost,
                                                    'mobilnummer', ansatt.mobilnummer,
                                                    'hovedenhet', ansatt.hovedenhet,
-                                                   'navEnheter', k.enheter,
                                                    'beskrivelse', k.beskrivelse
                                            )
                                    ) as nav_kontaktpersoner_json

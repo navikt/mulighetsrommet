@@ -1,6 +1,5 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import { AvtaleDto, NavEnhetType } from "@mr/api-client-v2";
-import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
@@ -11,8 +10,9 @@ import {
   getAndreUnderenheterAsSelectOptions,
 } from "@/api/enhet/helpers";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { InformasjonTilVeiledereneForm } from "../redaksjoneltInnhold/InformasjonTilVeiledereneForm";
 
-export function AvtaleRedaksjoneltInnholdForm() {
+export function AvtaleInformasjonTilVeiledereneForm() {
   const [key, setKey] = useState(0);
   const { data: tiltakstyper } = useTiltakstyper();
 
@@ -65,12 +65,13 @@ export function AvtaleRedaksjoneltInnholdForm() {
           Kopier redaksjonelt innhold fra avtale
         </Button>
       </HStack>
-      <RedaksjoneltInnholdForm
+      <InformasjonTilVeiledereneForm
         key={`redaksjonelt-innhold-${key}`}
         tiltakId={tiltakId}
         regionerOptions={regionerOptions}
         kontorerOptions={kontorEnheterOptions}
         andreEnheterOptions={andreEnheterOptions}
+        kontaktpersonForm={false}
       />
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} aria-label="modal">
         <Modal.Header closeButton>

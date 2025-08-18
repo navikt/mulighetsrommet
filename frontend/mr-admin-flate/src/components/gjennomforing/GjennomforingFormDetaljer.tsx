@@ -1,9 +1,7 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { useGjennomforingAdministratorer } from "@/api/ansatt/useGjennomforingAdministratorer";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategorisering/GjennomforingAmoKategoriseringForm";
-import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
@@ -11,15 +9,11 @@ import { addYear, isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
-  GjennomforingKontaktperson,
   GjennomforingOppstartstype,
   Tiltakskode,
 } from "@mr/api-client-v2";
-import { ControlledSokeSelect } from "@mr/frontend-common";
-import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
-  Button,
   DatePicker,
   HGrid,
   HStack,
@@ -28,13 +22,12 @@ import {
   TextField,
   UNSAFE_Combobox,
 } from "@navikt/ds-react";
-import { useEffect, useRef, useState } from "react";
-import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { useEffect, useRef } from "react";
+import { Controller, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdanningslopForm";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
@@ -63,15 +56,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
     setValue,
     watch,
   } = useFormContext<InferredGjennomforingSchema>();
-
-  const {
-    fields: kontaktpersonFields,
-    append: appendKontaktperson,
-    remove: removeKontaktperson,
-  } = useFieldArray({
-    name: "kontaktpersoner",
-    control,
-  });
 
   const watchVisEstimertVentetid = watch("visEstimertVentetid");
 
@@ -107,15 +91,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
       endreSluttDatoModalRef.current?.showModal();
     }
   }
-
-  const navRegioner = watch("navRegioner");
-  const navEnheter = avtale.kontorstruktur
-    .flatMap((struk) => struk.kontorer)
-    .filter((kontor) => navRegioner?.includes(kontor.overordnetEnhet ?? ""));
-  const navEnheterOptions = navEnheter.map((enhet) => ({
-    label: enhet.navn,
-    value: enhet.enhetsnummer,
-  }));
 
   const minStartdato = new Date(avtale.startDato);
   const maxSluttdato = addYear(minStartdato, 35);
@@ -321,49 +296,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
           </FormGroup>
         </SkjemaKolonne>
         <SkjemaKolonne>
-          <FormGroup>
-            {kontaktpersonFields?.map((field, index) => {
-              return (
-                <div
-                  className="bg-surface-selected mt-4 p-2 relative border border-border-divider rounded"
-                  key={field.id}
-                >
-                  <Button
-                    className="p-0 float-right"
-                    variant="tertiary"
-                    size="small"
-                    type="button"
-                    onClick={() => removeKontaktperson(index)}
-                  >
-                    <XMarkIcon fontSize="1.5rem" />
-                  </Button>
-                  <div className="flex flex-col gap-4">
-                    <SokEtterKontaktperson
-                      index={index}
-                      navEnheter={navEnheterOptions}
-                      id={field.id}
-                      lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            <KontaktpersonButton
-              onClick={() =>
-                appendKontaktperson({
-                  navIdent: "",
-                  navEnheter: [],
-                  beskrivelse: "",
-                })
-              }
-              knappetekst={
-                <div className="flex items-center gap-2">
-                  <PlusIcon aria-label="Legg til ny kontaktperson" />
-                  Legg til ny kontaktperson
-                </div>
-              }
-            />
-          </FormGroup>
           {avtale.arrangor ? (
             <FormGroup>
               <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />
@@ -377,92 +309,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
         modalRef={endreSluttDatoModalRef}
         onCancel={() => setValue("startOgSluttDato.sluttDato", gjennomforing!.sluttDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
-      />
-    </>
-  );
-}
-
-function SokEtterKontaktperson({
-  index,
-  navEnheter,
-  id,
-  lagredeKontaktpersoner,
-}: {
-  index: number;
-  navEnheter: { label: string; value: string }[];
-  id: string;
-  lagredeKontaktpersoner: GjennomforingKontaktperson[];
-}) {
-  const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
-  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
-  const { register, watch } = useFormContext<InferredGjennomforingSchema>();
-
-  const kontaktpersonerOption = (selectedIndex: number) => {
-    const excludedKontaktpersoner = watch("kontaktpersoner")?.map((k) => k.navIdent);
-
-    const alleredeValgt = watch("kontaktpersoner")
-      ?.filter((_, i) => i === selectedIndex)
-      ?.map((kontaktperson) => {
-        const personFraSok = kontaktpersoner?.find((k) => k.navIdent == kontaktperson.navIdent);
-        const personFraDb = lagredeKontaktpersoner?.find(
-          (k) => k.navIdent == kontaktperson.navIdent,
-        );
-        const navn = personFraSok
-          ? `${personFraSok?.fornavn} ${personFraSok?.etternavn}`
-          : personFraDb?.navn;
-
-        return {
-          label: navn ? `${navn} - ${kontaktperson.navIdent}` : kontaktperson.navIdent,
-          value: kontaktperson.navIdent,
-        };
-      });
-
-    const options =
-      kontaktpersoner
-        ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
-        ?.map((kontaktperson) => ({
-          label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
-          value: kontaktperson.navIdent,
-        })) ?? [];
-
-    return alleredeValgt ? [...alleredeValgt, ...options] : options;
-  };
-
-  const valgteNavKontorer = watch("navKontorer");
-  const valgteNavEnheterAndre = watch("navEnheterAndre");
-  const valgteNavEnheter = valgteNavKontorer.concat(valgteNavEnheterAndre);
-
-  return (
-    <>
-      <ControlledSokeSelect
-        helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
-        size="small"
-        placeholder="Søk etter kontaktperson"
-        label={gjennomforingTekster.kontaktpersonNav.navnLabel}
-        {...register(`kontaktpersoner.${index}.navIdent`, {
-          shouldUnregister: true,
-        })}
-        onInputChange={setKontaktpersonerQuery}
-        options={kontaktpersonerOption(index)}
-      />
-      <ControlledMultiSelect
-        size="small"
-        velgAlle
-        placeholder="Velg ett eller flere områder"
-        label={gjennomforingTekster.kontaktpersonNav.omradeLabel}
-        {...register(`kontaktpersoner.${index}.navEnheter`, {
-          shouldUnregister: true,
-        })}
-        options={navEnheter.filter((enhet) => valgteNavEnheter.includes(enhet.value))}
-      />
-      <TextField
-        size="small"
-        label={gjennomforingTekster.kontaktpersonNav.beskrivelseLabel}
-        placeholder="Unngå personopplysninger"
-        maxLength={67}
-        {...register(`kontaktpersoner.${index}.beskrivelse`, {
-          shouldUnregister: true,
-        })}
       />
     </>
   );

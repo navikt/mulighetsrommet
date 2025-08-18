@@ -1,18 +1,22 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { AvtaleDto, GjennomforingDto } from "@mr/api-client-v2";
-import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
+import { AvtaleDto, GjennomforingDto, GjennomforingKontaktperson } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
+import { InformasjonTilVeiledereneForm } from "../redaksjoneltInnhold/InformasjonTilVeiledereneForm";
 
 interface Props {
   avtale: AvtaleDto;
+  lagredeKontaktpersoner: GjennomforingKontaktperson[];
 }
 
-export function GjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
+export function GjennomforingInformasjonTilVeiledereneForm({
+  avtale,
+  lagredeKontaktpersoner,
+}: Props) {
   const [key, setKey] = useState(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
@@ -73,12 +77,14 @@ export function GjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
         </HStack>
       </RedaksjoneltInnholdToppKnapperad>
 
-      <RedaksjoneltInnholdForm
+      <InformasjonTilVeiledereneForm
         key={`redaksjonelt-innhold-${key}`}
         tiltakId={avtale.tiltakstype.id}
         regionerOptions={regionerOptions}
         kontorerOptions={kontorEnheterOptions}
         andreEnheterOptions={andreEnheterOptions}
+        kontaktpersonForm
+        lagredeKontaktpersoner={lagredeKontaktpersoner}
       />
       <Modal
         open={modalOpen}
