@@ -174,7 +174,7 @@ sealed class UtbetalingBeregningDto {
                     val sats = getSats(utbetaling.beregning.input)
                     val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerManedsverk(
-                        belop = utbetaling.beregning.output.belop,
+                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(deltakelsePersoner.map { it.first }.toSet(), sats),
                         manedsverkTotal = manedsverkTotal,
                         deltakerRegioner = regioner,
                         deltakerTableData = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats),
@@ -186,7 +186,7 @@ sealed class UtbetalingBeregningDto {
                     val sats = getSats(utbetaling.beregning.input)
                     val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerUkesverk(
-                        belop = utbetaling.beregning.output.belop,
+                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(deltakelsePersoner.map { it.first }.toSet(), sats),
                         ukesverkTotal = ukesverkTotal,
                         deltakerRegioner = regioner,
                         deltakerTableData = PrisPerUkesverk.ukesverkTable(deltakelsePersoner, sats),
