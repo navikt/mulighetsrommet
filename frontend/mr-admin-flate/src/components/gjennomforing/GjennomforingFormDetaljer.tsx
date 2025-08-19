@@ -7,7 +7,7 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { addYear, isKursTiltak } from "@/utils/Utils";
+import { isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
@@ -40,7 +40,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
 interface Props {
@@ -119,7 +119,8 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   }));
 
   const minStartdato = new Date(avtale.startDato);
-  const maxSluttdato = addYear(minStartdato, 35);
+  const maxSluttdato =
+    addDuration(gjennomforing?.sluttDato, { years: 6 }) ?? addDuration(minStartdato, { years: 6 });
 
   return (
     <>

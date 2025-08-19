@@ -8,8 +8,9 @@ export const ARRANGORER_PAGE_SIZE = 50;
 
 export const STED_FOR_GJENNOMFORING_MAX_LENGTH = 100;
 
-export const MIN_START_DATO_FOR_AVTALER = new Date(2000, 0, 1);
-export const MAKS_AAR_FOR_AVTALER = 35;
+export const MIN_START_DATO_FOR_AVTALER = new Date(2020, 0, 1);
+export const MAKS_AAR_FOR_AVTALER = 6;
+export const START_DATO_TILSAGN = new Date(2025, 5, 1);
 
 export const PREVIEW_ARBEIDSMARKEDSTILTAK_URL = isProduction
   ? "https://nav-arbeidsmarkedstiltak.intern.nav.no/preview"

@@ -1,6 +1,6 @@
 import { Avtaletype } from "@mr/api-client-v2";
-import { HGrid, Select, TextField } from "@navikt/ds-react";
-import { useEffect, useMemo } from "react";
+import { HGrid, Select, TextField, VStack } from "@navikt/ds-react";
+import { useEffect, useMemo, useRef } from "react";
 import { FieldError, useFormContext } from "react-hook-form";
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -11,9 +11,7 @@ import {
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { formaterDato, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { addYear } from "@/utils/Utils";
-
+import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 interface Props {
   antallOpsjonerUtlost: number;
 }
@@ -23,18 +21,25 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
     register,
     setValue,
     watch,
+    getValues,
     formState: { errors },
   } = useFormContext<AvtaleFormValues>();
-
+  const initialStartDato = useRef(getValues("startDato"));
   const startDato = watch("startDato");
   const sluttDato = watch("sluttDato");
+
+  const minStartDato = initialStartDato
+    ? new Date(initialStartDato.current)
+    : MIN_START_DATO_FOR_AVTALER;
 
   const sluttDatoFraDato = useMemo(
     () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),
     [startDato],
   );
+
   const sluttDatoTilDato = useMemo(
-    () => addYear(startDato ? new Date(startDato) : new Date(), MAKS_AAR_FOR_AVTALER),
+    () =>
+      addDuration(startDato ? new Date(startDato) : new Date(), { years: MAKS_AAR_FOR_AVTALER }),
     [startDato],
   );
 
@@ -68,7 +73,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
   }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
 
   return (
-    <>
+    <VStack gap="4">
       {!forhandsgodkjent && (
         <HGrid columns={2}>
           <Select
@@ -109,39 +114,36 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
           {...register("opsjonsmodell.customOpsjonsmodellNavn")}
         />
       )}
-
       {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3} gap="5" align="end">
           <ControlledDateInput
             label={avtaletekster.startdatoLabel}
             readOnly={skalIkkeKunneRedigereOpsjoner}
-            fromDate={MIN_START_DATO_FOR_AVTALER}
+            fromDate={minStartDato}
             toDate={sluttDatoTilDato}
             onChange={(val) => setValue("startDato", val)}
             defaultSelected={startDato}
             error={errors.startDato?.message}
           />
-          <TextField
-            size="small"
+          <ControlledDateInput
+            key={sluttDato}
             label={avtaletekster.sluttdatoLabel(false)}
             readOnly={readonly}
-            error={
-              errors.sluttDato &&
-              `Avtaleperioden kan ikke vare lenger enn ${MAKS_AAR_FOR_AVTALER} år`
-            }
-            className="max-w-fit"
-            value={formaterDato(sluttDato)}
-            {...register("sluttDato")}
+            fromDate={minStartDato}
+            toDate={sluttDatoTilDato}
+            onChange={(val) => setValue("sluttDato", val)}
+            defaultSelected={getValues("sluttDato")}
+            invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
+            error={errors.sluttDato?.message}
           />
           {watchedOpsjonsmodell.opsjonMaksVarighet && (
-            <TextField
-              size="small"
+            <ControlledDateInput
+              key={watchedOpsjonsmodell.opsjonMaksVarighet}
+              onChange={(val) => setValue("opsjonsmodell.opsjonMaksVarighet", val)}
+              defaultSelected={getValues("opsjonsmodell.opsjonMaksVarighet")}
               label={avtaletekster.maksVarighetLabel}
               readOnly={readonly}
-              error={errors.opsjonsmodell?.opsjonMaksVarighet?.message}
-              className="max-w-fit"
-              value={formaterDato(watchedOpsjonsmodell.opsjonMaksVarighet)}
-              {...register("opsjonsmodell.opsjonMaksVarighet")}
+              invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
             />
           )}
         </HGrid>
@@ -149,7 +151,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
         <HGrid columns={3} gap="10">
           <ControlledDateInput
             label={avtaletekster.startdatoLabel}
-            fromDate={MIN_START_DATO_FOR_AVTALER}
+            fromDate={minStartDato}
             toDate={sluttDatoTilDato}
             onChange={(val) => setValue("startDato", val)}
             defaultSelected={startDato}
@@ -164,13 +166,14 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
             onChange={(val) => setValue("sluttDato", val)}
-            defaultSelected={sluttDato}
+            defaultSelected={getValues("sluttDato")}
+            invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
             error={errors.sluttDato?.message}
           />
         </HGrid>
       )}
       {antallOpsjonerUtlost > 0 && <RegistrerteOpsjoner readOnly />}
-    </>
+    </VStack>
   );
 }
 
