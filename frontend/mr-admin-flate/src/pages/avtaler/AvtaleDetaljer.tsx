@@ -214,23 +214,29 @@ export function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
         {avtaletekster.avtaltPrisLabel}
       </Heading>
       {satser.map((sats) => (
-        <HStack
-          gap="4"
-          padding="4"
+        <Box
           key={sats.periodeStart}
-          className="border-bg-subtle border-1 rounded-md"
+          borderColor="border-subtle"
+          padding="2"
+          borderWidth="1"
+          borderRadius="medium"
         >
-          <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
-          <Metadata header={avtaletekster.prismodell.pris.label} verdi={formaterTall(sats.pris)} />
-          <Metadata
-            header={avtaletekster.prismodell.periodeStart.label}
-            verdi={formaterDato(sats.periodeStart)}
-          />
-          <Metadata
-            header={avtaletekster.prismodell.periodeSlutt.label}
-            verdi={formaterDato(sats.periodeSlutt)}
-          />
-        </HStack>
+          <HStack gap="4" key={sats.periodeStart}>
+            <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+            <Metadata
+              header={avtaletekster.prismodell.pris.label}
+              verdi={formaterTall(sats.pris)}
+            />
+            <Metadata
+              header={avtaletekster.prismodell.periodeStart.label}
+              verdi={formaterDato(sats.periodeStart)}
+            />
+            <Metadata
+              header={avtaletekster.prismodell.periodeSlutt.label}
+              verdi={formaterDato(sats.periodeSlutt)}
+            />
+          </HStack>
+        </Box>
       ))}
     </Box>
   );
@@ -250,6 +256,7 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
           </Heading>
           <AvtalteSatser avtale={avtale} />
           <Definisjonsliste
+            columns={1}
             definitions={[
               { key: avtaletekster.prismodell.label, value: beskrivelse },
               {
@@ -273,28 +280,32 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
           </Heading>
           <VStack gap="4">
             {avtale.prismodell.satser.map((sats) => (
-              <HStack
-                gap="4"
-                padding="4"
+              <Box
                 key={sats.periodeStart}
-                className="border-bg-subtle border-1 rounded-md"
+                borderColor="border-subtle"
+                padding="2"
+                borderWidth="1"
+                borderRadius="medium"
               >
-                <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
-                <Metadata
-                  header={avtaletekster.prismodell.pris.label}
-                  verdi={formaterTall(sats.pris)}
-                />
-                <Metadata
-                  header={avtaletekster.prismodell.periodeStart.label}
-                  verdi={formaterDato(sats.periodeStart)}
-                />
-                <Metadata
-                  header={avtaletekster.prismodell.periodeSlutt.label}
-                  verdi={formaterDato(sats.periodeSlutt)}
-                />
-              </HStack>
+                <HStack gap="4">
+                  <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+                  <Metadata
+                    header={avtaletekster.prismodell.pris.label}
+                    verdi={formaterTall(sats.pris)}
+                  />
+                  <Metadata
+                    header={avtaletekster.prismodell.periodeStart.label}
+                    verdi={formaterDato(sats.periodeStart)}
+                  />
+                  <Metadata
+                    header={avtaletekster.prismodell.periodeSlutt.label}
+                    verdi={formaterDato(sats.periodeSlutt)}
+                  />
+                </HStack>
+              </Box>
             ))}
             <Definisjonsliste
+              columns={1}
               definitions={[
                 {
                   key: avtaletekster.prisOgBetalingLabel,
@@ -312,6 +323,7 @@ export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
     case "ANNEN_AVTALT_PRIS":
       return (
         <Definisjonsliste
+          columns={1}
           title={avtaletekster.avtaltPrisLabel}
           definitions={[
             {
