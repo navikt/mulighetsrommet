@@ -34,6 +34,10 @@ import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforing
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
 import { RedaksjoneltInnholdGjennomforing } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdGjennomforing";
+import { AvtaleDetaljer } from "./pages/avtaler/AvtaleDetaljer";
+import { AvtalePersonvern } from "./pages/avtaler/AvtalePersonvern";
+import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
+import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -114,6 +118,24 @@ const routes: RouteObject[] = [
         path: "avtaler/:avtaleId",
         element: <AvtalePage />,
         errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <AvtaleDetaljer />,
+          },
+          {
+            path: "personvern",
+            element: <AvtalePersonvern />,
+          },
+          {
+            path: "veilederinformasjon",
+            element: <RedaksjoneltInnholdPreview />,
+          },
+          {
+            path: "gjennomforinger",
+            element: <GjennomforingerForAvtalePage />,
+          },
+        ],
       },
       {
         path: "avtaler/skjema",
