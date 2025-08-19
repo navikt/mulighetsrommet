@@ -17,21 +17,24 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   switch (avtale.prismodell.type) {
     case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
       return (
-        <VStack gap="4">
+        <Box>
           <Heading level="3" size="small" spacing>
-            Prismodell - {beskrivelse}
+            {avtaletekster.prismodell.heading}
           </Heading>
-          <AvtalteSatser avtale={avtale} />
-        </VStack>
+          <AvtalteSatser avtale={avtale} prismodellBeskrivelse={beskrivelse} />
+        </Box>
       );
     case "AVTALT_PRIS_PER_MANEDSVERK":
     case "AVTALT_PRIS_PER_UKESVERK":
       return (
         <Box>
           <Heading level="3" size="small" spacing>
-            Prismodell - {beskrivelse}
+            {avtaletekster.prismodell.heading}
           </Heading>
           <VStack gap="4">
+            <Heading level="4" size="xsmall">
+              Prismodell: {beskrivelse}
+            </Heading>
             {avtale.prismodell.satser.map((sats) => (
               <Box
                 key={sats.periodeStart}
@@ -59,6 +62,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
             ))}
             <Definisjonsliste
               columns={1}
+              headingLevel="4"
               definitions={[
                 {
                   key: avtaletekster.prisOgBetalingLabel,
@@ -75,34 +79,46 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
       );
     case "ANNEN_AVTALT_PRIS":
       return (
-        <VStack gap="4">
+        <Box>
           <Heading level="3" size="small" spacing>
-            Prismodell - {beskrivelse}
+            {avtaletekster.prismodell.heading}
           </Heading>
-          <Definisjonsliste
-            columns={1}
-            definitions={[
-              {
-                key: avtaletekster.prisOgBetalingLabel,
-                value: avtale.prismodell?.prisbetingelser ? (
-                  <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
-                ) : (
-                  "-"
-                ),
-              },
-            ]}
-          />
-        </VStack>
+          <VStack gap="4">
+            <Heading level="4" size="xsmall">
+              Prismodell: {beskrivelse}
+            </Heading>
+            <Definisjonsliste
+              columns={1}
+              headingLevel="4"
+              definitions={[
+                {
+                  key: avtaletekster.prisOgBetalingLabel,
+                  value: avtale.prismodell?.prisbetingelser ? (
+                    <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
+                  ) : (
+                    "-"
+                  ),
+                },
+              ]}
+            />
+          </VStack>
+        </Box>
       );
   }
 }
 
-function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
+function AvtalteSatser({
+  avtale,
+  prismodellBeskrivelse,
+}: {
+  avtale: AvtaleDto;
+  prismodellBeskrivelse: string | undefined;
+}) {
   const { data: satser = [] } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
   return (
     <Box>
       <Heading level="4" size="xsmall" spacing>
-        {avtaletekster.avtaltPrisLabel}
+        Prismodell: {prismodellBeskrivelse}
       </Heading>
       {satser.map((sats) => (
         <Box
@@ -115,7 +131,7 @@ function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
           <HStack gap="4" key={sats.periodeStart}>
             <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
             <Metadata
-              header={avtaletekster.prismodell.pris.label}
+              header={avtaletekster.prismodell.sats.label}
               verdi={formaterTall(sats.pris)}
             />
             <Metadata
