@@ -11,6 +11,8 @@ import { sorterPaRegionsnavn } from "@/utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -19,12 +21,10 @@ interface RedaksjoneltInnholdPreviewProps {
   kontorstruktur: Kontorstruktur;
 }
 
-export function RedaksjoneltInnholdPreview({
-  tiltakstype,
-  beskrivelse,
-  faneinnhold,
-  kontorstruktur,
-}: RedaksjoneltInnholdPreviewProps) {
+export function RedaksjoneltInnholdPreview() {
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: avtale } = useAvtale(avtaleId);
+  const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = avtale;
   return (
     <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
       <RedaksjoneltInnhold

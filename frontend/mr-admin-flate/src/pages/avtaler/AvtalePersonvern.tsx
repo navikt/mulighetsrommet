@@ -1,13 +1,13 @@
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { AvtaleDto, PersonopplysningData } from "@mr/api-client-v2";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { PersonopplysningData } from "@mr/api-client-v2";
 import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 
-interface Props {
-  avtale: AvtaleDto;
-}
-
-export function AvtalePersonvern({ avtale }: Props) {
+export function AvtalePersonvern() {
   const { data: personopplysninger } = usePersonopplysninger();
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: avtale } = useAvtale(avtaleId);
 
   if (!avtale.personvernBekreftet) {
     return (
