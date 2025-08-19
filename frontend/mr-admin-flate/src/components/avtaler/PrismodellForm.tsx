@@ -68,7 +68,6 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
           </HStack>
         </Box>
       ))}
-      <PrisbetingelserTextArea />
     </VStack>
   );
 }

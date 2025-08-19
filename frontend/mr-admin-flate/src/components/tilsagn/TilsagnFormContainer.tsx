@@ -49,7 +49,6 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
             beregning: {
               ...defaults.beregning,
               type: beregning,
-              prisbetingelser: avtale.prismodell.prisbetingelser,
             },
           }}
           {...props}
@@ -62,7 +61,6 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
             ...defaults,
             beregning: {
               ...defaults.beregning,
-              prisbetingelser: avtale.prismodell.prisbetingelser,
               type: beregning,
             },
           }}

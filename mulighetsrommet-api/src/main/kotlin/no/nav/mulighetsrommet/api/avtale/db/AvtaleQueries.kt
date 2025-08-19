@@ -579,9 +579,7 @@ class AvtaleQueries(private val session: Session) {
             Prismodell.ANNEN_AVTALT_PRIS -> AvtaleDto.PrismodellDto.AnnenAvtaltPris(
                 prisbetingelser = stringOrNull("prisbetingelser"),
             )
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk(
-                prisbetingelser = stringOrNull("prisbetingelser"),
-            )
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk
             Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },

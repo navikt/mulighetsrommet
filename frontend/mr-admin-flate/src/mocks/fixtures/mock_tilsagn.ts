@@ -1,4 +1,9 @@
-import { TilsagnDto, TilsagnStatus, TilsagnType } from "@mr/api-client-v2";
+import {
+  PrismodellDtoAnnenAvtaltPris,
+  TilsagnDto,
+  TilsagnStatus,
+  TilsagnType,
+} from "@mr/api-client-v2";
 import { mockAvtaler } from "./mock_avtaler";
 
 export const mockTilsagn: TilsagnDto[] = [
@@ -6,7 +11,7 @@ export const mockTilsagn: TilsagnDto[] = [
     type: TilsagnType.TILSAGN,
     beregning: {
       type: "FRI",
-      prisbetingelser: mockAvtaler[0].prismodell.prisbetingelser,
+      prisbetingelser: (mockAvtaler[0].prismodell as PrismodellDtoAnnenAvtaltPris).prisbetingelser,
       linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
       belop: 14_000,
     },

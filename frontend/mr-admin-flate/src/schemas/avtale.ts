@@ -87,7 +87,10 @@ export function defaultAvtaleData(
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     prismodell: avtale?.prismodell?.type as Prismodell,
     satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
-    prisbetingelser: avtale?.prismodell?.prisbetingelser ?? undefined,
+    prisbetingelser:
+      avtale?.prismodell && "prisbetingelser" in avtale.prismodell
+        ? (avtale.prismodell.prisbetingelser ?? undefined)
+        : undefined,
   };
 }
 
