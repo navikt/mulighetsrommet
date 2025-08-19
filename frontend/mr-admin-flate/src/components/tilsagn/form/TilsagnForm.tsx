@@ -2,7 +2,7 @@ import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
+import { TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Box, Button, Heading, HGrid, HStack, TextField, VStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -17,7 +17,6 @@ import { tilsagnTekster } from "../TilsagnTekster";
 import { START_DATO_TILSAGN } from "@/constants";
 
 interface Props {
-  gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<InferredTilsagn>;
@@ -27,7 +26,7 @@ interface Props {
 }
 
 export function TilsagnForm(props: Props) {
-  const { gjennomforing, onSuccess, onAvbryt, defaultValues, regioner } = props;
+  const { onSuccess, onAvbryt, defaultValues, regioner } = props;
   const [searchParams] = useSearchParams();
   const { data: kostnadssteder } = useKostnadssted(regioner);
   const tilsagnstype: TilsagnType =

@@ -32,8 +32,8 @@ const MAKS_BEGRUNNELSE_LENGDE = 300;
 
 const Schema = z
   .object({
-    periodeStart: z.string({ error: "Du må velge periodestart" }),
-    periodeSlutt: z.string({ error: "Du må velge periodelsutt" }),
+    periodeStart: z.string({ error: "Du må sette startdato for perioden" }),
+    periodeSlutt: z.string({ error: "Du må sette sluttdato for perioden" }),
     beskrivelse: z
       .string({ error: "Du må oppgi en begrunnelse for utbetalingen" })
       .min(MIN_BEGRUNNELSE_LENGDE, {
