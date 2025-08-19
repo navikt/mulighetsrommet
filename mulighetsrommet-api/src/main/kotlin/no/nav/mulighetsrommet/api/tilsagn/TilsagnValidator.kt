@@ -82,7 +82,7 @@ object TilsagnValidator {
             if (satsPeriodeStart == null) {
                 add(
                     FieldError.of(
-                        "Tilsagn kan ikke registreres for valgt periode enda",
+                        "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
                         TilsagnRequest::periodeStart,
                     ),
                 )
@@ -92,16 +92,14 @@ object TilsagnValidator {
             if (satsPeriodeSlutt == null) {
                 add(
                     FieldError.of(
-                        "Tilsagn kan ikke registreres for valgt periode enda",
+                        "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
                         TilsagnRequest::periodeSlutt,
                     ),
                 )
-            }
-
-            if (satsPeriodeStart != satsPeriodeSlutt) {
+            } else if (satsPeriodeStart != satsPeriodeSlutt) {
                 add(
                     FieldError.of(
-                        "Periode går over flere satser",
+                        "Tilsagnsperioden kan ikke gå over flere registrerte sats-/prisperioder på avtalen",
                         TilsagnRequest::periodeSlutt,
                     ),
                 )

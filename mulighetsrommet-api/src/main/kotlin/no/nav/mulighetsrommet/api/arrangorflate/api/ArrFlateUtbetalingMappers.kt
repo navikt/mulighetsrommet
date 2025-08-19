@@ -115,7 +115,7 @@ fun toArrFlateBeregningDeltakelse(
         is DeltakelseUkesverk -> ArrFlateBeregningDeltakelse.PrisPerUkesverk(
             id = output.deltakelseId,
             deltakerStartDato = deltaker?.startDato,
-            person = person,
+            person = person?.let { ArrFlateBeregningDeltakelse.ArrFlatePerson.fromPerson(it) },
             periode = input.periode(),
             faktor = output.faktor,
             status = deltaker?.status?.type,
@@ -126,7 +126,7 @@ fun toArrFlateBeregningDeltakelse(
                 ArrFlateBeregningDeltakelse.PrisPerManedsverk(
                     id = output.deltakelseId,
                     deltakerStartDato = deltaker?.startDato,
-                    person = person,
+                    person = person?.let { ArrFlateBeregningDeltakelse.ArrFlatePerson.fromPerson(it) },
                     periode = input.periode(),
                     faktor = output.faktor,
                     status = deltaker?.status?.type,
@@ -136,7 +136,7 @@ fun toArrFlateBeregningDeltakelse(
                 ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = output.deltakelseId,
                     deltakerStartDato = deltaker?.startDato,
-                    person = person,
+                    person = person?.let { ArrFlateBeregningDeltakelse.ArrFlatePerson.fromPerson(it) },
                     periode = input.periode(),
                     faktor = output.faktor,
                     perioderMedDeltakelsesmengde = input.perioder,

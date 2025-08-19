@@ -5172,7 +5172,7 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingDeltakelsePeriode"
         person:
-          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+          $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor, perioderMedDeltakelsesmengde]
 
     ArrFlateBeregningPrisPerManedsverkDeltakelse:
@@ -5193,7 +5193,7 @@ components:
         faktor:
           type: number
         person:
-          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+          $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor]
 
     ArrFlateBeregningPrisPerUkesverkDeltakelse:
@@ -5214,7 +5214,7 @@ components:
         faktor:
           type: number
         person:
-          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
+          $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor]
 
     ArrFlateBeregning:
@@ -5400,7 +5400,7 @@ components:
         - periode
         - deltakelsesprosent
 
-    UtbetalingDeltakelsePerson:
+    ArrFlatePerson:
       type: object
       properties:
         navn:
