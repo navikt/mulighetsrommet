@@ -6,7 +6,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
@@ -56,10 +55,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = Person(
+                    person = ArrFlateBeregningDeltakelse.ArrFlatePerson(
                         navn = "Ola Nordmann",
                         foedselsdato = LocalDate.of(1989, 1, 1),
-                        norskIdent = NorskIdent("01010199999"),
                     ),
                     status = null,
                 ),
@@ -78,10 +76,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = Person(
+                    person = ArrFlateBeregningDeltakelse.ArrFlatePerson(
                         navn = "Kari Nordmann",
                         foedselsdato = LocalDate.of(1989, 1, 1),
-                        norskIdent = NorskIdent("22010199998"),
                     ),
                     status = null,
                 ),

@@ -89,7 +89,7 @@ sealed class ArrFlateBeregningDeltakelse {
     abstract val id: UUID
     abstract val deltakerStartDato: LocalDate?
     abstract val periode: Periode
-    abstract val person: Person?
+    abstract val person: ArrFlatePerson?
     abstract val faktor: Double
     abstract val status: DeltakerStatusType?
 
@@ -103,7 +103,7 @@ sealed class ArrFlateBeregningDeltakelse {
         override val faktor: Double,
         val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
         override val periode: Periode,
-        override val person: Person?,
+        override val person: ArrFlatePerson?,
         override val status: DeltakerStatusType?,
     ) : ArrFlateBeregningDeltakelse()
 
@@ -116,7 +116,7 @@ sealed class ArrFlateBeregningDeltakelse {
         override val deltakerStartDato: LocalDate?,
         override val faktor: Double,
         override val periode: Periode,
-        override val person: Person?,
+        override val person: ArrFlatePerson?,
         override val status: DeltakerStatusType?,
     ) : ArrFlateBeregningDeltakelse()
 
@@ -129,7 +129,21 @@ sealed class ArrFlateBeregningDeltakelse {
         override val deltakerStartDato: LocalDate?,
         override val faktor: Double,
         override val periode: Periode,
-        override val person: Person?,
+        override val person: ArrFlatePerson?,
         override val status: DeltakerStatusType?,
     ) : ArrFlateBeregningDeltakelse()
+
+    @Serializable
+    data class ArrFlatePerson(
+        val navn: String,
+        @Serializable(with = LocalDateSerializer::class)
+        val foedselsdato: LocalDate?,
+    ) {
+        companion object {
+            fun fromPerson(person: Person) = ArrFlatePerson(
+                navn = person.navn,
+                foedselsdato = person.foedselsdato,
+            )
+        }
+    }
 }
