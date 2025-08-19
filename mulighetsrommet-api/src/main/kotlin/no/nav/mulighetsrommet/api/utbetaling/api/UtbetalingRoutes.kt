@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import arrow.core.flatMap
+import arrow.core.right
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -162,7 +163,10 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>>()
                 val navIdent = getNavIdent()
 
-                val result = validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                val result = when (request.besluttelse) {
+                    Besluttelse.GODKJENT -> Unit.right()
+                    Besluttelse.AVVIST -> validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                }
                     .flatMap { utbetalingService.besluttDelutbetaling(id, request, navIdent) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
