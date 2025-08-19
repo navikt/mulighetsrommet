@@ -78,6 +78,8 @@ function AvtalteSatser() {
     control,
     register,
     watch,
+    setValue,
+    getValues,
     formState: { errors },
   } = useFormContext<AvtaleFormValues>();
 
@@ -119,19 +121,17 @@ function AvtalteSatser() {
               label={avtaletekster.prismodell.periodeStart.label}
               fromDate={fromDate}
               toDate={toDate}
-              format={"iso-string"}
-              size="small"
-              {...register(`satser.${index}.periodeStart`)}
-              control={control}
+              onChange={(val) => setValue(`satser.${index}.periodeStart`, val)}
+              error={errors.satser?.[index]?.periodeStart?.message}
+              defaultSelected={getValues(`satser.${index}.periodeStart`)}
             />
             <ControlledDateInput
-              size="small"
               label={avtaletekster.prismodell.periodeSlutt.label}
               fromDate={fromDate}
               toDate={toDate}
-              format={"iso-string"}
-              {...register(`satser.${index}.periodeSlutt`)}
-              control={control}
+              onChange={(val) => setValue(`satser.${index}.periodeSlutt`, val)}
+              defaultSelected={getValues(`satser.${index}.periodeSlutt`)}
+              error={errors.satser?.[index]?.periodeSlutt?.message}
             />
           </HStack>
           <Spacer />

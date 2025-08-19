@@ -60,6 +60,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
     register,
     control,
     formState: { errors },
+    getValues,
     setValue,
     watch,
   } = useFormContext<InferredGjennomforingSchema>();
@@ -190,24 +191,24 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
             </HGrid>
             <HGrid columns={2}>
               <ControlledDateInput
-                size="small"
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                {...register("startOgSluttDato.startDato")}
-                format={"iso-string"}
-                control={control}
+                defaultSelected={getValues("startOgSluttDato.startDato")}
+                onChange={(val) => setValue("startOgSluttDato.startDato", val)}
+                error={errors.startOgSluttDato?.startDato?.message}
               />
               <ControlledDateInput
-                size="small"
+                key={watchSluttDato}
                 label={gjennomforingTekster.sluttdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                {...register("startOgSluttDato.sluttDato", {
-                  onChange: visAdvarselForSluttDato,
-                })}
-                format={"iso-string"}
-                control={control}
+                defaultSelected={getValues("startOgSluttDato.sluttDato")}
+                onChange={(val) => {
+                  setValue("startOgSluttDato.sluttDato", val);
+                  visAdvarselForSluttDato();
+                }}
+                error={errors.startOgSluttDato?.sluttDato?.message}
               />
             </HGrid>
             <HGrid align="start" columns={2}>

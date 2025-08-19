@@ -106,18 +106,17 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
                 <ControlledDateInput
                   label="Når skal arrangør ha tilgang?"
                   size="small"
+                  defaultSelected={form.getValues("tilgjengeligForArrangorDato")}
+                  onChange={(val) => form.setValue("tilgjengeligForArrangorDato", val)}
+                  error={form.formState.errors.tilgjengeligForArrangorDato?.message}
                   fromDate={mintilgjengeligForArrangorDato}
                   toDate={gjennomforingStartDato}
-                  format="iso-string"
                   invalidDatoEtterPeriode="Du må velge en dato som er før oppstartsdato"
-                  {...form.register("tilgjengeligForArrangorDato")}
-                  control={form.control}
                 />
               </HStack>
             </form>
           </FormProvider>
         </Modal.Body>
-
         <Modal.Footer>
           <Button size="small" type="submit" onClick={submit}>
             Endre dato
