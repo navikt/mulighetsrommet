@@ -8,13 +8,11 @@ import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/sten
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import {
   AvbrytGjennomforingAarsak,
-  AvtaleDto,
   FieldError,
   GjennomforingDto,
   GjennomforingStatus,
   NavAnsatt,
   Opphav,
-  Prismodell,
   ValidationError,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -30,11 +28,10 @@ import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/use
 
 interface Props {
   ansatt: NavAnsatt;
-  avtale?: AvtaleDto;
   gjennomforing: GjennomforingDto;
 }
 
-export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props) {
+export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
@@ -128,13 +125,11 @@ export function GjennomforingKnapperad({ ansatt, avtale, gjennomforing }: Props)
                   >
                     {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
                   </Dropdown.Menu.GroupedList.Item>
-                  {avtale?.prismodell.type === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK && (
-                    <Dropdown.Menu.GroupedList.Item
-                      onClick={() => registrerStengtModalRef.current?.showModal()}
-                    >
-                      Registrer stengt hos arrangør
-                    </Dropdown.Menu.GroupedList.Item>
-                  )}
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => registrerStengtModalRef.current?.showModal()}
+                  >
+                    Registrer stengt hos arrangør
+                  </Dropdown.Menu.GroupedList.Item>
                   <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                     Avbryt gjennomføring
                   </Dropdown.Menu.GroupedList.Item>
