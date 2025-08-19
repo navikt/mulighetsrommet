@@ -121,7 +121,13 @@ export const handlers = [
   ),
   http.get<PathParams, boolean>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/features",
-    () => new HttpResponse(true, { status: 200 }),
+    ({ request }) => {
+      const query = new URL(request.url).searchParams;
+      const toggleEnabled = !query
+        .getAll("feature")
+        ?.includes("ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS");
+      return HttpResponse.json(toggleEnabled);
+    },
   ),
   http.get<PathParams, boolean>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/gjennomforing",
