@@ -12,7 +12,7 @@ export function TwoColumnGrid(props: Props) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
-      <div className="lg:pr-4 md:pr-0">
+      <div className="mb-8 lg:mb-0 lg:pr-4 md:pr-0">
         {/* Left Column Content */}
         {leftChild}
       </div>
