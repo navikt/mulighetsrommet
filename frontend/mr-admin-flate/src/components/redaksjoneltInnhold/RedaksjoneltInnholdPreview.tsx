@@ -36,7 +36,7 @@ export function RedaksjoneltInnholdPreview() {
     </React.Suspense>
   );
 }
-function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
+export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = props;
 
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
