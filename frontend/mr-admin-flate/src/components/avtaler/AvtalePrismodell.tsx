@@ -1,5 +1,10 @@
 import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
-import { AvtaleDto } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  Prismodell,
+  PrismodellDto,
+  PrismodellDtoAnnenAvtaltPris,
+} from "@mr/api-client-v2";
 import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Metadata } from "../detaljside/Metadata";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
@@ -78,32 +83,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
         </Box>
       );
     case "ANNEN_AVTALT_PRIS":
-      return (
-        <Box>
-          <Heading level="3" size="small" spacing>
-            {avtaletekster.prismodell.heading}
-          </Heading>
-          <VStack gap="4">
-            <Heading level="4" size="xsmall">
-              Prismodell: {beskrivelse}
-            </Heading>
-            <Definisjonsliste
-              columns={1}
-              headingLevel="4"
-              definitions={[
-                {
-                  key: avtaletekster.prisOgBetalingLabel,
-                  value: avtale.prismodell?.prisbetingelser ? (
-                    <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
-                  ) : (
-                    "-"
-                  ),
-                },
-              ]}
-            />
-          </VStack>
-        </Box>
-      );
+      return <AnnenAvtaltPrismodell avtale={avtale} prismodellBeskrivelse={beskrivelse} />;
   }
 }
 
@@ -148,3 +128,40 @@ function AvtalteSatser({
     </Box>
   );
 }
+
+export function AnnenAvtaltPrismodell({
+  avtale,
+  prismodellBeskrivelse,
+}: {
+  avtale: AvtaleDto;
+  prismodellBeskrivelse: string | undefined;
+}) {
+  if (!isAnnenAvtaltPrismodell(avtale.prismodell)) {
+    return null;
+  }
+  return (
+    <Box>
+      <Heading level="3" size="small" spacing>
+        {avtaletekster.prismodell.heading}
+      </Heading>
+      <VStack gap="4">
+        <Heading level="4" size="xsmall">
+          Prismodell: {prismodellBeskrivelse}
+        </Heading>
+        <Definisjonsliste
+          columns={1}
+          headingLevel="4"
+          definitions={[
+            {
+              key: avtaletekster.prisOgBetalingLabel,
+              value: <Prisbetingelser value={avtale.prismodell.prisbetingelser ?? "-"} />,
+            },
+          ]}
+        />
+      </VStack>
+    </Box>
+  );
+}
+
+const isAnnenAvtaltPrismodell = (obj: PrismodellDto): obj is PrismodellDtoAnnenAvtaltPris =>
+  obj.type === Prismodell.ANNEN_AVTALT_PRIS;

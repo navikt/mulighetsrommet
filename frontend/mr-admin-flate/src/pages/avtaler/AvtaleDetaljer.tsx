@@ -19,8 +19,7 @@ import { Alert, HelpText, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
-import { AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
+import { AnnenAvtaltPrismodell, AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
 
 interface Props {
   avtale: AvtaleDto;
@@ -173,21 +172,9 @@ export function AvtaleDetaljer({ avtale }: Props) {
         <Separator />
         {enableTilsagn ? (
           <AvtalePrismodell avtale={avtale} />
-        ) : avtale.prismodell && "prisbetingelser" in avtale.prismodell ? (
-          <Definisjonsliste
-            title={avtaletekster.avtaltPrisLabel}
-            definitions={[
-              {
-                key: avtaletekster.prisOgBetalingLabel,
-                value: avtale.prismodell.prisbetingelser ? (
-                  <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
-                ) : (
-                  "-"
-                ),
-              },
-            ]}
-          />
-        ) : null}
+        ) : (
+          <AnnenAvtaltPrismodell avtale={avtale} prismodellBeskrivelse="Annen avtalt pris" />
+        )}
       </VStack>
       <VStack>
         {administratorer && (
