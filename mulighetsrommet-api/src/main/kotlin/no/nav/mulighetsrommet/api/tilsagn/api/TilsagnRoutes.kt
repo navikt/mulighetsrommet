@@ -122,7 +122,17 @@ fun Route.tilsagnRoutes() {
 
                 TilsagnType.EKSTRATILSAGN -> {
                     val prisbetingelser = gjennomforing.avtaleId
-                        ?.let { db.session { queries.avtale.get(it)?.prismodell?.prisbetingelser } }
+                        ?.let {
+                            val prismodell = db.session { queries.avtale.get(it)?.prismodell }
+                            when (prismodell) {
+                                is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> prismodell.prisbetingelser
+                                is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
+                                is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
+                                AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk,
+                                null,
+                                -> null
+                            }
+                        }
 
                     resolveEkstraTilsagnDefaults(request, gjennomforing, prisbetingelser)
                 }
@@ -270,27 +280,63 @@ private fun resolveTilsagnDefaults(
         HttpStatusCode.BadRequest,
         "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
     )
-    return when (prismodell) {
+    val (beregning, periode) = when (prismodell) {
         is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> {
             val periode = getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
-            getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
+            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
+                TilsagnBeregningPrisPerManedsverk.Input(
+                    periode = periode,
+                    sats = sats,
+                    antallPlasser = gjennomforing.antallPlasser,
+                    prisbetingelser = null,
+                )
+            } to periode
         }
 
         is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
-            getTilsagnBeregningPrisPerManedsverkDefaults(periode, avtale, gjennomforing, tilsagn)
+            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
+                TilsagnBeregningPrisPerManedsverk.Input(
+                    periode = periode,
+                    sats = sats,
+                    antallPlasser = gjennomforing.antallPlasser,
+                    prisbetingelser = prismodell.prisbetingelser,
+                )
+            } to periode
         }
 
         is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
-            getTilsagnBeregningPrisPerUkesverkDefaults(periode, avtale, gjennomforing, tilsagn)
+            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
+                TilsagnBeregningPrisPerUkesverk.Input(
+                    periode = periode,
+                    sats = sats,
+                    antallPlasser = gjennomforing.antallPlasser,
+                    prisbetingelser = prismodell.prisbetingelser,
+                )
+            } to periode
         }
 
         is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> {
             val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
-            getTilsagnBeregningFriDefaults(periode, avtale, gjennomforing)
+            TilsagnBeregningFri.Input(
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
+                ),
+                prisbetingelser = prismodell.prisbetingelser,
+            ) to periode
         }
     }
+
+    return TilsagnDefaults(
+        id = null,
+        gjennomforingId = gjennomforing.id,
+        type = TilsagnType.TILSAGN,
+        periodeStart = periode.start,
+        periodeSlutt = periode.getLastInclusiveDate(),
+        kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
+        beregning = beregning,
+    )
 }
 
 private fun getForhandsgodkjentTiltakPeriode(
@@ -334,81 +380,6 @@ private fun getAnskaffetTiltakPeriode(
         .min()
 
     return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
-}
-
-private fun getTilsagnBeregningPrisPerManedsverkDefaults(
-    periode: Periode,
-    avtale: AvtaleDto,
-    gjennomforing: GjennomforingDto,
-    tilsagn: Tilsagn?,
-): TilsagnDefaults {
-    val beregning = AvtalteSatser.findSats(avtale, periode)?.let { sats ->
-        TilsagnBeregningPrisPerManedsverk.Input(
-            periode = periode,
-            sats = sats,
-            antallPlasser = gjennomforing.antallPlasser,
-            prisbetingelser = avtale.prismodell.prisbetingelser,
-        )
-    }
-
-    return TilsagnDefaults(
-        id = null,
-        gjennomforingId = gjennomforing.id,
-        type = TilsagnType.TILSAGN,
-        periodeStart = periode.start,
-        periodeSlutt = periode.getLastInclusiveDate(),
-        kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
-        beregning = beregning,
-    )
-}
-
-private fun getTilsagnBeregningPrisPerUkesverkDefaults(
-    periode: Periode,
-    avtale: AvtaleDto,
-    gjennomforing: GjennomforingDto,
-    tilsagn: Tilsagn?,
-): TilsagnDefaults {
-    val beregning = AvtalteSatser.findSats(avtale, periode)?.let { sats ->
-        TilsagnBeregningPrisPerUkesverk.Input(
-            periode = periode,
-            sats = sats,
-            antallPlasser = gjennomforing.antallPlasser,
-            prisbetingelser = avtale.prismodell.prisbetingelser,
-        )
-    }
-
-    return TilsagnDefaults(
-        id = null,
-        gjennomforingId = gjennomforing.id,
-        type = TilsagnType.TILSAGN,
-        periodeStart = periode.start,
-        periodeSlutt = periode.getLastInclusiveDate(),
-        kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
-        beregning = beregning,
-    )
-}
-
-private fun getTilsagnBeregningFriDefaults(
-    periode: Periode,
-    avtale: AvtaleDto,
-    gjennomforing: GjennomforingDto,
-): TilsagnDefaults {
-    val beregning = TilsagnBeregningFri.Input(
-        linjer = listOf(
-            TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
-        ),
-        prisbetingelser = avtale.prismodell.prisbetingelser,
-    )
-
-    return TilsagnDefaults(
-        id = null,
-        gjennomforingId = gjennomforing.id,
-        type = TilsagnType.TILSAGN,
-        periodeStart = periode.start,
-        periodeSlutt = periode.getLastInclusiveDate(),
-        kostnadssted = null,
-        beregning = beregning,
-    )
 }
 
 private fun resolveEkstraTilsagnDefaults(

@@ -2648,9 +2648,7 @@ components:
         type:
           type: string
           const: FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, prisbetingelser]
+      required: [type]
 
     PrismodellDtoAvtaltPrisPerManedsverk:
       type: object

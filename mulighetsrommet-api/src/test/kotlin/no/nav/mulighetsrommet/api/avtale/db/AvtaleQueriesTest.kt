@@ -83,7 +83,6 @@ class AvtaleQueriesTest : FunSpec({
                     it.avtaletype shouldBe arenaAvtale.avtaletype
                     it.status shouldBe AvtaleStatusDto.Aktiv
                     it.opphav shouldBe ArenaMigrering.Opphav.ARENA
-                    it.prismodell.prisbetingelser shouldBe "Alt er dyrt"
                 }
             }
         }
@@ -468,8 +467,6 @@ class AvtaleQueriesTest : FunSpec({
                 domain.setup(session)
 
                 val queries = AvtaleQueries(session)
-
-                val sats1 = AvtaltSats(Periode(LocalDate.of(2025, 6, 1), LocalDate.of(2025, 7, 1)), 1000)
                 val sats2 = AvtaltSats(Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 8, 1)), 2000)
 
                 queries.upsert(

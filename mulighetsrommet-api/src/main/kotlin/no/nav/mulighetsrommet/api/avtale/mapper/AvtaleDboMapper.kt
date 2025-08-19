@@ -40,7 +40,12 @@ object AvtaleDboMapper {
         opsjonsmodell = dto.opsjonsmodell,
         utdanningslop = dto.utdanningslop?.toDbo(),
         prismodell = dto.prismodell.prismodell(),
-        prisbetingelser = dto.prismodell.prisbetingelser,
+        prisbetingelser = when (dto.prismodell) {
+            is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> dto.prismodell.prisbetingelser
+            is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> dto.prismodell.prisbetingelser
+            is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> dto.prismodell.prisbetingelser
+            AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
+        },
         satser = dto.prismodell.satser(),
     )
 

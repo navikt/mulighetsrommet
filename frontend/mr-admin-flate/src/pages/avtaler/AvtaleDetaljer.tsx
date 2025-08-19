@@ -2,7 +2,7 @@ import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
 import { hentOpsjonsmodell } from "@/components/avtaler/opsjoner/opsjonsmodeller";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -15,14 +15,12 @@ import {
   Definisjonsliste,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
-import { Alert, Box, Heading, HelpText, HStack, VStack } from "@navikt/ds-react";
+import { Alert, HelpText, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
-import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
-import { formaterTall } from "@mr/frontend-common/utils/utils";
 import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
+import { AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
 
 interface Props {
   avtale: AvtaleDto;
@@ -174,14 +172,14 @@ export function AvtaleDetaljer({ avtale }: Props) {
         {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
         <Separator />
         {enableTilsagn ? (
-          <PrismodellDetaljer avtale={avtale} />
-        ) : (
+          <AvtalePrismodell avtale={avtale} />
+        ) : avtale.prismodell && "prisbetingelser" in avtale.prismodell ? (
           <Definisjonsliste
             title={avtaletekster.avtaltPrisLabel}
             definitions={[
               {
                 key: avtaletekster.prisOgBetalingLabel,
-                value: avtale.prismodell?.prisbetingelser ? (
+                value: avtale.prismodell.prisbetingelser ? (
                   <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
                 ) : (
                   "-"
@@ -189,7 +187,7 @@ export function AvtaleDetaljer({ avtale }: Props) {
               },
             ]}
           />
-        )}
+        ) : null}
       </VStack>
       <VStack>
         {administratorer && (
@@ -204,138 +202,4 @@ export function AvtaleDetaljer({ avtale }: Props) {
       </VStack>
     </TwoColumnGrid>
   );
-}
-
-export function AvtalteSatser({ avtale }: { avtale: AvtaleDto }) {
-  const { data: satser = [] } = useForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode);
-  return (
-    <Box>
-      <Heading level="4" size="xsmall" spacing>
-        {avtaletekster.avtaltPrisLabel}
-      </Heading>
-      {satser.map((sats) => (
-        <Box
-          key={sats.periodeStart}
-          borderColor="border-subtle"
-          padding="2"
-          borderWidth="1"
-          borderRadius="medium"
-        >
-          <HStack gap="4" key={sats.periodeStart}>
-            <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
-            <Metadata
-              header={avtaletekster.prismodell.pris.label}
-              verdi={formaterTall(sats.pris)}
-            />
-            <Metadata
-              header={avtaletekster.prismodell.periodeStart.label}
-              verdi={formaterDato(sats.periodeStart)}
-            />
-            <Metadata
-              header={avtaletekster.prismodell.periodeSlutt.label}
-              verdi={formaterDato(sats.periodeSlutt)}
-            />
-          </HStack>
-        </Box>
-      ))}
-    </Box>
-  );
-}
-
-export function PrismodellDetaljer({ avtale }: { avtale: AvtaleDto }) {
-  const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
-
-  const beskrivelse = prismodeller.find(({ type }) => type === avtale.prismodell.type)?.beskrivelse;
-
-  switch (avtale.prismodell.type) {
-    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
-      return (
-        <VStack gap="4">
-          <Heading level="3" size="small" spacing>
-            {beskrivelse}
-          </Heading>
-          <AvtalteSatser avtale={avtale} />
-          <Definisjonsliste
-            columns={1}
-            definitions={[
-              { key: avtaletekster.prismodell.label, value: beskrivelse },
-              {
-                key: avtaletekster.prisOgBetalingLabel,
-                value: avtale.prismodell?.prisbetingelser ? (
-                  <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
-                ) : (
-                  "-"
-                ),
-              },
-            ]}
-          />
-        </VStack>
-      );
-    case "AVTALT_PRIS_PER_MANEDSVERK":
-    case "AVTALT_PRIS_PER_UKESVERK":
-      return (
-        <Box>
-          <Heading level="3" size="small" spacing>
-            {beskrivelse}
-          </Heading>
-          <VStack gap="4">
-            {avtale.prismodell.satser.map((sats) => (
-              <Box
-                key={sats.periodeStart}
-                borderColor="border-subtle"
-                padding="2"
-                borderWidth="1"
-                borderRadius="medium"
-              >
-                <HStack gap="4">
-                  <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
-                  <Metadata
-                    header={avtaletekster.prismodell.pris.label}
-                    verdi={formaterTall(sats.pris)}
-                  />
-                  <Metadata
-                    header={avtaletekster.prismodell.periodeStart.label}
-                    verdi={formaterDato(sats.periodeStart)}
-                  />
-                  <Metadata
-                    header={avtaletekster.prismodell.periodeSlutt.label}
-                    verdi={formaterDato(sats.periodeSlutt)}
-                  />
-                </HStack>
-              </Box>
-            ))}
-            <Definisjonsliste
-              columns={1}
-              definitions={[
-                {
-                  key: avtaletekster.prisOgBetalingLabel,
-                  value: avtale.prismodell?.prisbetingelser ? (
-                    <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
-                  ) : (
-                    "-"
-                  ),
-                },
-              ]}
-            />
-          </VStack>
-        </Box>
-      );
-    case "ANNEN_AVTALT_PRIS":
-      return (
-        <Definisjonsliste
-          columns={1}
-          title={avtaletekster.avtaltPrisLabel}
-          definitions={[
-            {
-              key: avtaletekster.prisOgBetalingLabel,
-              value: avtale.prismodell?.prisbetingelser ? (
-                <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
-              ) : (
-                "-"
-              ),
-            },
-          ]}
-        />
-      );
-  }
 }

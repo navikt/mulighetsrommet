@@ -43,31 +43,27 @@ data class AvtaleDto(
 ) {
     @Serializable
     sealed class PrismodellDto {
-        abstract val prisbetingelser: String?
-
         @Serializable
         @SerialName("ANNEN_AVTALT_PRIS")
         data class AnnenAvtaltPris(
-            override val prisbetingelser: String?,
+            val prisbetingelser: String?,
         ) : PrismodellDto()
 
         @Serializable
         @SerialName("FORHANDSGODKJENT_PRIS_PER_MANEDSVERK")
-        data class ForhandsgodkjentPrisPerManedsverk(
-            override val prisbetingelser: String?,
-        ) : PrismodellDto()
+        data object ForhandsgodkjentPrisPerManedsverk : PrismodellDto()
 
         @Serializable
         @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
         data class AvtaltPrisPerManedsverk(
-            override val prisbetingelser: String?,
+            val prisbetingelser: String?,
             val satser: List<AvtaltSatsDto>,
         ) : PrismodellDto()
 
         @Serializable
         @SerialName("AVTALT_PRIS_PER_UKESVERK")
         data class AvtaltPrisPerUkesverk(
-            override val prisbetingelser: String?,
+            val prisbetingelser: String?,
             val satser: List<AvtaltSatsDto>,
         ) : PrismodellDto()
     }

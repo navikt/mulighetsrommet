@@ -202,7 +202,12 @@ private fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
                 is AvtaleStatusDto.Avsluttet -> Avslutningsstatus.AVSLUTTET
                 is AvtaleStatusDto.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
             },
-            prisbetingelser = prismodell.prisbetingelser,
+            prisbetingelser = when (prismodell) {
+                is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> prismodell.prisbetingelser
+                is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
+                is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
+                AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
+            },
         )
     }
 }
