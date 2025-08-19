@@ -1,40 +1,40 @@
 import { Tag, TagProps } from "@navikt/ds-react";
-import { ArrFlateUtbetalingStatus } from "api-client";
+import { ArrangorflateUtbetalingStatus } from "api-client";
 import { ReactNode } from "react";
 
 interface Props {
-  status: ArrFlateUtbetalingStatus;
+  status: ArrangorflateUtbetalingStatus;
   size?: TagProps["size"];
 }
 
 export function UtbetalingStatusTag({ status, size }: Props): ReactNode {
   const tagSize = size || "medium";
   switch (status) {
-    case ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
+    case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
       return (
         <Tag variant="success" size={tagSize}>
           Overført til utbetaling
         </Tag>
       );
-    case ArrFlateUtbetalingStatus.UTBETALT:
+    case ArrangorflateUtbetalingStatus.UTBETALT:
       return (
         <Tag variant="success" size={tagSize}>
           Utbetalt
         </Tag>
       );
-    case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
+    case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
       return (
         <Tag variant="warning" size={tagSize}>
           Behandles av Nav
         </Tag>
       );
-    case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
+    case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING:
       return (
         <Tag variant="alt1" size={tagSize}>
           Klar for innsending
         </Tag>
       );
-    case ArrFlateUtbetalingStatus.KREVER_ENDRING:
+    case ArrangorflateUtbetalingStatus.KREVER_ENDRING:
       return (
         <Tag variant="warning" size={tagSize}>
           Krever endring

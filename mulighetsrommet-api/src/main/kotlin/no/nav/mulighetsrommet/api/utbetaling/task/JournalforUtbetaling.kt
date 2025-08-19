@@ -7,7 +7,7 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
@@ -27,7 +27,7 @@ import java.util.*
 class JournalforUtbetaling(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
-    private val arrangorFlateService: ArrangorFlateService,
+    private val arrangorFlateService: ArrangorflateService,
     private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -78,7 +78,7 @@ class JournalforUtbetaling(
     }
 
     private suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
-        val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
+        val arrflateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
         val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(arrflateUtbetaling)
         return pdf
             .getPdfDocument(content)

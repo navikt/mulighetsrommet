@@ -8,18 +8,18 @@ import {
   Link,
   VStack,
 } from "@navikt/ds-react";
-import { ArrangorflateService, ArrFlateUtbetaling } from "api-client";
+import { ArrangorflateService, ArrangorflateUtbetalingDto } from "api-client";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { getEnvironment } from "~/services/environment";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { getBeregningDetaljer } from "~/utils/beregning";
 import { deltakerOversiktLenke, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { getBeregningDetaljer } from "~/utils/utbetaling";
 
 export const meta: MetaFunction = () => {
   return [
@@ -32,7 +32,7 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderData = {
-  utbetaling: ArrFlateUtbetaling;
+  utbetaling: ArrangorflateUtbetalingDto;
   deltakerlisteUrl: string;
 };
 
@@ -45,7 +45,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
 
   const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
-    ArrangorflateService.getArrFlateUtbetaling({
+    ArrangorflateService.getArrangorflateUtbetaling({
       path: { id },
       headers: await apiHeaders(request),
     }),

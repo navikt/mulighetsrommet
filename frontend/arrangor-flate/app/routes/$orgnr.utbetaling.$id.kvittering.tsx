@@ -35,7 +35,7 @@ export const loader: LoaderFunction = async ({
   }
 
   const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
-    ArrangorflateService.getArrFlateUtbetaling({
+    ArrangorflateService.getArrangorflateUtbetaling({
       path: { id },
       headers: await apiHeaders(request),
     }),

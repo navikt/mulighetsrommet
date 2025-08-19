@@ -1,6 +1,6 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, HelpText, HStack, Table } from "@navikt/ds-react";
-import { ArrFlateUtbetalingKompaktDto } from "api-client";
+import { ArrangorflateUtbetalingKompaktDto } from "api-client";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { UtbetalingTextLink } from "./UtbetalingTextLink";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
@@ -10,7 +10,7 @@ import { useSortState } from "~/hooks/useSortState";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 interface Props {
-  utbetalinger: ArrFlateUtbetalingKompaktDto[];
+  utbetalinger: ArrangorflateUtbetalingKompaktDto[];
   belopColumn: "godkjent" | "innsendt";
 }
 
@@ -23,7 +23,7 @@ enum UtbetalingSortKey {
 
 function getUtbetalingSelector(
   sortKey: UtbetalingSortKey,
-): SortBySelector<ArrFlateUtbetalingKompaktDto> {
+): SortBySelector<ArrangorflateUtbetalingKompaktDto> {
   switch (sortKey) {
     case UtbetalingSortKey.BELOP:
       return (u) => u.belop;

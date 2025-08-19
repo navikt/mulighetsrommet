@@ -1,14 +1,14 @@
 import {
-  ArrFlateUtbetalingKompaktDto,
-  ArrFlateUtbetalingStatus,
+  ArrangorflateUtbetalingKompaktDto,
+  ArrangorflateUtbetalingStatus,
   Tiltakskode,
   UtbetalingType,
 } from "api-client";
 
-export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompaktDto[] = [
+export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktDto[] = [
   {
     id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
-    status: ArrFlateUtbetalingStatus.UTBETALT,
+    status: ArrangorflateUtbetalingStatus.UTBETALT,
     godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
     godkjentBelop: 1000,
     tiltakstype: {
@@ -33,7 +33,7 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompaktDto[] = [
   },
   {
     id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
-    status: ArrFlateUtbetalingStatus.KREVER_ENDRING,
+    status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
     godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -58,7 +58,7 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompaktDto[] = [
   },
   {
     id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
-    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+    status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
     godkjentAvArrangorTidspunkt: "2025-06-05T09:36:11.510229",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -83,7 +83,7 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompaktDto[] = [
   },
   {
     id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
-    status: ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+    status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     godkjentBelop: 1200,
     godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
@@ -108,7 +108,7 @@ export const mockArrFlateUtbetalingKompakt: ArrFlateUtbetalingKompaktDto[] = [
   },
   {
     id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
-    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
     godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
       navn: "Varig tilrettelagt arbeid i skjermet virksomhet",

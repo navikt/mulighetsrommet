@@ -20,10 +20,10 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class ArrFlateUtbetaling(
+data class ArrangorflateUtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: ArrFlateUtbetalingStatus,
+    val status: ArrangorflateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     val kanViseBeregning: Boolean,
@@ -32,7 +32,7 @@ data class ArrFlateUtbetaling(
     val tiltakstype: ArrangorflateTiltakstype,
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
-    val beregning: ArrFlateBeregning,
+    val beregning: ArrangorflateBeregning,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val periode: Periode,
     val type: UtbetalingType?,
@@ -43,64 +43,64 @@ data class ArrFlateUtbetaling(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("type")
-sealed class ArrFlateBeregning {
+sealed class ArrangorflateBeregning {
     abstract val belop: Int
     abstract val digest: String
 
     @Serializable
-    @SerialName("ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder")
+    @SerialName("ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder")
     data class PrisPerManedsverkMedDeltakelsesmengder(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<ArrFlateBeregningDeltakelse>,
+        val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
         val sats: Int,
-    ) : ArrFlateBeregning()
+    ) : ArrangorflateBeregning()
 
     @Serializable
-    @SerialName("ArrFlateBeregningPrisPerManedsverk")
+    @SerialName("ArrangorflateBeregningPrisPerManedsverk")
     data class PrisPerManedsverk(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<ArrFlateBeregningDeltakelse>,
+        val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
         val sats: Int,
-    ) : ArrFlateBeregning()
+    ) : ArrangorflateBeregning()
 
     @Serializable
-    @SerialName("ArrFlateBeregningPrisPerUkesverk")
+    @SerialName("ArrangorflateBeregningPrisPerUkesverk")
     data class PrisPerUkesverk(
         override val belop: Int,
         override val digest: String,
-        val deltakelser: List<ArrFlateBeregningDeltakelse>,
+        val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
         val antallUkesverk: Double,
         val sats: Int,
-    ) : ArrFlateBeregning()
+    ) : ArrangorflateBeregning()
 
     @Serializable
-    @SerialName("ArrFlateBeregningFri")
+    @SerialName("ArrangorflateBeregningFri")
     data class Fri(
         override val belop: Int,
         override val digest: String,
-    ) : ArrFlateBeregning()
+    ) : ArrangorflateBeregning()
 }
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("type")
-sealed class ArrFlateBeregningDeltakelse {
+sealed class ArrangorflateBeregningDeltakelse {
     abstract val id: UUID
     abstract val deltakerStartDato: LocalDate?
     abstract val periode: Periode
-    abstract val person: ArrFlatePerson?
+    abstract val person: ArrangorflatePerson?
     abstract val faktor: Double
     abstract val status: DeltakerStatusType?
 
     @Serializable
-    @SerialName("ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder")
+    @SerialName("ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder")
     data class PrisPerManedsverkMedDeltakelsesmengder(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -109,12 +109,12 @@ sealed class ArrFlateBeregningDeltakelse {
         override val faktor: Double,
         val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
         override val periode: Periode,
-        override val person: ArrFlatePerson?,
+        override val person: ArrangorflatePerson?,
         override val status: DeltakerStatusType?,
-    ) : ArrFlateBeregningDeltakelse()
+    ) : ArrangorflateBeregningDeltakelse()
 
     @Serializable
-    @SerialName("ArrFlateBeregningDeltakelsePrisPerManedsverk")
+    @SerialName("ArrangorflateBeregningDeltakelsePrisPerManedsverk")
     data class PrisPerManedsverk(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -122,12 +122,12 @@ sealed class ArrFlateBeregningDeltakelse {
         override val deltakerStartDato: LocalDate?,
         override val faktor: Double,
         override val periode: Periode,
-        override val person: ArrFlatePerson?,
+        override val person: ArrangorflatePerson?,
         override val status: DeltakerStatusType?,
-    ) : ArrFlateBeregningDeltakelse()
+    ) : ArrangorflateBeregningDeltakelse()
 
     @Serializable
-    @SerialName("ArrFlateBeregningDeltakelsePrisPerUkesverk")
+    @SerialName("ArrangorflateBeregningDeltakelsePrisPerUkesverk")
     data class PrisPerUkesverk(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -135,21 +135,21 @@ sealed class ArrFlateBeregningDeltakelse {
         override val deltakerStartDato: LocalDate?,
         override val faktor: Double,
         override val periode: Periode,
-        override val person: ArrFlatePerson?,
+        override val person: ArrangorflatePerson?,
         override val status: DeltakerStatusType?,
-    ) : ArrFlateBeregningDeltakelse()
+    ) : ArrangorflateBeregningDeltakelse()
+}
 
-    @Serializable
-    data class ArrFlatePerson(
-        val navn: String,
-        @Serializable(with = LocalDateSerializer::class)
-        val foedselsdato: LocalDate?,
-    ) {
-        companion object {
-            fun fromPerson(person: Person) = ArrFlatePerson(
-                navn = person.navn,
-                foedselsdato = person.foedselsdato,
-            )
-        }
+@Serializable
+data class ArrangorflatePerson(
+    val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val foedselsdato: LocalDate?,
+) {
+    companion object {
+        fun fromPerson(person: Person) = ArrangorflatePerson(
+            navn = person.navn,
+            foedselsdato = person.foedselsdato,
+        )
     }
 }

@@ -6,11 +6,11 @@ import {
 import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
 import {
-  ArrFlateBeregning,
-  ArrFlateBeregningDeltakelse,
-  ArrFlateBeregningDeltakelsePrisPerManedsverk,
-  ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder,
-  ArrFlateBeregningDeltakelsePrisPerUkesverk,
+  ArrangorflateBeregning,
+  ArrangorflateBeregningDeltakelse,
+  ArrangorflateBeregningDeltakelsePrisPerManedsverk,
+  ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder,
+  ArrangorflateBeregningDeltakelsePrisPerUkesverk,
   DeltakerAdvarsel,
   Periode,
 } from "api-client";
@@ -27,7 +27,7 @@ enum DeltakerSortKey {
 
 function getDeltakerSelector(
   sortKey: DeltakerSortKey,
-): SortBySelector<ArrFlateBeregningDeltakelse> {
+): SortBySelector<ArrangorflateBeregningDeltakelse> {
   switch (sortKey) {
     case DeltakerSortKey.PERSON_NAVN:
       return (d) => d.person?.navn;
@@ -47,7 +47,7 @@ interface Column<T> {
   render: (d: T, hasRelevanteForslag: boolean) => React.ReactNode;
 }
 
-const baseColumns: Column<ArrFlateBeregningDeltakelse>[] = [
+const baseColumns: Column<ArrangorflateBeregningDeltakelse>[] = [
   {
     label: "Navn",
     sortable: true,
@@ -81,15 +81,15 @@ const baseColumns: Column<ArrFlateBeregningDeltakelse>[] = [
 ];
 
 type DeltakerTypeMap = {
-  ArrFlateBeregningPrisPerManedsverk: ArrFlateBeregningDeltakelsePrisPerManedsverk;
-  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder: ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder;
-  ArrFlateBeregningPrisPerUkesverk: ArrFlateBeregningDeltakelsePrisPerUkesverk;
+  ArrangorflateBeregningPrisPerManedsverk: ArrangorflateBeregningDeltakelsePrisPerManedsverk;
+  ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder: ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder;
+  ArrangorflateBeregningPrisPerUkesverk: ArrangorflateBeregningDeltakelsePrisPerUkesverk;
 };
 
 const columns: {
   [K in keyof DeltakerTypeMap]: Column<DeltakerTypeMap[K]>[];
 } = {
-  ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder: [
+  ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder: [
     ...baseColumns,
     {
       label: "Deltakelsesprosent",
@@ -99,12 +99,12 @@ const columns: {
     { label: "Månedsverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
-  ArrFlateBeregningPrisPerManedsverk: [
+  ArrangorflateBeregningPrisPerManedsverk: [
     ...baseColumns,
     { label: "Månedsverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
-  ArrFlateBeregningPrisPerUkesverk: [
+  ArrangorflateBeregningPrisPerUkesverk: [
     ...baseColumns,
     { label: "Ukesverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
@@ -117,7 +117,7 @@ export function DeltakelserTable({
   advarsler,
 }: {
   periode: Periode;
-  beregning: ArrFlateBeregning;
+  beregning: ArrangorflateBeregning;
   advarsler: DeltakerAdvarsel[];
   deltakerlisteUrl: string;
 }) {
@@ -135,7 +135,7 @@ export function DeltakelserTable({
     return advarsler.some((r) => r.deltakerId === id);
   }
 
-  const cols = columns[beregning.type] as Column<ArrFlateBeregningDeltakelse>[];
+  const cols = columns[beregning.type] as Column<ArrangorflateBeregningDeltakelse>[];
 
   return (
     <>
@@ -215,7 +215,7 @@ function DeltakerAdvarselInfo({
   deltaker,
   advarsel,
 }: {
-  deltaker?: ArrFlateBeregningDeltakelse;
+  deltaker?: ArrangorflateBeregningDeltakelse;
   advarsel: DeltakerAdvarsel;
 }) {
   switch (advarsel.type) {

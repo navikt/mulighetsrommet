@@ -12,16 +12,16 @@ import {
 import {
   ArrangorflateService,
   ArrangorflateTilsagnDto,
-  ArrFlateUtbetaling,
+  ArrangorflateUtbetalingDto,
   FieldError,
 } from "api-client";
 import { useEffect, useRef } from "react";
 import {
   ActionFunction,
   Form,
+  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
-  Link as ReactRouterLink,
   redirect,
   useActionData,
   useFetcher,
@@ -31,17 +31,17 @@ import {
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Separator } from "~/components/common/Separator";
-import { Definisjonsliste } from "../components/common/Definisjonsliste";
-import { tekster } from "../tekster";
-import { getBeregningDetaljer } from "../utils/beregning";
+import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { tekster } from "~/tekster";
+import { getBeregningDetaljer } from "~/utils/utbetaling";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
-import { problemDetailResponse, isValidationError, errorAt } from "~/utils/validering";
+import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 type BekreftUtbetalingData = {
-  utbetaling: ArrFlateUtbetaling;
+  utbetaling: ArrangorflateUtbetalingDto;
   tilsagn: ArrangorflateTilsagnDto[];
 };
 
@@ -70,7 +70,7 @@ export const loader: LoaderFunction = async ({
 
   const [{ data: utbetaling, error: utbetalingError }, { data: tilsagn, error: tilsagnError }] =
     await Promise.all([
-      ArrangorflateService.getArrFlateUtbetaling({
+      ArrangorflateService.getArrangorflateUtbetaling({
         path: { id },
         headers: await apiHeaders(request),
       }),

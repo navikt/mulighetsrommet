@@ -11,7 +11,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
@@ -24,9 +27,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
-    val utbetaling = ArrFlateUtbetaling(
+    val utbetaling = ArrangorflateUtbetalingDto(
         id = UUID.randomUUID(),
-        status = ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+        status = ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
         godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         kanViseBeregning = false,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
@@ -40,11 +43,11 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             navn = "Nav",
         ),
-        beregning = ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
+        beregning = ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
             belop = 100,
             digest = "digest",
             deltakelser = listOf(
-                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2025, 1, 1),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
@@ -55,13 +58,13 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = ArrFlateBeregningDeltakelse.ArrFlatePerson(
+                    person = ArrangorflatePerson(
                         navn = "Ola Nordmann",
                         foedselsdato = LocalDate.of(1989, 1, 1),
                     ),
                     status = null,
                 ),
-                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2024, 1, 1),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
@@ -76,7 +79,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = ArrFlateBeregningDeltakelse.ArrFlatePerson(
+                    person = ArrangorflatePerson(
                         navn = "Kari Nordmann",
                         foedselsdato = LocalDate.of(1989, 1, 1),
                     ),

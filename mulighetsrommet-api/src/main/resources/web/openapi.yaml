@@ -4623,7 +4623,7 @@ components:
         - pris
         - valuta
 
-    ArrFlateUtbetalingStatus:
+    ArrangorflateUtbetalingStatus:
       type: string
       enum:
         - KLAR_FOR_GODKJENNING
@@ -4755,27 +4755,27 @@ components:
         - KORRIGERING
         - INVESTERING
 
-    ArrFlateUtbetalinger:
+    ArrangorflateUtbetalinger:
       type: object
       properties:
         aktive:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+            $ref: "#/components/schemas/ArrangorflateUtbetalingKompakt"
         historiske:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+            $ref: "#/components/schemas/ArrangorflateUtbetalingKompakt"
       required: [aktive, historiske]
 
-    ArrFlateUtbetalingKompakt:
+    ArrangorflateUtbetalingKompakt:
       type: object
       properties:
         id:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -4802,14 +4802,14 @@ components:
         - periode
         - belop
 
-    ArrFlateUtbetaling:
+    ArrangorflateUtbetalingDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -4825,7 +4825,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/UtbetalingArrangor"
         beregning:
-          $ref: "#/components/schemas/ArrFlateBeregning"
+          $ref: "#/components/schemas/ArrangorflateBeregning"
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
@@ -4919,14 +4919,14 @@ components:
         - navn
         - slettet
 
-    ArrFlateBeregningDeltakelse:
+    ArrangorflateBeregningDeltakelse:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkDeltakelse"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverkDeltakelse"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkDeltakelse"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverkDeltakelse"
 
-    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse:
+    ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse:
       type: object
       properties:
         type:
@@ -4951,7 +4951,7 @@ components:
           $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor, perioderMedDeltakelsesmengde]
 
-    ArrFlateBeregningPrisPerManedsverkDeltakelse:
+    ArrangorflateBeregningPrisPerManedsverkDeltakelse:
       type: object
       properties:
         type:
@@ -4972,7 +4972,7 @@ components:
           $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor]
 
-    ArrFlateBeregningPrisPerUkesverkDeltakelse:
+    ArrangorflateBeregningPrisPerUkesverkDeltakelse:
       type: object
       properties:
         type:
@@ -4993,15 +4993,15 @@ components:
           $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor]
 
-    ArrFlateBeregning:
+    ArrangorflateBeregning:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningFri"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
+        - $ref: "#/components/schemas/ArrangorflateBeregningFri"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
 
-    ArrFlateBeregningFri:
+    ArrangorflateBeregningFri:
       type: object
       properties:
         type:
@@ -5012,7 +5012,7 @@ components:
           type: string
       required: [type, belop, digest, deltakelser]
 
-    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder:
+    ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder:
       type: object
       properties:
         type:
@@ -5024,7 +5024,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
         stengt:
           type: array
           items:
@@ -5035,7 +5035,7 @@ components:
           type: number
       required: [type, sats, belop, digest, deltakelser, stengt, antallManedsverk]
 
-    ArrFlateBeregningPrisPerManedsverk:
+    ArrangorflateBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
@@ -5047,7 +5047,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkDeltakelse"
         stengt:
           type: array
           items:
@@ -5058,7 +5058,7 @@ components:
           type: number
       required: [type, sats, belop, digest, deltakelser, stengt, antallManedsverk]
 
-    ArrFlateBeregningPrisPerUkesverk:
+    ArrangorflateBeregningPrisPerUkesverk:
       type: object
       properties:
         type:
@@ -5070,7 +5070,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverkDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverkDeltakelse"
         stengt:
           type: array
           items:

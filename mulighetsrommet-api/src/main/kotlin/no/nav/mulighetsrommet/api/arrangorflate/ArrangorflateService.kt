@@ -30,41 +30,40 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.TIL_OPPGJOR,
 )
 
-class ArrangorFlateService(
+class ArrangorflateService(
     private val db: ApiDatabase,
     private val personService: PersonService,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrFlateUtbetalinger = db.session {
+    fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
             .map { utbetaling ->
                 val advarsler = getAdvarsler(utbetaling)
-                val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
-                val godkjentBelop =
-                    if (status in listOf(
-                            ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                            ArrFlateUtbetalingStatus.UTBETALT,
-                        )
-                    ) {
-                        getGodkjentBelopForUtbetaling(utbetaling.id)
-                    } else {
-                        null
-                    }
-                ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+                val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler)
+                val godkjentBelop = if (status in listOf(
+                        ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                        ArrangorflateUtbetalingStatus.UTBETALT,
+                    )
+                ) {
+                    getGodkjentBelopForUtbetaling(utbetaling.id)
+                } else {
+                    null
+                }
+                ArrangorflateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
             }
             .partition { dto ->
                 when (dto.status) {
-                    ArrFlateUtbetalingStatus.KREVER_ENDRING,
-                    ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
-                    ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                    ArrangorflateUtbetalingStatus.KREVER_ENDRING,
+                    ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+                    ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
                     -> true
 
-                    ArrFlateUtbetalingStatus.UTBETALT,
-                    ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    ArrangorflateUtbetalingStatus.UTBETALT,
+                    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
                     -> false
                 }
             }
-        return ArrFlateUtbetalinger(aktive = aktive, historiske = historiske)
+        return ArrangorflateUtbetalinger(aktive = aktive, historiske = historiske)
     }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
@@ -77,7 +76,7 @@ class ArrangorFlateService(
             ?.let { toArrangorflateTilsagn(it) }
     }
 
-    fun getTilsagn(filter: ArrFlateTilsagnFilter, orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
+    fun getTilsagn(filter: ArrangorflateTilsagnFilter, orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 arrangor = orgnr,
@@ -156,10 +155,10 @@ class ArrangorFlateService(
         return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
     }
 
-    suspend fun toArrFlateUtbetaling(
+    suspend fun toArrangorflateUtbetaling(
         utbetaling: Utbetaling,
         relativeDate: LocalDateTime = LocalDateTime.now(),
-    ): ArrFlateUtbetaling = db.session {
+    ): ArrangorflateUtbetalingDto = db.session {
         val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
             ?.let { it.plusWeeks(12) <= relativeDate } ?: false
 
@@ -178,8 +177,8 @@ class ArrangorFlateService(
             .mapValues { it.value to it.value.norskIdent?.let { personerByNorskIdent.getValue(it) } }
 
         val advarsler = getAdvarsler(utbetaling)
-        val status = getArrFlateUtbetalingStatus(utbetaling, advarsler)
-        return mapUtbetalingToArrFlateUtbetaling(
+        val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler)
+        return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
             status = status,
             deltakerPersoner = deltakerPersoner,
@@ -209,12 +208,12 @@ class ArrangorFlateService(
             }
     }
 
-    private fun QueryContext.getArrFlateUtbetalingStatus(
+    private fun QueryContext.getArrangorflateUtbetalingStatus(
         utbetaling: Utbetaling,
         advarsler: List<DeltakerAdvarsel>,
-    ): ArrFlateUtbetalingStatus {
+    ): ArrangorflateUtbetalingStatus {
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-        return ArrFlateUtbetalingStatus.fromUtbetaling(
+        return ArrangorflateUtbetalingStatus.fromUtbetaling(
             utbetaling.status,
             delutbetalinger,
             harAdvarsler = advarsler.isNotEmpty(),

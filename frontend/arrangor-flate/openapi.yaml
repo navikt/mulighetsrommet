@@ -124,7 +124,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrFlateUtbetalinger"
+                $ref: "#/components/schemas/ArrangorflateUtbetalinger"
         default:
           description: Problem details
           headers: {}
@@ -255,7 +255,7 @@ paths:
       tags:
       - Arrangorflate
       description: Hent utbetaling for arrangør
-      operationId: getArrFlateUtbetaling
+      operationId: getArrangorflateUtbetaling
       parameters:
       - name: id
         in: path
@@ -272,7 +272,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrFlateUtbetaling"
+                $ref: "#/components/schemas/ArrangorflateUtbetalingDto"
         default:
           description: Problem details
           headers: {}
@@ -588,7 +588,7 @@ components:
       - navn
       - sluttDato
       - startDato
-    ArrFlateUtbetalingKompaktDto:
+    ArrangorflateUtbetalingKompaktDto:
       type: object
       properties:
         id:
@@ -607,7 +607,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         status:
-          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
         godkjentAvArrangorTidspunkt:
           type:
           - "null"
@@ -696,7 +696,7 @@ components:
       required:
       - slutt
       - start
-    ArrFlateUtbetalingStatus:
+    ArrangorflateUtbetalingStatus:
       type: string
       enum:
       - KLAR_FOR_GODKJENNING
@@ -704,17 +704,17 @@ components:
       - UTBETALT
       - KREVER_ENDRING
       - OVERFORT_TIL_UTBETALING
-    ArrFlateUtbetalinger:
+    ArrangorflateUtbetalinger:
       type: object
       properties:
         aktive:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingKompaktDto"
+            $ref: "#/components/schemas/ArrangorflateUtbetalingKompaktDto"
         historiske:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingKompaktDto"
+            $ref: "#/components/schemas/ArrangorflateUtbetalingKompaktDto"
       required:
       - aktive
       - historiske
@@ -854,20 +854,20 @@ components:
       type: string
       enum:
       - NOK
-    ArrFlateBeregning:
+    ArrangorflateBeregning:
       anyOf:
-      - $ref: "#/components/schemas/ArrFlateBeregningFri"
-      - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
-      - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
-      - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
+      - $ref: "#/components/schemas/ArrangorflateBeregningFri"
+      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
+      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder"
+      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
       discriminator:
         propertyName: type
         mapping:
-          ArrFlateBeregningFri: "#/components/schemas/ArrFlateBeregningFri"
-          ArrFlateBeregningPrisPerManedsverk: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
-          ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
-          ArrFlateBeregningPrisPerUkesverk: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
-    ArrFlateBeregningFri:
+          ArrangorflateBeregningFri: "#/components/schemas/ArrangorflateBeregningFri"
+          ArrangorflateBeregningPrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
+          ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder"
+          ArrangorflateBeregningPrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
+    ArrangorflateBeregningFri:
       type: object
       properties:
         belop:
@@ -878,7 +878,7 @@ components:
       required:
       - belop
       - digest
-    ArrFlateBeregningPrisPerManedsverk:
+    ArrangorflateBeregningPrisPerManedsverk:
       type: object
       properties:
         belop:
@@ -889,7 +889,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
         stengt:
           type: array
           items:
@@ -907,18 +907,18 @@ components:
       - digest
       - sats
       - stengt
-    ArrFlateBeregningDeltakelse:
+    ArrangorflateBeregningDeltakelse:
       anyOf:
-      - $ref: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverk"
-      - $ref: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
-      - $ref: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerUkesverk"
+      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
+      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
+      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
       discriminator:
         propertyName: type
         mapping:
-          ArrFlateBeregningDeltakelsePrisPerManedsverk: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverk"
-          ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
-          ArrFlateBeregningDeltakelsePrisPerUkesverk: "#/components/schemas/ArrFlateBeregningDeltakelsePrisPerUkesverk"
-    ArrFlateBeregningDeltakelsePrisPerManedsverk:
+          ArrangorflateBeregningDeltakelsePrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
+          ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
+          ArrangorflateBeregningDeltakelsePrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
+    ArrangorflateBeregningDeltakelsePrisPerManedsverk:
       type: object
       properties:
         id:
@@ -937,7 +937,7 @@ components:
         person:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Person"
+          - $ref: "#/components/schemas/ArrangorflatePerson"
         status:
           oneOf:
           - type: "null"
@@ -949,11 +949,9 @@ components:
       - periode
       - person
       - status
-    Person:
+    ArrangorflatePerson:
       type: object
       properties:
-        norskIdent:
-          type: string
         navn:
           type: string
         foedselsdato:
@@ -964,7 +962,6 @@ components:
       required:
       - foedselsdato
       - navn
-      - norskIdent
     DeltakerStatusType:
       type: string
       enum:
@@ -982,7 +979,7 @@ components:
       - VENTELISTE
       - VENTER_PA_OPPSTART
       - VURDERES
-    ArrFlateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder:
+    ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder:
       type: object
       properties:
         id:
@@ -1005,7 +1002,7 @@ components:
         person:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Person"
+          - $ref: "#/components/schemas/ArrangorflatePerson"
         status:
           oneOf:
           - type: "null"
@@ -1029,7 +1026,7 @@ components:
       required:
       - deltakelsesprosent
       - periode
-    ArrFlateBeregningDeltakelsePrisPerUkesverk:
+    ArrangorflateBeregningDeltakelsePrisPerUkesverk:
       type: object
       properties:
         id:
@@ -1048,7 +1045,7 @@ components:
         person:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Person"
+          - $ref: "#/components/schemas/ArrangorflatePerson"
         status:
           oneOf:
           - type: "null"
@@ -1070,7 +1067,7 @@ components:
       required:
       - beskrivelse
       - periode
-    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder:
+    ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder:
       type: object
       properties:
         belop:
@@ -1081,7 +1078,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
         stengt:
           type: array
           items:
@@ -1099,7 +1096,7 @@ components:
       - digest
       - sats
       - stengt
-    ArrFlateBeregningPrisPerUkesverk:
+    ArrangorflateBeregningPrisPerUkesverk:
       type: object
       properties:
         belop:
@@ -1110,7 +1107,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
         stengt:
           type: array
           items:
@@ -1224,14 +1221,14 @@ components:
       required:
       - antallRelevanteForslag
       - deltakerId
-    ArrFlateUtbetaling:
+    ArrangorflateUtbetalingDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
         godkjentAvArrangorTidspunkt:
           type:
           - "null"
@@ -1251,7 +1248,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/ArrangorflateArrangor"
         beregning:
-          $ref: "#/components/schemas/ArrFlateBeregning"
+          $ref: "#/components/schemas/ArrangorflateBeregning"
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
         periode:

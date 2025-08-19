@@ -23,7 +23,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
@@ -58,7 +58,7 @@ fun Route.arrangorflateRoutes() {
     val arrangorService: ArrangorService by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
-    val arrangorFlateService: ArrangorFlateService by inject()
+    val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
@@ -201,7 +201,7 @@ fun Route.arrangorflateRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Arrangør sine utbetalinger"
-                    body<ArrFlateUtbetalinger>()
+                    body<ArrangorflateUtbetalinger>()
                 }
                 default {
                     description = "Problem details"
@@ -289,7 +289,7 @@ fun Route.arrangorflateRoutes() {
 
                 requireTilgangHosArrangor(orgnr)
 
-                val filter = getArrFlateTilsagnFilter()
+                val filter = getArrangorflateTilsagnFilter()
                 val tilsagn = arrangorFlateService.getTilsagn(filter, orgnr)
 
                 call.respond(tilsagn)
@@ -328,14 +328,14 @@ fun Route.arrangorflateRoutes() {
         get({
             description = "Hent utbetaling for arrangør"
             tags = setOf("Arrangorflate")
-            operationId = "getArrFlateUtbetaling"
+            operationId = "getArrangorflateUtbetaling"
             request {
                 pathParameterUuid("id")
             }
             response {
                 code(HttpStatusCode.OK) {
                     description = "Utbetaling for gitt id"
-                    body<ArrFlateUtbetaling>()
+                    body<ArrangorflateUtbetalingDto>()
                 }
                 default {
                     description = "Problem details"
@@ -347,7 +347,7 @@ fun Route.arrangorflateRoutes() {
 
             requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-            call.respond(arrangorFlateService.toArrFlateUtbetaling(utbetaling))
+            call.respond(arrangorFlateService.toArrangorflateUtbetaling(utbetaling))
         }
 
         get("/advarsler", {
@@ -444,7 +444,7 @@ fun Route.arrangorflateRoutes() {
 
             requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-            val arrflateUtbetaling = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
+            val arrflateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
             val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(arrflateUtbetaling)
             pdfClient.getPdfDocument(content)
                 .onRight { pdfContent ->
@@ -664,22 +664,22 @@ data class OpprettKravOmUtbetalingRequest(
     val tilskuddstype: Tilskuddstype,
 )
 
-data class ArrFlateTilsagnFilter(
+data class ArrangorflateTilsagnFilter(
     val statuser: List<TilsagnStatus>? = null,
     val typer: List<TilsagnType>? = null,
 )
 
-fun RoutingContext.getArrFlateTilsagnFilter(): ArrFlateTilsagnFilter {
-    return ArrFlateTilsagnFilter(
+fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
+    return ArrangorflateTilsagnFilter(
         statuser = call.parameters.getAll("statuser")?.map { TilsagnStatus.valueOf(it) },
         typer = call.parameters.getAll("typer")?.map { TilsagnType.valueOf(it) },
     )
 }
 
 @Serializable
-data class ArrFlateUtbetalinger(
-    val aktive: List<ArrFlateUtbetalingKompaktDto>,
-    val historiske: List<ArrFlateUtbetalingKompaktDto>,
+data class ArrangorflateUtbetalinger(
+    val aktive: List<ArrangorflateUtbetalingKompaktDto>,
+    val historiske: List<ArrangorflateUtbetalingKompaktDto>,
 )
 
 @Serializable

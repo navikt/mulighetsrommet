@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
@@ -87,7 +87,7 @@ class JournalforUtbetalingTest : FunSpec({
     }
 
     val arrangorFlateSerivce = { db: ApiDatabase ->
-        ArrangorFlateService(
+        ArrangorflateService(
             db = db,
             personService = mockk(relaxed = true),
             kontoregisterOrganisasjonClient = mockk(relaxed = true),

@@ -5,8 +5,8 @@ import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, Heading, HStack, Link, Modal, Spacer, VStack } from "@navikt/ds-react";
 import {
   ArrangorflateService,
-  ArrFlateUtbetaling,
-  ArrFlateUtbetalingStatus,
+  ArrangorflateUtbetalingDto,
+  ArrangorflateUtbetalingStatus,
   UtbetalingType,
 } from "api-client";
 import { useRef } from "react";
@@ -18,14 +18,13 @@ import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
-import { getBeregningDetaljer } from "~/utils/beregning";
-import { getTimestamp } from "~/utils/date";
+import { getBeregningDetaljer, getTimestamp } from "~/utils/utbetaling";
 import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 
 type UtbetalingDetaljerSideData = {
-  utbetaling: ArrFlateUtbetaling;
+  utbetaling: ArrangorflateUtbetalingDto;
   deltakerlisteUrl: string;
 };
 
@@ -47,7 +46,7 @@ export const loader: LoaderFunction = async ({
   }
 
   const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
-    ArrangorflateService.getArrFlateUtbetaling({
+    ArrangorflateService.getArrangorflateUtbetaling({
       path: { id },
       headers: await apiHeaders(request),
     }),
@@ -66,8 +65,8 @@ export default function UtbetalingDetaljerSide() {
   const innsendtTidspunkt = getTimestamp(utbetaling);
 
   const visNedlastingAvKvittering = [
-    ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-    ArrFlateUtbetalingStatus.UTBETALT,
+    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+    ArrangorflateUtbetalingStatus.UTBETALT,
   ].includes(utbetaling.status);
 
   return (
@@ -94,10 +93,7 @@ export default function UtbetalingDetaljerSide() {
       <UtbetalingHeader type={utbetaling.type} />
       <Definisjonsliste
         definitions={[
-          {
-            key: innsendtTidspunkt.title,
-            value: innsendtTidspunkt.value,
-          },
+          innsendtTidspunkt,
           { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
           { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
         ]}
@@ -166,7 +162,7 @@ function getUtbetalingTypeNavn(type: UtbetalingType) {
 }
 
 interface DeltakerModalProps {
-  utbetaling: ArrFlateUtbetaling;
+  utbetaling: ArrangorflateUtbetalingDto;
   deltakerlisteUrl: string;
 }
 

@@ -8,20 +8,20 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
-fun mapUtbetalingToArrFlateUtbetaling(
+fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,
-    status: ArrFlateUtbetalingStatus,
+    status: ArrangorflateUtbetalingStatus,
     deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>>,
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangorUtbetalingLinje>,
     kanViseBeregning: Boolean,
-): ArrFlateUtbetaling {
+): ArrangorflateUtbetalingDto {
     val perioderById = utbetaling.beregning.input.deltakelser().associateBy { it.deltakelseId }
     val ukesverkById = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
 
     val deltakelser = perioderById.map { (id, deltakelse) ->
         val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
-        toArrFlateBeregningDeltakelse(
+        toArrangorflateBeregningDeltakelse(
             deltakelse,
             ukesverkById.getValue(id),
             deltaker,
@@ -37,14 +37,14 @@ fun mapUtbetalingToArrFlateUtbetaling(
 
     val beregning = when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningFri -> {
-            ArrFlateBeregning.Fri(
+            ArrangorflateBeregning.Fri(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
             )
         }
 
         is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
-            ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
+            ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
                 belop = beregning.output.belop,
@@ -55,7 +55,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
         }
 
         is UtbetalingBeregningPrisPerManedsverk -> {
-            ArrFlateBeregning.PrisPerManedsverk(
+            ArrangorflateBeregning.PrisPerManedsverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
@@ -66,7 +66,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
         }
 
         is UtbetalingBeregningPrisPerUkesverk -> {
-            ArrFlateBeregning.PrisPerUkesverk(
+            ArrangorflateBeregning.PrisPerUkesverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
@@ -77,7 +77,7 @@ fun mapUtbetalingToArrFlateUtbetaling(
         }
     }
 
-    return ArrFlateUtbetaling(
+    return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
         status = status,
         godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
@@ -105,17 +105,17 @@ fun mapUtbetalingToArrFlateUtbetaling(
     )
 }
 
-fun toArrFlateBeregningDeltakelse(
+fun toArrangorflateBeregningDeltakelse(
     input: UtbetalingBeregningInputDeltakelse,
     output: UtbetalingBeregningOutputDeltakelse,
     deltaker: Deltaker?,
     person: Person?,
-): ArrFlateBeregningDeltakelse {
+): ArrangorflateBeregningDeltakelse {
     return when (output) {
-        is DeltakelseUkesverk -> ArrFlateBeregningDeltakelse.PrisPerUkesverk(
+        is DeltakelseUkesverk -> ArrangorflateBeregningDeltakelse.PrisPerUkesverk(
             id = output.deltakelseId,
             deltakerStartDato = deltaker?.startDato,
-            person = person?.let { ArrFlateBeregningDeltakelse.ArrFlatePerson.fromPerson(it) },
+            person = person?.let { ArrangorflatePerson.fromPerson(it) },
             periode = input.periode(),
             faktor = output.faktor,
             status = deltaker?.status?.type,
@@ -123,20 +123,20 @@ fun toArrFlateBeregningDeltakelse(
 
         is DeltakelseManedsverk -> when (input) {
             is DeltakelsePeriode ->
-                ArrFlateBeregningDeltakelse.PrisPerManedsverk(
+                ArrangorflateBeregningDeltakelse.PrisPerManedsverk(
                     id = output.deltakelseId,
                     deltakerStartDato = deltaker?.startDato,
-                    person = person?.let { ArrFlateBeregningDeltakelse.ArrFlatePerson.fromPerson(it) },
+                    person = person?.let { ArrangorflatePerson.fromPerson(it) },
                     periode = input.periode(),
                     faktor = output.faktor,
                     status = deltaker?.status?.type,
                 )
 
             is DeltakelseDeltakelsesprosentPerioder ->
-                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = output.deltakelseId,
                     deltakerStartDato = deltaker?.startDato,
-                    person = person?.let { ArrFlateBeregningDeltakelse.ArrFlatePerson.fromPerson(it) },
+                    person = person?.let { ArrangorflatePerson.fromPerson(it) },
                     periode = input.periode(),
                     faktor = output.faktor,
                     perioderMedDeltakelsesmengde = input.perioder,

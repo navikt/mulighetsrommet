@@ -17,8 +17,8 @@ import kotliquery.Query
 import no.nav.amt.model.EndringAarsak
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -171,7 +171,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.OK
 
-            response.body<ArrFlateUtbetaling>().should {
+            response.body<ArrangorflateUtbetalingDto>().should {
                 it.id shouldBe utbetaling.id
             }
         }

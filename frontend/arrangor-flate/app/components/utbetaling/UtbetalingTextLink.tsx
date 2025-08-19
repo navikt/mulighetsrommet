@@ -1,10 +1,10 @@
 import { Link } from "@navikt/ds-react";
-import { ArrFlateUtbetalingStatus } from "api-client";
+import { ArrangorflateUtbetalingStatus } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { pathByOrgnr } from "~/utils/navigation";
 
 interface UtbetalingTextLinkProps {
-  status: ArrFlateUtbetalingStatus;
+  status: ArrangorflateUtbetalingStatus;
   gjennomforingNavn: string;
   utbetalingId: string;
   orgnr: string;
@@ -17,7 +17,7 @@ export function UtbetalingTextLink({
   orgnr,
 }: UtbetalingTextLinkProps) {
   switch (status) {
-    case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING: {
+    case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING: {
       return (
         <Link
           as={ReactRouterLink}
@@ -28,7 +28,7 @@ export function UtbetalingTextLink({
         </Link>
       );
     }
-    case ArrFlateUtbetalingStatus.KREVER_ENDRING: {
+    case ArrangorflateUtbetalingStatus.KREVER_ENDRING: {
       return (
         <Link
           as={ReactRouterLink}

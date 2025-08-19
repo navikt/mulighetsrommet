@@ -1,4 +1,8 @@
-import { ArrangorflateService, ArrangorflateTilsagnDto, ArrFlateUtbetaling } from "api-client";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagnDto,
+  ArrangorflateUtbetalingDto,
+} from "api-client";
 import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
@@ -21,7 +25,7 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderData = {
-  utbetaling: ArrFlateUtbetaling;
+  utbetaling: ArrangorflateUtbetalingDto;
   tilsagn: ArrangorflateTilsagnDto[];
 };
 
@@ -31,7 +35,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
   const [{ data: utbetaling, error: utbetalingError }, { data: tilsagn, error: tilsagnError }] =
     await Promise.all([
-      ArrangorflateService.getArrFlateUtbetaling({
+      ArrangorflateService.getArrangorflateUtbetaling({
         path: { id },
         headers: await apiHeaders(request),
       }),
