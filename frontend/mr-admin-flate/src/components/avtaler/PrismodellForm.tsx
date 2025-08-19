@@ -49,7 +49,7 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
             />
             <TextField
               readOnly
-              label={avtaletekster.prismodell.pris.label}
+              label={avtaletekster.prismodell.sats.label}
               size="small"
               value={sats.pris}
             />
