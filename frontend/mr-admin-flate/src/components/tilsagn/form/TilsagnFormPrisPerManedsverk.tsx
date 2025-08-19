@@ -73,6 +73,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     <VStack gap="4">
       <Heading size="small">Prismodell - Pris per månedsverk</Heading>
       <Definisjonsliste
+        columns={1}
         definitions={[
           {
             key: avtaletekster.prisOgBetalingLabel,
