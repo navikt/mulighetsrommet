@@ -116,6 +116,11 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Avbryt avtale
                 </Dropdown.Menu.GroupedList.Item>
               )}
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
+              >
+                Opprett ny gjennomføring
+              </Dropdown.Menu.GroupedList.Item>
             </Dropdown.Menu.GroupedList>
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.List>
