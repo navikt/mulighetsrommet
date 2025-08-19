@@ -102,7 +102,7 @@ function AvtalteSatser() {
           align="center"
           className="border-border-subtle border-1 rounded-lg"
         >
-          <HStack key={field.periodeStart} gap="4" align="center">
+          <HStack key={field.periodeStart} gap="4" align="start">
             <Select readOnly label="Valuta" size="small">
               <option value={undefined}>{field.valuta}</option>
             </Select>
