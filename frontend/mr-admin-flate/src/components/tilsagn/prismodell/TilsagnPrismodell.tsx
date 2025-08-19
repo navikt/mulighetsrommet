@@ -32,6 +32,7 @@ function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
     <VStack gap="4">
       <Heading size="small">Prismodell - Annen avtalt pris</Heading>
       <Definisjonsliste
+        columns={1}
         definitions={[
           {
             key: avtaletekster.prisOgBetalingLabel,
@@ -58,6 +59,7 @@ function PrisPerManedsUkesverkPrismodell({
         Prismodell - Pris per {isBeregningPrisPerManedsverk(beregning) ? "månedsverk" : "ukesverk"}
       </Heading>
       <Definisjonsliste
+        columns={1}
         definitions={[
           {
             key: avtaletekster.prisOgBetalingLabel,
