@@ -147,6 +147,7 @@ class TilsagnService(
             .map {
                 when (input) {
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
+                    is TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input -> TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
                     is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(input)
                     is TilsagnBeregningPrisPerUkesverk.Input -> TilsagnBeregningPrisPerUkesverk.beregn(input)
                 }
