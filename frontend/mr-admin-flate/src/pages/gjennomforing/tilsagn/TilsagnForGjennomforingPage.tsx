@@ -6,8 +6,8 @@ import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { TilsagnTabell } from "./tabell/TilsagnTabell";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { TilsagnTable } from "./tabell/TilsagnTable";
 
 function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
   return {
@@ -58,7 +58,7 @@ export function TilsagnForGjennomforingPage() {
         </HarSkrivetilgang>
       </KnapperadContainer>
       {tilsagnForGjennomforing?.length > 0 ? (
-        <TilsagnTabell tilsagn={tilsagnForGjennomforing} />
+        <TilsagnTable tilsagn={tilsagnForGjennomforing} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
