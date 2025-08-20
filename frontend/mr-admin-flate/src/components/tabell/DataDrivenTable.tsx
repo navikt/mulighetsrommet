@@ -19,7 +19,7 @@ export function DataDrivenTable({ data, className }: Props) {
         return formaterDato(row) ?? "-";
       case "NOK":
         return formaterNOK(Number(row));
-      default:
+      case undefined:
         return row;
     }
   }

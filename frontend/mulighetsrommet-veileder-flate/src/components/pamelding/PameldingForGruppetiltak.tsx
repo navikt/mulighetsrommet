@@ -125,7 +125,13 @@ function utledTekster(deltakelse: DeltakelseGruppetiltak): Tekst {
         lenketekst: "Les om brukerens deltakelse",
         variant: "info",
       };
-    default:
+    case DeltakerStatusType.AVBRUTT:
+    case DeltakerStatusType.AVBRUTT_UTKAST:
+    case DeltakerStatusType.FEILREGISTRERT:
+    case DeltakerStatusType.FULLFORT:
+    case DeltakerStatusType.HAR_SLUTTET:
+    case DeltakerStatusType.IKKE_AKTUELL:
+    case DeltakerStatusType.PABEGYNT_REGISTRERING:
       throw new Error("Ukjent deltakerstatus");
   }
 }

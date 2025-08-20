@@ -22,7 +22,7 @@ const PrismodellForm = memo(({ tiltakskode, prismodell }: Props) => {
     case Prismodell.AVTALT_PRIS_PER_UKESVERK:
       return <AvtalteSatser />;
     case Prismodell.ANNEN_AVTALT_PRIS:
-    default:
+    case undefined:
       return <PrisbetingelserTextArea />;
   }
 });

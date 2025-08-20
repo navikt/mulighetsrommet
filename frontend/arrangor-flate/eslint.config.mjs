@@ -55,4 +55,28 @@ export default ts.config(
       },
     },
   },
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: ts.parser,
+      parserOptions: {
+        // easiest: let TS project service find your tsconfig.* automatically
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+        // or explicitly:
+        // project: ['./tsconfig.json'],
+      },
+    },
+    plugins: {
+      '@typescript-eslint': ts.plugin,
+    },
+    rules: {
+      // turn on the exhaustiveness check
+      '@typescript-eslint/switch-exhaustiveness-check': [
+        'error',
+        // optional: allow keeping a default: even when exhaustive
+        // { allowDefaultCaseForExhaustiveSwitch: true },
+      ],
+    },
+  }
 );
