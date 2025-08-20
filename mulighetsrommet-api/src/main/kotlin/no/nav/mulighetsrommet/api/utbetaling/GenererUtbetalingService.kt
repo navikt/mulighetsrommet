@@ -263,16 +263,14 @@ class GenererUtbetalingService(
     ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
         queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
-            .filter { deltaker ->
-                isRelevantForUtbetalingsperide(deltaker, periode)
+            .mapNotNull { deltaker ->
+                toDeltakelsePeriode(deltaker, periode)
             }
-            .map { deltaker ->
-                val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltaker.id)
-
-                val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+            .map { (deltakelseId, deltakelsePeriode) ->
+                val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltakelseId)
 
                 val perioder = deltakelsesmengder.mapIndexedNotNull { index, mengde ->
-                    val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: sluttDatoInPeriode
+                    val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: deltakelsePeriode.slutt
 
                     Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
                         DeltakelsesprosentPeriode(
@@ -283,10 +281,10 @@ class GenererUtbetalingService(
                 }
 
                 check(perioder.isNotEmpty()) {
-                    "Deltaker id=${deltaker.id} er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
+                    "Deltaker id=$deltakelseId er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
                 }
 
-                DeltakelseDeltakelsesprosentPerioder(deltaker.id, perioder)
+                DeltakelseDeltakelsesprosentPerioder(deltakelseId, perioder)
             }
             .toSet()
     }
@@ -296,10 +294,7 @@ class GenererUtbetalingService(
         periode: Periode,
     ): Set<DeltakelsePeriode> {
         val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        return resolveDeltakelsePerioder(
-            deltakere,
-            periode,
-        )
+        return resolveDeltakelsePerioder(deltakere, periode)
     }
 
     private fun QueryContext.logEndring(
@@ -327,42 +322,45 @@ private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo): Boolean 
     return utbetaling.beregning.output.belop > 0
 }
 
-private fun isRelevantForUtbetalingsperide(
-    deltaker: Deltaker,
-    periode: Periode,
-): Boolean {
-    val relevantDeltakerStatusForUtbetaling = listOf(
-        DeltakerStatusType.DELTAR,
-        DeltakerStatusType.AVBRUTT,
-        DeltakerStatusType.FULLFORT,
-        DeltakerStatusType.HAR_SLUTTET,
-    )
-    if (deltaker.status.type !in relevantDeltakerStatusForUtbetaling) {
-        return false
-    }
-
-    val startDato = requireNotNull(deltaker.startDato) {
-        "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
-    }
-    val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-    return Periode.of(startDato, sluttDatoInPeriode)?.intersects(periode) ?: false
-}
-
 private fun resolveDeltakelsePerioder(
     deltakere: List<Deltaker>,
     periode: Periode,
 ): Set<DeltakelsePeriode> {
     return deltakere
         .asSequence()
-        .filter { deltaker ->
-            isRelevantForUtbetalingsperide(deltaker, periode)
-        }
-        .map { deltaker ->
-            val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-            val overlappingPeriode = Periode(deltaker.startDato!!, sluttDatoInPeriode).intersect(periode)!!
-            DeltakelsePeriode(deltaker.id, overlappingPeriode)
+        .mapNotNull { deltaker ->
+            toDeltakelsePeriode(deltaker, periode)
         }
         .toSet()
+}
+
+private fun toDeltakelsePeriode(
+    deltaker: Deltaker,
+    periode: Periode,
+): DeltakelsePeriode? {
+    if (!harDeltakerDeltatt(deltaker)) {
+        return null
+    }
+
+    val startDato = requireNotNull(deltaker.startDato) {
+        "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
+    }
+    val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+    val overlappingPeriode = Periode.of(startDato, sluttDatoInPeriode)?.intersect(periode) ?: return null
+    return DeltakelsePeriode(deltaker.id, overlappingPeriode)
+}
+
+private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
+    if (deltaker.status.type == DeltakerStatusType.DELTAR) {
+        return true
+    }
+
+    val avsluttendeStatus = listOf(
+        DeltakerStatusType.AVBRUTT,
+        DeltakerStatusType.FULLFORT,
+        DeltakerStatusType.HAR_SLUTTET,
+    )
+    return deltaker.status.type in avsluttendeStatus && deltaker.sluttDato != null
 }
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
