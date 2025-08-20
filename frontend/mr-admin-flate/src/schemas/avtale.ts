@@ -71,8 +71,8 @@ export function defaultAvtaleData(
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
     arrangorKontaktpersoner:
       avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    startDato: avtale?.startDato ? avtale.startDato : "",
-    sluttDato: avtale?.sluttDato ? avtale.sluttDato : "",
+    startDato: avtale?.startDato,
+    sluttDato: avtale?.sluttDato,
     sakarkivNummer: avtale?.sakarkivNummer,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
