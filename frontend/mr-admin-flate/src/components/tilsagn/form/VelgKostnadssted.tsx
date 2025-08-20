@@ -13,6 +13,7 @@ export function VelgKostnadssted({ kostnadssteder }: Props) {
   return (
     <ControlledSokeSelect
       placeholder="Velg kostnadssted"
+      className="max-w-md"
       size="small"
       label={tilsagnTekster.kostnadssted.label}
       {...register("kostnadssted")}

@@ -1,31 +1,32 @@
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { VelgPeriode } from "@/components/tilsagn/form/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Alert, Box, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, Heading, HGrid, HStack, TextField, VStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
-import { Separator } from "@/components/detaljside/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { addDuration } from "@mr/frontend-common/utils/date";
+import { tilsagnTekster } from "../TilsagnTekster";
 
 interface Props {
-  gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<InferredTilsagn>;
   regioner: string[];
   beregningInput: ReactElement;
   beregningOutput: ReactElement;
+  gjennomforing: GjennomforingDto;
 }
 
 export function TilsagnForm(props: Props) {
-  const { gjennomforing, onSuccess, onAvbryt, defaultValues, regioner } = props;
+  const { onSuccess, onAvbryt, defaultValues, regioner, gjennomforing } = props;
   const [searchParams] = useSearchParams();
   const { data: kostnadssteder } = useKostnadssted(regioner);
   const tilsagnstype: TilsagnType =
@@ -79,25 +80,36 @@ export function TilsagnForm(props: Props) {
               Tilsagn
             </Heading>
             <TwoColumnGrid separator>
-              <div className="pr-6">
-                <div className="grid grid-cols-2">
-                  <TextField
-                    size="small"
-                    label="Tilsagnstype"
-                    readOnly
-                    value={avtaletekster.tilsagn.type(tilsagnstype)}
-                  />
-                </div>
+              <VStack gap="6">
+                <TextField
+                  size="small"
+                  label="Tilsagnstype"
+                  readOnly
+                  value={avtaletekster.tilsagn.type(tilsagnstype)}
+                  className="max-w-fit"
+                />
                 {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
-                <div className="py-3">
-                  <VelgPeriode startDato={gjennomforing.startDato} />
-                </div>
-                <div className="py-3">
-                  <VelgKostnadssted kostnadssteder={kostnadssteder} />
-                </div>
-                <Separator />
-                <div className="py-3">{props.beregningInput}</div>
-              </div>
+                <HGrid columns={2}>
+                  <ControlledDateInput
+                    label={tilsagnTekster.periode.start.label}
+                    fromDate={new Date(gjennomforing.startDato)}
+                    toDate={addDuration(new Date(), { years: 1 })}
+                    defaultSelected={form.getValues("periodeStart")}
+                    onChange={(val) => form.setValue("periodeStart", val)}
+                    error={errors.periodeStart?.message}
+                  />
+                  <ControlledDateInput
+                    label={tilsagnTekster.periode.slutt.label}
+                    fromDate={new Date(gjennomforing.startDato)}
+                    toDate={addDuration(new Date(), { years: 1 })}
+                    defaultSelected={form.getValues("periodeSlutt")}
+                    onChange={(val) => form.setValue("periodeSlutt", val)}
+                    error={errors.periodeSlutt?.message}
+                  />
+                </HGrid>
+                <VelgKostnadssted kostnadssteder={kostnadssteder} />
+                {props.beregningInput}
+              </VStack>
               {props.beregningOutput}
             </TwoColumnGrid>
           </Box>

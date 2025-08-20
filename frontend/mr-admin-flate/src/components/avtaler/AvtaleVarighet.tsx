@@ -1,6 +1,6 @@
 import { Avtaletype } from "@mr/api-client-v2";
-import { HGrid, Select, TextField } from "@navikt/ds-react";
-import { useEffect, useMemo } from "react";
+import { HGrid, Select, TextField, VStack } from "@navikt/ds-react";
+import { useEffect, useMemo, useRef } from "react";
 import { FieldError, useFormContext } from "react-hook-form";
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -11,8 +11,7 @@ import {
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { addYear } from "@/utils/Utils";
-
+import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 interface Props {
   antallOpsjonerUtlost: number;
 }
@@ -22,18 +21,25 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
     register,
     setValue,
     watch,
+    getValues,
     formState: { errors },
-    control,
   } = useFormContext<AvtaleFormValues>();
-
+  const initialStartDato = useRef(getValues("startDato"));
   const startDato = watch("startDato");
-  // Uten useMemo for sluttDatoFraDato så trigges rerendering av children hver gang sluttdato kalkuleres på nytt ved endring av startdato
+  const sluttDato = watch("sluttDato");
+
+  const minStartDato = initialStartDato.current
+    ? new Date(initialStartDato.current)
+    : MIN_START_DATO_FOR_AVTALER;
+
   const sluttDatoFraDato = useMemo(
     () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),
     [startDato],
   );
+
   const sluttDatoTilDato = useMemo(
-    () => addYear(startDato ? new Date(startDato) : new Date(), MAKS_AAR_FOR_AVTALER),
+    () =>
+      addDuration(startDato ? new Date(startDato) : new Date(), { years: MAKS_AAR_FOR_AVTALER }),
     [startDato],
   );
 
@@ -52,20 +58,22 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
       if (opsjonsmodell.initialSluttdatoEkstraAar) {
         setValue(
           "sluttDato",
-          kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
+          yyyyMMddFormatting(
+            kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar),
+          ) ?? "",
         );
       }
       if (opsjonsmodell.maksVarighetAar) {
         setValue(
           "opsjonsmodell.opsjonMaksVarighet",
-          kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
+          yyyyMMddFormatting(kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar)),
         );
       }
     }
   }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
 
   return (
-    <>
+    <VStack gap="4">
       {!forhandsgodkjent && (
         <HGrid columns={2}>
           <Select
@@ -106,56 +114,50 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
           {...register("opsjonsmodell.customOpsjonsmodellNavn")}
         />
       )}
-
       {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3} gap="5" align="end">
           <ControlledDateInput
-            size="small"
             label={avtaletekster.startdatoLabel}
             readOnly={skalIkkeKunneRedigereOpsjoner}
-            fromDate={MIN_START_DATO_FOR_AVTALER}
+            fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            {...register("startDato")}
-            format={"iso-string"}
-            control={control}
+            onChange={(val) => setValue("startDato", val)}
+            defaultSelected={startDato}
+            error={errors.startDato?.message}
           />
           <ControlledDateInput
-            size="small"
+            key={sluttDato}
             label={avtaletekster.sluttdatoLabel(false)}
             readOnly={readonly}
-            fromDate={sluttDatoFraDato}
+            fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            {...register("sluttDato")}
-            format={"iso-string"}
-            invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${MAKS_AAR_FOR_AVTALER} år`}
-            control={control}
+            onChange={(val) => setValue("sluttDato", val)}
+            defaultSelected={getValues("sluttDato")}
+            invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
+            error={errors.sluttDato?.message}
           />
           {watchedOpsjonsmodell.opsjonMaksVarighet && (
             <ControlledDateInput
-              size="small"
+              key={watchedOpsjonsmodell.opsjonMaksVarighet}
+              onChange={(val) => setValue("opsjonsmodell.opsjonMaksVarighet", val)}
+              defaultSelected={getValues("opsjonsmodell.opsjonMaksVarighet")}
               label={avtaletekster.maksVarighetLabel}
               readOnly={readonly}
-              fromDate={sluttDatoFraDato}
-              toDate={sluttDatoTilDato}
-              {...register("opsjonsmodell.opsjonMaksVarighet")}
-              format={"iso-string"}
-              control={control}
+              invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
             />
           )}
         </HGrid>
       ) : (
         <HGrid columns={3} gap="10">
           <ControlledDateInput
-            size="small"
             label={avtaletekster.startdatoLabel}
-            fromDate={MIN_START_DATO_FOR_AVTALER}
+            fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            {...register("startDato")}
-            format={"iso-string"}
-            control={control}
+            onChange={(val) => setValue("startDato", val)}
+            defaultSelected={startDato}
+            error={errors.startDato?.message}
           />
           <ControlledDateInput
-            size="small"
             label={
               forhandsgodkjent
                 ? avtaletekster.valgfriSluttdatoLabel(watchedAvtaletype)
@@ -163,14 +165,15 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
             }
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            {...register("sluttDato")}
-            format={"iso-string"}
-            control={control}
+            onChange={(val) => setValue("sluttDato", val)}
+            defaultSelected={getValues("sluttDato")}
+            invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
+            error={errors.sluttDato?.message}
           />
         </HGrid>
       )}
       {antallOpsjonerUtlost > 0 && <RegistrerteOpsjoner readOnly />}
-    </>
+    </VStack>
   );
 }
 

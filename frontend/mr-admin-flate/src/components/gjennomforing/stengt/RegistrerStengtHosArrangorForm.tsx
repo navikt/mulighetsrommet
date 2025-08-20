@@ -22,7 +22,7 @@ export function RegistrerStengtHosArrangorForm({
 
   const form = useForm<SetStengtHosArrangorRequest>({});
 
-  const { register, handleSubmit, formState, setError, control } = form;
+  const { register, handleSubmit, formState, setError, getValues, setValue } = form;
 
   function onSubmit(data: SetStengtHosArrangorRequest) {
     setStengtHosArrangor.mutate(
@@ -63,21 +63,19 @@ export function RegistrerStengtHosArrangorForm({
           <HGrid columns={2}>
             <ControlledDateInput
               label="Periode start"
+              defaultSelected={getValues("periodeStart")}
+              onChange={(val) => setValue("periodeStart", val)}
+              error={formState.errors.periodeStart?.message}
               fromDate={minDate}
               toDate={maxDate}
-              format="iso-string"
-              size="small"
-              {...register("periodeStart")}
-              control={control}
             />
             <ControlledDateInput
               label="Periode slutt"
+              defaultSelected={getValues("periodeSlutt")}
+              onChange={(val) => setValue("periodeSlutt", val)}
+              error={formState.errors.periodeSlutt?.message}
               fromDate={minDate}
               toDate={maxDate}
-              format="iso-string"
-              size="small"
-              {...register("periodeSlutt")}
-              control={control}
             />
           </HGrid>
           <HGrid columns={1}>

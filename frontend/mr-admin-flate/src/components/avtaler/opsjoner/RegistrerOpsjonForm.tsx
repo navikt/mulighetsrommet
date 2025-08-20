@@ -1,11 +1,11 @@
 import { Alert, Radio } from "@navikt/ds-react";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
-import { addDays, addYear } from "@/utils/Utils";
+import { addYear } from "@/utils/Utils";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
 import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   avtale: AvtaleDto;
@@ -15,7 +15,13 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
   const maksVarighetForOpsjon = avtale.opsjonsmodell.opsjonMaksVarighet;
   const sluttDatoSisteOpsjon = avtale.opsjonerRegistrert.at(-1)?.sluttDato;
   const sluttdato = avtale.sluttDato;
-  const { watch, register, control } = useFormContext<InferredRegistrerOpsjonSchema>();
+  const {
+    watch,
+    register,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useFormContext<InferredRegistrerOpsjonSchema>();
 
   if (!maksVarighetForOpsjon || !sluttdato) {
     return (
@@ -33,7 +39,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
           value="1"
           disabled={addYear(new Date(sluttdato), 1) > new Date(maksVarighetForOpsjon)}
         >
-          + 1 år (Forleng til: {formaterDato(addYear(new Date(sluttdato), 1))})
+          + 1 år (Forleng til: {formaterDato(addDuration(new Date(sluttdato), { years: 1 }))})
         </Radio>
         <Radio value="Annet">Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})</Radio>
       </ControlledRadioGroup>
@@ -41,11 +47,15 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
         <ControlledDateInput
           size="small"
           label={"Velg ny sluttdato"}
-          fromDate={sluttDatoSisteOpsjon ? addDays(new Date(sluttDatoSisteOpsjon), 1) : new Date()}
+          fromDate={
+            sluttDatoSisteOpsjon
+              ? addDuration(new Date(sluttDatoSisteOpsjon), { days: 1 })
+              : new Date()
+          }
           toDate={new Date(maksVarighetForOpsjon)}
-          {...register("opsjonsdatoValgt")}
-          format={"iso-string"}
-          control={control}
+          defaultSelected={getValues("opsjonsdatoValgt")}
+          error={errors.opsjonsdatoValgt?.message}
+          onChange={(val) => setValue("opsjonsdatoValgt", val)}
         />
       )}
     </div>

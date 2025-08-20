@@ -5,7 +5,7 @@ import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategoriseri
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { addYear, isKursTiltak } from "@/utils/Utils";
+import { isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDto,
@@ -33,7 +33,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
 interface Props {
@@ -53,6 +53,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
     register,
     control,
     formState: { errors },
+    getValues,
     setValue,
     watch,
   } = useFormContext<InferredGjennomforingSchema>();
@@ -93,7 +94,8 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   }
 
   const minStartdato = new Date(avtale.startDato);
-  const maxSluttdato = addYear(minStartdato, 35);
+  const maxSluttdato =
+    addDuration(gjennomforing?.sluttDato, { years: 6 }) ?? addDuration(minStartdato, { years: 6 });
 
   return (
     <>
@@ -165,24 +167,24 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
             </HGrid>
             <HGrid columns={2}>
               <ControlledDateInput
-                size="small"
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                {...register("startOgSluttDato.startDato")}
-                format={"iso-string"}
-                control={control}
+                defaultSelected={getValues("startOgSluttDato.startDato")}
+                onChange={(val) => setValue("startOgSluttDato.startDato", val)}
+                error={errors.startOgSluttDato?.startDato?.message}
               />
               <ControlledDateInput
-                size="small"
+                key={watchSluttDato}
                 label={gjennomforingTekster.sluttdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                {...register("startOgSluttDato.sluttDato", {
-                  onChange: visAdvarselForSluttDato,
-                })}
-                format={"iso-string"}
-                control={control}
+                defaultSelected={getValues("startOgSluttDato.sluttDato")}
+                onChange={(val) => {
+                  setValue("startOgSluttDato.sluttDato", val);
+                  visAdvarselForSluttDato();
+                }}
+                error={errors.startOgSluttDato?.sluttDato?.message}
               />
             </HGrid>
             <HGrid align="start" columns={2}>

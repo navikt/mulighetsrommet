@@ -15,7 +15,7 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { addYear } from "@/utils/Utils";
+import { addDuration } from "@mr/frontend-common/utils/date";
 import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { FormGroup } from "@/components/skjema/FormGroup";
@@ -32,8 +32,8 @@ const MAKS_BEGRUNNELSE_LENGDE = 300;
 
 const Schema = z
   .object({
-    periodeStart: z.string({ error: "Du må velge periodestart" }),
-    periodeSlutt: z.string({ error: "Du må velge periodelsutt" }),
+    periodeStart: z.string({ error: "Du må sette startdato for perioden" }),
+    periodeSlutt: z.string({ error: "Du må sette sluttdato for perioden" }),
     beskrivelse: z
       .string({ error: "Du må oppgi en begrunnelse for utbetalingen" })
       .min(MIN_BEGRUNNELSE_LENGDE, {
@@ -79,7 +79,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
   const navigate = useNavigate();
   const utbetalingId = useRef(window.crypto.randomUUID());
 
-  const { register, formState, handleSubmit, setError, control } = form;
+  const { register, formState, handleSubmit, setError, setValue, getValues } = form;
 
   const mutation = useOpprettUtbetaling(utbetalingId.current);
 
@@ -121,22 +121,20 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
               </Heading>
               <HStack gap="20">
                 <ControlledDateInput
-                  size="small"
                   label="Periodestart"
                   fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addYear(new Date(), 5)}
-                  format="iso-string"
-                  {...register("periodeStart")}
-                  control={control}
+                  toDate={addDuration(new Date(), { years: 5 })}
+                  onChange={(val) => setValue("periodeStart", val)}
+                  defaultSelected={getValues("periodeStart")}
+                  error={errors.periodeStart?.message}
                 />
                 <ControlledDateInput
-                  size="small"
                   label="Periodeslutt"
                   fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addYear(new Date(), 5)}
-                  format="iso-string"
-                  {...register("periodeSlutt")}
-                  control={control}
+                  toDate={addDuration(new Date(), { years: 5 })}
+                  onChange={(val) => setValue("periodeSlutt", val)}
+                  defaultSelected={getValues("periodeSlutt")}
+                  error={errors.periodeSlutt?.message}
                 />
               </HStack>
               <VStack align={"start"}>
