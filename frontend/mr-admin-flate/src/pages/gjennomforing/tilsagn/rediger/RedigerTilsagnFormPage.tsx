@@ -11,11 +11,11 @@ import { useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { aktiveTilsagnQuery, tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
-import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { TilsagnTable } from "../tabell/TilsagnTable";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -93,7 +93,7 @@ export function RedigerTilsagnFormPage() {
             <VStack gap="4">
               <Heading size="medium">Aktive tilsagn</Heading>
               {aktiveTilsagn.length > 0 ? (
-                <TilsagnTabell tilsagn={aktiveTilsagn} />
+                <TilsagnTable tilsagn={aktiveTilsagn} />
               ) : (
                 <Alert variant="info">
                   Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav

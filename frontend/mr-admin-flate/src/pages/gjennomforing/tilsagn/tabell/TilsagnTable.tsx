@@ -1,4 +1,3 @@
-import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { TilsagnDto, TilsagnStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Table } from "@navikt/ds-react";
@@ -23,7 +22,7 @@ interface Props {
   tilsagn: TilsagnDto[];
 }
 
-export function TilsagnTabell({ tilsagn }: Props) {
+export function TilsagnTable({ tilsagn }: Props) {
   const { gjennomforingId } = useParams();
 
   const { sortedData, sort, toggleSort } = useSortableData(
@@ -107,5 +106,12 @@ export function TilsagnTabell({ tilsagn }: Props) {
 }
 
 function getAntallPlasser(tilsagn: TilsagnDto) {
-  return isBeregningPrisPerManedsverk(tilsagn.beregning) ? tilsagn.beregning.antallPlasser : null;
+  switch (tilsagn.beregning.type) {
+    case "FRI":
+      return null;
+    case "PRIS_PER_MANEDSVERK":
+      return tilsagn.beregning.antallPlasser;
+    case "PRIS_PER_UKESVERK":
+      return tilsagn.beregning.antallPlasser;
+  }
 }

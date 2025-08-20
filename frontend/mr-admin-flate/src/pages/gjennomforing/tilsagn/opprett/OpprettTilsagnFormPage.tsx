@@ -9,12 +9,12 @@ import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
 import { Laster } from "@/components/laster/Laster";
 import { aktiveTilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
+import { TilsagnTable } from "../tabell/TilsagnTable";
 
 function useHentData() {
   const [searchParams] = useSearchParams();
@@ -98,7 +98,7 @@ export function OpprettTilsagnFormPage() {
         <VStack gap="4">
           <Heading size="medium">Aktive tilsagn</Heading>
           {aktiveTilsagn.length > 0 ? (
-            <TilsagnTabell tilsagn={aktiveTilsagn} />
+            <TilsagnTable tilsagn={aktiveTilsagn} />
           ) : (
             <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
           )}

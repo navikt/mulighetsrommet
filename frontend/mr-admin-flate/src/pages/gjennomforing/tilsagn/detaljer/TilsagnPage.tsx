@@ -35,12 +35,12 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
 import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
-import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { Laster } from "@/components/laster/Laster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { TilsagnTable } from "../tabell/TilsagnTable";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -512,7 +512,7 @@ export function TilsagnPage() {
       <VStack padding="4" className="bg-white overflow-x-scroll">
         <Heading size="medium">Aktive tilsagn</Heading>
         {aktiveTilsagn.length > 0 ? (
-          <TilsagnTabell tilsagn={aktiveTilsagn} />
+          <TilsagnTable tilsagn={aktiveTilsagn} />
         ) : (
           <Alert variant="info" className="mt-4">
             Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
