@@ -3,7 +3,7 @@ import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, Faneinnhold, Kontorstruktur } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
-import React, { Fragment } from "react";
+import { Suspense, Fragment } from "react";
 import { Laster } from "../laster/Laster";
 import { LenkerList } from "../lenker/LenkerList";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
@@ -26,14 +26,14 @@ export function RedaksjoneltInnholdPreview() {
   const { data: avtale } = useAvtale(avtaleId);
   const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = avtale;
   return (
-    <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+    <Suspense fallback={<Laster tekst="Laster innhold" />}>
       <RedaksjoneltInnhold
         tiltakstype={tiltakstype}
         kontorstruktur={kontorstruktur}
         beskrivelse={beskrivelse}
         faneinnhold={faneinnhold}
       />
-    </React.Suspense>
+    </Suspense>
   );
 }
 export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {

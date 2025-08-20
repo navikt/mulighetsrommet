@@ -3,23 +3,22 @@ import { RedaksjoneltInnhold } from "./RedaksjoneltInnholdPreview";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Laster } from "../laster/Laster";
+import { Suspense } from "react";
 
 export function RedaksjoneltInnholdGjennomforing() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
 
   return (
-    <GjennomforingPageLayout>
-      return (
-      <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+    <Suspense fallback={<Laster tekst="Laster innhold" />}>
+      <GjennomforingPageLayout>
         <RedaksjoneltInnhold
           tiltakstype={gjennomforing.tiltakstype}
           kontorstruktur={gjennomforing.kontorstruktur}
           beskrivelse={gjennomforing.beskrivelse}
           faneinnhold={gjennomforing.faneinnhold}
         />
-      </React.Suspense>
-      );
-    </GjennomforingPageLayout>
+      </GjennomforingPageLayout>
+    </Suspense>
   );
 }
