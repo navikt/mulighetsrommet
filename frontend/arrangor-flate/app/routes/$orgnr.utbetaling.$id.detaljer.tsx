@@ -18,7 +18,7 @@ import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
-import { getBeregningDetaljer, getTimestamp } from "~/utils/utbetaling";
+import { getTimestamp } from "~/utils/utbetaling";
 import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
@@ -106,7 +106,7 @@ export default function UtbetalingDetaljerSide() {
             key: "Utbetalingsperiode",
             value: formaterPeriode(utbetaling.periode),
           },
-          ...getBeregningDetaljer(utbetaling.beregning),
+          ...utbetaling.beregning.detaljer.entries,
         ]}
       />
       <DeltakerModal utbetaling={utbetaling} deltakerlisteUrl={deltakerlisteUrl} />
@@ -205,10 +205,7 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
             advarsler={utbetaling.advarsler}
             deltakerlisteUrl={deltakerlisteUrl}
           />
-          <Definisjonsliste
-            definitions={getBeregningDetaljer(utbetaling.beregning)}
-            className="my-2"
-          />
+          <Definisjonsliste definitions={utbetaling.beregning.detaljer.entries} className="my-2" />
         </Modal.Body>
       </Modal>
     </HStack>

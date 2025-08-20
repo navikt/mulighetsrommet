@@ -39,9 +39,9 @@ export function UtbetalingTextLink({
         </Link>
       );
     }
-    case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
-    case ArrFlateUtbetalingStatus.UTBETALT:
-    case ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING: {
+    case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
+    case ArrangorflateUtbetalingStatus.UTBETALT:
+    case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING: {
       return (
         <Link
           as={ReactRouterLink}

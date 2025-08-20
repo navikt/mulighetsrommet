@@ -44,6 +44,7 @@ data class ArrangorflateUtbetalingDto(
 @Serializable
 @JsonClassDiscriminator("type")
 sealed class ArrangorflateBeregning {
+    abstract val detaljer: Details
     abstract val belop: Int
     abstract val digest: String
 
@@ -56,7 +57,15 @@ sealed class ArrangorflateBeregning {
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
         val sats: Int,
-    ) : ArrangorflateBeregning()
+    ) : ArrangorflateBeregning() {
+        override val detaljer: Details = Details(
+            entries = listOf(
+                DetailsEntry.number("Antall månedsverk", antallManedsverk),
+                DetailsEntry.nok("Sats", sats),
+                DetailsEntry.nok("Beløp", belop),
+            ),
+        )
+    }
 
     @Serializable
     @SerialName("ArrangorflateBeregningPrisPerManedsverk")
@@ -67,7 +76,15 @@ sealed class ArrangorflateBeregning {
         val stengt: List<StengtPeriode>,
         val antallManedsverk: Double,
         val sats: Int,
-    ) : ArrangorflateBeregning()
+    ) : ArrangorflateBeregning() {
+        override val detaljer: Details = Details(
+            entries = listOf(
+                DetailsEntry.number("Antall ukesverk", antallManedsverk),
+                DetailsEntry.nok("Sats", sats),
+                DetailsEntry.nok("Beløp", belop),
+            ),
+        )
+    }
 
     @Serializable
     @SerialName("ArrangorflateBeregningPrisPerUkesverk")
@@ -78,14 +95,26 @@ sealed class ArrangorflateBeregning {
         val stengt: List<StengtPeriode>,
         val antallUkesverk: Double,
         val sats: Int,
-    ) : ArrangorflateBeregning()
+    ) : ArrangorflateBeregning() {
+        override val detaljer: Details = Details(
+            entries = listOf(
+                DetailsEntry.number("Antall ukesverk", antallUkesverk),
+                DetailsEntry.nok("Sats", sats),
+                DetailsEntry.nok("Beløp", belop),
+            ),
+        )
+    }
 
     @Serializable
     @SerialName("ArrangorflateBeregningFri")
     data class Fri(
         override val belop: Int,
         override val digest: String,
-    ) : ArrangorflateBeregning()
+    ) : ArrangorflateBeregning() {
+        override val detaljer: Details = Details(
+            entries = listOf(DetailsEntry.nok("Beløp", belop)),
+        )
+    }
 }
 
 @OptIn(ExperimentalSerializationApi::class)

@@ -854,6 +854,7 @@ components:
       type: string
       enum:
       - NOK
+      - NUMBER
     ArrangorflateBeregning:
       anyOf:
       - $ref: "#/components/schemas/ArrangorflateBeregningFri"
@@ -875,8 +876,11 @@ components:
           format: int32
         digest:
           type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
       required:
       - belop
+      - detaljer
       - digest
     ArrangorflateBeregningPrisPerManedsverk:
       type: object
@@ -900,10 +904,13 @@ components:
         sats:
           type: integer
           format: int32
+        detaljer:
+          $ref: "#/components/schemas/Details"
       required:
       - antallManedsverk
       - belop
       - deltakelser
+      - detaljer
       - digest
       - sats
       - stengt
@@ -1089,10 +1096,13 @@ components:
         sats:
           type: integer
           format: int32
+        detaljer:
+          $ref: "#/components/schemas/Details"
       required:
       - antallManedsverk
       - belop
       - deltakelser
+      - detaljer
       - digest
       - sats
       - stengt
@@ -1118,10 +1128,13 @@ components:
         sats:
           type: integer
           format: int32
+        detaljer:
+          $ref: "#/components/schemas/Details"
       required:
       - antallUkesverk
       - belop
       - deltakelser
+      - detaljer
       - digest
       - sats
       - stengt

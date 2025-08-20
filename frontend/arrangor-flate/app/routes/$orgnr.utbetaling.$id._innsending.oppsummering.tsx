@@ -33,7 +33,6 @@ import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Separator } from "~/components/common/Separator";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { getBeregningDetaljer } from "~/utils/utbetaling";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
@@ -210,7 +209,7 @@ export default function BekreftUtbetaling() {
               key: "Utbetalingsperiode",
               value: formaterPeriode(utbetaling.periode),
             },
-            ...getBeregningDetaljer(utbetaling.beregning),
+            ...utbetaling.beregning.detaljer.entries,
           ]}
         />
         <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />

@@ -38,7 +38,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
         ]}
       />
 
-      {erUtbetalt && utbetaling.linjer && utbetaling.linjer.length > 0 ? (
+      {erUtbetalt && utbetaling.linjer.length > 0 ? (
         <>
           <Heading size="small" level="4">
             Tilsagn som er brukt til utbetaling

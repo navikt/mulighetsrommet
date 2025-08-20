@@ -21,7 +21,7 @@ data class DetailsEntry(
         }
 
         fun number(key: String, value: Number): DetailsEntry {
-            return DetailsEntry(key, value.toString())
+            return DetailsEntry(key, value.toString(), format = DetailsFormat.NUMBER)
         }
 
         fun periode(key: String, value: Periode): DetailsEntry {
@@ -34,4 +34,5 @@ data class DetailsEntry(
 
 enum class DetailsFormat {
     NOK,
+    NUMBER,
 }

@@ -17,7 +17,7 @@ export function formaterNOK(tall: number) {
 }
 
 export function formaterTall(tall: number) {
-  return Intl.NumberFormat("no-nb").format(tall);
+  return Intl.NumberFormat("no-nb", { maximumFractionDigits: 5 }).format(tall);
 }
 
 export function formaterKontoNummer(kontoNummer?: string): string {
@@ -58,4 +58,3 @@ export function compare<T>(aValue: T, bValue: T): number {
     return 0;
   }
 }
-

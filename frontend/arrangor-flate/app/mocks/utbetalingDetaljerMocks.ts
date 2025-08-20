@@ -3,6 +3,7 @@ import {
   ArrangorflateUtbetalingStatus,
   DeltakerStatusType,
   DelutbetalingStatus,
+  DetailsFormat,
   Tiltakskode,
   UtbetalingType,
 } from "api-client";
@@ -26,6 +27,13 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder",
+      detaljer: {
+        entries: [
+          { key: "Antall månedsverk", value: "0.48", format: DetailsFormat.NUMBER },
+          { key: "Sats", value: "129", format: DetailsFormat.NOK },
+          { key: "Beløp", value: "10149", format: DetailsFormat.NOK },
+        ],
+      },
       belop: 10149,
       sats: 129,
       digest: "b3602d2a",
@@ -96,6 +104,13 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder",
+      detaljer: {
+        entries: [
+          { key: "Antall månedsverk", value: "11.58", format: DetailsFormat.NUMBER },
+          { key: "Sats", value: "129", format: DetailsFormat.NOK },
+          { key: "Beløp", value: "242904", format: DetailsFormat.NOK },
+        ],
+      },
       belop: 242904,
       sats: 129,
       digest: "db0c7c6e",
@@ -311,6 +326,9 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningFri",
+      detaljer: {
+        entries: [{ key: "Beløp", value: "242904", format: DetailsFormat.NOK }],
+      },
       belop: 234,
       digest: "000001d4",
     },
@@ -337,6 +355,9 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningFri",
+      detaljer: {
+        entries: [{ key: "Beløp", value: "500", format: DetailsFormat.NOK }],
+      },
       belop: 500,
       digest: "000003e8",
     },
@@ -375,6 +396,13 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder",
+      detaljer: {
+        entries: [
+          { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
+          { key: "Sats", value: "129", format: DetailsFormat.NOK },
+          { key: "Beløp", value: "16848", format: DetailsFormat.NOK },
+        ],
+      },
       belop: 16848,
       sats: 129,
       digest: "38c07a43",

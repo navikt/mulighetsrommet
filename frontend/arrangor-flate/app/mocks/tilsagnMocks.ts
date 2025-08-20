@@ -29,7 +29,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         {
           key: "Antall plasser",
           value: "42",
-          format: null,
+          format: DetailsFormat.NUMBER,
         },
         {
           key: "Pris per månedsverk",
@@ -156,7 +156,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         {
           key: "Antall plasser",
           value: "114",
-          format: null,
+          format: DetailsFormat.NUMBER,
         },
         {
           key: "Pris per månedsverk",
@@ -200,7 +200,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         {
           key: "Antall plasser",
           value: "30",
-          format: null,
+          format: DetailsFormat.NUMBER,
         },
         {
           key: "Pris per månedsverk",

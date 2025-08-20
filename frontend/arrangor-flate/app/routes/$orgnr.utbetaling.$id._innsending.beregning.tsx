@@ -19,7 +19,6 @@ import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
-import { getBeregningDetaljer } from "~/utils/utbetaling";
 
 export const meta: MetaFunction = () => {
   return [
@@ -108,10 +107,7 @@ export default function UtbetalingBeregning() {
             />
           </>
         )}
-        <Definisjonsliste
-          definitions={getBeregningDetaljer(utbetaling.beregning)}
-          className="my-2"
-        />
+        <Definisjonsliste definitions={utbetaling.beregning.detaljer.entries} className="my-2" />
         <HStack gap="4">
           <Button
             as={ReactRouterLink}
