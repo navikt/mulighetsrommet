@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { VStack, Heading, Label, BodyShort, HGrid } from "@navikt/ds-react";
+import { VStack, Heading, HeadingProps, Label, BodyShort, HGrid } from "@navikt/ds-react";
 
 export interface Definition {
   key: string;
@@ -10,15 +10,17 @@ export function Definisjonsliste({
   title,
   definitions,
   columns = 2,
+  headingLevel = "3",
 }: {
   title?: string;
   definitions: Definition[];
   columns?: 1 | 2;
+  headingLevel?: HeadingProps['level']
 }) {
   return (
     <VStack gap="3">
       {title && (
-        <Heading size="small" level="3">
+        <Heading size="small" level={headingLevel}>
           {title}
         </Heading>
       )}

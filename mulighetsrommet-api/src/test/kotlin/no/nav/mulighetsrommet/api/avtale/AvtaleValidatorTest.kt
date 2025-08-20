@@ -428,7 +428,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                     FieldError(
                         "/prismodell",
-                        "Fast månedspris per tiltaksplass er ikke tillatt for tiltakstype Oppfølging",
+                        "Fast sats per tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                     ),
                 ),
                 row(

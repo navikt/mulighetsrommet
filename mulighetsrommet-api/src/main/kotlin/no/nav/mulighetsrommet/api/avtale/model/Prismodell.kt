@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 
 enum class Prismodell(val beskrivelse: String) {
     ANNEN_AVTALT_PRIS("Annen avtalt pris"),
-    FORHANDSGODKJENT_PRIS_PER_MANEDSVERK("Fast månedspris per tiltaksplass"),
+    FORHANDSGODKJENT_PRIS_PER_MANEDSVERK("Fast sats per tiltaksplass per måned"),
     AVTALT_PRIS_PER_MANEDSVERK("Avtalt månedspris per tiltaksplass"),
     AVTALT_PRIS_PER_UKESVERK("Avtalt ukespris per tiltaksplass"),
 }

@@ -40,11 +40,15 @@ export const avtaletekster = {
   },
   prismodell: {
     label: "Prismodell",
+    heading: "Betalingsbetingelser",
     valuta: {
       label: "Valuta",
     },
     pris: {
       label: "Pris",
+    },
+    sats: {
+      label: "Sats",
     },
     periodeStart: {
       label: "Gjelder fra",
