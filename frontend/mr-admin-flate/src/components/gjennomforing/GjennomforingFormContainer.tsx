@@ -16,7 +16,7 @@ import {
 } from "@mr/api-client-v2";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Box, Tabs } from "@navikt/ds-react";
+import { Box, Spacer, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React, { useCallback } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -132,20 +132,19 @@ export function GjennomforingFormContainer({
       <form onSubmit={handleSubmit(postData)}>
         <Tabs defaultValue={activeTab}>
           <Tabs.List className="flex flex-row justify-between">
-            <div>
-              <TabWithErrorBorder
-                onClick={() => setActiveTab("detaljer")}
-                value="detaljer"
-                label="Detaljer"
-                hasError={hasDetaljerErrors}
-              />
-              <TabWithErrorBorder
-                onClick={() => setActiveTab("redaksjonelt-innhold")}
-                value="redaksjonelt-innhold"
-                label="Informasjon for veiledere"
-                hasError={hasRedaksjoneltInnholdErrors}
-              />
-            </div>
+            <TabWithErrorBorder
+              onClick={() => setActiveTab("detaljer")}
+              value="detaljer"
+              label="Detaljer"
+              hasError={hasDetaljerErrors}
+            />
+            <TabWithErrorBorder
+              onClick={() => setActiveTab("redaksjonelt-innhold")}
+              value="redaksjonelt-innhold"
+              label="Informasjon for veiledere"
+              hasError={hasRedaksjoneltInnholdErrors}
+            />
+            <Spacer />
             <GjennomforingFormKnapperad
               redigeringsModus={redigeringsModus}
               onClose={onClose}

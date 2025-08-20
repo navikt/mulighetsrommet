@@ -6,8 +6,6 @@ import { useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
-import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { useAtom } from "jotai";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
@@ -18,6 +16,7 @@ import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
+import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -28,16 +27,28 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   ];
 }
 
+function getCurrentTab(pathname: string) {
+  if (pathname.includes("veilederinformasjon")) {
+    return "veilederinformasjon";
+  } else if (pathname.includes("gjennomforinger")) {
+    return "gjennomforinger";
+  } else if (pathname.includes("personvern")) {
+    return "personvern";
+  } else {
+    return "detaljer";
+  }
+}
+
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale } = useAvtale(avtaleId);
+  const currentTab = getCurrentTab(pathname);
 
   const redigeringsmodus = location.pathname.includes("skjema");
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
-
-  const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   return (
     <div data-testid="avtale_info-container">
@@ -52,24 +63,28 @@ export function AvtalePage() {
           <AvtaleStatusMedAarsakTag status={avtale.status} />
         </HStack>
       </Header>
-      <Tabs value={activeTab}>
+      <Tabs value={currentTab}>
         <Tabs.List>
-          <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
+          <Tabs.Tab
+            label="Detaljer"
+            value="detaljer"
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
+          />
           <Tabs.Tab
             label="Personvern"
             value="personvern"
-            onClick={() => setActiveTab("personvern")}
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/personvern`)}
           />
           <Tabs.Tab
             label="Informasjon for veiledere"
-            value="redaksjonelt-innhold"
-            onClick={() => setActiveTab("redaksjonelt-innhold")}
+            value="veilederinformasjon"
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/veilederinformasjon`)}
           />
           {!redigeringsmodus && (
             <Tabs.Tab
               value="gjennomforinger"
               label="Gjennomføringer"
-              onClick={() => setActiveTab("gjennomforinger")}
+              onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/gjennomforinger`)}
               data-testid="gjennomforinger-tab"
             />
           )}
@@ -84,7 +99,7 @@ export function AvtalePage() {
             </RedigerAvtaleContainer>
           ) : (
             <AvtalePageLayout avtale={avtale}>
-              <AvtaleDetaljer avtale={avtale} />
+              <AvtaleDetaljer />
             </AvtalePageLayout>
           )}
         </Tabs.Panel>
@@ -95,23 +110,18 @@ export function AvtalePage() {
             </RedigerAvtaleContainer>
           ) : (
             <AvtalePageLayout avtale={avtale}>
-              <AvtalePersonvern avtale={avtale} />
+              <AvtalePersonvern />
             </AvtalePageLayout>
           )}
         </Tabs.Panel>
-        <Tabs.Panel value="redaksjonelt-innhold">
+        <Tabs.Panel value="veilederinformasjon">
           {redigeringsmodus ? (
             <RedigerAvtaleContainer avtale={avtale}>
               <AvtaleInformasjonForVeiledereForm />
             </RedigerAvtaleContainer>
           ) : (
             <AvtalePageLayout avtale={avtale}>
-              <RedaksjoneltInnholdPreview
-                tiltakstype={avtale.tiltakstype}
-                beskrivelse={avtale.beskrivelse}
-                faneinnhold={avtale.faneinnhold}
-                kontorstruktur={avtale.kontorstruktur}
-              />
+              <RedaksjoneltInnholdPreview />
             </AvtalePageLayout>
           )}
         </Tabs.Panel>

@@ -53,6 +53,10 @@ export function TilsagnForm(props: Props) {
     const request: TilsagnRequest = {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
+      beregning: {
+        ...data.beregning,
+        prisbetingelser: data.beregning.prisbetingelser ?? null,
+      },
     };
 
     mutation.mutate(request, {

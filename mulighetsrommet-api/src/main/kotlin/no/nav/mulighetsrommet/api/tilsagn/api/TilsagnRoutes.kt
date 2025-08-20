@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
 import arrow.core.flatMap
+import arrow.core.right
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -24,6 +25,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -215,7 +217,10 @@ fun Route.tilsagnRoutes() {
                 val request = call.receive<BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>>()
                 val navIdent = getNavIdent()
 
-                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                when (request.besluttelse) {
+                    Besluttelse.GODKJENT -> Unit.right()
+                    Besluttelse.AVVIST -> validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                }
                     .flatMap {
                         service.beslutt(id, request, navIdent)
                     }

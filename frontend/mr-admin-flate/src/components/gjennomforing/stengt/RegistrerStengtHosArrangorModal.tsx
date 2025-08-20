@@ -34,9 +34,9 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforing }: Pro
           </p>
 
           <p>
-            Arrangør vil ikke få betalt for deltakelser som er aktive i en periode der det er stengt
-            hos arrangøren. Merk at deltakere fortsatt kan være påmeldt tiltaket med en aktiv
-            status.
+            Hvis en prismodell med automatisk beregning basert på deltakelse er brukt, vil arrangør
+            ikke få betalt for deltakelser som er aktive i disse periodene. Merk at deltakere
+            fortsatt kan være påmeldt tiltaket med en aktiv status.
           </p>
         </div>
 

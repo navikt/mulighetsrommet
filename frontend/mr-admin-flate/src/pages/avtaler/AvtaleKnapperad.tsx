@@ -17,8 +17,6 @@ import {
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { useSetAtom } from "jotai";
-import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
@@ -33,7 +31,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
-  const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
 
@@ -42,7 +39,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
   }
 
   function dupliserAvtale() {
-    setAvtaleDetaljerTab("detaljer");
     navigate(`/avtaler/skjema`, {
       state: {
         dupliserAvtale: {
@@ -116,6 +112,11 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Avbryt avtale
                 </Dropdown.Menu.GroupedList.Item>
               )}
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
+              >
+                Opprett ny gjennomføring
+              </Dropdown.Menu.GroupedList.Item>
             </Dropdown.Menu.GroupedList>
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.List>

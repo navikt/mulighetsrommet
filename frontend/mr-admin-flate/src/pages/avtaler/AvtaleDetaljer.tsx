@@ -8,7 +8,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { AvtaleDto, Avtaletype, Toggles } from "@mr/api-client-v2";
+import { Avtaletype, Toggles } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   Definition,
@@ -20,12 +20,12 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AnnenAvtaltPrismodell, AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 
-interface Props {
-  avtale: AvtaleDto;
-}
-
-export function AvtaleDetaljer({ avtale }: Props) {
+export function AvtaleDetaljer() {
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: avtale } = useAvtale(avtaleId);
   const {
     navn,
     avtalenummer,

@@ -12,7 +12,3 @@ export function createSorteringProps<T>(sortItems: T) {
 export const gjennomforingDetaljerTabAtom = atom<
   "tilsagn" | "deltakerliste" | "utbetalinger" | "detaljer" | "redaksjonelt-innhold"
 >("detaljer");
-
-export const avtaleDetaljerTabAtom = atom<
-  "detaljer" | "personvern" | "redaksjonelt-innhold" | "gjennomforinger"
->("detaljer");
