@@ -41,7 +41,7 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
                   <dl>
                     <dt>Teams:</dt>
                     <dd>
-                      <a onClick={() => modalRef?.current?.showModal()}>Kontakt meg på Teams</a>
+                      <a onClick={() => modalRef.current?.showModal()}>Kontakt meg på Teams</a>
                     </dd>
                     <dt>Epost:</dt>
                     <dd>
@@ -82,12 +82,12 @@ interface Props {
 
 function PersonsensitiveOpplysningerModal({ modalRef, epost }: Props) {
   function onClose() {
-    modalRef?.current?.close();
+    modalRef.current?.close();
   }
 
   function openTeams() {
     window.open(`${TEAMS_DYPLENKE}${encodeURIComponent(epost)}`, "_newtab");
-    modalRef?.current?.close();
+    modalRef.current?.close();
   }
 
   return (

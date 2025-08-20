@@ -125,7 +125,7 @@ export const handlers = [
       const query = new URL(request.url).searchParams;
       const toggleEnabled = !query
         .getAll("feature")
-        ?.includes("ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS");
+        .includes("ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS");
       return HttpResponse.json(toggleEnabled);
     },
   ),

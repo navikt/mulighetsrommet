@@ -2,6 +2,7 @@ import {
   ArbeidsgiverAvtaleStatus,
   ArenaDeltakerStatus,
   Deltakelse,
+  DeltakelseEierskap,
   DeltakerStatusType as DeltakerStatusType,
 } from "@api-client";
 import {
@@ -50,9 +51,9 @@ export function DeltakelseKort({ deltakelse, aktiv }: Props) {
 
 function Knapper({ deltakelse, aktiv }: Props) {
   switch (deltakelse.eierskap) {
-    case "ARENA":
+    case DeltakelseEierskap.ARENA:
       return null;
-    case "TEAM_KOMET": {
+    case DeltakelseEierskap.TEAM_KOMET: {
       const deltakelseRoute = resolveModiaRoute({
         route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
         deltakerId: deltakelse.id,
@@ -74,7 +75,7 @@ function Knapper({ deltakelse, aktiv }: Props) {
         </VStack>
       );
     }
-    case "TEAM_TILTAK": {
+    case DeltakelseEierskap.TEAM_TILTAK: {
       const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
         <Lenkeknapp variant="secondary" to={link} size="small">
@@ -114,7 +115,7 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
       <HStack align={"end"} gap="5">
         <Status status={status.type} visningstekst={status.visningstekst} />
         {aarsak ? <BodyShort size="small">Årsak: {aarsak}</BodyShort> : null}
-        {periode?.startDato ? (
+        {periode.startDato ? (
           <BodyShort size="small">
             {periode.startDato && !periode.sluttDato
               ? `Oppstartsdato ${formaterDato(periode.startDato)}`

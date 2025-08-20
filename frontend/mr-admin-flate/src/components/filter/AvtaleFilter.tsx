@@ -28,11 +28,11 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: enheter } = useNavEnheter();
-  const { data: arrangorData, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE, {
+  const { data: arrangorData } = useArrangorer(ArrangorTil.AVTALE, {
     pageSize: 10000,
   });
 
-  if (!arrangorData || isLoadingArrangorer) {
+  if (!arrangorData) {
     return <FilterSkeleton />;
   }
 

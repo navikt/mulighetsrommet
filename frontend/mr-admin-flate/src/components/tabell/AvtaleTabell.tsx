@@ -137,21 +137,19 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
                         </Lenke>
                       </VStack>
                     </Table.DataCell>
-                    <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "-"}`}>
-                      {avtale?.avtalenummer ?? "-"}
+                    <Table.DataCell aria-label={`Avtalenummer: ${avtale.avtalenummer}`}>
+                      {avtale.avtalenummer}
                     </Table.DataCell>
                     <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.arrangor?.navn}`}>
                       {capitalizeEveryWord(avtale.arrangor?.navn, ["og", "i"]) || ""}
                     </Table.DataCell>
                     <Table.DataCell
-                      aria-label={`Regioner: ${avtale?.kontorstruktur
-                        ?.map((struktur) => struktur.region.navn)
+                      aria-label={`Regioner: ${avtale.kontorstruktur
+                        .map((struktur) => struktur.region.navn)
                         .join(", ")}`}
-                      title={`Regioner: ${
-                        avtale?.kontorstruktur
-                          ?.map((struktur) => struktur.region.navn)
-                          .join(", ") ?? "-"
-                      }`}
+                      title={`Regioner: ${avtale.kontorstruktur
+                        .map((struktur) => struktur.region.navn)
+                        .join(", ")}`}
                     >
                       {formaterNavEnheter(
                         avtale.kontorstruktur.map((struktur) => ({

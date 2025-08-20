@@ -31,7 +31,7 @@ export function GjennomforingDetaljer() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
 
-  const kontaktpersonerFraNav = gjennomforing.kontaktpersoner ?? [];
+  const kontaktpersonerFraNav = gjennomforing.kontaktpersoner;
 
   const {
     tiltakstype,
@@ -75,7 +75,7 @@ export function GjennomforingDetaljer() {
                     <BodyShort>
                       <small>
                         Avtalens periode: {formaterDato(avtale.startDato)} -{" "}
-                        {avtale?.sluttDato ? formaterDato(avtale.sluttDato) : ""}
+                        {avtale.sluttDato ? formaterDato(avtale.sluttDato) : ""}
                       </small>
                     </BodyShort>
                   </>
@@ -131,7 +131,7 @@ export function GjennomforingDetaljer() {
 
           <Separator />
 
-          {gjennomforing?.estimertVentetid ? (
+          {gjennomforing.estimertVentetid ? (
             <>
               <Bolk aria-label={gjennomforingTekster.estimertVentetidLabel}>
                 <Metadata
@@ -150,7 +150,7 @@ export function GjennomforingDetaljer() {
             <Metadata
               header={gjennomforingTekster.administratorerForGjennomforingenLabel}
               verdi={
-                administratorer?.length ? (
+                administratorer.length ? (
                   <ul>
                     {administratorer.map((admin) => {
                       return (
@@ -158,11 +158,11 @@ export function GjennomforingDetaljer() {
                           <Lenke
                             target="_blank"
                             rel="noopener noreferrer"
-                            to={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                            to={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
                             isExternal
                             className="flex gap-1.5"
                           >
-                            {`${admin?.navn} - ${admin?.navIdent}`}{" "}
+                            {`${admin.navn} - ${admin.navIdent}`}{" "}
                           </Lenke>
                         </li>
                       );
@@ -224,12 +224,10 @@ export function GjennomforingDetaljer() {
               />
             ) : null}
 
-            {arrangor ? (
-              <Metadata
-                header={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
-                verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
-              />
-            ) : null}
+            <Metadata
+              header={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
+              verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
+            />
             {arrangor.kontaktpersoner.length > 0 && (
               <Metadata
                 header={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}

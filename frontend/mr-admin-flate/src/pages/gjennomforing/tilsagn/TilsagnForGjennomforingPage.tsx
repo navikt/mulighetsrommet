@@ -20,7 +20,7 @@ function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: tilsagnForGjennomforing } = useApiSuspenseQuery({
     ...tilsagnForGjennomforingQuery(gjennomforingId),
   });
@@ -57,7 +57,7 @@ export function TilsagnForGjennomforingPage() {
           </Dropdown>
         </HarSkrivetilgang>
       </KnapperadContainer>
-      {tilsagnForGjennomforing?.length > 0 ? (
+      {tilsagnForGjennomforing.length > 0 ? (
         <TilsagnTable tilsagn={tilsagnForGjennomforing} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">

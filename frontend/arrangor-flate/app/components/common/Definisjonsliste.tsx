@@ -46,9 +46,10 @@ function getFormattedValue(definition: Definition) {
 
 function formatValue(value: string, format: DefinitionFormat) {
   switch (format) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case "NOK":
       return formaterNOK(Number(value));
     default:
-      return value;
+      throw Error("unsupported format");
   }
 }

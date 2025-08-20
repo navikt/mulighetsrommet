@@ -50,6 +50,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
               label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               placeholder="Velg underenhet for tiltaksarrangør"
               selectedOptions={arrangorOptions.filter((option) =>
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 field.value?.includes(option.value),
               )}
               name={field.name}
@@ -76,13 +77,16 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
                 label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
                 placeholder="Velg kontaktpersoner"
                 isMultiSelect
-                selectedOptions={kontaktpersonOptions.filter((v) => field.value?.includes(v.value))}
+                selectedOptions={
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                  kontaktpersonOptions.filter((v) => field.value?.includes(v.value))
+                }
                 name={field.name}
                 error={errors.arrangorKontaktpersoner?.message}
                 options={kontaktpersonOptions}
                 readOnly={!arrangor}
                 onToggleSelected={(option, isSelected) => {
-                  const currentValues = field.value ?? [];
+                  const currentValues = field.value;
                   if (isSelected) {
                     field.onChange([...currentValues, option]);
                   } else {
@@ -119,7 +123,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
             return;
           }
 
-          const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+          const kontaktpersoner = watch("arrangorKontaktpersoner");
           setValue("arrangorKontaktpersoner", [
             ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
             kontaktperson.id,

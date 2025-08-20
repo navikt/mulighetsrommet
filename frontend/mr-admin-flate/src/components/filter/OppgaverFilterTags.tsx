@@ -41,7 +41,7 @@ export function OppgaveFilterTags({
       {filter.regioner.map((enhetsnummer) => (
         <FilterTag
           key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
+          label={enheter.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
             updateFilter({
               regioner: addOrRemove(filter.regioner, enhetsnummer),

@@ -38,7 +38,7 @@ export function GjennomforingTable({
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
-  const { data, isLoading } = useAdminGjennomforinger(filter);
+  const { data } = useAdminGjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedExcel() {
@@ -83,7 +83,7 @@ export function GjennomforingTable({
     });
   };
 
-  if (!data || isLoading) {
+  if (!data) {
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
@@ -171,11 +171,9 @@ export function GjennomforingTable({
                           aria-label={`Enheter: ${gjennomforing.kontorstruktur
                             .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
                             .join(", ")}`}
-                          title={`Enheter: ${
-                            gjennomforing.kontorstruktur
-                              .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
-                              .join(", ") ?? "-"
-                          }`}
+                          title={`Enheter: ${gjennomforing.kontorstruktur
+                            .map((struktur) => struktur.kontorer.map((kontor) => kontor.navn))
+                            .join(", ")}`}
                         >
                           {formaterNavEnheter(
                             gjennomforing.kontorstruktur.flatMap((struktur) =>

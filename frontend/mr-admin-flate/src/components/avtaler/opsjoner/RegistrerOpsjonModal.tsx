@@ -43,11 +43,11 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   function closeAndResetForm() {
     form.reset();
     mutation.reset();
-    modalRef?.current?.close();
+    modalRef.current?.close();
   }
 
   function sluttDatoErLikEllerPassererMaksVarighet(): boolean {
-    if (avtale?.opsjonsmodell?.opsjonMaksVarighet && avtale?.sluttDato) {
+    if (avtale.opsjonsmodell.opsjonMaksVarighet && avtale.sluttDato) {
       return new Date(avtale.sluttDato) >= new Date(avtale.opsjonsmodell.opsjonMaksVarighet);
     }
     return false;
@@ -57,7 +57,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     return <SluttDatoErLikEllerPassererMaksVarighetModal modalRef={modalRef} avtale={avtale} />;
   }
 
-  const avtaleSkalIkkeUtloseOpsjoner = avtale?.opsjonerRegistrert?.some(
+  const avtaleSkalIkkeUtloseOpsjoner = avtale.opsjonerRegistrert.some(
     (opsjon) => opsjon.status === OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON,
   );
 
@@ -109,9 +109,9 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef }: ModalProps) 
     <VarselModal
       headingIconType="info"
       headingText="Kan ikke registrere opsjon"
-      handleClose={() => modalRef?.current?.close()}
+      handleClose={() => modalRef.current?.close()}
       modalRef={modalRef}
-      primaryButton={<Button onClick={() => modalRef?.current?.close()}>Ok</Button>}
+      primaryButton={<Button onClick={() => modalRef.current?.close()}>Ok</Button>}
       body={
         <VStack gap="5">
           <BodyShort>

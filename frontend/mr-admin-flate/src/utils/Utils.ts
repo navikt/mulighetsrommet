@@ -25,14 +25,14 @@ export function capitalize(text?: string): string {
 
 export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = []): string {
   return text
-    ?.split(" ")
-    ?.map((it) => {
+    .split(" ")
+    .map((it) => {
       if (ignoreWords.includes(it.toLowerCase())) {
         return it.toLowerCase();
       }
       return capitalize(it);
     })
-    ?.join(" ");
+    .join(" ");
 }
 
 export function kalkulerStatusBasertPaaFraOgTilDato(
@@ -124,7 +124,7 @@ export function subtractDays(date: Date | string, numDays: number): Date {
 }
 
 export function avtaleHarRegioner(avtale: AvtaleDto): boolean {
-  return avtale.kontorstruktur.some((stru) => stru.region);
+  return avtale.kontorstruktur.length > 0;
 }
 
 /**

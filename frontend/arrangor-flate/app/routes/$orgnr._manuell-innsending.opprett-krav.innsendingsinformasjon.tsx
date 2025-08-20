@@ -109,10 +109,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (gjennomforingerError) {
     throw problemDetailResponse(gjennomforingerError);
   }
-  if (tilsagnError || !tilsagn) {
+  if (tilsagnError) {
     throw problemDetailResponse(tilsagnError);
   }
-  if (!arrangortilganger || arrangorError) {
+  if (!arrangortilganger) {
     throw problemDetailResponse(arrangorError);
   }
 

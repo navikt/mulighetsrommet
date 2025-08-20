@@ -158,12 +158,8 @@ export function AdministratorHeader() {
 }
 
 function Brukernavn() {
-  const { data, isLoading } = useHentAnsatt();
+  const { data } = useHentAnsatt();
   const [open, setOpen] = useState(false);
-
-  if (!data || isLoading) {
-    return null;
-  }
 
   const ansattNavn = [data.fornavn, data.etternavn].join(" ");
 
@@ -172,7 +168,7 @@ function Brukernavn() {
       <InternalHeader.User
         onClick={() => setOpen(true)}
         name={ansattNavn}
-        description={data?.navIdent ?? "..."}
+        description={data.navIdent}
         className="cursor-pointer"
       />
       <Modal

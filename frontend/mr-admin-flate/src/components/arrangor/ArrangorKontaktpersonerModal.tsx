@@ -15,14 +15,13 @@ interface Props {
 
 export function ArrangorKontaktpersonerModal(props: Props) {
   const { arrangorId, modalRef, onOpprettSuccess } = props;
-  const { data: arrangor, isLoading: isLoadingArrangor } = useArrangor(arrangorId);
-  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
-    useArrangorKontaktpersoner(arrangorId);
+  const { data: arrangor } = useArrangor(arrangorId);
+  const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangorId);
 
   const [opprett, setOpprett] = useState<boolean>(false);
   const [redigerId, setRedigerId] = useState<string | undefined>(undefined);
 
-  if (!arrangor || !kontaktpersoner || isLoadingKontaktpersoner || isLoadingArrangor) {
+  if (!arrangor || !kontaktpersoner) {
     return <Laster />;
   }
 
@@ -83,22 +82,20 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                     </div>
                     <div>
                       <HGrid columns={2}>
-                        {person.ansvarligFor && (
-                          <div>
-                            <Label size="small">Ansvarlig for</Label>
-                            <HStack gap="5">
-                              <ul className="list-none flex gap-2 p-0 m-0">
-                                {person.ansvarligFor.map((ansvar) => (
-                                  <li key={ansvar}>
-                                    <Tag variant="info" size="xsmall">
-                                      {navnForAnsvar(ansvar)}
-                                    </Tag>
-                                  </li>
-                                ))}
-                              </ul>
-                            </HStack>
-                          </div>
-                        )}
+                        <div>
+                          <Label size="small">Ansvarlig for</Label>
+                          <HStack gap="5">
+                            <ul className="list-none flex gap-2 p-0 m-0">
+                              {person.ansvarligFor.map((ansvar) => (
+                                <li key={ansvar}>
+                                  <Tag variant="info" size="xsmall">
+                                    {navnForAnsvar(ansvar)}
+                                  </Tag>
+                                </li>
+                              ))}
+                            </ul>
+                          </HStack>
+                        </div>
                         {person.beskrivelse && (
                           <div>
                             <Label size="small">Beskrivelse</Label>

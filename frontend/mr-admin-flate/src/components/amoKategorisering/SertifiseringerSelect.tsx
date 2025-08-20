@@ -30,7 +30,7 @@ export function SertifiseringerSkjema<T extends FieldValues>(props: {
           (s: Sertifisering) =>
             !selected.some((o: SelectOption<Sertifisering>) => o.value.konseptId === s.konseptId),
         )
-        ?.forEach((s: Sertifisering) =>
+        .forEach((s: Sertifisering) =>
           selected.push({
             label: s.label,
             value: { konseptId: s.konseptId, label: s.label },
@@ -38,11 +38,11 @@ export function SertifiseringerSkjema<T extends FieldValues>(props: {
         );
     } else {
       options
-        ?.filter(
+        .filter(
           (s: Sertifisering) =>
             !selected.some((o: SelectOption<Sertifisering>) => o.value.konseptId === s.konseptId),
         )
-        ?.forEach((s: Sertifisering) =>
+        .forEach((s: Sertifisering) =>
           selected.push({
             label: s.label,
             value: { konseptId: s.konseptId, label: s.label },

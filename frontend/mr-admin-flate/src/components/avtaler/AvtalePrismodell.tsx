@@ -69,7 +69,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
               definitions={[
                 {
                   key: avtaletekster.prisOgBetalingLabel,
-                  value: avtale.prismodell?.prisbetingelser ? (
+                  value: avtale.prismodell.prisbetingelser ? (
                     <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
                   ) : (
                     "-"

@@ -40,6 +40,6 @@ export function ErrorMeldinger(avtale: AvtaleDto | undefined) {
   }
 
   if (!avtaleHarRegioner(avtale)) {
-    return avtaleManglerNavRegionError(avtale?.id);
+    return avtaleManglerNavRegionError(avtale.id);
   }
 }

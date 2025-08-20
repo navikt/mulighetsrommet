@@ -52,9 +52,9 @@ export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: AvtaleDto,
 ): DeepPartial<AvtaleFormValues> {
-  const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
+  const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
 
-  const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
+  const navEnheter = avtale?.kontorstruktur.flatMap((struktur) => struktur.kontorer);
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
@@ -85,7 +85,7 @@ export function defaultAvtaleData(
       customOpsjonsmodellNavn: avtale?.opsjonsmodell.customOpsjonsmodellNavn,
     },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
-    prismodell: avtale?.prismodell?.type as Prismodell,
+    prismodell: avtale?.prismodell.type as Prismodell,
     satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
     prisbetingelser:
       avtale?.prismodell && "prisbetingelser" in avtale.prismodell

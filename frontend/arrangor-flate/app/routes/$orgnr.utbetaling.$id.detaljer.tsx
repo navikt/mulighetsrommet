@@ -53,7 +53,7 @@ export const loader: LoaderFunction = async ({
     }),
   ]);
 
-  if (utbetalingError || !utbetaling) {
+  if (utbetalingError) {
     throw problemDetailResponse(utbetalingError);
   }
 

@@ -54,7 +54,7 @@ export function OppgaverPage() {
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
 
   const oppgaver = useOppgaver(filter.values);
-  const sortedOppgaver = sort(oppgaver.data || [], sorting);
+  const sortedOppgaver = sort(oppgaver.data, sorting);
 
   return (
     <ContentBox>

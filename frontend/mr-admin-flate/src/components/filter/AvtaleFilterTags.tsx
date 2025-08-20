@@ -80,7 +80,7 @@ export function AvtaleFilterTags({
       {filter.navRegioner.map((enhetsnummer) => (
         <FilterTag
           key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
+          label={enheter.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
             updateFilter({
               navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),

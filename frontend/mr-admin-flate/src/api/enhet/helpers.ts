@@ -16,7 +16,7 @@ function getUnderenheterAsSelectOptionsBy(
     .filter((enhet) => {
       return (
         enhet.overordnetEnhet != null &&
-        navRegioner.includes(enhet?.overordnetEnhet) &&
+        navRegioner.includes(enhet.overordnetEnhet) &&
         predicate(enhet)
       );
     })
@@ -52,7 +52,7 @@ export function velgAlleLokaleUnderenheter(
   selectedOptions: MultiValue<SelectOption<string>>,
   enheter: NavEnhetDto[],
 ): string[] {
-  const regioner = selectedOptions?.map((option) => option.value);
+  const regioner = selectedOptions.map((option) => option.value);
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 

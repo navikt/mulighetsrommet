@@ -14,7 +14,7 @@ export function useDeltakelse() {
       const { data } = await HistorikkService.hentDeltakelse({
         body: { norskIdent, tiltakId },
       });
-      if (data && "id" in data) {
+      if ("id" in data) {
         return data;
       } else {
         return null;

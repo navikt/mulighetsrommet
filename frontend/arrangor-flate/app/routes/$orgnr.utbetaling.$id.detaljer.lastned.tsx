@@ -11,7 +11,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Respo
     path: { id },
     headers: await apiHeaders(request),
   });
-  if (error || !kvittering) {
+  if (error) {
     return problemDetailResponse(error);
   }
 

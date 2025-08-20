@@ -55,4 +55,21 @@ export default ts.config(
       },
     },
   },
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: ts.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      "@typescript-eslint": ts.plugin,
+    },
+    rules: {
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
+      "@typescript-eslint/no-unnecessary-condition": "error",
+    },
+  },
 );

@@ -106,7 +106,6 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
                   <Dropdown.Menu.GroupedList.Item
                     onClick={() => {
                       if (
-                        gjennomforing.administratorer &&
                         gjennomforing.administratorer.length > 0 &&
                         !gjennomforing.administratorer
                           .map((a) => a.navIdent)
@@ -168,7 +167,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         gjennomforing={gjennomforing}
       />
       <AarsakerOgForklaringModal<AvbrytGjennomforingAarsak>
-        header={`Ønsker du å avbryte «${gjennomforing?.navn}»?`}
+        header={`Ønsker du å avbryte «${gjennomforing.navn}»?`}
         open={avbrytModalOpen}
         buttonLabel="Ja, jeg vil avbryte gjennomføringen"
         ingress={

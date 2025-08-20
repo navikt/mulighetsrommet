@@ -5,7 +5,7 @@ import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { useEffect, useState } from "react";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 
-function useStep(path: string) {
+function useStep(path: string): number {
   switch (path.split("/").pop()) {
     case "innsendingsinformasjon":
       return 1;
@@ -13,6 +13,7 @@ function useStep(path: string) {
       return 2;
     case "oppsummering":
       return 3;
+    case undefined:
     default:
       return 1;
   }

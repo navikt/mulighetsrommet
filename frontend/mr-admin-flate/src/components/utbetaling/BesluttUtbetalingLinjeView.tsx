@@ -58,7 +58,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               linje={linje}
               grayBackground
               knappeColumn={
-                linje?.status === DelutbetalingStatus.TIL_ATTESTERING && (
+                linje.status === DelutbetalingStatus.TIL_ATTESTERING && (
                   <HStack gap="4">
                     <Button
                       variant="secondary"
@@ -68,7 +68,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                     >
                       Send i retur
                     </Button>
-                    {linje?.opprettelse?.kanBesluttes && (
+                    {linje.opprettelse?.kanBesluttes && (
                       <Button
                         size="small"
                         type="button"
@@ -76,7 +76,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                           const modal = document.getElementById(
                             `godkjenn-modal-${linje.id}`,
                           ) as HTMLDialogElement;
-                          modal?.showModal();
+                          modal.showModal();
                         }}
                       >
                         Attester
@@ -114,13 +114,13 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                         const modal = document.getElementById(
                           `godkjenn-modal-${linje.id}`,
                         ) as HTMLDialogElement;
-                        modal?.close();
+                        modal.close();
                       }}
                       onConfirm={() => {
                         const modal = document.getElementById(
                           `godkjenn-modal-${linje.id}`,
                         ) as HTMLDialogElement;
-                        modal?.close();
+                        modal.close();
                         beslutt(linje.id, {
                           besluttelse: Besluttelse.GODKJENT,
                           aarsaker: [],

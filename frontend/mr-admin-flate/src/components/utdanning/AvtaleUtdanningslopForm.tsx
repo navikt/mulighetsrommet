@@ -32,11 +32,10 @@ function SelectAvtaleUtdanning() {
     () => utdanninger.map((utdanning) => utdanning.utdanningsprogram),
     [utdanninger],
   );
-  const utdanningerForUtdanningsprogram =
-    utdanninger
-      .filter((utdanning) => utdanning.utdanningsprogram.id === utdanningsprogram)
-      .map((utdanning) => utdanning.utdanninger)
-      .flat() || [];
+  const utdanningerForUtdanningsprogram = utdanninger
+    .filter((utdanning) => utdanning.utdanningsprogram.id === utdanningsprogram)
+    .map((utdanning) => utdanning.utdanninger)
+    .flat();
 
   return (
     <>
@@ -51,7 +50,7 @@ function SelectAvtaleUtdanning() {
 
           if (e.currentTarget.value !== "") {
             setValue("utdanningslop.utdanningsprogram", e.currentTarget.value);
-          } else if (e.currentTarget.value === "") {
+          } else {
             setValue("utdanningslop", null);
           }
         }}

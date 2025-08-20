@@ -36,7 +36,7 @@ export function DelMedBrukerContent({
 
   useEffect(() => {
     if (enableRedigerDeletekst) {
-      endreDeletekstRef?.current?.focus();
+      endreDeletekstRef.current?.focus();
     }
   }, [enableRedigerDeletekst]);
 

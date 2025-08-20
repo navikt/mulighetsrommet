@@ -1,7 +1,6 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
-import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { Alert, Tabs } from "@navikt/ds-react";
+import { Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
@@ -22,15 +21,10 @@ interface Props {
 
 export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) {
   const { data: innsatsgrupper } = useInnsatsgrupper();
-  const tiltakId = useTiltakIdFraUrl();
 
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
 
   const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
-
-  if (!tiltak) {
-    return <Alert variant="warning">{`Det finnes ingen tiltak med id: "${tiltakId}"`}</Alert>;
-  }
 
   return (
     <div className="max-w-[1252px] mx-auto my-0">
@@ -63,7 +57,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   ) : null}
                 </Tabs.List>
                 <Tabs.Panel value="info">
-                  <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper ?? []} />
+                  <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper} />
                 </Tabs.Panel>
                 {harKombinasjon ? (
                   <Tabs.Panel value="kombineres">

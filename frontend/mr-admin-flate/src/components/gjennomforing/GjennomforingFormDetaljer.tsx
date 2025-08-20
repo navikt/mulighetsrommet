@@ -43,7 +43,7 @@ interface Props {
 
 export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   const { data: administratorer } = useGjennomforingAdministratorer();
-  const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
+  const { data: ansatt } = useHentAnsatt();
 
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforing?.id);
 
@@ -113,7 +113,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                 readOnly
                 label={gjennomforingTekster.tiltaksnummerLabel}
                 autoFocus
-                value={gjennomforing?.tiltaksnummer}
+                value={gjennomforing.tiltaksnummer}
               />
             ) : null}
           </FormGroup>
@@ -269,13 +269,13 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                       administratorene.
                     </LabelWithHelpText>
                   }
-                  placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
+                  placeholder="Velg en"
                   isMultiSelect
                   selectedOptions={AdministratorOptions(
                     ansatt,
                     gjennomforing?.administratorer.map((g) => g.navIdent) || [],
                     administratorer,
-                  ).filter((option) => field.value?.includes(option.value))}
+                  ).filter((option) => field.value.includes(option.value))}
                   name={field.name}
                   error={errors.administratorer?.message}
                   options={AdministratorOptions(

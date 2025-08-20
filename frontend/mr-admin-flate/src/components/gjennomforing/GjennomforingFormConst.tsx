@@ -9,7 +9,6 @@ import {
   UtdanningslopDbo,
 } from "@mr/api-client-v2";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
-import { DeepPartial } from "react-hook-form";
 import { isKursTiltak } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 
@@ -24,16 +23,14 @@ export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartst
     : GjennomforingOppstartstype.LOPENDE;
 }
 
-function defaultNavRegion(
-  avtale: AvtaleDto,
-  gjennomforing?: GjennomforingDto,
-): string[] | undefined {
+function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string[] {
   if (gjennomforing?.kontorstruktur) {
-    return gjennomforing?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
+    return gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
   }
   if (avtale.kontorstruktur.length === 1) {
     return avtale.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
   }
+  return [];
 }
 
 function defaultNavEnheter(
@@ -52,7 +49,7 @@ function defaultNavEnheter(
 }
 
 function defaultArrangor(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string | undefined {
-  if (gjennomforing?.arrangor?.id) {
+  if (gjennomforing?.arrangor.id) {
     return gjennomforing.arrangor.id;
   }
 
@@ -67,7 +64,7 @@ export function defaultGjennomforingData(
   ansatt: NavAnsatt,
   avtale: AvtaleDto,
   gjennomforing?: GjennomforingDto,
-): DeepPartial<InferredGjennomforingSchema> {
+): Partial<InferredGjennomforingSchema> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
 
   return {
@@ -76,7 +73,7 @@ export function defaultGjennomforingData(
     navRegioner: defaultNavRegion(avtale, gjennomforing),
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
-    administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
+    administratorer: gjennomforing?.administratorer.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
     antallPlasser: gjennomforing?.antallPlasser,
@@ -85,7 +82,7 @@ export function defaultGjennomforingData(
         ? gjennomforing.startDato
         : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
           ? avtale.startDato
-          : undefined,
+          : "",
       sluttDato: gjennomforing
         ? gjennomforing.sluttDato
         : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
@@ -97,7 +94,7 @@ export function defaultGjennomforingData(
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
     stedForGjennomforing: gjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
-      gjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
+      gjennomforing?.arrangor.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
     faneinnhold: gjennomforing?.faneinnhold ?? avtale.faneinnhold,
     opphav: gjennomforing?.opphav ?? Opphav.TILTAKSADMINISTRASJON,

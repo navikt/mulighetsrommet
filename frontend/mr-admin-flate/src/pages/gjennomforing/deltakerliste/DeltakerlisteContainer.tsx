@@ -23,7 +23,8 @@ function resolveDeltakerlisteCdnUrl(): string {
   switch (environment) {
     case Environment.PROD:
       return "https://cdn.nav.no/amt/amt-tiltakskoordinator-flate-prod/build";
-    default:
+    case Environment.DEV:
+    case Environment.LOCAL:
       return "https://cdn.nav.no/amt/amt-tiltakskoordinator-flate-dev/build";
   }
 }

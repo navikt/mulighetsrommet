@@ -34,10 +34,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  const beregning =
-    (defaults.beregning?.type ?? avtale.prismodell)
-      ? getTilsagnBeregningType(avtale.prismodell)
-      : null;
+  const beregning = defaults.beregning?.type ? getTilsagnBeregningType(avtale.prismodell) : null;
 
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:

@@ -6,7 +6,7 @@ export function AdministratorOptions(
   administratorer: string[],
   eksisterendeAdministratorer?: NavAnsatt[],
 ): SelectOption[] {
-  if (!ansatt || !eksisterendeAdministratorer) {
+  if (!eksisterendeAdministratorer) {
     return [{ value: "", label: "Laster..." }];
   }
   const adminMap = new Map(eksisterendeAdministratorer.map((a) => [a.navIdent, a]));
@@ -18,23 +18,21 @@ export function AdministratorOptions(
     },
   ];
 
-  if (administratorer) {
-    administratorer
-      .filter((ident) => ident !== ansatt.navIdent)
-      .forEach((ident) => {
-        const match = adminMap.get(ident);
-        if (match) {
-          options.push({
-            value: ident,
-            label: `${match.fornavn} ${match.etternavn} - ${ident}`,
-          });
-        }
-      });
-  }
+  administratorer
+    .filter((ident) => ident !== ansatt.navIdent)
+    .forEach((ident) => {
+      const match = adminMap.get(ident);
+      if (match) {
+        options.push({
+          value: ident,
+          label: `${match.fornavn} ${match.etternavn} - ${ident}`,
+        });
+      }
+    });
 
   eksisterendeAdministratorer
     .filter(
-      (b: NavAnsatt) => b.navIdent !== ansatt.navIdent && !administratorer?.includes(b.navIdent),
+      (b: NavAnsatt) => b.navIdent !== ansatt.navIdent && !administratorer.includes(b.navIdent),
     )
     .forEach((b: NavAnsatt) => {
       options.push({

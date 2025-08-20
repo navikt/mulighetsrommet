@@ -15,8 +15,8 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
   const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
 
   useEffect(() => {
-    if (ref?.current) {
-      ref?.current?.scrollIntoView({ behavior: "smooth" });
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [oppskriftId]);
 

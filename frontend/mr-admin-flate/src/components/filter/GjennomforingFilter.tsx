@@ -32,14 +32,11 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: enheter } = useNavEnheter();
   const { data: regioner } = useNavRegioner();
-  const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
-    ArrangorTil.TILTAKSGJENNOMFORING,
-    {
-      pageSize: 10000,
-    },
-  );
+  const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING, {
+    pageSize: 10000,
+  });
 
-  if (!arrangorer || isLoadingArrangorer) {
+  if (!arrangorer) {
     return <FilterSkeleton />;
   }
 

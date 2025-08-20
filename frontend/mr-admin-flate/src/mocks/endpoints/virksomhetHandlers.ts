@@ -8,7 +8,7 @@ export const virksomhetHandlers = [
     const sok = url.searchParams.get("sok")!;
     return HttpResponse.json(
       mockArrangorer.data.filter((enhet) =>
-        enhet.navn?.toLowerCase().includes(sok.toLocaleLowerCase()),
+        enhet.navn.toLowerCase().includes(sok.toLocaleLowerCase()),
       ),
     );
   }),

@@ -26,11 +26,11 @@ export function DelMedBrukerHistorikk() {
         acc[obj.tiltak.id] = [];
       }
       // Push the current object to the array for its tiltakId
-      acc[obj.tiltak.id].push(obj);
+      acc[obj.tiltak.id]!.push(obj);
       return acc;
     },
-    {} as Record<string, TiltakDeltMedBrukerDto[]>,
-  );
+    {} as Record<string, TiltakDeltMedBrukerDto[] | undefined>,
+  ) as Record<string, TiltakDeltMedBrukerDto[]>;
 
   // Sort each group by createdAt
   Object.keys(gruppertHistorikk).forEach((tiltakId) => {

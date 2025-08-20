@@ -75,13 +75,6 @@ export const validateAvtaledetaljer = (
     });
   }
   if (data.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
-    if (!data.opsjonsmodell.type) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Du må velge avtalt mulighet for forlengelse",
-        path: ["opsjonsmodell.type"],
-      });
-    }
     if (
       data.opsjonsmodell.type === OpsjonsmodellType.ANNET &&
       !data.opsjonsmodell.customOpsjonsmodellNavn
@@ -132,7 +125,7 @@ export function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | nul
     return null;
   }
 
-  if (!data.utdanningslop?.utdanningsprogram || !data.utdanningslop?.utdanninger) {
+  if (!data.utdanningslop?.utdanningsprogram) {
     return null;
   }
 

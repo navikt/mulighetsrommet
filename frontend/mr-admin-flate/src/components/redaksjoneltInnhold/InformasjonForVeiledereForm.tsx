@@ -99,11 +99,11 @@ export function RedaksjoneltInnholdForm({ tiltakId }: { tiltakId: string }) {
         description="Beskrivelse av formålet med tiltaksgjennomføringen."
         label="Beskrivelse"
       />
-      {tiltakstypeSanityData?.beskrivelse && (
+      {tiltakstypeSanityData.beskrivelse && (
         <>
           <Heading size="medium">Generell informasjon</Heading>
           <BodyLong style={{ whiteSpace: "pre-wrap" }}>
-            {tiltakstypeSanityData?.beskrivelse}
+            {tiltakstypeSanityData.beskrivelse}
           </BodyLong>
         </>
       )}
@@ -189,7 +189,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
     <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.forHvemInfoboks && (
         <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
-          {tiltakstype?.faneinnhold?.forHvemInfoboks}
+          {tiltakstype.faneinnhold.forHvemInfoboks}
         </Alert>
       )}
       {tiltakstype?.faneinnhold?.forHvem && (
@@ -218,7 +218,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
   return (
     <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
-        <Alert variant="info">{tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks}</Alert>
+        <Alert variant="info">{tiltakstype.faneinnhold.detaljerOgInnholdInfoboks}</Alert>
       )}
       {tiltakstype?.faneinnhold?.detaljerOgInnhold && (
         <PortableText value={tiltakstype.faneinnhold.detaljerOgInnhold} />
@@ -247,7 +247,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
   return (
     <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
-        <Alert variant="info">{tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks}</Alert>
+        <Alert variant="info">{tiltakstype.faneinnhold.pameldingOgVarighetInfoboks}</Alert>
       )}
       {tiltakstype?.faneinnhold?.pameldingOgVarighet && (
         <PortableText value={tiltakstype.faneinnhold.pameldingOgVarighet} />
@@ -323,7 +323,7 @@ function velgAlleLokaleUnderenheter(
   selectedOptions: MultiValue<SelectOption<string>>,
   enheter: NavEnhetDto[],
 ): string[] {
-  const regioner = selectedOptions?.map((option) => option.value);
+  const regioner = selectedOptions.map((option) => option.value);
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
@@ -372,7 +372,7 @@ function RegionerOgEnheterOgKontaktpersoner({
             } else {
               const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(selectedOptions, enheter);
               const navKontorer = watch("navKontorer")?.filter((enhet: string) =>
-                alleLokaleUnderenheter.includes(enhet ?? ""),
+                alleLokaleUnderenheter.includes(enhet),
               );
               setValue("navKontorer", navKontorer as [string, ...string[]]);
             }
@@ -409,7 +409,7 @@ function RegionerOgEnheterOgKontaktpersoner({
                 gjennomføringen."
               </HelpText>
             </HStack>
-            {kontaktpersonFields?.map((field, index) => {
+            {kontaktpersonFields.map((field, index) => {
               return (
                 <div
                   className="bg-surface-subtle mt-4 p-2 relative border border-border-divider rounded"
@@ -468,13 +468,13 @@ function SokEtterKontaktperson({
 
     const alleredeValgt = watch("kontaktpersoner")
       ?.filter((_, i) => i === selectedIndex)
-      ?.map((kontaktperson) => {
+      .map((kontaktperson) => {
         const personFraSok = kontaktpersoner?.find((k) => k.navIdent == kontaktperson.navIdent);
-        const personFraDb = lagredeKontaktpersoner?.find(
+        const personFraDb = lagredeKontaktpersoner.find(
           (k) => k.navIdent == kontaktperson.navIdent,
         );
         const navn = personFraSok
-          ? `${personFraSok?.fornavn} ${personFraSok?.etternavn}`
+          ? `${personFraSok.fornavn} ${personFraSok.etternavn}`
           : personFraDb?.navn;
 
         return {
@@ -486,7 +486,7 @@ function SokEtterKontaktperson({
     const options =
       kontaktpersoner
         ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
-        ?.map((kontaktperson) => ({
+        .map((kontaktperson) => ({
           label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
           value: kontaktperson.navIdent,
         })) ?? [];

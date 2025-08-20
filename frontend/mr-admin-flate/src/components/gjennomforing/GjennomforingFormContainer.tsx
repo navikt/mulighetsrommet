@@ -19,7 +19,7 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Spacer, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React, { useCallback } from "react";
-import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "../detaljside/Metadata";
 import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
@@ -33,7 +33,7 @@ interface Props {
   onSuccess: (id: string) => void;
   avtale: AvtaleDto;
   gjennomforing?: GjennomforingDto;
-  defaultValues: DeepPartial<InferredGjennomforingSchema>;
+  defaultValues: Partial<InferredGjennomforingSchema>;
   enheter: NavEnhetDto[];
 }
 
@@ -99,8 +99,8 @@ export function GjennomforingFormContainer({
       oppstart: data.oppstart,
       kontaktpersoner:
         data.kontaktpersoner
-          ?.filter((kontakt) => kontakt.navIdent !== null)
-          ?.map((kontakt) => ({
+          ?.filter((kontakt) => kontakt.navIdent !== "")
+          .map((kontakt) => ({
             navIdent: kontakt.navIdent!,
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],
@@ -124,7 +124,7 @@ export function GjennomforingFormContainer({
     });
   };
 
-  const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
+  const hasRedaksjoneltInnholdErrors = Boolean(errors.faneinnhold);
   const hasDetaljerErrors = Object.keys(errors).length > (hasRedaksjoneltInnholdErrors ? 1 : 0);
 
   return (

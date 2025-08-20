@@ -19,11 +19,9 @@ export function ToTrinnsOpprettelsesForklaring({ opprettelse }: Props) {
           opprettelse.besluttetTidspunkt,
         )}.`,
       ]}
-      aarsaker={
-        opprettelse.aarsaker?.map((aarsak) =>
-          tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
-        ) ?? []
-      }
+      aarsaker={opprettelse.aarsaker.map((aarsak) =>
+        tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
+      )}
       forklaring={opprettelse.forklaring}
     />
   );

@@ -23,7 +23,7 @@ export function AvtaleAmoKategoriseringForm() {
         size="small"
         label={gjennomforingTekster.kurstypeLabel}
         value={amoKategorisering?.kurstype}
-        error={errors?.amoKategorisering?.kurstype?.message}
+        error={errors.amoKategorisering?.kurstype?.message}
         onChange={(type) => {
           setValue("amoKategorisering.kurstype", type.target.value as Kurstype);
         }}

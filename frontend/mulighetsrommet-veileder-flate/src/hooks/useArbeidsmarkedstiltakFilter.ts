@@ -72,8 +72,8 @@ export function useArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const filterHasChanged =
     filter.search !== "" ||
     filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
-    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
-    (brukerdata && brukersEnhetFilterHasChanged(filter, brukerdata)) ||
+    filter.innsatsgruppe?.nokkel !== brukerdata.innsatsgruppe ||
+    brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
 
   return {

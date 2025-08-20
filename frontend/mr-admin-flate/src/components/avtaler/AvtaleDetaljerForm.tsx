@@ -50,24 +50,25 @@ export function AvtaleDetaljerForm({
     watch,
     control,
   } = useFormContext<AvtaleFormValues>();
-  const avtaletype = watch("avtaletype");
   const tiltakskode = watch("tiltakskode");
   const watchedAdministratorer = watch("administratorer");
 
   const { data: enableTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    tiltakskode ? [tiltakskode] : [],
+    [tiltakskode],
   );
 
   const antallOpsjonerUtlost = (
     opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
   ).length;
 
-  const avtaletypeOptions = getAvtaletypeOptions(tiltakskode).map((type) => (
-    <option key={type.value} value={type.value}>
-      {type.label}
-    </option>
-  ));
+  const avtaletypeOptions = isTiltakskode(tiltakskode)
+    ? getAvtaletypeOptions(tiltakskode).map((type) => (
+        <option key={type.value} value={type.value}>
+          {type.label}
+        </option>
+      ))
+    : [];
 
   function avtaletypeOnChange(avtaletype: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
@@ -131,7 +132,9 @@ export function AvtaleDetaljerForm({
                   setValue("utdanningslop", null);
                   setValue("prismodell", undefined);
 
-                  const avtaletype = getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value;
+                  const avtaletype = isTiltakskode(e.target.value)
+                    ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
+                    : undefined;
                   if (avtaletype) {
                     setValue("avtaletype", avtaletype);
                     avtaletypeOnChange(avtaletype);
@@ -165,12 +168,10 @@ export function AvtaleDetaljerForm({
             <AvtaleUtdanningslopForm />
           ) : null}
         </FormGroup>
-        {avtaletype && (
-          <FormGroup>
-            <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
-          </FormGroup>
-        )}
-        {tiltakskode && enableTilsagn ? (
+        <FormGroup>
+          <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
+        </FormGroup>
+        {enableTilsagn ? (
           <FormGroup>
             <AvtalePrisOgFaktureringForm tiltakskode={tiltakskode} />
           </FormGroup>
@@ -205,7 +206,7 @@ export function AvtaleDetaljerForm({
                   ansatt,
                   watchedAdministratorer,
                   administratorer,
-                ).filter((option) => field.value?.includes(option.value))}
+                ).filter((option) => field.value.includes(option.value))}
                 name={field.name}
                 error={errors.administratorer?.message}
                 options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
@@ -256,7 +257,9 @@ function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; la
     case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
     case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
       return [avtale, offentligOffentlig, rammeavtale];
-    default:
-      return [];
   }
+}
+
+function isTiltakskode(value: string): value is Tiltakskode {
+  return Object.values(Tiltakskode).includes(value as Tiltakskode);
 }

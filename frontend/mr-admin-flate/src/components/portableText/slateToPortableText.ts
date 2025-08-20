@@ -67,7 +67,7 @@ const linkToPortableTextSpans = (
     .map((s) => toPortableTextSpan(s as BaseText))
     .map((s) => ({
       ...s,
-      marks: [...(s?.marks || []), link.url],
+      marks: [...(s.marks || []), link.url],
     })) as PortableTextSpan[];
 
   return [spans, markDef];

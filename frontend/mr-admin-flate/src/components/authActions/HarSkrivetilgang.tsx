@@ -11,7 +11,7 @@ interface Props {
 export function HarSkrivetilgang({ ressurs, children, condition }: Props) {
   const { data: ansatt } = useHentAnsatt();
 
-  if (!ansatt || condition === false) {
+  if (condition === false) {
     return null;
   } else if (ressurs === "Avtale" && harRolle(ansatt, Rolle.AVTALER_SKRIV)) {
     return children;

@@ -48,20 +48,20 @@ function LenkerSkjema() {
         Registrer ny lenke
       </Button>
       <VStack gap="5" className="max-h-[50rem] overflow-auto p-4">
-        {fields?.map((lenke, index) => {
+        {fields.map((lenke, index) => {
           return (
             <VStack gap="2" key={lenke.id}>
               <TextField
                 size="small"
                 label="Lenkenavn"
                 {...register(`faneinnhold.lenker.${index}.lenkenavn`)}
-                error={errors?.faneinnhold?.lenker?.[index]?.lenkenavn?.message}
+                error={errors.faneinnhold?.lenker?.[index]?.lenkenavn?.message}
               />
               <TextField
                 size="small"
                 label="Lenke"
                 {...register(`faneinnhold.lenker.${index}.lenke`)}
-                error={errors?.faneinnhold?.lenker?.[index]?.lenke?.message}
+                error={errors.faneinnhold?.lenker?.[index]?.lenke?.message}
               />
               <HStack gap="2">
                 <Switch {...register(`faneinnhold.lenker.${index}.apneINyFane`)}>

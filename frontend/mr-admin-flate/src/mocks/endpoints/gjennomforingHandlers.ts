@@ -21,7 +21,7 @@ export const gjennomforingHandlers = [
     () => {
       const brukerident = "B123456";
       const data = mockGjennomforinger.filter((gj) =>
-        gj.administratorer?.map((admin) => admin.navIdent).includes(brukerident),
+        gj.administratorer.map((admin) => admin.navIdent).includes(brukerident),
       );
       return HttpResponse.json({
         pagination: {
@@ -104,9 +104,6 @@ export const gjennomforingHandlers = [
       const { id } = params;
 
       const gjennomforinger = mockGjennomforinger.filter((gj) => gj.tiltakstype.id === id);
-      if (!gjennomforinger) {
-        return HttpResponse.json(undefined, { status: 404 });
-      }
 
       return HttpResponse.json({
         pagination: {

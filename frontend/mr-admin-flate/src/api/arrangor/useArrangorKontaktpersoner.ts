@@ -4,7 +4,7 @@ import { ArrangorService } from "@mr/api-client-v2";
 
 export function useArrangorKontaktpersoner(arrangorId?: string) {
   return useApiQuery({
-    queryKey: QueryKeys.arrangorKontaktpersoner(arrangorId! ?? ""),
+    queryKey: QueryKeys.arrangorKontaktpersoner(arrangorId!),
 
     queryFn: () =>
       ArrangorService.getArrangorKontaktpersoner({

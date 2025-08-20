@@ -29,7 +29,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
       <Bolk>
         {amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET && (
           <>
-            {amoKategorisering.forerkort && amoKategorisering.forerkort.length > 0 && (
+            {amoKategorisering.forerkort.length > 0 && (
               <Metadata
                 header={gjennomforingTekster.forerkortLabel}
                 verdi={
@@ -41,7 +41,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
                 }
               />
             )}
-            {amoKategorisering.sertifiseringer && amoKategorisering.sertifiseringer.length > 0 && (
+            {amoKategorisering.sertifiseringer.length > 0 && (
               <Metadata
                 header={gjennomforingTekster.sertifiseringerLabel}
                 verdi={
