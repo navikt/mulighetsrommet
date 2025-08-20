@@ -38,7 +38,6 @@ import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsa
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { Laster } from "@/components/laster/Laster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TilsagnTable } from "../tabell/TilsagnTable";
 
@@ -165,9 +164,6 @@ export function TilsagnPage() {
   function slettTilsagn() {
     slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilbake });
   }
-  if (!tilsagn) {
-    return <Laster tekst="Laster tilsagn..." />;
-  }
 
   const visHandlingerMeny =
     ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI) &&
@@ -251,11 +247,9 @@ export function TilsagnPage() {
                   annullering.behandletTidspunkt,
                 )}.`,
               ]}
-              aarsaker={
-                annullering.aarsaker?.map((aarsak) =>
-                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                ) ?? []
-              }
+              aarsaker={annullering.aarsaker.map((aarsak) =>
+                tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+              )}
               forklaring={annullering.forklaring}
             />
           )}
@@ -269,11 +263,9 @@ export function TilsagnPage() {
                     annullering.behandletTidspunkt,
                   )}.`,
                 ]}
-                aarsaker={
-                  annullering.aarsaker?.map((aarsak) =>
-                    tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                  ) ?? []
-                }
+                aarsaker={annullering.aarsaker.map((aarsak) =>
+                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                )}
                 forklaring={annullering.forklaring}
               />
             )}
@@ -286,11 +278,9 @@ export function TilsagnPage() {
                   tilOppgjor.behandletTidspunkt,
                 )}.`,
               ]}
-              aarsaker={
-                tilOppgjor.aarsaker?.map((aarsak) =>
-                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                ) ?? []
-              }
+              aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
+                tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+              )}
               forklaring={tilOppgjor.forklaring}
             />
           )}
@@ -302,11 +292,9 @@ export function TilsagnPage() {
                   tilOppgjor.behandletTidspunkt,
                 )}.`,
               ]}
-              aarsaker={
-                tilOppgjor.aarsaker?.map((aarsak) =>
-                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                ) ?? []
-              }
+              aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
+                tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+              )}
               forklaring={tilOppgjor.forklaring}
             />
           )}
@@ -356,7 +344,7 @@ export function TilsagnPage() {
                   >
                     Avslå annullering
                   </Button>
-                  {annullering?.kanBesluttes && (
+                  {annullering.kanBesluttes && (
                     <Button
                       size="small"
                       variant="danger"
@@ -384,7 +372,7 @@ export function TilsagnPage() {
                   >
                     Avslå oppgjør
                   </Button>
-                  {tilOppgjor?.kanBesluttes && (
+                  {tilOppgjor.kanBesluttes && (
                     <Button
                       size="small"
                       variant="danger"

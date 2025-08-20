@@ -39,7 +39,7 @@ export function ModiaFilterTags({ filterOpen, setTagsHeight }: Props) {
           onClose={() =>
             setFilter({
               ...filter,
-              tiltakstyper: filter.tiltakstyper?.filter(({ id }) => tiltakstype.id !== id),
+              tiltakstyper: filter.tiltakstyper.filter(({ id }) => tiltakstype.id !== id),
             })
           }
         />

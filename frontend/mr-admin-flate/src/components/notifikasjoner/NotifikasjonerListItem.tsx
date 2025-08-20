@@ -58,7 +58,7 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
                   Notifikasjon
                 </Tag>
               </HStack>
-              {metadata?.link && metadata?.linkText ? (
+              {metadata?.link && metadata.linkText ? (
                 <BodyShort size="small">
                   <Link href={metadata.link}>{metadata.linkText}</Link>
                 </BodyShort>

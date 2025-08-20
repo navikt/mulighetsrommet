@@ -67,7 +67,7 @@ export function FilterMenu() {
                     .filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
                 })
               }
-              regioner={regioner ?? []}
+              regioner={regioner}
             />
           </Accordion.Content>
         </Accordion.Item>

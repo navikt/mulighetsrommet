@@ -54,10 +54,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }),
     ]);
 
-  if (utbetalingerError || !utbetalinger) {
+  if (utbetalingerError) {
     throw problemDetailResponse(utbetalingerError);
   }
-  if (tilsagnError || !tilsagn) {
+  if (tilsagnError) {
     throw problemDetailResponse(tilsagnError);
   }
   return {

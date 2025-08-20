@@ -80,7 +80,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
             <KontaktinfoFane tiltak={tiltak} />
           </Tabs.Panel>
           <Tabs.Panel value="tab5">
-            {tiltak?.faneinnhold?.oppskrift ? (
+            {tiltak.faneinnhold?.oppskrift ? (
               <RedaksjoneltInnhold value={tiltak.faneinnhold.oppskrift} />
             ) : null}
             {oppskrifterEnabled && (

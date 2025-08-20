@@ -33,7 +33,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       headers: await apiHeaders(request),
     });
 
-  if (!arrangortilganger || error) {
+  if (!arrangortilganger) {
     throw problemDetailResponse(error);
   }
 

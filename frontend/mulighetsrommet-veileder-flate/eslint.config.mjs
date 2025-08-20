@@ -19,6 +19,7 @@ export default [
     },
     rules: {
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/no-unnecessary-condition': 'error',
     },
   },
 

@@ -20,7 +20,7 @@ import { TilsagnTable } from "../tabell/TilsagnTable";
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: aktiveTilsagn } = useSuspenseQuery({
     ...aktiveTilsagnQuery(gjennomforingId),
@@ -53,7 +53,7 @@ export function RedigerTilsagnFormPage() {
     },
   ];
 
-  if (!avtale || !tilsagn) {
+  if (!avtale) {
     return <Laster tekst="Laster data..." />;
   }
 

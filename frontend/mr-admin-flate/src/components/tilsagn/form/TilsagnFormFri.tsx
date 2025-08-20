@@ -114,7 +114,7 @@ function BeregningInputSkjema() {
       ))}
       {errors.beregning?.linjer?.message && (
         <Alert size="small" variant="error">
-          {errors.beregning?.linjer?.message}
+          {errors.beregning.linjer.message}
         </Alert>
       )}
       <Button
@@ -137,14 +137,14 @@ function BeregningOutputPreview() {
   const { watch } = useFormContext<FriTilsagn>();
 
   const values = watch();
-  const linjer = values.beregning?.linjer || [];
+  const linjer = values.beregning.linjer;
   return (
     <>
       <TilsagnBeregningPreview
         input={{
           type: TilsagnBeregningType.FRI,
           linjer: linjer,
-          prisbetingelser: values.beregning?.prisbetingelser,
+          prisbetingelser: values.beregning.prisbetingelser,
         }}
       />
     </>

@@ -19,7 +19,7 @@ export function ArrangorPage() {
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Arrangører", lenke: "/arrangorer" },
-    { tittel: `${arrangor?.navn}`, lenke: `/arrangorer/${arrangorId}` },
+    { tittel: `${arrangor.navn}`, lenke: `/arrangorer/${arrangorId}` },
   ];
 
   return (

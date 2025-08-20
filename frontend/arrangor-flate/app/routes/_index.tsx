@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       headers: await apiHeaders(request),
     });
 
-  if (error || !arrangorer) {
+  if (error) {
     throw problemDetailResponse(error);
   }
   if (arrangorer.length === 0) {

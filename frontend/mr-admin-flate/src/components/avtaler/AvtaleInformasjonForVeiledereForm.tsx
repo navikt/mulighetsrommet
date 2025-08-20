@@ -37,14 +37,8 @@ export function AvtaleInformasjonForVeiledereForm() {
       label: enhet.navn,
     }));
 
-  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(
-    watch("navRegioner") ?? [],
-    enheter,
-  );
-  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(
-    watch("navRegioner") ?? [],
-    enheter,
-  );
+  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter);
+  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(watch("navRegioner"), enheter);
 
   if (!tiltakId) {
     return (

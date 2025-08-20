@@ -25,7 +25,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     headers: await apiHeaders(request),
   });
 
-  if (error || !tilsagn) {
+  if (error) {
     throw problemDetailResponse(error);
   }
   return { tilsagn };

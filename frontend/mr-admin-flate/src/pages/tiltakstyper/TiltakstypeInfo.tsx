@@ -22,7 +22,7 @@ export function TiltakstypeInfo() {
         <Metadata header="Startdato" verdi={formaterDato(tiltakstype.startDato)} />
         <Metadata
           header="Sluttdato"
-          verdi={tiltakstype?.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
+          verdi={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
         />
       </Bolk>
       {tiltakstype.sanityId && (

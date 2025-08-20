@@ -41,11 +41,9 @@ export function ModiaContext(props: ModiaContextProps) {
 
   const { contextData: contextDataFraProps, updateContextDataRef } = props;
   useEffect(() => {
-    if (contextDataFraProps) {
-      updateContextDataRef?.((key: string, value: string) => {
-        setContextData({ ...contextDataFraProps, [key]: value });
-      });
-    }
+    updateContextDataRef?.((key: string, value: string) => {
+      setContextData({ ...contextDataFraProps, [key]: value });
+    });
   }, [contextDataFraProps, updateContextDataRef, setContextData]);
 
   useEffect(() => {

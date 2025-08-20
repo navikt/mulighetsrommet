@@ -80,10 +80,10 @@ export const loader: LoaderFunction = async ({
       }),
     ]);
 
-  if (utbetalingError || !utbetaling) {
+  if (utbetalingError) {
     throw problemDetailResponse(utbetalingError);
   }
-  if (tilsagnError || !tilsagn) {
+  if (tilsagnError) {
     throw problemDetailResponse(tilsagnError);
   }
 
@@ -165,11 +165,11 @@ export default function BekreftUtbetaling() {
     if (
       fetcher.state === "idle" &&
       fetcher.data &&
-      fetcher.data !== utbetaling.betalingsinformasjon?.kontonummer
+      fetcher.data !== utbetaling.betalingsinformasjon.kontonummer
     ) {
       revalidator.revalidate();
     }
-  }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon?.kontonummer]);
+  }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon.kontonummer]);
 
   useEffect(() => {
     if (hasError) {
@@ -234,7 +234,7 @@ export default function BekreftUtbetaling() {
                     name="kid"
                     htmlSize={35}
                     error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
-                    defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
+                    defaultValue={utbetaling.betalingsinformasjon.kid ?? ""}
                     maxLength={25}
                     id="kid"
                   />

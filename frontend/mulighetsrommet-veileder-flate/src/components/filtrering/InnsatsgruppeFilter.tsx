@@ -12,7 +12,7 @@ export function InnsatsgruppeFilter() {
   const innsatsgrupper = useInnsatsgrupper();
 
   const onChange = (innsatsgruppe: Innsatsgruppe) => {
-    const foundInnsatsgruppe = innsatsgrupper.data?.find(
+    const foundInnsatsgruppe = innsatsgrupper.data.find(
       (gruppe) => gruppe.nokkel === innsatsgruppe,
     );
     if (foundInnsatsgruppe) {
@@ -27,7 +27,7 @@ export function InnsatsgruppeFilter() {
     <InnsatsgruppeAccordion
       value={filter.innsatsgruppe?.nokkel}
       onChange={onChange}
-      options={innsatsgrupper.data ?? []}
+      options={innsatsgrupper.data}
     />
   );
 }

@@ -31,7 +31,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
     const valgteTyper = !valgteTypeIDer.includes(value)
       ? valgteTypeIDer.concat(value)
       : valgteTypeIDer.filter((id: string) => id !== value);
-    setOptions(data?.filter((type) => valgteTyper.includes(type.id)) ?? []);
+    setOptions(data.filter((type) => valgteTyper.includes(type.id)));
   };
 
   const checkbox = (filtertype: T) => {
@@ -57,19 +57,17 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
         {accordionHeader}
       </Accordion.Header>
       <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
-        {data && (
-          <CheckboxGroup
-            legend=""
-            hideLegend
-            size="small"
-            value={valgteTypeIDer.map(String)}
-            data-testid={`checkboxgroup_${kebabCaseAccordionNavn}`}
-          >
-            {sortert
-              ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox)
-              : data.map(checkbox)}
-          </CheckboxGroup>
-        )}
+        <CheckboxGroup
+          legend=""
+          hideLegend
+          size="small"
+          value={valgteTypeIDer.map(String)}
+          data-testid={`checkboxgroup_${kebabCaseAccordionNavn}`}
+        >
+          {sortert
+            ? data.sort((a, b) => a.tittel.localeCompare(b.tittel)).map(checkbox)
+            : data.map(checkbox)}
+        </CheckboxGroup>
       </Accordion.Content>
     </Accordion.Item>
   );

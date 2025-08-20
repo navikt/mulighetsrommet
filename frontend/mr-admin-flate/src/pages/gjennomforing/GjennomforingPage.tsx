@@ -40,12 +40,12 @@ export function GjennomforingPage() {
 
   const { data: enableTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
+    [gjennomforing.tiltakstype.tiltakskode],
   );
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
-    gjennomforing && [gjennomforing.tiltakstype.tiltakskode],
+    [gjennomforing.tiltakstype.tiltakskode],
   );
 
   const brodsmuler: (Brodsmule | undefined)[] = [

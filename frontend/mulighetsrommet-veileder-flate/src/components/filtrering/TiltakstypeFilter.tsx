@@ -18,14 +18,12 @@ export function TiltakstypeFilter({ antallValgteTiltakstyper }: Props) {
       accordionNavn="Tiltakstyper"
       options={filter.tiltakstyper}
       setOptions={(tiltakstyper) => setFilter({ ...filter, tiltakstyper })}
-      data={
-        tiltakstyper.data?.map((tiltakstype) => {
-          return {
-            id: tiltakstype.sanityId,
-            tittel: tiltakstype.navn,
-          };
-        }) ?? []
-      }
+      data={tiltakstyper.data.map((tiltakstype) => {
+        return {
+          id: tiltakstype.sanityId,
+          tittel: tiltakstype.navn,
+        };
+      })}
       sortert
     />
   );

@@ -43,7 +43,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
   const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(watchedAvtaletype);
 
   const opsjonsmodellType = watch("opsjonsmodell.type");
-  const opsjonsmodell = opsjonsmodellType ? hentOpsjonsmodell(opsjonsmodellType) : undefined;
+  const opsjonsmodell = hentOpsjonsmodell(opsjonsmodellType);
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
   const readonly = opsjonsmodell?.value !== "ANNET" || skalIkkeKunneRedigereOpsjoner;
 

@@ -21,9 +21,7 @@ interface Props {
 }
 
 export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Props) {
-  const { data, isLoading } = useKoblingerTilDokumenterForKontaktpersonHosArrangor(
-    kontaktperson.id,
-  );
+  const { data } = useKoblingerTilDokumenterForKontaktpersonHosArrangor(kontaktperson.id);
   const deleteArrangorKontaktpersonMutation = useDeleteArrangorKontaktperson(
     kontaktperson.arrangorId,
   );
@@ -50,7 +48,7 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
       headingText="Slett kontaktperson"
       headingIconType="error"
       body={
-        !data || isLoading ? (
+        !data ? (
           <Laster tekst="Henter koblinger til dokumenter..." />
         ) : (
           <>

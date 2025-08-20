@@ -29,7 +29,7 @@ export function TilsagnForm(props: Props) {
   const [searchParams] = useSearchParams();
   const { data: kostnadssteder } = useKostnadssted(regioner);
   const tilsagnstype: TilsagnType =
-    (searchParams.get("type") as TilsagnType) || TilsagnType.TILSAGN;
+    (searchParams.get("type") as TilsagnType | null) || TilsagnType.TILSAGN;
 
   const mutation = useOpprettTilsagn();
 
@@ -112,7 +112,7 @@ export function TilsagnForm(props: Props) {
             </HStack>
             {errors.id?.message && (
               <Alert className="self-end" variant="error" size="small">
-                {errors.id?.message}
+                {errors.id.message}
               </Alert>
             )}
           </VStack>

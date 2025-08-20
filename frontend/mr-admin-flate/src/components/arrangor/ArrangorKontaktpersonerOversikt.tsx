@@ -29,7 +29,7 @@ interface Props {
 export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
-  const { data, isLoading } = useArrangorKontaktpersoner(arrangor.id);
+  const { data } = useArrangorKontaktpersoner(arrangor.id);
   const [redigerKontaktperson, setRedigerKontaktperson] = useState<
     ArrangorKontaktperson | undefined
   >(undefined);
@@ -40,7 +40,7 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
     undefined,
   );
 
-  if (!data || isLoading) {
+  if (!data) {
     return <Loader />;
   }
 
@@ -222,7 +222,7 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
     epost: kontaktperson.epost || "",
     telefon: kontaktperson.telefon || "",
     beskrivelse: kontaktperson.beskrivelse || "",
-    ansvarligFor: kontaktperson.ansvarligFor || [],
+    ansvarligFor: kontaktperson.ansvarligFor,
     errors: {},
   };
 

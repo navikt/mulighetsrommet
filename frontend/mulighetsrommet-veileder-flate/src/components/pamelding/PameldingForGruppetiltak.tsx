@@ -31,19 +31,17 @@ export function PameldingForGruppetiltak({
           {tekster.overskrift}
         </Heading>
         <VStack gap="2">
-          {vedtakRoute ? (
-            <BodyShort>
-              <Button
-                role="link"
-                variant="tertiary"
-                className="underline"
-                size="xsmall"
-                onClick={vedtakRoute.navigate}
-              >
-                {tekster.lenketekst}
-              </Button>
-            </BodyShort>
-          ) : null}
+          <BodyShort>
+            <Button
+              role="link"
+              variant="tertiary"
+              className="underline"
+              size="xsmall"
+              onClick={vedtakRoute.navigate}
+            >
+              {tekster.lenketekst}
+            </Button>
+          </BodyShort>
         </VStack>
       </Alert>
     );
@@ -59,7 +57,7 @@ export function PameldingForGruppetiltak({
     );
   }
 
-  if (brukerHarRettPaaValgtTiltak && tiltak.apentForPamelding) {
+  if (brukerHarRettPaaValgtTiltak) {
     const opprettDeltakelseRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
       gjennomforingId,

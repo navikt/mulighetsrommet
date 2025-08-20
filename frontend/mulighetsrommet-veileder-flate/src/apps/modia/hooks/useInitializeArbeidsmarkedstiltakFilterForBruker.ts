@@ -9,7 +9,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
 
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
-  const brukersInnsatsgruppe = innsatsgrupper?.find(
+  const brukersInnsatsgruppe = innsatsgrupper.find(
     (gruppe) => gruppe.nokkel === brukerdata.innsatsgruppe,
   );
 

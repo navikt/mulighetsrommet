@@ -29,7 +29,7 @@ const PrismodellForm = memo(({ tiltakskode, prismodell }: Props) => {
 
 function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) {
   const { data: satser = [] } = useForhandsgodkjenteSatser(tiltakskode);
-  if (!satser || satser.length === 0) return null;
+  if (satser.length === 0) return null;
   return (
     <VStack gap="4">
       {satser.map((sats) => (
@@ -109,7 +109,7 @@ function AvtalteSatser() {
               label={avtaletekster.prismodell.pris.label}
               size="small"
               type="number"
-              error={errors?.satser?.[index]?.pris?.message}
+              error={errors.satser?.[index]?.pris?.message}
               {...register(`satser.${index}.pris`, {
                 valueAsNumber: true,
               })}

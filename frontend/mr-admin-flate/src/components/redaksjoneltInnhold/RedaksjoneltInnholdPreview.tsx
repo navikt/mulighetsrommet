@@ -43,7 +43,7 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   return (
     <TwoColumnGrid separator>
       <RedaksjoneltInnholdContainer>
-        {tiltakstypeSanityData?.beskrivelse && (
+        {tiltakstypeSanityData.beskrivelse && (
           <>
             <Heading size="medium">Generell informasjon</Heading>
             <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
@@ -61,16 +61,16 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         {someValuesExists([
           faneinnhold?.forHvem,
           faneinnhold?.forHvemInfoboks,
-          tiltakstypeSanityData?.faneinnhold?.forHvem,
-          tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks,
+          tiltakstypeSanityData.faneinnhold?.forHvem,
+          tiltakstypeSanityData.faneinnhold?.forHvemInfoboks,
         ]) ? (
           <>
             <Heading size="medium">For hvem</Heading>
             <DetaljerFane
               gjennomforing={faneinnhold?.forHvem}
               gjennomforingAlert={faneinnhold?.forHvemInfoboks}
-              tiltakstype={tiltakstypeSanityData?.faneinnhold?.forHvem}
-              tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks}
+              tiltakstype={tiltakstypeSanityData.faneinnhold?.forHvem}
+              tiltakstypeAlert={tiltakstypeSanityData.faneinnhold?.forHvemInfoboks}
             />
           </>
         ) : null}
@@ -78,16 +78,16 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         {someValuesExists([
           faneinnhold?.detaljerOgInnhold,
           faneinnhold?.detaljerOgInnholdInfoboks,
-          tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold,
-          tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks,
+          tiltakstypeSanityData.faneinnhold?.detaljerOgInnhold,
+          tiltakstypeSanityData.faneinnhold?.detaljerOgInnholdInfoboks,
         ]) ? (
           <>
             <Heading size="medium">Detaljer og innhold</Heading>
             <DetaljerFane
               gjennomforing={faneinnhold?.detaljerOgInnhold}
               gjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
-              tiltakstype={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold}
-              tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks}
+              tiltakstype={tiltakstypeSanityData.faneinnhold?.detaljerOgInnhold}
+              tiltakstypeAlert={tiltakstypeSanityData.faneinnhold?.detaljerOgInnholdInfoboks}
             />
           </>
         ) : null}
@@ -95,16 +95,16 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         {someValuesExists([
           faneinnhold?.pameldingOgVarighet,
           faneinnhold?.pameldingOgVarighetInfoboks,
-          tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet,
-          tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks,
+          tiltakstypeSanityData.faneinnhold?.pameldingOgVarighet,
+          tiltakstypeSanityData.faneinnhold?.pameldingOgVarighetInfoboks,
         ]) ? (
           <>
             <Heading size="medium">Påmelding og varighet</Heading>
             <DetaljerFane
               gjennomforing={faneinnhold?.pameldingOgVarighet}
               gjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
-              tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
-              tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
+              tiltakstype={tiltakstypeSanityData.faneinnhold?.pameldingOgVarighet}
+              tiltakstypeAlert={tiltakstypeSanityData.faneinnhold?.pameldingOgVarighetInfoboks}
             />
           </>
         ) : null}

@@ -30,7 +30,7 @@ export const tiltakstypeHandlers = [
     "*/api/v1/intern/avtaler/tiltakstype/:id",
     ({ params }) => {
       const { id } = params;
-      const avtaler = mockAvtaler.filter((a) => a.tiltakstype.id === id) ?? [];
+      const avtaler = mockAvtaler.filter((a) => a.tiltakstype.id === id);
 
       HttpResponse.json({
         pagination: {

@@ -41,10 +41,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       }),
     ]);
 
-  if (utbetalingError || !utbetaling) {
+  if (utbetalingError) {
     throw problemDetailResponse(utbetalingError);
   }
-  if (tilsagnError || !tilsagn) {
+  if (tilsagnError) {
     throw problemDetailResponse(tilsagnError);
   }
 

@@ -18,7 +18,7 @@ import { TilsagnTable } from "../tabell/TilsagnTable";
 
 function useHentData() {
   const [searchParams] = useSearchParams();
-  const type = (searchParams.get("type") as TilsagnType) ?? TilsagnType.TILSAGN;
+  const type = (searchParams.get("type") as TilsagnType | null) ?? TilsagnType.TILSAGN;
   const periodeStart = searchParams.get("periodeStart");
   const periodeSlutt = searchParams.get("periodeSlutt");
   const belop = searchParams.get("belop");
@@ -29,12 +29,12 @@ function useHentData() {
 
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: defaults } = useApiSuspenseQuery({
     ...tilsagnDefaultsQuery({
       gjennomforingId,
       type,
-      prismodell: (prismodell ?? (avtale?.prismodell.type as Prismodell)) || null,
+      prismodell: prismodell ?? (avtale?.prismodell.type as Prismodell),
       periodeStart,
       periodeSlutt,
       belop: belop ? Number(belop) : null,

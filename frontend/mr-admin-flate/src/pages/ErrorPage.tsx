@@ -14,7 +14,7 @@ interface GenericError {
 export function ErrorPage() {
   const routeError = useRouteError() as ProblemDetail | GenericError | undefined;
   const location = useLocation() as {
-    state: { problemDetail?: ProblemDetail; error?: GenericError };
+    state: { problemDetail?: ProblemDetail; error?: GenericError } | null;
   };
   const stateError = location.state?.problemDetail || location.state?.error;
 

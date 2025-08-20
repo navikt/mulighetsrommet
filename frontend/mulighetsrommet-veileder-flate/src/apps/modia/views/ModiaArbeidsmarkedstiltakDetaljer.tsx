@@ -33,7 +33,7 @@ import {
 } from "@api-client";
 import { TilbakemeldingsLenke } from "@mr/frontend-common";
 import { Chat2Icon } from "@navikt/aksel-icons";
-import { Alert, Button } from "@navikt/ds-react";
+import { Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
@@ -126,19 +126,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 veilederEnhet={enhet}
               />
             ) : null}
-
-            {!brukerdata.manuellStatus && (
-              <Alert
-                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot digital kommunikasjon"
-                key="alert-innsatsgruppe"
-                data-testid="alert-innsatsgruppe"
-                size="small"
-                variant="error"
-              >
-                Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
-                seg mot digital kommunikasjon
-              </Alert>
-            )}
 
             {dialogRoute && brukerdata.erUnderOppfolging && (
               <Button

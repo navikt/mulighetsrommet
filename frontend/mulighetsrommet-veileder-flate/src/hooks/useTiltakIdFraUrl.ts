@@ -14,5 +14,5 @@ export function useTiltakIdFraUrl() {
 function normalizeId(id?: string): string {
   if (!id) throw new Error("id ikke satt");
 
-  return id?.includes("_") ? id?.replace("_", ".") : id;
+  return id.includes("_") ? id.replace("_", ".") : id;
 }

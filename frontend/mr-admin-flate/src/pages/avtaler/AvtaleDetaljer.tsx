@@ -44,12 +44,12 @@ export function AvtaleDetaljer() {
 
   const { data: enableTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    avtale?.tiltakstype.tiltakskode ? [avtale.tiltakstype.tiltakskode] : [],
+    [avtale.tiltakstype.tiltakskode],
   );
 
   const avtaleMeta: Definition[] = [
     { key: avtaletekster.avtalenavnLabel, value: navn },
-    { key: avtaletekster.avtalenummerLabel, value: avtalenummer ?? "-" },
+    { key: avtaletekster.avtalenummerLabel, value: avtalenummer },
     { key: avtaletekster.sakarkivNummerLabel, value: sakarkivNummer ?? "-" },
   ];
 

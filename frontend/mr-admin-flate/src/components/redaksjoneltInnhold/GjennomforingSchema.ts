@@ -38,7 +38,7 @@ export const GjennomforingSchema = z
     kontaktpersoner: z
       .object({
         navIdent: z.string({ error: "Du må velge en kontaktperson" }),
-        beskrivelse: z.string().nullable().optional(),
+        beskrivelse: z.string().nullish(),
       })
       .array()
       .optional(),
@@ -85,6 +85,7 @@ export const GjennomforingSchema = z
   })
   .check((ctx) => {
     ctx.value.kontaktpersoner?.forEach((kontaktperson, index) => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (kontaktperson.navIdent == null) {
         ctx.issues.push({
           code: "custom",

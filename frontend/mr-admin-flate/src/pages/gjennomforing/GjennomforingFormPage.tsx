@@ -69,7 +69,7 @@ export function GjennomforingFormPage() {
       <ContentBox>
         <Box padding="4" background="bg-default">
           {isError && <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>}
-          {ansatt && avtale && (
+          {avtale && (
             <GjennomforingFormContainer
               onClose={() => {
                 navigerTilbake();

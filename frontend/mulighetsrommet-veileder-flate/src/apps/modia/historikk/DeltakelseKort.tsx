@@ -115,7 +115,7 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
       <HStack align={"end"} gap="5">
         <Status status={status.type} visningstekst={status.visningstekst} />
         {aarsak ? <BodyShort size="small">Årsak: {aarsak}</BodyShort> : null}
-        {periode?.startDato ? (
+        {periode.startDato ? (
           <BodyShort size="small">
             {periode.startDato && !periode.sluttDato
               ? `Oppstartsdato ${formaterDato(periode.startDato)}`

@@ -80,12 +80,10 @@ export function regionOptions(enheter: NavEnhetDto[]) {
 }
 
 export function tiltakstypeOptions(tiltakstyper: TiltakstypeDto[]) {
-  return (
-    tiltakstyper.sort().map((tiltakstype) => ({
-      label: tiltakstype.navn,
-      value: tiltakstype.id,
-    })) || []
-  );
+  return tiltakstyper.sort().map((tiltakstype) => ({
+    label: tiltakstype.navn,
+    value: tiltakstype.id,
+  }));
 }
 
 export function arrangorOptions(arrangorer: Arrangor[]) {

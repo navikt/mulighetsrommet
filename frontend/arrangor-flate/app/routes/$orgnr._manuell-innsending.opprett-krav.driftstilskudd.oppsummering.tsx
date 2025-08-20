@@ -90,7 +90,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     path: { id: tilsagnId, orgnr },
     headers: await apiHeaders(request),
   });
-  if (error || !tilsagn) {
+  if (error) {
     throw problemDetailResponse(error);
   }
 

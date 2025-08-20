@@ -14,9 +14,6 @@ export const featureToggleHandlers = [
   http.get("*/api/v1/intern/features", ({ request }) => {
     const url = new URL(request.url);
     const feature = url.searchParams.get("feature") as keyof Features;
-    if (!feature) {
-      throw Error("Feature er ikke satt");
-    }
     return HttpResponse.json(mockFeatures[feature]);
   }),
 ];

@@ -42,10 +42,6 @@ export function NewGjennomforingFormPage() {
     },
   ];
 
-  if (!avtale) {
-    return null;
-  }
-
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />

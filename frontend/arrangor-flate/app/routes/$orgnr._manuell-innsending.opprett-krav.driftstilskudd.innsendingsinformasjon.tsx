@@ -114,10 +114,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (gjennomforingerError) {
     throw problemDetailResponse(gjennomforingerError);
   }
-  if (tilsagnError || !tilsagn) {
+  if (tilsagnError) {
     throw problemDetailResponse(tilsagnError);
   }
-  if (!arrangortilganger || arrangorError) {
+  if (!arrangortilganger) {
     throw problemDetailResponse(arrangorError);
   }
 
@@ -252,7 +252,7 @@ export default function OpprettKravInnsendingsinformasjon() {
   });
 
   const relevanteGjennomforinger = useMemo(() => {
-    if (valgtPeriode?.from && valgtPeriode?.to) {
+    if (valgtPeriode?.from && valgtPeriode.to) {
       return gjennomforinger
         .filter(filtrGjennomforingByPeriode(valgtPeriode))
         .sort((a, b) => a.navn.localeCompare(b.navn));
@@ -320,7 +320,7 @@ export default function OpprettKravInnsendingsinformasjon() {
                 </DatePicker>
               </HStack>
             </VStack>
-            {valgtPeriode?.from && valgtPeriode?.to && (
+            {valgtPeriode?.from && valgtPeriode.to && (
               <>
                 <input type="hidden" name="gjennomforingId" value={gjennomforingId} />
                 <UNSAFE_Combobox

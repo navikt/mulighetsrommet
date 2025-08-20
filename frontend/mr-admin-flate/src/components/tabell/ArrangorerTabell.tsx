@@ -18,7 +18,7 @@ interface Props {
 
 export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
   const sort = filter.sortering.tableSort;
-  const { data, isLoading } = useArrangorer(ArrangorTil.AVTALE, filter);
+  const { data } = useArrangorer(ArrangorTil.AVTALE, filter);
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
@@ -38,7 +38,7 @@ export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen 
     });
   };
 
-  if (!data || isLoading) {
+  if (!data) {
     return <Laster size="xlarge" tekst="Laster arrangører..." />;
   }
 

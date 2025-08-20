@@ -30,10 +30,10 @@ export function GjennomforingAmoKategoriseringForm(props: Props) {
           <Select readOnly size="small" label="Bransje">
             <option>{bransjeToString(avtaleAmo.bransje)}</option>
           </Select>
-          {avtaleAmo.forerkort && avtaleAmo.forerkort.length > 0 && (
+          {avtaleAmo.forerkort.length > 0 && (
             <ForerkortForm path="amoKategorisering.forerkort" options={avtaleAmo.forerkort} />
           )}
-          {avtaleAmo.sertifiseringer && avtaleAmo.sertifiseringer.length > 0 && (
+          {avtaleAmo.sertifiseringer.length > 0 && (
             <SertifiseringerSkjema
               path="amoKategorisering.sertifiseringer"
               options={avtaleAmo.sertifiseringer}

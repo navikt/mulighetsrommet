@@ -10,10 +10,6 @@ export const modiaContextAtom = atom<Partial<AppContextData>>({});
 export function useModiaContext(): AppContextData {
   const [data] = useAtom(modiaContextAtom);
 
-  if (data == null) {
-    throw Error("Missing data in AppContext");
-  }
-
   const { fnr, enhet } = data;
 
   if (!fnr) {

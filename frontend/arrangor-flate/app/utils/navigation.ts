@@ -3,7 +3,7 @@ import { Tabs } from "~/routes/$orgnr_.oversikt";
 import { Environment } from "~/services/environment";
 
 export function getCurrentTab(request: Request): Tabs {
-  return (new URL(request.url).searchParams.get("forside-tab") as Tabs) || "aktive";
+  return new URL(request.url).searchParams.get("forside-tab") as Tabs;
 }
 
 export function useOrgnrFromUrl() {
