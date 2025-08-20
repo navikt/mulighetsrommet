@@ -2,7 +2,7 @@ import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
+import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Box, Button, Heading, HGrid, HStack, TextField, VStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -14,7 +14,6 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
-import { START_DATO_TILSAGN } from "@/constants";
 
 interface Props {
   onSuccess: () => void;
@@ -23,10 +22,11 @@ interface Props {
   regioner: string[];
   beregningInput: ReactElement;
   beregningOutput: ReactElement;
+  gjennomforing: GjennomforingDto;
 }
 
 export function TilsagnForm(props: Props) {
-  const { onSuccess, onAvbryt, defaultValues, regioner } = props;
+  const { onSuccess, onAvbryt, defaultValues, regioner, gjennomforing } = props;
   const [searchParams] = useSearchParams();
   const { data: kostnadssteder } = useKostnadssted(regioner);
   const tilsagnstype: TilsagnType =
@@ -88,7 +88,7 @@ export function TilsagnForm(props: Props) {
                 <HGrid columns={2}>
                   <ControlledDateInput
                     label={tilsagnTekster.periode.start.label}
-                    fromDate={START_DATO_TILSAGN}
+                    fromDate={new Date(gjennomforing.startDato)}
                     toDate={addDuration(new Date(), { years: 1 })}
                     defaultSelected={form.getValues("periodeStart")}
                     onChange={(val) => form.setValue("periodeStart", val)}
@@ -96,7 +96,7 @@ export function TilsagnForm(props: Props) {
                   />
                   <ControlledDateInput
                     label={tilsagnTekster.periode.slutt.label}
-                    fromDate={START_DATO_TILSAGN}
+                    fromDate={new Date(gjennomforing.startDato)}
                     toDate={addDuration(new Date(), { years: 1 })}
                     defaultSelected={form.getValues("periodeSlutt")}
                     onChange={(val) => form.setValue("periodeSlutt", val)}
