@@ -296,10 +296,7 @@ class GenererUtbetalingService(
         periode: Periode,
     ): Set<DeltakelsePeriode> {
         val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        return resolveDeltakelsePerioder(
-            deltakere,
-            periode,
-        )
+        return resolveDeltakelsePerioder(deltakere, periode)
     }
 
     private fun QueryContext.logEndring(
@@ -327,27 +324,6 @@ private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo): Boolean 
     return utbetaling.beregning.output.belop > 0
 }
 
-private fun isRelevantForUtbetalingsperide(
-    deltaker: Deltaker,
-    periode: Periode,
-): Boolean {
-    val relevantDeltakerStatusForUtbetaling = listOf(
-        DeltakerStatusType.DELTAR,
-        DeltakerStatusType.AVBRUTT,
-        DeltakerStatusType.FULLFORT,
-        DeltakerStatusType.HAR_SLUTTET,
-    )
-    if (deltaker.status.type !in relevantDeltakerStatusForUtbetaling) {
-        return false
-    }
-
-    val startDato = requireNotNull(deltaker.startDato) {
-        "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
-    }
-    val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-    return Periode.of(startDato, sluttDatoInPeriode)?.intersects(periode) ?: false
-}
-
 private fun resolveDeltakelsePerioder(
     deltakere: List<Deltaker>,
     periode: Periode,
@@ -363,6 +339,28 @@ private fun resolveDeltakelsePerioder(
             DeltakelsePeriode(deltaker.id, overlappingPeriode)
         }
         .toSet()
+}
+
+private fun isRelevantForUtbetalingsperide(
+    deltaker: Deltaker,
+    periode: Periode,
+): Boolean {
+    val avsluttendeStatus = listOf(
+        DeltakerStatusType.AVBRUTT,
+        DeltakerStatusType.FULLFORT,
+        DeltakerStatusType.HAR_SLUTTET,
+    )
+    if (deltaker.status.type !in (avsluttendeStatus + DeltakerStatusType.DELTAR)) {
+        return false
+    } else if (deltaker.status.type in avsluttendeStatus && deltaker.sluttDato == null) {
+        return false
+    }
+
+    val startDato = requireNotNull(deltaker.startDato) {
+        "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
+    }
+    val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+    return Periode.of(startDato, sluttDatoInPeriode)?.intersects(periode) ?: false
 }
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {

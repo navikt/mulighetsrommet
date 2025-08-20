@@ -484,32 +484,22 @@ class GenererUtbetalingServiceTest : FunSpec({
                 }
         }
 
-        xtest("månedsverk til deltakere med avsluttende status blir beregnet ut ifra den minste av deltakerens sluttdato og tidspunktet for når statusen ble gyldig") {
+        test("deltaker som har sluttet, men med åpen sluttdato, blir ikke med i kravet") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2025, 6, 1),
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
-                        statusOpprettet = LocalDate.of(2024, 12, 1).atStartOfDay(),
-                        deltakelsesprosent = 100.0,
-                    ),
-                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
-                        AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2025, 6, 1),
-                        statusType = DeltakerStatusType.AVBRUTT,
-                        statusOpprettet = LocalDate.of(2025, 1, 7).atStartOfDay(),
-                        deltakelsesprosent = 100.0,
-                    ),
-                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
-                        AFT1.id,
-                        startDato = LocalDate.of(2024, 1, 1),
+                        startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = null,
-                        statusType = DeltakerStatusType.FULLFORT,
-                        statusOpprettet = LocalDate.of(2025, 1, 14).atStartOfDay(),
+                        statusType = DeltakerStatusType.DELTAR,
+                        deltakelsesprosent = 100.0,
+                    ),
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = null,
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -519,24 +509,8 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.beregning.input
                 .shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
-                .should { input ->
-                    input.deltakelser.shouldHaveSize(2)
-                    input.deltakelser.first { it.deltakelseId == domain.deltakere[1].id }.should {
-                        it.perioder shouldBe listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 8)),
-                                deltakelsesprosent = 100.0,
-                            ),
-                        )
-                    }
-                    input.deltakelser.first { it.deltakelseId == domain.deltakere[2].id }.should {
-                        it.perioder shouldBe listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15)),
-                                deltakelsesprosent = 100.0,
-                            ),
-                        )
-                    }
+                .should {
+                    it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[0].id)
                 }
         }
     }
@@ -896,47 +870,6 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.utbetaling.get(generertUtbetaling.id).shouldBeNull()
             }
-        }
-
-        xtest("månedsverk til deltakere med avsluttende status blir beregnet ut ifra den minste av deltakerens sluttdato og tidspunktet for når statusen ble gyldig") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
-                satser = listOf(
-                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
-                ),
-            )
-
-            val domain = MulighetsrommetTestDomain(
-                avtaler = listOf(avtale),
-                gjennomforinger = listOf(oppfolging),
-                deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
-                        oppfolging.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2025, 6, 1),
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
-                        statusOpprettet = LocalDate.of(2024, 12, 1).atStartOfDay(),
-                    ),
-                    DeltakerFixtures.createDeltakerDbo(
-                        oppfolging.id,
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2025, 6, 1),
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
-                        statusOpprettet = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                    ),
-                ),
-            ).initialize(database.db)
-
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
-
-            utbetaling.beregning.input
-                .shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Input>()
-                .should { input ->
-                    input.deltakelser.shouldHaveSize(1).first().should {
-                        it.deltakelseId shouldBe domain.deltakere[1].id
-                        it.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2))
-                    }
-                }
         }
     }
 })
