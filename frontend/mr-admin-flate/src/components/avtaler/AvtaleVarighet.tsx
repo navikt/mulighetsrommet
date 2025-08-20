@@ -28,7 +28,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
   const startDato = watch("startDato");
   const sluttDato = watch("sluttDato");
 
-  const minStartDato = initialStartDato
+  const minStartDato = initialStartDato.current
     ? new Date(initialStartDato.current)
     : MIN_START_DATO_FOR_AVTALER;
 

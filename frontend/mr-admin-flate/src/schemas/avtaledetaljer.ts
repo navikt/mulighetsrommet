@@ -19,7 +19,7 @@ export const avtaleDetaljerSchema = z.object({
   startDato: z
     .string({ error: "Du må legge inn startdato for avtalen" })
     .min(10, "Du må legge inn startdato for avtalen"),
-  sluttDato: z.string().nullable(),
+  sluttDato: z.string().optional().nullable(),
   opsjonsmodell: z.object({
     type: z.enum(OpsjonsmodellType, {
       error: "Du må velge avtalt mulighet for forlengelse",
