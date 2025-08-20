@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Lint
         uses: ./.github/actions/lint-yaml
         with:
@@ -28,7 +28,7 @@ jobs:
       id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: List resource files
         run: echo "RESOURCE_FILES=$(find iac/kafka-manager/dev -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
       - name: Deploy
@@ -47,7 +47,7 @@ jobs:
       id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: List resource files
         run: echo "RESOURCE_FILES=$(find iac/kafka-manager/prod -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
       - name: Deploy
