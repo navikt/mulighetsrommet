@@ -2,12 +2,13 @@ import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import {
   TilsagnBeregningDto,
+  TilsagnBeregningFastSatsPerTiltaksplassPerManed,
   TilsagnBeregningFri,
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Heading, VStack } from "@navikt/ds-react";
+import { VStack } from "@navikt/ds-react";
 import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
@@ -21,6 +22,8 @@ export function TilsagnPrismodell({ beregning }: Props) {
   switch (beregning.type) {
     case "FRI":
       return <FriPrismodell beregning={beregning} />;
+    case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
+      return <FastSatsPerTiltaksplassPerManedPrismodell beregning={beregning} />
     case "PRIS_PER_UKESVERK":
     case "PRIS_PER_MANEDSVERK":
       return <PrisPerManedsUkesverkPrismodell beregning={beregning} />;
@@ -30,7 +33,10 @@ export function TilsagnPrismodell({ beregning }: Props) {
 function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
   return (
     <VStack gap="4">
-      <Heading size="small">Prismodell - Annen avtalt pris</Heading>
+      <MetadataHorisontal
+          header={tilsagnTekster.prismodell.label}
+          verdi={tilsagnTekster.prismodell.annenPris.label}
+        />
       <Definisjonsliste
         columns={1}
         definitions={[
@@ -48,6 +54,29 @@ function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
   );
 }
 
+function FastSatsPerTiltaksplassPerManedPrismodell({
+  beregning,
+}: {
+  beregning: TilsagnBeregningFastSatsPerTiltaksplassPerManed;
+}) {
+  return (
+      <VStack gap="4">
+        <MetadataHorisontal
+          header={tilsagnTekster.prismodell.label}
+          verdi={tilsagnTekster.prismodell.fastSatsManed.label}
+        />
+        <MetadataHorisontal
+          header={tilsagnTekster.antallPlasser.label}
+          verdi={beregning.antallPlasser}
+        />
+        <MetadataHorisontal
+          header={tilsagnTekster.sats.label}
+          verdi={formaterNOK(beregning.sats)}
+        />
+      </VStack>
+  );
+}
+
 function PrisPerManedsUkesverkPrismodell({
   beregning,
 }: {
@@ -55,9 +84,10 @@ function PrisPerManedsUkesverkPrismodell({
 }) {
   return (
     <VStack gap="4">
-      <Heading size="small">
-        Prismodell - Pris per {isBeregningPrisPerManedsverk(beregning) ? "månedsverk" : "ukesverk"}
-      </Heading>
+      <MetadataHorisontal
+          header={tilsagnTekster.prismodell.label}
+          verdi={isBeregningPrisPerManedsverk(beregning) ? tilsagnTekster.prismodell.manedsPris.label : tilsagnTekster.prismodell.ukesPris.label}
+        />
       <Definisjonsliste
         columns={1}
         definitions={[

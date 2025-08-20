@@ -80,6 +80,7 @@ function getTilsagnBeregningType(prismodell: PrismodellDto): TilsagnBeregningTyp
     case "ANNEN_AVTALT_PRIS":
       return TilsagnBeregningType.FRI;
     case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
+      return TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED;
     case "AVTALT_PRIS_PER_MANEDSVERK":
       return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
     case "AVTALT_PRIS_PER_UKESVERK":

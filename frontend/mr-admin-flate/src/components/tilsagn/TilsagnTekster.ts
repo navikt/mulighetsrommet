@@ -29,6 +29,21 @@ export const tilsagnTekster = {
   antallPlasser: {
     label: "Antall plasser",
   },
+  prismodell: {
+    label: "Prismodell",
+    fastSatsManed: {
+      label: "Fast sats per tiltaksplass per måned",
+    },
+    manedsPris: {
+      label: "Avtalt månedspris per tiltaksplass",
+    },
+    ukesPris: {
+      label: "Avtalt ukespris per tiltaksplass",
+    },
+    annenPris: {
+      label: "Annen avtalt pris",
+    },
+  },
   sats: {
     label: "Sats",
   },

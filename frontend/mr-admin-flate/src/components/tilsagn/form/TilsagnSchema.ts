@@ -19,6 +19,25 @@ const TilsagnBeregningFriInputLinje = z.object({
 
 export const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
+    type: z.literal("FAST_SATS_PER_TILTAKSPLASS_PER_MANED"),
+    sats: z.number({
+      error: "Sats mangler",
+    }),
+    periode: z.object({
+      start: z
+        .string({ error: tilsagnTekster.manglerStartdato })
+        .min(10, tilsagnTekster.manglerStartdato),
+      slutt: z
+        .string({ error: tilsagnTekster.manglerSluttdato })
+        .min(10, tilsagnTekster.manglerSluttdato),
+    }),
+    antallPlasser: z
+      .number({
+        error: "Antall plasser mangler",
+      })
+      .positive({ error: "Antall plasser må være positivt" }),
+  }),
+  z.object({
     type: z.literal("PRIS_PER_MANEDSVERK"),
     sats: z.number({
       error: "Sats mangler",
