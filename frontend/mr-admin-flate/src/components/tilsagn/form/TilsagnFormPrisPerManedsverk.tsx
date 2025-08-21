@@ -4,6 +4,7 @@ import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import {
   GjennomforingDto,
+  TilsagnBeregningFastSatsPerTiltaksplassPerManed,
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
@@ -17,7 +18,10 @@ import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
-  beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
+  beregning:
+    | TilsagnBeregningPrisPerManedsverk
+    | TilsagnBeregningPrisPerUkesverk
+    | TilsagnBeregningFastSatsPerTiltaksplassPerManed;
 };
 
 interface Props {

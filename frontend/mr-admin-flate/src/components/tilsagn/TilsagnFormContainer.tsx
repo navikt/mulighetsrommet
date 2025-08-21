@@ -39,6 +39,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
+    case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
       return (
         <TilsagnFormPrisPerManedsverk
           defaultValues={{
