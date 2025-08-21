@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.*
@@ -41,7 +42,7 @@ class GenererUtbetalingService(
     suspend fun genererUtbetalingForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, prismodell) ->
-                val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+                val gjennomforing = queries.gjennomforing.getOrError(gjennomforingId)
                 val utbetaling = generateUtbetalingForPrismodell(UUID.randomUUID(), prismodell, gjennomforing, periode)
                 utbetaling?.takeIf { isUtbetalingRelevantForArrangor(it) }
             }
@@ -50,6 +51,22 @@ class GenererUtbetalingService(
                 val dto = getOrError(utbetaling.id)
                 logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
                 dto
+            }
+    }
+
+    suspend fun beregnUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
+        getGjennomforingerForBeregningAvUtbetalinger(periode)
+            .mapNotNull { (gjennomforingId, prismodell) ->
+                val gjennomforing = queries.gjennomforing.getOrError(gjennomforingId)
+                val utbetaling = generateUtbetalingForPrismodell(
+                    UUID.randomUUID(),
+                    prismodell,
+                    gjennomforing,
+                    periode,
+                )
+                utbetaling?.takeIf { isUtbetalingRelevantForArrangor(it) }?.let {
+                    UtbetalingMapper.toUtbetaling(utbetaling, gjennomforing)
+                }
             }
     }
 
@@ -237,6 +254,22 @@ class GenererUtbetalingService(
                     where utbetaling.gjennomforing_id = gjennomforing.id
                       and utbetaling.periode && :periode::daterange
               )
+        """.trimIndent()
+
+        return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
+            Pair(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
+        }
+    }
+
+    private fun QueryContext.getGjennomforingerForBeregningAvUtbetalinger(
+        periode: Periode,
+    ): List<Pair<UUID, Prismodell>> {
+        @Language("PostgreSQL")
+        val query = """
+            select gjennomforing.id, avtale.prismodell
+            from gjennomforing
+                join avtale on gjennomforing.avtale_id = avtale.id
+            where daterange(gjennomforing.start_dato, gjennomforing.slutt_dato, '[]') && :periode::daterange
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
