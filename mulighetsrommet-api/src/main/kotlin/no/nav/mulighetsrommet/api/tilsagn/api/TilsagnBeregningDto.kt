@@ -14,7 +14,6 @@ import java.math.RoundingMode
 @Serializable
 sealed class TilsagnBeregningDto {
     abstract val belop: Int
-    abstract val prisbetingelser: String?
 
     @Serializable
     @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
@@ -23,7 +22,6 @@ sealed class TilsagnBeregningDto {
         val sats: Int,
         val antallPlasser: Int,
         val antallManeder: Double,
-        override val prisbetingelser: String? = null,
     ) : TilsagnBeregningDto()
 
     @Serializable
@@ -33,7 +31,7 @@ sealed class TilsagnBeregningDto {
         val sats: Int,
         val antallPlasser: Int,
         val antallManeder: Double,
-        override val prisbetingelser: String?,
+        val prisbetingelser: String?,
     ) : TilsagnBeregningDto()
 
     @Serializable
@@ -43,7 +41,7 @@ sealed class TilsagnBeregningDto {
         val sats: Int,
         val antallPlasser: Int,
         val antallUker: Double,
-        override val prisbetingelser: String?,
+        val prisbetingelser: String?,
     ) : TilsagnBeregningDto()
 
     @Serializable
@@ -51,7 +49,7 @@ sealed class TilsagnBeregningDto {
     data class Fri(
         override val belop: Int,
         val linjer: List<InputLinje>,
-        override val prisbetingelser: String?,
+        val prisbetingelser: String?,
     ) : TilsagnBeregningDto()
 
     companion object {
