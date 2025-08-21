@@ -118,7 +118,7 @@ private fun getDifference(
     val otherById = other.associateBy { it.gjennomforing.id }
     return source.filter { sourceEntry ->
         val otherEntry = otherById[sourceEntry.gjennomforing.id]
-        otherEntry == null || sourceEntry.beregning != otherEntry.beregning
+        otherEntry == null || sourceEntry.beregning.output.belop != otherEntry.beregning.output.belop
     }
 }
 
