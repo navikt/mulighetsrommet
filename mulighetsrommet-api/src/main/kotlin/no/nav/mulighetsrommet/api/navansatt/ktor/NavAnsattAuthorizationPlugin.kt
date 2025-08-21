@@ -72,7 +72,7 @@ class NavAnsattManglerTilgang(
     override val detail: String =
         "Minst en av følgende roller er påkrevd for å få tilgang til denne ressursen: ${missingRoles.joinToString(", ")}"
     override val extensions = mapOf(
-        "missingRoles" to Json.encodeToJsonElement(missingRoles),
+        "missingRoles" to Json.encodeToJsonElement(missingRoles.map { it.visningsnavn }),
     )
     override val instance = navIdent.value
 }
