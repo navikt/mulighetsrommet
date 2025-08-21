@@ -163,6 +163,34 @@ export function MrApi() {
             },
           }}
         />
+
+        <RunTask
+          base={ApiBase.MR_API}
+          task={"beregn-utbetaling"}
+          input={{
+            type: "object",
+            required: ["date"],
+            properties: {
+              date: {
+                type: "string",
+                format: "date",
+                title: "Velg dato",
+                description: "Velg dato for måneden det skal beregnes utbetalinger for",
+              },
+            },
+          }}
+        >
+          <p>
+            Beregner utbetalinger for gitt måned og genererer en rapport som inneholder forskjeller
+            mellom utbetalinger i som allerede er behandlet i Tiltaksadministrasjon sammenlignet med
+            ny beregning av utbetalingen.
+          </p>
+          <p>
+            Rapporten blir tilgjengelig i en{" "}
+            <Link href="https://console.cloud.google.com/storage/browser">GCP bucket</Link> når
+            jobben har kjørt ferdig.
+          </p>
+        </RunTask>
       </VStack>
     </Box>
   );

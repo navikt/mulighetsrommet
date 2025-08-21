@@ -384,6 +384,19 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetaling() }
     }
 
+    fun getByPeriode(periode: Periode): List<Utbetaling> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from utbetaling_dto_view
+            where periode = :periode::daterange
+        """.trimIndent()
+
+        val params = mapOf("periode" to periode.toDaterange())
+
+        return session.list(queryOf(query, params)) { it.toUtbetaling() }
+    }
+
     fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? {
         @Language("PostgreSQL")
         val query = """

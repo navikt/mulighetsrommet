@@ -72,6 +72,7 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateDeltakerKafkaConsume
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
@@ -449,6 +450,7 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { OppdaterUtbetalingBeregning(get()) }
+    single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
             get(),
@@ -479,6 +481,7 @@ private fun tasks(config: AppConfig) = module {
         val generateUtbetaling: GenerateUtbetaling by inject()
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: OppdaterUtbetalingBeregning by inject()
+        val beregnUtbetaling: BeregnUtbetaling by inject()
 
         val db: Database by inject()
 
@@ -491,6 +494,7 @@ private fun tasks(config: AppConfig) = module {
                 initialLoadTiltakstyper.task,
                 journalforUtbetaling.task,
                 oppdaterUtbetalingBeregning.task,
+                beregnUtbetaling.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

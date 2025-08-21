@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
@@ -38,6 +39,7 @@ fun Route.maamRoutes() {
     val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
+    val beregnUtbetaling: BeregnUtbetaling by inject()
 
     route("/api/intern/maam") {
         route("/tasks") {
@@ -122,6 +124,14 @@ fun Route.maamRoutes() {
                 val response = ExecutedTaskResponse("Genererte ${utbetalinger.size} utbetalinger for periode $periode")
                 call.respond(HttpStatusCode.OK, response)
             }
+
+            post("beregn-utbetaling") {
+                val request = call.receive<BeregnUtbetalingRequest>()
+                val periode = Periode.forMonthOf(request.date)
+                val id = beregnUtbetaling.schedule(BeregnUtbetaling.Input(periode))
+                val response = ScheduleTaskResponse(id)
+                call.respond(HttpStatusCode.Accepted, response)
+            }
         }
 
         route("/topics") {
@@ -143,6 +153,12 @@ fun Route.maamRoutes() {
 
 @Serializable
 data class GenerateUtbetalingRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val date: LocalDate,
+)
+
+@Serializable
+data class BeregnUtbetalingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val date: LocalDate,
 )
