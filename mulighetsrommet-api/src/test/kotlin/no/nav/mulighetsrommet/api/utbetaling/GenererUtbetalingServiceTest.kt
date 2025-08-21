@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
@@ -68,10 +69,55 @@ class GenererUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(0)
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
         }
 
-        test("genererer en utbetaling med riktig periode, sats og deltakere som input") {
+        test("genererer ikke utbetaling når gjennomføring starter etter utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
+                        status = GjennomforingStatus.GJENNOMFORES,
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
+                        statusType = DeltakerStatusType.DELTAR,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+        }
+
+        test("genererer ikke utbetaling når alle deltakelser ble avsluttet før utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2024, 12, 31),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+        }
+
+        test("genererer utbetaling med riktig periode, sats og deltakere som input") {
             val domain = MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -111,7 +157,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("genererer en utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
+        test("genererer utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -142,7 +188,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             sisteKrav.betalingsinformasjon.kid shouldBe Kid.parseOrThrow("006402710013")
         }
 
-        test("genererer en utbetaling med relevante deltakelse-perioder som input") {
+        test("genererer utbetaling med relevante deltakelse-perioder som input") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -319,7 +365,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 }
         }
 
-        test("genererer en utbetaling med beregnet belop basert på input") {
+        test("genererer utbetaling med beregnet beløp basert på input") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -347,13 +393,12 @@ class GenererUtbetalingServiceTest : FunSpec({
                 }
         }
 
-        test("genererer utbetalinger når gjennomføringen ble avsluttet i inneværende utbetalingsperiode") {
+        test("genererer utbetaling når gjennomføring ble avsluttet i inneværende utbetalingsperiode") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(
                     AFT1.copy(
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 15),
-                        status = GjennomforingStatus.AVSLUTTET,
                     ),
                 ),
                 deltakere = listOf(
@@ -365,7 +410,14 @@ class GenererUtbetalingServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            ).initialize(database.db)
+            ) {
+                queries.gjennomforing.setStatus(
+                    AFT1.id,
+                    status = GjennomforingStatus.AVSLUTTET,
+                    tidspunkt = LocalDate.of(2025, 1, 16).atStartOfDay(),
+                    aarsakerOgForklaring = null,
+                )
+            }.initialize(database.db)
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
@@ -376,13 +428,11 @@ class GenererUtbetalingServiceTest : FunSpec({
                 }
         }
 
-        test("forsøker ikke å generere utbetalinger når gjennomføringen ble avsluttet før utbetalingsperioden") {
-            MulighetsrommetTestDomain(
+        test("genererer utbetaling når gjennomføring ble avbrutt i inneværende utbetalingsperiode") {
+            val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(
                     AFT1.copy(
-                        startDato = LocalDate.of(2024, 12, 1),
-                        sluttDato = LocalDate.of(2024, 12, 31),
-                        status = GjennomforingStatus.AVSLUTTET,
+                        sluttDato = LocalDate.of(2025, 2, 1),
                     ),
                 ),
                 deltakere = listOf(
@@ -394,32 +444,22 @@ class GenererUtbetalingServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            ).initialize(database.db)
+            ) {
+                queries.gjennomforing.setStatus(
+                    AFT1.id,
+                    status = GjennomforingStatus.AVBRUTT,
+                    tidspunkt = LocalDate.of(2025, 1, 15).atStartOfDay(),
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                )
+            }.initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(0)
-        }
+            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
-        test("forsøker ikke å generere utbetalinger når gjennomføringen starter etter utbetalingsperioden") {
-            MulighetsrommetTestDomain(
-                gjennomforinger = listOf(
-                    AFT1.copy(
-                        startDato = LocalDate.of(2025, 2, 1),
-                        sluttDato = LocalDate.of(2025, 2, 28),
-                        status = GjennomforingStatus.GJENNOMFORES,
-                    ),
-                ),
-                deltakere = listOf(
-                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
-                        AFT1.id,
-                        startDato = LocalDate.of(2025, 2, 1),
-                        sluttDato = LocalDate.of(2025, 2, 28),
-                        statusType = DeltakerStatusType.DELTAR,
-                        deltakelsesprosent = 100.0,
-                    ),
-                ),
-            ).initialize(database.db)
-
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(0)
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+                .should {
+                    it.belop shouldBe 10149
+                    it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.48387))
+                }
         }
 
         test("genererer ikke utbetaling hvis det allerede finnes en med overlappende periode") {
@@ -483,8 +523,68 @@ class GenererUtbetalingServiceTest : FunSpec({
                     it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
                 }
         }
+    }
 
-        test("deltaker som har sluttet, men med åpen sluttdato, blir ikke med i kravet") {
+    context("gjennomføringer og deltakere med feil i datagrunnlaget") {
+        val service = createUtbetalingService()
+
+        test("genererer ikke utbetaling når gjennomføringen ble avbrutt før utbetalingsperioden, selv om deltaker har sluttdato i utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ) {
+                queries.gjennomforing.setStatus(
+                    AFT1.id,
+                    status = GjennomforingStatus.AVBRUTT,
+                    tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                )
+            }.initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+        }
+
+        test("genererer ikke utbetaling når gjennomføringen ble avsluttet før utbetalingsperioden, selv om deltaker har sluttdato i utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ) {
+                queries.gjennomforing.setStatus(
+                    AFT1.id,
+                    status = GjennomforingStatus.AVSLUTTET,
+                    tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),
+                    aarsakerOgForklaring = null,
+                )
+            }.initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+        }
+
+        test("deltaker som har sluttet, men med åpen sluttdato, blir ikke med i utbetalingen") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
