@@ -9,14 +9,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
+import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
-import org.apache.poi.ss.usermodel.CellType
-import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -101,21 +100,15 @@ class BeregnUtbetaling(
 private fun createReport(
     existingUtbetalinger: List<Utbetaling>,
     newUtbetalinger: List<Utbetaling>,
-): XSSFWorkbook {
-    val workbook = XSSFWorkbook()
-
+): XSSFWorkbook = buildExcelWorkbook {
     createUtbetalingerSheet(
-        workbook,
         "Utbetaling",
         getDifference(existingUtbetalinger, newUtbetalinger),
     )
     createUtbetalingerSheet(
-        workbook,
         "Ny beregning",
         getDifference(newUtbetalinger, existingUtbetalinger),
     )
-
-    return workbook
 }
 
 private fun getDifference(
@@ -125,83 +118,39 @@ private fun getDifference(
     val otherById = other.associateBy { it.gjennomforing.id }
     return source.filter { sourceEntry ->
         val otherEntry = otherById[sourceEntry.gjennomforing.id]
-        otherEntry == null || sourceEntry.beregning != otherEntry.beregning
+        otherEntry == null || sourceEntry.beregning.output.belop != otherEntry.beregning.output.belop
     }
 }
 
-private fun createUtbetalingerSheet(
-    workbook: XSSFWorkbook,
+private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
     sheetName: String,
     utbetalinger: List<Utbetaling>,
-) {
-    val workSheet = workbook.createSheet(sheetName)
-    createHeader(workSheet)
+) = sheet(sheetName) {
+    header(
+        "Tiltakskode",
+        "Gjennomføring - Id",
+        "Gjennomføring - Navn",
+        "Utbetaling - Beregning",
+        "Utbetaling - Periode",
+        "Utbetaling - Beløp",
+        "Deltakelse - Id",
+        "Deltakelse - Faktor",
+    )
 
     val utbetalingComparator = compareBy<Utbetaling>({ it.tiltakstype.tiltakskode }, { it.gjennomforing.navn })
 
-    var rowNumber = 1
-    utbetalinger
-        .sortedWith(utbetalingComparator)
-        .forEach { utbetaling ->
-            utbetaling.beregning.output.deltakelser()
-                .sortedBy { it.deltakelseId }
-                .forEach { deltakelse ->
-                    createRow(
-                        workSheet,
-                        rowNumber++,
-                        tiltakskode = utbetaling.tiltakstype.tiltakskode,
-                        gjennomforingId = utbetaling.gjennomforing.id,
-                        gjennomforingNavn = utbetaling.gjennomforing.navn,
-                        beregning = utbetaling.beregning::class.simpleName!!,
-                        periode = utbetaling.periode,
-                        belopBeregnet = utbetaling.beregning.output.belop,
-                        deltakelseId = deltakelse.deltakelseId,
-                        deltakelseFaktor = deltakelse.faktor,
-                    )
-                }
+    utbetalinger.sortedWith(utbetalingComparator).forEach { utbetaling ->
+        utbetaling.beregning.output.deltakelser().sortedBy { it.deltakelseId }.forEach { deltakelse ->
+            row(
+                utbetaling.tiltakstype.tiltakskode,
+                utbetaling.gjennomforing.id,
+                utbetaling.gjennomforing.navn,
+                utbetaling.beregning::class.simpleName!!,
+                utbetaling.periode.formatPeriode(),
+                utbetaling.beregning.output.belop,
+                deltakelse.deltakelseId,
+                deltakelse.faktor,
+            )
         }
-
-    workSheet.autoSizeColumn(0)
-    workSheet.autoSizeColumn(1)
-    workSheet.autoSizeColumn(2)
-    workSheet.autoSizeColumn(3)
-    workSheet.autoSizeColumn(4)
-    workSheet.autoSizeColumn(5)
-    workSheet.autoSizeColumn(6)
-    workSheet.autoSizeColumn(7)
-}
-
-private fun createHeader(workSheet: XSSFSheet) {
-    val header = workSheet.createRow(0)
-    header.createCell(0, CellType.STRING).setCellValue("Tiltakskode")
-    header.createCell(1, CellType.STRING).setCellValue("Gjennomføring - id")
-    header.createCell(2, CellType.STRING).setCellValue("Gjennomføring - navn")
-    header.createCell(3, CellType.STRING).setCellValue("Utbetaling - beregning")
-    header.createCell(4, CellType.STRING).setCellValue("Utbetaling - periode")
-    header.createCell(5, CellType.STRING).setCellValue("Utbetaling - beløp")
-    header.createCell(6, CellType.STRING).setCellValue("Deltakelse - id")
-    header.createCell(7, CellType.STRING).setCellValue("Deltakelse - faktor")
-}
-
-private fun createRow(
-    workSheet: XSSFSheet,
-    rowNumber: Int,
-    tiltakskode: Tiltakskode,
-    gjennomforingId: UUID,
-    gjennomforingNavn: String,
-    beregning: String,
-    periode: Periode,
-    belopBeregnet: Int,
-    deltakelseId: UUID,
-    deltakelseFaktor: Double,
-) {
-    val row = workSheet.createRow(rowNumber)
-    row.createCell(0, CellType.STRING).setCellValue(tiltakskode.name)
-    row.createCell(1, CellType.STRING).setCellValue(gjennomforingId.toString())
-    row.createCell(2, CellType.STRING).setCellValue(gjennomforingNavn)
-    row.createCell(3, CellType.STRING).setCellValue(beregning)
-    row.createCell(4, CellType.STRING).setCellValue(periode.formatPeriode())
-    row.createCell(5, CellType.NUMERIC).setCellValue(belopBeregnet.toDouble())
-    row.createCell(6, CellType.STRING).setCellValue(deltakelseId.toString())
-    row.createCell(7, CellType.NUMERIC).setCellValue(deltakelseFaktor)
+    }
 }

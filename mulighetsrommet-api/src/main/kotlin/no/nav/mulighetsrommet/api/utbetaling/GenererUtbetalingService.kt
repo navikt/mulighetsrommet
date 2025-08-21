@@ -43,8 +43,7 @@ class GenererUtbetalingService(
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, prismodell) ->
                 val gjennomforing = queries.gjennomforing.getOrError(gjennomforingId)
-                val utbetaling = generateUtbetalingForPrismodell(UUID.randomUUID(), prismodell, gjennomforing, periode)
-                utbetaling?.takeIf { isUtbetalingRelevantForArrangor(it) }
+                generateUtbetalingForPrismodell(UUID.randomUUID(), prismodell, gjennomforing, periode)
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
@@ -64,9 +63,7 @@ class GenererUtbetalingService(
                     gjennomforing,
                     periode,
                 )
-                utbetaling?.takeIf { isUtbetalingRelevantForArrangor(it) }?.let {
-                    UtbetalingMapper.toUtbetaling(utbetaling, gjennomforing)
-                }
+                utbetaling?.let { UtbetalingMapper.toUtbetaling(it, gjennomforing) }
             }
     }
 
@@ -100,7 +97,7 @@ class GenererUtbetalingService(
                     utbetaling.periode,
                 )
 
-                if (oppdatertUtbetaling == null || !isUtbetalingRelevantForArrangor(oppdatertUtbetaling)) {
+                if (oppdatertUtbetaling == null) {
                     log.info("Sletter utbetaling=${utbetaling.id} fordi den ikke lengre er relevant for arrangør")
                     queries.utbetaling.delete(utbetaling.id)
                     return@mapNotNull null
@@ -141,12 +138,14 @@ class GenererUtbetalingService(
             Prismodell.ANNEN_AVTALT_PRIS -> return null
         }
 
-        return createUtbetaling(
-            utbetalingId = utbetalingId,
-            gjennomforing = gjennomforing,
-            periode = periode,
-            beregning = beregning,
-        )
+        return beregning.takeIf { it.output.belop > 0 }?.let {
+            createUtbetaling(
+                utbetalingId = utbetalingId,
+                gjennomforing = gjennomforing,
+                periode = periode,
+                beregning = it,
+            )
+        }
     }
 
     private fun QueryContext.resolvePrisPerManedsverkMedDeltakelsesmengderInput(
@@ -349,10 +348,6 @@ class GenererUtbetalingService(
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
     }
-}
-
-private fun isUtbetalingRelevantForArrangor(utbetaling: UtbetalingDbo): Boolean {
-    return utbetaling.beregning.output.belop > 0
 }
 
 private fun resolveDeltakelsePerioder(
