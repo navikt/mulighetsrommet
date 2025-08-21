@@ -74,12 +74,12 @@ fun Application.configure(config: AppConfig) {
     install(OpenApi) {
         outputFormat = OutputFormat.YAML
 
-        pathFilter = { method, urlParts ->
+        pathFilter = { _, urlParts ->
             val url = urlParts.joinToString("/", prefix = "/")
             OpenApiSpec.match(url) != null
         }
 
-        specAssigner = { url, tags ->
+        specAssigner = { url, _ ->
             OpenApiSpec.match(url)?.specName ?: throw IllegalStateException("Failed to resolve OpenApiSpec for $url")
         }
 
