@@ -1,4 +1,7 @@
 export const tilsagnTekster = {
+  kommentar: {
+    label: "Kommentar",
+  },
   bestillingsnummer: {
     label: "Tilsagnsnummer",
   },

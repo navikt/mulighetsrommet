@@ -24,6 +24,7 @@ data class Tilsagn(
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
     val status: TilsagnStatus,
+    val kommentar: String?,
 ) {
     @Serializable
     data class Tiltakstype(

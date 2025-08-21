@@ -82,6 +82,7 @@ export const TilsagnSchema = z
       })
       .length(4, tilsagnTekster.manglerKostnadssted),
     beregning: TilsagnBeregningSchema,
+    kommentar: z.string().nullable(),
   })
   .refine(
     (data) => {

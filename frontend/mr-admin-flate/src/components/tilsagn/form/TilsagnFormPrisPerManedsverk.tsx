@@ -13,8 +13,8 @@ import { DeepPartial, useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import Fritekstfelt from "@/components/detaljside/Fritekstfelt";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
   beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
@@ -77,7 +77,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
         definitions={[
           {
             key: avtaletekster.prisOgBetalingLabel,
-            value: prisbetingelser ? <Prisbetingelser value={prisbetingelser} /> : "-",
+            value: prisbetingelser ? <Fritekstfelt text={prisbetingelser} /> : "-",
           },
         ]}
       />
