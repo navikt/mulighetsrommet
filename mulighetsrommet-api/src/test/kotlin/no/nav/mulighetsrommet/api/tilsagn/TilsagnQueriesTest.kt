@@ -61,6 +61,7 @@ class TilsagnQueriesTest : FunSpec({
         bestillingStatus = null,
         belopBrukt = 0,
         beregning = beregningFri(),
+        kommentar = null,
     )
 
     context("CRUD") {

@@ -51,6 +51,7 @@ function useTilsagnDetaljer() {
   const { data: aktiveTilsagn } = useApiSuspenseQuery({
     ...aktiveTilsagnQuery(gjennomforingId),
   });
+
   return {
     ansatt,
     gjennomforing,

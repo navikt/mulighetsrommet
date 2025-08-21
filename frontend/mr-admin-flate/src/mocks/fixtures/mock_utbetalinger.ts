@@ -160,6 +160,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: TilsagnStatus.TIL_GODKJENNING,
       bestillingsnummer: "A-2024/123",
+      kommentar: "Min kommentar",
     },
     status: DelutbetalingStatus.TIL_ATTESTERING,
     belop: 5000,
@@ -200,6 +201,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: TilsagnStatus.TIL_ANNULLERING,
       bestillingsnummer: "A-2024/123",
+      kommentar: "Min kommentar",
     },
     status: DelutbetalingStatus.RETURNERT,
     belop: 7500,
@@ -247,6 +249,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",
+      kommentar: null,
     },
     status: DelutbetalingStatus.RETURNERT,
     belop: 3000,
@@ -295,6 +298,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",
+      kommentar: null,
     },
 
     status: DelutbetalingStatus.TIL_ATTESTERING,
@@ -336,6 +340,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",
+      kommentar: null,
     },
 
     status: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -384,6 +389,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       status: TilsagnStatus.GODKJENT,
       bestillingsnummer: "A-2025/123",
+      kommentar: null,
     },
 
     status: DelutbetalingStatus.UTBETALT,

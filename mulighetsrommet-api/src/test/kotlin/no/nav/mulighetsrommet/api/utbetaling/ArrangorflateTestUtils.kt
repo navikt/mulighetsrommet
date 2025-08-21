@@ -81,6 +81,7 @@ object ArrangorflateTestUtils {
         type = TilsagnType.TILSAGN,
         belopBrukt = 0,
         bestillingStatus = BestillingStatusType.AKTIV,
+        kommentar = null,
     )
 
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(

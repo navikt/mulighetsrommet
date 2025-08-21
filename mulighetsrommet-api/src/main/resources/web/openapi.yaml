@@ -4563,6 +4563,8 @@ components:
           type: string
         beregning:
           $ref: "#/components/schemas/TilsagnBeregningInput"
+        kommentar:
+          type: [string, "null"]
       required:
         - id
         - gjennomforingId
@@ -4571,6 +4573,7 @@ components:
         - periodeSlutt
         - kostnadssted
         - beregning
+        - kommentar
 
     TilsagnType:
       type: string
@@ -4601,6 +4604,8 @@ components:
           $ref: "#/components/schemas/TilsagnStatus"
         bestillingsnummer:
           type: string
+        kommentar:
+          type: [string, "null"]
       required:
         - id
         - type
@@ -4611,6 +4616,7 @@ components:
         - beregning
         - status
         - bestillingsnummer
+        - kommentar
 
     KostnadsstedDto:
       type: object

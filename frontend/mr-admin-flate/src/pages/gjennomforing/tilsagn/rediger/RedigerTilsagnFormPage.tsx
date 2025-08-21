@@ -65,6 +65,7 @@ export function RedigerTilsagnFormPage() {
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
     beregning: tilsagnBeregningInput(tilsagn.beregning),
     gjennomforingId: gjennomforing.id,
+    kommentar: tilsagn.kommentar,
   };
 
   return (
