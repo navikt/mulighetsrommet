@@ -37,6 +37,11 @@ enum class Rolle {
     SAKSBEHANDLER_OKONOMI,
 
     /**
+     * Gir lesetilgang til detaljer på tilsagn og utbetalinger.
+     */
+    OKONOMI_LES,
+
+    /**
      * Gir tilgang til å godkjenne tilsagn.
      */
     BESLUTTER_TILSAGN,
