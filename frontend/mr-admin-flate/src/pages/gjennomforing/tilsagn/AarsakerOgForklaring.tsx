@@ -1,4 +1,4 @@
-import Fritekstfelt from "@/components/detaljside/Fritekstfelt";
+import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 import { Alert, BodyShort, Heading, HStack, List } from "@navikt/ds-react";
 
 type Props = {

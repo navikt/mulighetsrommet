@@ -23,7 +23,7 @@ export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartst
     : GjennomforingOppstartstype.LOPENDE;
 }
 
-function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string[] {
+function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: Partial<GjennomforingDto>): string[] {
   if (gjennomforing?.kontorstruktur) {
     return gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
   }
@@ -35,7 +35,7 @@ function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): 
 
 function defaultNavEnheter(
   avtale: AvtaleDto,
-  gjennomforing?: GjennomforingDto,
+  gjennomforing?: Partial<GjennomforingDto>,
 ): TypeSplittedNavEnheter {
   if (gjennomforing?.kontorstruktur) {
     return splitNavEnheterByType(
@@ -48,8 +48,11 @@ function defaultNavEnheter(
   return { navKontorEnheter: [], navAndreEnheter: [] };
 }
 
-function defaultArrangor(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string | undefined {
-  if (gjennomforing?.arrangor.id) {
+function defaultArrangor(
+  avtale: AvtaleDto,
+  gjennomforing?: Partial<GjennomforingDto>,
+): string | undefined {
+  if (gjennomforing?.arrangor?.id) {
     return gjennomforing.arrangor.id;
   }
 
@@ -63,7 +66,7 @@ function defaultArrangor(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): s
 export function defaultGjennomforingData(
   ansatt: NavAnsatt,
   avtale: AvtaleDto,
-  gjennomforing?: GjennomforingDto,
+  gjennomforing?: Partial<GjennomforingDto>,
 ): Partial<InferredGjennomforingSchema> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
 
@@ -73,12 +76,12 @@ export function defaultGjennomforingData(
     navRegioner: defaultNavRegion(avtale, gjennomforing),
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
-    administratorer: gjennomforing?.administratorer.map((admin) => admin.navIdent) || [
+    administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
     antallPlasser: gjennomforing?.antallPlasser,
     startOgSluttDato: {
-      startDato: gjennomforing
+      startDato: gjennomforing?.startDato
         ? gjennomforing.startDato
         : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
           ? avtale.startDato
@@ -94,7 +97,7 @@ export function defaultGjennomforingData(
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
     stedForGjennomforing: gjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
-      gjennomforing?.arrangor.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
+      gjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
     faneinnhold: gjennomforing?.faneinnhold ?? avtale.faneinnhold,
     opphav: gjennomforing?.opphav ?? Opphav.TILTAKSADMINISTRASJON,

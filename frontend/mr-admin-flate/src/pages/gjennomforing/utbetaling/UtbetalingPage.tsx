@@ -51,7 +51,7 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import { useQueryClient } from "@tanstack/react-query";
 import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
-import Fritekstfelt from "@/components/detaljside/Fritekstfelt";
+import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -207,11 +207,7 @@ export function UtbetalingPage() {
                       <MetadataHorisontal
                         header="Begrunnelse for utbetaling"
                         verdi={
-                          utbetaling.beskrivelse ? (
-                            <Fritekstfelt text={utbetaling.beskrivelse} />
-                          ) : (
-                            "-"
-                          )
+                          utbetaling.beskrivelse && <Fritekstfelt text={utbetaling.beskrivelse} />
                         }
                       />
                     )}
@@ -219,10 +215,8 @@ export function UtbetalingPage() {
                       <MetadataHorisontal
                         header="Begrunnelse for mindre utbetalt"
                         verdi={
-                          utbetaling.begrunnelseMindreBetalt ? (
+                          utbetaling.begrunnelseMindreBetalt && (
                             <Fritekstfelt text={utbetaling.begrunnelseMindreBetalt} />
-                          ) : (
-                            "-"
                           )
                         }
                       />

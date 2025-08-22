@@ -12,7 +12,7 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
-import Fritekstfelt from "../detaljside/Fritekstfelt";
+import { Fritekstfelt } from "../detaljside/Fritekstfelt";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
@@ -69,10 +69,8 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
               definitions={[
                 {
                   key: avtaletekster.prisOgBetalingLabel,
-                  value: avtale.prismodell.prisbetingelser ? (
+                  value: avtale.prismodell.prisbetingelser && (
                     <Fritekstfelt text={avtale.prismodell.prisbetingelser} />
-                  ) : (
-                    "-"
                   ),
                 },
               ]}
@@ -150,7 +148,9 @@ export function AnnenAvtaltPrismodell({
           definitions={[
             {
               key: avtaletekster.prisOgBetalingLabel,
-              value: <Fritekstfelt text={avtale.prismodell.prisbetingelser ?? "-"} />,
+              value: avtale.prismodell.prisbetingelser && (
+                <Fritekstfelt text={avtale.prismodell.prisbetingelser} />
+              ),
             },
           ]}
         />

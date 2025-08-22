@@ -50,15 +50,15 @@ export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
 export function defaultAvtaleData(
   ansatt: NavAnsatt,
-  avtale?: AvtaleDto,
+  avtale?: Partial<AvtaleDto>,
 ): DeepPartial<AvtaleFormValues> {
-  const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
+  const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
 
-  const navEnheter = avtale?.kontorstruktur.flatMap((struktur) => struktur.kontorer);
+  const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
-    tiltakskode: avtale?.tiltakstype.tiltakskode,
+    tiltakskode: avtale?.tiltakstype?.tiltakskode,
     navRegioner: navRegioner,
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
     navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
@@ -80,12 +80,12 @@ export function defaultAvtaleData(
     personopplysninger: avtale?.personopplysninger ?? [],
     amoKategorisering: avtale?.amoKategorisering ?? null,
     opsjonsmodell: {
-      type: avtale?.opsjonsmodell.type,
-      opsjonMaksVarighet: avtale?.opsjonsmodell.opsjonMaksVarighet,
-      customOpsjonsmodellNavn: avtale?.opsjonsmodell.customOpsjonsmodellNavn,
+      type: avtale?.opsjonsmodell?.type,
+      opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,
+      customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
     },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
-    prismodell: avtale?.prismodell.type as Prismodell,
+    prismodell: avtale?.prismodell?.type as Prismodell | undefined,
     satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
     prisbetingelser:
       avtale?.prismodell && "prisbetingelser" in avtale.prismodell

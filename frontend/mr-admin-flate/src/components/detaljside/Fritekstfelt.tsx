@@ -5,7 +5,7 @@ interface Props {
   className?: string;
 }
 
-export default function Fritekstfelt({ text, className = "" }: Props) {
+export function Fritekstfelt({ text, className = "" }: Props) {
   return (
     <Box
       borderColor="border-subtle"
