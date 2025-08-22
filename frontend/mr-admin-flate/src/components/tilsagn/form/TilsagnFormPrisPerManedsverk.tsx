@@ -8,13 +8,14 @@ import {
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
-import { Heading, HGrid, TextField, VStack } from "@navikt/ds-react";
+import { HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { Metadata } from "@/components/detaljside/Metadata";
 import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
@@ -75,7 +76,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
 
   return (
     <VStack gap="4">
-      <Heading size="small">Prismodell - Pris per månedsverk</Heading>
+      <Metadata header={tilsagnTekster.prismodell.label} verdi={tilsagnTekster.prismodell.sats.label("PRIS_PER_MANEDSVERK")}/>
       <Definisjonsliste
         columns={1}
         definitions={[

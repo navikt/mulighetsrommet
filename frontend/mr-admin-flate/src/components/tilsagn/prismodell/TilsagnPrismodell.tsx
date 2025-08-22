@@ -1,4 +1,4 @@
-import { MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { Metadata, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import {
   TilsagnBeregningDto,
@@ -32,7 +32,7 @@ export function TilsagnPrismodell({ beregning }: Props) {
 function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
   return (
     <VStack gap="4">
-      <MetadataHorisontal
+      <Metadata
         header={tilsagnTekster.prismodell.label}
         verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
@@ -80,6 +80,14 @@ function PrisPerManedsUkesverkPrismodell({
         header={tilsagnTekster.prismodell.label}
         verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
+        <MetadataHorisontal
+          header={tilsagnTekster.antallPlasser.label}
+          verdi={beregning.antallPlasser}
+        />
+        <MetadataHorisontal
+          header={tilsagnTekster.pris.label}
+          verdi={formaterNOK(beregning.sats)}
+        />
       <Definisjonsliste
         columns={1}
         definitions={[
@@ -89,16 +97,6 @@ function PrisPerManedsUkesverkPrismodell({
           },
         ]}
       />
-      <VStack gap="4">
-        <MetadataHorisontal
-          header={tilsagnTekster.antallPlasser.label}
-          verdi={beregning.antallPlasser}
-        />
-        <MetadataHorisontal
-          header={tilsagnTekster.pris.label}
-          verdi={formaterNOK(beregning.sats)}
-        />
-      </VStack>
     </VStack>
   );
 }
