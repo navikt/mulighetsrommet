@@ -4,7 +4,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Prismodell, TilsagnType } from "@mr/api-client-v2";
+import { AvtaleDto, Prismodell, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
@@ -15,6 +15,19 @@ import { aktiveTilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { TilsagnTable } from "../tabell/TilsagnTable";
+
+const selectPrismodellDefault = (
+  prismodell: Prismodell | null,
+  avtale: AvtaleDto | undefined,
+): Prismodell | null => {
+  if (prismodell) {
+    return prismodell;
+  }
+  if (avtale?.prismodell.type) {
+    return avtale.prismodell.type as Prismodell;
+  }
+  return null;
+};
 
 function useHentData() {
   const [searchParams] = useSearchParams();
@@ -34,7 +47,7 @@ function useHentData() {
     ...tilsagnDefaultsQuery({
       gjennomforingId,
       type,
-      prismodell: prismodell ?? (avtale?.prismodell.type as Prismodell),
+      prismodell: selectPrismodellDefault(prismodell, avtale),
       periodeStart,
       periodeSlutt,
       belop: belop ? Number(belop) : null,
